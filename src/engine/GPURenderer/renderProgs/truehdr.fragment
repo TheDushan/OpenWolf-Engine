@@ -1,0 +1,43 @@
+uniform sampler2D u_TextureMap;
+uniform sampler2D u_LevelsMap;
+
+varying vec2		var_TexCoords;
+varying vec2		var_Dimensions;
+varying vec2		var_ScreenTex;
+
+uniform vec2		u_Dimensions;
+
+vec2 recipres = vec2(1.0f / var_Dimensions.x, 1.0f / var_Dimensions.y);
+
+const vec3 lumCoeff = vec3(0.212656, 0.715158, 0.072186);  //Values to calculate luma with
+
+vec4 GetHDR( vec3 col2 )
+{
+	float USE_FILTER = 1.0f;
+	vec3 color = col2.rgb;
+
+	if (USE_FILTER > 0.0)
+	{
+		vec2 tc = var_TexCoords.st, add = recipres;
+
+		color = 0.25*( texture2D(u_TextureMap, tc+add.xy)+ texture2D(u_TextureMap, tc-add.xy)+ texture2D(u_TextureMap, tc+add.yx)+ texture2D(u_TextureMap, tc-add.yx) ).rgb;
+	}
+
+	float bright = log(dot(color, lumCoeff) + 0.25);
+	color += 0.2*sin(-10.0*color/(color+2.0));
+	return vec4(color, bright);
+}
+
+void main()
+{
+	vec4 color = texture2D(u_TextureMap, var_TexCoords);
+	vec4 HDR = GetHDR( color.rgb );
+
+#define const_1 ( 13.0 / 255.0)
+#define const_2 (255.0 / 219.0)
+	HDR = ((clamp(HDR - const_1, 0.0, 1.0)) * const_2);
+
+	// Use HDR
+	gl_FragColor = ( (HDR + color + color) * 0.125 );
+	gl_FragColor.a = 1.0;
+}

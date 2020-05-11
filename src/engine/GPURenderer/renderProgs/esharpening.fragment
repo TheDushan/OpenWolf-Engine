@@ -1,0 +1,142 @@
+#extension GL_EXT_gpu_shader4 : enable
+#extension GL_ARB_texture_rectangle : enable
+
+uniform sampler2D u_TextureMap;
+uniform sampler2D u_LevelsMap;
+uniform vec4      u_Color;
+uniform vec2      u_AutoExposureMinMax;
+uniform vec3      u_ToneMinAvgMaxLinear;
+
+uniform vec4	u_ViewInfo; // zfar / znear, zfar
+uniform vec2	u_Dimensions;
+
+varying vec2   var_TexCoords;
+varying vec4	var_ViewInfo; // zfar / znear, zfar
+varying vec2   var_Dimensions;
+varying vec4   var_Local0; // num_passes, 0, 0, 0
+
+vec2 texCoord = var_TexCoords;
+
+float near = u_ViewInfo.x;
+float far = u_ViewInfo.y;
+float viewWidth = var_Dimensions.x;
+float viewHeight = var_Dimensions.y;
+
+float width = viewWidth;
+float height = viewHeight;
+
+//enable blurring, useless, disabled at all
+//#define EBLURRING
+
+//enable sharpening
+#define ESHARPENING
+
+//if defined, color sharpen, otherwise sharp by gray
+#define ESHARPENINGCOLOR
+
+//enable noise in dark areas
+//#define ENOISE
+
+
+float SamplingRange=1.0; //sharpening or blurring range
+//float SharpeningAmount=1.3;
+float SharpeningAmount=2.3;
+//float SharpeningAmount=4.3;
+float ScanLineAmount=0.0;
+float ScanLineRepeat=0.0; //0.5, 0.3333, 0.25, 0.125, so on
+float NoiseAmount=0.0;
+
+//global variables, already set before executing this code
+float ScreenSize = viewWidth; //width of the display resolution (1920 f.e.)
+float ScreenScaleY = 1.333; //screen proportions (1.333 for 1920/1080)
+
+void main (void)
+{
+  vec4 res;
+  vec4 coord = vec4(0.0);
+
+  coord.xy = var_TexCoords.xy;
+  coord.w=0.0;
+
+
+  vec4 origcolor = texture2D(u_TextureMap, coord.st);
+
+//  coord.x=var_TexCoords.x-(1.5/ScreenSize);
+//  vec4 lshift=texture2D(u_TextureMap, coord.st);
+//  coord.x=var_TexCoords.x+(1.5/ScreenSize);
+//  vec4 rshift=texture2D(u_TextureMap, coord.st);
+
+
+  vec2 offset[8];
+  
+  offset[0] = vec2(1.0, 1.0);
+  offset[1] = vec2(-1.0, -1.0);
+  offset[2] = vec2(-1.0, 1.0);
+  offset[3] = vec2(1.0, -1.0);
+
+  offset[4] = vec2(1.41, 0.0);
+  offset[5] = vec2(-1.41, 0.0);
+  offset[6] = vec2(0.0, 1.41);
+  offset[7] = vec2(0.0, -1.41);
+
+  int i=0;
+
+  vec4 tcol=origcolor;
+  float invscreensize=1.0/ScreenSize;
+  //for (i=0; i<8; i++) //higher quality
+  for (i=0; i<4; i++)
+  {
+    vec2 tdir=offset[i].xy;
+    coord.xy=var_TexCoords.xy+tdir.xy*invscreensize*SamplingRange;//*1.0;
+    vec4 ct=texture2D(u_TextureMap, coord.st);
+
+    tcol+=ct;
+  }
+  tcol*=0.2; // 1.0/(4+1)
+  //tcol*=0.111; // 1.0/(8+1)  //higher quality
+
+
+/*
+//not interesting
+#ifdef EBLURRING
+//blur
+  res=tcol;
+#endif
+*/
+
+//sharp
+#ifdef ESHARPENING
+
+#ifdef ESHARPENINGCOLOR
+//color
+  res=origcolor*(1.0+((origcolor-tcol)*SharpeningAmount));
+#else
+ //non color
+  float difffact=dot((origcolor.xyz-tcol.xyz), 0.333);
+  res=origcolor*(1.0+difffact*SharpeningAmount);
+#endif
+
+//less sharpening for bright pixels
+  float rgray=origcolor.z; //blue fit well
+  //float rgray=max(origcolor.x, max(origcolor.y, origcolor.z));
+  rgray=pow(rgray, 3.0);
+  //res=lerp(res, origcolor, clamp(rgray, 0.0, 1.0));
+  res=mix(res, origcolor, clamp(rgray, 0.0, 1.0));
+#endif
+
+
+
+
+//grain noise
+#ifdef ENOISE
+//  float origgray=max(res.x, res.y);//dot(res.xyz, 0.333);
+//  origgray=max(origgray, res.z);
+//  coord.xy=var_TexCoords.xy*16.0 + origgray;
+//  vec4 cnoi=texture2D(SamplerNoise, coord.st);
+//  res=lerp(res, (cnoi.x+0.5)*res, NoiseAmount*saturate(1.0-origgray*1.8));
+#endif
+
+
+  res.w=1.0;
+  gl_FragColor = res;
+}

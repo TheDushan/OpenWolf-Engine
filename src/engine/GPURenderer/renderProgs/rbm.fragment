@@ -1,0 +1,160 @@
+uniform sampler2D				u_DiffuseMap;
+uniform sampler2D				u_NormalMap;
+uniform sampler2D				u_ScreenDepthMap;
+
+varying vec2					var_ScreenTex;
+varying vec2					var_Dimensions;
+varying vec3					var_ViewDir;
+
+uniform vec4					u_Local0;
+
+#define lerp(a, b, t) mix(a, b, t)
+#define saturate(a) clamp(a, 0.0, 1.0)
+
+vec2 PixelSize = vec2(1.0) / var_Dimensions.xy;
+
+#define fReflectionWideness 100.0 //[25.0:150.0] //-Wideness of reflection in pixels.
+#define fReflectionSamples 32 //[32:128] //-Amount of Reflection Samples
+#define fReflectionReliefHeight 1.00 //[0.50:2.00] //-Relief Height
+#define fReflectionFresnelFactor 1.00 //[0.00:1.00] //-Lowers reflections when looking at a reflecting surface at a steep angle. Factor determines how much fresnel effect is taken into account.
+#define fReflectionFresnelCurve 30.0 //[1.0:30.0] //-Fresnel curve. The higher the value, the lower reflections at steep view angles are.
+//#define fReflectionAmount 0.18 //[0.05:1.00] //-Mix factor between bump and original color. 0.0 means no bump applied, 1.0 means pure bump source.
+#define fReflectionAmount u_Local0.r
+
+vec3 GetNormalMap(vec2 coords)
+{
+	vec3 norm = texture2D(u_NormalMap, coords.xy).rgb * 2.0 - 1.0;
+	if (norm.r + norm.g + norm.b == 0.0)
+	norm.b = 1.0;
+	return norm;
+}
+
+#define BUMPNORMALS_FROM_DIFFUSE
+
+vec3 GetBumpNormals ( vec2 texCoord ) {
+#ifdef BUMPNORMALS_FROM_DIFFUSE
+   	vec4 lightness = vec4(0.333,0.333,0.333,0);
+   	
+   	// Take all neighbor samples
+    vec2 offset = PixelSize.xy * 1.5;
+
+   	vec4 s00 = texture2D(u_DiffuseMap, texCoord + vec2(-offset.x, -offset.y));
+   	vec4 s01 = texture2D(u_DiffuseMap, texCoord + vec2( 0,   -offset.y));
+   	vec4 s02 = texture2D(u_DiffuseMap, texCoord + vec2( offset.x, -offset.y));
+
+  	vec4 s10 = texture2D(u_DiffuseMap, texCoord + vec2(-offset.x,  0));
+   	vec4 s12 = texture2D(u_DiffuseMap, texCoord + vec2( offset.x,  0));
+
+   	vec4 s20 = texture2D(u_DiffuseMap, texCoord + vec2(-offset.x,  offset.y));
+   	vec4 s21 = texture2D(u_DiffuseMap, texCoord + vec2( 0,    offset.y));
+   	vec4 s22 = texture2D(u_DiffuseMap, texCoord + vec2( offset.x,  offset.y));
+
+   	vec4 sobelX = s00 + 2 * s10 + s20 - s02 - 2 * s12 - s22;
+   	vec4 sobelY = s00 + 2 * s01 + s02 - s20 - 2 * s21 - s22;
+
+   	float sx = dot(sobelX, lightness);
+   	float sy = dot(sobelY, lightness);
+
+   	return normalize(vec3(sx, sy, 1.0));
+#else //!BUMPNORMALS_FROM_DIFFUSE
+	return normalize(vec3(GetNormalMap(texCoord.xy).rg, 1.0));
+	//return normalize(vec3(GetNormalMap(texCoord.xy).rg * 2.0 - 1.0, 1.0));
+	//return normalize(((vec3(0.0, 0.0, 1.0) * 9.0) + vec3(GetNormalMap(texCoord.xy).rg, 1.0)) / 10.0);
+	//return vec3(GetNormalMap(texCoord.xy).rg, 1.0);
+#endif //!BUMPNORMALS_FROM_DIFFUSE
+}
+
+#define NORMALS_FROM_DEPTH
+
+#ifdef NORMALS_FROM_DEPTH
+float GetProDepth(vec2 coords) //not really linear but better for normal map generation
+{
+	return 202.0 / (-99.0 * textureLod(u_ScreenDepthMap, coords.xy, 0.0).x + 101.0);
+}
+#endif //NORMALS_FROM_DEPTH
+
+vec3 GetScreenNormals(vec2 tex)//get normal vector from depthmap
+{
+#ifdef NORMALS_FROM_DEPTH
+   	float deltax = GetProDepth(vec2(tex.x + PixelSize.x, tex.y)) - GetProDepth(vec2(tex.x - PixelSize.x, tex.y));
+   	float deltay = GetProDepth(vec2(tex.x, tex.y + PixelSize.y)) - GetProDepth(vec2(tex.x, tex.y - PixelSize.y));   
+   	return normalize(vec3( -(deltax / 2 / PixelSize.x), (deltay / 2 / PixelSize.y), 1.0));
+#else //!NORMALS_FROM_DEPTH
+	vec3 norm = GetNormalMap(tex.xy).rgb;
+	return normalize(vec3( -(norm.x / 2 / PixelSize.x), (norm.y / 2 / PixelSize.y), 1.0));
+	
+	//vec3 norm2 = 202.0 / (-99.0 * GetNormalMap(tex.xy).rgb + 101.0);
+	//return normalize(vec3(-norm2.x / PixelSize.x, norm2.y / PixelSize.y, 1.0));
+	//return normalize(vec3( -(norm.x / 2 / PixelSize.x), (norm.y / 2 / PixelSize.y), 1.0)) * (normalize(vec3( (norm2.x / 2 / PixelSize.x), (norm2.y / 2 / PixelSize.y), 1.0)) * 0.5 + 0.5);
+
+	//return normalize(GetNormalMap(tex.xy).rgb);
+#endif //!NORMALS_FROM_DEPTH
+}
+
+vec4 GetRes(vec2 texcoord)
+{
+	vec4 res = texture2D(u_DiffuseMap, texcoord.xy);
+	//float lineardepth = texture2D(u_ScreenDepthMap, texcoord.xy).r;
+	//res.a = lineardepth;
+	res.a = (texcoord.x + texcoord.y) / 2.0;
+	//res.a = 0.0;
+	return res;
+}
+
+void main ()
+{
+	float surfReflectiveness = texture2D(u_NormalMap, var_ScreenTex.xy).a * 5.0;
+	vec4 res = GetRes(var_ScreenTex.xy);
+
+	//gl_FragColor.rgb = vec3(texture2D(u_NormalMap, var_ScreenTex.xy).a);
+	//gl_FragColor.rgb = GetScreenNormals(var_ScreenTex.xy).rgb;
+	//gl_FragColor.rgb = GetBumpNormals(var_ScreenTex.xy).rgb;
+	//gl_FragColor.rgb = vec3(res.rgb);
+	//gl_FragColor.a = 1.0;
+	//return;
+
+	if (surfReflectiveness == 0.0)
+	{
+		gl_FragColor = res;
+		gl_FragColor.a = 1.0;
+		return;
+	}
+
+	vec3 screenNormals = GetScreenNormals(var_ScreenTex.xy);
+	vec3 bumpNormals   = GetBumpNormals(var_ScreenTex.xy);
+	vec3 finalNormals  = (screenNormals + bumpNormals*fReflectionReliefHeight);
+	finalNormals.y = -finalNormals.y;
+
+	vec3 bump = vec3(0.0, 0.0, 0.0);
+	float weight = 0.0;
+
+	for (int i=1; i<=fReflectionSamples; i++)
+	{
+		//vec4 tap = GetRes(vec4(var_ScreenTex.xy - finalNormals.xy * PixelSize.xy * (float)i/fReflectionSamples * fReflectionWideness, 0.0, 0.0));
+		vec4 tap = GetRes(var_ScreenTex.xy - finalNormals.xy * PixelSize.xy * i/fReflectionSamples * fReflectionWideness);
+		float diff = smoothstep(0.005,0.0,res.w-tap.w);
+		bump += tap.xyz*diff;	
+		weight += diff;	
+	}
+
+	bump /= weight;
+
+
+	vec3 viewDirection = vec3(0.0,0.0,1.0);
+	//vec3 viewDirection = normalize(var_ViewDir);
+	float fresnel = saturate(1-dot(viewDirection,screenNormals));
+	fresnel = pow(fresnel,fReflectionFresnelCurve);
+	fresnel = lerp(1.0,fresnel, fReflectionFresnelFactor);
+
+	bump.xyz -= res.xyz;
+
+	// Static reflectiveness value...
+	res.xyz += bump.xyz*fReflectionAmount*fresnel;
+
+	// Dynamic reflectiveness value (from normalMap's alpha - which is gloss map)...
+	surfReflectiveness = (1.0 + surfReflectiveness) * fReflectionAmount;
+	res.xyz += bump.xyz * surfReflectiveness * fresnel;
+
+	gl_FragColor = clamp(res, 0.0, 1.0);
+	gl_FragColor.a = 1.0;
+}

@@ -1,0 +1,335 @@
+uniform sampler2D u_TextureMap;
+varying float	total_time;
+varying vec2	vTexCoord0;
+bool infinite = true;
+
+varying vec2	resolution;
+
+float PI = 2.0 * asin(1.0);
+
+struct WaveEmitter {
+	vec2 mPosition; // = vec2(0.5, 0.5);
+	float mAmplitude; // = 0.01;	// factor of final displacement
+	float mVelocity; // = 0.05;		// screens per second
+	float mWavelength; // = 0.3;	// screens
+};
+
+float GetPeriodTime(WaveEmitter emit) 
+{
+	return emit.mWavelength / emit.mVelocity;
+}
+
+float emitter_size = 3.0;
+WaveEmitter emitter[3];
+
+float GetPhase(vec2 point, WaveEmitter emit, float time) {
+	float distance = sqrt( pow(point.x - emit.mPosition.x,2) + pow(point.y - emit.mPosition.y, 2) );
+	if (!infinite && distance / emit.mVelocity >= time) {
+		return 0.0;
+	} else {
+		return sin((time / GetPeriodTime(emit) - distance / emit.mWavelength) * 2 * PI);
+	}
+}
+
+vec2 transformCoord(vec2 orig) {
+	vec2 final = orig;
+	for(int i = 0; i < emitter_size; ++i) {
+		vec2 rel = orig - emitter[i].mPosition;
+		float fac = GetPhase(orig, emitter[i], total_time) * emitter[i].mAmplitude;
+		final += fac * rel;
+	}
+	return final;
+}
+
+vec4 transformColor(vec4 c, vec2 p) {
+	float fac = 0;
+	float a = 0;
+	for(int i = 0; i < emitter_size; ++i) {
+		fac += GetPhase(p, emitter[i], total_time) * emitter[i].mAmplitude;
+		a = emitter[i].mAmplitude;
+	}
+	fac = (fac / a + 1.0)/2.0;
+	return c * fac;
+}
+
+vec2 getTransformedCoord ( void )
+{
+	WaveEmitter emit0;
+	emit0.mPosition = vec2(0.1,0.7);
+	emit0.mAmplitude = 0.005;
+	emit0.mVelocity = 0.06;
+	emit0.mWavelength = 0.7;
+	emitter[0] = emit0;
+
+	WaveEmitter emit1;
+	emit1.mPosition = vec2(0.8,-0.1);
+	emit1.mAmplitude = 0.005;
+	emit1.mVelocity = 0.07;
+	emit1.mWavelength = 0.6;
+	emitter[1] = emit1;
+
+	WaveEmitter emit2;
+	emit2.mPosition = vec2(1.1,0.9);
+	emit2.mAmplitude = 0.005;
+	emit2.mVelocity = 0.05;
+	emit2.mWavelength = 0.8;
+	emitter[2] = emit2;
+
+	vec2 coord = transformCoord(vTexCoord0.st);
+	return coord;
+}
+
+float iGlobalTime = total_time * 0.1;
+
+vec2 iResolution = resolution;
+const vec2 sun = vec2(-0.1, 0.6);
+float time = iGlobalTime+32.2;
+vec3 lightDir = normalize(vec3(.15,.4, .3));
+float swim = (time*.3+sin(time*.5+5.0)*.3)*3.0;
+#define csb(f, con, sat, bri) mix(vec3(.5), mix(vec3(dot(vec3(.2125, .7154, .0721), f*bri)), f*bri, sat), con)
+
+//--------------------------------------------------------------------------------------
+// Utilities....
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453123);
+}
+
+vec3 Rotate_Y(vec3 v, float angle)
+{
+	vec3 vo = v; float cosa = cos(angle); float sina = sin(angle);
+	v.x = cosa*vo.x - sina*vo.z;
+	v.z = sina*vo.x + cosa*vo.z;
+	return v;
+}
+
+vec3 Rotate_Z(vec3 v, float angle)
+{
+	vec3 vo = v; float cosa = cos(angle); float sina = sin(angle);
+	v.x = cosa*vo.x - sina*vo.y;
+	v.y = sina*vo.x + cosa*vo.y;
+	return v;
+}	
+
+float _union(float a, float b)
+{
+    return min(a, b);
+}
+
+float _union(float a, float b, inout float m, float nm)
+{
+	bool closer = (a < b);
+	m = closer ? m : nm;
+	return closer ? a : b;
+}
+
+float intersect(float a, float b)
+{
+    return max(a, b);
+}
+
+float difference(float a, float b)
+{
+    return max(a, -b);
+}
+
+float box(vec3 p, vec3 b)
+{
+	vec3 d = abs(p) - b;
+	return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
+}
+
+float boxFin(vec3 p, vec3 b)
+{
+	p=  Rotate_Y(p, -.8);
+	vec3 d = abs(p) - b;
+	return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
+}
+
+float sphere(vec3 p, float r)
+{
+    return length(p) - r;
+}
+
+float prism(vec3 p, vec2 h) 
+{
+	vec3 q = abs(p);
+    return max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);
+}
+
+//--------------------------------------------------------------------------------------
+vec2 Scene(vec3 p)
+{
+	float f;
+	p+=vec3(-0.5, 0.0, 3.0-swim);
+	float d;
+	float mat = 1.0;
+	p.x += sin(p.z*2.0+swim * 5.33333 +2.1)*.07;
+	p.x  = abs(p.x);
+	
+	// Bounding box early cull...
+	d = box(p+vec3(0.0, -0.14, .0), vec3(.92, .4, 1.3));
+	if (d > .0) return vec2(d, 0.0);
+
+    return vec2(d, 0.0);
+}
+
+//--------------------------------------------------------------------------------------
+vec4 Trace(vec3 ro, vec3 rd, out float hit)
+{
+	const float minStep = 0.0001;
+    hit = 0.0;
+	vec2 ret = vec2(0.0, 0.0);
+    vec3 pos = ro;
+	float dist = 0.0;
+    for(int i=0; i < 118; i++)
+    {
+		if (hit != 0.0 || pos.y < -.30 || pos.y > .46 || dist > 7.0)continue;
+		pos = ro + dist * rd;
+		ret = Scene(pos);
+		if (ret.x < 0.005) 
+		{
+			hit = ret.y;
+		}
+		if (ret.y >= 2.0)
+		{
+			dist += ret.x * .35;
+		}else
+		{
+			dist += ret.x * .7;
+		}
+    }
+    return vec4(pos, ret.y);
+}
+
+//--------------------------------------------------------------------------------------
+vec3 GetNormal(vec3 p)
+{
+	vec3 eps = vec3(0.001,0.0,0.0);
+	return normalize(vec3(Scene(p+eps.xyy).x-Scene(p-eps.xyy).x,
+						  Scene(p+eps.yxy).x-Scene(p-eps.yxy).x,
+						  Scene(p+eps.yyx).x-Scene(p-eps.yyx).x ));
+}
+
+//--------------------------------------------------------------------------------------
+float Bubble(vec2 loc, vec2 pos, float size)
+{
+	vec2 v2 = loc-pos;
+	float d = dot(v2, v2)/size;
+	if (d > 1.0) return pow(max(0.0,1.5-d), 3.0) *5.0;
+	d = pow(d, 6.0)*.85;
+	
+	// Top bright spot...
+	v2 = loc-pos+vec2(-size*7.0, +size*7.0);
+	d += .8 / max(sqrt((dot(v2, v2))/size*8.0), .3);
+	// Back spot...
+	v2 = loc-pos+vec2(+size*7.0, -size*7.0);
+	d += .2 / max((dot(v2, v2)/size*4.0), .3);
+	return d;
+}
+
+//--------------------------------------------------------------------------------------
+vec3 GetColour(vec4 p, vec3 n, vec3 org, vec3 dir)
+{
+	vec3 colour = vec3(0.0);
+	float lum = clamp(dot(n, lightDir), 0.0, 1.0);
+	if (p.w < 1.5)
+	{
+		float v = clamp(-(n.y-.1)*6.2, 0.3, 1.0);
+		v+=.35;
+		colour = vec3(v*.8, v*.9, v*1.0) * lum;
+	}
+
+	colour += vec3(0.0, .01,.13) * abs(n.y);
+	vec2 wat = p.xz*5.3;
+	wat +=  (texture2D(u_TextureMap, (wat*5.0+time*.04)*.1, 2.0).z -
+			 texture2D(u_TextureMap, wat*.3-time*.03, 2.0).y) * .4;
+	float	i = texture2D(u_TextureMap, wat* .025, 0.0).x;
+
+	i = min(pow(max(0.0, i-.2), 1.0) * 1.0, .6)*.3;
+	colour += vec3(i*.5, i, i)*max(n.y, 0.0);
+	
+	colour = mix(vec3(0.1),colour, 1.0);
+
+	float dis = length(org-p.xyz);
+	float fogAmount = clamp(max((dis-.5),0.0)*.15, 0.0, 1.0);
+	return mix(colour, vec3(.05, .31, .49), fogAmount );
+}
+
+vec3 getCoolStuff ( vec2 coord )
+{
+	vec3 col;	
+	vec2 uv = coord.st - vec2(.5);
+	uv.x*=iResolution.x/iResolution.y;
+	vec3 dir = normalize(vec3(uv, -1.4));
+	
+	vec3 pos = vec3(1.3, sin(time+4.3)*.18-.05, sin(-time*.15)*5.0-1.35);
+	float rot = 0.0;
+	
+
+	pos.x -= smoothstep(-1.15, .0, pos.z);
+	rot = smoothstep(0.0, 1.5, rot)*2.9;
+	//dir = Rotate_Y(dir, -rot);
+
+	// Sun...
+	float i = max(0.0, 1.0-length(sun-uv));
+	col = vec3(pow(i, 1.9), pow(i, 1.0), pow(i, .8)) * 1.3;
+	
+	// Water depth colour...
+	col = mix(col, vec3(0.0, .25, .45), ((1.0-uv.y)*.45) * 1.8);
+
+	float hit = 0.0;
+	vec4 loc = Trace(pos, dir, hit);
+	if (hit > 0.0)
+	{
+		vec3 norm = GetNormal(loc.xyz);
+		col = GetColour(loc, norm, pos, dir);
+	}
+	
+	// Light beams...
+	vec2 beam = dir.xy;	
+	beam.x *= (-beam.y-.6)*.8;
+	float bright = 
+				- sin(beam.y * 12.0 + beam.x * 13.0 + time *.530) *.1 
+				- sin(beam.y + beam.x * 17.0 + time *.60) *.1
+				- cos(+ beam.x * 13.0 - time *.40) *.1 
+				- sin(- beam.x * 52.23 + time * 1.8) * .1;
+	bright *= max(0.0, 1.0 - texture2D(u_TextureMap, (uv*.3-swim*.04), 5.0).y);
+	col += vec3(clamp(bright,0.0,1.0)) *.6;
+	
+	// Bubbles...
+	for (float i = 0.0; i < 50.0; i+=1.0)
+	{
+		float t = time+1.27;
+		float f = floor((t+2.0) / 4.0);
+		vec2 pos = vec2(.4, -.9) + vec2(0.0, mod(t+(i/50.0)+hash(i+f)*.7, 4.0));
+		pos.x += hash(i)*.7 * (uv.y+.6);
+		
+		pos += texture2D(u_TextureMap, (uv*.3-time*.1+(i/80.0)), 4.0).z * .05;
+		float d = Bubble(pos, uv, .002*hash(i-f)+.00015);
+		d *= hash(i+f+399.0) *.3+.08;
+		col = mix(col, vec3(.6+hash(f*323.1+i)*.4, 1.0, 1.0), d);
+	}
+	
+	// Contrast, saturation and brightness...
+	col = csb(col, 1.1, 1.05, 1.22);
+	
+	// Vignette...
+	uv = (coord.st * 2.0) - 1.0;
+	col = mix(col,vec3(.0), abs(uv.x)*abs(uv.y));
+	return col;
+}
+
+void main() {
+	vec2 coord = getTransformedCoord();
+		
+	vec4 screen = texture2D(u_TextureMap, coord) * 0.6;
+
+	vec3 coolStuff = getCoolStuff(coord);
+#define const_1 ( 96.0 / 255.0)
+#define const_2 (255.0 / 128.0)
+	coolStuff = ((clamp(coolStuff - const_1, 0.0, 1.0)) * const_2);
+
+	gl_FragColor = vec4((coolStuff*2.0 + screen.rgb) / 3.0, screen.a);
+	gl_FragColor += transformColor(texture2D(u_TextureMap, coord), coord);
+}
