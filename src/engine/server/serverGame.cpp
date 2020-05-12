@@ -172,7 +172,7 @@ void idServerGameSystemLocal::GameSendServerCommand( S32 clientNum, StringEntry 
 {
     if( clientNum == -1 )
     {
-        serverMainSystem->SendServerCommand( NULL, "%s", text );
+        serverMainSystem->SendServerCommand( nullptr, "%s", text );
     }
     else if( clientNum == -2 )
     {
@@ -241,7 +241,7 @@ void idServerGameSystemLocal::SetBrushModel( sharedEntity_t* ent, StringEntry na
     
     if( !name )
     {
-        Com_Error( ERR_DROP, "idServerGameSystemLocal::SetBrushModel: NULL" );
+        Com_Error( ERR_DROP, "idServerGameSystemLocal::SetBrushModel: nullptr" );
     }
     
     if( name[0] != '*' )
@@ -529,15 +529,15 @@ void idServerGameSystemLocal::ShutdownGameProgs( void )
         return;
     }
     
-    if( !gvm || sgame == NULL )
+    if( !gvm || sgame == nullptr )
     {
         return;
     }
     sgame->Shutdown( false );
-    sgame = NULL;
+    sgame = nullptr;
     
     idsystem->UnloadDll( gvm );
-    gvm = NULL;
+    gvm = nullptr;
     if( sv_newGameShlib->string[0] )
     {
         fileSystem->Rename( sv_newGameShlib->string, "game" DLL_EXT );
@@ -570,7 +570,7 @@ void idServerGameSystemLocal::InitGameModule( bool restart )
     // a previous level
     for( i = 0; i < sv_maxclients->integer; i++ )
     {
-        svs.clients[i].gentity = NULL;
+        svs.clients[i].gentity = nullptr;
     }
 }
 

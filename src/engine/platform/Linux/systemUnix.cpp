@@ -56,7 +56,7 @@ UTF8* idSystemLocal::DefaultHomePath( UTF8* buffer, S32 size )
     
     if( !*homePath )
     {
-        if( ( p = getenv( "HOME" ) ) != NULL )
+        if( ( p = getenv( "HOME" ) ) != nullptr )
         {
             Q_strncpyz( buffer, p, size );
 #ifdef MACOS_X
@@ -80,7 +80,7 @@ StringEntry idSystemLocal::TempPath( void )
 #ifndef MACOS_X
     StringEntry TMPDIR = getenv( "TMPDIR" );
     
-    if( TMPDIR == NULL || TMPDIR[0] == '\0' )
+    if( TMPDIR == nullptr || TMPDIR[0] == '\0' )
     {
         return "/tmp";
     }
@@ -130,7 +130,7 @@ S32 idSystemLocal::Milliseconds( void )
 {
     struct timeval tp;
     
-    gettimeofday( &tp, NULL );
+    gettimeofday( &tp, nullptr );
     
     return ( tp.tv_sec - initial_tv_sec ) * 1000 + tp.tv_usec / 1000;
 }
@@ -167,7 +167,7 @@ UTF8* idSystemLocal::GetCurrentUser( void )
 {
     struct passwd* p;
     
-    if( ( p = getpwuid( getuid() ) ) == NULL )
+    if( ( p = getpwuid( getuid() ) ) == nullptr )
     {
         return "player";
     }
@@ -181,7 +181,7 @@ idSystemLocal::SysGetClipboardData
 */
 UTF8* idSystemLocal::SysGetClipboardData( void )
 {
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -250,7 +250,7 @@ UTF8* idSystemLocal::Cwd( void )
     
     UTF8* result = getcwd( cwd, sizeof( cwd ) - 1 );
     if( result != cwd )
-        return NULL;
+        return nullptr;
         
     cwd[MAX_OSPATH - 1] = 0;
     
@@ -284,12 +284,12 @@ void idSystemLocal::ListFilteredFiles( StringEntry basedir, UTF8* subdirs, UTF8*
         Com_sprintf( search, sizeof( search ), "%s", basedir );
     }
     
-    if( ( fdir = opendir( search ) ) == NULL )
+    if( ( fdir = opendir( search ) ) == nullptr )
     {
         return;
     }
     
-    while( ( d = readdir( fdir ) ) != NULL )
+    while( ( d = readdir( fdir ) ) != nullptr )
     {
         Com_sprintf( filename, sizeof( filename ), "%s/%s", search, d->d_name );
         if( stat( filename, &st ) == -1 )
@@ -348,12 +348,12 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
         nfiles = 0;
         ListFilteredFiles( directory, "", filter, list, &nfiles );
         
-        list[ nfiles ] = NULL;
+        list[ nfiles ] = nullptr;
         *numfiles = nfiles;
         
         if( !nfiles )
         {
-            return NULL;
+            return nullptr;
         }
         
         listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
@@ -361,7 +361,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
         {
             listCopy[i] = list[i];
         }
-        listCopy[i] = NULL;
+        listCopy[i] = nullptr;
         
         return listCopy;
     }
@@ -380,13 +380,13 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
     // search
     nfiles = 0;
     
-    if( ( fdir = opendir( directory ) ) == NULL )
+    if( ( fdir = opendir( directory ) ) == nullptr )
     {
         *numfiles = 0;
-        return NULL;
+        return nullptr;
     }
     
-    while( ( d = readdir( fdir ) ) != NULL )
+    while( ( d = readdir( fdir ) ) != nullptr )
     {
         Com_sprintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
         if( stat( search, &st ) == -1 )
@@ -412,7 +412,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
         nfiles++;
     }
     
-    list[ nfiles ] = NULL;
+    list[ nfiles ] = nullptr;
     
     closedir( fdir );
     
@@ -421,7 +421,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
     
     if( !nfiles )
     {
-        return NULL;
+        return nullptr;
     }
     
     listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
@@ -429,7 +429,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
     {
         listCopy[i] = list[i];
     }
-    listCopy[i] = NULL;
+    listCopy[i] = nullptr;
     
     return listCopy;
 }
@@ -476,7 +476,7 @@ void idSystemLocal::Sleep( S32 msec )
         FD_SET( STDIN_FILENO, &fdset );
         if( msec < 0 )
         {
-            select( STDIN_FILENO + 1, &fdset, NULL, NULL, NULL );
+            select( STDIN_FILENO + 1, &fdset, nullptr, nullptr, nullptr );
         }
         else
         {
@@ -484,7 +484,7 @@ void idSystemLocal::Sleep( S32 msec )
             
             timeout.tv_sec = msec / 1000;
             timeout.tv_usec = ( msec % 1000 ) * 1000;
-            select( STDIN_FILENO + 1, &fdset, NULL, NULL, &timeout );
+            select( STDIN_FILENO + 1, &fdset, nullptr, nullptr, &timeout );
         }
     }
     else
@@ -673,7 +673,7 @@ dialogResult_t idSystemLocal::Dialog( dialogType_t type, StringEntry message, St
     
     StringEntry              session = getenv( "DESKTOP_SESSION" );
     bool                tried[ NUM_DIALOG_PROGRAMS ] = { false };
-    dialogCommandBuilder_t  commands[ NUM_DIALOG_PROGRAMS ] = { NULL };
+    dialogCommandBuilder_t  commands[ NUM_DIALOG_PROGRAMS ] = { nullptr };
     dialogCommandType_t     preferredCommandType = NONE;
     
     commands[ ZENITY ] = &ZenityCommand;
@@ -770,7 +770,7 @@ void idSystemLocal::DoStartProcess( UTF8* cmdline )
             }
             else
             {
-                execl( cmdline, cmdline, NULL );
+                execl( cmdline, cmdline, nullptr );
                 printf( "execl failed: %s\n", strerror( errno ) );
             }
             _exit( 0 );
@@ -914,7 +914,7 @@ bool idSystemLocal::Fork( StringEntry path, StringEntry cmdLine )
         {
             chmod( path, filestat.st_mode | S_IXUSR );
         }
-        execlp( path, path, cmdLine, NULL );
+        execlp( path, path, cmdLine, nullptr );
         printf( "Exec Failed for: %s\n", path );
         _exit( 255 );
     }

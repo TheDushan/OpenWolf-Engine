@@ -133,7 +133,7 @@ worldSector_t* idServerWorldSystemLocal::CreateworldSector( S32 depth, vec3_t mi
     if( depth == AREA_DEPTH )
     {
         anode->axis = -1;
-        anode->children[0] = anode->children[1] = NULL;
+        anode->children[0] = anode->children[1] = nullptr;
         return anode;
     }
     
@@ -177,8 +177,8 @@ void idServerWorldSystemLocal::ClearWorld( void )
     
     for( U32 i = 0; i < ARRAY_LEN( sv.svEntities ); i++ )
     {
-        sv.svEntities[i].worldSector = NULL;
-        sv.svEntities[i].nextEntityInWorldSector = NULL;
+        sv.svEntities[i].worldSector = nullptr;
+        sv.svEntities[i].nextEntityInWorldSector = nullptr;
     }
     
     // get world map bounds
@@ -208,7 +208,7 @@ void idServerWorldSystemLocal::UnlinkEntity( sharedEntity_t* gEnt )
         return; // not linked in anywhere
     }
     
-    ent->worldSector = NULL;
+    ent->worldSector = nullptr;
     
     if( ws->entities == ent )
     {

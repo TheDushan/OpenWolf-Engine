@@ -87,13 +87,13 @@ client_t* idServerCcmdsSystemLocal::GetPlayerByName( void )
     // make sure server is running
     if( !com_sv_running->integer )
     {
-        return NULL;
+        return nullptr;
     }
     
     if( cmdSystem->Argc() < 2 )
     {
         Com_Printf( "idServerCcmdsSystemLocal::GetPlayerByName - No player specified.\n" );
-        return NULL;
+        return nullptr;
     }
     
     s = cmdSystem->Argv( 1 );
@@ -122,7 +122,7 @@ client_t* idServerCcmdsSystemLocal::GetPlayerByName( void )
     
     Com_Printf( "idServerCcmdsSystemLocal::GetPlayerByName - Player %s is not on the server\n", s );
     
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -188,7 +188,7 @@ void idServerCcmdsSystemLocal::Map_f( void )
                 strcpy( savemap, map );
             }
             
-            size = fileSystem->ReadFile( savemap, NULL );
+            size = fileSystem->ReadFile( savemap, nullptr );
             if( size < 0 )
             {
                 Com_Printf( "Can't find savegame %s\n", savemap );
@@ -203,7 +203,7 @@ void idServerCcmdsSystemLocal::Map_f( void )
                 // copy it to the current savegame file
                 fileSystem->WriteFile( va( "%scurrent.sav", savedir ), buffer, size );
                 // make sure it is the correct size
-                csize = fileSystem->ReadFile( va( "%scurrent.sav", savedir ), NULL );
+                csize = fileSystem->ReadFile( va( "%scurrent.sav", savedir ), nullptr );
                 if( csize != size )
                 {
                     Hunk_FreeTempMemory( buffer );
@@ -267,7 +267,7 @@ void idServerCcmdsSystemLocal::Map_f( void )
     
     Com_sprintf( expanded, sizeof( expanded ), "maps/%s.bsp", map );
     
-    if( fileSystem->ReadFile( expanded, NULL ) == -1 )
+    if( fileSystem->ReadFile( expanded, nullptr ) == -1 )
     {
         Com_Printf( "Can't find map %s\n", expanded );
         return;
@@ -525,7 +525,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
             Q_strncpyz( savemap, "save/current.sav", sizeof( savemap ) );
         }
         
-        size = fileSystem->ReadFile( savemap, NULL );
+        size = fileSystem->ReadFile( savemap, nullptr );
         if( size < 0 )
         {
             Com_Printf( "Can't find savegame %s\n", savemap );
@@ -655,7 +655,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
             // If we don't reset client->lastUsercmd and are restarting during map load,
             // the client will hang because we'll use the last Usercmd from the previous map,
             // which is wrong obviously.
-            serverClientSystem->ClientEnterWorld( client, NULL );
+            serverClientSystem->ClientEnterWorld( client, nullptr );
         }
     }
     
@@ -727,7 +727,7 @@ void idServerCcmdsSystemLocal::LoadGame_f( void )
         *( UTF8* )strstr( filename, "\\" ) = '/';
     }
     
-    size = fileSystem->ReadFile( filename, NULL );
+    size = fileSystem->ReadFile( filename, nullptr );
     if( size < 0 )
     {
         Com_Printf( "Can't find savegame %s\n", filename );
@@ -962,7 +962,7 @@ void idServerCcmdsSystemLocal::ConSay_f( void )
     
     strcat( text, p );
     
-    serverMainSystem->SendServerCommand( NULL, "chat \"%s\"", text );
+    serverMainSystem->SendServerCommand( nullptr, "chat \"%s\"", text );
 }
 
 
@@ -1097,7 +1097,7 @@ SV_StartRedirect_f
 Redirect console output to a client
 =================
 */
-static client_t* redirect_client = NULL;
+static client_t* redirect_client = nullptr;
 
 void idServerCcmdsSystemLocal::ClientRedirect( UTF8* outputbuf )
 {

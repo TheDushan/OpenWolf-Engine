@@ -64,11 +64,11 @@ static fileHandle_t logfile_;
 fileHandle_t    com_journalFile;	// events are written here
 fileHandle_t    com_journalDataFile;	// config files are written here
 
-convar_t*         com_crashed = NULL;	// ydnar: set in case of a crash, prevents CVAR_UNSAFE variables from being set from a cfg
+convar_t*         com_crashed = nullptr;	// ydnar: set in case of a crash, prevents CVAR_UNSAFE variables from being set from a cfg
 
-//bani - explicit NULL to make win32 teh happy
+//bani - explicit nullptr to make win32 teh happy
 
-convar_t*         com_ignorecrash = NULL;	// bani - let experienced users ignore crashes, explicit NULL to make win32 teh happy
+convar_t*         com_ignorecrash = nullptr;	// bani - let experienced users ignore crashes, explicit nullptr to make win32 teh happy
 convar_t*         com_pid;		// bani - process id
 
 convar_t*         com_viewlog;
@@ -171,9 +171,9 @@ void Com_EndRedirect( void )
         rd_flushing = false;
     }
     
-    rd_buffer = NULL;
+    rd_buffer = nullptr;
     rd_buffersize = 0;
-    rd_flush = NULL;
+    rd_flush = nullptr;
 }
 
 /*
@@ -558,7 +558,7 @@ bool Com_SafeMode( void )
 Com_StartupVariable
 
 Searches for command line parameters that are set commands.
-If match is not NULL, only that cvar will be looked for.
+If match is not nullptr, only that cvar will be looked for.
 That is necessary because cddir and basedir need to be set
 before the filesystem is started, but all other sets shouls
 be after execing the config and default.
@@ -864,7 +864,7 @@ S32 Com_RealTime( qtime_t* qtime )
     time_t          t;
     struct tm*      tms;
     
-    t = time( NULL );
+    t = time( nullptr );
     if( !qtime )
     {
         return t;
@@ -977,7 +977,7 @@ void Z_Free( void* ptr )
     
     if( !ptr )
     {
-        Com_Error( ERR_DROP, "Z_Free: NULL pointer" );
+        Com_Error( ERR_DROP, "Z_Free: nullptr pointer" );
     }
     
     block = ( memblock_t* )( ( U8* ) ptr - sizeof( memblock_t ) );
@@ -1140,7 +1140,7 @@ void*           Z_TagMalloc( size_t size, memtag_t tag )
             // scaned all the way around the list
             Com_Error( ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes from the %s zone",
                        size, zone == smallzone ? "small" : "main" );
-            return NULL;
+            return nullptr;
         }
         if( rover->tag )
         {
@@ -1364,48 +1364,48 @@ typedef struct memstatic_s
 } memstatic_t;
 
 // bk001204 - initializer brackets
-memstatic_t     emptystring = { {( sizeof( memblock_t ) + 2 + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+memstatic_t     emptystring = { {( sizeof( memblock_t ) + 2 + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
     , {'\0', '\0'}
 };
 memstatic_t     numberstring[] =
 {
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'0', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'1', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'2', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'3', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'4', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'5', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'6', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'7', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'8', '\0'}
     }
     ,
-    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, NULL, NULL, ZONEID}
+    {   {( sizeof( memstatic_t ) + 3 )& ~3, TAG_STATIC, nullptr, nullptr, ZONEID}
         , {'9', '\0'}
     }
 };
@@ -1519,7 +1519,7 @@ static hunkblock_t* hunkblocks;
 static hunkUsed_t hunk_low, hunk_high;
 static hunkUsed_t* hunk_permanent, *hunk_temp;
 
-static U8*    s_hunkData = NULL;
+static U8*    s_hunkData = nullptr;
 static S32      s_hunkTotal;
 
 static S32      s_zoneTotal;
@@ -1830,7 +1830,7 @@ void Com_InitHunkMemory( void )
 {
     convar_t*	cv;
     S32 nMinAlloc;
-    UTF8* pMsg = NULL;
+    UTF8* pMsg = nullptr;
     
     ::memset( &s_hunk, 0, sizeof( s_hunk ) );
     
@@ -1988,7 +1988,7 @@ void Hunk_Clear( void )
     Com_Printf( "Hunk_Clear: reset the hunk ok\n" );
     
 #ifdef HUNK_DEBUG
-    s_hunk.blocks = NULL;
+    s_hunk.blocks = nullptr;
 #endif
     
     //stake out a chunk for the frame temp data
@@ -2013,7 +2013,7 @@ void* Hunk_Alloc( size_t size, ha_pref preference )
 #endif
     void*	buf;
     
-    if( s_hunk.mem == NULL )
+    if( s_hunk.mem == nullptr )
     {
         Com_Error( ERR_FATAL, "Hunk_Alloc: Hunk memory system not initialized" );
     }
@@ -2081,7 +2081,7 @@ void* Hunk_AllocateTempMemory( size_t size )
     // this allows the config and product id files ( journal files too ) to be loaded
     // by the file system without redunant routines in the file system utilizing different
     // memory systems
-    if( s_hunk.mem == NULL )
+    if( s_hunk.mem == nullptr )
     {
         return Z_Malloc( size );
     }
@@ -2849,7 +2849,7 @@ void Com_GetGameInfo()
     {
         buf = f;
         
-        while( ( token = COM_Parse( &buf ) ) != NULL && token[0] )
+        while( ( token = COM_Parse( &buf ) ) != nullptr && token[0] )
         {
             if( !Q_stricmp( token, "spEnabled" ) )
             {
@@ -2857,14 +2857,14 @@ void Com_GetGameInfo()
             }
             else if( !Q_stricmp( token, "spGameTypes" ) )
             {
-                while( ( token = COM_ParseExt( &buf, false ) ) != NULL && token[0] )
+                while( ( token = COM_ParseExt( &buf, false ) ) != nullptr && token[0] )
                 {
                     com_gameInfo.spGameTypes |= ( 1 << atoi( token ) );
                 }
             }
             else if( !Q_stricmp( token, "defaultSPGameType" ) )
             {
-                if( ( token = COM_ParseExt( &buf, false ) ) != NULL && token[0] )
+                if( ( token = COM_ParseExt( &buf, false ) ) != nullptr && token[0] )
                 {
                     com_gameInfo.defaultSPGameType = atoi( token );
                 }
@@ -2877,14 +2877,14 @@ void Com_GetGameInfo()
             else if( !Q_stricmp( token, "coopGameTypes" ) )
             {
             
-                while( ( token = COM_ParseExt( &buf, false ) ) != NULL && token[0] )
+                while( ( token = COM_ParseExt( &buf, false ) ) != nullptr && token[0] )
                 {
                     com_gameInfo.coopGameTypes |= ( 1 << atoi( token ) );
                 }
             }
             else if( !Q_stricmp( token, "defaultCoopGameType" ) )
             {
-                if( ( token = COM_ParseExt( &buf, false ) ) != NULL && token[0] )
+                if( ( token = COM_ParseExt( &buf, false ) ) != nullptr && token[0] )
                 {
                     com_gameInfo.defaultCoopGameType = atoi( token );
                 }
@@ -2896,7 +2896,7 @@ void Com_GetGameInfo()
             }
             else if( !Q_stricmp( token, "defaultGameType" ) )
             {
-                if( ( token = COM_ParseExt( &buf, false ) ) != NULL && token[0] )
+                if( ( token = COM_ParseExt( &buf, false ) ) != nullptr && token[0] )
                 {
                     com_gameInfo.defaultGameType = atoi( token );
                 }
@@ -2908,7 +2908,7 @@ void Com_GetGameInfo()
             }
             else if( !Q_stricmp( token, "usesProfiles" ) )
             {
-                if( ( token = COM_ParseExt( &buf, false ) ) != NULL && token[0] )
+                if( ( token = COM_ParseExt( &buf, false ) ) != nullptr && token[0] )
                 {
                     com_gameInfo.usesProfiles = ( bool )atoi( token );
                 }
@@ -3077,7 +3077,7 @@ void Com_Init( UTF8* commandLine )
     cmdSystem->Init();
     
     // override anything from the config files with command line args
-    Com_StartupVariable( NULL );
+    Com_StartupVariable( nullptr );
     
     // get the developer cvar set as early as possible
     Com_StartupVariable( "developer" );
@@ -3125,7 +3125,7 @@ void Com_Init( UTF8* commandLine )
         {
             if( !cl_profileStr[0] )
             {
-                UTF8*           defaultProfile = NULL;
+                UTF8*           defaultProfile = nullptr;
                 
                 fileSystem->ReadFile( "profiles/defaultprofile.dat", ( void** )&defaultProfile );
                 
@@ -3185,7 +3185,7 @@ void Com_Init( UTF8* commandLine )
     cmdBufferSystem->Execute();
     
     // override anything from the config files with command line args
-    Com_StartupVariable( NULL );
+    Com_StartupVariable( nullptr );
     
 #ifdef UPDATE_SERVER
     com_dedicated = cvarSystem->Get( "dedicated", "1", CVAR_LATCH, "description" );
@@ -3936,7 +3936,7 @@ static UTF8* Field_FindFirstSeparator( UTF8* s )
             return &s[ i ];
     }
     
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -4317,6 +4317,6 @@ StringEntry Hist_Next( void )
     if( hist_current % CON_HISTORY != hist_next % CON_HISTORY )
         hist_current++;
     if( hist_current % CON_HISTORY == hist_next % CON_HISTORY )
-        return NULL;
+        return nullptr;
     return history[hist_current % CON_HISTORY];
 }

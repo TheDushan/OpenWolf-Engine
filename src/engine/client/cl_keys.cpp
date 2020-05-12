@@ -318,7 +318,7 @@ keyname_t keynames[] =
     {"XBOX360_DPAD_LEFTUP", K_XBOX360_DPAD_LEFTUP},
     {"XBOX360_DPAD_LEFTDOWN", K_XBOX360_DPAD_LEFTDOWN},
     
-    {NULL, 0}
+    {nullptr, 0}
 };
 
 
@@ -1328,7 +1328,7 @@ void Key_KeynameCompletion( void( *callback )( StringEntry s ) )
 {
     S32		i;
     
-    for( i = 0; keynames[ i ].name != NULL; i++ )
+    for( i = 0; keynames[ i ].name != nullptr; i++ )
         callback( keynames[ i ].name );
 }
 

@@ -2162,7 +2162,7 @@ This is the only way any image_t are created
 */
 image_t* R_CreateImage2( StringEntry name, U8* pic, S32 width, S32 height, U32 picFormat, S32 numMips, imgType_t type, S32/*imgFlags_t*/ flags, S32 internalFormat )
 {
-    U8* resampledBuffer = NULL;
+    U8* resampledBuffer = nullptr;
     image_t* image = nullptr;
     bool isLightmap = false, scaled = false;
     S64 hash;
@@ -2262,11 +2262,11 @@ image_t* R_CreateImage2( StringEntry name, U8* pic, S32 width, S32 height, U32 p
             S32 i;
             
             for( i = 0; i < 6; i++ )
-                qglTextureImage2DEXT( image->texnum, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, miplevel, internalFormat, mipWidth, mipHeight, 0, dataFormat, GL_UNSIGNED_BYTE, NULL );
+                qglTextureImage2DEXT( image->texnum, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, miplevel, internalFormat, mipWidth, mipHeight, 0, dataFormat, GL_UNSIGNED_BYTE, nullptr );
         }
         else
         {
-            qglTextureImage2DEXT( image->texnum, GL_TEXTURE_2D, miplevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, NULL );
+            qglTextureImage2DEXT( image->texnum, GL_TEXTURE_2D, miplevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, nullptr );
         }
         
         mipWidth  = MAX( 1, mipWidth >> 1 );
@@ -2279,7 +2279,7 @@ image_t* R_CreateImage2( StringEntry name, U8* pic, S32 width, S32 height, U32 p
     if( pic )
         Upload32( pic, 0, 0, width, height, picFormat, numMips, image, scaled );
         
-    if( resampledBuffer != NULL )
+    if( resampledBuffer != nullptr )
         Hunk_FreeTempMemory( resampledBuffer );
         
     // Set all necessary texture parameters.
@@ -2379,7 +2379,7 @@ void R_LoadImage( StringEntry name, U8** pic, S32* width, S32* height, U32* picF
     StringEntry ext;
     StringEntry altName;
     
-    *pic = NULL;
+    *pic = nullptr;
     *width = 0;
     *height = 0;
     *picFormat = GL_RGBA8;
@@ -2420,7 +2420,7 @@ void R_LoadImage( StringEntry name, U8** pic, S32* width, S32* height, U32* picF
         // A loader was found
         if( i < numImageLoaders )
         {
-            if( *pic == NULL )
+            if( *pic == nullptr )
             {
                 // Loader failed, most likely because the file isn't there;
                 // try again without the extension
@@ -2467,7 +2467,7 @@ void R_LoadImage( StringEntry name, U8** pic, S32* width, S32* height, U32* picF
 R_FindImageFile
 
 Finds or loads the given image.
-Returns NULL if it fails, not a default image.
+Returns nullptr if it fails, not a default image.
 ==============
 */
 image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ flags )
@@ -2482,7 +2482,7 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
     
     if( !name )
     {
-        return NULL;
+        return nullptr;
     }
     
     hash = generateHashValue( name );
@@ -2510,9 +2510,9 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
     // load the pic from disk
     //
     R_LoadImage( name, &pic, &width, &height, &picFormat, &picNumMips );
-    if( pic == NULL )
+    if( pic == nullptr )
     {
-        return NULL;
+        return nullptr;
     }
     
     checkFlagsTrue = IMGFLAG_PICMIP | IMGFLAG_MIPMAP | IMGFLAG_GENNORMALMAP;
@@ -2534,7 +2534,7 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
         normalImage = R_FindImageFile( normalName, IMGTYPE_NORMAL, normalFlags );
         
         // if not, generate it
-        if( normalImage == NULL )
+        if( normalImage == nullptr )
         {
             U8* normalPic;
             S32 x, y;
@@ -3020,7 +3020,7 @@ void R_CreateBuiltinImages( void )
     {
         for( x = 0; x < MAX_DLIGHTS; x++ )
         {
-            tr.shadowCubemaps[x] = R_CreateImage( va( "*shadowcubemap%i", x ), NULL, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE | IMGFLAG_CUBEMAP, 0 );
+            tr.shadowCubemaps[x] = R_CreateImage( va( "*shadowcubemap%i", x ), nullptr, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE | IMGFLAG_CUBEMAP, 0 );
         }
     }
     
@@ -3063,41 +3063,41 @@ void R_CreateBuiltinImages( void )
             
         rgbFormat = GL_RGBA8;
         
-        tr.renderImage = R_CreateImage( "_render", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.renderImage = R_CreateImage( "_render", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         
-        tr.glowImage = R_CreateImage( "*glow", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.glowImageScaled[0] = R_CreateImage( "*glowScaled0", NULL, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.glowImageScaled[1] = R_CreateImage( "*glowScaled1", NULL, width / 4, height / 4, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.glowImageScaled[2] = R_CreateImage( "*glowScaled2a", NULL, width / 8, height / 8, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.glowImageScaled[3] = R_CreateImage( "*glowScaled2b", NULL, width / 8, height / 8, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.glowImage = R_CreateImage( "*glow", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.glowImageScaled[0] = R_CreateImage( "*glowScaled0", nullptr, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.glowImageScaled[1] = R_CreateImage( "*glowScaled1", nullptr, width / 4, height / 4, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.glowImageScaled[2] = R_CreateImage( "*glowScaled2a", nullptr, width / 8, height / 8, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.glowImageScaled[3] = R_CreateImage( "*glowScaled2b", nullptr, width / 8, height / 8, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         
-        tr.normalDetailedImage = R_CreateImage( "*normaldetailed", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.normalDetailedImage = R_CreateImage( "*normaldetailed", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         
         if( r_shadowBlur->integer )
-            tr.screenScratchImage = R_CreateImage( "screenScratch", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, rgbFormat );
+            tr.screenScratchImage = R_CreateImage( "screenScratch", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, rgbFormat );
             
         //if (r_shadowBlur->integer || r_ssao->integer)
-        //	tr.hdrDepthImage = R_CreateImage("*hdrDepth", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_INTENSITY32F_ARB);
+        //	tr.hdrDepthImage = R_CreateImage("*hdrDepth", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_INTENSITY32F_ARB);
         if( r_shadowBlur->integer || r_ssao->integer )
-            tr.hdrDepthImage = R_CreateImage( "*hdrDepth", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F );
+            tr.hdrDepthImage = R_CreateImage( "*hdrDepth", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F );
             
         if( r_drawSunRays->integer )
-            tr.sunRaysImage = R_CreateImage( "*sunRays", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, rgbFormat );
+            tr.sunRaysImage = R_CreateImage( "*sunRays", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, rgbFormat );
             
-        tr.renderDepthImage  = R_CreateImage( "*renderdepth",  NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB );
-        tr.textureDepthImage = R_CreateImage( "*texturedepth", NULL, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB );
+        tr.renderDepthImage  = R_CreateImage( "*renderdepth",  nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB );
+        tr.textureDepthImage = R_CreateImage( "*texturedepth", nullptr, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB );
         
-        tr.genericFBOImage = R_CreateImage( "_generic", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.genericFBO2Image = R_CreateImage( "_generic2", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.genericFBOImage = R_CreateImage( "_generic", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.genericFBO2Image = R_CreateImage( "_generic2", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         
-        tr.bloomRenderFBOImage[0] = R_CreateImage( "_bloom0", NULL, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.bloomRenderFBOImage[1] = R_CreateImage( "_bloom1", NULL, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.bloomRenderFBOImage[2] = R_CreateImage( "_bloom2", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.bloomRenderFBOImage[0] = R_CreateImage( "_bloom0", nullptr, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.bloomRenderFBOImage[1] = R_CreateImage( "_bloom1", nullptr, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.bloomRenderFBOImage[2] = R_CreateImage( "_bloom2", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         
         
-        tr.anamorphicRenderFBOImage[0] = R_CreateImage( "_anamorphic0", NULL, width / 8, height / 8, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.anamorphicRenderFBOImage[1] = R_CreateImage( "_anamorphic1", NULL, width / 8, height / 8, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
-        tr.anamorphicRenderFBOImage[2] = R_CreateImage( "_anamorphic2", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.anamorphicRenderFBOImage[0] = R_CreateImage( "_anamorphic0", nullptr, width / 8, height / 8, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.anamorphicRenderFBOImage[1] = R_CreateImage( "_anamorphic1", nullptr, width / 8, height / 8, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+        tr.anamorphicRenderFBOImage[2] = R_CreateImage( "_anamorphic2", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         
         {
             U8* p;
@@ -3115,45 +3115,45 @@ void R_CreateBuiltinImages( void )
         
         for( x = 0; x < 2; x++ )
         {
-            tr.textureScratchImage[x] = R_CreateImage( va( "*textureScratch%d", x ), NULL, 256, 256, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
+            tr.textureScratchImage[x] = R_CreateImage( va( "*textureScratch%d", x ), nullptr, 256, 256, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
         }
         for( x = 0; x < 2; x++ )
         {
-            tr.quarterImage[x] = R_CreateImage( va( "*quarter%d", x ), NULL, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
+            tr.quarterImage[x] = R_CreateImage( va( "*quarter%d", x ), nullptr, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
         }
         
         if( r_ssao->integer )
         {
-            tr.screenSsaoImage = R_CreateImage( "*screenSsao", NULL, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
+            tr.screenSsaoImage = R_CreateImage( "*screenSsao", nullptr, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
         }
         
         for( x = 0; x < MAX_DRAWN_PSHADOWS; x++ )
         {
-            tr.pshadowMaps[x] = R_CreateImage( va( "*shadowmap%i", x ), NULL, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24 );
+            tr.pshadowMaps[x] = R_CreateImage( va( "*shadowmap%i", x ), nullptr, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24 );
             //qglTextureParameterfEXT(tr.pshadowMaps[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
             //qglTextureParameterfEXT(tr.pshadowMaps[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
         }
         
         if( r_pbr->integer )
         {
-            tr.prefilterEnvMapImage = R_CreateImage( "*prefilterEnvMapFbo", NULL, r_cubemapSize->integer / 2, r_cubemapSize->integer / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+            tr.prefilterEnvMapImage = R_CreateImage( "*prefilterEnvMapFbo", nullptr, r_cubemapSize->integer / 2, r_cubemapSize->integer / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         }
         
         if( r_sunlightMode->integer )
         {
             for( x = 0; x < 4; x++ )
             {
-                tr.sunShadowDepthImage[x] = R_CreateImage( va( "*sunshadowdepth%i", x ), NULL, r_shadowMapSize->integer, r_shadowMapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB );
+                tr.sunShadowDepthImage[x] = R_CreateImage( va( "*sunshadowdepth%i", x ), nullptr, r_shadowMapSize->integer, r_shadowMapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB );
                 qglTextureParameterfEXT( tr.sunShadowDepthImage[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE );
                 qglTextureParameterfEXT( tr.sunShadowDepthImage[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
             }
             
-            tr.screenShadowImage = R_CreateImage( "*screenShadow", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
+            tr.screenShadowImage = R_CreateImage( "*screenShadow", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
         }
         
         if( r_cubeMapping->integer )
         {
-            tr.renderCubeImage = R_CreateImage( "*renderCube", NULL, r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP | IMGFLAG_CUBEMAP, hdrFormat );
+            tr.renderCubeImage = R_CreateImage( "*renderCube", nullptr, r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP | IMGFLAG_CUBEMAP, hdrFormat );
         }
     }
 }
@@ -3280,7 +3280,7 @@ static StringEntry CommaParse( UTF8** data_p )
     // make sure incoming data is valid
     if( !data )
     {
-        *data_p = NULL;
+        *data_p = nullptr;
         return com_token;
     }
     

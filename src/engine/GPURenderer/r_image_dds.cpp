@@ -226,8 +226,8 @@ void R_LoadDDS( StringEntry filename, U8** pic, S32* width, S32* height, U32* pi
         void* v;
     } buffer;
     S32 len;
-    ddsHeader_t* ddsHeader = NULL;
-    ddsHeaderDxt10_t* ddsHeaderDxt10 = NULL;
+    ddsHeader_t* ddsHeader = nullptr;
+    ddsHeaderDxt10_t* ddsHeaderDxt10 = nullptr;
     U8* data;
     
     if( !picFormat )
@@ -245,7 +245,7 @@ void R_LoadDDS( StringEntry filename, U8** pic, S32* width, S32* height, U32* pi
     if( numMips )
         *numMips = 1;
         
-    *pic = NULL;
+    *pic = nullptr;
     
     //
     // load the file

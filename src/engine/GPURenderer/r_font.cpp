@@ -86,7 +86,7 @@
 #define _CEIL(x)   (((x)+63) & -64)
 #define _TRUNC(x)  ((x) >> 6)
 
-FT_Library ftLibrary = NULL;
+FT_Library ftLibrary = nullptr;
 #endif
 
 #define MAX_FONTS 6
@@ -145,7 +145,7 @@ FT_Bitmap* R_RenderGlyph( FT_GlyphSlot glyph, glyphInfo_t* glyphOut )
     {
         CL_RefPrintf( PRINT_ALL, "Non-outline fonts are not supported\n" );
     }
-    return NULL;
+    return nullptr;
 }
 
 void WriteTGA( UTF8* filename, U8* data, S32 width, S32 height )
@@ -203,11 +203,11 @@ static glyphInfo_t* RE_ConstructGlyphInfo( U8* imageOut, S32* xOut, S32* yOut, S
     static glyphInfo_t glyph;
     U8* src, *dst;
     F32 scaled_width, scaled_height;
-    FT_Bitmap* bitmap = NULL;
+    FT_Bitmap* bitmap = nullptr;
     
     ::memset( &glyph, 0, sizeof( glyphInfo_t ) );
     // make sure everything is here
-    if( face != NULL )
+    if( face != nullptr )
     {
         FT_Load_Glyph( face, FT_Get_Char_Index( face, c ), FT_LOAD_DEFAULT );
         bitmap = R_RenderGlyph( face->glyph, &glyph );
@@ -407,7 +407,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
         }
     }
     
-    len = fileSystem->ReadFile( name, NULL );
+    len = fileSystem->ReadFile( name, nullptr );
     if( len == sizeof( fontInfo_t ) )
     {
         fileSystem->ReadFile( name, &faceData );
@@ -447,7 +447,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
 #ifndef BUILD_FREETYPE
     CL_RefPrintf( PRINT_WARNING, "idRenderSystemLocal::RegisterFont: FreeType code not available\n" );
 #else
-    if( ftLibrary == NULL )
+    if( ftLibrary == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "idRenderSystemLocal::RegisterFont: FreeType not initialized.\n" );
         return;
@@ -480,7 +480,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
     // until all glyphs are rendered
     
     out = ( U8* )CL_RefMalloc( 256 * 256 );
-    if( out == NULL )
+    if( out == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "idRenderSystemLocal::RegisterFont: CL_RefMalloc failure during output image creation.\n" );
         return;
@@ -616,7 +616,7 @@ void R_DoneFreeType( void )
     if( ftLibrary )
     {
         FT_Done_FreeType( ftLibrary );
-        ftLibrary = NULL;
+        ftLibrary = nullptr;
     }
 #endif
     registeredFontCount = 0;

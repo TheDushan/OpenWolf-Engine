@@ -57,7 +57,7 @@ extern sfx_t s_knownSfx[];
 extern S32 s_numSfx;
 
 extern convar_t* s_mixahead;
-convar_t* dmaHD_Enable = NULL;
+convar_t* dmaHD_Enable = nullptr;
 convar_t* dmaHD_Interpolation;
 convar_t* dmaHD_Mixer;
 convar_t* dmaEX_StereoSeparation;
@@ -147,13 +147,13 @@ void dmaHD_FreeOldestSound( void )
         g_dmaHD_allocatedsoundmemory = 0;
     }
     
-    if( ( buffer = ( S16* )sfx->soundData ) != NULL )
+    if( ( buffer = ( S16* )sfx->soundData ) != nullptr )
     {
         free( buffer );
     }
     
     sfx->inMemory = false;
-    sfx->soundData = NULL;
+    sfx->soundData = nullptr;
 }
 
 /*
@@ -179,7 +179,7 @@ S16* dmaHD_AllocateSoundBuffer( S32 samples )
     
     do
     {
-        if( ( buffer = ( S16* )malloc( bytes ) ) != NULL )
+        if( ( buffer = ( S16* )malloc( bytes ) ) != nullptr )
         {
             break;
         }
@@ -187,7 +187,7 @@ S16* dmaHD_AllocateSoundBuffer( S32 samples )
     }
     while( g_dmaHD_allocatedsoundmemory > 0 );
     
-    if( buffer == NULL )
+    if( buffer == nullptr )
     {
         Com_Error( ERR_FATAL, "Out of Memory" );
     }
@@ -480,16 +480,16 @@ bool dmaHD_LoadSound( sfx_t* sfx )
     if( sfx->soundName[0] == '*' ) return false;
     
     strcpy( dmahd_soundName, sfx->soundName );
-    if( ( lpext = strrchr( sfx->soundName, '.' ) ) != NULL )
+    if( ( lpext = strrchr( sfx->soundName, '.' ) ) != nullptr )
     {
         strcpy( dmahd_soundName, sfx->soundName );
         *( strrchr( dmahd_soundName, '.' ) ) = '\0'; // for sure there is a '.'
     }
     strcat( dmahd_soundName, "_dmahd" );
-    if( lpext != NULL ) strcat( dmahd_soundName, lpext );
+    if( lpext != nullptr ) strcat( dmahd_soundName, lpext );
     
     // Just check if file exists
-    if( fileSystem->FOpenFileRead( dmahd_soundName, NULL, true ) == true )
+    if( fileSystem->FOpenFileRead( dmahd_soundName, nullptr, true ) == true )
     {
         // Load it in.
         if( !( data = static_cast<U8*>( S_CodecLoad( dmahd_soundName, &info ) ) ) )
@@ -525,7 +525,7 @@ bool dmaHD_LoadSound( sfx_t* sfx )
     // Do not compress.
     sfx->soundCompressionMethod = 0;
     sfx->soundLength = info.samples;
-    sfx->soundData = NULL;
+    sfx->soundData = nullptr;
     
     dmaHD_ResampleSfx( sfx, info.channels, info.rate, info.width, data + info.dataofs, false );
     
@@ -985,7 +985,7 @@ void dmaHD_PaintChannels( S32 endtime )
             ltime = s_paintedtime;
             sc = ch->thesfx;
             
-            if( sc->soundData == NULL || sc->soundLength == 0 )
+            if( sc->soundData == nullptr || sc->soundLength == 0 )
             {
                 continue;
             }
@@ -1586,7 +1586,7 @@ dmaHD_Enabled
 */
 bool dmaHD_Enabled( void )
 {
-    if( dmaHD_Enable == NULL )
+    if( dmaHD_Enable == nullptr )
         dmaHD_Enable = cvarSystem->Get( "dmaHD_enable", "1", CVAR_ARCHIVE, "description" ); //@p5yc0runn3r- Turn on by default
         
     return ( dmaHD_Enable->integer );

@@ -137,7 +137,7 @@ void idDownloadSystemLocal::Shutdown( void )
     }
     
     curl_multi_cleanup( dl_multi );
-    dl_multi = NULL;
+    dl_multi = nullptr;
     
     curl_global_cleanup();
     
@@ -216,11 +216,11 @@ dlStatus_t idDownloadSystemLocal::DownloadLoop( void )
     CURLMcode status;
     CURLMsg* msg;
     S32 dls = 0;
-    StringEntry err = NULL;
+    StringEntry err = nullptr;
     
     if( !dl_request )
     {
-        Com_DPrintf( "idDownloadSystemLocal::DownloadLoop: unexpected call with dl_request == NULL\n" );
+        Com_DPrintf( "idDownloadSystemLocal::DownloadLoop: unexpected call with dl_request == nullptr\n" );
         return DL_DONE;
     }
     
@@ -247,16 +247,16 @@ dlStatus_t idDownloadSystemLocal::DownloadLoop( void )
     }
     else
     {
-        err = NULL;
+        err = nullptr;
     }
     
     curl_multi_remove_handle( dl_multi, dl_request );
     curl_easy_cleanup( dl_request );
     
     fclose( dl_file );
-    dl_file = NULL;
+    dl_file = nullptr;
     
-    dl_request = NULL;
+    dl_request = nullptr;
     
     cvarSystem->Set( "ui_dl_running", "0" );
     

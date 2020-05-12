@@ -31,9 +31,9 @@
 
 // key buffers
 #define CRYPTOPUBKEYBINSIZE	32U // size in bytes of the public key
-#define CRYPTOPUBKEYHEXSIZE	( CRYPTOPUBKEYBINSIZE * 2 + 1 ) // public hex representation size, NULL included
+#define CRYPTOPUBKEYHEXSIZE	( CRYPTOPUBKEYBINSIZE * 2 + 1 ) // public hex representation size, nullptr included
 #define CRYPTOSECKEYBINSIZE	32U // size in bytes of the secret key
-#define CRYPTOSECKEYHEXSIZE	( CRYPTOSECKEYBINSIZE * 2 + 1 ) // secret hex representation size, NULL included
+#define CRYPTOSECKEYHEXSIZE	( CRYPTOSECKEYBINSIZE * 2 + 1 ) // secret hex representation size, nullptr included
 
 // public crypto key
 typedef struct publicKeys
@@ -51,12 +51,12 @@ typedef struct secretKeys
 
 // cipher buffers
 #define CRYPTOCIPHERBINSIZE 127U // binary cipher size, calculated to produce exactly 255 chars hex output
-#define CRYPTOCIPHERRAWSIZE ( CRYPTOCIPHERBINSIZE - ( CRYPTOPUBKEYBINSIZE + 16U ) + 1 ) // max raw (unencrypted) buffer size, NULL included
-#define CRYPTOCIPHERHEXSIZE ( CRYPTOCIPHERBINSIZE * 2 + 1 ) // cipher hex representation size, NULL included
+#define CRYPTOCIPHERRAWSIZE ( CRYPTOCIPHERBINSIZE - ( CRYPTOPUBKEYBINSIZE + 16U ) + 1 ) // max raw (unencrypted) buffer size, nullptr included
+#define CRYPTOCIPHERHEXSIZE ( CRYPTOCIPHERBINSIZE * 2 + 1 ) // cipher hex representation size, nullptr included
 
 // hash buffers
 #define CRYPTOHASHBINSIZE 20U // hash binary size, gives a reasonable 40 chars long hex output
-#define CRYPTOHASHHEXSIZE ( CRYPTOHASHBINSIZE * 2 + 1 ) // hash hex representation size, NULL included
+#define CRYPTOHASHHEXSIZE ( CRYPTOHASHBINSIZE * 2 + 1 ) // hash hex representation size, nullptr included
 
 //
 // idServerCryptoSystem

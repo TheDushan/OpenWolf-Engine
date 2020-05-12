@@ -303,9 +303,9 @@ R_AddMD3Surfaces
 void R_AddMD3Surfaces( trRefEntity_t* ent )
 {
     S32				i;
-    mdvModel_t*		model = NULL;
-    mdvSurface_t*	surface = NULL;
-    shader_t*		shader = NULL;
+    mdvModel_t*		model = nullptr;
+    mdvSurface_t*	surface = nullptr;
+    shader_t*		shader = nullptr;
     S32				cull;
     S32				lod;
     S32				fogNum;

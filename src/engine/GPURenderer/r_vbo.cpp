@@ -122,7 +122,7 @@ vao_t* R_CreateVao( StringEntry name, U8* vertexes, S32 vertexesSize, U8* indexe
             
         default:
             Com_Error( ERR_FATAL, "bad vaoUsage_t given: %i", usage );
-            return NULL;
+            return nullptr;
     }
     
     if( strlen( name ) >= MAX_QPATH )
@@ -190,7 +190,7 @@ vao_t* R_CreateVao2( StringEntry name, S32 numVertexes, srfVert_t* verts, S32 nu
     S32				glUsage = GL_STATIC_DRAW;
     
     if( !numVertexes || !numIndexes )
-        return NULL;
+        return nullptr;
         
     if( strlen( name ) >= MAX_QPATH )
     {
@@ -351,7 +351,7 @@ void R_BindVao( vao_t* vao )
     if( !vao )
     {
         //R_BindNullVao();
-        Com_Error( ERR_DROP, "R_BindVao: NULL vao" );
+        Com_Error( ERR_DROP, "R_BindVao: nullptr vao" );
         return;
     }
     
@@ -416,7 +416,7 @@ void R_BindNullVao( void )
             qglBindBuffer( GL_ARRAY_BUFFER, 0 );
             qglBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
         }
-        glState.currentVao = NULL;
+        glState.currentVao = nullptr;
     }
     
     GL_CheckErrors();
@@ -448,7 +448,7 @@ void R_InitVaos( void )
     
     indexesSize = sizeof( tess.indexes[0] ) * SHADER_MAX_INDEXES;
     
-    tess.vao = R_CreateVao( "tessVertexArray_VAO", NULL, vertexesSize, NULL, indexesSize, VAO_USAGE_DYNAMIC );
+    tess.vao = R_CreateVao( "tessVertexArray_VAO", nullptr, vertexesSize, nullptr, indexesSize, VAO_USAGE_DYNAMIC );
     
     offset = 0;
     
@@ -625,7 +625,7 @@ void RB_UpdateTessVao( U32 attribBits )
         R_BindVao( tess.vao );
         
         // orphan old vertex buffer so we don't stall on it
-        qglBufferData( GL_ARRAY_BUFFER, tess.vao->vertexesSize, NULL, GL_DYNAMIC_DRAW );
+        qglBufferData( GL_ARRAY_BUFFER, tess.vao->vertexesSize, nullptr, GL_DYNAMIC_DRAW );
         
         // if nothing to set, set everything
         if( !( attribBits & ATTR_BITS ) )
@@ -666,7 +666,7 @@ void RB_UpdateTessVao( U32 attribBits )
         }
         
         // orphan old index buffer so we don't stall on it
-        qglBufferData( GL_ELEMENT_ARRAY_BUFFER, tess.vao->indexesSize, NULL, GL_DYNAMIC_DRAW );
+        qglBufferData( GL_ELEMENT_ARRAY_BUFFER, tess.vao->indexesSize, nullptr, GL_DYNAMIC_DRAW );
         
         qglBufferSubData( GL_ELEMENT_ARRAY_BUFFER, 0, tess.numIndexes * sizeof( tess.indexes[0] ), tess.indexes );
     }
@@ -816,7 +816,7 @@ void VaoCache_Commit( void )
 
 void VaoCache_Init( void )
 {
-    vc.vao = R_CreateVao( "VaoCache", NULL, VAOCACHE_VERTEX_BUFFER_SIZE, NULL, VAOCACHE_INDEX_BUFFER_SIZE, VAO_USAGE_DYNAMIC );
+    vc.vao = R_CreateVao( "VaoCache", nullptr, VAOCACHE_VERTEX_BUFFER_SIZE, nullptr, VAOCACHE_INDEX_BUFFER_SIZE, VAO_USAGE_DYNAMIC );
     
     vc.vao->attribs[ATTR_INDEX_POSITION].enabled       = 1;
     vc.vao->attribs[ATTR_INDEX_TEXCOORD].enabled       = 1;
@@ -930,14 +930,14 @@ void VaoCache_CheckAdd( bool* endSurface, bool* recycleVertexBuffer, bool* recyc
 void VaoCache_RecycleVertexBuffer( void )
 {
     qglBindBuffer( GL_ARRAY_BUFFER, vc.vao->vertexesVBO );
-    qglBufferData( GL_ARRAY_BUFFER, vc.vao->vertexesSize, NULL, GL_DYNAMIC_DRAW );
+    qglBufferData( GL_ARRAY_BUFFER, vc.vao->vertexesSize, nullptr, GL_DYNAMIC_DRAW );
     vc.vertexOffset = 0;
 }
 
 void VaoCache_RecycleIndexBuffer( void )
 {
     qglBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vc.vao->indexesIBO );
-    qglBufferData( GL_ELEMENT_ARRAY_BUFFER, vc.vao->indexesSize, NULL, GL_DYNAMIC_DRAW );
+    qglBufferData( GL_ELEMENT_ARRAY_BUFFER, vc.vao->indexesSize, nullptr, GL_DYNAMIC_DRAW );
     vc.indexOffset = 0;
     vc.numIndexEntries = 0;
 }

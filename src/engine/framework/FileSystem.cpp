@@ -43,7 +43,7 @@
 #include <framework/precompiled.h>
 #endif
 
-FILE* missingFiles = NULL;
+FILE* missingFiles = nullptr;
 
 #define MP_LEGACY_PAK 0x7776DC09
 
@@ -265,8 +265,8 @@ idFileSystemLocal::Initialized
 */
 bool idFileSystemLocal::Initialized( void )
 {
-    //return ( bool )( fs_searchpaths != NULL );
-    return fs_searchpaths != NULL;
+    //return ( bool )( fs_searchpaths != nullptr );
+    return fs_searchpaths != nullptr;
 }
 
 /*
@@ -359,7 +359,7 @@ fileHandle_t idFileSystemLocal::HandleForFile( void )
 {
     for( S32 i = 1 ; i < MAX_FILE_HANDLES ; i++ )
     {
-        if( fsh[i].handleFiles.file.o == NULL )
+        if( fsh[i].handleFiles.file.o == nullptr )
         {
             return i;
         }
@@ -387,7 +387,7 @@ FILE* idFileSystemLocal::FileForHandle( fileHandle_t f )
     
     if( !fsh[f].handleFiles.file.o )
     {
-        Com_Error( ERR_DROP, "idFileSystemLocal::FileForHandle: NULL" );
+        Com_Error( ERR_DROP, "idFileSystemLocal::FileForHandle: nullptr" );
     }
     
     return fsh[f].handleFiles.file.o;
@@ -401,7 +401,7 @@ idFileSystemLocal::ForceFlush
 void idFileSystemLocal::ForceFlush( fileHandle_t f )
 {
     FILE* file = FileForHandle( f );
-    setvbuf( file, NULL, _IONBF, 0 );
+    setvbuf( file, nullptr, _IONBF, 0 );
 }
 
 /*
@@ -1201,7 +1201,7 @@ S32 idFileSystemLocal::FOpenFileRead( StringEntry filename, fileHandle_t* file, 
     // TTimo - NOTE
     // when checking for file existence, it's probably safer to use idFileSystemLocal::FileExists, as I'm not
     // sure this chunk of code is really up to date with everything
-    if( file == NULL )
+    if( file == nullptr )
     {
         // just wants to see if file is there
         for( search = fs_searchpaths ; search ; search = search->next )
@@ -1232,7 +1232,7 @@ S32 idFileSystemLocal::FOpenFileRead( StringEntry filename, fileHandle_t* file, 
                     }
                     pakFile = pakFile->next;
                 }
-                while( pakFile != NULL );
+                while( pakFile != nullptr );
             }
             else if( search->dir )
             {
@@ -1261,7 +1261,7 @@ S32 idFileSystemLocal::FOpenFileRead( StringEntry filename, fileHandle_t* file, 
     
     if( !filename )
     {
-        Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: NULL 'filename' parameter passed\n" );
+        Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed\n" );
     }
     
     //Com_sprintf( demoExt, sizeof( demoExt ), ".dm_%d",PROTOCOL_VERSION );
@@ -1337,7 +1337,7 @@ S32 idFileSystemLocal::FOpenFileRead( StringEntry filename, fileHandle_t* file, 
                                 Q_stricmp( filename + l - 4, ".otf" ) != 0 &&
                                 Q_stricmp( filename + l - 4, ".cfg" ) != 0 &&
                                 Q_stricmp( filename + l - 7, ".config" ) != 0 &&
-                                strstr( filename, "levelshots" ) == NULL &&
+                                strstr( filename, "levelshots" ) == nullptr &&
                                 Q_stricmp( filename + l - 4, ".bot" ) != 0 &&
                                 Q_stricmp( filename + l - 6, ".arena" ) != 0 &&
                                 Q_stricmp( filename + l - 5, ".menu" ) != 0 )
@@ -1366,7 +1366,7 @@ S32 idFileSystemLocal::FOpenFileRead( StringEntry filename, fileHandle_t* file, 
                     
                     // open a new file on the pakfile
                     fsh[*file].handleFiles.file.z = unzOpen( pak->pakFilename );
-                    if( fsh[*file].handleFiles.file.z == NULL )
+                    if( fsh[*file].handleFiles.file.z == nullptr )
                     {
                         Com_Error( ERR_FATAL, "Couldn't open %s", pak->pakFilename );
                     }
@@ -1419,7 +1419,7 @@ S32 idFileSystemLocal::FOpenFileRead( StringEntry filename, fileHandle_t* file, 
                 }
                 pakFile = pakFile->next;
             }
-            while( pakFile != NULL );
+            while( pakFile != nullptr );
         }
         else if( search->dir )
         {
@@ -1649,7 +1649,7 @@ idFileSystemLocal::DeleteDir
 S32 idFileSystemLocal::DeleteDir( UTF8* dirname, bool nonEmpty, bool recursive )
 {
     UTF8* ospath;
-    UTF8** pFiles = NULL;
+    UTF8** pFiles = nullptr;
     S32 i, nFiles = 0;
     // Dushan
     static UTF8* root = "/";
@@ -1672,7 +1672,7 @@ S32 idFileSystemLocal::DeleteDir( UTF8* dirname, bool nonEmpty, bool recursive )
     if( recursive )
     {
         ospath = BuildOSPath( fs_homepath->string, fs_gamedir, dirname );
-        pFiles = idsystem->ListFiles( ospath, root, NULL, &nFiles, false );
+        pFiles = idsystem->ListFiles( ospath, root, nullptr, &nFiles, false );
         for( i = 0; i < nFiles; i++ )
         {
             UTF8 temp[MAX_OSPATH];
@@ -1695,7 +1695,7 @@ S32 idFileSystemLocal::DeleteDir( UTF8* dirname, bool nonEmpty, bool recursive )
     if( nonEmpty )
     {
         ospath = BuildOSPath( fs_homepath->string, fs_gamedir, dirname );
-        pFiles = idsystem->ListFiles( ospath, NULL, NULL, &nFiles, false );
+        pFiles = idsystem->ListFiles( ospath, nullptr, nullptr, &nFiles, false );
         for( i = 0; i < nFiles; i++ )
         {
             ospath = BuildOSPath( fs_homepath->string, fs_gamedir, va( "%s/%s", dirname, pFiles[i] ) );
@@ -2126,7 +2126,7 @@ S32 idFileSystemLocal::FileIsInPAK( StringEntry filename, S32* pChecksum )
     
     if( !filename )
     {
-        Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: NULL 'filename' parameter passed\n" );
+        Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed\n" );
     }
     
     // qpaths are not supposed to have a leading slash
@@ -2189,7 +2189,7 @@ S32 idFileSystemLocal::FileIsInPAK( StringEntry filename, S32* pChecksum )
                 }
                 pakFile = pakFile->next;
             }
-            while( pakFile != NULL );
+            while( pakFile != nullptr );
         }
     }
     return -1;
@@ -2220,7 +2220,7 @@ S32 idFileSystemLocal::ReadFile( StringEntry qpath, void** buffer )
         Com_Error( ERR_FATAL, "idFileSystemLocal::ReadFile with empty name\n" );
     }
     
-    buf = NULL; // quiet compiler warning
+    buf = nullptr; // quiet compiler warning
     
     // if this is a .cfg file and we are playing back a journal, read
     // it from the journal file
@@ -2237,9 +2237,9 @@ S32 idFileSystemLocal::ReadFile( StringEntry qpath, void** buffer )
             
             if( r != sizeof( len ) )
             {
-                if( buffer != NULL )
+                if( buffer != nullptr )
                 {
-                    *buffer = NULL;
+                    *buffer = nullptr;
                 }
                 return -1;
             }
@@ -2247,16 +2247,16 @@ S32 idFileSystemLocal::ReadFile( StringEntry qpath, void** buffer )
             // if the file didn't exist when the journal was created
             if( !len )
             {
-                if( buffer == NULL )
+                if( buffer == nullptr )
                 {
                     return 1;           // hack for old journal files
                 }
-                *buffer = NULL;
+                *buffer = nullptr;
                 
                 return -1;
             }
             
-            if( buffer == NULL )
+            if( buffer == nullptr )
             {
                 return len;
             }
@@ -2292,7 +2292,7 @@ S32 idFileSystemLocal::ReadFile( StringEntry qpath, void** buffer )
     {
         if( buffer )
         {
-            *buffer = NULL;
+            *buffer = nullptr;
         }
         // if we are journalling and it is a config file, write a zero to the journal file
         if( isConfig && com_journal && com_journal->integer == 1 )
@@ -2353,7 +2353,7 @@ void idFileSystemLocal::FreeFile( void* buffer )
     }
     if( !buffer )
     {
-        Com_Error( ERR_FATAL, "idFileSystemLocal::FreeFile( NULL )" );
+        Com_Error( ERR_FATAL, "idFileSystemLocal::FreeFile( nullptr )" );
     }
     fs_loadStack--;
     
@@ -2384,7 +2384,7 @@ void idFileSystemLocal::WriteFile( StringEntry qpath, const void* buffer, S32 si
     
     if( !qpath || !buffer )
     {
-        Com_Error( ERR_FATAL, "idFileSystemLocal::WriteFile: NULL parameter" );
+        Com_Error( ERR_FATAL, "idFileSystemLocal::WriteFile: nullptr parameter" );
     }
     
     f = FOpenFileWrite( qpath );
@@ -2432,7 +2432,7 @@ pack_t* idFileSystemLocal::LoadZipFile( StringEntry zipfile, StringEntry basenam
     
     if( err != UNZ_OK )
     {
-        return NULL;
+        return nullptr;
     }
     
     len = 0;
@@ -2440,7 +2440,7 @@ pack_t* idFileSystemLocal::LoadZipFile( StringEntry zipfile, StringEntry basenam
     
     for( i = 0; i < gi.number_entry; i++ )
     {
-        err = unzGetCurrentFileInfo( uf, &file_info, filename_inzip, sizeof( filename_inzip ), NULL, 0, NULL, 0 );
+        err = unzGetCurrentFileInfo( uf, &file_info, filename_inzip, sizeof( filename_inzip ), nullptr, 0, nullptr, 0 );
         
         if( err != UNZ_OK )
         {
@@ -2477,7 +2477,7 @@ pack_t* idFileSystemLocal::LoadZipFile( StringEntry zipfile, StringEntry basenam
     
     for( i = 0; i < pack->hashSize; i++ )
     {
-        pack->hashTable[i] = NULL;
+        pack->hashTable[i] = nullptr;
     }
     
     Q_strncpyz( pack->pakFilename, zipfile, sizeof( pack->pakFilename ) );
@@ -2494,7 +2494,7 @@ pack_t* idFileSystemLocal::LoadZipFile( StringEntry zipfile, StringEntry basenam
     
     for( i = 0; i < gi.number_entry; i++ )
     {
-        err = unzGetCurrentFileInfo( uf, &file_info, filename_inzip, sizeof( filename_inzip ), NULL, 0, NULL, 0 );
+        err = unzGetCurrentFileInfo( uf, &file_info, filename_inzip, sizeof( filename_inzip ), nullptr, 0, nullptr, 0 );
         
         if( err != UNZ_OK )
         {
@@ -2627,7 +2627,7 @@ UTF8** idFileSystemLocal::ListFilteredFiles( StringEntry path, StringEntry exten
     if( !path )
     {
         *numfiles = 0;
-        return NULL;
+        return nullptr;
     }
     
     if( !extension )
@@ -2752,7 +2752,7 @@ UTF8** idFileSystemLocal::ListFilteredFiles( StringEntry path, StringEntry exten
     
     if( !nfiles )
     {
-        return NULL;
+        return nullptr;
     }
     
     listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
@@ -2761,7 +2761,7 @@ UTF8** idFileSystemLocal::ListFilteredFiles( StringEntry path, StringEntry exten
     {
         listCopy[i] = list[i];
     }
-    listCopy[i] = NULL;
+    listCopy[i] = nullptr;
     
     return listCopy;
 }
@@ -2773,7 +2773,7 @@ idFileSystemLocal::ListFiles
 */
 UTF8** idFileSystemLocal::ListFiles( StringEntry path, StringEntry extension, S32* numfiles )
 {
-    return ListFilteredFiles( path, extension, NULL, numfiles );
+    return ListFilteredFiles( path, extension, nullptr, numfiles );
 }
 
 /*
@@ -2811,7 +2811,7 @@ idFileSystemLocal::GetFileList
 S32 idFileSystemLocal::GetFileList( StringEntry path, StringEntry extension, UTF8* listbuf, S32 bufsize )
 {
     S32 nFiles, i, nTotal, nLen;
-    UTF8** pFiles = NULL;
+    UTF8** pFiles = nullptr;
     
     *listbuf = 0;
     nFiles = 0;
@@ -2880,7 +2880,7 @@ idFileSystemLocal::ConcatenateFileLists
 UTF8** idFileSystemLocal::ConcatenateFileLists( UTF8** list0, UTF8** list1, UTF8** list2 )
 {
     S32 totalLength = 0;
-    UTF8** cat = NULL, **dst, **src;
+    UTF8** cat = nullptr, **dst, **src;
     
     totalLength += CountFileList( list0 );
     totalLength += CountFileList( list1 );
@@ -2915,7 +2915,7 @@ UTF8** idFileSystemLocal::ConcatenateFileLists( UTF8** list0, UTF8** list1, UTF8
     }
     
     // Terminate the list
-    *dst = NULL;
+    *dst = nullptr;
     
     // Free our old lists.
     // NOTE: not freeing their content, it's been merged in dst and still being used
@@ -2949,23 +2949,23 @@ The directories are searched in base path, cd path and home path
 S32 idFileSystemLocal::GetModList( UTF8* listbuf, S32 bufsize )
 {
     S32 nMods, i, j, nTotal, nLen, nPaks, nPotential, nDescLen;
-    UTF8** pFiles = NULL;
-    UTF8** pPaks = NULL;
+    UTF8** pFiles = nullptr;
+    UTF8** pPaks = nullptr;
     UTF8* name, *path;
     UTF8 descPath[MAX_OSPATH];
     fileHandle_t descHandle;
     
     S32 dummy;
-    UTF8** pFiles0 = NULL;
-    UTF8** pFiles1 = NULL;
-    UTF8** pFiles2 = NULL;
+    UTF8** pFiles0 = nullptr;
+    UTF8** pFiles1 = nullptr;
+    UTF8** pFiles2 = nullptr;
     bool bDrop = false;
     
     *listbuf = 0;
     nMods = nPotential = nTotal = 0;
     
-    pFiles0 = idsystem->ListFiles( fs_homepath->string, NULL, NULL, &dummy, true );
-    pFiles1 = idsystem->ListFiles( fs_basepath->string, NULL, NULL, &dummy, true );
+    pFiles0 = idsystem->ListFiles( fs_homepath->string, nullptr, nullptr, &dummy, true );
+    pFiles1 = idsystem->ListFiles( fs_basepath->string, nullptr, nullptr, &dummy, true );
     
     // we searched for mods in the three paths
     // it is likely that we have duplicate names now, which we will cleanup below
@@ -3008,7 +3008,7 @@ S32 idFileSystemLocal::GetModList( UTF8* listbuf, S32 bufsize )
             // NOTE Arnout: what about dropping the current loaded mod as well?
             path = BuildOSPath( fs_basepath->string, name, "" );
             nPaks = 0;
-            pPaks = idsystem->ListFiles( path, ".pk3", NULL, &nPaks, false );
+            pPaks = idsystem->ListFiles( path, ".pk3", nullptr, &nPaks, false );
             idsystem->FreeFileList( pPaks ); // we only use idServerLocal::ListFiles to check wether .pk3 files are present
             
             /* try on home path */
@@ -3016,7 +3016,7 @@ S32 idFileSystemLocal::GetModList( UTF8* listbuf, S32 bufsize )
             {
                 path = BuildOSPath( fs_homepath->string, name, "" );
                 nPaks = 0;
-                pPaks = idsystem->ListFiles( path, ".pk3", NULL, &nPaks, false );
+                pPaks = idsystem->ListFiles( path, ".pk3", nullptr, &nPaks, false );
                 idsystem->FreeFileList( pPaks );
             }
             
@@ -3195,7 +3195,7 @@ void idFileSystemLocal::SortFileList( UTF8** filelist, S32 numfiles )
     UTF8** sortedlist;
     
     sortedlist = ( UTF8** )Z_Malloc( ( numfiles + 1 ) * sizeof( *sortedlist ) );
-    sortedlist[0] = NULL;
+    sortedlist[0] = nullptr;
     numsortedfiles = 0;
     
     for( i = 0; i < numfiles; i++ )
@@ -3391,7 +3391,7 @@ void idFileSystemLocal::Which_f( void )
                 }
                 pakFile = pakFile->next;
             }
-            while( pakFile != NULL );
+            while( pakFile != nullptr );
         }
         else if( search->dir )
         {
@@ -3514,10 +3514,10 @@ void idFileSystemLocal::AddGameDirectory( StringEntry path, StringEntry dir )
     curpath[strlen( curpath ) - 1] = '\0';	// strip the trailing slash
     
     // Get .pk3 files
-    pakfiles = idsystem->ListFiles( curpath, ".pk3", NULL, &numfiles, false );
+    pakfiles = idsystem->ListFiles( curpath, ".pk3", nullptr, &numfiles, false );
     
     // Get top level directories (we'll filter them later since the idSystemLocal::ListFiles filtering is terrible)
-    pakdirs = idsystem->ListFiles( curpath, "/", NULL, &numdirs, false );
+    pakdirs = idsystem->ListFiles( curpath, "/", nullptr, &numdirs, false );
     
     qsort( pakfiles, numfiles, sizeof( UTF8* ), fileSystemLocal.paksort );
     qsort( pakdirs, numdirs, sizeof( UTF8* ), fileSystemLocal.paksort );
@@ -3900,7 +3900,7 @@ void idFileSystemLocal::Shutdown( bool closemfp )
     }
     
     // any idFileSystemLocal:: calls will now be an error until reinitialized
-    fs_searchpaths = NULL;
+    fs_searchpaths = nullptr;
     
     cmdSystem->RemoveCommand( "path" );
     cmdSystem->RemoveCommand( "dir" );
@@ -4063,7 +4063,7 @@ void idFileSystemLocal::Startup( StringEntry gameName )
     
     Com_Printf( "----------------------\n" );
     
-    if( missingFiles == NULL )
+    if( missingFiles == nullptr )
     {
         missingFiles = fopen( "\\missing.txt", "ab" );
     }
@@ -4409,7 +4409,7 @@ void idFileSystemLocal::PureServerSetLoadedPaks( StringEntry pakSums, StringEntr
         {
             Z_Free( fs_serverPakNames[i] );
         }
-        fs_serverPakNames[i] = NULL;
+        fs_serverPakNames[i] = nullptr;
     }
     
     if( pakNames && *pakNames )
@@ -4465,7 +4465,7 @@ void idFileSystemLocal::PureServerSetReferencedPaks( StringEntry pakSums, String
             Z_Free( fs_serverReferencedPakNames[i] );
         }
         
-        fs_serverReferencedPakNames[i] = NULL;
+        fs_serverReferencedPakNames[i] = nullptr;
     }
     
     if( pakNames && *pakNames )
@@ -4516,7 +4516,7 @@ void idFileSystemLocal::InitFilesystem( void )
     // busted and error out now, rather than getting an unreadable
     // graphics screen when the font fails to load
     // Arnout: we want the nice error message here as well
-    if( ReadFile( "default.cfg", NULL ) <= 0 )
+    if( ReadFile( "default.cfg", nullptr ) <= 0 )
     {
         Com_Error( ERR_FATAL, "Couldn't load default.cfg - I am missing essential files - verify your installation?" );
     }
@@ -4549,7 +4549,7 @@ void idFileSystemLocal::Restart( S32 checksumFeed )
     // if we can't find default.cfg, assume that the paths are
     // busted and error out now, rather than getting an unreadable
     // graphics screen when the font fails to load
-    if( ReadFile( "default.cfg", NULL ) <= 0 )
+    if( ReadFile( "default.cfg", nullptr ) <= 0 )
     {
         // this might happen when connecting to a pure server not using BASEGAME/pak0.pk3
         // (for instance a TA demo server)
@@ -4854,7 +4854,7 @@ void idFileSystemLocal::FilenameCompletion( StringEntry dir, StringEntry ext, bo
     S32 i, nfiles;
     UTF8 filename[ MAX_STRING_CHARS ];
     
-    filenames = ListFilteredFiles( dir, ext, NULL, &nfiles );
+    filenames = ListFilteredFiles( dir, ext, nullptr, &nfiles );
     
     SortFileList( filenames, nfiles );
     

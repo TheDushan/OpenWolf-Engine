@@ -54,7 +54,7 @@ void R_LoadTGA( StringEntry name, U8** pic, S32* width, S32* height )
     U8*		targa_rgba;
     S32 length;
     
-    *pic = NULL;
+    *pic = nullptr;
     
     if( width )
         *width = 0;

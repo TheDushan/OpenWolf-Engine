@@ -353,7 +353,7 @@ void idServerWallhackSystemLocal::calc_viewpoint( playerState_t* ps, vec3_t org,
         
         VectorCopy( ps->viewangles, v3ViewAngles );
         v3ViewAngles[2] += ps->leanf / 2.0f;
-        AngleVectors( v3ViewAngles, NULL, right, NULL );
+        AngleVectors( v3ViewAngles, nullptr, right, nullptr );
         VectorMA( org, ps->leanf, right, org );
     }
     
@@ -431,7 +431,7 @@ S32 idServerWallhackSystemLocal::is_visible( vec3_t start, vec3_t end )
 {
     trace_t trace;
     
-    collisionModelManager->BoxTrace( &trace, start, end, NULL, NULL, 0, CONTENTS_SOLID, TT_NONE );
+    collisionModelManager->BoxTrace( &trace, start, end, nullptr, nullptr, 0, CONTENTS_SOLID, TT_NONE );
     
     if( trace.contents & CONTENTS_SOLID )
     {

@@ -291,8 +291,8 @@ bool R_LoadIQM( model_t* mod, void* buffer, S32 filesize, StringEntry mod_name )
         vertexArrayFormat[i] = -1;
     }
     
-    blendIndexes = NULL;
-    blendWeights.b = NULL;
+    blendIndexes = nullptr;
+    blendWeights.b = nullptr;
     
     allocateInfluences = 0;
     
@@ -1657,7 +1657,7 @@ void RB_IQMSurfaceAnim( surfaceType_t* surface )
     }
     else
     {
-        color = NULL;
+        color = nullptr;
     }
     
     outXYZ = &tess.xyz[tess.numVertexes];

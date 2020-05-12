@@ -239,7 +239,7 @@ StringEntry Con_GetText( S32 console )
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -940,7 +940,7 @@ void Con_DrawNotify( void )
         v += SMALLCHAR_HEIGHT;
     }
     
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
     
     if( cls.keyCatchers & ( KEYCATCH_UI | KEYCATCH_CGAME ) )
     {
@@ -1025,7 +1025,7 @@ void Con_DrawSolidConsole( F32 frac )
         // Dushan - Old console need 0
         con.xadjust = 0;
     }
-    SCR_AdjustFrom640( &con.xadjust, NULL, NULL, NULL );
+    SCR_AdjustFrom640( &con.xadjust, nullptr, nullptr, nullptr );
     
     // draw the background
     if( scr_conUseOld->integer )
@@ -1184,7 +1184,7 @@ void Con_DrawSolidConsole( F32 frac )
     // draw the input prompt, user text, and cursor if desired
     Con_DrawInput();
     
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
 }
 extern convar_t*  con_drawnotify;
 

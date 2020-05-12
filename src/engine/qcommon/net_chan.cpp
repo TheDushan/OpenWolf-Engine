@@ -618,7 +618,7 @@ typedef struct packetQueue_s
     S32 release;
 } packetQueue_t;
 
-packetQueue_t* packetQueue = NULL;
+packetQueue_t* packetQueue = nullptr;
 
 static void NET_QueuePacket( S32 length, const void* data, netadr_t to,
                              S32 offset )
@@ -634,7 +634,7 @@ static void NET_QueuePacket( S32 length, const void* data, netadr_t to,
     _new->length = length;
     _new->to = to;
     _new->release = idsystem->Milliseconds() + ( S32 )( ( F32 )offset / com_timescale->value );
-    _new->next = NULL;
+    _new->next = nullptr;
     
     if( !packetQueue )
     {
@@ -778,7 +778,7 @@ return 0 on address not found, 1 on address found with port, 2 on address found 
 S32 NET_StringToAdr( StringEntry s, netadr_t* a, netadrtype_t family )
 {
     UTF8	base[MAX_STRING_CHARS], *search;
-    UTF8*	port = NULL;
+    UTF8*	port = nullptr;
     
     if( !strcmp( s, "localhost" ) )
     {

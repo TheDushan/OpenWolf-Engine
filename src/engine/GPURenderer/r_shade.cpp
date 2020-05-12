@@ -1578,7 +1578,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
             
             if( r_sunlightMode->integer && ( backEnd.viewParms.flags & VPF_USESUNLIGHT ) && ( pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK ) )
             {
-                // FIXME: screenShadowImage is NULL if no framebuffers
+                // FIXME: screenShadowImage is nullptr if no framebuffers
                 if( tr.screenShadowImage )
                     GL_BindToTMU( tr.screenShadowImage, TB_SHADOWMAP );
                 GLSL_SetUniformVec3( sp, UNIFORM_PRIMARYLIGHTAMBIENT, backEnd.refdef.sunAmbCol );
@@ -1692,7 +1692,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
             vec4_t vec;
             cubemap_t* cubemap = &tr.cubemaps[input->cubemapIndex - 1];
             
-            // FIXME: cubemap image could be NULL if cubemap isn't renderer or loaded
+            // FIXME: cubemap image could be nullptr if cubemap isn't renderer or loaded
             if( cubemap->image )
                 GL_BindToTMU( cubemap->image, TB_CUBEMAP );
                 

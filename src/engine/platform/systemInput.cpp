@@ -37,25 +37,25 @@
 
 #include <framework/precompiled.h>
 
-static convar_t* in_keyboardDebug = NULL;
+static convar_t* in_keyboardDebug = nullptr;
 
-static SDL_Joystick* stick = NULL;
+static SDL_Joystick* stick = nullptr;
 
 static bool mouseAvailable = false;
 static bool mouseActive = false;
 
-static convar_t* in_mouse = NULL;
+static convar_t* in_mouse = nullptr;
 static convar_t* in_nograb;
 
-static convar_t* in_joystick = NULL;
-static convar_t* in_joystickDebug = NULL;
-static convar_t* in_joystickThreshold = NULL;
-static convar_t* in_joystickNo = NULL;
-static convar_t* in_joystickUseAnalog = NULL;
+static convar_t* in_joystick = nullptr;
+static convar_t* in_joystickDebug = nullptr;
+static convar_t* in_joystickThreshold = nullptr;
+static convar_t* in_joystickNo = nullptr;
+static convar_t* in_joystickUseAnalog = nullptr;
 
 static S32 vidRestartTime = 0;
 
-static SDL_Window* SDL_window = NULL;
+static SDL_Window* SDL_window = nullptr;
 
 #define KEYBOARDCTRL(a) ((a)-'a'+1)
 
@@ -574,12 +574,12 @@ void idSystemLocal::InitJoystick( void )
     S32 total = 0;
     UTF8 buf[16384] = "";
     
-    if( stick != NULL )
+    if( stick != nullptr )
     {
         SDL_JoystickClose( stick );
     }
     
-    stick = NULL;
+    stick = nullptr;
     ::memset( &stick_state, '\0', sizeof( stick_state ) );
     
     if( !SDL_WasInit( SDL_INIT_JOYSTICK ) )
@@ -622,7 +622,7 @@ void idSystemLocal::InitJoystick( void )
     
     stick = SDL_JoystickOpen( in_joystickNo->integer );
     
-    if( stick == NULL )
+    if( stick == nullptr )
     {
         Com_DPrintf( "No joystick opened.\n" );
         return;
@@ -654,7 +654,7 @@ void idSystemLocal::ShutdownJoystick( void )
     if( stick )
     {
         SDL_JoystickClose( stick );
-        stick = NULL;
+        stick = nullptr;
     }
     
     SDL_QuitSubSystem( SDL_INIT_JOYSTICK );
@@ -712,7 +712,7 @@ void idSystemLocal::JoyMove( S32 eventTime )
                 balldy *= 2;
             }
             
-            Com_QueueEvent( eventTime, SYSE_MOUSE, balldx, balldy, 0, NULL );
+            Com_QueueEvent( eventTime, SYSE_MOUSE, balldx, balldy, 0, nullptr );
         }
     }
     
@@ -731,7 +731,7 @@ void idSystemLocal::JoyMove( S32 eventTime )
             
             if( pressed != stick_state.buttons[i] )
             {
-                Com_QueueEvent( eventTime, SYSE_KEY, K_JOY1 + i, pressed, 0, NULL );
+                Com_QueueEvent( eventTime, SYSE_KEY, K_JOY1 + i, pressed, 0, nullptr );
                 stick_state.buttons[i] = pressed;
             }
         }
@@ -760,32 +760,32 @@ void idSystemLocal::JoyMove( S32 eventTime )
                 switch( ( ( U8* )&stick_state.oldhats )[i] )
                 {
                     case SDL_HAT_UP:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0, nullptr );
                         break;
                     case SDL_HAT_RIGHT:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0, nullptr );
                         break;
                     case SDL_HAT_DOWN:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0, nullptr );
                         break;
                     case SDL_HAT_LEFT:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0, nullptr );
                         break;
                     case SDL_HAT_RIGHTUP:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0, NULL );
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0, nullptr );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0, nullptr );
                         break;
                     case SDL_HAT_RIGHTDOWN:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0, NULL );
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0, nullptr );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0, nullptr );
                         break;
                     case SDL_HAT_LEFTUP:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0, NULL );
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0, nullptr );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0, nullptr );
                         break;
                     case SDL_HAT_LEFTDOWN:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0, NULL );
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0, nullptr );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0, nullptr );
                         break;
                     default:
                         break;
@@ -794,32 +794,32 @@ void idSystemLocal::JoyMove( S32 eventTime )
                 switch( ( ( Uint8* )&hats )[i] )
                 {
                     case SDL_HAT_UP:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, nullptr );
                         break;
                     case SDL_HAT_RIGHT:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, nullptr );
                         break;
                     case SDL_HAT_DOWN:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, nullptr );
                         break;
                     case SDL_HAT_LEFT:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, nullptr );
                         break;
                     case SDL_HAT_RIGHTUP:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, NULL );
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, nullptr );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, nullptr );
                         break;
                     case SDL_HAT_RIGHTDOWN:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, NULL );
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, nullptr );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, nullptr );
                         break;
                     case SDL_HAT_LEFTUP:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, NULL );
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, nullptr );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, nullptr );
                         break;
                     case SDL_HAT_LEFTDOWN:
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, NULL );
-                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, NULL );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, nullptr );
+                        Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, nullptr );
                         break;
                     default:
                         break;
@@ -854,7 +854,7 @@ void idSystemLocal::JoyMove( S32 eventTime )
                 
                 if( axis != stick_state.oldaaxes[i] )
                 {
-                    Com_QueueEvent( eventTime, SYSE_JOYSTICK_AXIS, i, axis, 0, NULL );
+                    Com_QueueEvent( eventTime, SYSE_JOYSTICK_AXIS, i, axis, 0, nullptr );
                     stick_state.oldaaxes[i] = axis;
                 }
             }
@@ -891,12 +891,12 @@ void idSystemLocal::JoyMove( S32 eventTime )
         {
             if( ( axes & ( 1 << i ) ) && !( stick_state.oldaxes & ( 1 << i ) ) )
             {
-                Com_QueueEvent( eventTime, SYSE_KEY, joy_keys[i], true, 0, NULL );
+                Com_QueueEvent( eventTime, SYSE_KEY, joy_keys[i], true, 0, nullptr );
             }
             
             if( !( axes & ( 1 << i ) ) && ( stick_state.oldaxes & ( 1 << i ) ) )
             {
-                Com_QueueEvent( eventTime, SYSE_KEY, joy_keys[i], false, 0, NULL );
+                Com_QueueEvent( eventTime, SYSE_KEY, joy_keys[i], false, 0, nullptr );
             }
         }
     }
@@ -934,16 +934,16 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
                 
                 if( ( key = TranslateSDLToQ3Key( &e.key.keysym, true ) ) )
                 {
-                    Com_QueueEvent( eventTime, SYSE_KEY, key, true, 0, NULL );
+                    Com_QueueEvent( eventTime, SYSE_KEY, key, true, 0, nullptr );
                 }
                 
                 if( key == K_BACKSPACE )
                 {
-                    Com_QueueEvent( eventTime, SYSE_CHAR, KEYBOARDCTRL( 'h' ), 0, 0, NULL );
+                    Com_QueueEvent( eventTime, SYSE_CHAR, KEYBOARDCTRL( 'h' ), 0, 0, nullptr );
                 }
                 else if( keys[K_CTRL].down && key >= 'a' && key <= 'z' )
                 {
-                    Com_QueueEvent( eventTime, SYSE_CHAR, KEYBOARDCTRL( key ), 0, 0, NULL );
+                    Com_QueueEvent( eventTime, SYSE_CHAR, KEYBOARDCTRL( key ), 0, 0, nullptr );
                 }
                 
                 lastKeyDown = key;
@@ -952,7 +952,7 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
             case SDL_KEYUP:
                 if( ( key = TranslateSDLToQ3Key( &e.key.keysym, false ) ) )
                 {
-                    Com_QueueEvent( eventTime, SYSE_KEY, key, false, 0, NULL );
+                    Com_QueueEvent( eventTime, SYSE_KEY, key, false, 0, nullptr );
                 }
                 
                 lastKeyDown = static_cast< keyNum_t >( 0 );
@@ -1000,11 +1000,11 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
                         {
                             if( IsConsoleKey( ( keyNum_t )0, utf32 ) )
                             {
-                                Com_QueueEvent( eventTime, SYSE_KEY, K_CONSOLE, true, 0, NULL );
-                                Com_QueueEvent( eventTime, SYSE_KEY, K_CONSOLE, false, 0, NULL );
+                                Com_QueueEvent( eventTime, SYSE_KEY, K_CONSOLE, true, 0, nullptr );
+                                Com_QueueEvent( eventTime, SYSE_KEY, K_CONSOLE, false, 0, nullptr );
                             }
                             else
-                                Com_QueueEvent( eventTime, SYSE_CHAR, utf32, 0, 0, NULL );
+                                Com_QueueEvent( eventTime, SYSE_CHAR, utf32, 0, 0, nullptr );
                         }
                     }
                 }
@@ -1043,20 +1043,20 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
                         b = K_AUX1 + ( e.button.button - SDL_BUTTON_X2 + 1 ) % 16;
                         break;
                 }
-                Com_QueueEvent( eventTime, SYSE_KEY, b, ( e.type == SDL_MOUSEBUTTONDOWN ? true : false ), 0, NULL );
+                Com_QueueEvent( eventTime, SYSE_KEY, b, ( e.type == SDL_MOUSEBUTTONDOWN ? true : false ), 0, nullptr );
             }
             break;
             
             case SDL_MOUSEWHEEL:
                 if( e.wheel.y > 0 )
                 {
-                    Com_QueueEvent( eventTime, SYSE_KEY, K_MWHEELUP, true, 0, NULL );
-                    Com_QueueEvent( eventTime, SYSE_KEY, K_MWHEELUP, false, 0, NULL );
+                    Com_QueueEvent( eventTime, SYSE_KEY, K_MWHEELUP, true, 0, nullptr );
+                    Com_QueueEvent( eventTime, SYSE_KEY, K_MWHEELUP, false, 0, nullptr );
                 }
                 else
                 {
-                    Com_QueueEvent( eventTime, SYSE_KEY, K_MWHEELDOWN, true, 0, NULL );
-                    Com_QueueEvent( eventTime, SYSE_KEY, K_MWHEELDOWN, false, 0, NULL );
+                    Com_QueueEvent( eventTime, SYSE_KEY, K_MWHEELDOWN, true, 0, nullptr );
+                    Com_QueueEvent( eventTime, SYSE_KEY, K_MWHEELDOWN, false, 0, nullptr );
                 }
                 break;
                 
@@ -1118,7 +1118,7 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
     
     if( mx || my )
     {
-        Com_QueueEvent( eventTime, SYSE_MOUSE, mx, my, 0, NULL );
+        Com_QueueEvent( eventTime, SYSE_MOUSE, mx, my, 0, nullptr );
     }
 }
 
@@ -1180,7 +1180,7 @@ idSystemLocal::InitKeyLockStates
 */
 void idSystemLocal::InitKeyLockStates( void )
 {
-    const U8* keystate = SDL_GetKeyboardState( NULL );
+    const U8* keystate = SDL_GetKeyboardState( nullptr );
     
     keys[K_SCROLLOCK].down = keystate[SDL_SCANCODE_SCROLLLOCK];
     keys[K_KP_NUMLOCK].down = keystate[SDL_SCANCODE_NUMLOCKCLEAR];
@@ -1256,7 +1256,7 @@ void idSystemLocal::Shutdown( void )
     
     ShutdownJoystick();
     
-    SDL_window = NULL;
+    SDL_window = nullptr;
 }
 
 /*

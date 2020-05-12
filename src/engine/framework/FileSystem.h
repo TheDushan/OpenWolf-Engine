@@ -65,7 +65,7 @@ typedef struct searchpath_s
 {
     struct searchpath_s* next;
     
-    pack_t* pack; // only one of pack / dir will be non NULL
+    pack_t* pack; // only one of pack / dir will be non nullptr
     directory_t* dir;
 } searchpath_t;
 

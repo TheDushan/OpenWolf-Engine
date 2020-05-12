@@ -239,7 +239,7 @@ model_t* R_AllocModel( void )
     
     if( tr.numModels == MAX_MOD_KNOWN )
     {
-        return NULL;
+        return nullptr;
     }
     
     mod = reinterpret_cast<model_t*>( Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low ) );
@@ -275,7 +275,7 @@ qhandle_t idRenderSystemLocal::RegisterModel( StringEntry name )
     
     if( !name || !name[0] )
     {
-        CL_RefPrintf( PRINT_ALL, "idRenderSystemLocal::RegisterModel: NULL name\n" );
+        CL_RefPrintf( PRINT_ALL, "idRenderSystemLocal::RegisterModel: nullptr name\n" );
         return 0;
     }
     
@@ -303,7 +303,7 @@ qhandle_t idRenderSystemLocal::RegisterModel( StringEntry name )
     
     // allocate a new model_t
     
-    if( ( mod = R_AllocModel() ) == NULL )
+    if( ( mod = R_AllocModel() ) == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "idRenderSystemLocal::RegisterModel: R_AllocModel() failed for '%s'\n", name );
         return 0;
@@ -668,7 +668,7 @@ static bool R_LoadMD3( model_t* mod, S32 lod, void* buffer, S32 bufferSize, Stri
                 
                 R_VaoUnpackNormal( normal, v->normal );
                 
-                tangent[3] = R_CalcTangentSpace( tangent, NULL, normal, sdirs[j], tdirs[j] );
+                tangent[3] = R_CalcTangentSpace( tangent, nullptr, normal, sdirs[j], tdirs[j] );
                 
                 R_VaoPackTangent( v->tangent, tangent );
             }
@@ -1222,7 +1222,7 @@ void R_ModelInit( void )
 {
     model_t*		mod;
     
-    // leave a space for NULL model
+    // leave a space for nullptr model
     tr.numModels = 0;
     
     mod = R_AllocModel();
@@ -1298,7 +1298,7 @@ static mdvTag_t* R_GetTag( mdvModel_t* mod, S32 frame, StringEntry _tagName )
         }
     }
     
-    return NULL;
+    return nullptr;
 }
 
 mdvTag_t* R_GetAnimTag( mdrHeader_t* mod, S32 framenum, StringEntry tagName, mdvTag_t* dest )
@@ -1338,7 +1338,7 @@ mdvTag_t* R_GetAnimTag( mdrHeader_t* mod, S32 framenum, StringEntry tagName, mdv
         }
     }
     
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -1368,7 +1368,7 @@ S32 idRenderSystemLocal::LerpTag( orientation_t* tag, qhandle_t handle, S32 star
         }
         else
         {
-            start = end = NULL;
+            start = end = nullptr;
         }
     }
     else

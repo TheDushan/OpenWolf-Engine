@@ -118,8 +118,8 @@ void R_ClearFlares( void )
     S32		i;
     
     ::memset( r_flareStructs, 0, sizeof( r_flareStructs ) );
-    r_activeFlares = NULL;
-    r_inactiveFlares = NULL;
+    r_activeFlares = nullptr;
+    r_inactiveFlares = nullptr;
     
     for( i = 0 ; i < MAX_FLARES ; i++ )
     {
@@ -242,7 +242,7 @@ void RB_AddDlightFlares( void )
 {
     dlight_t*		l;
     S32				i, j, k;
-    fog_t*			fog = NULL;
+    fog_t*			fog = nullptr;
     
     if( !r_flares->integer )
     {
@@ -283,7 +283,7 @@ void RB_AddDlightFlares( void )
         else
             j = 0;
             
-        RB_AddFlare( ( void* )l, j, l->origin, l->color, NULL );
+        RB_AddFlare( ( void* )l, j, l->origin, l->color, nullptr );
     }
 }
 
@@ -523,7 +523,7 @@ void RB_RenderFlares( void )
     // perform z buffer readback on each flare in this view
     draw = false;
     prev = &r_activeFlares;
-    while( ( f = *prev ) != NULL )
+    while( ( f = *prev ) != nullptr )
     {
         // throw out any flares that weren't added last frame
         if( f->addedFrame < backEnd.viewParms.frameCount - 1 )

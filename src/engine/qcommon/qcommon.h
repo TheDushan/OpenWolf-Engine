@@ -461,7 +461,7 @@ void            Com_StartupVariable( StringEntry match );
 void            Com_SetRecommended();
 
 // checks for and removes command line "+set var arg" constructs
-// if match is NULL, all set commands will be executed, otherwise
+// if match is nullptr, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
 //bani - profile functions
@@ -708,7 +708,7 @@ typedef struct sysEvent_s
     sysEventType_t  evType;
     S32             evValue, evValue2;
     S32             evPtrLength;	// bytes of data pointed to by evPtr, for journaling
-    void*           evPtr;		// this must be manually freed if not NULL
+    void*           evPtr;		// this must be manually freed if not nullptr
 } sysEvent_t;
 
 void			Com_QueueEvent( S32 time, sysEventType_t type, S32 value, S32 value2, S32 ptrLength, void* ptr );

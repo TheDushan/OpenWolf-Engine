@@ -295,10 +295,10 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
         #pragma omp critical
         for( i = 0; i < tr.numLightmaps; i++ )
         {
-            tr.lightmaps[i] = R_CreateImage( va( "_fatlightmap%d", i ), NULL, width, height, IMGTYPE_COLORALPHA, imgFlags, textureInternalFormat );
+            tr.lightmaps[i] = R_CreateImage( va( "_fatlightmap%d", i ), nullptr, width, height, IMGTYPE_COLORALPHA, imgFlags, textureInternalFormat );
             
             if( tr.worldDeluxeMapping )
-                tr.deluxemaps[i] = R_CreateImage( va( "_fatdeluxemap%d", i ), NULL, width, height, IMGTYPE_DELUXE, imgFlags, 0 );
+                tr.deluxemaps[i] = R_CreateImage( va( "_fatdeluxemap%d", i ), nullptr, width, height, IMGTYPE_DELUXE, imgFlags, 0 );
         }
     }
     
@@ -321,7 +321,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
         // if (tr.worldLightmapping)
         {
             UTF8 filename[MAX_QPATH];
-            U8* hdrLightmap = NULL;
+            U8* hdrLightmap = nullptr;
             S32 size = 0;
             
             // look for hdr lightmaps
@@ -755,7 +755,7 @@ static void ParseFace( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors, ms
     verts += LittleLong( ds->firstVert );
     #pragma omp critical
     for( i = 0; i < numVerts; i++ )
-        LoadDrawVertToSrfVert( &cv->verts[i], &verts[i], realLightmapNum, hdrVertColors ? hdrVertColors + ( ds->firstVert + i ) * 3 : NULL, surf->cullinfo.bounds );
+        LoadDrawVertToSrfVert( &cv->verts[i], &verts[i], realLightmapNum, hdrVertColors ? hdrVertColors + ( ds->firstVert + i ) * 3 : nullptr, surf->cullinfo.bounds );
         
     // copy triangles
     badTriangles = 0;
@@ -862,7 +862,7 @@ static void ParseMesh( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors, ms
     numPoints = width * height;
     #pragma omp critical
     for( i = 0; i < numPoints; i++ )
-        LoadDrawVertToSrfVert( &points[i], &verts[i], realLightmapNum, hdrVertColors ? hdrVertColors + ( ds->firstVert + i ) * 3 : NULL, NULL );
+        LoadDrawVertToSrfVert( &points[i], &verts[i], realLightmapNum, hdrVertColors ? hdrVertColors + ( ds->firstVert + i ) * 3 : nullptr, nullptr );
         
     // pre-tesseleate
     R_SubdividePatchToGrid( grid, width, height, points );
@@ -931,7 +931,7 @@ static void ParseTriSurf( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors,
     verts += LittleLong( ds->firstVert );
     #pragma omp critical
     for( i = 0; i < numVerts; i++ )
-        LoadDrawVertToSrfVert( &cv->verts[i], &verts[i], -1, hdrVertColors ? hdrVertColors + ( ds->firstVert + i ) * 3 : NULL, surf->cullinfo.bounds );
+        LoadDrawVertToSrfVert( &cv->verts[i], &verts[i], -1, hdrVertColors ? hdrVertColors + ( ds->firstVert + i ) * 3 : nullptr, surf->cullinfo.bounds );
         
     // copy triangles
     badTriangles = 0;
@@ -1797,7 +1797,7 @@ static	void R_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexLump )
     S32			count;
     S32			numFaces, numMeshes, numTriSurfs, numFlares;
     S32			i;
-    F32* hdrVertColors = NULL;
+    F32* hdrVertColors = nullptr;
     
     numFaces = 0;
     numMeshes = 0;
@@ -1943,8 +1943,8 @@ static	void R_LoadSubmodels( lump_t* l )
         
         model = R_AllocModel();
         
-        assert( model != NULL );			// this should never happen
-        if( model == NULL )
+        assert( model != nullptr );			// this should never happen
+        if( model == nullptr )
         {
             Com_Error( ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed" );
         }
@@ -2063,7 +2063,7 @@ static	void R_LoadNodesAndLeafs( lump_t* nodeLump, lump_t* leafLump )
     }
     
     // chain decendants
-    R_SetParent( s_worldData.nodes, NULL );
+    R_SetParent( s_worldData.nodes, nullptr );
 }
 
 //=============================================================================
@@ -2325,7 +2325,7 @@ void R_LoadLightGrid( lump_t* l )
     if( l->filelen != numGridPoints * 8 )
     {
         CL_RefPrintf( PRINT_WARNING, "WARNING: light grid mismatch\n" );
-        w->lightGridData = NULL;
+        w->lightGridData = nullptr;
         return;
     }
     
@@ -2853,7 +2853,7 @@ void R_RenderMissingCubemaps( void )
     {
         if( !tr.cubemaps[i].image )
         {
-            tr.cubemaps[i].image = R_CreateImage( va( "*cubeMap%d", i ), NULL, r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA, flags, cubemapFormat );
+            tr.cubemaps[i].image = R_CreateImage( va( "*cubeMap%d", i ), nullptr, r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA, flags, cubemapFormat );
             tr.cubemaps[i].mipmapped = 0;
             
             for( j = 0; j < 6; j++ )
@@ -2960,7 +2960,7 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
     
     // clear tr.world so if the level fails to load, the next
     // try will not look at the partially loaded version
-    tr.world = NULL;
+    tr.world = nullptr;
     
     ::memset( &s_worldData, 0, sizeof( s_worldData ) );
     Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );

@@ -408,7 +408,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         startIndex = sv_privateClients->integer;
     }
     
-    newcl = NULL;
+    newcl = nullptr;
     for( i = startIndex; i < sv_maxclients->integer ; i++ )
     {
         cl = &svs.clients[i];
@@ -422,7 +422,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     
     if( !newcl )
     {
-        cl = NULL;
+        cl = nullptr;
         
         // Find a bot
         for( i = startIndex; i < sv_maxclients->integer; i++ )
@@ -600,8 +600,8 @@ void idServerClientSystemLocal::DropClient( client_t* drop, StringEntry reason )
     {
         // tell everyone why they got dropped
         // Gordon: we want this displayed elsewhere now
-        //serverMainSystem->SendServerCommand(NULL, "cpm \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason);
-        //serverMainSystem->SendServerCommand( NULL, "print \"[lof]%s" S_COLOR_WHITE " [lon]%s\n\"", drop->name, reason );
+        //serverMainSystem->SendServerCommand(nullptr, "cpm \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason);
+        //serverMainSystem->SendServerCommand( nullptr, "print \"[lof]%s" S_COLOR_WHITE " [lon]%s\n\"", drop->name, reason );
     }
     
     if( drop->download )
@@ -832,7 +832,7 @@ void idServerClientSystemLocal::CloseDownload( client_t* cl )
         if( cl->downloadBlocks[i] )
         {
             Z_Free( cl->downloadBlocks[i] );
-            cl->downloadBlocks[i] = NULL;
+            cl->downloadBlocks[i] = nullptr;
         }
     }
     
@@ -1704,10 +1704,10 @@ bool idServerClientSystemLocal::CheckFunstuffExploit( UTF8* userinfo, UTF8* key 
         S32 len;
         UTF8* next = strchr( token, ',' );
         
-        if( next == NULL )
+        if( next == nullptr )
         {
             len = strlen( token );
-            token = NULL;
+            token = nullptr;
         }
         else
         {
@@ -1964,7 +1964,7 @@ static ucmd_t ucmds[] =
     {"wwwdl", &idServerClientSystemLocal::WWWDownload_f, false},
     {"cheater", &idServerOACSSystemLocal::ExtendedRecordSetCheaterFromClient_f, false},
     {"honest", &idServerOACSSystemLocal::ExtendedRecordSetHonestFromClient_f, false},
-    {NULL, NULL}
+    {nullptr, nullptr}
 };
 
 /*

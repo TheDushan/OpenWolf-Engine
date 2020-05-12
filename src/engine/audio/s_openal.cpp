@@ -1027,7 +1027,7 @@ static void S_AL_StartSound( vec3_t origin, S32 entnum, S32 entchannel, sfxHandl
     }
     
     // Set up the effect
-    if( origin == NULL )
+    if( origin == nullptr )
     {
         if( S_AL_HearingThroughEntity( entnum ) )
         {
@@ -1548,13 +1548,13 @@ static void S_AL_CloseMusicFiles( void )
     if( intro_stream )
     {
         S_CodecCloseStream( intro_stream );
-        intro_stream = NULL;
+        intro_stream = nullptr;
     }
     
     if( mus_stream )
     {
         S_CodecCloseStream( mus_stream );
-        mus_stream = NULL;
+        mus_stream = nullptr;
     }
 }
 
@@ -1625,7 +1625,7 @@ static void S_AL_MusicProcess( U32 b )
         // the music stream.
         if( intro_stream )
         {
-            intro_stream = NULL;
+            intro_stream = nullptr;
         }
         else
         {
@@ -1716,7 +1716,7 @@ static void S_AL_StartBackgroundTrack( StringEntry intro, StringEntry loop )
     }
     else
     {
-        intro_stream = NULL;
+        intro_stream = nullptr;
     }
     
     mus_stream = S_CodecOpenStream( s_backgroundLoop );
@@ -1946,7 +1946,7 @@ void S_AL_SoundInfo( void )
     Com_Printf( "  Version:    %s\n", alGetString( AL_VERSION ) );
     Com_Printf( "  Renderer:   %s\n", alGetString( AL_RENDERER ) );
     Com_Printf( "  Extensions: %s\n", alGetString( AL_EXTENSIONS ) );
-    if( alcIsExtensionPresent( NULL, "ALC_ENUMERATION_EXT" ) )
+    if( alcIsExtensionPresent( nullptr, "ALC_ENUMERATION_EXT" ) )
     {
         Com_Printf( "  Device:     %s\n", alcGetString( alDevice, ALC_DEVICE_SPECIFIER ) );
         Com_Printf( "Available Devices:\n%s", s_alAvailableDevices->string );
@@ -2006,7 +2006,7 @@ bool S_AL_Init( soundInterface_t* si )
     }
     
     // Device enumeration support (extension is implemented reasonably only on Windows right now).
-    if( ( enumsupport = alcIsExtensionPresent( NULL, "ALC_ENUMERATION_EXT" ) ) )
+    if( ( enumsupport = alcIsExtensionPresent( nullptr, "ALC_ENUMERATION_EXT" ) ) )
     {
         UTF8 devicenames[1024] = "";
         StringEntry devicelist;
@@ -2014,8 +2014,8 @@ bool S_AL_Init( soundInterface_t* si )
         S32 curlen;
         
         // get all available devices + the default device name.
-        devicelist = alcGetString( NULL, ALC_DEVICE_SPECIFIER );
-        defaultdevice = alcGetString( NULL, ALC_DEFAULT_DEVICE_SPECIFIER );
+        devicelist = alcGetString( nullptr, ALC_DEVICE_SPECIFIER );
+        defaultdevice = alcGetString( nullptr, ALC_DEFAULT_DEVICE_SPECIFIER );
         
 #ifdef _WIN32
         // check whether the default device is generic hardware. If it is, change to
@@ -2062,7 +2062,7 @@ bool S_AL_Init( soundInterface_t* si )
     }
     else
     {
-        alDevice = alcOpenDevice( NULL );
+        alDevice = alcOpenDevice( nullptr );
     }
     
     if( !alDevice )
@@ -2077,7 +2077,7 @@ bool S_AL_Init( soundInterface_t* si )
     }
     
     // Create OpenAL context
-    alContext = alcCreateContext( alDevice, NULL );
+    alContext = alcCreateContext( alDevice, nullptr );
     if( !alContext )
     {
         alcCloseDevice( alDevice );

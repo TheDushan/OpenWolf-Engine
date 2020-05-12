@@ -251,7 +251,7 @@ exit_loop:
                 case demo_serverCommand:
                     cmdSystem->SaveCmdContext();
                     cmdSystem->TokenizeString( MSG_ReadString( &msg ) );
-                    serverMainSystem->SendServerCommand( NULL, "%s \"^3[DEMO] ^7%s\"", cmdSystem->Argv( 0 ), cmdSystem->ArgsFrom( 1 ) );
+                    serverMainSystem->SendServerCommand( nullptr, "%s \"^3[DEMO] ^7%s\"", cmdSystem->Argv( 0 ), cmdSystem->ArgsFrom( 1 ) );
                     cmdSystem->RestoreCmdContext();
                     break;
                 case demo_gameCommand:
@@ -417,7 +417,7 @@ void idServerDemoSystemLocal::DemoStartPlayback( void )
         return;
     }
     s = MSG_ReadString( &msg );
-    if( !fileSystem->FOpenFileRead( va( "maps/%s.bsp", s ), NULL, false ) )
+    if( !fileSystem->FOpenFileRead( va( "maps/%s.bsp", s ), nullptr, false ) )
     {
         Com_Printf( "Map does not exist: %s.\n", s );
         DemoStopPlayback();

@@ -340,7 +340,7 @@ void idConsoleCursesLocal::Init( void )
     // Initialize curses and set up the root window
     if( !curses_on )
     {
-        SCREEN* test = newterm( NULL, stdout, stdin );
+        SCREEN* test = newterm( nullptr, stdout, stdin );
         if( !test )
         {
             Init();
@@ -483,9 +483,9 @@ UTF8* idConsoleCursesLocal::Input( void )
         com_ansiColor->modified = false;
     }
     
-    if( Com_RealTime( NULL ) != lasttime )
+    if( Com_RealTime( nullptr ) != lasttime )
     {
-        lasttime = Com_RealTime( NULL );
+        lasttime = Com_RealTime( nullptr );
         UpdateClock();
         num_chars++;
     }
@@ -524,7 +524,7 @@ UTF8* idConsoleCursesLocal::Input( void )
                     UpdateCursor();
                     doupdate();
                 }
-                return NULL;
+                return nullptr;
             case '\n':
             case '\r':
             case KEY_ENTER:

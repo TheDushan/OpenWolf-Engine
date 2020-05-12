@@ -87,25 +87,25 @@ void idRenderSystemLocal::RemapShader( StringEntry shaderName, StringEntry newSh
     qhandle_t	h;
     
     sh = R_FindShaderByName( shaderName );
-    if( sh == NULL || sh == tr.defaultShader )
+    if( sh == nullptr || sh == tr.defaultShader )
     {
         h = RE_RegisterShaderLightMap( shaderName, 0 );
         sh = R_GetShaderByHandle( h );
     }
-    if( sh == NULL || sh == tr.defaultShader )
+    if( sh == nullptr || sh == tr.defaultShader )
     {
         CL_RefPrintf( PRINT_WARNING, "WARNING: idRenderSystemLocal::RemapShader: shader %s not found\n", shaderName );
         return;
     }
     
     sh2 = R_FindShaderByName( newShaderName );
-    if( sh2 == NULL || sh2 == tr.defaultShader )
+    if( sh2 == nullptr || sh2 == tr.defaultShader )
     {
         h = RE_RegisterShaderLightMap( newShaderName, 0 );
         sh2 = R_GetShaderByHandle( h );
     }
     
-    if( sh2 == NULL || sh2 == tr.defaultShader )
+    if( sh2 == nullptr || sh2 == tr.defaultShader )
     {
         CL_RefPrintf( PRINT_WARNING, "WARNING: idRenderSystemLocal::RemapShader: new shader %s not found\n", newShaderName );
         return;
@@ -125,7 +125,7 @@ void idRenderSystemLocal::RemapShader( StringEntry shaderName, StringEntry newSh
             }
             else
             {
-                sh->remappedShader = NULL;
+                sh->remappedShader = nullptr;
             }
         }
     }
@@ -3084,10 +3084,10 @@ static S32 CollapseStagesToGLSL( void )
                 continue;
                 
             diffuse  = pStage;
-            normal   = NULL;
+            normal   = nullptr;
             parallax = false;
-            specular = NULL;
-            lightmap = NULL;
+            specular = nullptr;
+            lightmap = nullptr;
             
             bool usedLightmap = false;
             // we have a diffuse map, find matching normal, specular, and lightmap
@@ -3888,7 +3888,7 @@ FindShaderInShaderText
 Scans the combined text description of all the shader files for
 the given shader name.
 
-return NULL if not found
+return nullptr if not found
 
 If found, it will return a valid shader
 =====================
@@ -3918,7 +3918,7 @@ static UTF8* FindShaderInShaderText( StringEntry shadername )
     
     if( !p )
     {
-        return NULL;
+        return nullptr;
     }
     
     // look for label
@@ -3941,7 +3941,7 @@ static UTF8* FindShaderInShaderText( StringEntry shadername )
         }
     }
     
-    return NULL;
+    return nullptr;
 }
 
 
@@ -3959,7 +3959,7 @@ shader_t* R_FindShaderByName( StringEntry name )
     S32			hash;
     shader_t*	sh;
     
-    if( ( name == NULL ) || ( name[0] == 0 ) )
+    if( ( name == nullptr ) || ( name[0] == 0 ) )
     {
         return tr.defaultShader;
     }
@@ -4547,7 +4547,7 @@ a single large text block that can be scanned for shader names
 static void ScanAndLoadShaderFiles( void )
 {
     UTF8** shaderFiles;
-    UTF8* buffers[MAX_SHADER_FILES] = {NULL};
+    UTF8* buffers[MAX_SHADER_FILES] = {nullptr};
     UTF8* p;
     S32 numShaderFiles;
     S32 i;
@@ -4585,7 +4585,7 @@ static void ScanAndLoadShaderFiles( void )
                 strcpy( ext, ".mtr" );
             }
             
-            if( fileSystem->ReadFile( filename, NULL ) <= 0 )
+            if( fileSystem->ReadFile( filename, nullptr ) <= 0 )
             {
                 Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
             }
@@ -4621,7 +4621,7 @@ static void ScanAndLoadShaderFiles( void )
                 }
                 CL_RefPrintf( PRINT_WARNING, ".\n" );
                 fileSystem->FreeFile( buffers[i] );
-                buffers[i] = NULL;
+                buffers[i] = nullptr;
                 break;
             }
             
@@ -4630,7 +4630,7 @@ static void ScanAndLoadShaderFiles( void )
                 CL_RefPrintf( PRINT_WARNING, "WARNING: Ignoring shader file %s. Shader \"%s\" on line %d missing closing brace.\n",
                               filename, shaderName, shaderLine );
                 fileSystem->FreeFile( buffers[i] );
-                buffers[i] = NULL;
+                buffers[i] = nullptr;
                 break;
             }
         }

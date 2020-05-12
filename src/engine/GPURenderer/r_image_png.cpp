@@ -226,7 +226,7 @@ static struct BufferedFile* ReadBufferedFile( StringEntry name )
     
     if( !name )
     {
-        return( NULL );
+        return( nullptr );
     }
     
     /*
@@ -236,7 +236,7 @@ static struct BufferedFile* ReadBufferedFile( StringEntry name )
     BF = ( struct BufferedFile* )CL_RefMalloc( sizeof( struct BufferedFile ) );
     if( !BF )
     {
-        return( NULL );
+        return( nullptr );
     }
     
     /*
@@ -244,8 +244,8 @@ static struct BufferedFile* ReadBufferedFile( StringEntry name )
      */
     
     BF->Length    = 0;
-    BF->Buffer    = NULL;
-    BF->Ptr       = NULL;
+    BF->Buffer    = nullptr;
+    BF->Ptr       = nullptr;
     BF->BytesLeft = 0;
     
     /*
@@ -263,7 +263,7 @@ static struct BufferedFile* ReadBufferedFile( StringEntry name )
     {
         Z_Free( BF );
         
-        return( NULL );
+        return( nullptr );
     }
     
     /*
@@ -307,7 +307,7 @@ static void* BufferedFileRead( struct BufferedFile* BF, U32 Length )
     
     if( !( BF && Length ) )
     {
-        return( NULL );
+        return( nullptr );
     }
     
     /*
@@ -316,7 +316,7 @@ static void* BufferedFileRead( struct BufferedFile* BF, U32 Length )
     
     if( Length > BF->BytesLeft )
     {
-        return( NULL );
+        return( nullptr );
     }
     
     /*
@@ -539,10 +539,10 @@ static U32 DecompressIDATs( struct BufferedFile* BF, U8** Buffer )
      *  some zeroing
      */
     
-    DecompressedData = NULL;
+    DecompressedData = nullptr;
     *Buffer = DecompressedData;
     
-    CompressedData = NULL;
+    CompressedData = nullptr;
     CompressedDataLength = 0;
     
     BytesToRewind = 0;
@@ -699,7 +699,7 @@ static U32 DecompressIDATs( struct BufferedFile* BF, U8** Buffer )
      *  Let puff() calculate the decompressed data length.
      */
     
-    puffDest    = NULL;
+    puffDest    = nullptr;
     puffDestLen = 0;
     
     /*
@@ -1943,7 +1943,7 @@ void R_LoadPNG( StringEntry name, U8** pic, S32* width, S32* height )
      *  Zero out return values.
      */
     
-    *pic = NULL;
+    *pic = nullptr;
     
     if( width )
     {

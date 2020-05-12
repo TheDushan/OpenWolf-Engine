@@ -40,7 +40,7 @@ void S_Base_StopBackgroundTrack( void );
 idSoundSystemLocal soundSystemLocal;
 idSoundSystem* soundSystem = &soundSystemLocal;
 
-snd_stream_t*	s_backgroundStream = NULL;
+snd_stream_t*	s_backgroundStream = nullptr;
 static UTF8		s_backgroundLoop[MAX_QPATH];
 //static UTF8		s_backgroundMusic[MAX_QPATH]; //TTimo: unused
 
@@ -87,7 +87,7 @@ convar_t* s_mixPreStep;
 convar_t* s_alttabmute;
 
 loopSound_t	loopSounds[MAX_GENTITIES];
-static channel_t* freelist = NULL;
+static channel_t* freelist = nullptr;
 
 S32 s_rawend;
 portable_samplepair_t s_rawsamples[MAX_RAW_SAMPLES];
@@ -171,7 +171,7 @@ void S_Base_SoundList( void )
 
 void S_ChannelFree( channel_t* v )
 {
-    v->thesfx = NULL;
+    v->thesfx = nullptr;
     *( channel_t** )v = freelist;
     freelist = ( channel_t* )v;
 }
@@ -180,9 +180,9 @@ channel_t*	S_ChannelMalloc( void )
 {
     channel_t* v;
     
-    if( freelist == NULL )
+    if( freelist == nullptr )
     {
-        return NULL;
+        return nullptr;
     }
     
     v = freelist;
@@ -207,7 +207,7 @@ void S_ChannelSetup( void )
         *( channel_t** )q = q - 1;
     }
     
-    *( channel_t** )q = NULL;
+    *( channel_t** )q = nullptr;
     freelist = p + MAX_CHANNELS - 1;
     //Com_DPrintf( "Channel memory manager started\n" );
 }
@@ -267,19 +267,19 @@ static sfx_t* S_FindName( StringEntry name )
     
     if( !name )
     {
-        Com_Error( ERR_FATAL, "Sound name is a NULL string\n" );
+        Com_Error( ERR_FATAL, "Sound name is a nullptr string\n" );
     }
     
     if( !name[0] )
     {
         Com_Printf( S_COLOR_YELLOW "WARNING: Sound name is empty\n" );
-        return NULL;
+        return nullptr;
     }
     
     if( strlen( name ) >= MAX_QPATH )
     {
         Com_Printf( S_COLOR_YELLOW "WARNING: Sound name is too long: %s\n", name );
-        return NULL;
+        return nullptr;
     }
     
     hash = S_HashSFXName( name );
@@ -336,7 +336,7 @@ void S_DefaultSound( sfx_t* sfx )
     
     sfx->soundLength = 512;
     sfx->soundData = SND_malloc();
-    sfx->soundData->next = NULL;
+    sfx->soundData->next = nullptr;
     
     for( i = 0 ; i < sfx->soundLength ; i++ )
     {
@@ -539,7 +539,7 @@ void S_SpatializeOrigin( vec3_t origin, S32 master_vol, S32* left_vol, S32* righ
 S_StartSound
 
 Validates the parms and ques the sound up
-if pos is NULL, the sound will be dynamically sourced from the entity
+if pos is nullptr, the sound will be dynamically sourced from the entity
 Entchannel 0 will never override a playing sound
 ====================
 */
@@ -707,7 +707,7 @@ void S_Base_StartLocalSound( sfxHandle_t sfxHandle, S32 channelNum )
         return;
     }
     
-    S_Base_StartSound( NULL, listener_number, channelNum, sfxHandle );
+    S_Base_StartSound( nullptr, listener_number, channelNum, sfxHandle );
 }
 
 
@@ -1501,7 +1501,7 @@ void S_Base_StopBackgroundTrack( void )
     }
     
     S_CodecCloseStream( s_backgroundStream );
-    s_backgroundStream = NULL;
+    s_backgroundStream = nullptr;
     s_rawend = 0;
 }
 
@@ -1517,7 +1517,7 @@ static void S_OpenBackgroundStream( StringEntry filename )
     if( s_backgroundStream )
     {
         S_CodecCloseStream( s_backgroundStream );
-        s_backgroundStream = NULL;
+        s_backgroundStream = nullptr;
     }
     
     // Open stream
@@ -1689,14 +1689,14 @@ void S_FreeOldestSound( void )
     Com_DPrintf( "S_FreeOldestSound: freeing sound %s\n", sfx->soundName );
     
     buffer = sfx->soundData;
-    while( buffer != NULL )
+    while( buffer != nullptr )
     {
         nbuffer = buffer->next;
         SND_free( buffer );
         buffer = nbuffer;
     }
     sfx->inMemory = false;
-    sfx->soundData = NULL;
+    sfx->soundData = nullptr;
 }
 
 // =======================================================================

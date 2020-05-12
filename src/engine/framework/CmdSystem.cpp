@@ -94,7 +94,7 @@ cmd_function_t* idCmdSystemLocal::FindCommand( StringEntry cmdName )
             return cmd;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -135,14 +135,14 @@ void idCmdSystemLocal::ExecFile( UTF8* f )
     
     COM_Compress( f );
     
-    cvarSystem->Get( "arg_all", cmdSystemLocal.ArgsFrom( 2 ), CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, NULL );
+    cvarSystem->Get( "arg_all", cmdSystemLocal.ArgsFrom( 2 ), CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, nullptr );
     cvarSystem->Set( "arg_all", cmdSystemLocal.ArgsFrom( 2 ) );
-    cvarSystem->Get( "arg_count", va( "%i", cmdSystemLocal.Argc() - 2 ), CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, NULL );
+    cvarSystem->Get( "arg_count", va( "%i", cmdSystemLocal.Argc() - 2 ), CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, nullptr );
     cvarSystem->Set( "arg_count", va( "%i", cmdSystemLocal.Argc() - 2 ) );
     
     for( i = cmdSystemLocal.Argc() - 2; i; i-- )
     {
-        cvarSystem->Get( va( "arg_%i", i ), cmdSystemLocal.Argv( i + 1 ), CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, NULL );
+        cvarSystem->Get( va( "arg_%i", i ), cmdSystemLocal.Argv( i + 1 ), CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, nullptr );
         cvarSystem->Set( va( "arg_%i", i ), cmdSystemLocal.Argv( i + 1 ) );
     }
     
@@ -385,7 +385,7 @@ void idCmdSystemLocal::ModCase( void )
     }
     
     // If we have a tail command, use it as default
-    v = ( argc & 1 ) ? NULL : cmdSystemLocal.Argv( argc - 1 );
+    v = ( argc & 1 ) ? nullptr : cmdSystemLocal.Argv( argc - 1 );
     
     // Search for a suitable command to execute.
     // Search is done as if the commands are sorted by modifier count
@@ -430,9 +430,9 @@ void idCmdSystemLocal::If( void )
     S32 v1;
     S32 v2;
     S32 argc;
-    UTF8* v = NULL;
+    UTF8* v = nullptr;
     UTF8* vt;
-    UTF8* vf = NULL;
+    UTF8* vf = nullptr;
     UTF8* op;
 #ifndef DEDICATED
     modifierMask_t mask;
@@ -996,7 +996,7 @@ void idCmdSystemLocal::AliasList( void )
     }
     else
     {
-        match = NULL;
+        match = nullptr;
     }
     
     i = 0;
@@ -1038,7 +1038,7 @@ void idCmdSystemLocal::ClearAliases( void )
         
         alias = next;
     }
-    cmd_aliases = NULL;
+    cmd_aliases = nullptr;
     
     // update autogen.cfg
     cvar_modifiedFlags |= CVAR_ARCHIVE;
@@ -1152,14 +1152,14 @@ void idCmdSystemLocal::Alias( void )
             alias->exec = CopyString( cmdSystemLocal.ArgsFrom( 2 ) );
             alias->next = cmd_aliases;
             cmd_aliases = alias;
-            cmdSystemLocal.AddCommand( name, RunAlias, NULL );
+            cmdSystemLocal.AddCommand( name, RunAlias, nullptr );
         }
         else
         {
             // Reallocate the exec string
             Z_Free( alias->exec );
             alias->exec = CopyString( cmdSystemLocal.ArgsFrom( 2 ) );
-            cmdSystemLocal.AddCommand( name, RunAlias, NULL );
+            cmdSystemLocal.AddCommand( name, RunAlias, nullptr );
         }
     }
     
@@ -1798,7 +1798,7 @@ void idCmdSystemLocal::AddCommand( StringEntry cmd_name, xcommand_t function, St
         if( !strcmp( cmd_name, cmd->name ) )
         {
             // allow completion-only commands to be silently doubled
-            if( function != NULL )
+            if( function != nullptr )
             {
                 Com_Printf( "idCmdSystemLocal::AddCommand: %s already defined\n", cmd_name );
             }
@@ -1813,7 +1813,7 @@ void idCmdSystemLocal::AddCommand( StringEntry cmd_name, xcommand_t function, St
     cmd->desc = CopyString( cmd_desc );
     cmd->function = function;
     cmd->next = cmd_functions;
-    cmd->complete = NULL;
+    cmd->complete = nullptr;
     cmd_functions = cmd;
 }
 
@@ -2001,7 +2001,7 @@ void idCmdSystemLocal::List( void )
     }
     else
     {
-        match = NULL;
+        match = nullptr;
     }
     
     i = 0;
@@ -2032,7 +2032,7 @@ void idCmdSystemLocal::CompleteCfgName( UTF8* args, S32 argNum )
     {
         S32 i = 0;
         UTF8* s = args, *token = s;
-        StringEntry pos = NULL;
+        StringEntry pos = nullptr;
         
         for( i = 0; i < argNum; i++ )
         {

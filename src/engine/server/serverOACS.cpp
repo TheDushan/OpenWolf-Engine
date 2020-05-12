@@ -234,7 +234,7 @@ Called only once, at the launching of the server
 void idServerOACSSystemLocal::ExtendedRecordInit( void )
 {
     //Initializing the random seed for the random values generator
-    srand( time( NULL ) );
+    srand( time( nullptr ) );
     
     // Initialize the features
     ExtendedRecordInterframeInit( -1 );
@@ -579,8 +579,8 @@ F64 idServerOACSSystemLocal::ExtendedRecordInterframeInitValue( S32 client, S32 
     {
         case FEATURE_PLAYERID:
             // Set unique player id (we want this id to be completely generated serverside and without any means to tamper it clientside) - we don't care that the id change for the same player when he reconnects, since anyway the id will always link to the player's ip and guid using the playerstable
-            //UTF8 tmp[MAX_STRING_CHARS] = ""; snprintf(tmp, MAX_STRING_CHARS, "%i%lu", rand_range(1, 99999), (unsigned long int)time(NULL));
-            return atof( va( "%i%lu", rand_range( 1, 99999 ), ( U64 )time( NULL ) ) ); // FIXME: use a real UUID/GUID here (for the moment we simply use the timestamp in seconds + a random number, this should be enough for now to ensure the uniqueness of all the players) - do NOT use ioquake3 GUID since it can be spoofed (there's no centralized authorization system!)
+            //UTF8 tmp[MAX_STRING_CHARS] = ""; snprintf(tmp, MAX_STRING_CHARS, "%i%lu", rand_range(1, 99999), (unsigned long int)time(nullptr));
+            return atof( va( "%i%lu", rand_range( 1, 99999 ), ( U64 )time( nullptr ) ) ); // FIXME: use a real UUID/GUID here (for the moment we simply use the timestamp in seconds + a random number, this should be enough for now to ensure the uniqueness of all the players) - do NOT use ioquake3 GUID since it can be spoofed (there's no centralized authorization system!)
         case FEATURE_SVSTIME:
             // Server time (serverStatic_t time, which is always strictly increasing)
             return svs.time;
@@ -935,11 +935,11 @@ void idServerOACSSystemLocal::ExtendedRecordPlayersTableInit( S32 client )
     sv_playerstable.guid = Info_ValueForKey( cl->userinfo, "cl_guid" );
     
     // Set timestamp
-    sv_playerstable.timestamp = time( NULL );
+    sv_playerstable.timestamp = time( nullptr );
     
     // Human readable date time (only for human operators when reviewing the playerstable, else it's totally useless for the cheat detection)
     // Note: this is UTC time
-    time_t  utcnow = time( NULL );
+    time_t  utcnow = time( nullptr );
     struct tm tnow = *gmtime( &utcnow );
     strftime( sv_playerstable.datetime, MAX_STRING_CSV, "%Y-%m-%d %H:%M:%S", &tnow );
     

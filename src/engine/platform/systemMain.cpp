@@ -206,7 +206,7 @@ bool idSystemLocal::WritePIDFile( void )
     bool stale = false;
     
     // First, check if the pid file is already there
-    if( ( f = fopen( pidFile, "r" ) ) != NULL )
+    if( ( f = fopen( pidFile, "r" ) ) != nullptr )
     {
         UTF8  pidBuffer[ 64 ] = { 0 };
         S32   pid;
@@ -221,7 +221,7 @@ bool idSystemLocal::WritePIDFile( void )
         }
     }
     
-    if( ( f = fopen( pidFile, "w" ) ) != NULL )
+    if( ( f = fopen( pidFile, "w" ) ) != nullptr )
     {
         fprintf( f, "%d", PID( ) );
         fclose( f );
@@ -368,7 +368,7 @@ void idSystemLocal::UnloadDll( void* dllHandle )
 {
     if( !dllHandle )
     {
-        Com_Printf( "idSystemLocal::UnloadDll(NULL)\n" );
+        Com_Printf( "idSystemLocal::UnloadDll(nullptr)\n" );
         return;
     }
     
@@ -399,7 +399,7 @@ Used to load a development dll instead of a virtual machine
 */
 void* idSystemLocal::LoadDll( StringEntry name )
 {
-    void* libHandle = NULL;
+    void* libHandle = nullptr;
     static S32 lastWarning = 0;
     UTF8* basepath;
     UTF8* homepath;
@@ -460,7 +460,7 @@ void* idSystemLocal::LoadDll( StringEntry name )
                         if( !libHandle )
                         {
                             Com_DPrintf( "idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn, SDL_GetError() );
-                            return NULL;
+                            return nullptr;
                         }
                     }
                 }
@@ -676,7 +676,7 @@ Q_EXPORT S32 engineMain( S32 argc, UTF8 * *argv )
     // Concatenate the command line for passing to Com_Init
     for( i = 1; i < argc; i++ )
     {
-        const bool containsSpaces = ( bool )( strchr( argv[i], ' ' ) != NULL );
+        const bool containsSpaces = ( bool )( strchr( argv[i], ' ' ) != nullptr );
         
         if( !::strcmp( argv[ i ], "+nocurses" ) )
         {

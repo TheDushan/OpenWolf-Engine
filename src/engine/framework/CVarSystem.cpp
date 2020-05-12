@@ -145,7 +145,7 @@ convar_t* idCVarSystemLocal::FindVar( StringEntry var_name )
     S64 hash;
     
     if( !var_name )
-        return NULL;
+        return nullptr;
         
     hash = generateHashValue( var_name );
     
@@ -157,7 +157,7 @@ convar_t* idCVarSystemLocal::FindVar( StringEntry var_name )
         }
     }
     
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -336,7 +336,7 @@ idCVarSystemLocal::Get
 
 If the variable already exists, the value will not be set unless CVAR_ROM
 The flags will be or'ed in if the variable exists.
-You can pass NULL for the description.
+You can pass nullptr for the description.
 ============
 */
 convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S32 flags, StringEntry description )
@@ -346,7 +346,7 @@ convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S
     
     if( !var_name || !var_value )
     {
-        Com_Error( ERR_FATAL, "idCVarSystemLocal::Get: NULL parameter" );
+        Com_Error( ERR_FATAL, "idCVarSystemLocal::Get: nullptr parameter" );
     }
     
     if( !ValidateString( var_name ) )
@@ -400,7 +400,7 @@ convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S
             UTF8*           s;
             
             s = var->latchedString;
-            var->latchedString = NULL;	// otherwise idCVarSystemLocal::GetSet2 would free it
+            var->latchedString = nullptr;	// otherwise idCVarSystemLocal::GetSet2 would free it
             GetSet2( var_name, s, true );
             Z_Free( s );
         }
@@ -456,7 +456,7 @@ convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S
     }
     var->modified = true;
     var->modificationCount = 1;
-    F64 strValue = strtod( var->string, NULL );
+    F64 strValue = strtod( var->string, nullptr );
     var->value = strValue;
     var->integer = strValue;
     var->resetString = CopyString( var_value );
@@ -503,17 +503,17 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
     {
         if( !value )
         {
-            return NULL;
+            return nullptr;
         }
         
         // create it
         if( !force )
         {
-            return Get( var_name, value, CVAR_USER_CREATED, NULL );
+            return Get( var_name, value, CVAR_USER_CREATED, nullptr );
         }
         else
         {
-            return Get( var_name, value, 0, NULL );
+            return Get( var_name, value, 0, nullptr );
         }
     }
     
@@ -560,7 +560,7 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
         {
             Com_Printf( "Cvar %s is no longer latched to \"%s\".\n", var->name, var->latchedString );
             Z_Free( var->latchedString );
-            var->latchedString = NULL;
+            var->latchedString = nullptr;
             var->modified = true;
             var->modificationCount++;
         }
@@ -574,7 +574,7 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
     if( !force )
     {
         // ydnar: don't set unsafe variables when com_crashed is set
-        if( ( var->flags & CVAR_UNSAFE ) && com_crashed != NULL && com_crashed->integer )
+        if( ( var->flags & CVAR_UNSAFE ) && com_crashed != nullptr && com_crashed->integer )
         {
             Com_Printf( "%s is unsafe. Check com_crashed.\n", var_name );
             return var;
@@ -636,7 +636,7 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
         if( var->latchedString )
         {
             Z_Free( var->latchedString );
-            var->latchedString = NULL;
+            var->latchedString = nullptr;
         }
     }
     
@@ -651,7 +651,7 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
     Z_Free( var->string );		// free the old value string
     
     var->string = CopyString( value );
-    F64 strValue = strtod( var->string, NULL );
+    F64 strValue = strtod( var->string, nullptr );
     var->value = strValue;
     var->integer = strValue;
     
@@ -748,7 +748,7 @@ idCVarSystemLocal::Reset
 */
 void idCVarSystemLocal::Reset( StringEntry var_name )
 {
-    GetSet2( var_name, NULL, false );
+    GetSet2( var_name, nullptr, false );
 }
 
 /*
@@ -948,7 +948,7 @@ void idCVarSystemLocal::Set_f( void )
     {
         c--;
         unsafe = 1;
-        if( com_crashed != NULL && com_crashed->integer )
+        if( com_crashed != nullptr && com_crashed->integer )
         {
             Com_Printf( "%s is unsafe. Check com_crashed.\n", cmdSystem->Argv( 1 ) );
             return;
@@ -1157,7 +1157,7 @@ void idCVarSystemLocal::List_f( void )
     }
     else
     {
-        match = NULL;
+        match = nullptr;
     }
     
     i = 0;
@@ -1422,7 +1422,7 @@ updates an interpreted modules' version of a cvar
 */
 void idCVarSystemLocal::Update( vmConvar_t* vmCvar )
 {
-    convar_t* cv = NULL;	// bk001129
+    convar_t* cv = nullptr;	// bk001129
     
     // bk
     assert( vmCvar );

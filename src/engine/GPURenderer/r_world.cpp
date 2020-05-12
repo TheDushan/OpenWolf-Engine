@@ -706,7 +706,7 @@ static const U8* R_ClusterPVS( S32 cluster )
 {
     if( !tr.world->vis || cluster < 0 || cluster >= tr.world->numClusters )
     {
-        return NULL;
+        return nullptr;
     }
     
     return tr.world->vis + cluster * tr.world->clusterBytes;

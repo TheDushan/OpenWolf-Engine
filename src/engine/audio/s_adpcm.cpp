@@ -371,7 +371,7 @@ void S_AdpcmEncodeSound( sfx_t* sfx, S16* samples )
     state.index = 0;
     state.sample = samples[0];
     
-    chunk = NULL;
+    chunk = nullptr;
     while( count )
     {
         n = count;
@@ -382,7 +382,7 @@ void S_AdpcmEncodeSound( sfx_t* sfx, S16* samples )
         
         newchunk = SND_malloc();
         
-        if( sfx->soundData == NULL )
+        if( sfx->soundData == nullptr)
         {
             sfx->soundData = newchunk;
         }

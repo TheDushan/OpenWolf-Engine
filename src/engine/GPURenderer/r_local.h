@@ -115,7 +115,7 @@ void* CL_RefMalloc( S32 size );
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 
-#define BUFFER_OFFSET(i) ((UTF8 *)NULL + (i))
+#define BUFFER_OFFSET(i) ((UTF8 *)nullptr + (i))
 
 #define	SMP_FRAMES 2
 

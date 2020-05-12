@@ -122,7 +122,7 @@ typedef struct cmd_alias_s
     UTF8*				exec;
 } cmd_alias_t;
 
-static cmd_alias_t*	cmd_aliases = NULL;
+static cmd_alias_t*	cmd_aliases = nullptr;
 
 //
 // idServerBotSystemLocal

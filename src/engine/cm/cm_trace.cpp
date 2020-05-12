@@ -1145,7 +1145,7 @@ void CM_TraceThroughBrush( traceWork_t* tw, cbrush_t* brush )
     
     enterFrac = -1.0;
     leaveFrac = 1.0;
-    clipplane = NULL;
+    clipplane = nullptr;
     
     if( !brush->numsides )
     {
@@ -1157,7 +1157,7 @@ void CM_TraceThroughBrush( traceWork_t* tw, cbrush_t* brush )
     getout = false;
     startout = false;
     
-    leadside = NULL;
+    leadside = nullptr;
     
     if( tw->type == TT_BISPHERE )
     {
@@ -1408,11 +1408,11 @@ void CM_TraceThroughBrush( traceWork_t* tw, cbrush_t* brush )
                 enterFrac = 0;
             }
             tw->trace.fraction = enterFrac;
-            if( clipplane != NULL )
+            if( clipplane != nullptr )
             {
                 tw->trace.plane = *clipplane;
             }
-            if( leadside != NULL )
+            if( leadside != nullptr )
             {
                 tw->trace.surfaceFlags = leadside->surfaceFlags;
             }
@@ -2158,7 +2158,7 @@ static void CM_Trace( trace_t* results, const vec3_t start, const vec3_t end, co
         return; // map not loaded, shouldn't happen
     }
     
-    // allow NULL to be passed in for 0,0,0
+    // allow nullptr to be passed in for 0,0,0
     if( !mins )
     {
         mins = vec3_origin;
@@ -2395,7 +2395,7 @@ idCollisionModelManagerLocal::BoxTrace
 */
 void idCollisionModelManagerLocal::BoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, S32 brushmask, traceType_t type )
 {
-    CM_Trace( results, start, end, mins, maxs, model, vec3_origin, brushmask, type, NULL );
+    CM_Trace( results, start, end, mins, maxs, model, vec3_origin, brushmask, type, nullptr );
 }
 
 /*

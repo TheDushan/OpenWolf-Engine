@@ -190,7 +190,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t* ent, world_t* world )
     VectorClear( ent->directedLight );
     VectorClear( direction );
     
-    assert( world->lightGridData ); // NULL with -nolight maps
+    assert( world->lightGridData ); // nullptr with -nolight maps
     
     // trilerp the light value
     gridStep[0] = 8;
@@ -370,7 +370,7 @@ void R_AddLightToEntity( trRefEntity_t* ent, dlight_t* light, float dist )
     // Fill all the light slots first.
     for( S32 i = 0; i < MAX_ENTITY_LIGHTS; i++ )
     {
-        if( ent->lights[i] == NULL )
+        if( ent->lights[i] == nullptr )
         {
             ent->lights[i] = light;
             return;
@@ -416,7 +416,7 @@ void R_SetupEntityLighting( const trRefdef_t* refdef, trRefEntity_t* ent )
     
     for( i = 0; i < MAX_ENTITY_LIGHTS; i++ )
     {
-        ent->lights[i] = NULL;
+        ent->lights[i] = nullptr;
         ent->lightdist[i] = 9999;
     }
     
@@ -563,7 +563,7 @@ bool idRenderSystemLocal::LightForPoint( vec3_t point, vec3_t ambientLight, vec3
 {
     trRefEntity_t ent;
     
-    if( tr.world->lightGridData == NULL )
+    if( tr.world->lightGridData == nullptr )
         return false;
         
     ::memset( &ent, 0, sizeof( ent ) );
@@ -581,7 +581,7 @@ bool R_LightDirForPoint( vec3_t point, vec3_t lightDir, vec3_t normal, world_t* 
 {
     trRefEntity_t ent;
     
-    if( world->lightGridData == NULL )
+    if( world->lightGridData == nullptr )
         return false;
         
     ::memset( &ent, 0, sizeof( ent ) );

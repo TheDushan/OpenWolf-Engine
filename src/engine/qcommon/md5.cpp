@@ -264,7 +264,7 @@ static void MD5Final( struct MD5Context* ctx, U8* digest )
     MD5Transform( ctx->buf, ( U32* ) ctx->in );
     byteReverse( ( U8* )ctx->buf, 4 );
     
-    if( digest != NULL )
+    if( digest != nullptr )
         memcpy( digest, ctx->buf, 16 );
     memset( ctx, 0, sizeof( ctx ) );	/* In case it's sensitive */
 }
@@ -393,5 +393,5 @@ UTF8* Com_MD5FileOWCompat( StringEntry filename )
             return CalculateGUID( key );
         }
     }
-    return NULL;
+    return nullptr;
 }

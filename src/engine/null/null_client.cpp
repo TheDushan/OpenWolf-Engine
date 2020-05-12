@@ -136,7 +136,7 @@ void Key_ClearStates( void )
 // Dushan
 StringEntry Con_GetText( S32 console )
 {
-    return NULL;
+    return nullptr;
 }
 
 /*

@@ -119,7 +119,7 @@ void SCR_FillRect( F32 x, F32 y, F32 width, F32 height, const F32* color )
     SCR_AdjustFrom640( &x, &y, &width, &height );
     renderSystem->DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
     
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
 }
 
 /*
@@ -293,7 +293,7 @@ void SCR_DrawStringExt( S32 x, S32 y, F32 size, StringEntry string, F32* setColo
         xx += size;
         s++;
     }
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
 }
 
 
@@ -359,7 +359,7 @@ void SCR_DrawSmallStringExt( S32 x, S32 y, StringEntry string, F32* setColor, bo
         xx += SCR_ConsoleFontCharWidth( *s );
         s++;
     }
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
 }
 
 
@@ -463,7 +463,7 @@ void SCR_DrawDebugGraph( void )
     y = cls.glconfig.vidHeight;
     renderSystem->SetColor( g_color_table[0] );
     renderSystem->DrawStretchPic( x, y - cl_graphheight->integer, w, cl_graphheight->integer, 0, 0, 0, 0, cls.whiteShader );
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
     
     for( a = 0; a < w; a++ )
     {
@@ -521,7 +521,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame )
         {
             renderSystem->SetColor( g_color_table[0] );
             renderSystem->DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
-            renderSystem->SetColor( NULL );
+            renderSystem->SetColor( nullptr );
         }
     }
     
@@ -643,7 +643,7 @@ void SCR_UpdateScreen( void )
     }
     else
     {
-        renderSystem->EndFrame( NULL, NULL );
+        renderSystem->EndFrame( nullptr, nullptr );
     }
     
     recursive = 0;

@@ -44,9 +44,9 @@
 // initialize once
 static S32 dl_initialized = 0;
 
-static CURLM* dl_multi = NULL;
-static CURL* dl_request = NULL;
-static FILE* dl_file = NULL;
+static CURLM* dl_multi = nullptr;
+static CURL* dl_request = nullptr;
+static FILE* dl_file = nullptr;
 
 //
 // idServerCcmdsSystemLocal

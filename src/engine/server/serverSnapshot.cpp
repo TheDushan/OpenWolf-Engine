@@ -107,8 +107,8 @@ void idServerSnapshotSystemLocal::EmitPacketEntities( clientSnapshot_t* from, cl
         from_num_entities = from->num_entities;
     }
     
-    newent = NULL;
-    oldent = NULL;
+    newent = nullptr;
+    oldent = nullptr;
     newindex = 0;
     oldindex = 0;
     
@@ -156,7 +156,7 @@ void idServerSnapshotSystemLocal::EmitPacketEntities( clientSnapshot_t* from, cl
         if( newnum > oldnum )
         {
             // the old entity isn't present in the new message
-            MSG_WriteDeltaEntity( msg, oldent, NULL, true );
+            MSG_WriteDeltaEntity( msg, oldent, nullptr, true );
             oldindex++;
             continue;
         }
@@ -182,14 +182,14 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient( client_t* client, msg_t
     if( client->deltaMessage <= 0 || client->state != CS_ACTIVE )
     {
         // client is asking for a retransmit
-        oldframe = NULL;
+        oldframe = nullptr;
         lastframe = 0;
     }
     else if( client->netchan.outgoingSequence - client->deltaMessage >= ( PACKET_BACKUP - 3 ) )
     {
         // client hasn't gotten a good message through in a long time
         Com_DPrintf( "%s: Delta request from out of date packet.\n", client->name );
-        oldframe = NULL;
+        oldframe = nullptr;
         lastframe = 0;
     }
     else
@@ -202,7 +202,7 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient( client_t* client, msg_t
         if( oldframe->first_entity <= svs.nextSnapshotEntities - svs.numSnapshotEntities )
         {
             Com_DPrintf( "%s: Delta request from out of date entities.\n", client->name );
-            oldframe = NULL;
+            oldframe = nullptr;
             lastframe = 0;
         }
     }
@@ -261,7 +261,7 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient( client_t* client, msg_t
         }
         else
         {
-            MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
+            MSG_WriteDeltaPlayerstate( msg, nullptr, &frame->ps );
         }
         
 //      Com_Printf( "Playerstate delta size: %f\n", ((msg->cursize - sz) * sv_fps->integer) / 8.f );
@@ -745,7 +745,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot( client_t* client )
         
         VectorCopy( ps->viewangles, v3ViewAngles );
         v3ViewAngles[2] += frame->ps.leanf / 2.0f;
-        AngleVectors( v3ViewAngles, NULL, right, NULL );
+        AngleVectors( v3ViewAngles, nullptr, right, nullptr );
         VectorMA( org, frame->ps.leanf, right, org );
     }
 //----(SA)  end

@@ -41,7 +41,7 @@ static UTF8* S_FileExtension( StringEntry fni )
 {
     // we should search from the ending to the last '/'
     UTF8* fn = const_cast<UTF8*>( fni + ::strlen( fni ) - 1 );
-    UTF8* eptr = NULL;
+    UTF8* eptr = nullptr;
     
     while( *fn != '/' && fn != fni )
     {
@@ -80,7 +80,7 @@ static snd_codec_t* S_FindCodecForFile( StringEntry filename )
             COM_DefaultExtension( fn, MAX_QPATH, codec->ext );
             
             // Check it exists
-            if( fileSystem->ReadFile( fn, NULL ) != -1 )
+            if( fileSystem->ReadFile( fn, nullptr ) != -1 )
             {
                 return codec;
             }
@@ -90,7 +90,7 @@ static snd_codec_t* S_FindCodecForFile( StringEntry filename )
         }
         
         // Nothin'
-        return NULL;
+        return nullptr;
     }
     
     while( codec )
@@ -102,7 +102,7 @@ static snd_codec_t* S_FindCodecForFile( StringEntry filename )
         codec = codec->next;
     }
     
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -112,7 +112,7 @@ S_CodecInit
 */
 void S_CodecInit( void )
 {
-    codecs = NULL;
+    codecs = nullptr;
     S_CodecRegister( &wav_codec );
     S_CodecRegister( &ogg_codec );
 }
@@ -124,7 +124,7 @@ S_CodecShutdown
 */
 void S_CodecShutdown( void )
 {
-    codecs = NULL;
+    codecs = nullptr;
 }
 
 /*
@@ -152,7 +152,7 @@ void* S_CodecLoad( StringEntry filename, snd_info_t* info )
     if( !codec )
     {
         Com_Printf( "Unknown extension for %s\n", filename );
-        return NULL;
+        return nullptr;
     }
     
     ::strncpy( fn, filename, sizeof( fn ) );
@@ -175,7 +175,7 @@ snd_stream_t* S_CodecOpenStream( StringEntry filename )
     if( !codec )
     {
         Com_Printf( "Unknown extension for %s\n", filename );
-        return NULL;
+        return nullptr;
     }
     
     ::strncpy( fn, filename, sizeof( fn ) );
@@ -213,7 +213,7 @@ snd_stream_t* S_CodecUtilOpen( StringEntry filename, snd_codec_t* codec )
     if( !hnd )
     {
         Com_Printf( "Can't read sound file %s\n", filename );
-        return NULL;
+        return nullptr;
     }
     
     // Allocate a stream
@@ -221,7 +221,7 @@ snd_stream_t* S_CodecUtilOpen( StringEntry filename, snd_codec_t* codec )
     if( !stream )
     {
         fileSystem->FCloseFile( hnd );
-        return NULL;
+        return nullptr;
     }
     
     // Copy over, return

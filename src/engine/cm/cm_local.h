@@ -149,7 +149,7 @@ typedef struct
     cArea_t*        areas;
     S32*            areaPortals;				// [ numAreas*numAreas ] reference counts
     S32             numSurfaces;
-    cSurface_t**     surfaces;					// non-patches will be NULL
+    cSurface_t**     surfaces;					// non-patches will be nullptr
     S32             floodvalid;
     S32             checkcount;					// incremented on each trace
     bool        perPolyCollision;

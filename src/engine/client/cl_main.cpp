@@ -55,7 +55,7 @@ convar_t*         cl_timeNudge;
 convar_t*         cl_showTimeDelta;
 convar_t*         cl_freezeDemo;
 
-convar_t*         cl_shownet = NULL;	// NERVE - SMF - This is referenced in msg.c and we need to make sure it is NULL
+convar_t*         cl_shownet = nullptr;	// NERVE - SMF - This is referenced in msg.c and we need to make sure it is nullptr
 convar_t*         cl_shownuments;	// DHM - Nerve
 convar_t*         cl_visibleClients;	// DHM - Nerve
 convar_t*         cl_showSend;
@@ -399,7 +399,7 @@ void CL_Record_f( void )
             CL_DemoFilename( number, demoName );
             Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, com_protocol->integer );
             
-            len = fileSystem->ReadFile( name, NULL );
+            len = fileSystem->ReadFile( name, nullptr );
             if( len <= 0 )
             {
                 break;			// file doesn't exist
@@ -1231,7 +1231,7 @@ void CL_Disconnect( bool showMainMenu )
     }
     
     // show_bug.cgi?id=589
-    // don't try a restart if uivm is NULL, as we might be in the middle of a restart already
+    // don't try a restart if uivm is nullptr, as we might be in the middle of a restart already
     if( uivm && cls.state > CA_DISCONNECTED )
     {
         // restart the GUI
@@ -1248,7 +1248,7 @@ void CL_Disconnect( bool showMainMenu )
         cls.state = CA_DISCONNECTED;
     }
     
-    CL_UpdateGUID( NULL, 0 );
+    CL_UpdateGUID( nullptr, 0 );
 }
 
 /*
@@ -1622,7 +1622,7 @@ void CL_Connect_f( void )
     if( cl_guidServerUniq->integer )
         CL_UpdateGUID( serverString, strlen( serverString ) );
     else
-        CL_UpdateGUID( NULL, 0 );
+        CL_UpdateGUID( nullptr, 0 );
         
     // if we aren't playing on a lan, we needto authenticate
     // with the cd key
@@ -2240,7 +2240,7 @@ void CL_NextDownload( void )
         }
         remoteName = s;
         
-        if( ( s = strchr( s, '@' ) ) == NULL )
+        if( ( s = strchr( s, '@' ) ) == nullptr )
         {
             CL_DownloadsComplete();
             return;
@@ -2248,7 +2248,7 @@ void CL_NextDownload( void )
         
         *s++ = 0;
         localName = s;
-        if( ( s = strchr( s, '@' ) ) != NULL )
+        if( ( s = strchr( s, '@' ) ) != nullptr )
         {
             *s++ = 0;
         }
@@ -2472,21 +2472,21 @@ void CL_DisconnectPacket( netadr_t from )
 
 UTF8* str_replace( StringEntry string, StringEntry substr, StringEntry replacement )
 {
-    UTF8* tok = NULL;
-    UTF8* newstr = NULL;
-    UTF8* oldstr = NULL;
-    /* if either substr or replacement is NULL, duplicate string a let caller handle it */
-    if( substr == NULL || replacement == NULL ) return strdup( string );
+    UTF8* tok = nullptr;
+    UTF8* newstr = nullptr;
+    UTF8* oldstr = nullptr;
+    /* if either substr or replacement is nullptr, duplicate string a let caller handle it */
+    if( substr == nullptr || replacement == nullptr ) return strdup( string );
     newstr = strdup( string );
     while( ( tok = strstr( newstr, substr ) ) )
     {
         oldstr = newstr;
         newstr = ( UTF8* )malloc( strlen( oldstr ) - strlen( substr ) + strlen( replacement ) + 1 );
-        /*failed to alloc mem, free old string and return NULL */
-        if( newstr == NULL )
+        /*failed to alloc mem, free old string and return nullptr */
+        if( newstr == nullptr )
         {
             free( oldstr );
-            return NULL;
+            return nullptr;
         }
         memcpy( newstr, oldstr, tok - oldstr );
         memcpy( newstr + ( tok - oldstr ), replacement, strlen( replacement ) );
@@ -3346,7 +3346,7 @@ void CL_InitRenderer( void )
     cls.useLegacyConsoleFont = true;
     
     // Register console font specified by cl_consoleFont, if any
-    // filehandle is unused but forces fileSystem->FOpenFileRead() to heed purecheck because it does not when filehandle is NULL
+    // filehandle is unused but forces fileSystem->FOpenFileRead() to heed purecheck because it does not when filehandle is nullptr
     if( cl_consoleFont->string[0] )
     {
         if( fileSystem->FOpenFileByMode( cl_consoleFont->string, &f, FS_READ ) >= 0 )
@@ -3995,7 +3995,7 @@ void CL_Init( void )
     
     CL_GenerateGUIDKey();
     cvarSystem->Get( "cl_guid", "", CVAR_USERINFO | CVAR_ROM, "description" );
-    CL_UpdateGUID( NULL, 0 );
+    CL_UpdateGUID( nullptr, 0 );
     
     // DHM - Nerve
     autoupdateChecked = false;
@@ -4162,7 +4162,7 @@ LookupTrans
 */
 static trans_t* LookupTrans( UTF8* original, UTF8* translated[MAX_LANGUAGES], bool isLoading )
 {
-    trans_t*        t, *newt, *prev = NULL;
+    trans_t*        t, *newt, *prev = nullptr;
     S64            hash;
     
     hash = generateHashValue( original );
@@ -4532,7 +4532,7 @@ void CL_LoadTransTable( StringEntry fileName )
         }
         
         // do lookup
-        t = LookupTrans( original, NULL, true );
+        t = LookupTrans( original, nullptr, true );
         
         if( t )
         {
@@ -4682,7 +4682,7 @@ void CL_TranslateString( StringEntry string, UTF8* dest_buffer )
     }
     buf[count] = '\0';
     
-    t = LookupTrans( buf, NULL, false );
+    t = LookupTrans( buf, nullptr, false );
     
     if( t && strlen( t->translated[currentLanguage] ) )
     {
@@ -4768,7 +4768,7 @@ StringEntry     CL_TranslateStringBuf( StringEntry string )
     static UTF8     buf[MAX_VA_STRING];
     
     CL_TranslateString( string, buf );
-    while( ( p = strstr( buf, "\\n" ) ) != NULL )
+    while( ( p = strstr( buf, "\\n" ) ) != nullptr )
     {
         *p = '\n';
         p++;

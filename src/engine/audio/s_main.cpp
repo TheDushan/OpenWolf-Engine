@@ -452,7 +452,7 @@ void S_Music_f( void )
     
     if( c == 2 )
     {
-        si.StartBackgroundTrack( cmdSystem->Argv( 1 ), NULL );
+        si.StartBackgroundTrack( cmdSystem->Argv( 1 ), nullptr );
     }
     else if( c == 3 )
     {

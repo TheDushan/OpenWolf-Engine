@@ -170,7 +170,7 @@ void GLimp_InitExtraExtensions()
     
     if( !qglGetString )
     {
-        Com_Error( ERR_FATAL, "glGetString is NULL" );
+        Com_Error( ERR_FATAL, "glGetString is nullptr" );
     }
     
     // Determine GLSL version

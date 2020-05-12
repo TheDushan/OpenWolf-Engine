@@ -794,7 +794,7 @@ static void CMod_CreateBrushSideWindings( void )
             w = BaseWindingForPlane( plane->normal, plane->dist );
             
             // walk the list of brush sides
-            for( k = 0; k < brush->numsides && w != NULL; k++ )
+            for( k = 0; k < brush->numsides && w != nullptr; k++ )
             {
                 chopSide = &brush->sides[k];
                 
@@ -843,7 +843,7 @@ static void CMod_CreateBrushSideWindings( void )
                 }
                 
                 FreeWinding( side->winding );
-                side->winding = NULL;
+                side->winding = nullptr;
             }
         }
         
@@ -1137,7 +1137,7 @@ void idCollisionModelManagerLocal::LoadMap( StringEntry name, bool clientload, S
     
     if( !name || !name[0] )
     {
-        Com_Error( ERR_DROP, "idCollisionModelManagerLocal::LoadMap: NULL name" );
+        Com_Error( ERR_DROP, "idCollisionModelManagerLocal::LoadMap: nullptr name" );
     }
     
 #ifndef BSPC
@@ -1268,7 +1268,7 @@ cmodel_t* CM_ClipHandleToModel( clipHandle_t handle )
     }
     Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle + MAX_SUBMODELS );
     
-    return NULL;
+    return nullptr;
     
 }
 

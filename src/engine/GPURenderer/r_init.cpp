@@ -1098,7 +1098,7 @@ void GL_SetDefaultState( void )
         
     qglBindBuffer( GL_ARRAY_BUFFER, 0 );
     qglBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
-    glState.currentVao = NULL;
+    glState.currentVao = nullptr;
     glState.vertexAttribsEnabled = 0;
     
     qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
@@ -1588,7 +1588,7 @@ void R_Init( void )
     }
     else
     {
-        backEndData[1] = NULL;
+        backEndData[1] = nullptr;
     }
     
     

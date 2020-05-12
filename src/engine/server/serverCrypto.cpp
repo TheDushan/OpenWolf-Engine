@@ -340,7 +340,7 @@ bool idServerCryptoSystemLocal::CryptoHash( StringEntry inRaw, UTF8* outHex, siz
     
     U8 hashBin[CRYPTOHASHBINSIZE];
     
-    if( crypto_generichash( hashBin, sizeof( hashBin ), ( const U8* )inRaw, strlen( inRaw ), NULL, 0 ) != 0 )
+    if( crypto_generichash( hashBin, sizeof( hashBin ), ( const U8* )inRaw, strlen( inRaw ), nullptr, 0 ) != 0 )
     {
         Com_Printf( "Failed to hash string: %s\n", inRaw );
         return false;

@@ -207,10 +207,6 @@ typedef S32 clipHandle_t;
 #define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
 #define PADP(base, alignment)	((void *) PAD((intptr_t) (base), (alignment)))
 
-#ifndef NULL
-#define NULL ( (void *)0 )
-#endif
-
 #define STRING(s)			#s
 // expand constants before stringifying them
 #define XSTRING(s)			STRING(s)
@@ -695,7 +691,7 @@ void            AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right,
 
 static ID_INLINE void AnglesToVector( const vec3_t angles, vec3_t out )
 {
-    AngleVectors( angles, out, NULL, NULL );
+    AngleVectors( angles, out, nullptr, nullptr );
 }
 
 void            VectorToAngles( const vec3_t value1, vec3_t angles );
@@ -1739,7 +1735,7 @@ void Com_EndParseSession( void );
 bool StringContainsWord( StringEntry haystack, StringEntry needle );
 bool COM_CompareExtension( StringEntry in, StringEntry ext );
 #define CL_TARGET_OPENCL_VERSION 120
-#define VALIDSTRING( a ) ( ( a != NULL ) && ( a[0] != '\0' ) )
+#define VALIDSTRING( a ) ( ( a != nullptr ) && ( a[0] != '\0' ) )
 F32 Q_flrand( F32 min, F32 max );
 bool Q_CleanPlayerName( StringEntry in, UTF8* out, S32 outSize );
 

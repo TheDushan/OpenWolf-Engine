@@ -420,8 +420,8 @@ static S32 GLSL_CompileGPUShader( U32 program, U32* prevShader, StringEntry buff
 static S32 GLSL_LoadGPUShaderText( StringEntry name, U32 shaderType, UTF8* dest, S32 destSize )
 {
     UTF8            filename[MAX_QPATH];
-    GLcharARB*      buffer = NULL;
-    const GLcharARB* shaderText = NULL;
+    GLcharARB*      buffer = nullptr;
+    const GLcharARB* shaderText = nullptr;
     S32             size, result;
     
     if( shaderType == GL_VERTEX_SHADER )
@@ -498,7 +498,7 @@ static void GLSL_ShowProgramUniforms( U32 program )
     // Loop over each of the active uniforms, and set their value
     for( i = 0; i < count; i++ )
     {
-        qglGetActiveUniform( program, i, sizeof( uniformName ), NULL, &size, &type, uniformName );
+        qglGetActiveUniform( program, i, sizeof( uniformName ), nullptr, &size, &type, uniformName );
         
         CL_RefPrintf( PRINT_DEVELOPER, "active uniform: '%s'\n", uniformName );
     }
@@ -634,7 +634,7 @@ static S32 GLSL_InitGPUShader( shaderProgram_t* program, StringEntry name, S32 a
         }
     }
     
-    result = GLSL_InitGPUShader2( program, name, attribs, vpCode, fragmentShader ? fpCode : NULL );
+    result = GLSL_InitGPUShader2( program, name, attribs, vpCode, fragmentShader ? fpCode : nullptr );
     
     return result;
 }
@@ -2236,7 +2236,7 @@ void idRenderSystemLocal::ShutdownGPUShaders( void )
 void GLSL_BindProgram( shaderProgram_t* program )
 {
     U32 programObject = program ? program->program : 0;
-    StringEntry name = program ? program->name : "NULL";
+    StringEntry name = program ? program->name : "nullptr";
     
     if( r_logFile->integer )
     {

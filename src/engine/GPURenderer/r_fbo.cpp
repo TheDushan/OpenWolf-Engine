@@ -232,7 +232,7 @@ void FBO_Bind( FBO_t* fbo )
     if( r_logFile->integer )
     {
         // don't just call LogComment, or we will get a call to va() every frame!
-        GLimp_LogComment( reinterpret_cast< UTF8* >( va( "--- FBO_Bind( %s ) ---\n", fbo ? fbo->name : "NULL" ) ) );
+        GLimp_LogComment( reinterpret_cast< UTF8* >( va( "--- FBO_Bind( %s ) ---\n", fbo ? fbo->name : "nullptr" ) ) );
     }
     
     GL_BindFramebuffer( GL_FRAMEBUFFER, fbo ? fbo->frameBuffer : 0 );
@@ -444,7 +444,7 @@ void idRenderSystemLocal::FBOInit( void )
         R_CheckFBO( tr.screenSsaoFbo );
     }
     
-    if( tr.renderCubeImage != NULL )
+    if( tr.renderCubeImage != nullptr )
     {
         tr.renderCubeFbo = FBO_Create( "_renderCubeFbo", tr.renderCubeImage->width, tr.renderCubeImage->height );
         FBO_AttachImage( tr.renderCubeFbo, tr.renderCubeImage, GL_COLOR_ATTACHMENT0, 0 );
@@ -463,7 +463,7 @@ void idRenderSystemLocal::FBOInit( void )
         }
     }
     
-    if( ( r_pbr->integer == 1 ) && ( tr.renderCubeImage != NULL ) )
+    if( ( r_pbr->integer == 1 ) && ( tr.renderCubeImage != nullptr ) )
     {
         tr.preFilterEnvMapFbo = FBO_Create( "_preFilterEnvMapFbo", tr.renderCubeImage->width, tr.renderCubeImage->height );
         FBO_AttachImage( tr.preFilterEnvMapFbo, tr.prefilterEnvMapImage, GL_COLOR_ATTACHMENT0, 0 );
@@ -473,7 +473,7 @@ void idRenderSystemLocal::FBOInit( void )
     GL_CheckErrors();
     
     GL_BindFramebuffer( GL_FRAMEBUFFER, 0 );
-    glState.currentFBO = NULL;
+    glState.currentFBO = nullptr;
 }
 
 /*
@@ -491,7 +491,7 @@ void idRenderSystemLocal::FBOShutdown( void )
     if( !glRefConfig.framebufferObject )
         return;
         
-    FBO_Bind( NULL );
+    FBO_Bind( nullptr );
     
     for( i = 0; i < tr.numFBOs; i++ )
     {
@@ -556,7 +556,7 @@ void FBO_BlitFromTexture( struct image_s* src, vec4_t inSrcTexCorners, vec2_t in
     
     if( !src )
     {
-        CL_RefPrintf( PRINT_WARNING, "Tried to blit from a NULL texture!\n" );
+        CL_RefPrintf( PRINT_WARNING, "Tried to blit from a nullptr texture!\n" );
         return;
     }
     
@@ -654,7 +654,7 @@ void FBO_Blit( FBO_t* src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t* dst, ive
     
     if( !src )
     {
-        CL_RefPrintf( PRINT_WARNING, "Tried to blit from a NULL FBO!\n" );
+        CL_RefPrintf( PRINT_WARNING, "Tried to blit from a nullptr FBO!\n" );
         return;
     }
     
@@ -680,7 +680,7 @@ void FBO_FastBlit( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, S32 b
     
     if( !glRefConfig.framebufferBlit )
     {
-        FBO_Blit( src, srcBox, NULL, dst, dstBox, NULL, NULL, 0 );
+        FBO_Blit( src, srcBox, nullptr, dst, dstBox, nullptr, nullptr, 0 );
         return;
     }
     
@@ -718,13 +718,13 @@ void FBO_FastBlit( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, S32 b
                         buffers, filter );
                         
     GL_BindFramebuffer( GL_FRAMEBUFFER, 0 );
-    glState.currentFBO = NULL;
+    glState.currentFBO = nullptr;
 }
 
 void FBO_FastBlitIndexed( FBO_t* src, FBO_t* dst, S32 srcReadBuffer, S32 dstDrawBuffer, S32 buffers, S32 filter )
 {
-    assert( src != NULL );
-    assert( dst != NULL );
+    assert( src != nullptr );
+    assert( dst != nullptr );
     
     qglBindFramebuffer( GL_READ_FRAMEBUFFER, src->frameBuffer );
     qglReadBuffer( GL_COLOR_ATTACHMENT0 + srcReadBuffer );
@@ -741,5 +741,5 @@ void FBO_FastBlitIndexed( FBO_t* src, FBO_t* dst, S32 srcReadBuffer, S32 dstDraw
     glState.currentFBO = dst;
     
     qglBindFramebuffer( GL_FRAMEBUFFER, 0 );
-    glState.currentFBO = NULL;
+    glState.currentFBO = nullptr;
 }

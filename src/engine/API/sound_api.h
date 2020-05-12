@@ -46,7 +46,7 @@ class idSoundSystem
 public:
     virtual void Init( void ) = 0;
     virtual void Shutdown( void ) = 0;
-    // if origin is NULL, the sound will be dynamically sourced from the entity
+    // if origin is nullptr, the sound will be dynamically sourced from the entity
     virtual void StartSound( vec3_t origin, S32 entnum, S32 entchannel, sfxHandle_t sfx ) = 0;
     virtual void StartLocalSound( sfxHandle_t sfx, S32 channelNum ) = 0;
     virtual void StartBackgroundTrack( StringEntry intro, StringEntry loop ) = 0;

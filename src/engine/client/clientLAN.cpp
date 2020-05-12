@@ -122,7 +122,7 @@ idClientLANSystemLocal::ResetPings
 void idClientLANSystemLocal::ResetPings( S32 source )
 {
     S32 count, i;
-    serverInfo_t* servers = NULL;
+    serverInfo_t* servers = nullptr;
     
     count = 0;
     
@@ -162,7 +162,7 @@ S32 idClientLANSystemLocal::AddServer( S32 source, StringEntry name, StringEntry
 {
     S32 max, * count, i;
     netadr_t adr;
-    serverInfo_t* servers = NULL;
+    serverInfo_t* servers = nullptr;
     max = MAX_OTHER_SERVERS;
     count = 0;
     
@@ -220,7 +220,7 @@ idClientLANSystemLocal::RemoveServer
 void idClientLANSystemLocal::RemoveServer( S32 source, StringEntry addr )
 {
     S32* count, i;
-    serverInfo_t* servers = NULL;
+    serverInfo_t* servers = nullptr;
     
     count = 0;
     
@@ -641,7 +641,7 @@ void idClientLANSystemLocal::MarkServerVisible( S32 source, S32 n, bool visible 
     if( n == -1 )
     {
         S32 count = MAX_OTHER_SERVERS;
-        serverInfo_t* server = NULL;
+        serverInfo_t* server = nullptr;
         
         switch( source )
         {
@@ -758,7 +758,7 @@ idClientLANSystemLocal::ServerIsInFavoriteList
 bool idClientLANSystemLocal::ServerIsInFavoriteList( S32 source, S32 n )
 {
     S32 i;
-    serverInfo_t* server = NULL;
+    serverInfo_t* server = nullptr;
     
     switch( source )
     {

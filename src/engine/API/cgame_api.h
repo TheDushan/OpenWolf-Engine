@@ -80,7 +80,7 @@ struct cgameImports_t
     void ( *PC_UnreadLastToken )( S32 handle );
     S32( *RealTime )( qtime_t* qtime );
     
-    // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to false (do not alter gamestate)
+    // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to nullptr, alteredstates to false (do not alter gamestate)
     S32( *CIN_PlayCinematic )( StringEntry arg0, S32 xpos, S32 ypos, S32 width, S32 height, S32 bits );
     
     // stops playing the cinematic and ends it.  should always return FMV_EOF

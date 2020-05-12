@@ -204,7 +204,7 @@ void idServerNetChanSystemLocal::NetchanFreeQueue( client_t* client )
         Z_Free( netbuf );
     }
     
-    client->netchan_start_queue = NULL;
+    client->netchan_start_queue = nullptr;
     client->netchan_end_queue = client->netchan_start_queue;
 }
 
@@ -230,7 +230,7 @@ void idServerNetChanSystemLocal::NetchanTransmitNextFragment( client_t* client )
         client->netchan_start_queue = netbuf->next;
         if( !client->netchan_start_queue )
         {
-            client->netchan_end_queue = NULL;
+            client->netchan_end_queue = nullptr;
         }
         
         if( !serverGameSystem->GameIsSinglePlayer() )
@@ -278,7 +278,7 @@ void idServerNetChanSystemLocal::NetchanTransmit( client_t* client, msg_t* msg )
         // insert it in the queue, the message will be encoded and sent later
         //% *client->netchan_end_queue = netbuf;
         //% client->netchan_end_queue = &(*client->netchan_end_queue)->next;
-        netbuf->next = NULL;
+        netbuf->next = nullptr;
         
         if( !client->netchan_start_queue )
         {

@@ -599,7 +599,7 @@ void S_PaintChannels( S32 endtime )
             ltime = s_paintedtime;
             sc = ch->thesfx;
             
-            if( sc->soundData == NULL || sc->soundLength == 0 )
+            if( sc->soundData == nullptr || sc->soundLength == 0 )
             {
                 continue;
             }

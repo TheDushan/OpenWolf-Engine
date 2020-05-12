@@ -1483,8 +1483,8 @@ static ID_INLINE void R_Radix( S32 byte, S32 size, drawSurf_t* source, drawSurf_
     S32           count[ 256 ] = { 0 };
     S32           index[ 256 ];
     S32           i;
-    U8* sortKey = NULL;
-    U8* end = NULL;
+    U8* sortKey = nullptr;
+    U8* end = nullptr;
     
     sortKey = ( ( U8* )&source[ 0 ].sort ) + byte;
     end = sortKey + ( size * sizeof( drawSurf_t ) );

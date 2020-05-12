@@ -67,12 +67,12 @@ memStream_t* AllocMemStream( U8* buffer, S32 bufSize )
 {
     memStream_t*		s;
     
-    if( buffer == NULL || bufSize <= 0 )
-        return NULL;
+    if( buffer == nullptr || bufSize <= 0 )
+        return nullptr;
         
     s = ( memStream_t* )malloc( sizeof( memStream_t ) );
-    if( s == NULL )
-        return NULL;
+    if( s == nullptr )
+        return nullptr;
         
     ::memset( s, 0, sizeof( memStream_t ) );
     
@@ -93,7 +93,7 @@ S32 MemStreamRead( memStream_t* s, void* buffer, S32 len )
 {
     S32				ret = 1;
     
-    if( s == NULL || buffer == NULL )
+    if( s == nullptr || buffer == nullptr )
         return 0;
         
     if( s->curPos + len > s->buffer + s->bufSize )
@@ -115,7 +115,7 @@ S32 MemStreamGetC( memStream_t* s )
 {
     S32				c = 0;
     
-    if( s == NULL )
+    if( s == nullptr )
         return -1;
         
     if( MemStreamRead( s, &c, 1 ) == 0 )
@@ -128,7 +128,7 @@ S32 MemStreamGetLong( memStream_t* s )
 {
     S32				c = 0;
     
-    if( s == NULL )
+    if( s == nullptr )
         return -1;
         
     if( MemStreamRead( s, &c, 4 ) == 0 )
@@ -141,7 +141,7 @@ S32 MemStreamGetShort( memStream_t* s )
 {
     S32				c = 0;
     
-    if( s == NULL )
+    if( s == nullptr )
         return -1;
         
     if( MemStreamRead( s, &c, 2 ) == 0 )
@@ -154,7 +154,7 @@ F32 MemStreamGetFloat( memStream_t* s )
 {
     floatint_t		c;
     
-    if( s == NULL )
+    if( s == nullptr )
         return -1;
         
     if( MemStreamRead( s, &c.i, 4 ) == 0 )
@@ -570,7 +570,7 @@ StringEntry     punctuation[] =
 {
     "+=", "-=", "*=", "/=", "&=", "|=", "++", "--",
     "&&", "||", "<=", ">=", "==", "!=",
-    NULL
+    nullptr
 };
 
 static UTF8 com_token[MAX_TOKEN_CHARS];
@@ -642,7 +642,7 @@ void COM_ParseWarning( UTF8* format, ... )
 COM_Parse
 
 Parse a token out of a string
-Will never return NULL, just empty strings
+Will never return nullptr, just empty strings
 
 If "allowLineBreaks" is true then an empty
 string will be returned if the next token is
@@ -657,7 +657,7 @@ static UTF8* SkipWhitespace( UTF8* data, bool* hasNewLines )
     {
         if( !c )
         {
-            return NULL;
+            return nullptr;
         }
         if( c == '\n' )
         {
@@ -746,7 +746,7 @@ UTF8* COM_ParseExt( UTF8** data_p, bool allowLineBreaks )
     // make sure incoming data is valid
     if( !data )
     {
-        *data_p = NULL;
+        *data_p = nullptr;
         return com_token;
     }
     
@@ -759,7 +759,7 @@ UTF8* COM_ParseExt( UTF8** data_p, bool allowLineBreaks )
         data = SkipWhitespace( data, &hasNewLines );
         if( !data )
         {
-            *data_p = NULL;
+            *data_p = nullptr;
             return com_token;
         }
         if( hasNewLines && !allowLineBreaks )
@@ -907,7 +907,7 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
     
     if( !data_p )
     {
-        Com_Error( ERR_FATAL, "COM_ParseExt: NULL data_p" );
+        Com_Error( ERR_FATAL, "COM_ParseExt: nullptr data_p" );
     }
     
     data = *data_p;
@@ -917,7 +917,7 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
     // make sure incoming data is valid
     if( !data )
     {
-        *data_p = NULL;
+        *data_p = nullptr;
         return com_token;
     }
     
@@ -930,7 +930,7 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
         data = SkipWhitespace( data, &hasNewLines );
         if( !data )
         {
-            *data_p = NULL;
+            *data_p = nullptr;
             return com_token;
         }
         if( hasNewLines && !allowLineBreaks )
@@ -1303,7 +1303,7 @@ S32 COM_Parse2Infos( UTF8* buf, S32 max, UTF8 infos[][MAX_INFO_STRING] )
             token = COM_ParseExt( &buf, false );
             if( !token[0] )
             {
-                token = "<NULL>";
+                token = "<nullptr>";
             }
             Info_SetValueForKey( infos[count], key, token );
         }
@@ -1409,7 +1409,7 @@ Com_QuoteStr
 */
 StringEntry Com_QuoteStr( StringEntry str )
 {
-    static UTF8* buf = NULL;
+    static UTF8* buf = nullptr;
     static U64 buflen = 0;
     
     U64 length;
@@ -1448,7 +1448,7 @@ Com_UnquoteStr
 */
 StringEntry Com_UnquoteStr( StringEntry str )
 {
-    static UTF8* buf = NULL;
+    static UTF8* buf = nullptr;
     
     U64 length;
     UTF8* ptr;
@@ -1651,11 +1651,11 @@ void Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize )
 #ifdef _DEBUG
     if( !dest )
     {
-        Com_Error( ERR_DROP, "Q_strncpyz: NULL dest (%s, %i)", file, line );
+        Com_Error( ERR_DROP, "Q_strncpyz: nullptr dest (%s, %i)", file, line );
     }
     if( !src )
     {
-        Com_Error( ERR_DROP, "Q_strncpyz: NULL src (%s, %i)", file, line );
+        Com_Error( ERR_DROP, "Q_strncpyz: nullptr src (%s, %i)", file, line );
     }
     if( destsize < 1 )
     {
@@ -1665,12 +1665,12 @@ void Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize )
     
     if( !dest )
     {
-        Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
+        Com_Error( ERR_FATAL, "Q_strncpyz: nullptr dest" );
     }
     
     if( !src )
     {
-        Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
+        Com_Error( ERR_FATAL, "Q_strncpyz: nullptr src" );
     }
     if( destsize < 1 )
     {
@@ -1692,7 +1692,7 @@ void Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize )
         }
     }
     
-    /* Not enough room in dst, add NULL and traverse rest of src */
+    /* Not enough room in dst, add nullptr and traverse rest of src */
     if( n == 0 )
     {
         if( destsize != 0 )
@@ -1817,14 +1817,14 @@ S32 Q_strnicmp( StringEntry string1, StringEntry string2, S32 n )
 {
     S32 c1, c2;
     
-    if( string1 == NULL )
+    if( string1 == nullptr )
     {
-        if( string2 == NULL )
+        if( string2 == nullptr )
             return 0;
         else
             return -1;
     }
-    else if( string2 == NULL )
+    else if( string2 == nullptr )
         return 1;
         
     do
@@ -1871,7 +1871,7 @@ StringEntry Q_stristr( StringEntry s, StringEntry find )
             do
             {
                 if( ( sc = *s++ ) == 0 )
-                    return NULL;
+                    return nullptr;
                 if( sc >= 'a' && sc <= 'z' )
                 {
                     sc -= ( 'a' - 'A' );
@@ -2858,6 +2858,6 @@ UTF8* Com_StringContains( UTF8* str1, UTF8* str2, S32 casesensitive )
             return str1;
         }
     }
-    return NULL;
+    return nullptr;
     
 }

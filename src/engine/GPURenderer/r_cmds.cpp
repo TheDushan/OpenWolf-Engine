@@ -207,7 +207,7 @@ void* R_GetCommandBufferReserved( S32 bytes, S32 reservedBytes )
             Com_Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
         }
         // if we run out of room, just start dropping commands
-        return NULL;
+        return nullptr;
     }
     
     cmdList->used += bytes;
@@ -219,7 +219,7 @@ void* R_GetCommandBufferReserved( S32 bytes, S32 reservedBytes )
 =============
 R_GetCommandBuffer
 
-returns NULL if there is not enough space for important commands
+returns nullptr if there is not enough space for important commands
 =============
 */
 void* R_GetCommandBuffer( S32 bytes )
@@ -300,7 +300,7 @@ void	R_AddPostProcessCmd( )
 =============
 idRenderSystemLocal::SetColor
 
-Passing NULL will set the color to white
+Passing nullptr will set the color to white
 =============
 */
 void idRenderSystemLocal::SetColor( const F32* rgba )
@@ -413,7 +413,7 @@ idRenderSystemLocal::SetClipRegion
 */
 void idRenderSystemLocal::SetClipRegion( const F32* region )
 {
-    if( region == NULL )
+    if( region == nullptr )
     {
         ::memset( tr.clipRegion, 0, sizeof( vec4_t ) );
     }
@@ -511,8 +511,8 @@ for each RE_EndFrame
 */
 void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
 {
-    drawBufferCommand_t* cmd = NULL;
-    colorMaskCommand_t* colcmd = NULL;
+    drawBufferCommand_t* cmd = nullptr;
+    colorMaskCommand_t* colcmd = nullptr;
     
     if( !tr.registered )
     {
@@ -635,7 +635,7 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
                         qglClear( GL_COLOR_BUFFER_BIT );
                     }
                     
-                    FBO_Bind( NULL );
+                    FBO_Bind( nullptr );
                 }
                 
                 qglDrawBuffer( GL_FRONT );

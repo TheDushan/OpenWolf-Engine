@@ -37,7 +37,7 @@
 
 #include <framework/precompiled.h>
 
-static void( *completer )( StringEntry s ) = NULL;
+static void( *completer )( StringEntry s ) = nullptr;
 
 idClientGameSystemLocal clientGameLocal;
 idClientGameSystem* clientGameSystem = &clientGameLocal;
@@ -252,7 +252,7 @@ void idClientGameSystemLocal::CgameCompletion( void( *callback )( StringEntry s 
 {
     completer = callback;
     cgame->CompleteCommand( argNum );
-    completer = NULL;
+    completer = nullptr;
 }
 
 /*
@@ -262,7 +262,7 @@ idClientGameSystemLocal::AddCgameCommand
 */
 void idClientGameSystemLocal::AddCgameCommand( StringEntry cmdName, StringEntry cmdDesc )
 {
-    cmdSystem->AddCommand( cmdName, NULL, cmdDesc );
+    cmdSystem->AddCommand( cmdName, nullptr, cmdDesc );
     cmdSystem->SetCommandCompletionFunc( cmdName, CompleteCgameCommand );
 }
 
@@ -374,7 +374,7 @@ idClientGameSystemLocal::UIPopup
 */
 void idClientGameSystemLocal::UIPopup( StringEntry uiname )
 {
-    if( uiname == NULL )
+    if( uiname == nullptr )
     {
         uiManager->SetActiveMenu( UIMENU_MAIN );
         return;
@@ -612,7 +612,7 @@ void idClientGameSystemLocal::SetExpectedHunkUsage( StringEntry mapname )
         
         // now parse the file, filtering out the current map
         buftrav = buf;
-        while( ( token = COM_Parse( &buftrav ) ) != NULL && token[0] )
+        while( ( token = COM_Parse( &buftrav ) ) != nullptr && token[0] )
         {
             if( !Q_stricmp( token, ( UTF8* )mapname ) )
             {
@@ -670,16 +670,16 @@ void idClientGameSystemLocal::ShutdownCGame( void )
     clientGUISystem->SetCatcher( clientGUISystem->GetCatcher() & ~KEYCATCH_CGAME );
     cls.cgameStarted = false;
     
-    if( cgame == NULL || cgvm == NULL )
+    if( cgame == nullptr || cgvm == nullptr )
     {
         return;
     }
     
     cgame->Shutdown();
-    cgame = NULL;
+    cgame = nullptr;
     
     idsystem->UnloadDll( cgvm );
-    cgvm = NULL;
+    cgvm = nullptr;
 }
 
 /*
@@ -796,7 +796,7 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage( void )
         outbuftrav = outbuf;
         outbuftrav[0] = '\0';
         
-        while( ( token = COM_Parse( &buftrav ) ) != NULL && token[0] )
+        while( ( token = COM_Parse( &buftrav ) ) != nullptr && token[0] )
         {
             if( !Q_stricmp( token, cl.mapname ) )
             {

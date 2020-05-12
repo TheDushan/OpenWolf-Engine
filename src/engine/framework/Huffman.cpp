@@ -245,7 +245,7 @@ void idHuffmanSystemLocal::increment( huff_t* huff, node_t* node )
         return;
     }
     
-    if( node->next != NULL && node->next->weight == node->weight )
+    if( node->next != nullptr && node->next->weight == node->weight )
     {
         lnode = *node->head;
         if( lnode != node->parent )
@@ -260,7 +260,7 @@ void idHuffmanSystemLocal::increment( huff_t* huff, node_t* node )
     }
     else
     {
-        *node->head = NULL;
+        *node->head = nullptr;
         free_ppnode( huff, node->head );
     }
     node->weight++;
@@ -291,7 +291,7 @@ void idHuffmanSystemLocal::addRef( huff_t* huff, U8 ch )
 {
     node_t*         tnode, *tnode2;
     
-    if( huff->loc[ch] == NULL )
+    if( huff->loc[ch] == nullptr )
     {
         /* if this is the first transmission of this node */
         tnode = &( huff->nodeList[huff->blocNode++] );
@@ -346,7 +346,7 @@ void idHuffmanSystemLocal::addRef( huff_t* huff, U8 ch )
         }
         huff->lhead->next = tnode;
         tnode->prev = huff->lhead;
-        tnode->left = tnode->right = NULL;
+        tnode->left = tnode->right = nullptr;
         
         if( huff->lhead->parent )
         {
@@ -453,7 +453,7 @@ void idHuffmanSystemLocal::transmit( huff_t* huff, S32 ch, U8* fout )
 {
     S32             i;
     
-    if( huff->loc[ch] == NULL )
+    if( huff->loc[ch] == nullptr )
     {
         /* node_t hasn't been transmitted, send a NYT, then the symbol */
         transmit( huff, NYT, fout );
@@ -464,7 +464,7 @@ void idHuffmanSystemLocal::transmit( huff_t* huff, S32 ch, U8* fout )
     }
     else
     {
-        send( huff->loc[ch], NULL, fout );
+        send( huff->loc[ch], nullptr, fout );
     }
 }
 
@@ -488,8 +488,8 @@ void idHuffmanSystemLocal::DynDecompress( msg_t* mbuf, S32 offset )
     huff.tree = huff.lhead = huff.ltail = huff.loc[NYT] = &( huff.nodeList[huff.blocNode++] );
     huff.tree->symbol = NYT;
     huff.tree->weight = 0;
-    huff.lhead->next = huff.lhead->prev = NULL;
-    huff.tree->parent = huff.tree->left = huff.tree->right = NULL;
+    huff.lhead->next = huff.lhead->prev = nullptr;
+    huff.tree->parent = huff.tree->left = huff.tree->right = nullptr;
     
     cch = buffer[0] * 256 + buffer[1];
     // don't overflow with bad messages
@@ -548,8 +548,8 @@ void idHuffmanSystemLocal::DynCompress( msg_t* mbuf, S32 offset )
     huff.tree = huff.lhead = huff.loc[NYT] = &( huff.nodeList[huff.blocNode++] );
     huff.tree->symbol = NYT;
     huff.tree->weight = 0;
-    huff.lhead->next = huff.lhead->prev = NULL;
-    huff.tree->parent = huff.tree->left = huff.tree->right = NULL;
+    huff.lhead->next = huff.lhead->prev = nullptr;
+    huff.tree->parent = huff.tree->left = huff.tree->right = nullptr;
     huff.loc[NYT] = huff.tree;
     
     seq[0] = ( size >> 8 );

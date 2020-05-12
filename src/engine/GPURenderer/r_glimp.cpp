@@ -42,8 +42,8 @@ typedef enum
     RSERR_UNKNOWN
 } rserr_t;
 
-SDL_Window* SDL_window = NULL;
-static SDL_GLContext SDL_glContext = NULL;
+SDL_Window* SDL_window = nullptr;
+static SDL_GLContext SDL_glContext = nullptr;
 
 convar_t* r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obtained
 convar_t* r_allowResize; // make window resizable
@@ -238,7 +238,7 @@ static bool GLimp_GetProcAddresses( bool fixedFunction )
 #define GLE( ret, name, ... ) qgl##name = gl#name;
 #else
 #define GLE( ret, name, ... ) qgl##name = (name##proc *) SDL_GL_GetProcAddress("gl" #name); \
-	if ( qgl##name == NULL ) { \
+	if ( qgl##name == nullptr ) { \
 		CL_RefPrintf( PRINT_ALL, "ERROR: Missing OpenGL function %s\n", "gl" #name ); \
 		success = false; \
 	}
@@ -249,14 +249,14 @@ static bool GLimp_GetProcAddresses( bool fixedFunction )
     
     if( !qglGetString )
     {
-        Com_Error( ERR_FATAL, "glGetString is NULL" );
+        Com_Error( ERR_FATAL, "glGetString is nullptr" );
     }
     
     version = ( StringEntry )qglGetString( GL_VERSION );
     
     if( !version )
     {
-        Com_Error( ERR_FATAL, "GL_VERSION is NULL\n" );
+        Com_Error( ERR_FATAL, "GL_VERSION is nullptr\n" );
     }
     
     if( Q_stricmpn( "OpenGL ES", version, 9 ) == 0 )
@@ -294,7 +294,7 @@ static bool GLimp_GetProcAddresses( bool fixedFunction )
             QGL_ES_1_1_FIXED_FUNCTION_PROCS;
             QGL_1_3_PROCS;
             
-            // error so this doesn't segfault due to NULL desktop GL functions being used
+            // error so this doesn't segfault due to nullptr desktop GL functions being used
             Com_Error( ERR_FATAL, "Unsupported OpenGL Version: %s\n", version );
         }
         else
@@ -321,7 +321,7 @@ static bool GLimp_GetProcAddresses( bool fixedFunction )
             QGL_2_0_PROCS;
             QGL_ARB_occlusion_query_PROCS;
             
-            // error so this doesn't segfault due to NULL desktop GL functions being used
+            // error so this doesn't segfault due to nullptr desktop GL functions being used
             Com_Error( ERR_FATAL, "Unsupported OpenGL Version: %s\n", version );
         }
         else
@@ -354,7 +354,7 @@ Clear addresses for OpenGL functions.
 */
 static void GLimp_ClearProcAddresses( void )
 {
-#define GLE( ret, name, ... ) qgl##name = NULL;
+#define GLE( ret, name, ... ) qgl##name = nullptr;
 
     qglMajorVersion = 0;
     qglMinorVersion = 0;
@@ -377,12 +377,12 @@ static void GLimp_ClearProcAddresses( void )
     QGL_ARB_vertex_array_object_PROCS;
     QGL_EXT_direct_state_access_PROCS;
     
-    qglActiveTextureARB = NULL;
-    qglClientActiveTextureARB = NULL;
-    qglMultiTexCoord2fARB = NULL;
+    qglActiveTextureARB = nullptr;
+    qglClientActiveTextureARB = nullptr;
+    qglMultiTexCoord2fARB = nullptr;
     
-    qglLockArraysEXT = NULL;
-    qglUnlockArraysEXT = NULL;
+    qglLockArraysEXT = nullptr;
+    qglUnlockArraysEXT = nullptr;
     
 #undef GLE
 }
@@ -399,7 +399,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
     S32 colorBits, depthBits, stencilBits;
     S32 samples;
     S32 i = 0;
-    SDL_Surface* icon = NULL;
+    SDL_Surface* icon = nullptr;
     U32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
     SDL_DisplayMode desktopMode;
     S32 display = 0;
@@ -413,7 +413,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
     }
     
     // If a window exists, note its display index
-    if( SDL_window != NULL )
+    if( SDL_window != nullptr )
     {
         display = SDL_GetWindowDisplayIndex( SDL_window );
         if( display < 0 )
@@ -469,19 +469,19 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
     }
     
     // Destroy existing state if it exists
-    if( SDL_glContext != NULL )
+    if( SDL_glContext != nullptr )
     {
         GLimp_ClearProcAddresses();
         SDL_GL_DeleteContext( SDL_glContext );
-        SDL_glContext = NULL;
+        SDL_glContext = nullptr;
     }
     
-    if( SDL_window != NULL )
+    if( SDL_window != nullptr )
     {
         SDL_GetWindowPosition( SDL_window, &x, &y );
         CL_RefPrintf( PRINT_DEVELOPER, "Existing window at %dx%d before being destroyed\n", x, y );
         SDL_DestroyWindow( SDL_window );
-        SDL_window = NULL;
+        SDL_window = nullptr;
     }
     
     if( fullscreen )
@@ -633,7 +633,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
         
         
-        if( ( SDL_window = SDL_CreateWindow( CLIENT_WINDOW_TITLE, x, y, glConfig.vidWidth, glConfig.vidHeight, flags ) ) == NULL )
+        if( ( SDL_window = SDL_CreateWindow( CLIENT_WINDOW_TITLE, x, y, glConfig.vidWidth, glConfig.vidHeight, flags ) ) == nullptr )
         {
             CL_RefPrintf( PRINT_DEVELOPER, "SDL_CreateWindow failed: %s\n", SDL_GetError() );
             continue;
@@ -665,7 +665,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
             vidMode.w = glConfig.vidWidth;
             vidMode.h = glConfig.vidHeight;
             vidMode.refresh_rate = glConfig.displayFrequency = cvarSystem->VariableIntegerValue( "r_displayRefresh" );
-            vidMode.driverdata = NULL;
+            vidMode.driverdata = nullptr;
             
             if( SDL_SetWindowDisplayMode( SDL_window, &vidMode ) < 0 )
             {
@@ -684,7 +684,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
             
             CL_RefPrintf( PRINT_ALL, "Trying to get an OpenGL %i.%i context\n", r_glMajorVersion->integer, r_glMinorVersion->integer );
             
-            if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == NULL )
+            if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == nullptr )
             {
                 CL_RefPrintf( PRINT_ALL, "SDL_GL_CreateContext failed: %s\n", SDL_GetError() );
                 CL_RefPrintf( PRINT_ALL, "Reverting to default context\n" );
@@ -706,7 +706,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
                 else
                 {
                     CL_RefPrintf( PRINT_ALL, "GLimp_GetProcAdvedresses() failed for OpenGL 3.2 core context\n" );
-                    renderer = NULL;
+                    renderer = nullptr;
                 }
                 
                 if( !renderer || ( strstr( renderer, "Software Renderer" ) || strstr( renderer, "Software Rasterizer" ) ) )
@@ -718,7 +718,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
                     
                     GLimp_ClearProcAddresses();
                     SDL_GL_DeleteContext( SDL_glContext );
-                    SDL_glContext = NULL;
+                    SDL_glContext = nullptr;
                     
                     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, r_glCoreProfile->integer );
                     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, r_glMajorVersion->integer );
@@ -728,16 +728,16 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
         }
         else
         {
-            SDL_glContext = NULL;
+            SDL_glContext = nullptr;
         }
         
         if( !SDL_glContext )
         {
-            if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == NULL )
+            if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == nullptr )
             {
                 CL_RefPrintf( PRINT_DEVELOPER, "SDL_GL_CreateContext failed: %s\n", SDL_GetError() );
                 SDL_DestroyWindow( SDL_window );
-                SDL_window = NULL;
+                SDL_window = nullptr;
                 continue;
             }
             
@@ -746,9 +746,9 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
                 CL_RefPrintf( PRINT_ALL, "GLimp_GetProcAddresses() failed\n" );
                 GLimp_ClearProcAddresses();
                 SDL_GL_DeleteContext( SDL_glContext );
-                SDL_glContext = NULL;
+                SDL_glContext = nullptr;
                 SDL_DestroyWindow( SDL_window );
-                SDL_window = NULL;
+                SDL_window = nullptr;
                 continue;
             }
         }
@@ -775,7 +775,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
         break;
     }
     
-    if( SDL_glContext == NULL )
+    if( SDL_glContext == nullptr )
     {
         SDL_FreeSurface( icon );
         return RSERR_UNKNOWN;
@@ -925,7 +925,7 @@ static bool GLimp_HaveExtension( StringEntry ext )
 {
     StringEntry ptr = Q_stristr( glConfig.extensions_string, ext );
     
-    if( ptr == NULL )
+    if( ptr == nullptr )
     {
         return false;
     }
@@ -1011,9 +1011,9 @@ void GLimp_InitExtensions( void )
     }
     
     // GL_ARB_multitexture
-    qglMultiTexCoord2fARB = NULL;
-    qglActiveTextureARB = NULL;
-    qglClientActiveTextureARB = NULL;
+    qglMultiTexCoord2fARB = nullptr;
+    qglActiveTextureARB = nullptr;
+    qglClientActiveTextureARB = nullptr;
     if( GLimp_HaveExtension( "GL_ARB_multitexture" ) )
     {
         if( r_ext_multitexture->value )
@@ -1034,9 +1034,9 @@ void GLimp_InitExtensions( void )
                 }
                 else
                 {
-                    qglMultiTexCoord2fARB = NULL;
-                    qglActiveTextureARB = NULL;
-                    qglClientActiveTextureARB = NULL;
+                    qglMultiTexCoord2fARB = nullptr;
+                    qglActiveTextureARB = nullptr;
+                    qglClientActiveTextureARB = nullptr;
                     CL_RefPrintf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
                 }
             }
@@ -1108,7 +1108,7 @@ void GLimp_InitExtensions( void )
 void GLimp_Splash( void )
 {
     U8 splashData[144000]; // width * height * bytes_per_pixel
-    SDL_Surface* splashImage = NULL;
+    SDL_Surface* splashImage = nullptr;
     
     // decode splash image
     SPLASH_IMAGE_RUN_LENGTH_DECODE( splashData,
@@ -1137,7 +1137,7 @@ void GLimp_Splash( void )
     dstRect.h = splashImage->h;
     
     // apply image on surface
-    if( SDL_BlitSurface( splashImage, NULL, SDL_GetWindowSurface( SDL_window ), &dstRect ) == 0 )
+    if( SDL_BlitSurface( splashImage, nullptr, SDL_GetWindowSurface( SDL_window ), &dstRect ) == 0 )
     {
         SDL_UpdateWindowSurface( SDL_window );
     }
@@ -1296,11 +1296,11 @@ SMP acceleration
  * which you can't currently do in SDL. We'll just have to hope for the best.
  */
 
-static SDL_mutex* smpMutex = NULL;
-static SDL_cond* renderCommandsEvent = NULL;
-static SDL_cond* renderCompletedEvent = NULL;
-static void ( *glimpRenderThread )( void ) = NULL;
-static SDL_Thread* renderThread = NULL;
+static SDL_mutex* smpMutex = nullptr;
+static SDL_cond* renderCommandsEvent = nullptr;
+static SDL_cond* renderCompletedEvent = nullptr;
+static void ( *glimpRenderThread )( void ) = nullptr;
+static SDL_Thread* renderThread = nullptr;
 
 /*
 ===============
@@ -1309,33 +1309,33 @@ GLimp_ShutdownRenderThread
 */
 static void GLimp_ShutdownRenderThread( void )
 {
-    if( renderThread != NULL )
+    if( renderThread != nullptr )
     {
-        GLimp_WakeRenderer( NULL );
-        SDL_WaitThread( renderThread, NULL );
-        renderThread = NULL;
+        GLimp_WakeRenderer( nullptr );
+        SDL_WaitThread( renderThread, nullptr );
+        renderThread = nullptr;
         glConfig.smpActive = false;
     }
     
-    if( smpMutex != NULL )
+    if( smpMutex != nullptr )
     {
         SDL_DestroyMutex( smpMutex );
-        smpMutex = NULL;
+        smpMutex = nullptr;
     }
     
-    if( renderCommandsEvent != NULL )
+    if( renderCommandsEvent != nullptr )
     {
         SDL_DestroyCond( renderCommandsEvent );
-        renderCommandsEvent = NULL;
+        renderCommandsEvent = nullptr;
     }
     
-    if( renderCompletedEvent != NULL )
+    if( renderCompletedEvent != nullptr )
     {
         SDL_DestroyCond( renderCompletedEvent );
-        renderCompletedEvent = NULL;
+        renderCompletedEvent = nullptr;
     }
     
-    glimpRenderThread = NULL;
+    glimpRenderThread = nullptr;
 }
 
 static void GLimp_SetCurrentContext( bool enable )
@@ -1375,14 +1375,14 @@ GLimp_SpawnRenderThread
 */
 bool GLimp_SpawnRenderThread( void ( *function )( void ) )
 {
-    if( renderThread != NULL ) // hopefully just a zombie at this point...
+    if( renderThread != nullptr ) // hopefully just a zombie at this point...
     {
         CL_RefPrintf( PRINT_WARNING, "Already a render thread? Trying to clean it up...\n" );
         GLimp_ShutdownRenderThread();
     }
     
     smpMutex = SDL_CreateMutex();
-    if( smpMutex == NULL )
+    if( smpMutex == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "smpMutex creation failed: %s\n", SDL_GetError() );
         GLimp_ShutdownRenderThread();
@@ -1390,7 +1390,7 @@ bool GLimp_SpawnRenderThread( void ( *function )( void ) )
     }
     
     renderCommandsEvent = SDL_CreateCond();
-    if( renderCommandsEvent == NULL )
+    if( renderCommandsEvent == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "renderCommandsEvent creation failed: %s\n", SDL_GetError() );
         GLimp_ShutdownRenderThread();
@@ -1398,7 +1398,7 @@ bool GLimp_SpawnRenderThread( void ( *function )( void ) )
     }
     
     renderCompletedEvent = SDL_CreateCond();
-    if( renderCompletedEvent == NULL )
+    if( renderCompletedEvent == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "renderCompletedEvent creation failed: %s\n", SDL_GetError() );
         GLimp_ShutdownRenderThread();
@@ -1406,8 +1406,8 @@ bool GLimp_SpawnRenderThread( void ( *function )( void ) )
     }
     
     glimpRenderThread = function;
-    renderThread = SDL_CreateThread( GLimp_RenderThreadWrapper, "render thread", NULL );
-    if( renderThread == NULL )
+    renderThread = SDL_CreateThread( GLimp_RenderThreadWrapper, "render thread", nullptr );
+    if( renderThread == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "SDL_CreateThread() returned %s", SDL_GetError() );
         GLimp_ShutdownRenderThread();
@@ -1417,7 +1417,7 @@ bool GLimp_SpawnRenderThread( void ( *function )( void ) )
     return true;
 }
 
-static volatile void* smpData = NULL;
+static volatile void* smpData = nullptr;
 static volatile bool smpDataReady;
 
 /*
@@ -1427,13 +1427,13 @@ GLimp_RendererSleep
 */
 void* GLimp_RendererSleep( void )
 {
-    void* data = NULL;
+    void* data = nullptr;
     
     GLimp_SetCurrentContext( false );
     
     SDL_LockMutex( smpMutex );
     {
-        smpData = NULL;
+        smpData = nullptr;
         smpDataReady = false;
         
         // after this, the front end can exit GLimp_FrontEndSleep
@@ -1479,7 +1479,7 @@ void GLimp_WakeRenderer( void* data )
     
     SDL_LockMutex( smpMutex );
     {
-        assert( smpData == NULL );
+        assert( smpData == nullptr );
         smpData = data;
         smpDataReady = true;
         
@@ -1500,7 +1500,7 @@ void GLimp_Shutdown( void )
 {
     idsystem->Shutdown();
     
-    if( renderThread != NULL )
+    if( renderThread != nullptr )
     {
         Com_Printf( "Destroying renderer thread...\n" );
         GLimp_ShutdownRenderThread();

@@ -192,7 +192,7 @@ typedef struct pmove_s
     S32 waterlevel;
     F32 xyspeed;
 #ifdef GAMEDLL
-    struct gclient_s* gent;			// NULL if not a client
+    struct gclient_s* gent;			// nullptr if not a client
 #endif
     // for fixed msec Pmove
     S32 pmove_fixed;

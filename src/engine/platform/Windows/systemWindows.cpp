@@ -81,7 +81,7 @@ idSystemLocal::DefaultHomePath
 */
 UTF8* idSystemLocal::DefaultHomePath( UTF8* buffer, S32 size )
 {
-    if( SHGetSpecialFolderPath( NULL, buffer, CSIDL_PERSONAL, TRUE ) != NOERROR )
+    if( SHGetSpecialFolderPath( nullptr, buffer, CSIDL_PERSONAL, TRUE ) != NOERROR )
     {
         Q_strcat( buffer, size, "\\My Games\\OpenWolf" );
     }
@@ -148,7 +148,7 @@ bool idSystemLocal::RandomBytes( U8* string, S32 len )
 {
     HCRYPTPROV prov;
     
-    if( !CryptAcquireContext( &prov, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) )
+    if( !CryptAcquireContext( &prov, nullptr, nullptr, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) )
     {
         return false;
     }
@@ -194,9 +194,9 @@ idSystemLocal::SysGetClipboardData
 */
 UTF8* idSystemLocal::SysGetClipboardData( void )
 {
-    UTF8* data = NULL, *cliptext;
+    UTF8* data = nullptr, *cliptext;
     
-    if( OpenClipboard( NULL ) != 0 )
+    if( OpenClipboard( nullptr ) != 0 )
     {
         HANDLE hClipboardData;
         
@@ -295,7 +295,7 @@ idSystemLocal::Mkdir
 */
 bool idSystemLocal::Mkdir( StringEntry path )
 {
-    if( !CreateDirectory( path, NULL ) )
+    if( !CreateDirectory( path, nullptr ) )
     {
         if( GetLastError( ) != ERROR_ALREADY_EXISTS )
         {
@@ -449,7 +449,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
         
         if( !nfiles )
         {
-            return NULL;
+            return nullptr;
         }
         
         listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
@@ -459,7 +459,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
             listCopy[i] = list[i];
         }
         
-        listCopy[i] = NULL;
+        listCopy[i] = nullptr;
         
         return listCopy;
     }
@@ -489,7 +489,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
     if( findhandle == -1 )
     {
         *numfiles = 0;
-        return NULL;
+        return nullptr;
     }
     
     do
@@ -516,7 +516,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
     
     if( !nfiles )
     {
-        return NULL;
+        return nullptr;
     }
     
     listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
@@ -526,7 +526,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
         listCopy[i] = list[i];
     }
     
-    listCopy[i] = NULL;
+    listCopy[i] = nullptr;
     
     do
     {
@@ -613,7 +613,7 @@ idSystemLocal::OpenUrl
 */
 bool idSystemLocal::OpenUrl( StringEntry url )
 {
-    return ( ( S32 )ShellExecute( NULL, NULL, url, NULL, NULL, SW_SHOWNORMAL ) > 32 ) ? true : false;
+    return ( ( S32 )ShellExecute( nullptr, nullptr, url, nullptr, nullptr, SW_SHOWNORMAL ) > 32 ) ? true : false;
 }
 
 /*
@@ -697,7 +697,7 @@ dialogResult_t idSystemLocal::Dialog( dialogType_t type, StringEntry message, St
             break;
     }
     
-    switch( MessageBox( NULL, message, title, uType ) )
+    switch( MessageBox( nullptr, message, title, uType ) )
     {
         default:
         case IDOK:
@@ -868,7 +868,7 @@ void idSystemLocal::StartProcess( UTF8* exeName, bool doexit )
     ZeroMemory( &si, sizeof( si ) );
     si.cb = sizeof( si );
     
-    if( !CreateProcess( NULL, exeName, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi ) )
+    if( !CreateProcess( nullptr, exeName, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi ) )
     {
         if( doexit )
         {
@@ -911,7 +911,7 @@ void idSystemLocal::OpenURL( StringEntry url, bool doexit )
     
     Com_Printf( "Open URL: %s\n", url );
     
-    if( !ShellExecute( NULL, "open", url, NULL, NULL, SW_RESTORE ) )
+    if( !ShellExecute( nullptr, "open", url, nullptr, nullptr, SW_RESTORE ) )
     {
         // couldn't start it, popup error box
         Com_Error( ERR_DROP, "Could not open url: '%s' ", url );
@@ -985,7 +985,7 @@ idSystemLocal::KdialogCommand
 */
 S32 idSystemLocal::KdialogCommand( dialogType_t type, StringEntry message, StringEntry title )
 {
-    return NULL;
+    return 0;
 }
 
 /*
@@ -995,7 +995,7 @@ idSystemLocal::ZenityCommand
 */
 S32 idSystemLocal::ZenityCommand( dialogType_t type, StringEntry message, StringEntry title )
 {
-    return NULL;
+    return 0;
 }
 
 /*
@@ -1005,7 +1005,7 @@ idSystemLocal::XmessageCommand
 */
 S32 idSystemLocal::XmessageCommand( dialogType_t type, StringEntry message, StringEntry title )
 {
-    return NULL;
+    return 0;
 }
 
 #endif

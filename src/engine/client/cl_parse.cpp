@@ -87,7 +87,7 @@ bool isEntVisible( entityState_t* ent )
         
         VectorCopy( cl.snap.ps.viewangles, v3ViewAngles );
         v3ViewAngles[2] += cl.snap.ps.leanf / 2.0f;
-        AngleVectors( v3ViewAngles, NULL, lright, NULL );
+        AngleVectors( v3ViewAngles, nullptr, lright, nullptr );
         VectorMA( start, cl.snap.ps.leanf, lright, start );
     }
     
@@ -114,7 +114,7 @@ bool isEntVisible( entityState_t* ent )
     
     // First, viewpoint to viewpoint
     end[2] += view_height;
-    collisionModelManager->BoxTrace( &tr, start, end, NULL, NULL, 0, CONTENTS_SOLID, TT_AABB );
+    collisionModelManager->BoxTrace( &tr, start, end, nullptr, nullptr, 0, CONTENTS_SOLID, TT_AABB );
     if( tr.fraction == 1.f )
     {
         return true;
@@ -122,7 +122,7 @@ bool isEntVisible( entityState_t* ent )
     
     // First-b, viewpoint to top of head
     end[2] += 16;
-    collisionModelManager->BoxTrace( &tr, start, end, NULL, NULL, 0, CONTENTS_SOLID, TT_AABB );
+    collisionModelManager->BoxTrace( &tr, start, end, nullptr, nullptr, 0, CONTENTS_SOLID, TT_AABB );
     if( tr.fraction == 1.f )
     {
         return true;
@@ -131,7 +131,7 @@ bool isEntVisible( entityState_t* ent )
     
     // Second, viewpoint to ent's origin
     end[2] -= view_height;
-    collisionModelManager->BoxTrace( &tr, start, end, NULL, NULL, 0, CONTENTS_SOLID, TT_AABB );
+    collisionModelManager->BoxTrace( &tr, start, end, nullptr, nullptr, 0, CONTENTS_SOLID, TT_AABB );
     if( tr.fraction == 1.f )
     {
         return true;
@@ -140,7 +140,7 @@ bool isEntVisible( entityState_t* ent )
     // Third, to ent's right knee
     VectorAdd( end, right, temp );
     temp[2] += 8;
-    collisionModelManager->BoxTrace( &tr, start, temp, NULL, NULL, 0, CONTENTS_SOLID, TT_AABB );
+    collisionModelManager->BoxTrace( &tr, start, temp, nullptr, nullptr, 0, CONTENTS_SOLID, TT_AABB );
     if( tr.fraction == 1.f )
     {
         return true;
@@ -156,7 +156,7 @@ bool isEntVisible( entityState_t* ent )
     {
         temp[2] += 52;
     }
-    collisionModelManager->BoxTrace( &tr, start, temp, NULL, NULL, 0, CONTENTS_SOLID, TT_AABB );
+    collisionModelManager->BoxTrace( &tr, start, temp, nullptr, nullptr, 0, CONTENTS_SOLID, TT_AABB );
     if( tr.fraction == 1.f )
     {
         return true;
@@ -167,7 +167,7 @@ bool isEntVisible( entityState_t* ent )
     VectorScale( right2, -1, right2 );
     VectorAdd( end, right2, temp );
     temp[2] += 2;
-    collisionModelManager->BoxTrace( &tr, start, temp, NULL, NULL, 0, CONTENTS_SOLID, TT_AABB );
+    collisionModelManager->BoxTrace( &tr, start, temp, nullptr, nullptr, 0, CONTENTS_SOLID, TT_AABB );
     if( tr.fraction == 1.f )
     {
         return true;
@@ -183,7 +183,7 @@ bool isEntVisible( entityState_t* ent )
     {
         temp[2] += 36;
     }
-    collisionModelManager->BoxTrace( &tr, start, temp, NULL, NULL, 0, CONTENTS_SOLID, TT_AABB );
+    collisionModelManager->BoxTrace( &tr, start, temp, nullptr, nullptr, 0, CONTENTS_SOLID, TT_AABB );
     if( tr.fraction == 1.f )
     {
         return true;
@@ -267,7 +267,7 @@ void CL_ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* n
     
     // delta from the entities present in oldframe
     oldindex = 0;
-    oldstate = NULL;
+    oldstate = nullptr;
     if( !oldframe )
     {
         oldnum = 99999;
@@ -447,7 +447,7 @@ void CL_ParseSnapshot( msg_t* msg )
     if( newSnap.deltaNum <= 0 )
     {
         newSnap.valid = true;	// uncompressed frame
-        old = NULL;
+        old = nullptr;
         if( clc.demorecording )
         {
             clc.demowaiting = false;	// we can start recording now
@@ -540,7 +540,7 @@ void CL_ParseSnapshot( msg_t* msg )
     }
     else
     {
-        MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
+        MSG_ReadDeltaPlayerstate( msg, nullptr, &newSnap.ps );
     }
     
     // read packet entities

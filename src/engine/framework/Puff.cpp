@@ -175,7 +175,7 @@ local S32 stored( struct state* s )
         
     /* copy len bytes from in to out */
     if( s->incnt + len > s->inlen ) return 2;   /* not enough input */
-    if( s->out != NULL )
+    if( s->out != nullptr )
     {
         if( s->outcnt + len > s->outlen )
             return 1;                           /* not enough output space */
@@ -438,7 +438,7 @@ local S32 codes( struct state* s,
         if( symbol < 256 )              /* literal: symbol is the byte */
         {
             /* write out the literal */
-            if( s->out != NULL )
+            if( s->out != nullptr )
             {
                 if( s->outcnt == s->outlen ) return 1;
                 s->out[s->outcnt] = symbol;
@@ -460,7 +460,7 @@ local S32 codes( struct state* s,
                 return -10;     /* distance too far back */
                 
             /* copy length bytes from distance bytes back */
-            if( s->out != NULL )
+            if( s->out != nullptr )
             {
                 if( s->outcnt + len > s->outlen ) return 1;
                 while( len-- )
@@ -756,7 +756,7 @@ S32 puff( U8*  dest,         /* pointer to destination pointer */
     
     /* initialize output state */
     s.out = dest;
-    s.outlen = *destlen;                /* ignored if dest is NULL */
+    s.outlen = *destlen;                /* ignored if dest is nullptr */
     s.outcnt = 0;
     
     /* initialize input state */

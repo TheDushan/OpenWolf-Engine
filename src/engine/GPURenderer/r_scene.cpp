@@ -147,7 +147,7 @@ void idRenderSystemLocal::AddPolyToScene( qhandle_t hShader, S32 numVerts, const
     {
         // This isn't a useful warning, and an hShader of zero isn't a null shader, it's
         // the default shader.
-        //CL_RefPrintf( PRINT_WARNING, "WARNING: idRenderSystemLocal::AddPolyToScene: NULL poly shader\n");
+        //CL_RefPrintf( PRINT_WARNING, "WARNING: idRenderSystemLocal::AddPolyToScene: nullptr poly shader\n");
         //return;
     }
     
@@ -185,7 +185,7 @@ void idRenderSystemLocal::AddPolyToScene( qhandle_t hShader, S32 numVerts, const
         r_numpolyverts += numVerts;
         
         // if no world is loaded
-        if( tr.world == NULL )
+        if( tr.world == nullptr )
         {
             fogIndex = 0;
         }
@@ -527,7 +527,7 @@ void idRenderSystemLocal::RenderScene( const refdef_t* fd )
     
     if( !tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) )
     {
-        Com_Error( ERR_DROP, "idRenderSystemLocal::RenderScene: NULL worldmodel" );
+        Com_Error( ERR_DROP, "idRenderSystemLocal::RenderScene: nullptr worldmodel" );
     }
     
     RE_BeginScene( fd );

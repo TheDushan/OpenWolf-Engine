@@ -544,7 +544,7 @@ static void blitVQQuad32fs( U8** status, U8* data )
                 break;
         }
     }
-    while( status[index] != NULL );
+    while( status[index] != nullptr );
 }
 
 /******************************************************************************
@@ -863,7 +863,7 @@ static void setupQuad( S64 xOff, S64 yOff )
         for( x = 0; x < ( S64 )cinTable[currentHandle].xsize; x += 16 )
             recurseQuad( x, y, 16, xOff, yOff );
             
-    temp = NULL;
+    temp = nullptr;
     
     for( i = ( numQuadCels - 64 ); i < numQuadCels; i++ )
     {
@@ -1419,7 +1419,7 @@ S32 CIN_PlayCinematic( StringEntry arg, S32 x, S32 y, S32 w, S32 h, S32 systemBi
     UTF8 name[MAX_OSPATH];
     S32 i;
     
-    if( strstr( arg, "/" ) == NULL && strstr( arg, "\\" ) == NULL )
+    if( strstr( arg, "/" ) == nullptr && strstr( arg, "\\" ) == nullptr )
     {
         Com_sprintf( name, sizeof( name ), "video/%s", arg );
     }
@@ -1726,7 +1726,7 @@ void CL_PlayCinematic_f( void )
         {
             SCR_RunCinematic();
         }
-        while( cinTable[currentHandle].buf == NULL && cinTable[currentHandle].status == FMV_PLAY );           // wait for first frame (load codebook and sound)
+        while( cinTable[currentHandle].buf == nullptr && cinTable[currentHandle].status == FMV_PLAY );           // wait for first frame (load codebook and sound)
     }
 }
 

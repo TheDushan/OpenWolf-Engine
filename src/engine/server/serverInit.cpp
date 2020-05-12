@@ -637,7 +637,7 @@ void idServerInitSystemLocal::SetExpectedHunkUsage( UTF8* mapname )
         
         // now parse the file, filtering out the current map
         buftrav = buf;
-        while( ( token = COM_Parse( &buftrav ) ) != NULL && token[0] )
+        while( ( token = COM_Parse( &buftrav ) ) != nullptr && token[0] )
         {
             if( !Q_stricmp( token, mapname ) )
             {
@@ -740,7 +740,7 @@ void idServerInitSystemLocal::SpawnServer( UTF8* server, bool killBots )
     if( svs.snapshotEntities )
     {
         delete[] svs.snapshotEntities;
-        svs.snapshotEntities = NULL;
+        svs.snapshotEntities = nullptr;
     }
     
     // if not running a dedicated server CL_MapLoading will connect the client to the server
@@ -1410,7 +1410,7 @@ void idServerInitSystemLocal::Shutdown( UTF8* finalmsg )
     if( svs.snapshotEntities )
     {
         delete[] svs.snapshotEntities;
-        svs.snapshotEntities = NULL;
+        svs.snapshotEntities = nullptr;
     }
     
     // free current level

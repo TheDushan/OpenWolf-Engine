@@ -45,7 +45,7 @@
 
 serverStatic_t svs;			// persistant server info
 server_t sv;				// local server
-void*  gvm = NULL;		// game
+void*  gvm = nullptr;		// game
 
 #if defined (UPDATE_SERVER)
 versionMapping_t versionMap[MAX_UPDATE_VERSIONS];
@@ -222,7 +222,7 @@ idServerMainSystemLocal::SendServerCommand
 
 Sends a reliable command string to be interpreted by
 the client game module: "cp", "print", "chat", etc
-A NULL client will broadcast to all clients
+A nullptr client will broadcast to all clients
 =================
 */
 void idServerMainSystemLocal::SendServerCommand( client_t* cl, StringEntry fmt, ... )
@@ -243,7 +243,7 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, StringEntry fmt, 
         return;
     }
     
-    if( cl != NULL )
+    if( cl != nullptr )
     {
         AddServerCommand( cl, ( UTF8* )message );
         return;
