@@ -58,6 +58,7 @@ public:
     virtual void Frame( S32 msec );
     virtual S32 LoadTag( StringEntry mod_name );
 public:
+    static void LagAbuse( void );
     static void IntegerOverflowShutDown( UTF8* msg );
     UTF8* ExpandNewlines( UTF8* in );
     void MasterHeartbeat( StringEntry hbname );

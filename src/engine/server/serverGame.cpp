@@ -562,16 +562,17 @@ void idServerGameSystemLocal::InitGameModule( bool restart )
     // start the entity parsing at the beginning
     sv.entityParsePoint = collisionModelManager->EntityString();
     
-    // use the current msec count for a random seed
-    // init for this gamestate
-    sgame->Init( sv.time, Com_Milliseconds(), restart );
-    
     // clear all gentity pointers that might still be set from
     // a previous level
     for( i = 0; i < sv_maxclients->integer; i++ )
     {
         svs.clients[i].gentity = nullptr;
     }
+    
+    // use the current msec count for a random seed
+    // init for this gamestate
+    sgame->Init( sv.time, Com_Milliseconds(), restart );
+    
 }
 
 /*

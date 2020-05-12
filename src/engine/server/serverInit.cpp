@@ -1184,6 +1184,9 @@ void idServerInitSystemLocal::Init( void )
     
     sv_showAverageBPS = cvarSystem->Get( "sv_showAverageBPS", "0", 0, "description" );	// NERVE - SMF - net debugging
     
+    sv_lagAbuse = cvarSystem->Get( "sv_lagAbuse", "1", CVAR_ARCHIVE, "description" );
+    sv_lagAbuseFPS = cvarSystem->Get( "sv_lagAbuseFPS", "0", CVAR_ARCHIVE, "description" );
+    
     // NERVE - SMF - create user set cvars
     cvarSystem->Get( "g_userTimeLimit", "0", 0, "description" );
     cvarSystem->Get( "g_userAlliedRespawnTime", "0", 0, "description" );

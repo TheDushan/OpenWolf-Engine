@@ -86,6 +86,8 @@ convar_t* sv_onlyVisibleClients;	// DHM - Nerve
 convar_t* sv_friendlyFire;	// NERVE - SMF
 convar_t* sv_maxlives;	// NERVE - SMF
 convar_t* sv_needpass;
+convar_t* sv_lagAbuse;
+convar_t* sv_lagAbuseFPS;
 
 convar_t* sv_dl_maxRate;
 convar_t* g_gameType;
@@ -1501,6 +1503,11 @@ void idServerMainSystemLocal::CheckCvars( void )
     }
 }
 
+/*
+==================
+idServerMainSystemLocal::IntegerOverflowShutDown
+==================
+*/
 void idServerMainSystemLocal::IntegerOverflowShutDown( UTF8* msg )
 {
     // save the map name in case it gets cleared during the shut down
@@ -1511,6 +1518,57 @@ void idServerMainSystemLocal::IntegerOverflowShutDown( UTF8* msg )
     cmdBufferSystem->AddText( va( "map %s\n", mapName ) );
 }
 
+/*
+==================
+idServerMainSystemLocal::LagAbuse
+==================
+*/
+void idServerMainSystemLocal::LagAbuse( void )
+{
+    S32 threshold = abs( ( 1000 / sv_fps->integer ? sv_fps->integer : 20 ) * sv_lagAbuse->integer );
+    S32 waitBetweenFakeThinks = sv_lagAbuseFPS->integer ? ( 1000 / abs( sv_lagAbuseFPS->integer ) ) : 0;
+    
+    for( client_t* cl = svs.clients; cl - svs.clients < sv_maxclients->integer; cl++ )
+    {
+        if( !cl )
+        {
+            continue;
+        }
+        
+        if( !sv_lagAbuse->integer || sv.state != SS_GAME || !svs.gameStarted || svs.time < 3000 || cl->state != CS_ACTIVE || !cl->lastRealThink )
+        {
+            cl->lastRealThink = cl->lastFakeThink = cl->numFramesActive = cl->numRealThinks = 0;
+            continue;
+        }
+        
+        if( ++cl->numFramesActive < sv_fps->integer * 3 || cl->numRealThinks < 100 )
+        {
+            continue;
+        }
+        
+        if( svs.time - cl->lastRealThink < threshold )
+        {
+            continue;
+        }
+        
+        if( svs.time - cl->lastFakeThink <= 0 || svs.time - cl->lastFakeThink < waitBetweenFakeThinks )
+        {
+            continue;
+        }
+        
+        Com_Printf( "LagAbuse: fake think for client %d (%d ms since last real, %d ms since last fake)\n", cl - svs.clients, svs.time - cl->lastRealThink, svs.time - cl->lastFakeThink );
+        
+        cl->lastFakeThink = svs.time;
+        usercmd_t newThink = { 0 };
+        
+        newThink.serverTime = svs.time;
+        newThink.buttons = cl->lastUsercmd.buttons;
+        
+        ::memcpy( newThink.angles, cl->lastUsercmd.angles, sizeof( newThink.angles ) );
+        
+        serverClientSystem->ClientThink( cl - svs.clients, &newThink );
+    }
+}
 
 /*
 ==================
@@ -1578,6 +1636,8 @@ void idServerMainSystemLocal::Frame( S32 msec )
     {
         return;
     }
+    
+    LagAbuse();
     
     if( com_dedicated->integer )
     {

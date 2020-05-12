@@ -234,6 +234,10 @@ typedef struct client_s
     S32 lastUserInfoChange;
     S32 lastUserInfoCount;
     S32 oldServerTime;
+    S32 numRealThinks;
+    S32 lastRealThink;
+    S32 lastFakeThink;
+    S32 numFramesActive;
 } client_t;
 
 //=============================================================================
@@ -407,6 +411,9 @@ extern convar_t*  sv_allowAnonymous;
 extern convar_t*  sv_lanForceRate;
 extern convar_t*  sv_onlyVisibleClients;
 extern convar_t*  sv_showAverageBPS;	// NERVE - SMF - net debugging
+
+extern convar_t* sv_lagAbuse;
+extern convar_t* sv_lagAbuseFPS;
 
 extern convar_t*  sv_requireValidGuid;
 

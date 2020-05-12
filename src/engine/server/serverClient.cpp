@@ -2377,6 +2377,9 @@ void idServerClientSystemLocal::UserMove( client_t* cl, msg_t* msg, bool delta )
         return;
     }
     
+    cl->lastRealThink = svs.time;
+    cl->numRealThinks++;
+    
     // usually, the first couple commands will be duplicates
     // of ones we have previously received, but the servertimes
     // in the commands will cause them to be immediately discarded
