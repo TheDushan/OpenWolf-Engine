@@ -88,6 +88,7 @@ public:
     static void CompleteCvarName( UTF8* args, S32 argNum );
     virtual void Init( void );
     virtual void Shutdown( void );
+    static const UTF8* Validate( convar_t* var, StringEntry value, bool warn );
 };
 
 extern idCVarSystemLocal cvarSystemLocal;

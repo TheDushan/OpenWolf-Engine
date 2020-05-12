@@ -896,6 +896,9 @@ S32 Q_isnumeric( S32 c );
 S32 Q_isalphanumeric( S32 c );
 S32 Q_isforfilename( S32 c );
 
+bool Q_isanumber( StringEntry s );
+bool Q_isintegral( F32 f );
+
 bool        Q_strtol( StringEntry s, S64* out );
 bool        Q_strtoi( StringEntry s, S32* out );
 
@@ -1738,5 +1741,6 @@ bool COM_CompareExtension( StringEntry in, StringEntry ext );
 #define VALIDSTRING( a ) ( ( a != nullptr ) && ( a[0] != '\0' ) )
 F32 Q_flrand( F32 min, F32 max );
 bool Q_CleanPlayerName( StringEntry in, UTF8* out, S32 outSize );
+S32 COM_CompressBracedSection( UTF8** data_p, UTF8** name, UTF8** text, S32* nameLength, S32* textLength );
 
 #endif //!__Q_SHARED_H__

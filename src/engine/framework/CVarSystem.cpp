@@ -298,7 +298,10 @@ void idCVarSystemLocal::CommandCompletion( void ( *callback )( StringEntry s ) )
     
     for( cvar = cvar_vars; cvar; cvar = cvar->next )
     {
-        callback( cvar->name );
+        if( cvar->name )
+        {
+            callback( cvar->name );
+        }
     }
 }
 
@@ -328,6 +331,138 @@ UTF8* idCVarSystemLocal::ClearForeignCharacters( StringEntry value )
     clean[j] = '\0';
     
     return clean;
+}
+
+/*
+============
+idCVarSystemLocal::Validate
+============
+*/
+const UTF8* idCVarSystemLocal::Validate( convar_t* var, StringEntry value, bool warn )
+{
+    static UTF8 s[MAX_CVAR_VALUE_STRING];
+    F32 valuef;
+    bool changed = false;
+    
+    if( !var->validate )
+    {
+        return value;
+    }
+    
+    if( !value )
+    {
+        return value;
+    }
+    
+    if( Q_isanumber( value ) )
+    {
+        valuef = atof( value );
+        
+        if( var->integral )
+        {
+            if( !Q_isintegral( valuef ) )
+            {
+                if( warn )
+                {
+                    Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s' must be integral", var->name );
+                }
+                
+                valuef = ( int )valuef;
+                changed = true;
+            }
+        }
+    }
+    else
+    {
+        if( warn )
+        {
+            Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s' must be numeric", var->name );
+        }
+        
+        valuef = atof( var->resetString );
+        changed = true;
+    }
+    
+    if( valuef < var->min )
+    {
+        if( warn )
+        {
+            if( changed )
+            {
+                Com_Printf( " and is" );
+            }
+            else
+            {
+                Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s'", var->name );
+            }
+            
+            if( Q_isintegral( var->min ) )
+            {
+                Com_Printf( " out of range (min %d)", ( int )var->min );
+            }
+            else
+            {
+                Com_Printf( " out of range (min %f)", var->min );
+            }
+        }
+        
+        valuef = var->min;
+        changed = true;
+    }
+    else if( valuef > var->max )
+    {
+        if( warn )
+        {
+            if( changed )
+            {
+                Com_Printf( " and is" );
+            }
+            else
+            {
+                Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s'", var->name );
+            }
+            
+            if( Q_isintegral( var->max ) )
+            {
+                Com_Printf( " out of range (max %d)", ( int )var->max );
+            }
+            else
+            {
+                Com_Printf( " out of range (max %f)", var->max );
+            }
+        }
+        
+        valuef = var->max;
+        changed = true;
+    }
+    
+    if( changed )
+    {
+        if( Q_isintegral( valuef ) )
+        {
+            Com_sprintf( s, sizeof( s ), "%d", ( int )valuef );
+            
+            if( warn )
+            {
+                Com_Printf( ", setting to %d\n", ( int )valuef );
+            }
+        }
+        else
+        {
+            Com_sprintf( s, sizeof( s ), "%f", valuef );
+            
+            if( warn )
+            {
+                Com_Printf( ", setting to %f\n", valuef );
+            }
+        }
+        
+        return s;
+    }
+    else
+    {
+        return value;
+    }
 }
 
 /*
@@ -367,6 +502,8 @@ convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S
     
     if( var )
     {
+        var_value = Validate( var, var_value, false );
+        
         // if the C code is now specifying a variable that the user already
         // set a value for, take the new value as the reset value
         if( ( var->flags & CVAR_USER_CREATED ) && !( flags & CVAR_USER_CREATED ) && var_value[0] )
@@ -521,6 +658,8 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
     {
         value = var->resetString;
     }
+    
+    value = Validate( var, value, true );
     
     if( var->flags & CVAR_USERINFO )
     {

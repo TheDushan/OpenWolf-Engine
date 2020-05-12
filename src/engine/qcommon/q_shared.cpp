@@ -2854,3 +2854,163 @@ UTF8* Com_StringContains( UTF8* str1, UTF8* str2, S32 casesensitive )
     return nullptr;
     
 }
+
+bool Q_isanumber( StringEntry s )
+{
+    UTF8* p;
+    F64 d;
+    
+    if( *s == '\0' )
+    {
+    }
+    return false;
+    
+    d = strtod( s, &p );
+    
+    return *p == '\0';
+}
+
+bool Q_isintegral( F32 f )
+{
+    return ( S32 )f == f;
+}
+
+S32 COM_CompressBracedSection( UTF8** data_p, UTF8** name, UTF8** text, S32* nameLength, S32* textLength )
+{
+    UTF8* in, * out;
+    S32 depth, c;
+    
+    if( !*data_p ) return -1;
+    
+    *name = nullptr;
+    *text = nullptr;
+    
+    *nameLength = 0;
+    *textLength = 0;
+    
+    depth = 0;
+    in = out = *data_p;
+    
+    if( !*in ) return 0;
+    
+    while( ( c = *in++ ) != '\0' )
+    {
+        if( c <= '/' || c >= '{' )	// skip lot of conditions if c is regular char
+        {
+            //  whitespace or newline
+            if( c <= ' ' )
+            {
+                if( out > * data_p && out[-1] <= ' ' )
+                {
+                    out--;
+                    *out = ( c == '\n' ? '\n' : *out );
+                }
+                else
+                {
+                    *out = ( c == '\n' ? '\n' : ' ' );
+                }
+                while( *in && *in <= ' ' )
+                {
+                    if( *in++ == '\n' )
+                    {
+                        com_lines++;
+                        *out = '\n';
+                    }
+                }
+                out++;
+                continue;
+            }
+            
+            // skip comments
+            if( c == '/' )
+            {
+                // double slash comments
+                if( *in == '/' )
+                {
+                    in++;
+                    while( *in && *in != '\n' ) in++; // ignore until newline
+                    if( out > * data_p && out[-1] <= ' ' ) out--;
+                    if( *in ) in++;
+                    com_lines++;
+                    *out++ = '\n';
+                }
+                // multiline /* */ comments
+                else if( *in == '*' )
+                {
+                    in++;
+                    while( *in && ( *in != '*' || in[1] != '/' ) ) // ignore until comment close
+                    {
+                        if( *in++ == '\n' )
+                        {
+                            com_lines++;
+                        }
+                    }
+                    if( *in ) in += 2;
+                }
+                // not comment
+                else
+                {
+                    *out++ = '/';
+                }
+                continue;
+            }
+            
+            // handle quoted strings
+            if( c == '"' )
+            {
+                *out++ = '"';
+                while( *in && *in != '"' ) *out++ = *in++;
+                *out++ = '"';
+                in++;
+                continue;
+            }
+            
+            // brace matching
+            if( c == '{' || c == '}' )
+            {
+                if( c == '{' && !*name )
+                {
+                    *name = *data_p;
+                    if( *( *name ) <= ' ' )( *name )++;
+                    *nameLength = ( S32 )out - ( S32 ) * name;
+                    if( ( *name )[*nameLength - 1] <= ' ' )( *nameLength )--;
+                    *text = out;
+                }
+                if( out > * data_p && out[-1] > ' ' && out + 1 < in ) *out++ = ' ';
+                *out++ = c;
+                if( out + 1 < in ) *out++ = ' ';
+                depth += ( c == '{' ? +1 : -1 );
+                if( depth <= 0 ) break;
+                continue;
+            }
+        }
+        
+        // parse a regular word
+        while( c )
+        {
+            *out++ = c;
+            c = *in;
+            // end of regular chars ?
+            if( c <= '/' ) break;
+            if( c >= '{' ) break;
+            in++;
+        }
+    }
+    
+    if( depth )
+    {
+        COM_ParseWarning( "Unmatched braces in shader text" );
+    }
+    
+    if( !c ) in--;
+    
+    if( *text && *( *text ) <= ' ' )( *text )++;			// remove begining white char
+    if( out > * data_p && out[-1] <= ' ' ) out--;		// remove ending white char
+    if( *text ) *textLength = ( S32 )out - ( S32 ) * text;	// compressed text length
+    
+    c = ( S32 )out - ( S32 ) * data_p;						// uncompressed chars parsed
+    
+    *data_p = in;
+    
+    return c;
+}

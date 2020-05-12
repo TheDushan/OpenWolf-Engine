@@ -295,7 +295,7 @@ breakOut:
         }
     }
     
-#if 0
+#if 1
     // TTimo: this is the chunk of code to ensure a behavior that meets TGA specs
     // bit 5 set => top-down
     if( targa_header.attributes & 0x20 )
@@ -314,12 +314,13 @@ breakOut:
         }
         free( flip );
     }
-#endif
+#else
     // instead we just print a warning
     if( targa_header.attributes & 0x20 )
     {
         CL_RefPrintf( PRINT_WARNING, "WARNING: '%s' TGA file header declares top-down image, ignoring\n", name );
     }
+#endif
     
     if( width )
         *width = columns;
