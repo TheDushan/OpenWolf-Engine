@@ -4170,9 +4170,13 @@ void Com_RandomBytes( U8* string, S32 len )
 }
 
 #define CON_HISTORY 64
+#ifdef DEDICATED
+#define CON_HISTORY_FILE "conhistory_server"
+#else
 #define CON_HISTORY_FILE "conhistory"
+#endif
 static UTF8 history[CON_HISTORY][MAX_EDIT_LINE];
-static S32 hist_current, hist_next;
+static S32 hist_current = -1, hist_next = 0;
 
 /*
 ==================
@@ -4192,29 +4196,39 @@ void Hist_Load( void )
         Com_Printf( "Couldn't read %s.\n", CON_HISTORY_FILE );
         return;
     }
+    
+    memset( buffer, '\0', sizeof( buffer ) );
+    memset( history, '\0', sizeof( history ) );
+    
     fileSystem->Read( buffer, sizeof( buffer ), f );
     fileSystem->FCloseFile( f );
     
     buf = buffer;
+    
     for( i = 0; i < CON_HISTORY; i++ )
     {
         end = strchr( buf, '\n' );
         if( !end )
         {
-            end = buf + strlen( buf );
             Q_strncpyz( history[i], buf, sizeof( history[0] ) );
             break;
         }
-        else
-            *end = '\0';
+        
+        *end = '\0';
+        
         Q_strncpyz( history[i], buf, sizeof( history[0] ) );
         buf = end + 1;
         if( !*buf )
+        {
             break;
+        }
     }
     
     if( i > CON_HISTORY )
+    {
         i = CON_HISTORY;
+    }
+    
     hist_current = hist_next = i + 1;
 }
 
@@ -4235,7 +4249,7 @@ static void Hist_Save( void )
         return;
     }
     
-    i = hist_next % CON_HISTORY;
+    i = ( hist_next + 1 ) % CON_HISTORY;
     do
     {
         UTF8* buf;
@@ -4260,13 +4274,24 @@ Hist_Add
 */
 void Hist_Add( StringEntry field )
 {
-    if( !strcmp( field, history[( hist_current - 1 ) % CON_HISTORY] ) )
+    StringEntry prev = history[( hist_next - 1 ) % CON_HISTORY];
+    
+    // don't add "", "\" or "/"
+    if( !field[0] || ( ( field[0] == '/' || field[0] == '\\' ) && !field[1] ) )
+    {
+        hist_current = hist_next;
+        return;
+    }
+    
+    // don't add if same as previous (treat leading \ and / as equivalent)
+    if( ( *field == *prev || ( *field == '/' && *prev == '\\' ) || ( *field == '\\' && *prev == '/' ) ) && !::strcmp( &field[1], &prev[1] ) )
     {
         hist_current = hist_next;
         return;
     }
     
     Q_strncpyz( history[hist_next % CON_HISTORY], field, sizeof( history[0] ) );
+    
     hist_next++;
     hist_current = hist_next;
     Hist_Save();
@@ -4279,9 +4304,11 @@ Hist_Prev
 */
 StringEntry Hist_Prev( void )
 {
-    if( ( hist_current - 1 ) % CON_HISTORY != hist_next % CON_HISTORY &&
-            history[( hist_current - 1 ) % CON_HISTORY][0] )
+    if( ( hist_current - 1 ) % CON_HISTORY != hist_next % CON_HISTORY && history[( hist_current - 1 ) % CON_HISTORY][0] )
+    {
         hist_current--;
+    }
+    
     return history[hist_current % CON_HISTORY];
 }
 
@@ -4290,11 +4317,21 @@ StringEntry Hist_Prev( void )
 Hist_Next
 ==================
 */
-StringEntry Hist_Next( void )
+StringEntry Hist_Next( StringEntry field )
 {
     if( hist_current % CON_HISTORY != hist_next % CON_HISTORY )
+    {
         hist_current++;
+    }
+    
     if( hist_current % CON_HISTORY == hist_next % CON_HISTORY )
-        return nullptr;
+    {
+        if( *field && strcmp( field, history[( hist_current - 1 ) % CON_HISTORY] ) )
+        {
+            Hist_Add( field );
+        }
+        
+        return "";
+    }
     return history[hist_current % CON_HISTORY];
 }

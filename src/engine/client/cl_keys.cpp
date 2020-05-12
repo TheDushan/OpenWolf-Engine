@@ -772,7 +772,7 @@ void Console_Key( S32 key )
     if( ( key == K_MWHEELDOWN && keys[K_SHIFT].down ) || ( key == K_DOWNARROW ) || ( key == K_KP_DOWNARROW ) ||
             ( ( tolower( key ) == 'n' ) && keys[K_CTRL].down ) )
     {
-        StringEntry history = Hist_Next();
+        StringEntry history = Hist_Next( g_consoleField.buffer );
         if( history )
         {
             Q_strncpyz( g_consoleField.buffer, history, sizeof( g_consoleField.buffer ) );

@@ -726,6 +726,12 @@ void CL_ConsolePrint( UTF8* txt )
         txt += 12;
     }
     
+    if( txt[0] == '*' )
+    {
+        skipnotify = true;
+        txt += 1;
+    }
+    
     // for some demos we don't want to ever show anything on the console
     if( cl_noprint && cl_noprint->integer )
     {

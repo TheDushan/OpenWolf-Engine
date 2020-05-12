@@ -529,20 +529,19 @@ UTF8* idConsoleCursesLocal::Input( void )
             case '\r':
             case KEY_ENTER:
                 if( !input_field.buffer[0] )
+                {
                     continue;
-#ifdef _WIN32
-                _snprintf( text, sizeof( text ), "\\%s", input_field.buffer + ( input_field.buffer[0] == '\\' || input_field.buffer[0] == '/' ) );
-#else
-                snprintf( text, sizeof( text ), "\\%s", input_field.buffer + ( input_field.buffer[0] == '\\' || input_field.buffer[0] == '/' ) );
-#endif
-                Hist_Add( text );
+                }
+                
+                Hist_Add( input_field.buffer );
+                strcpy( text, input_field.buffer );
                 Field_Clear( &input_field );
                 werase( inputwin );
                 wnoutrefresh( inputwin );
                 UpdateCursor();
                 //doupdate();
-                Com_Printf( PROMPT "^7%s\n", text + 1 );
-                return text + 1;
+                Com_Printf( PROMPT "^7%s\n", text );
+                return text;
             case 21: // Ctrl-U
                 Field_Clear( &input_field );
                 werase( inputwin );
@@ -570,27 +569,14 @@ UTF8* idConsoleCursesLocal::Input( void )
                 }
                 continue;
             case KEY_UP:
-            {
-                StringEntry field = Hist_Prev();
-                if( field )
-                {
-                    ::strcpy( input_field.buffer, field );
-                }
+                Q_strncpyz( input_field.buffer, Hist_Prev(), sizeof( input_field.buffer ) );
+                input_field.cursor = strlen( input_field.buffer );
                 continue;
-            }
             case KEY_DOWN:
-            {
-                StringEntry field = Hist_Next();
-                if( field )
-                {
-                    strcpy( input_field.buffer, field );
-                }
-                else
-                {
-                    Field_Clear( &input_field );
-                }
+            
+                Q_strncpyz( input_field.buffer, Hist_Next( input_field.buffer ), sizeof( input_field.buffer ) );
+                input_field.cursor = strlen( input_field.buffer );
                 continue;
-            }
             case KEY_HOME:
                 input_field.cursor = 0;
                 continue;
@@ -625,9 +611,7 @@ UTF8* idConsoleCursesLocal::Input( void )
             case 127:
             case KEY_BACKSPACE:
                 if( input_field.cursor <= 0 )
-                {
                     continue;
-                }
                 input_field.cursor--;
                 // Fall through
             case KEY_DC:

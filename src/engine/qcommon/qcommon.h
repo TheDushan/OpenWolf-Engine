@@ -718,7 +718,7 @@ sysEvent_t		Com_GetSystemEvent( void );
 
 void Hist_Load( void );
 void Hist_Add( StringEntry field );
-StringEntry Hist_Next( void );
+StringEntry Hist_Next( StringEntry field );
 StringEntry Hist_Prev( void );
 
 #define SV_ENCODE_START     4

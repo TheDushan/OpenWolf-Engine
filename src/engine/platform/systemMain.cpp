@@ -694,13 +694,6 @@ Q_EXPORT S32 engineMain( S32 argc, UTF8 * *argv )
         }
         
         Q_strcat( commandLine, sizeof( commandLine ), argv[ i ] );
-        
-        if( containsSpaces )
-        {
-            Q_strcat( commandLine, sizeof( commandLine ), "\"" );
-        }
-        
-        Q_strcat( commandLine, sizeof( commandLine ), " " );
     }
     
     consoleCursesSystem->Init();
