@@ -382,7 +382,7 @@ void S_AdpcmEncodeSound( sfx_t* sfx, S16* samples )
         
         newchunk = SND_malloc();
         
-        if( sfx->soundData == nullptr)
+        if( sfx->soundData == nullptr )
         {
             sfx->soundData = newchunk;
         }
