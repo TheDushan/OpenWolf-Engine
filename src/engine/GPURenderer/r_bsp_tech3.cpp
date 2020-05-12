@@ -2965,7 +2965,7 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
     ::memset( &s_worldData, 0, sizeof( s_worldData ) );
     Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
     
-    Q_strncpyz( s_worldData.baseName, COM_SkipPath( s_worldData.name ), sizeof( s_worldData.name ) );
+    Q_strncpyz( s_worldData.baseName, COM_SkipPath( s_worldData.baseName ), sizeof( s_worldData.name ) );
     COM_StripExtension2( s_worldData.baseName, s_worldData.baseName, sizeof( s_worldData.baseName ) );
     
     startMarker = ( S32 )Hunk_Alloc( 0, h_low );

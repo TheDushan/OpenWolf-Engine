@@ -1636,7 +1636,6 @@ Q_strncpyz
 Safe strncpy that ensures a trailing zero
 =============
 */
-
 // Dushan
 #if defined(_DEBUG)
 void Q_strncpyzDebug( UTF8* dest, StringEntry src, U64 destsize, StringEntry file, S32 line )
@@ -1644,10 +1643,6 @@ void Q_strncpyzDebug( UTF8* dest, StringEntry src, U64 destsize, StringEntry fil
 void Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize )
 #endif
 {
-    UTF8* d;
-    StringEntry s;
-    U64 n;
-    
 #ifdef _DEBUG
     if( !dest )
     {
@@ -1678,28 +1673,26 @@ void Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize )
     }
 #endif
     
-    d = dest;
-    s = src;
-    n = destsize;
+    intptr_t s = ( intptr_t )src;
+    intptr_t d = ( intptr_t )dest;
     
-    /* Copy as many bytes as will fit */
-    if( n != 0 )
+    if( ( d > s && d < s + destsize ) || ( s > d && s < d + destsize ) )
     {
-        while( --n != 0 )
+        S32 len = ( S32 )::strlen( src );
+        
+        if( len > destsize - 1 )
         {
-            if( ( *d++ = *s++ ) == '\0' )
-                break;
+            len = destsize - 1;
         }
+        
+        ::memmove( dest, src, len );
+    }
+    else
+    {
+        ::strncpy( dest, src, destsize - 1 );
     }
     
-    /* Not enough room in dst, add nullptr and traverse rest of src */
-    if( n == 0 )
-    {
-        if( destsize != 0 )
-            *d = '\0';
-        /* NUL-terminate dst */
-        while( *s++ );
-    }
+    dest[destsize - 1] = 0;
 }
 
 S32 Q_stricmpn( StringEntry s1, StringEntry s2, S32 n )
