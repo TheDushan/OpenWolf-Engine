@@ -2383,7 +2383,7 @@ sysEvent_t Com_GetSystemEvent( void )
         
         len = strlen( s ) + 1;
         b = ( UTF8* )Z_Malloc( len );
-        Q_strncpyz( b, s, len - 1 );
+        Q_strncpyz( b, s, len );
         Com_QueueEvent( 0, SYSE_CONSOLE, 0, 0, len, b );
     }
     
@@ -2599,7 +2599,6 @@ S32 Com_EventLoop( void )
     
     while( 1 )
     {
-        NET_FlushPacketQueue();
         ev = Com_GetEvent();
         
         // if no more events are available
@@ -4064,7 +4063,7 @@ void Field_CompleteCommand( UTF8* cmd, bool doCommands, bool doCvars )
     S32 completionArgument = 0;
     
     // Skip leading whitespace and quotes
-    cmd = Com_SkipCharset( cmd, " \"" );
+    cmd = Com_SkipCharset( cmd, "\"" );
     
     cmdSystem->TokenizeStringIgnoreQuotes( cmd );
     completionArgument = cmdSystem->Argc( );
@@ -4079,27 +4078,6 @@ void Field_CompleteCommand( UTF8* cmd, bool doCommands, bool doCvars )
     {
         completionString = cmdSystem->Argv( completionArgument - 1 );
     }
-    
-#ifndef DEDICATED
-    // Unconditionally add a '\' to the start of the buffer
-    if( completionField->buffer[ 0 ] &&
-            completionField->buffer[ 0 ] != '\\' )
-    {
-        if( completionField->buffer[ 0 ] != '/' )
-        {
-            // Buffer is full, refuse to complete
-            if( strlen( completionField->buffer ) + 1 >= sizeof( completionField->buffer ) )
-                return;
-                
-            memmove( &completionField->buffer[ 1 ],
-                     &completionField->buffer[ 0 ],
-                     strlen( completionField->buffer ) + 1 );
-            completionField->cursor++;
-        }
-        
-        completionField->buffer[ 0 ] = '\\';
-    }
-#endif
     
     if( completionArgument > 1 )
     {
