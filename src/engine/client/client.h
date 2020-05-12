@@ -478,9 +478,6 @@ extern convar_t*  cl_aviFrameRate;
 extern convar_t*  cl_aviMotionJpeg;
 extern convar_t*  cl_guidServerUniq;
 
-//Dushan
-extern convar_t*  cl_razerhydra;
-
 //bani
 extern convar_t* sv_cheats;
 

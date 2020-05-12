@@ -146,7 +146,6 @@ convar_t*         cl_altTab;
 
 convar_t*         cl_aviMotionJpeg;
 convar_t*         cl_guidServerUniq;
-convar_t*         cl_razerhydra;
 
 clientActive_t  cl;
 clientConnection_t clc;
@@ -3778,8 +3777,6 @@ void CL_Init( void )
     cl_aviFrameRate = cvarSystem->Get( "cl_aviFrameRate", "25", CVAR_ARCHIVE, "description" );
     
     cl_aviMotionJpeg = cvarSystem->Get( "cl_aviMotionJpeg", "1", CVAR_ARCHIVE, "description" );
-    
-    cl_razerhydra = cvarSystem->Get( "cl_razerhydra", "0", CVAR_ARCHIVE, "description" );
     
     rconAddress = cvarSystem->Get( "rconAddress", "", 0, "description" );
     
