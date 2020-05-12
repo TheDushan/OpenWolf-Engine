@@ -329,15 +329,6 @@ idClientGUISystemLocal::InitGUI
 
 void idClientGUISystemLocal::InitGUI( void )
 {
-#if defined (USE_HTTP)
-    //	if the session id has something in it, then assume that the browser sent it from the
-    //	command line and tell ui we're already logged in.
-    if( com_sessionid->string[0] )
-    {
-        //uiManager->Authorized(AUTHORIZE_OK);
-    }
-#endif
-    
     // load the GUI module
     uivm = idsystem->LoadDll( "gui" );
     if( !uivm )

@@ -225,43 +225,12 @@ void Net_SendPacket( S32 length, const void* data, netadr_t to );
 void Net_ShowIP( void );
 bool Net_StringToAdr( StringEntry s, netadr_t* a, netadrtype_t family );
 
-#if defined(USE_HTTP)
-
-// Dushan
-typedef enum
-{
-    HTTP_WRITE,
-    HTTP_READ,
-    HTTP_DONE,
-    HTTP_LENGTH,	//	Content-Length:
-    HTTP_FAILED,
-} httpInfo_e;
-
-typedef S32( * HTTP_response )( httpInfo_e code, StringEntry buffer, S32 length, void* notifyData );
-
-//			HTTP_GetUrl should be used only for receiving some content from webpage
-void		HTTP_GetUrl( StringEntry url, HTTP_response, void* notifyData, S32 resume_from );
-//			HTTP_PostUrl should be used only when you want to post on webpage/database
-void        HTTP_PostUrl( StringEntry url, HTTP_response, void* notifyData, StringEntry fmt, ... ) __attribute__( ( format( printf, 4, 5 ) ) );
-
-#ifndef DEDICATED
-void		HTTP_PostBug( StringEntry fileName );
-void		HTTP_PostErrorNotice( StringEntry type, StringEntry msg );
-#endif
-
-S32			Net_HTTP_Init();
-S32			Net_HTTP_Pump();
-void		Net_HTTP_Kill();
-
-#endif // USE_HTTP
-
 //----(SA)  increased for larger submodel entity counts
 #define MAX_MSGLEN					32768		// max length of a message, which may
 //#define   MAX_MSGLEN              16384       // max length of a message, which may
 // be fragmented into multiple packets
 #define MAX_DOWNLOAD_WINDOW         8	// max of eight download frames
 #define MAX_DOWNLOAD_BLKSIZE        2048	// 2048 U8 block chunks
-
 
 /*
 Netchan handles packet fragmentation and out of order / duplicate suppression
@@ -375,15 +344,6 @@ extern S32 demo_protocols[];
 #define NUM_SERVER_PORTS    4	// broadcast scan this many ports after
 // PORT_SERVER so a single machine can
 // run multiple servers
-
-
-// override on command line, config files etc.
-#if defined (USE_HTTP)
-#ifndef AUTHORIZE_SERVER_NAME
-#define AUTHORIZE_SERVER_NAME cl_authserver->string
-#endif
-#endif
-
 
 // the svc_strings[] array in cl_parse.c should mirror this
 //
@@ -539,10 +499,6 @@ extern convar_t*  com_minimized;
 // watchdog
 extern convar_t*  com_watchdog;
 extern convar_t*  com_watchdog_cmd;
-
-#if defined (USE_HTTP)
-extern convar_t*  com_sessionid;
-#endif
 
 extern	convar_t*	com_affinity;
 

@@ -1294,107 +1294,6 @@ void CL_ForwardCommandToServer( StringEntry string )
     }
 }
 
-
-#if defined (USE_HTTP)
-
-/*
-===================
-CL_Login_response
-
-website's response to a users attempt to login
-===================
-*/
-static S32 CL_Login_response( httpInfo_e code, StringEntry buffer, S32 length, void* notifyData )
-{
-    if( code == HTTP_WRITE )
-    {
-        cvarSystem->Set( "cl_servermessage", Info_ValueForKey( buffer, "message" ) );
-        
-        switch( atoi( Info_ValueForKey( buffer, "status" ) ) )
-        {
-            case 1:
-                uiManager->UIAuthorized( AUTHORIZE_OK );
-                break;
-            case -1:
-                uiManager->UIAuthorized( AUTHORIZE_NOTVERIFIED );
-                break;
-            default:
-                uiManager->UIAuthorized( AUTHORIZE_BAD );
-                break;
-        }
-    }
-    
-    //uiManager->UIAuthorized( AUTHORIZE_UNAVAILABLE );
-    
-    return length;
-}
-
-/*
-==================
-CL_Login_f
-==================
-*/
-static void CL_Login_f( void )
-{
-    if( cmdSystem->Argc() != 3 )
-    {
-        Com_Printf( "usage: login user password\n" );
-        return;
-    }
-    
-    HTTP_PostUrl( va( "http://%s/user/login", AUTHORIZE_SERVER_NAME ), CL_Login_response, 0, "user[login]=%s&user[password]=%s&version=%d", cmdSystem->Argv( 1 ), cmdSystem->Argv( 2 ), 31 );
-}
-
-/*
-==================
-CL_ForgotPassword_f
-==================
-*/
-void CL_ForgotPassword_f( void )
-{
-    if( cmdSystem->Argc() != 2 )
-    {
-        Com_Printf( "usage: forgotpassword email\n" );
-        return;
-    }
-    
-    HTTP_PostUrl( va( "http://%s/user/forgot_password", AUTHORIZE_SERVER_NAME ), 0, 0, "user[email]=%s", cmdSystem->Argv( 1 ) );
-}
-
-/*
-==================
-CL_GetAccount_response
-==================
-*/
-static S32 CL_GetAccount_response( httpInfo_e code, StringEntry buffer, S32 length, void* notifyData )
-{
-    if( code == HTTP_WRITE )
-    {
-        cvarSystem->Set( "cl_servermessage", buffer );
-        uiManager->UIAuthorized( AUTHORIZE_ACCOUNTINFO );
-    }
-    
-    return 1;
-}
-
-/*
-==================				 `
-CL_GetAccount_f
-==================
-*/
-void CL_GetAccount_f( void )
-{
-    if( cmdSystem->Argc() != 1 )
-    {
-        Com_Printf( "usage: getaccount\n" );
-        return;
-    }
-    
-    HTTP_PostUrl( va( "http://%s/user/characters", AUTHORIZE_SERVER_NAME ), CL_GetAccount_response, 0, 0 );
-}
-
-#endif
-
 /*
 ==================
 CL_OpenUrl_f
@@ -3463,15 +3362,6 @@ void CL_InitRenderer( void )
     
     g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
     g_consoleField.widthInChars = g_console_field_width;
-    
-#if defined (USE_HTTP)
-    HTTP_PostUrl( "http://localhost/user/log", 0, 0,
-                  "message="
-                  "[%s] %s(%s)\n"
-                  , cvarSystem->VariableString( "sys_osstring" )
-                  , cls.glconfig.renderer_string
-                  , cls.glconfig.version_string );
-#endif
 }
 
 /*
@@ -3923,10 +3813,6 @@ void CL_Init( void )
     cl_profile = cvarSystem->Get( "cl_profile", "", CVAR_ROM, "description" );
     cl_defaultProfile = cvarSystem->Get( "cl_defaultProfile", "", CVAR_ROM, "description" );
     
-#if defined (USE_HTTP)
-    cl_authserver = cvarSystem->Get( "cl_authserver", "localhost", CVAR_INIT, "description" );
-#endif
-    
     // init autoswitch so the ui will have it correctly even
     // if the cgame hasn't been started
     // -NERVE - SMF - disabled autoswitch by default
@@ -3947,16 +3833,6 @@ void CL_Init( void )
     cl_bypassMouseInput = cvarSystem->Get( "cl_bypassMouseInput", "0", 0, "description" );	//CVAR_ROM );          // NERVE - SMF
     
     cl_doubletapdelay = cvarSystem->Get( "cl_doubletapdelay", "100", CVAR_ARCHIVE, "description" );	// Arnout: double tap
-    
-#if defined (USE_HTTP)
-    // Initialize ui_logged_in to -1(not logged in)
-    // -2 - login in progress
-    // 0 - invalid login
-    // 1 - logged in
-    cvarSystem->Get( "ui_logged_in", "-1", CVAR_ROM, "description" );
-    //force ui_logged in to -1 so we can't reset it on the command line
-    cvarSystem->Set( "ui_logged_in", "-1" );
-#endif
     
     m_pitch = cvarSystem->Get( "m_pitch", "0.022", CVAR_ARCHIVE, "description" );
     m_yaw = cvarSystem->Get( "m_yaw", "0.022", CVAR_ARCHIVE, "description" );
@@ -4073,11 +3949,6 @@ void CL_Init( void )
     cmdSystem->AddCommand( "reconnect", CL_Reconnect_f, "description" );
     cmdSystem->AddCommand( "localservers", &idClientBrowserSystemLocal::LocalServers, "description" );
     cmdSystem->AddCommand( "globalservers", &idClientBrowserSystemLocal::GlobalServers, "description" );
-#if defined (USE_HTTP)
-    cmdSystem->AddCommand( "login", CL_Login_f, "description" );
-    cmdSystem->AddCommand( "forgotpassword", CL_ForgotPassword_f, "description" );
-    cmdSystem->AddCommand( "getaccount", CL_GetAccount_f, "description" );
-#endif
     cmdSystem->AddCommand( "openurl", CL_OpenUrl_f, "description" );
     cmdSystem->AddCommand( "rcon", CL_Rcon_f, "description" );
     cmdSystem->AddCommand( "setenv", CL_Setenv_f, "description" );

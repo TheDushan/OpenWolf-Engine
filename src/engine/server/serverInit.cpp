@@ -729,15 +729,6 @@ void idServerInitSystemLocal::SpawnServer( UTF8* server, bool killBots )
         FinalCommand( "spawnserver", false );
     }
     
-#if 0 //defined(USE_HTTP)
-    // Dushan - Do not allow users who are not logged in
-    if( cvarSystem->VariableIntegerValue( "ui_logged_in" ) != 1 )
-    {
-        Com_Error( ERR_DROP, "You are not logged in\n" );
-        return;
-    }
-#endif
-    
     // shut down the existing game if it is running
     serverGameSystem->ShutdownGameProgs();
     svs.gameStarted = false;

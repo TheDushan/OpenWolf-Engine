@@ -109,11 +109,6 @@ convar_t*         com_maxfpsUnfocused;
 convar_t*         com_maxfpsMinimized;
 convar_t*         com_abnormalExit;
 
-#if defined (USE_HTTP)
-convar_t*         com_webhost;
-convar_t*       	com_sessionid;
-#endif
-
 #if defined( _WIN32 ) && defined( _DEBUG )
 convar_t*         com_noErrorInterrupt;
 #endif
@@ -338,20 +333,6 @@ void Com_DPrintf( StringEntry fmt, ... )
     Com_Printf( "%s", msg );
 }
 
-
-#if defined (USE_HTTP)
-StringEntry Con_GetText( S32 console );
-
-static S32 callhome( httpInfo_e code, StringEntry buffer, S32 length, void* notifyData )
-{
-    if( code == HTTP_DONE || code == HTTP_FAILED )
-    {
-        *( S32* )notifyData = 1;
-    }
-    return 1;
-}
-#endif
-
 /*
 =============
 Com_Error
@@ -382,19 +363,6 @@ void Com_Error( S32 code, StringEntry fmt, ... )
     com_errorEntered = true;
     
     cvarSystem->Set( "com_errorCode", va( "%i", code ) );
-    
-#if defined(USE_HTTP)
-    {
-        S32 i = 0;
-        HTTP_PostUrl( "http://localhost/user/log", callhome, &i, "message=ERROR:%s\n%s\n", com_errorMessage, Con_GetText( 0 ) );
-        // spin for up to 5 seconds to allow bug to post
-        while( !i )
-        {
-            idsystem->Sleep( 10 );
-            Net_HTTP_Pump();
-        }
-    }
-#endif
     
     // when we are running automated scripts, make sure we
     // know if anything failed
@@ -3280,11 +3248,6 @@ void Com_Init( UTF8* commandLine )
     com_maxfpsMinimized = cvarSystem->Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE, "description" );
     com_abnormalExit = cvarSystem->Get( "com_abnormalExit", "0", CVAR_ROM, "description" );
     
-#if defined (USE_HTTP)
-    com_webhost	= cvarSystem->Get( "com_webhost", "http://localhost", CVAR_INIT | CVAR_ARCHIVE | CVAR_SYSTEMINFO );
-    com_sessionid = cvarSystem->Get( "com_sessionid", "", CVAR_INIT );
-#endif
-    
     cvarSystem->Get( "savegame_loading", "0", CVAR_ROM, "description" );
     
 #if defined( _WIN32 ) && defined( _DEBUG )
@@ -3571,12 +3534,6 @@ void Com_Frame( void )
     timeBeforeEvents = 0;
     timeBeforeClient = 0;
     timeAfter = 0;
-    
-    // Check to make sure we don't have any http data waiting
-    // comment this out until I get things going better under win32
-#if defined(USE_HTTP)
-    Net_HTTP_Pump();
-#endif
     
     // old net chan encryption key
     key = 0x87243987;
