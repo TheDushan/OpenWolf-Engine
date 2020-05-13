@@ -311,6 +311,8 @@ public:
     virtual S32 SoundDuration( sfxHandle_t handle );
     virtual S32 GetSoundLength( sfxHandle_t sfxHandle );
     virtual void Reload( void );
+    
+    static void S_StopAllSounds( void );
 };
 
 extern idSoundSystemLocal soundSystemLocal;

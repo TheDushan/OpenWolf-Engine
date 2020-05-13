@@ -467,6 +467,19 @@ void S_Music_f( void )
 }
 
 /*
+===============
+idSoundSystemLocal::S_StopAllSounds
+
+I had a problem with AddCommand and pointing to the class member so this is one way of doing
+pointing to a function that is a class member
+===============
+*/
+void idSoundSystemLocal::S_StopAllSounds( void )
+{
+    static_cast<idSoundSystemLocal*>( soundSystem )->StopAllSounds();
+}
+
+/*
 =================
 idSoundSystemLocal::Init
 =================
@@ -478,12 +491,12 @@ void idSoundSystemLocal::Init( void )
     
     Com_Printf( "------ Initializing Sound ------\n" );
     
-    s_volume = cvarSystem->Get( "s_volume", "0.8", CVAR_ARCHIVE, "description" );
-    s_musicVolume = cvarSystem->Get( "s_musicvolume", "0.25", CVAR_ARCHIVE, "description" );
-    s_doppler = cvarSystem->Get( "s_doppler", "1", CVAR_ARCHIVE, "description" );
-    s_backend = cvarSystem->Get( "s_backend", "", CVAR_ROM, "description" );
+    s_volume = cvarSystem->Get( "s_volume", "0.8", CVAR_ARCHIVE, "Sets volume of the game sounds, multiplier value (0.0 to 1.0)" );
+    s_musicVolume = cvarSystem->Get( "s_musicvolume", "0.25", CVAR_ARCHIVE, "Sets volume of the music, multiplier value (0.0 to 1.0)" );
+    s_doppler = cvarSystem->Get( "s_doppler", "1", CVAR_ARCHIVE, "Toggle doppler effect" );
+    s_backend = cvarSystem->Get( "s_backend", "", CVAR_ROM, "Sound backend" );
     
-    cv = cvarSystem->Get( "s_initsound", "1", 0, "description" );
+    cv = cvarSystem->Get( "s_initsound", "1", 0, "Toggle whether sound is initialized or not (on next game)" );
     if( !cv->integer )
     {
         Com_Printf( "Sound disabled.\n" );
@@ -492,13 +505,13 @@ void idSoundSystemLocal::Init( void )
     {
         S_CodecInit( );
         
-        cmdSystem->AddCommand( "play", S_Play_f, "description" );
-        cmdSystem->AddCommand( "music", S_Music_f, "description" );
-        cmdSystem->AddCommand( "s_list", S_SoundList, "description" );
-        //cmdSystem->AddCommand( "s_stop", StopAllSounds, "description" );
-        cmdSystem->AddCommand( "s_info", S_SoundInfo, "description" );
+        cmdSystem->AddCommand( "play", S_Play_f, "Plays a sound fx file" );
+        cmdSystem->AddCommand( "music", S_Music_f, "Plays a music file" );
+        cmdSystem->AddCommand( "s_list", S_SoundList, "Lists all cached sound and music files" );
+        cmdSystem->AddCommand( "s_stop", S_StopAllSounds, "Stops all sounds including music" );
+        cmdSystem->AddCommand( "s_info", S_SoundInfo, "Display information about the sound backend" );
         
-        cv = cvarSystem->Get( "s_useOpenAL", "1", CVAR_ARCHIVE, "description" );
+        cv = cvarSystem->Get( "s_useOpenAL", "1", CVAR_ARCHIVE, "Use the OpenAL sound backend if available" );
         if( cv->integer )
         {
             //OpenAL
