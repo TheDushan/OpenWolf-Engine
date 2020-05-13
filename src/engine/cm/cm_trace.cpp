@@ -729,7 +729,7 @@ void CM_TracePointThroughSurfaceCollide( traceWork_t* tw, const cSurfaceCollide_
 #ifndef BSPC
             if( !cv )
             {
-                cv = cvarSystem->Get( "r_debugSurfaceUpdate", "1", 0, "description" );
+                cv = cvarSystem->Get( "r_debugSurfaceUpdate", "1", 0, "When r_debugSurface is 1, this enables changing the patch mesh surface bounding box according to location." );
             }
             
             if( cv->integer )
@@ -964,7 +964,7 @@ void CM_TraceThroughSurfaceCollide( traceWork_t* tw, const cSurfaceCollide_t* sc
 #ifndef BSPC
                 if( !cv )
                 {
-                    cv = cvarSystem->Get( "r_debugSurfaceUpdate", "1", 0, "description" );
+                    cv = cvarSystem->Get( "r_debugSurfaceUpdate", "1", 0, "When r_debugSurface is 1, this enables changing the patch mesh surface bounding box according to location." );
                 }
                 if( cv && cv->integer )
                 {
@@ -2681,7 +2681,7 @@ void idCollisionModelManagerLocal::DrawDebugSurface( void ( *drawPoly )( S32 col
 #ifndef BSPC
     if( !cv2 )
     {
-        cv2 = cvarSystem->Get( "r_debugSurface", "0", 0, "description" );
+        cv2 = cvarSystem->Get( "r_debugSurface", "0", 0, "Debugging tool: shows bounding boxes of patch mesh surfaces that are targeted by the camera view." );
     }
 #endif
     
@@ -2693,7 +2693,7 @@ void idCollisionModelManagerLocal::DrawDebugSurface( void ( *drawPoly )( S32 col
 #ifndef BSPC
     if( !cv )
     {
-        cv = cvarSystem->Get( "cm_debugSize", "2", 0, "description" );
+        cv = cvarSystem->Get( "cm_debugSize", "2", 0, "Sets the size of the debug surface grid for curved surfaces when r_debugsurface is 1." );
     }
 #endif
     

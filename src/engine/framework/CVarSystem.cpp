@@ -1635,29 +1635,29 @@ void idCVarSystemLocal::Init( void )
     
     cvar_cheats = Get( "sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO, "Indicates whether cheats are enabled or not" );
     
-    cmdSystem->AddCommand( "toggle", &idCVarSystemLocal::Toggle_f, "description" );
+    cmdSystem->AddCommand( "toggle", &idCVarSystemLocal::Toggle_f, "Toggles a cvar for easy single key binding, optionally through a list of given values" );
     cmdSystem->SetCommandCompletionFunc( "toggle", &idCVarSystemLocal::CompleteCvarName );
     
-    cmdSystem->AddCommand( "cycle", &idCVarSystemLocal::Cycle_f, "description" );	// ydnar
+    cmdSystem->AddCommand( "cycle", &idCVarSystemLocal::Cycle_f, "For cycling a specified cvar through the specified values.Bind x “cycle s_mute 0 1" );	// ydnar
     cmdSystem->SetCommandCompletionFunc( "cycle", &idCVarSystemLocal::CompleteCvarName );
     
-    cmdSystem->AddCommand( "set", &idCVarSystemLocal::Set_f, "description" );
+    cmdSystem->AddCommand( "set", &idCVarSystemLocal::Set_f, "To set some cvar to the specified value, e.g. / set r_gamma 1" );
     cmdSystem->SetCommandCompletionFunc( "set", &idCVarSystemLocal::CompleteCvarName );
     
-    cmdSystem->AddCommand( "sets", &idCVarSystemLocal::SetS_f, "description" );
+    cmdSystem->AddCommand( "sets", &idCVarSystemLocal::SetS_f, "Specifies it is to be shown in serverinfo. Often doesnt have any effect on game" );
     cmdSystem->SetCommandCompletionFunc( "sets", &idCVarSystemLocal::CompleteCvarName );
     
-    cmdSystem->AddCommand( "setu", &idCVarSystemLocal::SetU_f, "description" );
+    cmdSystem->AddCommand( "setu", &idCVarSystemLocal::SetU_f, "To set some cvar to the specified value but also flags it as serverinfo" );
     cmdSystem->SetCommandCompletionFunc( "setu", &idCVarSystemLocal::CompleteCvarName );
     
-    cmdSystem->AddCommand( "seta", &idCVarSystemLocal::SetA_f, "description" );
+    cmdSystem->AddCommand( "seta", &idCVarSystemLocal::SetA_f, "To set some cvar to the specified value but also flags it as archived" );
     cmdSystem->SetCommandCompletionFunc( "seta", &idCVarSystemLocal::CompleteCvarName );
     
-    cmdSystem->AddCommand( "reset", &idCVarSystemLocal::Reset_f, "description" );
+    cmdSystem->AddCommand( "reset", &idCVarSystemLocal::Reset_f, "Reseting a variable" );
     cmdSystem->SetCommandCompletionFunc( "reset", &cvarSystemLocal.CompleteCvarName );
     
-    cmdSystem->AddCommand( "cvarlist", &cvarSystemLocal.List_f, "description" );
-    cmdSystem->AddCommand( "cvar_restart", &cvarSystemLocal.Restart_f, "description" );
+    cmdSystem->AddCommand( "cvarlist", &cvarSystemLocal.List_f, "Lists all cvars in the console" );
+    cmdSystem->AddCommand( "cvar_restart", &cvarSystemLocal.Restart_f, "Returns all console variables to their default settings. Does not affect key bindings. " );
 }
 
 /*

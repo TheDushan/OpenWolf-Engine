@@ -59,7 +59,6 @@ public:
     idServerInitSystemLocal();
     ~idServerInitSystemLocal();
     
-    void ResolveAuthHost( void );
     void SendConfigstring( client_t* client, S32 index );
     void CreateBaseline( void );
     void BoundMaxClients( S32 minimum );

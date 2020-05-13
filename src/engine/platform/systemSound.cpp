@@ -232,10 +232,10 @@ bool SNDDMA_Init( S32 sampleFrequencyInKHz )
         
     if( !s_sdlBits )
     {
-        s_sdlBits = cvarSystem->Get( "s_sdlBits", "16", CVAR_ARCHIVE, "description" );
-        s_sdlChannels = cvarSystem->Get( "s_sdlChannels", "2", CVAR_ARCHIVE, "description" );
-        s_sdlDevSamps = cvarSystem->Get( "s_sdlDevSamps", "0", CVAR_ARCHIVE, "description" );
-        s_sdlMixSamps = cvarSystem->Get( "s_sdlMixSamps", "0", CVAR_ARCHIVE, "description" );
+        s_sdlBits = cvarSystem->Get( "s_sdlBits", "16", CVAR_ARCHIVE, "SDL sound bit resolution" );
+        s_sdlChannels = cvarSystem->Get( "s_sdlChannels", "2", CVAR_ARCHIVE, "SDL sound number of channels" );
+        s_sdlDevSamps = cvarSystem->Get( "s_sdlDevSamps", "0", CVAR_ARCHIVE, "SDL sound DMA buffer size override" );
+        s_sdlMixSamps = cvarSystem->Get( "s_sdlMixSamps", "0", CVAR_ARCHIVE, "SDL sound mix buffer size override." );
     }
     
     Com_Printf( "SDL_Init( SDL_INIT_AUDIO )... " );

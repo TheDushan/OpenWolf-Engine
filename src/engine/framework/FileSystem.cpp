@@ -3979,12 +3979,12 @@ void idFileSystemLocal::Startup( StringEntry gameName )
     fs_debug = cvarSystem->Get( "fs_debug", "0", 0, "enables the display of file system messages to the console." );
     fs_copyfiles = cvarSystem->Get( "fs_copyfiles", "0", CVAR_INIT, "Relic/obsolete.!" );
     fs_basepath = cvarSystem->Get( "fs_basepath", idsystem->DefaultInstallPath(), CVAR_INIT, "Holds the logical path to install folder." );
-    fs_buildpath = cvarSystem->Get( "fs_buildpath", "", CVAR_INIT, "description" );
+    fs_buildpath = cvarSystem->Get( "fs_buildpath", "", CVAR_INIT, "Holds the build path to install folder" );
     fs_buildgame = cvarSystem->Get( "fs_buildgame", BASEGAME, CVAR_INIT, "Relic/obsolete.!" );
     fs_basegame = cvarSystem->Get( "fs_basegame", "", CVAR_INIT, "Allows people to base mods upon mods syntax to follow." );
     fs_libpath = cvarSystem->Get( "fs_libpath", idsystem->DefaultLibPath(), CVAR_INIT, "Default binary directory." );
 #ifdef MACOS_X
-    fs_apppath = cvarSystem->Get( "fs_apppath", idsystem->DefaultAppPath(), CVAR_INIT, "description" );
+    fs_apppath = cvarSystem->Get( "fs_apppath", idsystem->DefaultAppPath(), CVAR_INIT, "Default app directory." );
 #endif
     homePath = idsystem->DefaultHomePath( tmp, sizeof( tmp ) );
     
@@ -3993,10 +3993,10 @@ void idFileSystemLocal::Startup( StringEntry gameName )
         homePath = fs_basepath->string;
     }
     
-    fs_homepath = cvarSystem->Get( "fs_homepath", homePath, CVAR_INIT, "description" );
-    fs_gamedirvar = cvarSystem->Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO, "description" );
-    fs_restrict = cvarSystem->Get( "fs_restrict", "", CVAR_INIT, "description" );
-    fs_missing = cvarSystem->Get( "fs_missing", "", CVAR_INIT, "description" );
+    fs_homepath = cvarSystem->Get( "fs_homepath", homePath, CVAR_INIT, "The default is the path to the game executable." );
+    fs_gamedirvar = cvarSystem->Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO, "Set Game path. Set the game folder/dir. " );
+    fs_restrict = cvarSystem->Get( "fs_restrict", "", CVAR_INIT, "Demoversion if set to 1 restricts game to some number of maps." );
+    fs_missing = cvarSystem->Get( "fs_missing", "", CVAR_INIT, "Missing files" );
     
     // add search path elements in reverse priority order
     if( fs_basepath->string[0] )
@@ -4046,11 +4046,11 @@ void idFileSystemLocal::Startup( StringEntry gameName )
 #endif // PRE_RELEASE_DEMO
     
     // add our commands
-    cmdSystem->AddCommand( "path", Path_f, "description" );
-    cmdSystem->AddCommand( "dir", Dir_f, "description" );
-    cmdSystem->AddCommand( "fdir", NewDir_f, "description" );
-    cmdSystem->AddCommand( "touchFile", TouchFile_f, "description" );
-    cmdSystem->AddCommand( "which", Which_f, "description" );
+    cmdSystem->AddCommand( "path", Path_f, "Returns the current search paths (.pk3 files and number of files)" );
+    cmdSystem->AddCommand( "dir", Dir_f, "Similar to MSDOS. Displays contents of the specified directory, can specify extension filter (doesnt display folder names, only files)" );
+    cmdSystem->AddCommand( "fdir", NewDir_f, "For searching for files/folders, DOS style" );
+    cmdSystem->AddCommand( "touchFile", TouchFile_f, "The only purpose of this function is to allow game script files to copy arbitrary files furing an fs_copyfiles 1 run." );
+    cmdSystem->AddCommand( "which", Which_f, "Look through all the pak file elements" );
     
     // show_bug.cgi?id=506
     // reorder the pure pk3 files according to server order

@@ -278,7 +278,7 @@ void idClientGameSystemLocal::CgameError( StringEntry string )
 
 /*
 =====================
-idClientGameSystemLocal::ConfigstringModified
+idClientGameSystemLocal::CGameCheckKeyExec
 =====================
 */
 bool idClientGameSystemLocal::CGameCheckKeyExec( S32 key )

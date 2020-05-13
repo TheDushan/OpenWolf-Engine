@@ -118,8 +118,6 @@ convar_t* sv_packetdelay;
 convar_t* sv_fullmsg;
 
 convar_t* sv_hibernateTime;
-convar_t* sv_authServerHost;	// hostname/port what we are using, default "" (disabled)
-convar_t* sv_authServerKey;
 
 convar_t* sv_wh_active;
 convar_t* sv_wh_bbox_horz;
@@ -1520,58 +1518,6 @@ void idServerMainSystemLocal::IntegerOverflowShutDown( UTF8* msg )
 
 /*
 ==================
-idServerMainSystemLocal::LagAbuse
-==================
-*/
-void idServerMainSystemLocal::LagAbuse( void )
-{
-    S32 threshold = abs( ( 1000 / sv_fps->integer ? sv_fps->integer : 20 ) * sv_lagAbuse->integer );
-    S32 waitBetweenFakeThinks = sv_lagAbuseFPS->integer ? ( 1000 / abs( sv_lagAbuseFPS->integer ) ) : 0;
-    
-    for( client_t* cl = svs.clients; cl - svs.clients < sv_maxclients->integer; cl++ )
-    {
-        if( !cl )
-        {
-            continue;
-        }
-        
-        if( !sv_lagAbuse->integer || sv.state != SS_GAME || !svs.gameStarted || svs.time < 3000 || cl->state != CS_ACTIVE || !cl->lastRealThink )
-        {
-            cl->lastRealThink = cl->lastFakeThink = cl->numFramesActive = cl->numRealThinks = 0;
-            continue;
-        }
-        
-        if( ++cl->numFramesActive < sv_fps->integer * 3 || cl->numRealThinks < 100 )
-        {
-            continue;
-        }
-        
-        if( svs.time - cl->lastRealThink < threshold )
-        {
-            continue;
-        }
-        
-        if( svs.time - cl->lastFakeThink <= 0 || svs.time - cl->lastFakeThink < waitBetweenFakeThinks )
-        {
-            continue;
-        }
-        
-        Com_Printf( "LagAbuse: fake think for client %d (%d ms since last real, %d ms since last fake)\n", cl - svs.clients, svs.time - cl->lastRealThink, svs.time - cl->lastFakeThink );
-        
-        cl->lastFakeThink = svs.time;
-        usercmd_t newThink = { 0 };
-        
-        newThink.serverTime = svs.time;
-        newThink.buttons = cl->lastUsercmd.buttons;
-        
-        ::memcpy( newThink.angles, cl->lastUsercmd.angles, sizeof( newThink.angles ) );
-        
-        serverClientSystem->ClientThink( cl - svs.clients, &newThink );
-    }
-}
-
-/*
-==================
 idServerMainSystemLocal::Frame
 
 Player movement occurs as a result of packet events, which
@@ -1637,8 +1583,6 @@ void idServerMainSystemLocal::Frame( S32 msec )
         return;
     }
     
-    LagAbuse();
-    
     if( com_dedicated->integer )
     {
         frameStartTime = idsystem->Milliseconds();
@@ -1688,7 +1632,7 @@ void idServerMainSystemLocal::Frame( S32 msec )
     // Some mods may still have code like "sin(cg.time / 1000.0f)".
     // IEEE 754 floats have a 23-bit mantissa.
     // Rounding errors will start after roughly ((1<<23) / (60*1000)) ~ 139.8 minutes.
-    const S32 minRebootTimeCvar = 60 * 1000 * cvarSystem->Get( "sv_minRebootDelayMins", "1440", 0, "description" )->integer;
+    const S32 minRebootTimeCvar = 60 * 1000 * cvarSystem->Get( "sv_minRebootDelayMins", "1440", 0, "Automatic dedicated server process restarts for crashes and timed reboots" )->integer;
     const S32 minRebootTimeConst = 60 * 60 * 1000;	// absolute min. time: 1 hour
     const S32 maxRebootTime = 0x7FFFFFFF;			// absolute max. time: ~ 24.86 days
     const S32 minRebootTime = max( minRebootTimeCvar, minRebootTimeConst );

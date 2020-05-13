@@ -1633,57 +1633,6 @@ void idServerClientSystemLocal::ResetPureClient_f( client_t* cl )
 
 /*
 ==================
-idServerClientSystemLocal::SendUserinfoToAuthServer
-
-Send userinfo string to hub server if we were able to resolve it.
-==================
-*/
-void idServerClientSystemLocal::SendUserinfoToAuthServer( StringEntry userinfo )
-{
-    S32 length;
-    
-    // we use this buffer for both computing the MD4 and then the final
-    // message we send; the MD4 hexdigest is 32 chars long, less than
-    // MAX_CVAR_VALUE_STRING, so we're good (but still add safety); the
-    // contents are "key-or-MD4\nuserinfo\nthelonguserinfodata" which
-    // should explain the length calculation
-    UTF8 buffer[MAX_CVAR_VALUE_STRING + 1 + 8 + 1 + MAX_INFO_STRING + 4];
-    
-    // these buffers are for the actual MD4 and its hexdigest, each with
-    // a small safety margin
-    UTF8 md4[16 + 2];
-    UTF8 digest[32 + 2];
-    
-    if( svs.authorizeAddress.type != NA_BAD )
-    {
-        // initialize the buffers (paranoid!)
-        ::memset( buffer, 0, sizeof( buffer ) );
-        ::memset( md4, 0, sizeof( md4 ) );
-        ::memset( digest, 0, sizeof( digest ) );
-        
-        // key + payload to authenticate
-        length = snprintf( buffer, sizeof( buffer ) - 2, "%s\nuserinfo\n%s", sv_authServerKey->string, userinfo );
-        assert( length != -1 );
-        assert( length <= sizeof( buffer ) - 2 );
-        assert( length == strlen( buffer ) );
-        
-        idMD4SystemLocal::mdfour( ( U8* )md4, ( U8* )buffer, length );
-        idMD4SystemLocal::mdfour_hex( ( U8* )md4, ( S32* )digest );
-        assert( strlen( digest ) == 32 );
-        
-        // MD4 hexdigest + payload to send
-        length = snprintf( buffer, sizeof( buffer ) - 2, "%s\nuserinfo\n%s", digest, userinfo );
-        assert( length != -1 );
-        assert( length <= sizeof( buffer ) - 2 );
-        
-        NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress, "%s", buffer );
-        
-        Com_DPrintf( "Sent userinfo to authorization server.\n" );
-    }
-}
-
-/*
-==================
 idServerClientSystemLocal::CheckFunstuffExploit
 
 Makes sure each comma-separated token of the specified userinfo key
@@ -1883,7 +1832,6 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
     {
         Com_Printf( "funstuff exploit attempt from %s\n", NET_AdrToString( cl->netchan.remoteAddress ) );
     }
-    SendUserinfoToAuthServer( cl->userinfo );
 }
 
 /*
@@ -2376,9 +2324,6 @@ void idServerClientSystemLocal::UserMove( client_t* cl, msg_t* msg, bool delta )
         cl->deltaMessage = -1;
         return;
     }
-    
-    cl->lastRealThink = svs.time;
-    cl->numRealThinks++;
     
     // usually, the first couple commands will be duplicates
     // of ones we have previously received, but the servertimes

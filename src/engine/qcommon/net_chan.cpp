@@ -93,9 +93,9 @@ Netchan_Init
 void Netchan_Init( S32 port )
 {
     port &= 0xffff;
-    showpackets = cvarSystem->Get( "showpackets", "0", CVAR_TEMP, "description" );
-    showdrop = cvarSystem->Get( "showdrop", "0", CVAR_TEMP, "description" );
-    qport = cvarSystem->Get( "net_qport", va( "%i", port ), CVAR_INIT, "description" );
+    showpackets = cvarSystem->Get( "showpackets", "0", CVAR_TEMP, "Toggles the running display of all packets sent and received. 0=disables;1=enables. " );
+    showdrop = cvarSystem->Get( "showdrop", "0", CVAR_TEMP, "When enabled, reports dropped packets should they occur. 0=disables;1=enables. " );
+    qport = cvarSystem->Get( "net_qport", va( "%i", port ), CVAR_INIT, "Define the port to connect with, useful for bypassing annoying routers & firewalls" );
 }
 
 /*

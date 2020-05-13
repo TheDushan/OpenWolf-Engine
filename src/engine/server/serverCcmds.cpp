@@ -285,17 +285,11 @@ void idServerCcmdsSystemLocal::Map_f( void )
         cvarSystem->Set( "g_gametype", va( "%i", com_gameInfo.defaultSPGameType ) );
         
         // force latched values to get set
-        cvarSystem->Get( "g_gametype", va( "%i", com_gameInfo.defaultSPGameType ), CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, "description" );
+        cvarSystem->Get( "g_gametype", va( "%i", com_gameInfo.defaultSPGameType ), CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, "Sets the type of game being played, 2=objective, 3=stopwatch, 4=campaign, 5=LMS" );
         
         // enable bot support for AI
         cvarSystem->Set( "bot_enable", "1" );
     }
-    
-    cvarSystem->Get( "sv_authServerHost", "", CVAR_LATCH, "description" );
-    
-    // Rafael gameskill
-//  cvarSystem->Get ("g_gameskill", "3", CVAR_SERVERINFO | CVAR_LATCH, "description");
-    // done
     
     cmd = cmdSystem->Argv( 0 );
     
@@ -1287,38 +1281,38 @@ void idServerCcmdsSystemLocal::AddOperatorCommands( void )
     
     initialized = true;
     
-    cmdSystem->AddCommand( "heartbeat", &idServerCcmdsSystemLocal::Heartbeat_f, "description" );
-    cmdSystem->AddCommand( "status", &idServerCcmdsSystemLocal::Status_f, "description" );
-    cmdSystem->AddCommand( "serverinfo", &idServerCcmdsSystemLocal::Serverinfo_f, "description" );
-    cmdSystem->AddCommand( "systeminfo", &idServerCcmdsSystemLocal::Systeminfo_f, "description" );
-    cmdSystem->AddCommand( "dumpuser", &idServerCcmdsSystemLocal::DumpUser_f, "description" );
-    cmdSystem->AddCommand( "map_restart", &idServerCcmdsSystemLocal::MapRestart_f, "description" );
-    cmdSystem->AddCommand( "fieldinfo", &idServerCcmdsSystemLocal::FieldInfo_f, "description" );
-    cmdSystem->AddCommand( "sectorlist", &idServerWorldSystemLocal::SectorList_f, "description" );
-    cmdSystem->AddCommand( "map", &idServerCcmdsSystemLocal::Map_f, "description" );
+    cmdSystem->AddCommand( "heartbeat", &idServerCcmdsSystemLocal::Heartbeat_f, "Sends an update from the server to the master server with the result of updating server info." );
+    cmdSystem->AddCommand( "status", &idServerCcmdsSystemLocal::Status_f, "Reports map loaded, and information on all connected players." );
+    cmdSystem->AddCommand( "serverinfo", &idServerCcmdsSystemLocal::Serverinfo_f, "Shows server cvars on the local machine, including user created variables set with the sets command." );
+    cmdSystem->AddCommand( "systeminfo", &idServerCcmdsSystemLocal::Systeminfo_f, "eports settings for: g_syncronousclients sv_serverid" );
+    cmdSystem->AddCommand( "dumpuser", &idServerCcmdsSystemLocal::DumpUser_f, "Reports info on the specified user. Info includes: name, handicap, color, snd, model, snaps, rate" );
+    cmdSystem->AddCommand( "map_restart", &idServerCcmdsSystemLocal::MapRestart_f, "Restarts the game on the current map. Replaces restart." );
+    cmdSystem->AddCommand( "fieldinfo", &idServerCcmdsSystemLocal::FieldInfo_f, "Lists entitystate fields and playerstate fields and other data in the console, useful to developers." );
+    cmdSystem->AddCommand( "sectorlist", &idServerWorldSystemLocal::SectorList_f, "Lists sectors and number of entities in each on the currently loaded map. " );
+    cmdSystem->AddCommand( "map", &idServerCcmdsSystemLocal::Map_f, "oads a map file, specifying cheats disabled. The .BSP file extension is not required. See also devmap." );
     cmdSystem->SetCommandCompletionFunc( "map", &idServerCcmdsSystemLocal::CompleteMapName );
-    cmdSystem->AddCommand( "gameCompleteStatus", &idServerCcmdsSystemLocal::GameCompleteStatus_f, "description" ); // NERVE - SMF
+    cmdSystem->AddCommand( "gameCompleteStatus", &idServerCcmdsSystemLocal::GameCompleteStatus_f, "Sends game complete status to master server." ); // NERVE - SMF
 #ifndef PRE_RELEASE_DEMO_NODEVMAP
-    cmdSystem->AddCommand( "devmap", &idServerCcmdsSystemLocal::Map_f, "description" );
+    cmdSystem->AddCommand( "devmap", &idServerCcmdsSystemLocal::Map_f, "Loads a map file specifying cheats 1. The .BSP file extension is not required. See also map" );
     cmdSystem->SetCommandCompletionFunc( "devmap", &idServerCcmdsSystemLocal::CompleteMapName );
-    cmdSystem->AddCommand( "spmap", &idServerCcmdsSystemLocal::Map_f, "description" );
+    cmdSystem->AddCommand( "spmap", &idServerCcmdsSystemLocal::Map_f, "Loads a single player map file" );
     cmdSystem->SetCommandCompletionFunc( "devmap", &idServerCcmdsSystemLocal::CompleteMapName );
-    cmdSystem->AddCommand( "spdevmap", &idServerCcmdsSystemLocal::Map_f, "description" );
+    cmdSystem->AddCommand( "spdevmap", &idServerCcmdsSystemLocal::Map_f, "Loads a single player map file specifying cheats 1. The .BSP file extension is not required. See also map" );
     cmdSystem->SetCommandCompletionFunc( "devmap", &idServerCcmdsSystemLocal::CompleteMapName );
 #endif
-    cmdSystem->AddCommand( "loadgame", &idServerCcmdsSystemLocal::LoadGame_f, "description" );
-    cmdSystem->AddCommand( "killserver", &idServerCcmdsSystemLocal::KillServer_f, "description" );
-    cmdSystem->AddCommand( "startRedirect", &idServerCcmdsSystemLocal::StartRedirect_f, "description" );
-    cmdSystem->AddCommand( "endRedirect", Com_EndRedirect, "description" );
-    cmdSystem->AddCommand( "demo_record", &idServerCcmdsSystemLocal::Demo_Record_f, "description" );
-    cmdSystem->AddCommand( "demo_play", &idServerCcmdsSystemLocal::Demo_Play_f, "description" );
+    cmdSystem->AddCommand( "loadgame", &idServerCcmdsSystemLocal::LoadGame_f, "Loading a saved game file" );
+    cmdSystem->AddCommand( "killserver", &idServerCcmdsSystemLocal::KillServer_f, "Command for terminating the server, but leaving application running." );
+    cmdSystem->AddCommand( "startRedirect", &idServerCcmdsSystemLocal::StartRedirect_f, "Redirecting clients" );
+    cmdSystem->AddCommand( "endRedirect", Com_EndRedirect, "End of the cient redirection" );
+    cmdSystem->AddCommand( "demo_record", &idServerCcmdsSystemLocal::Demo_Record_f, "Recording a demo" );
+    cmdSystem->AddCommand( "demo_play", &idServerCcmdsSystemLocal::Demo_Play_f, "Playing a demo file" );
     cmdSystem->SetCommandCompletionFunc( "demo_play", &idServerCcmdsSystemLocal::CompleteDemoName );
-    cmdSystem->AddCommand( "demo_stop", &idServerCcmdsSystemLocal::Demo_Stop_f, "description" );
+    cmdSystem->AddCommand( "demo_stop", &idServerCcmdsSystemLocal::Demo_Stop_f, "Stopping a demo file" );
     
-    cmdSystem->AddCommand( "cheater", &idServerOACSSystemLocal::ExtendedRecordSetCheater_f, "description" );
+    cmdSystem->AddCommand( "cheater", &idServerOACSSystemLocal::ExtendedRecordSetCheater_f, "Server-side command to set a client's cheater label cheater <client> <label> where label is 0 for honest players, and >= 1 for cheaters" );
     
     if( com_dedicated->integer )
     {
-        cmdSystem->AddCommand( "say", &idServerCcmdsSystemLocal::ConSay_f, "description" );
+        cmdSystem->AddCommand( "say", &idServerCcmdsSystemLocal::ConSay_f, "Used by the server. The text in the string is sent to all players as a message." );
     }
 }

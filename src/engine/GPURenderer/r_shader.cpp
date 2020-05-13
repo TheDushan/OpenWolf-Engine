@@ -246,7 +246,7 @@ static S32 NameToSrcBlendMode( StringEntry name )
     else if( !Q_stricmp( name, "GL_DST_ALPHA" ) )
     {
         if( r_ignoreDstAlpha->integer )
-            return GLS_SRCBLEND_ONE;
+            return GLS_DSTBLEND_ONE;
             
         return GLS_SRCBLEND_DST_ALPHA;
     }

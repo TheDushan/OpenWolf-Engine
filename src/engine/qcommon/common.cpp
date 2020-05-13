@@ -94,10 +94,7 @@ convar_t*         com_ansiColor;
 convar_t*         com_unfocused;
 convar_t*         com_minimized;
 
-convar_t* com_affinity;
-
 convar_t*         com_introPlayed;
-convar_t*         com_logosPlaying;
 convar_t*         cl_paused;
 convar_t*         sv_paused;
 #if defined (DEDICATED)
@@ -109,9 +106,6 @@ convar_t*         com_maxfpsUnfocused;
 convar_t*         com_maxfpsMinimized;
 convar_t*         com_abnormalExit;
 
-#if defined( _WIN32 ) && defined( _DEBUG )
-convar_t*         com_noErrorInterrupt;
-#endif
 convar_t*         com_recommendedSet;
 
 convar_t*         com_watchdog;
@@ -1713,7 +1707,7 @@ void Com_InitZoneMemory( void )
     
     // allocate the random block zone
     Com_StartupVariable( "com_zoneMegs" ); // config files and command line options haven't been taken in account yet
-    cv = cvarSystem->Get( "com_zoneMegs", DEF_COMZONEMEGS_S, CVAR_INIT, "description" );
+    cv = cvarSystem->Get( "com_zoneMegs", DEF_COMZONEMEGS_S, CVAR_INIT, "Sets the amount of memory reserved for the game." );
     
     if( cv->integer < 20 )
     {
@@ -1844,7 +1838,7 @@ void Com_InitHunkMemory( void )
     }
     
     // allocate the stack based hunk allocator
-    cv = cvarSystem->Get( "com_hunkMegs", DEF_COMHUNKMEGS_S, CVAR_LATCH | CVAR_ARCHIVE, "description" );
+    cv = cvarSystem->Get( "com_hunkMegs", DEF_COMHUNKMEGS_S, CVAR_LATCH | CVAR_ARCHIVE, "Sets the amount of memory reserved for the game, including com_soundMegs and com_zoneMeg" );
     
     // if we are not dedicated min allocation is 56, otherwise min is 1
     if( com_dedicated && com_dedicated->integer )
@@ -1879,13 +1873,13 @@ void Com_InitHunkMemory( void )
     
     Hunk_Clear();
     
-    cmdSystem->AddCommand( "meminfo", Com_Meminfo_f, "description" );
+    cmdSystem->AddCommand( "meminfo", Com_Meminfo_f, "Shows memory usage in the console" );
 #ifdef ZONE_DEBUG
-    cmdSystem->AddCommand( "zonelog", Z_LogHeap, "description" );
+    cmdSystem->AddCommand( "zonelog", Z_LogHeap, "Showing zone log" );
 #endif
 #ifdef HUNK_DEBUG
-    cmdSystem->AddCommand( "hunklog", Hunk_Log, "description" );
-    cmdSystem->AddCommand( "hunksmalllog", Hunk_SmallLog, "description" );
+    cmdSystem->AddCommand( "hunklog", Hunk_Log, "Showing hunk log" );
+    cmdSystem->AddCommand( "hunksmalllog", Hunk_SmallLog, "Showing hunk small log" );
 #endif
 }
 
@@ -2176,7 +2170,7 @@ static U8* s_frameStackEnd = 0;
 
 static void Hunk_FrameInit( void )
 {
-    S32 megs = cvarSystem->Get( "com_hunkFrameMegs", "1", CVAR_LATCH | CVAR_ARCHIVE, "description" )->integer;
+    S32 megs = cvarSystem->Get( "com_hunkFrameMegs", "1", CVAR_LATCH | CVAR_ARCHIVE, "Sets the amount of memory reserved for the game" )->integer;
     U64 cb;
     
     if( megs < 1 )
@@ -2241,7 +2235,7 @@ void Com_InitJournaling( void )
     S32 i;
     
     Com_StartupVariable( "journal" );
-    com_journal = cvarSystem->Get( "journal", "0", CVAR_INIT, "description" );
+    com_journal = cvarSystem->Get( "journal", "0", CVAR_INIT, "Use in command line to record 'demo' of everything you do in application. '+set journal 1' to record; 2 for playback. journaldata.dat & journal.dat are the files it creates, they get very large quickly. Files will also store cfgs loaded." );
     if( !com_journal->integer )
     {
         if( com_journal->string && com_journal->string[ 0 ] == '_' )
@@ -2809,12 +2803,12 @@ static void Com_Crash_f( void )
 
 void Com_SetRecommended()
 {
-    convar_t*         r_highQualityVideo, *com_recommended;
-    bool        goodVideo;
+    convar_t* r_highQualityVideo, *com_recommended;
+    bool goodVideo;
     
     // will use this for recommended settings as well.. do i outside the lower check so it gets done even with command line stuff
-    r_highQualityVideo = cvarSystem->Get( "r_highQualityVideo", "1", CVAR_ARCHIVE, "description" );
-    com_recommended = cvarSystem->Get( "com_recommended", "-1", CVAR_ARCHIVE, "description" );
+    r_highQualityVideo = cvarSystem->Get( "r_highQualityVideo", "1", CVAR_ARCHIVE, "Setting high quality settings" );
+    com_recommended = cvarSystem->Get( "com_recommended", "-1", CVAR_ARCHIVE, "Setting the recommended settings" );
     goodVideo = ( bool )( r_highQualityVideo && r_highQualityVideo->integer );
     
     if( goodVideo )
@@ -3083,10 +3077,10 @@ void Com_Init( UTF8* commandLine )
     
     // bani: init this early
     Com_StartupVariable( "com_ignorecrash" );
-    com_ignorecrash = cvarSystem->Get( "com_ignorecrash", "0", 0, "description" );
+    com_ignorecrash = cvarSystem->Get( "com_ignorecrash", "0", 0, "Tells the client override unsafe cvars that result from crash (often also from running modifications as ET didnt delete pid file)" );
     
     // ydnar: init crashed variable as early as possible
-    com_crashed = cvarSystem->Get( "com_crashed", "0", CVAR_TEMP, "description" );
+    com_crashed = cvarSystem->Get( "com_crashed", "0", CVAR_TEMP, "Force a error for development reasons but never really trialed this." );
     
     // bani: init pid
 #ifdef _WIN32
@@ -3095,7 +3089,7 @@ void Com_Init( UTF8* commandLine )
     pid = getpid();
 #endif
     s = va( "%d", pid );
-    com_pid = cvarSystem->Get( "com_pid", s, CVAR_ROM, "description" );
+    com_pid = cvarSystem->Get( "com_pid", s, CVAR_ROM, "Process id" );
     
     // done early so bind command exists
     CL_InitKeyCommands();
@@ -3187,13 +3181,13 @@ void Com_Init( UTF8* commandLine )
     Com_StartupVariable( nullptr );
     
 #ifdef UPDATE_SERVER
-    com_dedicated = cvarSystem->Get( "dedicated", "1", CVAR_LATCH, "description" );
+    com_dedicated = cvarSystem->Get( "dedicated", "1", CVAR_LATCH, "Sets server type: 1 dedicated LAN, 2 dedicated internet, 0 listen (play & serve)" );
 #elif DEDICATED
     // TTimo: default to internet dedicated, not LAN dedicated
-    com_dedicated = cvarSystem->Get( "dedicated", "2", CVAR_ROM, "description" );
+    com_dedicated = cvarSystem->Get( "dedicated", "2", CVAR_ROM, "Sets server type: 1 dedicated LAN, 2 dedicated internet, 0 listen (play & serve)" );
     cvarSystem->CheckRange( com_dedicated, 1, 2, true );
 #else
-    com_dedicated = cvarSystem->Get( "dedicated", "0", CVAR_LATCH, "description" );
+    com_dedicated = cvarSystem->Get( "dedicated", "0", CVAR_LATCH, "Sets server type: 1 dedicated LAN, 2 dedicated internet, 0 listen (play & serve)" );
     cvarSystem->CheckRange( com_dedicated, 0, 2, true );
 #endif
     // allocate the stack based hunk allocator
@@ -3207,53 +3201,45 @@ void Com_Init( UTF8* commandLine )
     // init commands and vars
     //
     
-    com_logfile = cvarSystem->Get( "logfile", "0", CVAR_TEMP, "" );
+    com_logfile = cvarSystem->Get( "logfile", "0", CVAR_TEMP, "Toggles saving a logfile" );
     
     // Gordon: no need to latch this in ET, our recoil is framerate independant
-    com_maxfps = cvarSystem->Get( "com_maxfps", "333", CVAR_ARCHIVE /*|CVAR_LATCH */, "description" );
-//  com_blood = cvarSystem->Get ("com_blood", "1", CVAR_ARCHIVE, "description"); // Gordon: no longer used?
+    com_maxfps = cvarSystem->Get( "com_maxfps", "333", CVAR_ARCHIVE /*|CVAR_LATCH */, "Sets cap on the frames per second. 333, 125, 76 and 43 common 'tweak' values, as better for jumping. 85 default." );
+//  com_blood = cvarSystem->Get ("com_blood", "1", CVAR_ARCHIVE, "Enable blood mist effects."); // Gordon: no longer used?
 
-    com_developer = cvarSystem->Get( "developer", "0", CVAR_TEMP, "description" );
+    com_developer = cvarSystem->Get( "developer", "0", CVAR_TEMP, "Enable/disable (1/0) developer mode, allows cheats and so on." );
     
-    com_timescale = cvarSystem->Get( "timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO, "description" );
-    com_fixedtime = cvarSystem->Get( "fixedtime", "0", CVAR_CHEAT, "description" );
-    com_showtrace = cvarSystem->Get( "com_showtrace", "0", CVAR_CHEAT, "description" );
-    com_dropsim = cvarSystem->Get( "com_dropsim", "0", CVAR_CHEAT, "description" );
-    com_viewlog = cvarSystem->Get( "viewlog", "0", CVAR_CHEAT, "description" );
-    com_speeds = cvarSystem->Get( "com_speeds", "0", 0, "description" );
-    com_timedemo = cvarSystem->Get( "timedemo", "0", CVAR_CHEAT, "description" );
-    com_cameraMode = cvarSystem->Get( "com_cameraMode", "0", CVAR_CHEAT, "description" );
+    com_timescale = cvarSystem->Get( "timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO, "Increase to fast forward through demos, or decrease for slow motion(fraction of 1)." );
+    com_fixedtime = cvarSystem->Get( "fixedtime", "0", CVAR_CHEAT, "Toggle the rendering of every frame. The game will wait until each frame is completely rendered before sending the next frame." );
+    com_showtrace = cvarSystem->Get( "com_showtrace", "0", CVAR_CHEAT, "Toggle display of packet traces. 0=disables,1=toggles." );
+    com_dropsim = cvarSystem->Get( "com_dropsim", "0", CVAR_CHEAT, "For testing simulates packet loss during communication drops" );
+    com_viewlog = cvarSystem->Get( "viewlog", "0", CVAR_CHEAT, "Toggle the display of the startup console window over the game screen" );
+    com_speeds = cvarSystem->Get( "com_speeds", "0", 0, "Toggle display of frame counter, all, sv, cl, gm, rf, and bk whatever they are" );
+    com_timedemo = cvarSystem->Get( "timedemo", "0", CVAR_CHEAT, "When set to 1 times a demo and returns frames per second like a benchmark" );
+    com_cameraMode = cvarSystem->Get( "com_cameraMode", "0", CVAR_CHEAT, "Seems to toggle the view of your player model off and on when in 3D camera view " );
     
-    com_watchdog = cvarSystem->Get( "com_watchdog", "60", CVAR_ARCHIVE, "description" );
-    com_watchdog_cmd = cvarSystem->Get( "com_watchdog_cmd", "", CVAR_ARCHIVE, "description" );
+    com_watchdog = cvarSystem->Get( "com_watchdog", "60", CVAR_ARCHIVE, "Watchdog checks for a map not being loaded" );
+    com_watchdog_cmd = cvarSystem->Get( "com_watchdog_cmd", "", CVAR_ARCHIVE, "Sets what to do when watchdog finds a map is not loaded" );
     
-    cl_paused = cvarSystem->Get( "cl_paused", "0", CVAR_ROM, "description" );
-    sv_paused = cvarSystem->Get( "sv_paused", "0", CVAR_ROM, "description" );
-    com_sv_running = cvarSystem->Get( "sv_running", "0", CVAR_ROM, "description" );
-    com_cl_running = cvarSystem->Get( "cl_running", "0", CVAR_ROM, "description" );
-    com_buildScript = cvarSystem->Get( "com_buildScript", "0", 0, "description" );
+    cl_paused = cvarSystem->Get( "cl_paused", "0", CVAR_ROM, "Variable holds the status of the paused flag on the client side" );
+    sv_paused = cvarSystem->Get( "sv_paused", "0", CVAR_ROM, "Allow the game to be paused from the server console?" );
+    com_sv_running = cvarSystem->Get( "sv_running", "0", CVAR_ROM, "Variable flag tells the console whether or not a local server is running" );
+    com_cl_running = cvarSystem->Get( "cl_running", "0", CVAR_ROM, "Variable which shows whether or not a client game is running or whether we are in server/client mode (read only)" );
+    com_buildScript = cvarSystem->Get( "com_buildScript", "0", 0, "Automated data building scripts" );
     
-    con_drawnotify = cvarSystem->Get( "con_drawnotify", "0", CVAR_CHEAT, "description" );
+    con_drawnotify = cvarSystem->Get( "con_drawnotify", "0", CVAR_CHEAT, "Draws the last few lines of output transparently over the game top." );
     
-    com_introPlayed = cvarSystem->Get( "com_introplayed", "0", CVAR_ARCHIVE, "description" );
-    com_ansiColor = cvarSystem->Get( "com_ansiColor", "0", CVAR_ARCHIVE, "description" );
-    com_logosPlaying = cvarSystem->Get( "com_logosPlaying", "0", CVAR_ROM, "description" );
-    com_recommendedSet = cvarSystem->Get( "com_recommendedSet", "0", CVAR_ARCHIVE, "description" );
+    com_introPlayed = cvarSystem->Get( "com_introplayed", "0", CVAR_ARCHIVE, "Whether or not the intro for the game has been played." );
+    com_ansiColor = cvarSystem->Get( "com_ansiColor", "0", CVAR_ARCHIVE, "Enable use of ANSI escape codes in the tty" );
+    com_recommendedSet = cvarSystem->Get( "com_recommendedSet", "0", CVAR_ARCHIVE, "For determining what the recommended performance settings are, non-user." );
     
-    com_unfocused = cvarSystem->Get( "com_unfocused", "0", CVAR_ROM, "description" );
-    com_minimized = cvarSystem->Get( "com_minimized", "0", CVAR_ROM, "description" );
-    com_affinity = cvarSystem->Get( "com_affinity", "1", CVAR_ARCHIVE, "description" );
-    com_maxfpsUnfocused = cvarSystem->Get( "com_maxfpsUnfocused", "0", CVAR_ARCHIVE, "description" );
-    com_maxfpsMinimized = cvarSystem->Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE, "description" );
-    com_abnormalExit = cvarSystem->Get( "com_abnormalExit", "0", CVAR_ROM, "description" );
+    com_unfocused = cvarSystem->Get( "com_unfocused", "0", CVAR_ROM, "Automatically toggled when the game window is unfocused." );
+    com_minimized = cvarSystem->Get( "com_minimized", "0", CVAR_ROM, "Automatically toggled when the game window is minimized." );
+    com_maxfpsUnfocused = cvarSystem->Get( "com_maxfpsUnfocused", "0", CVAR_ARCHIVE, "Maximum frames per second when unfocused" );
+    com_maxfpsMinimized = cvarSystem->Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE, "Maximum frames per second when minimized" );
+    com_abnormalExit = cvarSystem->Get( "com_abnormalExit", "0", CVAR_ROM, "As Application crashed it will start with safe video settings" );
     
-    cvarSystem->Get( "savegame_loading", "0", CVAR_ROM, "description" );
-    
-#if defined( _WIN32 ) && defined( _DEBUG )
-    com_noErrorInterrupt = cvarSystem->Get( "com_noErrorInterrupt", "0", 0, "description" );
-#endif
-    
-    com_hunkused = cvarSystem->Get( "com_hunkused", "0", 0, "description" );
+    com_hunkused = cvarSystem->Get( "com_hunkused", "0", 0, "Tells you the amound of hunk currently being used." );
     com_hunkusedvalue = 0;
     
     if( com_dedicated->integer )
@@ -3266,16 +3252,16 @@ void Com_Init( UTF8* commandLine )
     
     if( com_developer && com_developer->integer )
     {
-        cmdSystem->AddCommand( "error", Com_Error_f, "description" );
-        cmdSystem->AddCommand( "crash", Com_Crash_f, "description" );
-        cmdSystem->AddCommand( "freeze", Com_Freeze_f, "description" );
+        cmdSystem->AddCommand( "error", Com_Error_f, "Just throw a fatal error to test error shutdown procedures" );
+        cmdSystem->AddCommand( "crash", Com_Crash_f, "A way to force a bus error for development reasons" );
+        cmdSystem->AddCommand( "freeze", Com_Freeze_f, "Just freeze in place for a given number of seconds to test error recovery" );
     }
-    cmdSystem->AddCommand( "quit", Com_Quit_f, "description" );
-    cmdSystem->AddCommand( "writeconfig", Com_WriteConfig_f, "description" );
+    cmdSystem->AddCommand( "quit", Com_Quit_f, "Quits the running game, and exits application completely. For server also see killserver" );
+    cmdSystem->AddCommand( "writeconfig", Com_WriteConfig_f, "Saves all current settings to the specified file, if none specified then uses owconfig.cfg" );
     
     s = va( "%s %s %s %s", Q3_VERSION, ARCH_STRING, OS_STRING, __DATE__ );
-    com_version = cvarSystem->Get( "version", s, CVAR_ROM | CVAR_SERVERINFO, "description" );
-    com_protocol = cvarSystem->Get( "protocol", va( "%i", ETPROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "description" );
+    com_version = cvarSystem->Get( "version", s, CVAR_ROM | CVAR_SERVERINFO, "Records all info about the application version: build number, build date, win/linux etc" );
+    com_protocol = cvarSystem->Get( "protocol", va( "%i", ETPROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "Returns the current protocol (changes with patches)." );
     
     idsystem->Init();
     
@@ -3328,10 +3314,8 @@ void Com_Init( UTF8* commandLine )
     {
 #if 1
         //Dushan turned this all off until someone create something better
-        cvarSystem->Set( "com_logosPlaying", "1" );
-        
         cmdBufferSystem->AddText( "cinematic splash.roq\n" );
-        
+#if 0
         cvarSystem->Set( "nextmap", "cinematic avlogo.roq" );
         
         if( !com_introPlayed->integer )
@@ -3339,6 +3323,7 @@ void Com_Init( UTF8* commandLine )
             cvarSystem->Set( com_introPlayed->name, "1" );
             cvarSystem->Set( "nextmap", "cinematic splash.roq" );
         }
+#endif
 #endif
     }
     
@@ -3628,7 +3613,7 @@ void Com_Frame( void )
     if( com_dedicated->modified )
     {
         // get the latched value
-        cvarSystem->Get( "dedicated", "0", 0, "description" );
+        cvarSystem->Get( "dedicated", "0", 0, "Sets server type: 1 dedicated LAN, 2 dedicated internet, 0 listen (play & serve)" );
         com_dedicated->modified = false;
         if( !com_dedicated->integer )
         {

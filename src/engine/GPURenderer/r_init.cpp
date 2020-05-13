@@ -53,9 +53,6 @@ convar_t*	r_railWidth;
 convar_t*	r_railCoreWidth;
 convar_t*	r_railSegmentLength;
 
-convar_t*	r_verbose;
-convar_t*	r_ignore;
-
 convar_t*	r_detailTextures;
 
 convar_t*	r_znear;
@@ -114,7 +111,6 @@ convar_t*  r_cameraExposure;
 
 convar_t*  r_hdr;
 convar_t* r_truehdr;
-convar_t*  r_floatLightmap;
 convar_t*  r_postProcess;
 
 convar_t*  r_toneMap;
@@ -185,7 +181,6 @@ convar_t*	r_uiFullScreen;
 convar_t*	r_shadows;
 convar_t*	r_flares;
 convar_t*	r_mode;
-convar_t*	r_nobind;
 convar_t*	r_singleShader;
 convar_t*	r_roundImagesDown;
 convar_t*	r_colorMipLevels;
@@ -213,7 +208,6 @@ convar_t* r_noborder;
 
 convar_t*	r_customwidth;
 convar_t*	r_customheight;
-convar_t*	r_pixelAspect;
 
 convar_t*	r_overBrightBits;
 convar_t*	r_mapOverBrightBits;
@@ -1228,265 +1222,254 @@ R_Register
 */
 void R_Register( void )
 {
-    // OpenGL context selection
-    r_glMajorVersion = cvarSystem->Get( "r_glMajorVersion", "3", CVAR_LATCH, "description" );
-    r_glMinorVersion = cvarSystem->Get( "r_glMinorVersion", "3", CVAR_LATCH, "description" );
-    r_glCoreProfile = cvarSystem->Get( "r_glCoreProfile", "1", CVAR_LATCH, "description" );
-    r_glDebugProfile = cvarSystem->Get( "r_glDebugProfile", "", CVAR_LATCH, "description" );
-    
     //
     // latched and archived variables
     //
-    r_allowExtensions = cvarSystem->Get( "r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_compressed_textures = cvarSystem->Get( "r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_multitexture = cvarSystem->Get( "r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_compiled_vertex_array = cvarSystem->Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_texture_env_add = cvarSystem->Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_allowExtensions = cvarSystem->Get( "r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH, "Toggles the functions of various OpenGL extensions. 0=disables;1=enables. " );
+    r_ext_compressed_textures = cvarSystem->Get( "r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH, "Compress textures" );
+    r_ext_multitexture = cvarSystem->Get( "r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH, "Toggles hardware mutitexturing if available. 0=disables; 1=enables. " );
+    r_ext_compiled_vertex_array = cvarSystem->Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE | CVAR_LATCH, "Toggles hardware compiled vertex array rendering method if available. 0=disables;1=enables." );
+    r_ext_texture_env_add = cvarSystem->Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enables additive blending when using multi-texturing" );
     
-    r_ext_framebuffer_object = cvarSystem->Get( "r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_texture_float = cvarSystem->Get( "r_ext_texture_float", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_framebuffer_multisample = cvarSystem->Get( "r_ext_framebuffer_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_arb_seamless_cube_map = cvarSystem->Get( "r_arb_seamless_cube_map", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_arb_vertex_array_object = cvarSystem->Get( "r_arb_vertex_array_object", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_direct_state_access = cvarSystem->Get( "r_ext_direct_state_access", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_ext_framebuffer_object = cvarSystem->Get( "r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH, "Toggles hardware compiled framebuffer objects rendering method if available. 0=disables;1=enables." );
+    r_ext_texture_float = cvarSystem->Get( "r_ext_texture_float", "0", CVAR_ARCHIVE | CVAR_LATCH, "Toggles hardware compiled texture float rendering method if available. 0=disables;1=enables." );
+    r_ext_framebuffer_multisample = cvarSystem->Get( "r_ext_framebuffer_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH, "Toggles hardware compiled framebuffer multisample rendering method if available. 0=disables;1=enables." );
+    r_arb_seamless_cube_map = cvarSystem->Get( "r_arb_seamless_cube_map", "0", CVAR_ARCHIVE | CVAR_LATCH, "Toggles hardware compiled seamless cubemap rendering method if available. 0=disables;1=enables." );
+    r_arb_vertex_array_object = cvarSystem->Get( "r_arb_vertex_array_object", "1", CVAR_ARCHIVE | CVAR_LATCH, "Toggles hardware compiled vertex arry object rendering method if available. 0=disables;1=enables." );
+    r_ext_direct_state_access = cvarSystem->Get( "r_ext_direct_state_access", "1", CVAR_ARCHIVE | CVAR_LATCH, "Toggles hardware compiled direct state access rendering method if available. 0=disables;1=enables." );
     
-    r_ext_texture_filter_anisotropic = cvarSystem->Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_max_anisotropy = cvarSystem->Get( "r_ext_max_anisotropy", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_ext_texture_filter_anisotropic = cvarSystem->Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH, "When it is set to 1 image quality can be improved - elements of the scene will appear smoother when viewed at near edge angles. Your video card must support this however. Set x to 1 to disable anisotropic filtering for improved performance, or if your video card doesn't support it. If not supported it will automatically be disabled." );
+    r_ext_max_anisotropy = cvarSystem->Get( "r_ext_max_anisotropy", "0", CVAR_ARCHIVE | CVAR_LATCH, "Sets the maximum level of anisotropic filtering" );
     
-    r_defaultImage = cvarSystem->Get( "r_defaultImage", "", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_picmip = cvarSystem->Get( "r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_roundImagesDown = cvarSystem->Get( "r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_colorMipLevels = cvarSystem->Get( "r_colorMipLevels", "0", CVAR_LATCH, "description" );
+    r_defaultImage = cvarSystem->Get( "r_defaultImage", "", CVAR_ARCHIVE | CVAR_LATCH, "Replace the default (missing texture) images" );
+    r_picmip = cvarSystem->Get( "r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH, "Sets maximum texture size. 0=highest detail;8=unbelievably ugly." );
+    r_roundImagesDown = cvarSystem->Get( "r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH, "Set rounding down factor (larger = faster, lower quality)" );
+    r_colorMipLevels = cvarSystem->Get( "r_colorMipLevels", "0", CVAR_LATCH, "A developer aid to see texture mip usage" );
     cvarSystem->CheckRange( r_picmip, 0, 16, true );
-    r_detailTextures = cvarSystem->Get( "r_detailtextures", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_texturebits = cvarSystem->Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_colorbits = cvarSystem->Get( "r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_alphabits = cvarSystem->Get( "r_alphabits", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_stencilbits = cvarSystem->Get( "r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_depthbits = cvarSystem->Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ext_multisample = cvarSystem->Get( "r_ext_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_detailTextures = cvarSystem->Get( "r_detailtextures", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enables the usage of detail texturing stages" );
+    r_texturebits = cvarSystem->Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH, "Sets the texture quality level" );
+    r_colorbits = cvarSystem->Get( "r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH, "Sets video color depth" );
+    r_alphabits = cvarSystem->Get( "r_alphabits", "1", CVAR_ARCHIVE | CVAR_LATCH, "Sets ovideo alpha bits" );
+    r_stencilbits = cvarSystem->Get( "r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH, "Adjusts rendering of hardware's stencil buffer depth." );
+    r_depthbits = cvarSystem->Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH, "Sets depth bits-per-pixel. Mutually exclusive with r_colorbits." );
+    r_ext_multisample = cvarSystem->Get( "r_ext_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH, "Activate OpenGL texture multisampling" );
     cvarSystem->CheckRange( r_ext_multisample, 0, 4, true );
-    r_overBrightBits = cvarSystem->Get( "r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ignorehwgamma = cvarSystem->Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_mode = cvarSystem->Get( "r_mode", "-2", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_fullscreen = cvarSystem->Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_noborder = cvarSystem->Get( "r_noborder", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_customwidth = cvarSystem->Get( "r_customwidth", "1680", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_customheight = cvarSystem->Get( "r_customheight", "1050", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_pixelAspect = cvarSystem->Get( "r_pixelAspect", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_simpleMipMaps = cvarSystem->Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_vertexLight = cvarSystem->Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_uiFullScreen = cvarSystem->Get( "r_uifullscreen", "0", 0, "description" );
-    r_subdivisions = cvarSystem->Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_smp = cvarSystem->Get( "r_smp", "1", CVAR_ARCHIVE | CVAR_LATCH, "" );
-    r_showSmp = cvarSystem->Get( "r_showSmp", "0", CVAR_ARCHIVE, "" );
-    r_stereoEnabled = cvarSystem->Get( "r_stereoEnabled", "0", CVAR_CHEAT, "description" );
-    r_stereoEnabled = cvarSystem->Get( "r_stereoEnabled", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_greyscale = cvarSystem->Get( "r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_overBrightBits = cvarSystem->Get( "r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH, "Ambient lighting applied to in-game entities or objects" );
+    r_ignorehwgamma = cvarSystem->Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enables ignoreing of hardware gamma settings" );
+    r_mode = cvarSystem->Get( "r_mode", "-2", CVAR_ARCHIVE | CVAR_LATCH, "Screen resolution setting. -1 enables r_customWidth and r_customHeight" );
+    r_fullscreen = cvarSystem->Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enables fullscreen view" );
+    r_noborder = cvarSystem->Get( "r_noborder", "0", CVAR_ARCHIVE | CVAR_LATCH, "Remove window decoration from window managers, like borders and titlebar" );
+    r_customwidth = cvarSystem->Get( "r_customwidth", "1680", CVAR_ARCHIVE | CVAR_LATCH, "Sets the custom horizontal resolution when r_mode -1" );
+    r_customheight = cvarSystem->Get( "r_customheight", "1050", CVAR_ARCHIVE | CVAR_LATCH, "Sets the custom vertical resolution when r_mode -1" );
+    r_simpleMipMaps = cvarSystem->Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE | CVAR_LATCH, "Toggle the use of simple mip mapping. used to dumb - down resoluiton displays for slower machines" );
+    r_vertexLight = cvarSystem->Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enable vertex lighting (faster, lower quality than lightmap) removes lightmaps, forces every shader to only use a single rendering pass, no layered transparancy, environment mapping, world lighting is completely static, and there is no dynamic lighting when in vertex lighting mode. (recommend dynamiclight 0 and this 1) direct FPS benefit" );
+    r_uiFullScreen = cvarSystem->Get( "r_uifullscreen", "0", 0, "Sets the User Interface(UI) running fullscreen." );
+    r_subdivisions = cvarSystem->Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH, "Patch mesh/curve sub divisions, sets number of subdivisions of curves, increasing makes curves into straights." );
+    r_smp = cvarSystem->Get( "r_smp", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enables symmetric multiprocessing acceleration." );
+    r_showSmp = cvarSystem->Get( "r_showSmp", "0", CVAR_ARCHIVE, "Toggle display of multi processor (SMP) info on the HUD" );
+    r_stereoEnabled = cvarSystem->Get( "r_stereoEnabled", "0", CVAR_CHEAT, "Enables stereo separation, for 3D effects" );
+    r_greyscale = cvarSystem->Get( "r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enables greyscaling of everything" );
     cvarSystem->CheckRange( r_greyscale, 0, 1, false );
     
-    r_hdr = cvarSystem->Get( "r_hdr", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_truehdr = cvarSystem->Get( "r_truehdr", "1", CVAR_ARCHIVE, "description" );
-    r_floatLightmap = cvarSystem->Get( "r_floatLightmap", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_postProcess = cvarSystem->Get( "r_postProcess", "1", CVAR_ARCHIVE, "description" );
+    r_hdr = cvarSystem->Get( "r_hdr", "0", CVAR_ARCHIVE | CVAR_LATCH, "Do scene rendering in a framebuffer with high dynamic range. (Less banding, and exposure changes look much better)" );
+    r_truehdr = cvarSystem->Get( "r_truehdr", "1", CVAR_ARCHIVE, "Do scene rendering in a framebuffer with high dynamic range with GLSL shaders" );
+    r_postProcess = cvarSystem->Get( "r_postProcess", "1", CVAR_ARCHIVE, "Enable post-processing" );
     
-    r_toneMap = cvarSystem->Get( "r_toneMap", "1", CVAR_ARCHIVE, "description" );
-    r_forceToneMap = cvarSystem->Get( "r_forceToneMap", "0", CVAR_CHEAT, "description" );
-    r_forceToneMapMin = cvarSystem->Get( "r_forceToneMapMin", "-8.0", CVAR_CHEAT, "description" );
-    r_forceToneMapAvg = cvarSystem->Get( "r_forceToneMapAvg", "-2.0", CVAR_CHEAT, "description" );
-    r_forceToneMapMax = cvarSystem->Get( "r_forceToneMapMax", "0.0", CVAR_CHEAT, "description" );
+    r_toneMap = cvarSystem->Get( "r_toneMap", "1", CVAR_ARCHIVE, "Enable tone mapping. Requires r_hdr and r_postProcess." );
+    r_forceToneMap = cvarSystem->Get( "r_forceToneMap", "0", CVAR_CHEAT, "Override built-in and map tonemap settings and use cvars r_forceToneMapAvg" );
+    r_forceToneMapMin = cvarSystem->Get( "r_forceToneMapMin", "-8.0", CVAR_CHEAT, "After mapping average, luminance below this level is mapped to black. Requires r_forceToneMap. -5 - Not noticeable. -3.25 - Normal. (default) 0.0 - Too dar" );
+    r_forceToneMapAvg = cvarSystem->Get( "r_forceToneMapAvg", "-2.0", CVAR_CHEAT, "Map average scene luminance to this value, in powers of two. Requires r_forceToneMap. -2.0 - Dark. -1.0 - Kinda dark. (default). 2.0 - Too bright." );
+    r_forceToneMapMax = cvarSystem->Get( "r_forceToneMapMax", "0.0", CVAR_CHEAT, "After mapping average, luminance above this level is mapped to white. Requires r_forceToneMap. 0.0 - Too bright. 1.0 - Normal. (default). 2.0 - Washed out" );
     
-    r_autoExposure = cvarSystem->Get( "r_autoExposure", "1", CVAR_ARCHIVE, "description" );
-    r_forceAutoExposure = cvarSystem->Get( "r_forceAutoExposure", "0", CVAR_CHEAT, "description" );
-    r_forceAutoExposureMin = cvarSystem->Get( "r_forceAutoExposureMin", "-2.0", CVAR_CHEAT, "description" );
-    r_forceAutoExposureMax = cvarSystem->Get( "r_forceAutoExposureMax", "2.0", CVAR_CHEAT, "description" );
+    r_autoExposure = cvarSystem->Get( "r_autoExposure", "1", CVAR_ARCHIVE, "Do automatic exposure based on scene brightness. Hardcoded to -2 to 2 on maps that don't specify otherwise. Requires r_hdr, r_postprocess, and r_toneMap. 0 - No. 1 - Yes. (default)" );
+    r_forceAutoExposure = cvarSystem->Get( "r_forceAutoExposure", "0", CVAR_CHEAT, "Override built-in and map auto exposure settings and use cvars r_forceAutoExposureMin and r_forceAutoExposureMax. 0 - No. (default) 1 - Yes." );
+    r_forceAutoExposureMin = cvarSystem->Get( "r_forceAutoExposureMin", "-2.0", CVAR_CHEAT, "Set minimum exposure to this value, in powers of two. Requires r_forceAutoExpsure. -3.0 - Dimmer. -2.0 - Normal. (default) -1.0 - Brighter." );
+    r_forceAutoExposureMax = cvarSystem->Get( "r_forceAutoExposureMax", "2.0", CVAR_CHEAT, "Set maximum exposure to this value, in powers of two. Requires r_forceAutoExpsure. 1.0 - Dimmer. 2.0 - Normal. (default) 3.0 - Brighter" );
     
-    r_cameraExposure = cvarSystem->Get( "r_cameraExposurre", "4", CVAR_CHEAT, "description" );
+    r_cameraExposure = cvarSystem->Get( "r_cameraExposurre", "4", CVAR_CHEAT, "Alter brightness, in powers of two. -2 - 4x as dark. 0 - Normal. (default) 0.5 - Sqrt(2)x as bright. 2 - 4x as bright." );
     
-    r_depthPrepass = cvarSystem->Get( "r_depthPrepass", "1", CVAR_ARCHIVE, "description" );
-    r_ssao = cvarSystem->Get( "r_ssao", "0", CVAR_LATCH | CVAR_ARCHIVE, "description" );
+    r_depthPrepass = cvarSystem->Get( "r_depthPrepass", "1", CVAR_ARCHIVE, "Do a depth-only pass before rendering. Speeds up rendering in cases where advanced features are used. Required for r_sunShadows. 0 - No. 1 - Yes. (default)" );
+    r_ssao = cvarSystem->Get( "r_ssao", "0", CVAR_LATCH | CVAR_ARCHIVE, "Enable screen-space ambient occlusion. Currently eats framerate and has some visible artifacts. 0 - No. (default) 1 - Yes." );
     
-    r_normalMapping = cvarSystem->Get( "r_normalMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_specularMapping = cvarSystem->Get( "r_specularMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_deluxeMapping = cvarSystem->Get( "r_deluxeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_parallaxMapping = cvarSystem->Get( "r_parallaxMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_parallaxMapShadows = cvarSystem->Get( "r_parallaxMapShadows", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_cubeMapping = cvarSystem->Get( "r_cubeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_horizonFade = cvarSystem->Get( "r_horizonFade", "3", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_cubemapSize = cvarSystem->Get( "r_cubemapSize", "128", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_deluxeSpecular = cvarSystem->Get( "r_deluxeSpecular", "0.3", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_pbr = cvarSystem->Get( "r_pbr", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_pbrIBL = cvarSystem->Get( "r_pbrIBL", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_baseNormalX = cvarSystem->Get( "r_baseNormalX", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_baseNormalY = cvarSystem->Get( "r_baseNormalY", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_baseParallax = cvarSystem->Get( "r_baseParallax", "0.001", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_baseSpecular = cvarSystem->Get( "r_baseSpecular", "0.04", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_baseGloss = cvarSystem->Get( "r_baseGloss", "0.3", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_dlightMode = cvarSystem->Get( "r_dlightMode", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_pshadowDist = cvarSystem->Get( "r_pshadowDist", "128", CVAR_ARCHIVE, "description" );
-    r_mergeLightmaps = cvarSystem->Get( "r_mergeLightmaps", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_imageUpsample = cvarSystem->Get( "r_imageUpsample", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_imageUpsampleMaxSize = cvarSystem->Get( "r_imageUpsampleMaxSize", "1024", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_imageUpsampleType = cvarSystem->Get( "r_imageUpsampleType", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_genNormalMaps = cvarSystem->Get( "r_genNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_normalMapping = cvarSystem->Get( "r_normalMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable normal maps for materials that support it. 0 - No. 1 - Yes. (default)" );
+    r_specularMapping = cvarSystem->Get( "r_specularMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable specular maps for materials that support it. 0 - No. 1 - Yes. (default)" );
+    r_deluxeMapping = cvarSystem->Get( "r_deluxeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable deluxe mapping. (Map is compiled with light directions.) Even if the map doesn't have deluxe mapping compiled in, an approximation based on the lightgrid will be used. 0 - No. 1 - Yes. (default)" );
+    r_parallaxMapping = cvarSystem->Get( "r_parallaxMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable parallax mapping for materials that support it. 0 - No. (default) 1 - Use parallax occlusion mapping. 2 - Use relief mapping. (slower)" );
+    r_parallaxMapShadows = cvarSystem->Get( "r_parallaxMapShadows", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enable self-shadowing on parallax map supported materials. 0 - No. (default) 1 - Yes." );
+    r_cubeMapping = cvarSystem->Get( "r_cubeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable cubemap environment mapping" );
+    r_horizonFade = cvarSystem->Get( "r_horizonFade", "3", CVAR_ARCHIVE | CVAR_LATCH, "Enable horizon fade cubemap environment mapping" );
+    r_cubemapSize = cvarSystem->Get( "r_cubemapSize", "128", CVAR_ARCHIVE | CVAR_LATCH, "Cubempa size" );
+    r_deluxeSpecular = cvarSystem->Get( "r_deluxeSpecular", "0.3", CVAR_ARCHIVE | CVAR_LATCH, "Enable deluxe specular for materials that support it" );
+    r_pbr = cvarSystem->Get( "r_pbr", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable physically based rendering." );
+    r_pbrIBL = cvarSystem->Get( "r_pbrIBL", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enable IBL physically based rendering. " );
+    r_baseNormalX = cvarSystem->Get( "r_baseNormalX", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "Set the scale of the X values from normal maps when the normalScale keyword is not used. -1 - Flip X. 0 - Ignore X. 1 - Normal X. (default) 2 - Double X." );
+    r_baseNormalY = cvarSystem->Get( "r_baseNormalY", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "Set the scale of the Y values from normal maps when the normalScale keyword is not used. -1 - Flip Y. 0 - Ignore Y. 1 - Normal Y. (default) 2 - Double Y" );
+    r_baseParallax = cvarSystem->Get( "r_baseParallax", "0.001", CVAR_ARCHIVE | CVAR_LATCH, "Sets the scale of the parallax effect for materials when the parallaxDepth keyword is not used. 0 - No depth. 0.01 - Pretty smooth. 0.05 - Standard depth. (default) 0.001" );
+    r_baseSpecular = cvarSystem->Get( "r_baseSpecular", "0.04", CVAR_ARCHIVE | CVAR_LATCH, "Set the specular reflectance of materials which don't include a specular map or use the specularReflectance keyword. 0 - No. 0.04 - Realistic. (default) 1.0 - Ack." );
+    r_baseGloss = cvarSystem->Get( "r_baseGloss", "0.3", CVAR_ARCHIVE | CVAR_LATCH, "Set the glossiness of materials which don't include a specular map or use the specularExponent keyword. 0 - Rough. 0.3 - Default. 1.0 - Shiny." );
+    r_dlightMode = cvarSystem->Get( "r_dlightMode", "0", CVAR_ARCHIVE | CVAR_LATCH, "Change how dynamic lights look. 0 - Quake 3 style dlights, fake brightening. (default) 1 - Actual lighting, no shadows. 2 - Light and shadows." );
+    r_pshadowDist = cvarSystem->Get( "r_pshadowDist", "128", CVAR_ARCHIVE, "Virtual camera distance when creating shadowmaps for projected shadows" );
+    r_mergeLightmaps = cvarSystem->Get( "r_mergeLightmaps", "1", CVAR_ARCHIVE | CVAR_LATCH, "Merge the small (128x128) lightmaps into 2 or fewer giant (4096x4096) lightmaps. Easy speedup. 0 - Don't. 1 - Do. (default)" );
+    r_imageUpsample = cvarSystem->Get( "r_imageUpsample", "0", CVAR_ARCHIVE | CVAR_LATCH, "Use interpolation to artificially increase the resolution of all textures. Looks good in certain circumstances. 0 - No. (default) 1 - 2x size. 2 - 4x size. 3 - 8x size, etc" );
+    r_imageUpsampleMaxSize = cvarSystem->Get( "r_imageUpsampleMaxSize", "1024", CVAR_ARCHIVE | CVAR_LATCH, "Maximum texture size when upsampling textures. 1024 - Default. 2048 - Really nice. 4096 - Really slow." );
+    r_imageUpsampleType = cvarSystem->Get( "r_imageUpsampleType", "1", CVAR_ARCHIVE | CVAR_LATCH, "Type of interpolation when upsampling textures. 0 - None. (probably broken) 1 - Bad but fast (default, FCBI without second derivatives) 2 - Okay but slow (normal FCBI)" );
+    r_genNormalMaps = cvarSystem->Get( "r_genNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH, "Naively generate normal maps for all textures. 0 - Don't. (default) 1 - Do." );
     
-    r_forceSun = cvarSystem->Get( "r_forceSun", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_forceSunLightScale = cvarSystem->Get( "r_forceSunLightScale", "1.0", CVAR_CHEAT, "description" );
-    r_forceSunAmbientScale = cvarSystem->Get( "r_forceSunAmbientScale", "0.5", CVAR_CHEAT, "description" );
-    r_drawSunRays = cvarSystem->Get( "r_drawSunRays", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_sunlightMode = cvarSystem->Get( "r_sunlightMode", "2", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_forceSun = cvarSystem->Get( "r_forceSun", "1", CVAR_ARCHIVE | CVAR_LATCH, "Force sunlight and shadows, using sun position from sky material. 0 - Don't. (default) 1 - Do. 2 - Sunrise, sunset." );
+    r_forceSunLightScale = cvarSystem->Get( "r_forceSunLightScale", "1.0", CVAR_CHEAT, "Scale sun brightness by this factor when r_forceSun 1. 1.0 - Default" );
+    r_forceSunAmbientScale = cvarSystem->Get( "r_forceSunAmbientScale", "0.5", CVAR_CHEAT, "Scale sun ambient brightness by this factor when r_forceSun 1. 0.5 - Default" );
+    r_drawSunRays = cvarSystem->Get( "r_drawSunRays", "1", CVAR_ARCHIVE | CVAR_LATCH, "Draw sun rays" );
+    r_sunlightMode = cvarSystem->Get( "r_sunlightMode", "2", CVAR_ARCHIVE | CVAR_LATCH, "Specify the method used to add sunlight to the scene. 0 - No. 1 - Multiply lit areas by light scale, and shadowed areas by ambient scale. (default) 2" );
     
-    r_sunShadows = cvarSystem->Get( "r_sunShadows", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_shadowFilter = cvarSystem->Get( "r_shadowFilter", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_shadowBlur = cvarSystem->Get( "r_shadowBlur", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_shadowMapSize = cvarSystem->Get( "r_shadowMapSize", "1024", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_shadowCascadeZNear = cvarSystem->Get( "r_shadowCascadeZNear", "8", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_shadowCascadeZFar = cvarSystem->Get( "r_shadowCascadeZFar", "1024", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_shadowCascadeZBias = cvarSystem->Get( "r_shadowCascadeZBias", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_ignoreDstAlpha = cvarSystem->Get( "r_ignoreDstAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_sunShadows = cvarSystem->Get( "r_sunShadows", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable sunlight and cascaded shadow maps for it on maps that support it. 0 - No. 1 - Yes. (default)" );
+    r_shadowFilter = cvarSystem->Get( "r_shadowFilter", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enable filtering shadows for a smoother look. 0 - No. 1 - Some. (default) 2 - Much." );
+    r_shadowBlur = cvarSystem->Get( "r_shadowBlur", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable shadow blur." );
+    r_shadowMapSize = cvarSystem->Get( "r_shadowMapSize", "1024", CVAR_ARCHIVE | CVAR_LATCH, "Size of each cascaded shadow map. 256 - 256x256, ugly, probably shouldn't go below this. 512 - 512x512, passable. 1024 - 1024x1024, good. (default) 2048 - 2048x2048, extreme. 4096 - 4096x4096, indistinguishable from 2048." );
+    r_shadowCascadeZNear = cvarSystem->Get( "r_shadowCascadeZNear", "4", CVAR_ARCHIVE | CVAR_LATCH, "Size of each cascaded shadow map. 256 - 256x256, ugly, probably shouldn't go below this. 512 - 512x512, passable. 1024 - 1024x1024, good. (default) 2048 - 2048x2048, extreme. 4096 - 4096x4096, indistinguishable from 2048." );
+    r_shadowCascadeZFar = cvarSystem->Get( "r_shadowCascadeZFar", "3072", CVAR_ARCHIVE | CVAR_LATCH, "Far plane for shadow cascade frustums. 3072 - Default." );
+    r_shadowCascadeZBias = cvarSystem->Get( "r_shadowCascadeZBias", "-256", CVAR_ARCHIVE | CVAR_LATCH, "Z-bias for shadow cascade frustums. -256 - Default." );
+    r_ignoreDstAlpha = cvarSystem->Get( "r_ignoreDstAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH, "Ignoring DST Alpha" );
     
-    r_lensflare = cvarSystem->Get( "r_lensflare", "1", CVAR_ARCHIVE, "description" );
-    r_anamorphic = cvarSystem->Get( "r_anamorphic", "0", CVAR_ARCHIVE, "description" );
-    r_anamorphicDarkenPower = cvarSystem->Get( "r_anamorphicDarkenPower", "256.0", CVAR_ARCHIVE, "description" );
-    r_ssgi = cvarSystem->Get( "r_ssgi", "0", CVAR_ARCHIVE, "description" );
-    r_ssgiWidth = cvarSystem->Get( "r_ssgiWidth", "8.0", CVAR_ARCHIVE, "description" );
-    r_ssgiSamples = cvarSystem->Get( "r_ssgiSamples", "2", CVAR_ARCHIVE, "description" );
-    r_ssr = cvarSystem->Get( "r_ssr", "0", CVAR_ARCHIVE, "description" );
-    r_ssrStrength = cvarSystem->Get( "r_ssrStrength", "0.02", CVAR_ARCHIVE, "description" );
-    r_sse = cvarSystem->Get( "r_sse", "0", CVAR_ARCHIVE, "description" );
-    r_sseStrength = cvarSystem->Get( "r_sseStrength", "0.02", CVAR_ARCHIVE, "description" );
-    r_darkexpand = cvarSystem->Get( "r_darkexpand", "1", CVAR_ARCHIVE, "description" );
-    r_dof = cvarSystem->Get( "r_dof", "0", CVAR_ARCHIVE, "description" );
-    r_esharpening = cvarSystem->Get( "r_esharpening", "0", CVAR_ARCHIVE, "description" );
-    r_esharpening2 = cvarSystem->Get( "r_esharpening2", "0", CVAR_ARCHIVE, "description" );
-    r_multipost = cvarSystem->Get( "r_multipost", "0", CVAR_ARCHIVE, "description" );
-    r_textureClean = cvarSystem->Get( "r_textureClean", "0", CVAR_ARCHIVE, "description" );
-    r_textureCleanSigma = cvarSystem->Get( "r_textureCleanSigma", "1.2", CVAR_ARCHIVE, "description" );
-    r_textureCleanBSigma = cvarSystem->Get( "r_textureCleanBSigma", "0.1", CVAR_ARCHIVE, "description" );
-    r_textureCleanMSize = cvarSystem->Get( "r_textureCleanMSize", "6.0", CVAR_ARCHIVE, "description" );
-    r_trueAnaglyph = cvarSystem->Get( "r_trueAnaglyph", "0", CVAR_ARCHIVE, "description" );
-    r_trueAnaglyphSeparation = cvarSystem->Get( "r_trueAnaglyphSeparation", "8.0", CVAR_ARCHIVE, "description" );
-    r_trueAnaglyphRed = cvarSystem->Get( "r_trueAnaglyphRed", "0.0", CVAR_ARCHIVE, "description" );
-    r_trueAnaglyphGreen = cvarSystem->Get( "r_trueAnaglyphGreen", "0.0", CVAR_ARCHIVE, "description" );
-    r_trueAnaglyphBlue = cvarSystem->Get( "r_trueAnaglyphBlue", "0.0", CVAR_ARCHIVE, "description" );
-    r_vibrancy = cvarSystem->Get( "r_vibrancy", "0.4", CVAR_ARCHIVE, "description" );
-    r_bloom = cvarSystem->Get( "r_bloom", "0", CVAR_ARCHIVE, "description" );
-    r_bloomPasses = cvarSystem->Get( "r_bloomPasses", "1", CVAR_ARCHIVE, "description" );
-    r_bloomDarkenPower = cvarSystem->Get( "r_bloomDarkenPower", "5.0", CVAR_ARCHIVE, "description" );
-    r_bloomScale = cvarSystem->Get( "r_bloomScale", "1.5", CVAR_ARCHIVE, "description" );
-    r_fxaa = cvarSystem->Get( "r_fxaa", "0", CVAR_ARCHIVE, "description" );
+    r_lensflare = cvarSystem->Get( "r_lensflare", "1", CVAR_ARCHIVE, "Enabled lens flare effects" );
+    r_anamorphic = cvarSystem->Get( "r_anamorphic", "0", CVAR_ARCHIVE, "Enabled anamorphic effects" );
+    r_anamorphicDarkenPower = cvarSystem->Get( "r_anamorphicDarkenPower", "256.0", CVAR_ARCHIVE, "Setting anamorphic darken power" );
+    r_ssgi = cvarSystem->Get( "r_ssgi", "0", CVAR_ARCHIVE, "Enabled Screen Space Global Illumination effects" );
+    r_ssgiWidth = cvarSystem->Get( "r_ssgiWidth", "8.0", CVAR_ARCHIVE, "Setting Screen Space Global Illumination width" );
+    r_ssgiSamples = cvarSystem->Get( "r_ssgiSamples", "2", CVAR_ARCHIVE, "Setting Screen Space Global Illumination samples" );
+    r_ssr = cvarSystem->Get( "r_ssr", "0", CVAR_ARCHIVE, "Enabled Screen Space Reflections effects" );
+    r_ssrStrength = cvarSystem->Get( "r_ssrStrength", "0.02", CVAR_ARCHIVE, "Setting Screen Space Reflections strength" );
+    r_sse = cvarSystem->Get( "r_sse", "0", CVAR_ARCHIVE, "Enabled Screen Space Emission effects" );
+    r_sseStrength = cvarSystem->Get( "r_sseStrength", "0.02", CVAR_ARCHIVE, "Setting Screen Space Emission strength" );
+    r_darkexpand = cvarSystem->Get( "r_darkexpand", "1", CVAR_ARCHIVE, "Enabled Dark Expand effects" );
+    r_dof = cvarSystem->Get( "r_dof", "0", CVAR_ARCHIVE, "Enabled Depth of Field effects" );
+    r_esharpening = cvarSystem->Get( "r_esharpening", "0", CVAR_ARCHIVE, "Enabled Sharpering effects" );
+    r_esharpening2 = cvarSystem->Get( "r_esharpening2", "0", CVAR_ARCHIVE, "Enabled Sharpering effects" );
+    r_multipost = cvarSystem->Get( "r_multipost", "0", CVAR_ARCHIVE, "Enabled Multipost effects" );
+    r_textureClean = cvarSystem->Get( "r_textureClean", "0", CVAR_ARCHIVE, "Enabled Texture Clen effects" );
+    r_textureCleanSigma = cvarSystem->Get( "r_textureCleanSigma", "1.2", CVAR_ARCHIVE, "Setting Texture Clean sigma" );
+    r_textureCleanBSigma = cvarSystem->Get( "r_textureCleanBSigma", "0.1", CVAR_ARCHIVE, "Setting Texture Clean B sigma" );
+    r_textureCleanMSize = cvarSystem->Get( "r_textureCleanMSize", "6.0", CVAR_ARCHIVE, "Setting Texture Clean size" );
+    r_trueAnaglyph = cvarSystem->Get( "r_trueAnaglyph", "0", CVAR_ARCHIVE, "Enabled Anaglyph effects" );
+    r_trueAnaglyphSeparation = cvarSystem->Get( "r_trueAnaglyphSeparation", "8.0", CVAR_ARCHIVE, "Setting Anaglyph separation" );
+    r_trueAnaglyphRed = cvarSystem->Get( "r_trueAnaglyphRed", "0.0", CVAR_ARCHIVE, "Setting Anaglyph red color" );
+    r_trueAnaglyphGreen = cvarSystem->Get( "r_trueAnaglyphGreen", "0.0", CVAR_ARCHIVE, "Setting Anaglyph green color" );
+    r_trueAnaglyphBlue = cvarSystem->Get( "r_trueAnaglyphBlue", "0.0", CVAR_ARCHIVE, "Setting Anaglyph blue color" );
+    r_vibrancy = cvarSystem->Get( "r_vibrancy", "0.4", CVAR_ARCHIVE, "Enabled vibrancy effects" );
+    r_bloom = cvarSystem->Get( "r_bloom", "0", CVAR_ARCHIVE, "Enabled Bloom effects" );
+    r_bloomPasses = cvarSystem->Get( "r_bloomPasses", "1", CVAR_ARCHIVE, "Bloom Passes" );
+    r_bloomDarkenPower = cvarSystem->Get( "r_bloomDarkenPower", "5.0", CVAR_ARCHIVE, "Darken power for bloom" );
+    r_bloomScale = cvarSystem->Get( "r_bloomScale", "1.5", CVAR_ARCHIVE, "Scaling bloom effects" );
+    r_fxaa = cvarSystem->Get( "r_fxaa", "0", CVAR_ARCHIVE, "Enabled Full Screen Anti Aliasing effects" );
+    
+    r_texturedetail = cvarSystem->Get( "r_texturedetail", "0", CVAR_ARCHIVE, "Enabled texture details effects" );
+    r_texturedetailStrength = cvarSystem->Get( "r_texturedetailStrength", "0.004", CVAR_ARCHIVE, "Toggles texture details strength" );
+    r_rbm = cvarSystem->Get( "r_rbm", "0", CVAR_ARCHIVE, "Enabled Reflective Bump Mapping effects" );
+    r_rbmStrength = cvarSystem->Get( "r_rbmStrength", "0.015", CVAR_ARCHIVE, "Toggles Reflective Bump Mapping strength" );
+    r_screenblur = cvarSystem->Get( "r_screenBlur", "0", CVAR_ARCHIVE, "Enabled screen blur" );
+    r_brightness = cvarSystem->Get( "r_brightness", "0.0", CVAR_ARCHIVE, "Sets brightness level, gamma correction." );
+    r_contrast = cvarSystem->Get( "r_contrast", "1.0", CVAR_ARCHIVE, "Sets contrast level, gamma correction." );
+    r_gamma = cvarSystem->Get( "r_gamma", "1.0", CVAR_ARCHIVE, "Sets gamma level, gamma correction." );
     
     //
     // temporary latched variables that can only change over a restart
     //
-    r_fullbright = cvarSystem->Get( "r_fullbright", "0", CVAR_LATCH | CVAR_CHEAT, "description" );
-    r_mapOverBrightBits = cvarSystem->Get( "r_mapOverBrightBits", "0", CVAR_LATCH, "description" );
-    r_intensity = cvarSystem->Get( "r_intensity", "1", CVAR_LATCH, "description" );
-    r_singleShader = cvarSystem->Get( "r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH, "description" );
+    r_fullbright = cvarSystem->Get( "r_fullbright", "0", CVAR_LATCH | CVAR_CHEAT, "Toggles lightmaps when r_ext_multitexture is 0. Textures will be rendered at full brightness when enabled. See also r_lightmap. 0=disables;1=enables." );
+    r_mapOverBrightBits = cvarSystem->Get( "r_mapOverBrightBits", "0", CVAR_LATCH, "Sets intensity of bounced light from textures (adjusts lighting saturation) when r_vertexlight is 0. Higher values=brighter lights reflected from textures." );
+    r_intensity = cvarSystem->Get( "r_intensity", "1", CVAR_LATCH, "Adjusts the overall strength of colors, with emphasis on the color White. Higher values result in higher apparent overall brightness. An alternative to adjusting gamma values, with the side effect of loss of texture details at too high a value." );
+    r_singleShader = cvarSystem->Get( "r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH, "Possibly toggles use of 1 shader for objects that have multiple shaders" );
     
     //
     // archived variables that can change at any time
     //
-    r_lodCurveError = cvarSystem->Get( "r_lodCurveError", "250", CVAR_ARCHIVE | CVAR_CHEAT, "description" );
-    r_lodbias = cvarSystem->Get( "r_lodbias", "0", CVAR_ARCHIVE, "description" );
-    r_flares = cvarSystem->Get( "r_flares", "0", CVAR_ARCHIVE, "description" );
-    r_znear = cvarSystem->Get( "r_znear", "4", CVAR_CHEAT, "description" );
+    r_lodCurveError = cvarSystem->Get( "r_lodCurveError", "250", CVAR_ARCHIVE | CVAR_CHEAT, "Another level of detail setting if set to 10000" );
+    r_lodbias = cvarSystem->Get( "r_lodbias", "0", CVAR_ARCHIVE, "Change the geometric level of detail (0 - 2)" );
+    r_flares = cvarSystem->Get( "r_flares", "0", CVAR_ARCHIVE, "Toggle projectile flare and lighting effect. the flare effect is a translucent disk that is used to alter the colors around lights with a corona effect" );
+    r_znear = cvarSystem->Get( "r_znear", "4", CVAR_CHEAT, "Set how close objects can be to the player before they're clipped out of the scene" );
     cvarSystem->CheckRange( r_znear, 0.001f, 200, false );
-    r_zproj = cvarSystem->Get( "r_zproj", "64", CVAR_ARCHIVE, "description" );
-    r_stereoSeparation = cvarSystem->Get( "r_stereoSeparation", "64", CVAR_ARCHIVE, "description" );
-    r_ignoreGLErrors = cvarSystem->Get( "r_ignoreGLErrors", "1", CVAR_ARCHIVE, "description" );
-    r_fastsky = cvarSystem->Get( "r_fastsky", "0", CVAR_ARCHIVE, "description" );
-    r_inGameVideo = cvarSystem->Get( "r_inGameVideo", "1", CVAR_ARCHIVE, "description" );
-    r_drawSun = cvarSystem->Get( "r_drawSun", "0", CVAR_ARCHIVE, "description" );
-    r_dynamiclight = cvarSystem->Get( "r_dynamiclight", "1", CVAR_ARCHIVE, "description" );
-    r_dlightBacks = cvarSystem->Get( "r_dlightBacks", "1", CVAR_ARCHIVE, "description" );
-    r_finish = cvarSystem->Get( "r_finish", "0", CVAR_ARCHIVE, "description" );
-    r_textureMode = cvarSystem->Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE, "description" );
-    r_swapInterval = cvarSystem->Get( "r_swapInterval", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_facePlaneCull = cvarSystem->Get( "r_facePlaneCull", "1", CVAR_ARCHIVE, "description" );
+    r_zproj = cvarSystem->Get( "r_zproj", "64", CVAR_ARCHIVE, "Z distance of projection plane" );
+    r_stereoSeparation = cvarSystem->Get( "r_stereoSeparation", "64", CVAR_ARCHIVE, "Control eye separation. Resulting separation is r_zProj divided by this value in quake3 standard units." );
+    r_ignoreGLErrors = cvarSystem->Get( "r_ignoreGLErrors", "1", CVAR_ARCHIVE, "Toggles option to ignore OpenGL errors and to attempt to continue rendering. 0=disables;1=enables." );
+    r_fastsky = cvarSystem->Get( "r_fastsky", "0", CVAR_ARCHIVE, "Toggles rendering of sky. Setting to 1 will also disable the view through portals. 0=enables;1=disables. " );
+    r_inGameVideo = cvarSystem->Get( "r_inGameVideo", "1", CVAR_ARCHIVE, "Toggle use of video clips in game (limbo menu)" );
+    r_drawSun = cvarSystem->Get( "r_drawSun", "0", CVAR_ARCHIVE, "Set to zero if you do not want to render sunlight into the equation of lighting effects" );
+    r_dynamiclight = cvarSystem->Get( "r_dynamiclight", "1", CVAR_ARCHIVE, "Toggle dynamic lighting (different dynamic method of rendering lights)" );
+    r_dlightBacks = cvarSystem->Get( "r_dlightBacks", "1", CVAR_ARCHIVE, "Brighter areas are changed more by dlights than dark areas." );
+    r_finish = cvarSystem->Get( "r_finish", "0", CVAR_ARCHIVE, "Toggle synchronization of rendered frames (engine will wait for GL calls to finish)" );
+    r_textureMode = cvarSystem->Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE, "Texture rendering quality. GL_NEAREST is the worst with pixellated textures and no mipmapping, GL_NEAREST_MIPMAP_NEAREST is the lowest quality you an access via in-game UI and uses low-quality textures and mipmaps, GL_LINEAR_MIPMAP_NEAREST uses good filters for textures and simple mipmaps, GL_LINEAR_MIPMAP_LINEAR corresponds to trilinear filtering in the in-game UI and is the best quality setting." );
+    r_swapInterval = cvarSystem->Get( "r_swapInterval", "0", CVAR_ARCHIVE | CVAR_LATCH, "Toggle frame swapping." );
+    r_facePlaneCull = cvarSystem->Get( "r_facePlaneCull", "1", CVAR_ARCHIVE, "Toggle culling of brush faces not in view (0 will slow FPS)" );
     
-    r_railWidth = cvarSystem->Get( "r_railWidth", "16", CVAR_ARCHIVE, "description" );
-    r_railCoreWidth = cvarSystem->Get( "r_railCoreWidth", "6", CVAR_ARCHIVE, "description" );
-    r_railSegmentLength = cvarSystem->Get( "r_railSegmentLength", "32", CVAR_ARCHIVE, "description" );
+    r_railWidth = cvarSystem->Get( "r_railWidth", "16", CVAR_ARCHIVE, "Set width of the rail trail" );
+    r_railCoreWidth = cvarSystem->Get( "r_railCoreWidth", "6", CVAR_ARCHIVE, "Set size of the rail trail's core" );
+    r_railSegmentLength = cvarSystem->Get( "r_railSegmentLength", "32", CVAR_ARCHIVE, "Set distance between rail sun bursts" );
     
-    r_ambientScale = cvarSystem->Get( "r_ambientScale", "0.6", CVAR_CHEAT, "description" );
-    r_directedScale = cvarSystem->Get( "r_directedScale", "1", CVAR_CHEAT, "description" );
+    r_ambientScale = cvarSystem->Get( "r_ambientScale", "0.6", CVAR_CHEAT, "Set the scale or intensity of ambient light" );
+    r_directedScale = cvarSystem->Get( "r_directedScale", "1", CVAR_CHEAT, "Set scale/intensity of light shinning directly upon objects" );
     
-    r_anaglyphMode = cvarSystem->Get( "r_anaglyphMode", "0", CVAR_ARCHIVE, "description" );
+    r_anaglyphMode = cvarSystem->Get( "r_anaglyphMode", "0", CVAR_ARCHIVE, " Enable rendering of anaglyph images red - cyan glasses : 1 red - blue : 2 red - green : 3 green - magenta : 4 To swap the colors for leftand right eye just add 4 to the value for the wanted color combination.For red - blue and red - green you probably want to enable" );
     
     //
     // temporary variables that can change at any time
     //
-    r_showImages = cvarSystem->Get( "r_showImages", "0", CVAR_CHEAT | CVAR_TEMP, "description" );
+    r_showImages = cvarSystem->Get( "r_showImages", "0", CVAR_CHEAT | CVAR_TEMP, "Show images" );
     
-    r_debugLight = cvarSystem->Get( "r_debuglight", "0", CVAR_TEMP, "description" );
-    r_debugSort = cvarSystem->Get( "r_debugSort", "0", CVAR_CHEAT, "description" );
-    r_printShaders = cvarSystem->Get( "r_printShaders", "0", 0, "description" );
-    r_saveFontData = cvarSystem->Get( "r_saveFontData", "0", 0, "description" );
+    r_debugLight = cvarSystem->Get( "r_debuglight", "0", CVAR_TEMP, "Toggles the display of data representing the intensity of ambient light and intensity of direct light. 0=disables;1=enables." );
+    r_debugSort = cvarSystem->Get( "r_debugSort", "0", CVAR_CHEAT, "For debugging of sort order issues, stop rendering after a given sort value" );
+    r_printShaders = cvarSystem->Get( "r_printShaders", "0", 0, "Enable this when building a pak file to get a global list of all explicit shaders" );
+    r_saveFontData = cvarSystem->Get( "r_saveFontData", "0", 0, "Saving font data" );
     
-    r_nocurves = cvarSystem->Get( "r_nocurves", "0", CVAR_CHEAT, "description" );
-    r_drawworld = cvarSystem->Get( "r_drawworld", "1", CVAR_CHEAT, "description" );
-    r_lightmap = cvarSystem->Get( "r_lightmap", "0", 0, "description" );
-    r_portalOnly = cvarSystem->Get( "r_portalOnly", "0", CVAR_CHEAT, "description" );
+    r_nocurves = cvarSystem->Get( "r_nocurves", "0", CVAR_CHEAT, "Presumably enables/disables rendering of curves." );
+    r_drawworld = cvarSystem->Get( "r_drawworld", "1", CVAR_CHEAT, "Toggles rendering of world brushes (map architecture). Entities will still be drawn. 0=disables;1=enables. " );
+    r_lightmap = cvarSystem->Get( "r_lightmap", "0", 0, "Toggles rendering of lightmaps without rendering textures. 0=disables;1=enables" );
+    r_portalOnly = cvarSystem->Get( "r_portalOnly", "0", CVAR_CHEAT, "Toggles seeing what the game engine can see through a portal. When enabled, if the game engine can see a portal, nothing else will be drawn except for the area the portal can see. 0=disables;1=enables." );
     
-    r_flareSize = cvarSystem->Get( "r_flareSize", "40", CVAR_CHEAT, "description" );
-    r_flareFade = cvarSystem->Get( "r_flareFade", "7", CVAR_CHEAT, "description" );
-    r_flareCoeff = cvarSystem->Get( "r_flareCoeff", FLARE_STDCOEFF, CVAR_CHEAT, "description" );
+    r_flareSize = cvarSystem->Get( "r_flareSize", "40", CVAR_CHEAT, "Adjusts the size of flares when r_flares is 1." );
+    r_flareFade = cvarSystem->Get( "r_flareFade", "7", CVAR_CHEAT, "Sets scale of fading of flares in relation to distance when r_flares is 1." );
+    r_flareCoeff = cvarSystem->Get( "r_flareCoeff", FLARE_STDCOEFF, CVAR_CHEAT, "Adjusts the flares coefficient when r_flares is 1." );
     
-    r_skipBackEnd = cvarSystem->Get( "r_skipBackEnd", "0", CVAR_CHEAT, "description" );
+    r_skipBackEnd = cvarSystem->Get( "r_skipBackEnd", "0", CVAR_CHEAT, "Toggle to skip renderer BackEnd" );
     
-    r_measureOverdraw = cvarSystem->Get( "r_measureOverdraw", "0", CVAR_CHEAT, "description" );
-    r_lodscale = cvarSystem->Get( "r_lodscale", "5", CVAR_CHEAT, "description" );
-    r_norefresh = cvarSystem->Get( "r_norefresh", "0", CVAR_CHEAT, "description" );
-    r_drawentities = cvarSystem->Get( "r_drawentities", "1", CVAR_CHEAT, "description" );
-    r_ignore = cvarSystem->Get( "r_ignore", "1", CVAR_CHEAT, "description" );
-    r_nocull = cvarSystem->Get( "r_nocull", "0", CVAR_CHEAT, "description" );
-    r_novis = cvarSystem->Get( "r_novis", "0", CVAR_CHEAT, "description" );
-    r_showcluster = cvarSystem->Get( "r_showcluster", "0", CVAR_CHEAT, "description" );
-    r_speeds = cvarSystem->Get( "r_speeds", "0", CVAR_CHEAT, "description" );
-    r_verbose = cvarSystem->Get( "r_verbose", "0", CVAR_CHEAT, "description" );
-    r_logFile = cvarSystem->Get( "r_logFile", "0", CVAR_CHEAT, "description" );
-    r_debugSurface = cvarSystem->Get( "r_debugSurface", "0", CVAR_CHEAT, "description" );
-    r_nobind = cvarSystem->Get( "r_nobind", "0", CVAR_CHEAT, "description" );
-    r_showtris = cvarSystem->Get( "r_showtris", "0", CVAR_CHEAT, "description" );
-    r_showsky = cvarSystem->Get( "r_showsky", "0", CVAR_CHEAT, "description" );
-    r_shownormals = cvarSystem->Get( "r_shownormals", "0", CVAR_CHEAT, "description" );
-    r_clear = cvarSystem->Get( "r_clear", "0", CVAR_CHEAT, "description" );
-    r_offsetFactor = cvarSystem->Get( "r_offsetfactor", "-1", CVAR_CHEAT, "description" );
-    r_offsetUnits = cvarSystem->Get( "r_offsetunits", "-2", CVAR_CHEAT, "description" );
-    r_drawBuffer = cvarSystem->Get( "r_drawBuffer", "GL_BACK", CVAR_CHEAT, "description" );
-    r_lockpvs = cvarSystem->Get( "r_lockpvs", "0", CVAR_CHEAT, "description" );
-    r_noportals = cvarSystem->Get( "r_noportals", "0", CVAR_CHEAT, "description" );
-    r_shadows = cvarSystem->Get( "cg_shadows", "0", 0, "description" );
-    r_texturedetail = cvarSystem->Get( "r_texturedetail", "0", CVAR_ARCHIVE, "description" );
-    r_texturedetailStrength = cvarSystem->Get( "r_texturedetailStrength", "0.004", CVAR_ARCHIVE, "description" );
-    r_rbm = cvarSystem->Get( "r_rbm", "0", CVAR_ARCHIVE, "description" );
-    r_rbmStrength = cvarSystem->Get( "r_rbmStrength", "0.015", CVAR_ARCHIVE, "description" );
-    r_screenblur = cvarSystem->Get( "r_screenBlur", "0", CVAR_ARCHIVE, "description" );
-    r_brightness = cvarSystem->Get( "r_brightness", "0.0", CVAR_ARCHIVE, "description" );
-    r_contrast = cvarSystem->Get( "r_contrast", "1.0", CVAR_ARCHIVE, "description" );
-    r_gamma = cvarSystem->Get( "r_gamma", "1.0", CVAR_ARCHIVE, "description" );
+    r_measureOverdraw = cvarSystem->Get( "r_measureOverdraw", "0", CVAR_CHEAT, "Presumably implements sun's stenciling method of measuring overdraw." );
+    r_lodscale = cvarSystem->Get( "r_lodscale", "5", CVAR_CHEAT, "Sets scale with which to adjust Level-Of-Detail." );
+    r_norefresh = cvarSystem->Get( "r_norefresh", "0", CVAR_CHEAT, "Toggles clearing of screen prior to re-rendering. 0=allow refresh;1=disable refresh. " );
+    r_drawentities = cvarSystem->Get( "r_drawentities", "1", CVAR_CHEAT, "Toggles rendering of entities, including brush models. 0=disables;1=enables. " );
+    r_nocull = cvarSystem->Get( "r_nocull", "0", CVAR_CHEAT, "Toggles rendering of items/objects normally not seen from player's point-of-view. 0=disables;1=enables. " );
+    r_novis = cvarSystem->Get( "r_novis", "0", CVAR_CHEAT, "Toggles the option to ignore vis data when drawing the map. 0=disables;1=enables" );
+    r_showcluster = cvarSystem->Get( "r_showcluster", "0", CVAR_CHEAT, "Toggles display of clusters by number as the player enters them on the currently loaded map. 0=disables;1=enables." );
+    r_speeds = cvarSystem->Get( "r_speeds", "0", CVAR_CHEAT, "Toggles the display of map geometry data. 0=disables,1=enables." );
+    r_logFile = cvarSystem->Get( "r_logFile", "0", CVAR_CHEAT, "Toggles the writing of GL.LOG in the same binary directory which records all OpenGL commands used in a game session. 0=disables;1=enable" );
+    r_debugSurface = cvarSystem->Get( "r_debugSurface", "0", CVAR_CHEAT, "Sets the size of the debug surface grid for curved surfaces when r_debugsurface is 1." );
+    r_showtris = cvarSystem->Get( "r_showtris", "0", CVAR_CHEAT, "Toggles the drawing of polygon triangles. See also r_shownormals. 0=disables,1=enables." );
+    r_showsky = cvarSystem->Get( "r_showsky", "0", CVAR_CHEAT, "Toggles the drawing of the sky in front of other brushes. 0=disables;1=enables. " );
+    r_shownormals = cvarSystem->Get( "r_shownormals", "0", CVAR_CHEAT, "Toggles the drawing of short lines indicating brush and entity polygon vertices. See also r_showtris. 0=disables;1=enables." );
+    r_clear = cvarSystem->Get( "r_clear", "0", CVAR_CHEAT, "Toggles the clearing of unrefreshed images (clears hall of mirrors effect). 0=disables;1=enables. " );
+    r_offsetFactor = cvarSystem->Get( "r_offsetfactor", "-1", CVAR_CHEAT, "Toggles to set polygon offset factor" );
+    r_offsetUnits = cvarSystem->Get( "r_offsetunits", "-2", CVAR_CHEAT, "Toggles to set polygon offset units factor" );
+    r_drawBuffer = cvarSystem->Get( "r_drawBuffer", "GL_BACK", CVAR_CHEAT, "Sets which buffer is drawn to." );
+    r_lockpvs = cvarSystem->Get( "r_lockpvs", "0", CVAR_CHEAT, "oggles the option of preventing the update of the PVS table as the player moves through the map. When set to 1 new areas entered will not be rendered. A mapper's tool. 0=disables;1=enables. " );
+    r_noportals = cvarSystem->Get( "r_noportals", "0", CVAR_CHEAT, "Toggles player view through portals. 0=enables view;1=disables view." );
+    r_shadows = cvarSystem->Get( "cg_shadows", "0", 0, "Sets type of shadows rendering when cg_marks is set to 1" );
     
-    r_marksOnTriangleMeshes = cvarSystem->Get( "r_marksOnTriangleMeshes", "0", CVAR_ARCHIVE, "description" );
+    r_marksOnTriangleMeshes = cvarSystem->Get( "r_marksOnTriangleMeshes", "0", CVAR_ARCHIVE, "Toggles the marks on triangle meshes" );
     
-    r_aviMotionJpegQuality = cvarSystem->Get( "r_aviMotionJpegQuality", "90", CVAR_ARCHIVE, "description" );
-    r_screenshotJpegQuality = cvarSystem->Get( "r_screenshotJpegQuality", "90", CVAR_ARCHIVE, "description" );
+    r_aviMotionJpegQuality = cvarSystem->Get( "r_aviMotionJpegQuality", "90", CVAR_ARCHIVE, "Controls quality of video capture when cl_aviMotionJpeg is enabled" );
+    r_screenshotJpegQuality = cvarSystem->Get( "r_screenshotJpegQuality", "90", CVAR_ARCHIVE, "Controls quality of jpeg screenshots captured using screenshotJPEG" );
     
-    r_maxpolys = cvarSystem->Get( "r_maxpolys", va( "%d", MAX_POLYS ), 0, "description" );
-    r_maxpolyverts = cvarSystem->Get( "r_maxpolyverts", va( "%d", MAX_POLYVERTS ), 0, "description" );
+    r_maxpolys = cvarSystem->Get( "r_maxpolys", va( "%d", MAX_POLYS ), 0, "Maximum number of polygons on screen" );
+    r_maxpolyverts = cvarSystem->Get( "r_maxpolyverts", va( "%d", MAX_POLYVERTS ), 0, "Maximum number of vertices from polygons on screen" );
     
     // make sure all the commands added here are also
     // removed in R_Shutdown
-    cmdSystem->AddCommand( "imagelist", R_ImageList_f, "description" );
-    cmdSystem->AddCommand( "shaderlist", R_ShaderList_f, "description" );
-    cmdSystem->AddCommand( "skinlist", R_SkinList_f, "description" );
-    cmdSystem->AddCommand( "modellist", R_Modellist_f, "description" );
-    cmdSystem->AddCommand( "modelist", R_ModeList_f, "description" );
-    cmdSystem->AddCommand( "screenshot", R_ScreenShot_f, "description" );
-    cmdSystem->AddCommand( "screenshotJPEG", R_ScreenShotJPEG_f, "description" );
-    cmdSystem->AddCommand( "gfxinfo", GfxInfo_f, "description" );
-    //cmdSystem->AddCommand( "minimize", GLimp_Minimize , "description");
-    cmdSystem->AddCommand( "exportCubemaps", R_ExportCubemaps_f, "description" );
+    cmdSystem->AddCommand( "imagelist", R_ImageList_f, "Lists currently open images/textures used by the current map, also displays the amount of texture memory the map is using which is the last number displayed." );
+    cmdSystem->AddCommand( "shaderlist", R_ShaderList_f, "List of currently open shaders (light effects)." );
+    cmdSystem->AddCommand( "skinlist", R_SkinList_f, "List of currently open skins." );
+    cmdSystem->AddCommand( "modellist", R_Modellist_f, "Lists all models in console" );
+    cmdSystem->AddCommand( "modelist", R_ModeList_f, "Gives a list of the r_mode resolution numbers" );
+    cmdSystem->AddCommand( "screenshot", R_ScreenShot_f, "Takes a screenshot, in high quality lossless TGA format" );
+    cmdSystem->AddCommand( "screenshotJPEG", R_ScreenShotJPEG_f, "Takes a screenshot, in lossy-compression JPEG format" );
+    cmdSystem->AddCommand( "gfxinfo", GfxInfo_f, "Reports current graphics rendering info, including: OpenGL extensions loaded, color depth, resolution, status of multithreaded support and the state of some rendering options." );
+    //cmdSystem->AddCommand( "minimize", GLimp_Minimize , "Game window is minimized when set to non-zero");
+    cmdSystem->AddCommand( "exportCubemaps", R_ExportCubemaps_f, "Exports maps Cubemaps as DDS files" );
 }
 
 void R_InitQueries( void )

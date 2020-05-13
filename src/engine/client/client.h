@@ -394,7 +394,6 @@ extern convar_t*  cl_maxpackets;
 extern convar_t*  cl_packetdup;
 extern convar_t*  cl_shownet;
 extern convar_t*  cl_shownuments;			// DHM - Nerve
-extern convar_t*  cl_visibleClients;		// DHM - Nerve
 extern convar_t*  cl_showSend;
 extern convar_t*  cl_showServerCommands;	// NERVE - SMF
 extern convar_t*  cl_timeNudge;

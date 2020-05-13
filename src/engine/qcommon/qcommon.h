@@ -490,7 +490,6 @@ extern convar_t*  com_buildScript;	// for building release pak files
 extern convar_t*  com_journal;
 extern convar_t*  com_cameraMode;
 extern convar_t*  com_ansiColor;
-extern convar_t*  com_logosPlaying;
 
 extern convar_t*  com_unfocused;
 extern convar_t*  com_minimized;
@@ -499,8 +498,6 @@ extern convar_t*  com_minimized;
 // watchdog
 extern convar_t*  com_watchdog;
 extern convar_t*  com_watchdog_cmd;
-
-extern	convar_t*	com_affinity;
 
 // both client and server must agree to pause
 extern convar_t*  cl_paused;

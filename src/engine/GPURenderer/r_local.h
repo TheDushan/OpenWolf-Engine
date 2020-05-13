@@ -1870,9 +1870,6 @@ extern convar_t*	r_railWidth;
 extern convar_t*	r_railCoreWidth;
 extern convar_t*	r_railSegmentLength;
 
-extern convar_t*	r_ignore;				// used for debugging anything
-extern convar_t*	r_verbose;				// used for verbose debug spew
-
 extern convar_t*	r_znear;				// near Z clip plane
 extern convar_t*	r_zproj;				// z distance of projection plane
 extern convar_t*	r_stereoSeparation;			// separation of cameras for stereo rendering
@@ -1908,7 +1905,6 @@ extern  convar_t*  r_arb_seamless_cube_map;
 extern  convar_t*  r_arb_vertex_array_object;
 extern  convar_t*  r_ext_direct_state_access;
 
-extern	convar_t*	r_nobind;						// turns off binding to appropriate textures
 extern	convar_t*	r_singleShader;				// make most world faces use default shader
 extern	convar_t*	r_roundImagesDown;
 extern	convar_t*	r_colorMipLevels;				// development aid to see texture mip usage
@@ -1948,7 +1944,6 @@ extern	convar_t*	r_skipBackEnd;
 extern	convar_t*	r_anaglyphMode;
 extern  convar_t*  r_hdr;
 extern  convar_t* r_truehdr;
-extern  convar_t*  r_floatLightmap;
 extern  convar_t*  r_postProcess;
 
 extern  convar_t*  r_toneMap;

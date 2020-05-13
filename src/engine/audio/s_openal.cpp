@@ -1985,18 +1985,18 @@ bool S_AL_Init( soundInterface_t* si )
     }
     
     // New console variables
-    s_alPrecache = cvarSystem->Get( "s_alPrecache", "1", CVAR_ARCHIVE, "description" );
-    s_alGain = cvarSystem->Get( "s_alGain", "0.4", CVAR_ARCHIVE, "description" );
-    s_alSources = cvarSystem->Get( "s_alSources", "96", CVAR_ARCHIVE, "description" );
-    s_alDopplerFactor = cvarSystem->Get( "s_alDopplerFactor", "1.0", CVAR_ARCHIVE, "description" );
-    s_alDopplerSpeed = cvarSystem->Get( "s_alDopplerSpeed", "2200", CVAR_ARCHIVE, "description" );
-    s_alMinDistance = cvarSystem->Get( "s_alMinDistance", "120", CVAR_CHEAT, "description" );
-    s_alMaxDistance = cvarSystem->Get( "s_alMaxDistance", "1024", CVAR_CHEAT, "description" );
-    s_alRolloff = cvarSystem->Get( "s_alRolloff", "2", CVAR_CHEAT, "description" );
-    s_alGraceDistance = cvarSystem->Get( "s_alGraceDistance", "512", CVAR_CHEAT, "description" );
+    s_alPrecache = cvarSystem->Get( "s_alPrecache", "1", CVAR_ARCHIVE, "Cache OpenAL sounds before use" );
+    s_alGain = cvarSystem->Get( "s_alGain", "0.4", CVAR_ARCHIVE, "The value of AL_GAIN for each source" );
+    s_alSources = cvarSystem->Get( "s_alSources", "96", CVAR_ARCHIVE, "the total number of sources (memory) to allocate" );
+    s_alDopplerFactor = cvarSystem->Get( "s_alDopplerFactor", "1.0", CVAR_ARCHIVE, "the value passed to alDopplerFactor" );
+    s_alDopplerSpeed = cvarSystem->Get( "s_alDopplerSpeed", "2200", CVAR_ARCHIVE, "the value passed to alDopplerVelocity" );
+    s_alMinDistance = cvarSystem->Get( "s_alMinDistance", "120", CVAR_CHEAT, "the value of AL_REFERENCE_DISTANCE for each source" );
+    s_alMaxDistance = cvarSystem->Get( "s_alMaxDistance", "1024", CVAR_CHEAT, "the maximum distance before sounds start to become inaudible." );
+    s_alRolloff = cvarSystem->Get( "s_alRolloff", "2", CVAR_CHEAT, "the value of AL_ROLLOFF_FACTOR for each source" );
+    s_alGraceDistance = cvarSystem->Get( "s_alGraceDistance", "512", CVAR_CHEAT, "after having passed MaxDistance, length until sounds are completely inaudible" );
     
-    s_alDriver = cvarSystem->Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE, "description" );
-    s_alDevice = cvarSystem->Get( "s_alDevice", "", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    s_alDriver = cvarSystem->Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE, "which OpenAL library to use" );
+    s_alDevice = cvarSystem->Get( "s_alDevice", "", CVAR_ARCHIVE | CVAR_LATCH, "which OpenAL device to use" );
     
     // Load AL
     if( !QAL_Init( s_alDriver->string ) )
@@ -2024,12 +2024,12 @@ bool S_AL_Init( soundInterface_t* si )
         // native hardware acceleration.
         if( !strcmp( defaultdevice, "Generic Hardware" ) )
         {
-            s_alDevice = cvarSystem->Get( "s_alDevice", ALDEVICE_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH, "description" );
+            s_alDevice = cvarSystem->Get( "s_alDevice", ALDEVICE_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH, "which OpenAL device to use" );
         }
         else
 #endif
         {
-            s_alDevice = cvarSystem->Get( "s_alDevice", defaultdevice, CVAR_ARCHIVE | CVAR_LATCH, "description" );
+            s_alDevice = cvarSystem->Get( "s_alDevice", defaultdevice, CVAR_ARCHIVE | CVAR_LATCH, "which OpenAL device to use" );
         }
         
         // dump a list of available devices to a cvar for the user to see.
@@ -2047,7 +2047,7 @@ bool S_AL_Init( soundInterface_t* si )
             devicelist += curlen + 1;
         }
         
-        s_alAvailableDevices = cvarSystem->Get( "s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART, "description" );
+        s_alAvailableDevices = cvarSystem->Get( "s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART, "list of available OpenAL devices" );
         
         if( !founddev )
         {

@@ -490,11 +490,11 @@ SCR_Init
 */
 void SCR_Init( void )
 {
-    cl_timegraph = cvarSystem->Get( "timegraph", "0", CVAR_CHEAT, "description" );
-    cl_debuggraph = cvarSystem->Get( "debuggraph", "0", CVAR_CHEAT, "description" );
-    cl_graphheight = cvarSystem->Get( "graphheight", "32", CVAR_CHEAT, "description" );
-    cl_graphscale = cvarSystem->Get( "graphscale", "1", CVAR_CHEAT, "description" );
-    cl_graphshift = cvarSystem->Get( "graphshift", "0", CVAR_CHEAT, "description" );
+    cl_timegraph = cvarSystem->Get( "timegraph", "0", CVAR_CHEAT, "Toggle the display of the timegraph." );
+    cl_debuggraph = cvarSystem->Get( "debuggraph", "0", CVAR_CHEAT, "Toggle the display of the debuggraph." );
+    cl_graphheight = cvarSystem->Get( "graphheight", "32", CVAR_CHEAT, "Toggle the graphheight." );
+    cl_graphscale = cvarSystem->Get( "graphscale", "1", CVAR_CHEAT, "Toggle the graphscale." );
+    cl_graphshift = cvarSystem->Get( "graphshift", "0", CVAR_CHEAT, "Toggle the graphshift." );
     
     scr_initialized = true;
 }

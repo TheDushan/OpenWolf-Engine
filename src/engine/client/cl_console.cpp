@@ -650,7 +650,7 @@ void Con_Init( void )
     g_consoleField.widthInChars = g_console_field_width;
     
     cmdSystem->AddCommand( "toggleConsole", Con_ToggleConsole_f, "^1Opens or closes the console." );
-    cmdSystem->AddCommand( "togglemenu", Con_ToggleMenu_f, "description" );
+    cmdSystem->AddCommand( "togglemenu", Con_ToggleMenu_f, "^1Show/hide the menu" );
     cmdSystem->AddCommand( "clear", Con_Clear_f, "^1Clear console history." );
     cmdSystem->AddCommand( "condump", Con_Dump_f, "^1Dumps the contents of the console to a text file." );
     cmdSystem->AddCommand( "search", Con_Search_f, "^1Find the text you are looking for." );

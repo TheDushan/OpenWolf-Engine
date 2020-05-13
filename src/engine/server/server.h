@@ -234,10 +234,6 @@ typedef struct client_s
     S32 lastUserInfoChange;
     S32 lastUserInfoCount;
     S32 oldServerTime;
-    S32 numRealThinks;
-    S32 lastRealThink;
-    S32 lastFakeThink;
-    S32 numFramesActive;
 } client_t;
 
 //=============================================================================
@@ -331,7 +327,6 @@ typedef struct serverStatic_s
     receipt_t       infoReceipts[MAX_INFO_RECEIPTS];
     floodBan_t		infoFloodBans[MAX_INFO_FLOOD_BANS];
     netadr_t        redirectAddress;	// for rcon return messages
-    netadr_t	    authorizeAddress;	// address of server we're using
     tempBan_t       tempBanAddresses[MAX_TEMPBAN_ADDRESSES];
     S32             sampleTimes[SERVER_PERFORMANCECOUNTER_SAMPLES];
     S32             currentSampleIndex;
@@ -412,9 +407,6 @@ extern convar_t*  sv_lanForceRate;
 extern convar_t*  sv_onlyVisibleClients;
 extern convar_t*  sv_showAverageBPS;	// NERVE - SMF - net debugging
 
-extern convar_t* sv_lagAbuse;
-extern convar_t* sv_lagAbuseFPS;
-
 extern convar_t*  sv_requireValidGuid;
 
 extern convar_t*  sv_ircchannel;
@@ -450,9 +442,6 @@ extern convar_t*  sv_fullmsg;
 extern convar_t*  sv_IPmaxGetstatusPerSecond;
 
 extern convar_t*  sv_hibernateTime;
-
-extern convar_t* sv_authServerHost;
-extern convar_t* sv_authServerKey;
 
 extern convar_t* sv_wh_active;
 extern convar_t* sv_wh_bbox_horz;

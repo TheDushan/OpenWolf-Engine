@@ -603,7 +603,7 @@ void idSystemLocal::InitJoystick( void )
         Q_strcat( buf, sizeof( buf ), "\n" );
     }
     
-    cvarSystem->Get( "in_availableJoysticks", buf, CVAR_ROM, "description" );
+    cvarSystem->Get( "in_availableJoysticks", buf, CVAR_ROM, "List of available Joysticks" );
     
     if( !in_joystick->integer )
     {
@@ -612,13 +612,13 @@ void idSystemLocal::InitJoystick( void )
         return;
     }
     
-    in_joystickNo = cvarSystem->Get( "in_joystickNo", "0", CVAR_ARCHIVE, "description" );
+    in_joystickNo = cvarSystem->Get( "in_joystickNo", "0", CVAR_ARCHIVE, "Check whether a user has changed the joystick number" );
     if( in_joystickNo->integer < 0 || in_joystickNo->integer >= total )
     {
         cvarSystem->Set( "in_joystickNo", "0" );
     }
     
-    in_joystickUseAnalog = cvarSystem->Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE, "description" );
+    in_joystickUseAnalog = cvarSystem->Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE, "Do not translate joystick axis events to keyboard commands" );
     
     stick = SDL_JoystickOpen( in_joystickNo->integer );
     
@@ -1206,15 +1206,15 @@ void idSystemLocal::Init( void* windowData )
     
     Com_DPrintf( "\n------- Input Initialization -------\n" );
     
-    in_keyboardDebug = cvarSystem->Get( "in_keyboardDebug", "0", CVAR_ARCHIVE, "description" );
+    in_keyboardDebug = cvarSystem->Get( "in_keyboardDebug", "0", CVAR_ARCHIVE, "Print keyboard debug info" );
     
     // mouse variables
-    in_mouse = cvarSystem->Get( "in_mouse", "1", CVAR_ARCHIVE, "description" );
-    in_nograb = cvarSystem->Get( "in_nograb", "0", CVAR_ARCHIVE, "description" );
+    in_mouse = cvarSystem->Get( "in_mouse", "1", CVAR_ARCHIVE, "Toggles polling the port used for mouse input. 0=disables;1=enables. " );
+    in_nograb = cvarSystem->Get( "in_nograb", "0", CVAR_ARCHIVE, "Dont capture mouse in window mode" );
     
-    in_joystick = cvarSystem->Get( "in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    in_joystickDebug = cvarSystem->Get( "in_joystickDebug", "0", CVAR_TEMP, "description" );
-    in_joystickThreshold = cvarSystem->Get( "joy_threshold", "0.15", CVAR_ARCHIVE, "description" );
+    in_joystick = cvarSystem->Get( "in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH, "Toggle the initialization of the joystick  (command line)" );
+    in_joystickDebug = cvarSystem->Get( "in_joystickDebug", "0", CVAR_TEMP, "A debugging tool that joystick keypress input data to the console." );
+    in_joystickThreshold = cvarSystem->Get( "joy_threshold", "0.15", CVAR_ARCHIVE, "Sets joystick threshold sensitivity" );
     
     SDL_StartTextInput();
     

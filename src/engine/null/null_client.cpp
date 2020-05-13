@@ -52,9 +52,9 @@ void CL_Shutdown( void )
 
 void CL_Init( void )
 {
-    cl_shownet = cvarSystem->Get( "cl_shownet", "0", CVAR_TEMP, "description" );
+    cl_shownet = cvarSystem->Get( "cl_shownet", "0", CVAR_TEMP, "Display network quality info" );
     // TTimo: localisation, prolly not any use in dedicated / null client
-    cl_language = cvarSystem->Get( "cl_language", "0", CVAR_ARCHIVE, "description" );
+    cl_language = cvarSystem->Get( "cl_language", "0", CVAR_ARCHIVE, "Stores the language of user's game. English is 0" );
 }
 
 void CL_MouseEvent( S32 dx, S32 dy, S32 time )

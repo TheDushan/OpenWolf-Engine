@@ -2140,37 +2140,37 @@ idCmdSystemLocal::Init
 */
 void idCmdSystemLocal::Init( void )
 {
-    AddCommand( "cmdlist", &idCmdSystemLocal::List, "description" );
-    AddCommand( "exec", &idCmdSystemLocal::Exec_f, "description" );
+    AddCommand( "cmdlist", &idCmdSystemLocal::List, "Reports to the console all console commands listed." );
+    AddCommand( "exec", &idCmdSystemLocal::Exec_f, "Loads a configuration file." );
     SetCommandCompletionFunc( "exec", &idCmdSystemLocal::CompleteCfgName );
-    AddCommand( "vstr", &idCmdSystemLocal::Vstr, "description" );
+    AddCommand( "vstr", &idCmdSystemLocal::Vstr, "Executes a variable command created with set, seta, sets or setu." );
     SetCommandCompletionFunc( "vstr", &idCVarSystemLocal::CompleteCvarName );
-    AddCommand( "echo", &idCmdSystemLocal::Echo, "description" );
-    AddCommand( "wait", &idCmdSystemLocal::Wait, "description" );
+    AddCommand( "echo", &idCmdSystemLocal::Echo, "Echoes text to the console on the local machine." );
+    AddCommand( "wait", &idCmdSystemLocal::Wait, "Waits the specified number of game tics (0.1 seconds?). If no parameter is used it will default to a single game tic. Used in command strings to allow enough time for a command to be executed before proceeding to the next." );
 #ifndef DEDICATED
-    AddCommand( "modcase", &idCmdSystemLocal::ModCase, "description" );
+    AddCommand( "modcase", &idCmdSystemLocal::ModCase, "Executes the command for the first matching modifier set" );
 #endif
-    AddCommand( "if", &idCmdSystemLocal::If, "description" );
+    AddCommand( "if", &idCmdSystemLocal::If, "Compares two values, if true executes the third argument, if false executes the forth" );
     SetCommandCompletionFunc( "if", &idCmdSystemLocal::CompleteIf );
-    AddCommand( "calc", &idCmdSystemLocal::Calc, "description" );
-    AddCommand( "math", &idCmdSystemLocal::Math, "description" );
+    AddCommand( "calc", &idCmdSystemLocal::Calc, "Does math and displays the value into the chat/console, this is used for basic math functions" );
+    AddCommand( "math", &idCmdSystemLocal::Math, "Compares two cvars, if true vstr the third, if false vstr the forth" );
     SetCommandCompletionFunc( "math", &idCVarSystemLocal::CompleteCvarName );
-    AddCommand( "concat", &idCmdSystemLocal::Concat, "description" );
+    AddCommand( "concat", &idCmdSystemLocal::Concat, "concatenates cvars together" );
     SetCommandCompletionFunc( "concat", &idCmdSystemLocal::CompleteConcat );
-    AddCommand( "strcmp", &idCmdSystemLocal::Strcmp, "description" );
+    AddCommand( "strcmp", &idCmdSystemLocal::Strcmp, "Compares two strings, if true executes the third argument, if false executes the forth" );
     SetCommandCompletionFunc( "strcmp", &idCmdSystemLocal::CompleteIf );
-    AddCommand( "alias", &idCmdSystemLocal::Alias, "description" );
+    AddCommand( "alias", &idCmdSystemLocal::Alias, "Show an alias" );
     SetCommandCompletionFunc( "alias", &idCmdSystemLocal::CompleteAliasName );
-    AddCommand( "unalias", &idCmdSystemLocal::UnAlias, "description" );
+    AddCommand( "unalias", &idCmdSystemLocal::UnAlias, "Delete an alias" );
     SetCommandCompletionFunc( "unalias", &idCmdSystemLocal::CompleteAliasName );
-    AddCommand( "aliaslist", &idCmdSystemLocal::AliasList, "description" );
-    AddCommand( "clearaliases", &idCmdSystemLocal::ClearAliases, "description" );
-    AddCommand( "delay", &idCmdSystemLocal::Delay, "description" );
+    AddCommand( "aliaslist", &idCmdSystemLocal::AliasList, "Shows list of an alias" );
+    AddCommand( "clearaliases", &idCmdSystemLocal::ClearAliases, "Clear the aliases" );
+    AddCommand( "delay", &idCmdSystemLocal::Delay, "Delays a command" );
     SetCommandCompletionFunc( "delay", &idCmdSystemLocal::CompleteDelay );
-    AddCommand( "undelay", &idCmdSystemLocal::Undelay, "description" );
+    AddCommand( "undelay", &idCmdSystemLocal::Undelay, "Removes a pending delay with a given name" );
     SetCommandCompletionFunc( "undelay", &idCmdSystemLocal::CompleteUnDelay );
-    AddCommand( "undelayAll", &idCmdSystemLocal::UndelayAll, "description" );
-    AddCommand( "random", &idCmdSystemLocal::Random, "description" );
+    AddCommand( "undelayAll", &idCmdSystemLocal::UndelayAll, "Removes all pending delays" );
+    AddCommand( "random", &idCmdSystemLocal::Random, "Give a random integer" );
 }
 
 

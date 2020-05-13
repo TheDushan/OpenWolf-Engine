@@ -679,19 +679,19 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
         if( !fixedFunction )
         {
             SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
-            SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, r_glMajorVersion->integer );
-            SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, r_glMinorVersion->integer );
+            SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+            SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
             
-            CL_RefPrintf( PRINT_ALL, "Trying to get an OpenGL %i.%i context\n", r_glMajorVersion->integer, r_glMinorVersion->integer );
+            CL_RefPrintf( PRINT_ALL, "Trying to get an OpenGL %i.%i context\n", 3, 3 );
             
             if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == nullptr )
             {
                 CL_RefPrintf( PRINT_ALL, "SDL_GL_CreateContext failed: %s\n", SDL_GetError() );
                 CL_RefPrintf( PRINT_ALL, "Reverting to default context\n" );
                 
-                SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, r_glCoreProfile->integer );
-                SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, r_glMajorVersion->integer );
-                SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, r_glMinorVersion->integer );
+                SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, 1 );
+                SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+                SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
             }
             else
             {
@@ -720,9 +720,9 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
                     SDL_GL_DeleteContext( SDL_glContext );
                     SDL_glContext = nullptr;
                     
-                    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, r_glCoreProfile->integer );
-                    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, r_glMajorVersion->integer );
-                    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, r_glMinorVersion->integer );
+                    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, 1 );
+                    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+                    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
                 }
             }
         }
@@ -1161,10 +1161,10 @@ void GLimp_Init( bool fixedFunction )
 {
     CL_RefPrintf( PRINT_DEVELOPER, "Glimp_Init( )\n" );
     
-    r_allowSoftwareGL = cvarSystem->Get( "r_allowSoftwareGL", "0", CVAR_LATCH, "description" );
-    r_sdlDriver = cvarSystem->Get( "r_sdlDriver", "", CVAR_ROM, "description" );
-    r_allowResize = cvarSystem->Get( "r_allowResize", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
-    r_centerWindow = cvarSystem->Get( "r_centerWindow", "0", CVAR_ARCHIVE | CVAR_LATCH, "description" );
+    r_allowSoftwareGL = cvarSystem->Get( "r_allowSoftwareGL", "0", CVAR_LATCH, "Toggles the use of the default software OpenGL driver as supplied by the Operating System platform. 0=disables;1=enables. " );
+    r_sdlDriver = cvarSystem->Get( "r_sdlDriver", "", CVAR_ROM, "read only, indicates the SDL driver backend being used" );
+    r_allowResize = cvarSystem->Get( "r_allowResize", "0", CVAR_ARCHIVE | CVAR_LATCH, "make window resizable" );
+    r_centerWindow = cvarSystem->Get( "r_centerWindow", "0", CVAR_ARCHIVE | CVAR_LATCH, "Center windows" );
     
     if( cvarSystem->VariableIntegerValue( "com_abnormalExit" ) )
     {
@@ -1254,7 +1254,7 @@ success:
     // initialize extensions
     GLimp_InitExtensions();
     
-    cvarSystem->Get( "r_availableModes", "", CVAR_ROM, "description" );
+    cvarSystem->Get( "r_availableModes", "", CVAR_ROM, "Available video modes" );
     
     // Display splash screen
 #ifdef _WIN32

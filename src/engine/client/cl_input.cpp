@@ -1493,125 +1493,126 @@ CL_InitInput
 */
 void CL_InitInput( void )
 {
-//	cmdSystem->AddCommand ("centerview", IN_CenterView);
-
-    cmdSystem->AddCommand( "+moveup", IN_UpDown, "description" );
-    cmdSystem->AddCommand( "-moveup", IN_UpUp, "description" );
-    cmdSystem->AddCommand( "+movedown", IN_DownDown, "description" );
-    cmdSystem->AddCommand( "-movedown", IN_DownUp, "description" );
-    cmdSystem->AddCommand( "+left", IN_LeftDown, "description" );
-    cmdSystem->AddCommand( "-left", IN_LeftUp, "description" );
-    cmdSystem->AddCommand( "+right", IN_RightDown, "description" );
-    cmdSystem->AddCommand( "-right", IN_RightUp, "description" );
-    cmdSystem->AddCommand( "+forward", IN_ForwardDown, "description" );
-    cmdSystem->AddCommand( "-forward", IN_ForwardUp, "description" );
-    cmdSystem->AddCommand( "+back", IN_BackDown, "description" );
-    cmdSystem->AddCommand( "-back", IN_BackUp, "description" );
-    cmdSystem->AddCommand( "+lookup", IN_LookupDown, "description" );
-    cmdSystem->AddCommand( "-lookup", IN_LookupUp, "description" );
-    cmdSystem->AddCommand( "+lookdown", IN_LookdownDown, "description" );
-    cmdSystem->AddCommand( "-lookdown", IN_LookdownUp, "description" );
-    cmdSystem->AddCommand( "+strafe", IN_StrafeDown, "description" );
-    cmdSystem->AddCommand( "-strafe", IN_StrafeUp, "description" );
-    cmdSystem->AddCommand( "+moveleft", IN_MoveleftDown, "description" );
-    cmdSystem->AddCommand( "-moveleft", IN_MoveleftUp, "description" );
-    cmdSystem->AddCommand( "+moveright", IN_MoverightDown, "description" );
-    cmdSystem->AddCommand( "-moveright", IN_MoverightUp, "description" );
-    cmdSystem->AddCommand( "+speed", IN_SpeedDown, "description" );
-    cmdSystem->AddCommand( "-speed", IN_SpeedUp, "description" );
+    //cmdSystem->AddCommand ("centerview", IN_CenterView, "Centers view on screen");
     
-    cmdSystem->AddCommand( "+attack", IN_Button0Down, "description" );	// ---- id   (primary firing)
-    cmdSystem->AddCommand( "-attack", IN_Button0Up, "description" );
+    cmdSystem->AddCommand( "+moveup", IN_UpDown, "Move up, i.e. Jump" );
+    cmdSystem->AddCommand( "-moveup", IN_UpUp, "Stop issuing command to jump" );
+    cmdSystem->AddCommand( "+movedown", IN_DownDown, "Move downwards, crouch" );
+    cmdSystem->AddCommand( "-movedown", IN_DownUp, "Stop issing command to crouch" );
+    cmdSystem->AddCommand( "+left", IN_LeftDown, "Look left" );
+    cmdSystem->AddCommand( "-left", IN_LeftUp, "Stop issuing command to look further to the left" );
+    cmdSystem->AddCommand( "+right", IN_RightDown, "Rotate camera right" );
+    cmdSystem->AddCommand( "-right", IN_RightUp, "Stops issuing look right command" );
+    cmdSystem->AddCommand( "+forward", IN_ForwardDown, "Move forward" );
+    cmdSystem->AddCommand( "-forward", IN_ForwardUp, "Stop issuing command to move forwards" );
+    cmdSystem->AddCommand( "+back", IN_BackDown, "Move backward" );
+    cmdSystem->AddCommand( "-back", IN_BackUp, "Stop issuing command to move backwards" );
+    cmdSystem->AddCommand( "+lookup", IN_LookupDown, "Tilt camera up" );
+    cmdSystem->AddCommand( "-lookup", IN_LookupUp, "Stop issuing command to look further upwards" );
+    cmdSystem->AddCommand( "+lookdown", IN_LookdownDown, "Tilt camera down" );
+    cmdSystem->AddCommand( "-lookdown", IN_LookdownUp, "Stop issuing command to look further downwards" );
+    cmdSystem->AddCommand( "+strafe", IN_StrafeDown, "Hold to strafe" );
+    cmdSystem->AddCommand( "-strafe", IN_StrafeUp, "Stops issuing strafe command" );
+    cmdSystem->AddCommand( "+moveleft", IN_MoveleftDown, "Strafe/sidestep to the left" );
+    cmdSystem->AddCommand( "-moveleft", IN_MoveleftUp, "Stop issuing command to strafe left" );
+    cmdSystem->AddCommand( "+moveright", IN_MoverightDown, "Strafe/sidestep to the right" );
+    cmdSystem->AddCommand( "-moveright", IN_MoverightUp, "Stop issuing command to strafe right" );
+    cmdSystem->AddCommand( "+speed", IN_SpeedDown, "Walk or run" );
+    cmdSystem->AddCommand( "-speed", IN_SpeedUp, "Stops issuing walk/run command" );
     
-    cmdSystem->AddCommand( "+button0", IN_Button0Down, "description" );
-    cmdSystem->AddCommand( "-button0", IN_Button0Up, "description" );
+    cmdSystem->AddCommand( "+attack", IN_Button0Down, "Fires weapon, or uses the weaponbank object currently selected" );	// ---- id   (primary firing)
+    cmdSystem->AddCommand( "-attack", IN_Button0Up, "Stops issuing command to attack" );
     
-    cmdSystem->AddCommand( "+button1", IN_Button1Down, "description" );
-    cmdSystem->AddCommand( "-button1", IN_Button1Up, "description" );
+    cmdSystem->AddCommand( "+button0", IN_Button0Down, "Button0" );
+    cmdSystem->AddCommand( "-button0", IN_Button0Up, "Stop issuing command button0" );
     
-    cmdSystem->AddCommand( "+button2", IN_Button2Down, "description" );
-    cmdSystem->AddCommand( "-button2", IN_Button2Up, "description" );
+    cmdSystem->AddCommand( "+button1", IN_Button1Down, "Button1" );
+    cmdSystem->AddCommand( "-button1", IN_Button1Up, "Stop issuing command button1" );
     
-    cmdSystem->AddCommand( "+useitem", IN_UseItemDown, "description" );
-    cmdSystem->AddCommand( "-useitem", IN_UseItemUp, "description" );
+    cmdSystem->AddCommand( "+button2", IN_Button2Down, "Button2" );
+    cmdSystem->AddCommand( "-button2", IN_Button2Up, "Stop issuing command button2" );
     
-    cmdSystem->AddCommand( "+salute", IN_Button3Down, "description" );	//----(SA) salute
-    cmdSystem->AddCommand( "-salute", IN_Button3Up, "description" );
-    cmdSystem->AddCommand( "+button3", IN_Button3Down, "description" );
-    cmdSystem->AddCommand( "-button3", IN_Button3Up, "description" );
+    cmdSystem->AddCommand( "+useitem", IN_UseItemDown, "Use selected item" );
+    cmdSystem->AddCommand( "-useitem", IN_UseItemUp, "Stop issuing command for selected item" );
     
-    cmdSystem->AddCommand( "+button4", IN_Button4Down, "description" );
-    cmdSystem->AddCommand( "-button4", IN_Button4Up, "description" );
+    cmdSystem->AddCommand( "+salute", IN_Button3Down, "Salute" );
+    cmdSystem->AddCommand( "-salute", IN_Button3Up, "Stop issuing salute command" );
     
-    cmdSystem->AddCommand( "+button5", IN_Button5Down, "description" );
-    cmdSystem->AddCommand( "-button5", IN_Button5Up, "description" );
+    cmdSystem->AddCommand( "+button3", IN_Button3Down, "Button3" );
+    cmdSystem->AddCommand( "-button3", IN_Button3Up, "Stop issuing command button3" );
     
-    cmdSystem->AddCommand( "+button6", IN_Button6Down, "description" );
-    cmdSystem->AddCommand( "-button6", IN_Button6Up, "description" );
+    cmdSystem->AddCommand( "+button4", IN_Button4Down, "Button4" );
+    cmdSystem->AddCommand( "-button4", IN_Button4Up, "Stop issuing command button4" );
     
-    cmdSystem->AddCommand( "+button7", IN_Button7Down, "description" );
-    cmdSystem->AddCommand( "-button7", IN_Button7Up, "description" );
+    cmdSystem->AddCommand( "+button5", IN_Button5Down, "Button5" );
+    cmdSystem->AddCommand( "-button5", IN_Button5Up, "Stop issuing command button5" );
     
-    cmdSystem->AddCommand( "+button8", IN_Button8Down, "description" );
-    cmdSystem->AddCommand( "-button8", IN_Button8Up, "description" );
+    cmdSystem->AddCommand( "+button6", IN_Button6Down, "Button6" );
+    cmdSystem->AddCommand( "-button6", IN_Button6Up, "Stop issuing command button6" );
     
-    cmdSystem->AddCommand( "+button9", IN_Button9Down, "description" );
-    cmdSystem->AddCommand( "-button9", IN_Button9Up, "description" );
+    cmdSystem->AddCommand( "+button7", IN_Button7Down, "Button7" );
+    cmdSystem->AddCommand( "-button7", IN_Button7Up, "Stop issuing command button7" );
     
-    cmdSystem->AddCommand( "+button10", IN_Button10Down, "description" );
-    cmdSystem->AddCommand( "-button10", IN_Button10Up, "description" );
+    cmdSystem->AddCommand( "+button8", IN_Button8Down, "Button8" );
+    cmdSystem->AddCommand( "-button8", IN_Button8Up, "Stop issuing command button9" );
     
-    cmdSystem->AddCommand( "+button11", IN_Button11Down, "description" );
-    cmdSystem->AddCommand( "-button11", IN_Button11Up, "description" );
+    cmdSystem->AddCommand( "+button9", IN_Button9Down, "Button9" );
+    cmdSystem->AddCommand( "-button9", IN_Button9Up, "Stop issuing command button9" );
     
-    cmdSystem->AddCommand( "+button12", IN_Button12Down, "description" );
-    cmdSystem->AddCommand( "-button12", IN_Button12Up, "description" );
+    cmdSystem->AddCommand( "+button10", IN_Button10Down, "Button10" );
+    cmdSystem->AddCommand( "-button10", IN_Button10Up, "Stop issuing command button10" );
     
-    cmdSystem->AddCommand( "+button13", IN_Button13Down, "description" );
-    cmdSystem->AddCommand( "-button13", IN_Button13Up, "description" );
+    cmdSystem->AddCommand( "+button11", IN_Button11Down, "Button11" );
+    cmdSystem->AddCommand( "-button11", IN_Button11Up, "Stop issuing command button11" );
     
-    cmdSystem->AddCommand( "+button14", IN_Button14Down, "description" );
-    cmdSystem->AddCommand( "-button14", IN_Button14Up, "description" );
+    cmdSystem->AddCommand( "+button12", IN_Button12Down, "Button12" );
+    cmdSystem->AddCommand( "-button12", IN_Button12Up, "Stop issuing command button12" );
+    
+    cmdSystem->AddCommand( "+button13", IN_Button13Down, "Button13" );
+    cmdSystem->AddCommand( "-button13", IN_Button13Up, "Stop issuing command button13" );
+    
+    cmdSystem->AddCommand( "+button14", IN_Button14Down, "Button14" );
+    cmdSystem->AddCommand( "-button14", IN_Button14Up, "Stop issuing command button14" );
     
     // Rafael Activate
-    cmdSystem->AddCommand( "+activate", IN_ActivateDown, "description" );
-    cmdSystem->AddCommand( "-activate", IN_ActivateUp, "description" );
+    cmdSystem->AddCommand( "+activate", IN_ActivateDown, "Performs various actions like opening doors, picking up weapons." );
+    cmdSystem->AddCommand( "-activate", IN_ActivateUp, "Stops issuing +activate command, stop opening doors etc" );
     // done.
     
     // Rafael Kick
     // Arnout: now prone
-    cmdSystem->AddCommand( "+prone", IN_ProneDown, "description" );
-    cmdSystem->AddCommand( "-prone", IN_ProneUp, "description" );
+    cmdSystem->AddCommand( "+prone", IN_ProneDown, "Go prone, lie down." );
+    cmdSystem->AddCommand( "-prone", IN_ProneUp, "Stop issuing command to go prone" );
     // done
     
-    cmdSystem->AddCommand( "+dodge", IN_ProneDown, "description" );
-    cmdSystem->AddCommand( "-dodge", IN_ProneUp, "description" );
+    cmdSystem->AddCommand( "+dodge", IN_ProneDown, "dodge" );
+    cmdSystem->AddCommand( "-dodge", IN_ProneUp, "dodge" );
     
-    cmdSystem->AddCommand( "+sprint", IN_SprintDown, "description" );
-    cmdSystem->AddCommand( "-sprint", IN_SprintUp, "description" );
+    cmdSystem->AddCommand( "+sprint", IN_SprintDown, "Sprint, run fast draining stanima bar" );
+    cmdSystem->AddCommand( "-sprint", IN_SprintUp, "Stops issuing sprint command" );
     
     
     // wolf buttons
-    cmdSystem->AddCommand( "+attack2", IN_Wbutton0Down, "description" );	//----(SA) secondary firing
-    cmdSystem->AddCommand( "-attack2", IN_Wbutton0Up, "description" );
-    cmdSystem->AddCommand( "+zoom", IN_ZoomDown, "description" );	//
-    cmdSystem->AddCommand( "-zoom", IN_ZoomUp, "description" );
-    cmdSystem->AddCommand( "+reload", IN_ReloadDown, "description" );	//
-    cmdSystem->AddCommand( "-reload", IN_ReloadUp, "description" );
-    cmdSystem->AddCommand( "+leanleft", IN_LeanLeftDown, "description" );
-    cmdSystem->AddCommand( "-leanleft", IN_LeanLeftUp, "description" );
-    cmdSystem->AddCommand( "+leanright", IN_LeanRightDown, "description" );
-    cmdSystem->AddCommand( "-leanright", IN_LeanRightUp, "description" );
+    cmdSystem->AddCommand( "+attack2", IN_Wbutton0Down, "Secondary firing mode" );	//----(SA) secondary firing
+    cmdSystem->AddCommand( "-attack2", IN_Wbutton0Up, "Stop issuing command to perform secondary attack" );
+    cmdSystem->AddCommand( "+zoom", IN_ZoomDown, "Zoom command" );	//
+    cmdSystem->AddCommand( "-zoom", IN_ZoomUp, "Stops issuing zoom command" );
+    cmdSystem->AddCommand( "+reload", IN_ReloadDown, "Reload weapon" );	//
+    cmdSystem->AddCommand( "-reload", IN_ReloadUp, "Stops issuing reload command" );
+    cmdSystem->AddCommand( "+leanleft", IN_LeanLeftDown, "Leans to the left" );
+    cmdSystem->AddCommand( "-leanleft", IN_LeanLeftUp, "Stop issuing command to lean to the left" );
+    cmdSystem->AddCommand( "+leanright", IN_LeanRightDown, "Leans to the right" );
+    cmdSystem->AddCommand( "-leanright", IN_LeanRightUp, "Stop issuing command to lean to the right" );
     
     
-    cmdSystem->AddCommand( "+mlook", IN_MLookDown, "description" );
-    cmdSystem->AddCommand( "-mlook", IN_MLookUp, "description" );
+    cmdSystem->AddCommand( "+mlook", IN_MLookDown, "Toggles mouselook" );
+    cmdSystem->AddCommand( "-mlook", IN_MLookUp, "Stop +mlook (mouselook), go back to mouse-movement" );
     
     //cmdSystem->AddCommand ("notebook",IN_Notebook);
-    cmdSystem->AddCommand( "help", IN_Help, "description" );
+    cmdSystem->AddCommand( "help", IN_Help, "Toggles help" );
     
-    cl_nodelta = cvarSystem->Get( "cl_nodelta", "0", 0, "description" );
-    cl_debugMove = cvarSystem->Get( "cl_debugMove", "0", 0, "description" );
+    cl_nodelta = cvarSystem->Get( "cl_nodelta", "0", 0, "Wether to disable delta compression for networking stuff." );
+    cl_debugMove = cvarSystem->Get( "cl_debugMove", "0", 0, "Draws a chart at the bottom displaying something to do with how much you look around." );
 }
 
 

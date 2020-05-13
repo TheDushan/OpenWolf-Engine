@@ -80,11 +80,9 @@ static sfx_t* sfxHash[LOOP_HASH];
 
 convar_t* s_testsound;
 convar_t* s_khz;
-convar_t* s_dev;
 convar_t* s_show;
 convar_t* s_mixahead;
 convar_t* s_mixPreStep;
-convar_t* s_alttabmute;
 
 loopSound_t	loopSounds[MAX_GENTITIES];
 static channel_t* freelist = nullptr;
@@ -126,16 +124,6 @@ void S_Base_SoundInfo( void )
     }
     
     Com_Printf( "----------------------\n" );
-}
-
-/*
-=================
-S_dmaHD_devlist
-=================
-*/
-void S_dmaHD_devlist( void )
-{
-    return;
 }
 
 /*
@@ -1715,7 +1703,6 @@ void S_Base_Shutdown( void )
     s_soundStarted = 0;
     
     cmdSystem->RemoveCommand( "s_info" );
-    cmdSystem->RemoveCommand( "s_devlist" );
 }
 
 /*
@@ -1789,18 +1776,14 @@ bool S_Base_Init( soundInterface_t* si )
     }
     
 #ifndef NO_DMAHD
-    s_khz = cvarSystem->Get( "s_khz", "44", CVAR_ARCHIVE, "description" );
+    s_khz = cvarSystem->Get( "s_khz", "44", CVAR_ARCHIVE, "Sets frequency of the music, very high quality = 44 [1.03], high = 22 while low = 11" );
 #else
-    s_khz = cvarSystem->Get( "s_khz", "22", CVAR_ARCHIVE, "description" );
+    s_khz = cvarSystem->Get( "s_khz", "22", CVAR_ARCHIVE, "Sets frequency of the music, very high quality = 44 [1.03], high = 22 while low = 11" );
 #endif
-    s_mixahead = cvarSystem->Get( "s_mixahead", "0.2", CVAR_ARCHIVE, "description" );
-    s_mixPreStep = cvarSystem->Get( "s_mixPreStep", "0.05", CVAR_ARCHIVE, "description" );
-    s_show = cvarSystem->Get( "s_show", "0", CVAR_CHEAT, "description" );
-    s_testsound = cvarSystem->Get( "s_testsound", "0", CVAR_CHEAT, "description" );
-    s_dev = cvarSystem->Get( "s_dev", "", CVAR_ARCHIVE, "description" );
-    s_alttabmute = cvarSystem->Get( "s_alttabmute", "1", CVAR_ARCHIVE, "description" );
-    
-    cmdSystem->AddCommand( "s_devlist", S_dmaHD_devlist, "description" );
+    s_mixahead = cvarSystem->Get( "s_mixahead", "0.2", CVAR_ARCHIVE, "Set delay before mixing sound samples." );
+    s_mixPreStep = cvarSystem->Get( "s_mixPreStep", "0.05", CVAR_ARCHIVE, "Possibly to set the prefetching of sound on sound cards that have that power" );
+    s_show = cvarSystem->Get( "s_show", "0", CVAR_CHEAT, "Toggle display of paths and filenames of all sound files as they are played.	" );
+    s_testsound = cvarSystem->Get( "s_testsound", "0", CVAR_CHEAT, "Toggle a test tone to test sound system. 0=disables,1=toggles.	" );
     
     r = SNDDMA_Init( s_khz->integer );
     

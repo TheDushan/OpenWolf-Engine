@@ -111,16 +111,11 @@ extern convar_t* r_ext_multisample;
 
 extern convar_t* r_customwidth;
 extern convar_t* r_customheight;
-extern convar_t* r_pixelAspect;
 extern convar_t* r_noborder;
 extern convar_t* r_fullscreen;
 extern convar_t* r_ignorehwgamma;		// overrides hardware gamma capabilities
 extern convar_t* r_drawBuffer;
 extern convar_t* r_swapInterval;
-extern convar_t* r_glMajorVersion;  // override GL version autodetect (for testing)
-extern convar_t* r_glMinorVersion;
-extern convar_t* r_glDebugProfile;
-extern convar_t* r_glCoreProfile;
 extern convar_t* r_allowExtensions;				// global enable/disable of OpenGL extensions
 extern convar_t* r_ext_compressed_textures;		// these control use of specific extensions
 extern convar_t* r_ext_multitexture;

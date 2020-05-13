@@ -1397,13 +1397,13 @@ CL_InitKeyCommands
 void CL_InitKeyCommands( void )
 {
     // register our functions
-    cmdSystem->AddCommand( "bind", Key_Bind_f, "description" );
+    cmdSystem->AddCommand( "bind", Key_Bind_f, "Used for assigning keys to actions. Bind x “weaponbank 3" );
     cmdSystem->SetCommandCompletionFunc( "bind", Key_CompleteBind );
-    cmdSystem->AddCommand( "unbind", Key_Unbind_f, "description" );
+    cmdSystem->AddCommand( "unbind", Key_Unbind_f, "Displays list of cvars in console" );
     cmdSystem->SetCommandCompletionFunc( "unbind", Key_CompleteUnbind );
-    cmdSystem->AddCommand( "unbindall", Key_Unbindall_f, "description" );
-    cmdSystem->AddCommand( "bindlist", Key_Bindlist_f, "description" );
-    cmdSystem->AddCommand( "editbind", Key_EditBind_f, "description" );
+    cmdSystem->AddCommand( "unbindall", Key_Unbindall_f, "For unassigning all commands etc from ALL keys. /unbindall" );
+    cmdSystem->AddCommand( "bindlist", Key_Bindlist_f, "Displays list of cvars in console" );
+    cmdSystem->AddCommand( "editbind", Key_EditBind_f, "Used for editing already binded key" );
     cmdSystem->SetCommandCompletionFunc( "editbind", Key_CompleteEditbind );
 }
 

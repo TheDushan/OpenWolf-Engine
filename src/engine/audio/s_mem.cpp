@@ -80,7 +80,7 @@ void SND_setup( void )
     convar_t*	cv;
     S32 scs;
     
-    cv = cvarSystem->Get( "com_soundMegs", DEF_COMSOUNDMEGS, CVAR_LATCH | CVAR_ARCHIVE, "description" );
+    cv = cvarSystem->Get( "com_soundMegs", DEF_COMSOUNDMEGS, CVAR_LATCH | CVAR_ARCHIVE, "Sets the amount of memory (MB) to allocate for loaded sound files" );
     
     scs = (
 #ifndef NO_DMAHD

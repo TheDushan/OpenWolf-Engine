@@ -611,7 +611,7 @@ void idServerGameSystemLocal::InitGameProgs( void )
     sv.num_tagheaders = 0;
     sv.num_tags = 0;
     
-    convar_t* var = cvarSystem->Get( "bot_enable", "1", CVAR_LATCH, "description" );
+    convar_t* var = cvarSystem->Get( "bot_enable", "1", CVAR_LATCH, "Whether or not the server allows bots." );
     //bot_enable = var ? var->integer : 0;
     
     // load the dll or bytecode

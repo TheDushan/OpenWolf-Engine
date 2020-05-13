@@ -1587,8 +1587,10 @@ dmaHD_Enabled
 bool dmaHD_Enabled( void )
 {
     if( dmaHD_Enable == nullptr )
-        dmaHD_Enable = cvarSystem->Get( "dmaHD_enable", "1", CVAR_ARCHIVE, "description" ); //@p5yc0runn3r- Turn on by default
-        
+    {
+        dmaHD_Enable = cvarSystem->Get( "dmaHD_enable", "1", CVAR_ARCHIVE, "Enable HD sound system" );
+    }
+    
     return ( dmaHD_Enable->integer );
 }
 
@@ -1679,30 +1681,26 @@ bool dmaHD_Init( soundInterface_t* si )
         return true;
     }
     
-    dmaHD_Mixer = cvarSystem->Get( "dmaHD_mixer", "10", CVAR_ARCHIVE, "description" );
-    if( dmaHD_Mixer->integer != 10 &&
-            dmaHD_Mixer->integer != 11 &&
-            dmaHD_Mixer->integer != 20 &&
-            dmaHD_Mixer->integer != 21 &&
-            dmaHD_Mixer->integer != 30 )
+    dmaHD_Mixer = cvarSystem->Get( "dmaHD_mixer", "10", CVAR_ARCHIVE, "Active mixer [10=hHRTF-3D,11=hHRTF-2D,20=dmaEX2,21=dmaEX2-noverb|30=dmaEX]" );
+    if( dmaHD_Mixer->integer != 10 && dmaHD_Mixer->integer != 11 && dmaHD_Mixer->integer != 20 && dmaHD_Mixer->integer != 21 && dmaHD_Mixer->integer != 30 )
     {
         cvarSystem->Set( "dmaHD_Mixer", "10" );
-        dmaHD_Mixer = cvarSystem->Get( "dmaHD_mixer", "10", CVAR_ARCHIVE, "description" );
+        dmaHD_Mixer = cvarSystem->Get( "dmaHD_mixer", "10", CVAR_ARCHIVE, "Active mixer [10=hHRTF-3D,11=hHRTF-2D,20=dmaEX2,21=dmaEX2-noverb|30=dmaEX]" );
     }
     
-    dmaEX_StereoSeparation = cvarSystem->Get( "dmaEX_StereoSeparation", "0.9", CVAR_ARCHIVE, "description" );
+    dmaEX_StereoSeparation = cvarSystem->Get( "dmaEX_StereoSeparation", "0.9", CVAR_ARCHIVE, "dmaHD stereo separation amount [0.1,2.0|def=0.9]" );
     if( dmaEX_StereoSeparation->value < 0.1 )
     {
         cvarSystem->Set( "dmaEX_StereoSeparation", "0.1" );
-        dmaEX_StereoSeparation = cvarSystem->Get( "dmaEX_StereoSeparation", "0.9", CVAR_ARCHIVE, "description" );
+        dmaEX_StereoSeparation = cvarSystem->Get( "dmaEX_StereoSeparation", "0.9", CVAR_ARCHIVE, "dmaHD stereo separation amount [0.1,2.0|def=0.9]" );
     }
     else if( dmaEX_StereoSeparation->value > 2.0 )
     {
         cvarSystem->Set( "dmaEX_StereoSeparation", "2.0" );
-        dmaEX_StereoSeparation = cvarSystem->Get( "dmaEX_StereoSeparation", "0.9", CVAR_ARCHIVE, "description" );
+        dmaEX_StereoSeparation = cvarSystem->Get( "dmaEX_StereoSeparation", "0.9", CVAR_ARCHIVE, "dmaHD stereo separation amount [0.1,2.0|def=0.9]" );
     }
     
-    dmaHD_Interpolation = cvarSystem->Get( "dmaHD_interpolation", "3", CVAR_ARCHIVE, "description" );
+    dmaHD_Interpolation = cvarSystem->Get( "dmaHD_interpolation", "3", CVAR_ARCHIVE, "This will set the type of sound re-sampling interpolation used [1,2,3,4]" );
     if( dmaHD_Interpolation->integer == 0 )
     {
         dmaHD_GetInterpolatedSample = dmaHD_GetNoInterpolationSample;

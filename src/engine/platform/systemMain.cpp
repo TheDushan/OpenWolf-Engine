@@ -275,7 +275,7 @@ idSystemLocal::Init
 */
 void idSystemLocal::Init( void )
 {
-    cmdSystem->AddCommand( "in_restart", &idSystemLocal::Restart, "description" );
+    cmdSystem->AddCommand( "in_restart", &idSystemLocal::Restart, "Restarts all the input drivers, dinput, joystick, etc." );
     cvarSystem->Set( "arch", OS_STRING " " ARCH_STRING );
     cvarSystem->Set( "username", GetCurrentUser( ) );
 }

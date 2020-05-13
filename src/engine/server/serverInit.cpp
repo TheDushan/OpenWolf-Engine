@@ -65,48 +65,6 @@ idServerInitSystemLocal::~idServerInitSystemLocal( void )
 }
 
 /*
-==================
-idServerInitSystemLocal::ResolveAuthHost
-
-Resolve the host/port in sv_alphaHubHost to the netadr_t
-svs.alphaHubAddress which we can use to send packets; if
-we fail to resolve, svs.alphaHubAddress.type == NA_BAD.
-==================
-*/
-void idServerInitSystemLocal::ResolveAuthHost( void )
-{
-    UTF8* host = sv_authServerHost->string;
-    netadr_t* address = &svs.authorizeAddress;
-    S32 result = -1;
-    
-    if( host && host[0] )
-    {
-        Com_Printf( "Resolving |ALPHA| Hub %s.\n", host );
-        result = NET_StringToAdr( host, address, NA_UNSPEC );
-        switch( result )
-        {
-            case 0:
-                Com_Printf( "Completely failed to resolve %s.\n", host );
-                break;
-            case 1:
-                Com_Printf( "Resolved %s to %s.\n", host, NET_AdrToStringwPort( *address ) );
-                break;
-            case 2:
-                Com_Printf( "Failed to resolve a port for %s.\n", host );
-                address->type = NA_BAD;
-                break;
-            default:
-                Com_Printf( "Unknown error %d from NET_StringToAdr()!\n", result );
-                break;
-        }
-    }
-    
-    // ad to add this to avoid a double-call to ResolveAlphaHubHost(),
-    // not sure why yet...
-    sv_authServerHost->modified = false;
-}
-
-/*
 ===============
 idServerInitSystemLocal::SendConfigstring
 
@@ -442,7 +400,7 @@ idServerInitSystemLocal::BoundMaxClients
 void idServerInitSystemLocal::BoundMaxClients( S32 minimum )
 {
     // get the current maxclients value
-    cvarSystem->Get( "sv_maxclients", "20", 0, "description" );
+    cvarSystem->Get( "sv_maxclients", "20", 0, "Sets the maximum number of clients hosted on the server. " );
     
     // START    xkan, 10/03/2002
     // allow many bots in single player. note that this pretty much means all previous
@@ -506,12 +464,6 @@ void idServerInitSystemLocal::Startup( void )
         svs.numSnapshotEntities = sv_maxclients->integer * 8 * MAX_SNAPSHOT_ENTITIES;
     }
     svs.initialized = true;
-    
-    // try to resolve the hub once when the first ever
-    // map is started on the server; we'll only try again if
-    // sv_authServerHost was modified and the server was (soft)
-    // restarted using SpawnServer()
-    ResolveAuthHost();
     
     // Don't respect sv_killserver unless a server is actually running
     if( sv_killserver->integer )
@@ -784,13 +736,6 @@ void idServerInitSystemLocal::SpawnServer( UTF8* server, bool killBots )
         {
             ChangeMaxClients();
         }
-        
-        // if sv_authServerHost was changed, resolve the address again
-        if( sv_authServerHost->modified )
-        {
-            sv_authServerHost->modified = false;
-            ResolveAuthHost();
-        }
     }
     
     // clear pak references
@@ -855,7 +800,7 @@ void idServerInitSystemLocal::SpawnServer( UTF8* server, bool killBots )
     
     cvarSystem->Set( "sv_mapChecksum", va( "%i", checksum ) );
     
-    sv_newGameShlib = cvarSystem->Get( "sv_newGameShlib", "", CVAR_TEMP, "description" );
+    sv_newGameShlib = cvarSystem->Get( "sv_newGameShlib", "", CVAR_TEMP, "Toggle with a new name to change dynamic module of a sgame without quiting the application" );
     
     // serverid should be different each time
     sv.serverId = com_frameTime;
@@ -1112,151 +1057,140 @@ void idServerInitSystemLocal::Init( void )
     serverCcmdsLocal.AddOperatorCommands();
     
     // serverinfo vars
-    cvarSystem->Get( "dmflags", "0", /*CVAR_SERVERINFO */ 0, "description" );
-    cvarSystem->Get( "fraglimit", "0", /*CVAR_SERVERINFO */ 0, "description" );
-    cvarSystem->Get( "timelimit", "0", CVAR_SERVERINFO, "description" );
+    cvarSystem->Get( "dmflags", "0", /*CVAR_SERVERINFO */ 0, "Sets the game options for deathmatch play." );
+    cvarSystem->Get( "fraglimit", "0", /*CVAR_SERVERINFO */ 0, "Sets the number of frags required for the game to be won if timelimit has been not reached or set. Setting to 0 disables fraglimit. " );
+    cvarSystem->Get( "timelimit", "0", CVAR_SERVERINFO, "Sets the amount of time before a game will end if fraglimit is not reached or set. Setting to 0 disables timelimit. " );
     
-    // Rafael gameskill
-//  sv_gameskill = cvarSystem->Get ("g_gameskill", "3", CVAR_SERVERINFO | CVAR_LATCH, "description" );
-    // done
-    
-    cvarSystem->Get( "sv_keywords", "", CVAR_SERVERINFO, "description" );
-    cvarSystem->Get( "protocol", va( "%i", ETPROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "description" );
-    sv_mapname = cvarSystem->Get( "mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM, "description" );
-    sv_privateClients = cvarSystem->Get( "sv_privateClients", "0", CVAR_SERVERINFO, "description" );
-    sv_hostname = cvarSystem->Get( "sv_hostname", "OpenWolf Host", CVAR_SERVERINFO | CVAR_ARCHIVE, "description" );
+    cvarSystem->Get( "sv_keywords", "", CVAR_SERVERINFO, "Variable holds the search string entered in the internet connection menu" );
+    cvarSystem->Get( "protocol", va( "%i", ETPROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "Display network protocol version. Useful for backward compatibility with servers with otherwise incompatible versions." );
+    sv_mapname = cvarSystem->Get( "mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM, "Display the name of the current map being used" );
+    sv_privateClients = cvarSystem->Get( "sv_privateClients", "0", CVAR_SERVERINFO, "The number of spots, out of sv_maxclients, reserved for players with the server password (sv_privatePassword)" );
+    sv_hostname = cvarSystem->Get( "sv_hostname", "OpenWolf Host", CVAR_SERVERINFO | CVAR_ARCHIVE, "The name of the server in server browsers." );
     //
 #ifdef __MACOS__
-    sv_maxclients = cvarSystem->Get( "sv_maxclients", "16", CVAR_SERVERINFO | CVAR_LATCH, "description" );	//DAJ HOG
+    sv_maxclients = cvarSystem->Get( "sv_maxclients", "16", CVAR_SERVERINFO | CVAR_LATCH, "Number of players allowed to connect wen running a server. 16 is a 'soft' limit—it is the maximum recommended. Many servers run 32 or more players. You could set this lower than 2, but then you only have one player on a server; better to use /devmap if you want to play alone." );	//DAJ HOG
 #else
-    sv_maxclients = cvarSystem->Get( "sv_maxclients", "20", CVAR_SERVERINFO | CVAR_LATCH, "description" );	// NERVE - SMF - changed to 20 from 8
+    sv_maxclients = cvarSystem->Get( "sv_maxclients", "20", CVAR_SERVERINFO | CVAR_LATCH, "Number of players allowed to connect wen running a server. 16 is a 'soft' limit—it is the maximum recommended. Many servers run 32 or more players. You could set this lower than 2, but then you only have one player on a server; better to use /devmap if you want to play alone." );	// NERVE - SMF - changed to 20 from 8
 #endif
-    sv_democlients = cvarSystem->Get( "sv_democlients", "47", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, "description" );
+    sv_democlients = cvarSystem->Get( "sv_democlients", "47", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, "Number of democlients." );
     
-    sv_maxRate = cvarSystem->Get( "sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "description" );
-    sv_minPing = cvarSystem->Get( "sv_minPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "description" );
-    sv_maxPing = cvarSystem->Get( "sv_maxPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "description" );
-    sv_floodProtect = cvarSystem->Get( "sv_floodProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, "description" );
-    sv_allowAnonymous = cvarSystem->Get( "sv_allowAnonymous", "0", CVAR_SERVERINFO, "description" );
-    sv_friendlyFire = cvarSystem->Get( "g_friendlyFire", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, "description" );	// NERVE - SMF
-    sv_maxlives = cvarSystem->Get( "g_maxlives", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SERVERINFO, "description" );	// NERVE - SMF
-    sv_needpass = cvarSystem->Get( "g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM, "description" );
+    sv_maxRate = cvarSystem->Get( "sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Option to force all clients to play with a max rate. This can be used to limit the advantage of low pings, or to cap bandwidth utilization for a server. Note that rate is ignored for clients that are on the same LAN." );
+    sv_minPing = cvarSystem->Get( "sv_minPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Set the minimum ping aloud on the server to keep low pings out" );
+    sv_maxPing = cvarSystem->Get( "sv_maxPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Set the maximum ping allowed on the server to keep high pings out" );
+    sv_floodProtect = cvarSystem->Get( "sv_floodProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, "Whether or not to use flood protection, preventing clients from sending numerous consecutive commands to the server." );
+    sv_allowAnonymous = cvarSystem->Get( "sv_allowAnonymous", "0", CVAR_SERVERINFO, "Allow anonymous connections in the server" );
+    sv_friendlyFire = cvarSystem->Get( "g_friendlyFire", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, "Toggles wether players can damage their teammates" );	// NERVE - SMF
+    sv_maxlives = cvarSystem->Get( "g_maxlives", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SERVERINFO, "Number of lives (respawns) all players have. 0 = unlimited" );	// NERVE - SMF
+    sv_needpass = cvarSystem->Get( "g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM, "Toggles requiring a password for players to join" );
     
     // systeminfo
     //bani - added convar_t for sv_cheats so server engine can reference it
-    sv_cheats = cvarSystem->Get( "sv_cheats", "0", CVAR_SYSTEMINFO | CVAR_ROM, "description" );
-    sv_serverid = cvarSystem->Get( "sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM, "description" );
-    sv_pure = cvarSystem->Get( "sv_pure", "0", CVAR_SYSTEMINFO, "description" );
+    sv_cheats = cvarSystem->Get( "sv_cheats", "0", CVAR_SYSTEMINFO | CVAR_ROM, "Enable cheats (serverside only)" );
+    sv_serverid = cvarSystem->Get( "sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM, "The identification number of the local server. " );
+    sv_pure = cvarSystem->Get( "sv_pure", "0", CVAR_SYSTEMINFO, "Toggles check that client's files are the same as the servers (basic anticheat)." );
     
-    cvarSystem->Get( "sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM, "description" );
-    cvarSystem->Get( "sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM, "description" );
-    cvarSystem->Get( "sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM, "description" );
-    cvarSystem->Get( "sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM, "description" );
+    cvarSystem->Get( "sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM, "Variable holds the checksum of all pk3 files" );
+    cvarSystem->Get( "sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM, "Variable holds a list of all the pk3 files the server found" );
+    cvarSystem->Get( "sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM, "Variable holds the checksum of the referenced pk3 files" );
+    cvarSystem->Get( "sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM, "Variable holds a list of all the pk3 files the server loaded data from. these pk3 files will be autodownloaded by a client if the client does not have them." );
     
     // server vars
-    sv_rconPassword = cvarSystem->Get( "rconPassword", "", CVAR_TEMP, "description" );
-    sv_privatePassword = cvarSystem->Get( "sv_privatePassword", "", CVAR_TEMP, "description" );
-    sv_fps = cvarSystem->Get( "sv_fps", "60", CVAR_TEMP, "description" );
-    sv_timeout = cvarSystem->Get( "sv_timeout", "240", CVAR_TEMP, "description" );
-    sv_zombietime = cvarSystem->Get( "sv_zombietime", "2", CVAR_TEMP, "description" );
-    cvarSystem->Get( "nextmap", "", CVAR_TEMP, "description" );
+    sv_rconPassword = cvarSystem->Get( "rconPassword", "", CVAR_TEMP, "RCon password, for server admins to use Remote Console commands." );
+    sv_privatePassword = cvarSystem->Get( "sv_privatePassword", "", CVAR_TEMP, "Set password for private clients to login with" );
+    sv_fps = cvarSystem->Get( "sv_fps", "60", CVAR_TEMP, "Set the max frames per second the server sends the client" );
+    sv_timeout = cvarSystem->Get( "sv_timeout", "240", CVAR_TEMP, "Sets the amount of time for the server to wait for a client packet before assuming a disconnected state." );
+    sv_zombietime = cvarSystem->Get( "sv_zombietime", "2", CVAR_TEMP, "The amount of time in minutes before a frozen character is removed from the map." );
+    cvarSystem->Get( "nextmap", "", CVAR_TEMP, "Start the next map in the rotation" );
     
-    sv_allowDownload = cvarSystem->Get( "sv_allowDownload", "1", CVAR_ARCHIVE, "description" );
+    sv_allowDownload = cvarSystem->Get( "sv_allowDownload", "1", CVAR_ARCHIVE, "Whether the server will allow data to be downloaded from it (default 0) ." );
     
-    sv_master[0] = cvarSystem->Get( "sv_master1", MASTER_SERVER_NAME, 0, "description" );
+    sv_master[0] = cvarSystem->Get( "sv_master1", MASTER_SERVER_NAME, 0, "Set URL or address to master server" );
     for( index = 1; index < MAX_MASTER_SERVERS; index++ )
     {
-        sv_master[index] = cvarSystem->Get( va( "sv_master%d", index + 1 ), "", CVAR_ARCHIVE, "description" );
+        sv_master[index] = cvarSystem->Get( va( "sv_master%d", index + 1 ), "", CVAR_ARCHIVE, "Set URL or address to master server" );
     }
     
-    sv_reconnectlimit = cvarSystem->Get( "sv_reconnectlimit", "3", 0, "description" );
-    sv_tempbanmessage = cvarSystem->Get( "sv_tempbanmessage", "You have been kicked and are temporarily banned from joining this server.", 0, "description" );
-    sv_showloss = cvarSystem->Get( "sv_showloss", "0", 0, "description" );
-    sv_padPackets = cvarSystem->Get( "sv_padPackets", "0", 0, "description" );
-    sv_killserver = cvarSystem->Get( "sv_killserver", "0", 0, "description" );
-    sv_mapChecksum = cvarSystem->Get( "sv_mapChecksum", "", CVAR_ROM, "description" );
+    sv_reconnectlimit = cvarSystem->Get( "sv_reconnectlimit", "3", 0, "Number of times a disconnected client can come back and reconnect" );
+    sv_tempbanmessage = cvarSystem->Get( "sv_tempbanmessage", "You have been kicked and are temporarily banned from joining this server.", 0, "What player's get after being kicked - “you have been kicked and are temporarily banned..." );
+    sv_showloss = cvarSystem->Get( "sv_showloss", "0", 0, "Toggle sever packet loss display" );
+    sv_padPackets = cvarSystem->Get( "sv_padPackets", "0", 0, "Toggles the padding of network packets on the server PAD - Packet Assembler/Disassembler" );
+    sv_killserver = cvarSystem->Get( "sv_killserver", "0", 0, "When set to 1, kills the server (shuts down map or demo) without shutting down the application. Value then returns to 0." );
+    sv_mapChecksum = cvarSystem->Get( "sv_mapChecksum", "", CVAR_ROM, "Reports the file size of the currently loaded map. Used to prevent cheating by ensuring all clients are not using hacked maps." );
     
-    sv_reloading = cvarSystem->Get( "g_reloading", "0", CVAR_ROM, "description" );
+    sv_lanForceRate = cvarSystem->Get( "sv_lanForceRate", "1", CVAR_ARCHIVE, "Toggle for forcing very high rate setting for clients detected (sometimes wrongly) as connecting via LAN." );
     
-    sv_lanForceRate = cvarSystem->Get( "sv_lanForceRate", "1", CVAR_ARCHIVE, "description" );
+    sv_onlyVisibleClients = cvarSystem->Get( "sv_onlyVisibleClients", "0", 0, "Showing only visible clients while generating a new challenge" ); // DHM - Nerve
     
-    sv_onlyVisibleClients = cvarSystem->Get( "sv_onlyVisibleClients", "0", 0, "description" );	// DHM - Nerve
+    sv_showAverageBPS = cvarSystem->Get( "sv_showAverageBPS", "0", 0, "BSP Network debugging" ); // NERVE - SMF - net debugging
     
-    sv_showAverageBPS = cvarSystem->Get( "sv_showAverageBPS", "0", 0, "description" );	// NERVE - SMF - net debugging
-    
-    sv_lagAbuse = cvarSystem->Get( "sv_lagAbuse", "1", CVAR_ARCHIVE, "description" );
-    sv_lagAbuseFPS = cvarSystem->Get( "sv_lagAbuseFPS", "0", CVAR_ARCHIVE, "description" );
-    
+    //Dushan - we need to clean all this
     // NERVE - SMF - create user set cvars
-    cvarSystem->Get( "g_userTimeLimit", "0", 0, "description" );
-    cvarSystem->Get( "g_userAlliedRespawnTime", "0", 0, "description" );
-    cvarSystem->Get( "g_userAxisRespawnTime", "0", 0, "description" );
-    cvarSystem->Get( "g_maxlives", "0", 0, "description" );
-    cvarSystem->Get( "g_altStopwatchMode", "0", CVAR_ARCHIVE, "description" );
-    cvarSystem->Get( "g_minGameClients", "8", CVAR_SERVERINFO, "description" );
-    cvarSystem->Get( "g_complaintlimit", "6", CVAR_ARCHIVE, "description" );
-    cvarSystem->Get( "gamestate", "-1", CVAR_WOLFINFO | CVAR_ROM, "description" );
-    cvarSystem->Get( "g_currentRound", "0", CVAR_WOLFINFO, "description" );
-    cvarSystem->Get( "g_nextTimeLimit", "0", CVAR_WOLFINFO, "description" );
+    cvarSystem->Get( "g_userTimeLimit", "0", 0, "	Sets the timelimit for the round" );
+    cvarSystem->Get( "g_userAlliedRespawnTime", "0", 0, "Sets the respawn interval for Axis" );
+    cvarSystem->Get( "g_userAxisRespawnTime", "0", 0, "Sets the respawn interval for Allies" );
+    cvarSystem->Get( "g_maxlives", "0", 0, "Number of lives (respawns) all players have. 0 = unlimited" );
+    cvarSystem->Get( "g_altStopwatchMode", "0", CVAR_ARCHIVE, "Toggles ABAB stopwatch format instead of ABBA" );
+    cvarSystem->Get( "g_minGameClients", "8", CVAR_SERVERINFO, "The minimum number of players needed for a round to begin" );
+    cvarSystem->Get( "g_complaintlimit", "6", CVAR_ARCHIVE, "Kick player after this number of complaints" );
+    cvarSystem->Get( "gamestate", "-1", CVAR_WOLFINFO | CVAR_ROM, "Gamestate" );
+    cvarSystem->Get( "g_currentRound", "0", CVAR_WOLFINFO, "Current round" );
+    cvarSystem->Get( "g_nextTimeLimit", "0", CVAR_WOLFINFO, "Next time limit" );
     // -NERVE - SMF
     
     // TTimo - some UI additions
     // NOTE: sucks to have this hardcoded really, I suppose this should be in UI
-    cvarSystem->Get( "g_axismaxlives", "0", 0, "description" );
-    cvarSystem->Get( "g_alliedmaxlives", "0", 0, "description" );
-    cvarSystem->Get( "g_fastres", "0", CVAR_ARCHIVE, "description" );
-    cvarSystem->Get( "g_fastResMsec", "1000", CVAR_ARCHIVE, "description" );
+    cvarSystem->Get( "g_axismaxlives", "0", 0, "Sets the maximum number of lives available to the Axis team" );
+    cvarSystem->Get( "g_alliedmaxlives", "0", 0, "Sets the maximum number of lives available to the Allied team" );
+    cvarSystem->Get( "g_fastres", "0", CVAR_ARCHIVE, "Player is instantly active after being revived" );
+    cvarSystem->Get( "g_fastResMsec", "1000", CVAR_ARCHIVE, "Duration of invulnerability if g_fastResMsec is >0?" );
     
     // ATVI Tracker Wolfenstein Misc #273
-    cvarSystem->Get( "g_voteFlags", "0", CVAR_ROM | CVAR_SERVERINFO, "description" );
+    cvarSystem->Get( "g_voteFlags", "0", CVAR_ROM | CVAR_SERVERINFO, "Sets voting options available to players (note the match_ overrule?)" );
     
     // ATVI Tracker Wolfenstein Misc #263
-    cvarSystem->Get( "g_antilag", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, "description" );
+    cvarSystem->Get( "g_antilag", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, "Toggles antilag, better for high ping players." );
     
-    cvarSystem->Get( "g_needpass", "0", CVAR_SERVERINFO, "description" );
+    cvarSystem->Get( "g_needpass", "0", CVAR_SERVERINFO, "Toggles requiring a password for players to join" );
     
-    g_gameType = cvarSystem->Get( "g_gametype", va( "%i", com_gameInfo.defaultGameType ), CVAR_SERVERINFO | CVAR_LATCH, "description" );
+    g_gameType = cvarSystem->Get( "g_gametype", va( "%i", com_gameInfo.defaultGameType ), CVAR_SERVERINFO | CVAR_LATCH, "Sets the type of game being played, 2=objective, 3=stopwatch, 4=campaign, 5=LMS" );
     
 #if !defined (UPDATE_SERVER)
     // the download netcode tops at 18/20 kb/s, no need to make you think you can go above
-    sv_dl_maxRate = cvarSystem->Get( "sv_dl_maxRate", "42000", CVAR_ARCHIVE, "description" );
+    sv_dl_maxRate = cvarSystem->Get( "sv_dl_maxRate", "42000", CVAR_ARCHIVE, "Sets the maximum speed clients can download files from the server" );
 #else
     // the update server is on steroids, sv_fps 60 and no snapshotMsec limitation, it can go up to 30 kb/s
-    sv_dl_maxRate = cvarSystem->Get( "sv_dl_maxRate", "60000", CVAR_ARCHIVE, "description" );
+    sv_dl_maxRate = cvarSystem->Get( "sv_dl_maxRate", "60000", CVAR_ARCHIVE, "Sets the maximum speed clients can download files from the server" );
 #endif
     
-    sv_wwwDownload = cvarSystem->Get( "sv_wwwDownload", "0", CVAR_ARCHIVE, "description" );
-    sv_wwwBaseURL = cvarSystem->Get( "sv_wwwBaseURL", "", CVAR_ARCHIVE, "description" );
-    sv_wwwDlDisconnected = cvarSystem->Get( "sv_wwwDlDisconnected", "0", CVAR_ARCHIVE, "description" );
-    sv_wwwFallbackURL = cvarSystem->Get( "sv_wwwFallbackURL", "", CVAR_ARCHIVE, "description" );
+    sv_wwwDownload = cvarSystem->Get( "sv_wwwDownload", "0", CVAR_ARCHIVE, "Toggles enabling www download redirect" );
+    sv_wwwBaseURL = cvarSystem->Get( "sv_wwwBaseURL", "", CVAR_ARCHIVE, "Sets the location of www download redirect" );
+    sv_wwwDlDisconnected = cvarSystem->Get( "sv_wwwDlDisconnected", "0", CVAR_ARCHIVE, "Wether to disconnect players from gameserver while they download via www" );
+    sv_wwwFallbackURL = cvarSystem->Get( "sv_wwwFallbackURL", "", CVAR_ARCHIVE, "Alternative URL to download the files from" );
     
     //bani
-    sv_packetloss = cvarSystem->Get( "sv_packetloss", "0", CVAR_CHEAT, "description" );
-    sv_packetdelay = cvarSystem->Get( "sv_packetdelay", "0", CVAR_CHEAT, "description" );
+    sv_packetloss = cvarSystem->Get( "sv_packetloss", "0", CVAR_CHEAT, "Mimic packet loss." );
+    sv_packetdelay = cvarSystem->Get( "sv_packetdelay", "0", CVAR_CHEAT, "Mimic packet dealy." );
     
     // fretn - note: redirecting of clients to other servers relies on this,
     // ET://someserver.com
-    sv_fullmsg = cvarSystem->Get( "sv_fullmsg", "Server is full.", CVAR_ARCHIVE, "description" );
+    sv_fullmsg = cvarSystem->Get( "sv_fullmsg", "Server is full.", CVAR_ARCHIVE, "Customise the server full message, or redirect to another server : sv_fullmsg OW://host.to.redirect.to:port" );
     
-    sv_hibernateTime = cvarSystem->Get( "sv_hibernateTime", "0", CVAR_ARCHIVE, "description" );
+    sv_hibernateTime = cvarSystem->Get( "sv_hibernateTime", "0", CVAR_ARCHIVE, "Switches the server to a hibernation mode in which it uses less CPU power when no player is connected. The value is the time in milliseconds after which it automatically switches to the said state when the last player disconnected from the server. The value zero disables hibernation mode." );
     svs.hibernation.sv_fps = sv_fps->value;
     
     // oacs extended recording variables
-    sv_oacsEnable = cvarSystem->Get( "sv_oacsEnable", "0", CVAR_ARCHIVE, "description" );
-    sv_oacsPlayersTableEnable = cvarSystem->Get( "sv_oacsPlayersTableEnable", "1", CVAR_ARCHIVE, "description" );
-    sv_oacsTypesFile = cvarSystem->Get( "sv_oacsTypesFile", "oacs/types.txt", CVAR_ARCHIVE, "description" );
-    sv_oacsDataFile = cvarSystem->Get( "sv_oacsDataFile", "oacs/data.txt", CVAR_ARCHIVE, "description" );
-    sv_oacsPlayersTable = cvarSystem->Get( "sv_oacsPlayersTable", "oacs/playerstable.txt", CVAR_ARCHIVE, "description" );
-    sv_oacsMinPlayers = cvarSystem->Get( "sv_oacsMinPlayers", "1", CVAR_ARCHIVE, "description" );
-    sv_oacsLabelPassword = cvarSystem->Get( "sv_oacsLabelPassword", "", CVAR_TEMP, "description" );
-    sv_oacsMaxPing = cvarSystem->Get( "sv_oacsMaxPing", "700", CVAR_ARCHIVE, "description" );
-    sv_oacsMaxLastPacketTime = cvarSystem->Get( "sv_oacsMaxLastPacketTime", "10000", CVAR_ARCHIVE, "description" );
+    sv_oacsEnable = cvarSystem->Get( "sv_oacsEnable", "0", CVAR_ARCHIVE, "Enable the extended logging facility" );
+    sv_oacsPlayersTableEnable = cvarSystem->Get( "sv_oacsPlayersTableEnable", "1", CVAR_ARCHIVE, "Enable the extended player identification logging" );
+    sv_oacsTypesFile = cvarSystem->Get( "sv_oacsTypesFile", "oacs/types.txt", CVAR_ARCHIVE, "Where to save the features types" );
+    sv_oacsDataFile = cvarSystem->Get( "sv_oacsDataFile", "oacs/data.txt", CVAR_ARCHIVE, "Where to save the features data" );
+    sv_oacsPlayersTable = cvarSystem->Get( "sv_oacsPlayersTable", "oacs/playerstable.txt", CVAR_ARCHIVE, "Where to save the players table (if enabled)" );
+    sv_oacsMinPlayers = cvarSystem->Get( "sv_oacsMinPlayers", "1", CVAR_ARCHIVE, "Minimum number of human players required to begin logging data" );
+    sv_oacsLabelPassword = cvarSystem->Get( "sv_oacsLabelPassword", "", CVAR_TEMP, "Password necessary for a player to label himself" );
+    sv_oacsMaxPing = cvarSystem->Get( "sv_oacsMaxPing", "700", CVAR_ARCHIVE, "Max ping to accept interframes (above, the interframe will be dropped until the ping goes down)" );
+    sv_oacsMaxLastPacketTime = cvarSystem->Get( "sv_oacsMaxLastPacketTime", "10000", CVAR_ARCHIVE, "Max last packet time to accept interframes (above, the interframe will be dropped until the LastPacketTime goes down)" );
     
-    sv_authServerHost = cvarSystem->Get( "sv_authServerHost", "", CVAR_LATCH, "description" );
-    sv_authServerKey = cvarSystem->Get( "sv_authServerKey", "defaultkey123456", CVAR_LATCH, "description" );
-    
-    sv_wh_active = cvarSystem->Get( "sv_wh_active", "0", CVAR_ARCHIVE, "description" );
-    sv_wh_bbox_horz = cvarSystem->Get( "sv_wh_bbox_horz", "60", CVAR_ARCHIVE, "description" );
+    sv_wh_active = cvarSystem->Get( "sv_wh_active", "0", CVAR_ARCHIVE, "Enable wallhack protection on the server." );
+    sv_wh_bbox_horz = cvarSystem->Get( "sv_wh_bbox_horz", "60", CVAR_ARCHIVE, "These is the horizontal dimension (in Quake units) of the players' bounding boxes used for performing line-of-sight traces." );
     
     if( sv_wh_bbox_horz->integer < 20 )
     {
@@ -1267,7 +1201,7 @@ void idServerInitSystemLocal::Init( void )
         cvarSystem->Set( "sv_wh_bbox_horz", "50" );
     }
     
-    sv_wh_bbox_vert = cvarSystem->Get( "sv_wh_bbox_vert", "60", CVAR_ARCHIVE, "description" );
+    sv_wh_bbox_vert = cvarSystem->Get( "sv_wh_bbox_vert", "60", CVAR_ARCHIVE, "These is the vertical dimension (in Quake units) of the players' bounding boxes used for performing line-of-sight traces" );
     
     if( sv_wh_bbox_vert->integer < 10 )
     {
@@ -1278,7 +1212,7 @@ void idServerInitSystemLocal::Init( void )
         cvarSystem->Set( "sv_wh_bbox_vert", "80" );
     }
     
-    sv_wh_check_fov = cvarSystem->Get( "wh_check_fov", "0", CVAR_ARCHIVE, "description" );
+    sv_wh_check_fov = cvarSystem->Get( "sv_wh_check_fov", "0", CVAR_ARCHIVE, "Enable wallhack protection only when players are in their respective FOV." );
     
     idServerWallhackSystemLocal::InitWallhack();
     
