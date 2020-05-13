@@ -540,7 +540,7 @@ void idServerGameSystemLocal::ShutdownGameProgs( void )
     gvm = nullptr;
     if( sv_newGameShlib->string[0] )
     {
-        fileSystem->Rename( sv_newGameShlib->string, "game" DLL_EXT );
+        fileSystem->Rename( sv_newGameShlib->string, "sgameAMD64" DLL_EXT );
         cvarSystem->Set( "sv_newGameShlib", "" );
     }
 }
