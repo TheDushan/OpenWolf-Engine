@@ -58,6 +58,19 @@ set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_C
 set( CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "" ) # Need this to get rid of -rdynamic linker flag set by default by cmake
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" )
 
+if( WIN32 )
+  SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin/windows )
+  SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin/windows) 
+  SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin/windows )
+  SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin/windows )
+else()
+  SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin/unix )
+  SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin/unix )
+  SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin/unix )
+  SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin/unix )
+endif()
+
+
 # Options
 option( BUILD_CLIENT                   "Build client"                             ON )
 option( BUILD_SERVER                   "Build dedicated server"                   ON )
@@ -494,12 +507,6 @@ endif()
   
   	set_target_properties( engine PROPERTIES OUTPUT_NAME "engine.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
-	install( TARGETS engine
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-	)
-
 	# This section finds and provides REQUIRED dependencies to target client
 	find_package( OpenGL REQUIRED )
 	find_package( JPEG REQUIRED )
@@ -595,11 +602,7 @@ if( BUILD_SERVER )
 	endif()
 	
 	set_target_properties( server PROPERTIES OUTPUT_NAME "${GAME_APP_NAME}ded.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
-	install( TARGETS server
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-	)
+
 	# The following section finds the REQUIRED dependencies and makes them available to the target
 	find_package( SDL REQUIRED )
 	find_package( CURL REQUIRED )
@@ -642,11 +645,7 @@ if( BUILD_AUTOUPDATE_SERVER )
 	elseif( UNIX )
 		set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED UPDATE_SERVER SODIUM_STATIC )
 	endif()
-	install( TARGETS autoupdateserver
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-	)
+
 	# The following section finds the REQUIRED dependencies and makes them available to the target
 	find_package( SDL REQUIRED )
 	find_package( CURL REQUIRED )
@@ -700,9 +699,4 @@ if( BUILD_MASTER_SERVER )
 
 	set_target_properties( OWMaster PROPERTIES OUTPUT_NAME "OWMaster.${BUILD_ARCH}" PREFIX "" )
 
-	install( TARGETS OWMaster
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-	)
 endif()
