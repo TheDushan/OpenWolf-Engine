@@ -33,19 +33,6 @@
 
 #if !defined ( DEDICATED ) && !defined ( UPDATE_SERVER )
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-#ifndef __IQM_H__
-#include <GPURenderer/iqm.h>
-#endif
-#ifndef __QGL_H__
-#include <GPURenderer/qgl.h>
-#endif
-#ifndef __R_PUBLIC_H__
-#include <GPURenderer/r_public.h>
-#endif
-
 typedef enum
 {
     IMGTYPE_COLORALPHA, // for color, lightmap, diffuse, and specular

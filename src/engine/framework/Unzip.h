@@ -43,18 +43,6 @@
 #ifndef _unz64_H
 #define _unz64_H
 
-#ifndef _ZLIB_H
-#include "zlib.h"
-#endif
-
-#ifndef  _ZLIBIOAPI_H
-#include <framework/IOAPI.h>
-#endif
-
-#ifdef HAVE_BZIP2
-#include "bzlib.h"
-#endif
-
 #define Z_BZIP2ED 12
 
 #if defined(STRICTUNZIP) || defined(STRICTZIPUNZIP)

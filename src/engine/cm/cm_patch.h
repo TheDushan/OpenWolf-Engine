@@ -116,7 +116,6 @@ typedef struct
     S32             type;
 } cSurface_t;
 
-
 #define MAX_FACETS          1024
 #define MAX_PATCH_PLANES    2048
 
@@ -134,7 +133,6 @@ typedef struct
 #define SUBDIVIDE_DISTANCE  16	//4 // never more than this units away from curve
 #define PLANE_TRI_EPSILON   0.1
 #define WRAP_POINT_EPSILON  0.1
-
 
 cSurfaceCollide_t* CM_GeneratePatchCollide( S32 width, S32 height, vec3_t* points );
 cSurfaceCollide_t* CM_GenerateTriangleSoupCollide( S32 numVertexes, vec3_t* vertexes, S32 numIndexes, S32* indexes );

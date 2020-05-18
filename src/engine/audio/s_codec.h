@@ -28,11 +28,8 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef _SND_CODEC_H_
-#define _SND_CODEC_H_
-
-#include <qcommon/q_shared.h>
-#include <qcommon/qcommon.h>
+#ifndef __SND_CODEC_H__
+#define __SND_CODEC_H__
 
 typedef struct snd_info_s
 {
@@ -100,4 +97,4 @@ snd_stream_t* S_OGG_CodecOpenStream( StringEntry filename );
 void S_OGG_CodecCloseStream( snd_stream_t* stream );
 S32 S_OGG_CodecReadStream( snd_stream_t* stream, S32 bytes, void* buffer );
 
-#endif // !_SND_CODEC_H_
+#endif // !__SND_CODEC_H__

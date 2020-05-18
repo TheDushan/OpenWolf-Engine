@@ -38,24 +38,6 @@
 #ifndef __CLIENT_H__
 #define __CLIENT_H__
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-#ifndef __QCOMMON_H__
-#include <qcommon/qcommon.h>
-#endif
-#ifndef __R_PUBLIC_H__
-#include <GPURenderer/r_public.h>
-#endif
-#ifndef __KEYS_H__
-#include <client/keys.h>
-#endif
-#ifndef __GUI_PUBLIC_H__
-#include <API/gui_api.h>
-#endif
-#ifndef __CG_API_H__
-#include <API/cgame_api.h>
-#endif
 #if !defined ( DEDICATED ) && !defined ( UPDATE_SERVER ) && !defined ( BSPC )
 #endif
 

@@ -37,7 +37,6 @@
 #ifndef __SERVERDEMO_H__
 #define __SERVERDEMO_H__
 
-
 // Headers for demo messages
 typedef enum
 {

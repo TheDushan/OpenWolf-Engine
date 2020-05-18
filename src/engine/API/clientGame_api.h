@@ -29,7 +29,6 @@
 #ifndef __CLIENTGAME_API_H__
 #define __CLIENTGAME_API_H__
 
-
 #define MAX_ENTITIES_IN_SNAPSHOT    512
 
 // snapshots are a view of the server at a given time

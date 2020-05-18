@@ -39,6 +39,7 @@
 #include <iostream>
 #include <mutex>
 #include <queue>
+#include <assert.h>
 
 #ifndef _WIN32
 #include <sys/ioctl.h>
@@ -83,8 +84,6 @@
 #include <unistd.h>
 #endif
 
-#include <GPURenderer/qgl.h>
-
 #ifdef _WIN32
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -101,39 +100,67 @@
 
 #include <framework/appConfig.h>
 #include <framework/types.h>
+#include <qcommon/q_platform.h>
 #include <qcommon/q_shared.h>
+#include <API/cm_api.h>
+#include <cm/cm_polylib.h>
+#include <cm/cm_patch.h>
+#include <API/renderer_api.h>
+#include <API/sound_api.h>
+#include <API/FileSystem_api.h>
+#include <API/CVarSystem_api.h>
 #include <qcommon/qcommon.h>
+#include <API/serverGame_api.h>
+#include <server/server.h>
+#include <API/serverWorld_api.h>
+#include <API/serverInit_api.h>
+#include <API/CmdBuffer_api.h>
+#include <API/CmdSystem_api.h>
+#include <API/serverDemo_api.h>
+#include <API/system_api.h>
+#include <API/serverCrypto_api.h>
+#include <API/clientGame_api.h>
+#include <API/clientLAN_api.h>
+#include <API/clientGUI_api.h>
 #include <API/clientAVI_api.h>
 #include <client/clientAVI.h>
-#include <API/clientGame_api.h>
 #include <client/clientGame.h>
-#include <API/sgame_api.h>
+
 #include <audio/s_local.h>
 #include <audio/s_codec.h>
 #include <audio/s_dmahd.h>
 
+#include <cm/cm_local.h>
+
 #include <API/download_api.h>
 #include <download/downloadLocal.h>
+#include <GPURenderer/qgl.h>
+#include <API/renderer_api.h>
+#include <GPURenderer/iqm.h>
 #include <GPURenderer/r_splash.h>
-#include <GPURenderer/r_local.h>
-#include <GPURenderer/r_fbo.h>
-#include <GPURenderer/r_dsa.h>
 #include <GPURenderer/r_common.h>
+#include <GPURenderer/r_extratypes.h>
+#include <GPURenderer/r_extramath.h>
+#include <GPURenderer/r_fbo.h>
+#include <GPURenderer/r_postprocess.h>
+#include <GPURenderer/r_dsa.h>
+#include <GPURenderer/r_local.h>
+
+
+#include <API/gui_api.h>
+#include <API/cgame_api.h>
 #include <client/client.h>
 #include <client/keys.h>
 #include <framework/keycodes.h>
 
+#include <zlib.h>
+#include <bzlib.h>
+
+#include <framework/IOAPI.h>
 #include <framework/Unzip.h>
 #include <framework/Puff.h>
 #include <framework/SurfaceFlags_Tech3.h>
-#include <API/system_api.h>
 #include <platform/systemLocal.h>
-
-#include <API/gui_api.h>
-#include <cm/cm_local.h>
-#include <cm/cm_patch.h>
-
-#include <API/cgame_api.h>
 
 #ifdef _WIN32
 #include <freetype/ft2build.h>
@@ -177,33 +204,26 @@
 #include <API/CVarSystem_api.h>
 #include <framework/CVarSystem.h>
 #include <API/bgame_api.h>
+#include <API/sgame_api.h>
 #include <server/serverCcmds.h>
 #include <API/serverClient_api.h>
 #include <server/serverClient.h>
-#include <API/serverGame_api.h>
 #include <server/serverGame.h>
-#include <API/serverWorld_api.h>
 #include <server/serverWorld.h>
 #include <API/serverSnapshot_api.h>
 #include <server/serverSnapshot.h>
 #include <API/serverNetChan_api.h>
 #include <server/serverNetChan.h>
-#include <API/serverInit_api.h>
 #include <server/serverInit.h>
-#include <server/server.h>
 #include <API/serverMain_api.h>
 #include <server/serverMain.h>
-#include <API/CmdSystem_api.h>
 #include <framework/CmdSystem.h>
-#include <API/CmdBuffer_api.h>
 #include <framework/CmdBuffer.h>
 #include <API/CmdDelay_api.h>
 #include <framework/CmdDelay.h>
 #include <API/MD4_api.h>
 #include <framework/MD4.h>
-#include <API/serverDemo_api.h>
 #include <server/serverDemo.h>
-#include <API/serverCrypto_api.h>
 #include <server/serverCrypto.h>
 #include <server/serverOACS.h>
 #include <server/serverWallhack.h>

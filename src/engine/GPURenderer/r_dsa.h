@@ -30,10 +30,6 @@
 #ifndef __R_DSA_H__
 #define __R_DSA_H__
 
-#ifndef __R_LOCAL_H__
-#include <GPURenderer/r_local.h>
-#endif
-
 void GL_BindNullTextures( void );
 S32 GL_BindMultiTexture( U32 texunit, U32 target, U32 texture );
 

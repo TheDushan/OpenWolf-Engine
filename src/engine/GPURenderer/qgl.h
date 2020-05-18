@@ -30,8 +30,6 @@
 #ifndef __QGL_H__
 #define __QGL_H__
 
-#include <SDL_opengl.h>
-
 extern void ( APIENTRYP qglActiveTextureARB )( GLenum texture );
 extern void ( APIENTRYP qglClientActiveTextureARB )( GLenum texture );
 extern void ( APIENTRYP qglMultiTexCoord2fARB )( GLenum target, GLfloat s, GLfloat t );

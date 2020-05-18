@@ -30,12 +30,9 @@
 #ifndef __PUFF_H
 #define __PUFF_H
 
-/* for definitions of the <stdint.h> types */
-#include <qcommon/q_shared.h>
-
 /*
- * See puff.c for purpose and usage.
- */
+* See puff.c for purpose and usage.
+*/
 S32 puff( U8*  dest,		/* pointer to destination pointer */
           U32* destlen,		/* amount of output space */
           U8*  source,		/* pointer to source data pointer */

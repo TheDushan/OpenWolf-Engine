@@ -28,9 +28,8 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <qcommon/q_shared.h>
-#include <qcommon/qcommon.h>
-#include <API/sound_api.h>
+#ifndef __S_LOCAL_H__
+#define __S_LOCAL_H__
 
 #define	PAINTBUFFER_SIZE		4096					// this is in samples
 
@@ -316,3 +315,5 @@ public:
 };
 
 extern idSoundSystemLocal soundSystemLocal;
+
+#endif //!__S_LOCAL_H__

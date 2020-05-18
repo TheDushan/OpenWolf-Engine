@@ -38,8 +38,6 @@
 #ifndef __Q_PLATFORM_H
 #define __Q_PLATFORM_H
 
-#include <framework/types.h>
-
 //================================================================= WIN64/32 ===
 #if defined(_WIN64) || defined(__WIN64__)
 

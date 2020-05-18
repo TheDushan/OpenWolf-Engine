@@ -33,45 +33,6 @@
 
 #if !defined ( DEDICATED ) && !defined ( UPDATE_SERVER )
 
-#ifndef __CM_LOCAL_H__
-#include <cm/cm_local.h>
-#endif
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-#ifndef __QFILES_H__
-#include <qcommon/qfiles.h>
-#endif
-#ifndef __QCOMMON_H__
-#include <qcommon/qcommon.h>
-#endif
-#ifndef __R_PUBLIC_H__
-#include <GPURenderer/r_public.h>
-#endif
-#ifndef __R_COMMON_H__
-#include <GPURenderer/r_common.h>
-#endif
-#ifndef __R_EXTRATYPES_H__
-#include <GPURenderer/r_extratypes.h>
-#endif
-#ifndef __R_EXTRAMATH_H__
-#include <GPURenderer/r_extramath.h>
-#endif
-#ifndef __R_FBO_H__
-#include <GPURenderer/r_fbo.h>
-#endif
-#ifndef __R_POSTPROCESS_H__
-#include <GPURenderer/r_postprocess.h>
-#endif
-#ifndef __IQM_H__
-#include <GPURenderer/iqm.h>
-#endif
-#ifndef __QGL_H__
-#ifndef  Q3MAP2
-#include <GPURenderer/qgl.h>
-#endif
-#endif
-
 typedef void ( *xcommand_t )( void );
 
 extern F32    displayAspect;	// FIXME

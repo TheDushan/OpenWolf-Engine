@@ -38,16 +38,6 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-#ifndef __QCOMMON_H__
-#include <qcommon/qcommon.h>
-#endif
-#ifndef __SG_API_H__
-#include <API/sgame_api.h>
-#endif
-
 //#define PERS_SCORE              0	// !!! MUST NOT CHANGE, SERVER AND
 // GAME BOTH REFERENCE !!!
 

@@ -30,10 +30,6 @@
 #ifndef __R_POSTPROCESS_H__
 #define __R_POSTPROCESS_H__
 
-#ifndef __R_FBO_H__
-#include <GPURenderer/r_fbo.h>
-#endif
-
 void RB_ToneMap( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox, S32 autoExposure );
 void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, F32 blur );
 void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox );

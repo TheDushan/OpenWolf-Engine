@@ -57,33 +57,8 @@ PlaneTypeForNormal
 
 #define PlaneTypeForNormal( x ) ( x[0] == 1.0 ? PLANE_X : ( x[1] == 1.0 ? PLANE_Y : ( x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL ) ) )
 
-// plane_t structure
-// !!! if this is changed, it must be changed in asm code too !!!
-typedef struct cplane_s
-{
-    vec3_t normal;
-    F32 dist;
-    U8 type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
-    U8 signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
-    U8 pad[2];
-} cplane_t;
-
 // trace->entityNum can also be 0 to (MAX_GENTITIES-1)
 // or ENTITYNUM_NONE, ENTITYNUM_WORLD
-
-// a trace is returned when a box is swept through the world
-typedef struct
-{
-    bool allsolid;      // if true, plane is not valid
-    bool startsolid;    // if true, the initial point was in a solid area
-    F32 fraction;         // time completed, 1.0 = didn't hit anything
-    vec3_t endpos;          // final position
-    cplane_t plane;         // surface normal at impact, transformed to world space
-    S32 surfaceFlags;           // surface hit
-    S32 contents;           // contents on other side of surface hit
-    S32 entityNum;          // entity the contacted sirface is a part of
-    F32 lateralFraction;  // fraction of collision tangetially to the trace direction
-} trace_t;
 
 // markfragments are returned by CM_MarkFragments()
 typedef struct

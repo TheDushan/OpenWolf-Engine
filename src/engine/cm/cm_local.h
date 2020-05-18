@@ -38,19 +38,6 @@
 #ifndef __CM_LOCAL_H__
 #define __CM_LOCAL_H__
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-#ifndef __QCOMMON_H__
-#include <qcommon/qcommon.h>
-#endif
-#ifndef __CM_POLYLIB_H__
-#include <cm/cm_polylib.h>
-#endif
-#ifndef __CM_PATCH_H__
-#include <cm/cm_patch.h>
-#endif
-
 #define MAX_SUBMODELS           512
 #define BOX_MODEL_HANDLE        511
 #define CAPSULE_MODEL_HANDLE    510

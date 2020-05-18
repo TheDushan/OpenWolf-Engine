@@ -38,10 +38,6 @@
 #ifndef __CM_POLYLIB_H__
 #define __CM_POLYLIB_H__
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-
 // this is only used for visualization tools in cm_ debug functions
 
 typedef struct

@@ -29,9 +29,6 @@
 #ifndef __SG_API_H__
 #define __SG_API_H__
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
 #ifndef __SERVERMAIN_API_H__
 #include <API/serverMain_api.h>
 #endif

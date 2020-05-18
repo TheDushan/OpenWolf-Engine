@@ -127,25 +127,6 @@ template <typename T> __inline T max( T a, T b )
 
  **********************************************************************/
 
-#include <assert.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <ctype.h>
-#include <limits.h>
-#include <sys/stat.h> // rain
-#include <float.h>
-
-#ifndef __TYPES_H__
-#include <framework/types.h>
-#endif
-
-#include <qcommon/q_platform.h>
-#include <framework/SurfaceFlags_Tech3.h>
-
 #if defined __GNUC__ || defined __clang__
 #define _attribute( x ) __attribute__( x )
 #else
@@ -875,12 +856,6 @@ typedef enum
     FS_SEEK_SET
 } fsOrigin_t;
 
-#include <API/cm_api.h>
-#include <API/renderer_api.h>
-#include <API/sound_api.h>
-#include <API/FileSystem_api.h>
-#include <API/CVarSystem_api.h>
-
 S32 Com_HexStrToInt( StringEntry str );
 
 StringEntry Com_QuoteStr( StringEntry str );
@@ -1111,6 +1086,31 @@ typedef enum
 #define MAX_EVENTS              4   // max events per frame before we drop events
 
 #define PS_PMOVEFRAMECOUNTBITS  6
+
+// plane_t structure
+// !!! if this is changed, it must be changed in asm code too !!!
+typedef struct cplane_s
+{
+    vec3_t normal;
+    F32 dist;
+    U8 type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
+    U8 signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
+    U8 pad[2];
+} cplane_t;
+
+// a trace is returned when a box is swept through the world
+typedef struct
+{
+    bool allsolid;      // if true, plane is not valid
+    bool startsolid;    // if true, the initial point was in a solid area
+    F32 fraction;         // time completed, 1.0 = didn't hit anything
+    vec3_t endpos;          // final position
+    cplane_t plane;         // surface normal at impact, transformed to world space
+    S32 surfaceFlags;           // surface hit
+    S32 contents;           // contents on other side of surface hit
+    S32 entityNum;          // entity the contacted sirface is a part of
+    F32 lateralFraction;  // fraction of collision tangetially to the trace direction
+} trace_t;
 
 // playerState_t is the information needed by both the client and server
 // to predict player motion and actions
@@ -1719,18 +1719,6 @@ typedef enum
     DC_CLIENT_REMOVE,
     DC_SET_STAGE
 } demoCommand_t;
-
-#include <API/serverGame_api.h>
-#include <API/serverWorld_api.h>
-#include <API/serverInit_api.h>
-#include <API/CmdBuffer_api.h>
-#include <API/CmdSystem_api.h>
-#include <API/serverDemo_api.h>
-#include <API/system_api.h>
-#include <API/serverCrypto_api.h>
-#include <API/clientGame_api.h>
-#include <API/clientLAN_api.h>
-#include <API/clientGUI_api.h>
 
 void Com_BeginParseSession( StringEntry filename );
 void Com_EndParseSession( void );

@@ -593,10 +593,6 @@ static S32 GLSL_InitGPUShader( shaderProgram_t* program, StringEntry name, S32 a
     S32 size;
     S32 result;
     
-    assert( programDesc.numShaders == 2 );
-    assert( programDesc.shaders[0].type == GPUSHADER_VERTEX );
-    assert( programDesc.shaders[1].type == GPUSHADER_FRAGMENT );
-    
     size = sizeof( vpCode );
     if( addHeader )
     {

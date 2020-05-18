@@ -35,13 +35,6 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-#ifndef __QCOMMON_H__
-#include <qcommon/qcommon.h>
-#endif
-
 #ifdef __LINUX__
 static bool stdinIsATTY;
 // Used to determine where to store user-specific files
