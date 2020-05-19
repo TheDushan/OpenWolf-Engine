@@ -73,7 +73,7 @@ typedef S32 SOCKET;
 #define closesocket			close
 #define ioctlsocket			ioctl
 #define socketError			errno
-
+typedef U16 sa_family_t;
 #endif
 
 static bool usingSocks = false;

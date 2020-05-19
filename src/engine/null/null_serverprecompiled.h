@@ -85,6 +85,24 @@
 #endif
 #include <curl/curl.h>
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <ws2spi.h>
+#else
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <ifaddrs.h>
+#endif
+
 #include <framework/appConfig.h>
 #include <framework/types.h>
 #include <qcommon/q_platform.h>

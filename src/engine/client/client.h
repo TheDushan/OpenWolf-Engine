@@ -47,9 +47,6 @@
 #define GUIDKEY_FILE "guidopenwolf"
 #define GUIDKEY_SIZE 28
 
-// file containing our RSA public and private keys
-#define RSAKEY_FILE "rsaopenwolf"
-
 #define RETRANSMIT_TIMEOUT  3000	// time between connection packet retransmits
 
 #define LIMBOCHAT_WIDTH     140	// NERVE - SMF - NOTE TTimo buffer size indicator, not related to screen bbox

@@ -113,6 +113,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <ifaddrs.h>
 #endif
 
 extern "C"
@@ -218,7 +219,6 @@ extern "C"
 #include <libgen.h>
 #include <fcntl.h>
 #include <fenv.h>
-#include <CL/cl_gl.h>
 #endif
 
 #ifdef _MSC_VER

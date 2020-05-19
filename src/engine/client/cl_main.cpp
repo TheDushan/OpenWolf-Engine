@@ -1323,10 +1323,6 @@ void CL_OpenUrl_f( void )
         StringEntry allowPrefixes[] = { "http://", "https://", "" };
         StringEntry allowDomains[2] = { "localhost", 0 };
         
-#if 0 //defined (USE_HTTP)
-        allowDomains[1] = AUTHORIZE_SERVER_NAME;
-#endif
-        
         u = url;
         for( i = 0; i < lengthof( allowPrefixes ); i++ )
         {
