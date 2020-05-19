@@ -89,6 +89,7 @@
 #include <framework/types.h>
 #include <qcommon/q_platform.h>
 #include <qcommon/q_shared.h>
+#include <qcommon/qfiles.h>
 #include <API/cm_api.h>
 #include <cm/cm_polylib.h>
 #include <cm/cm_patch.h>
@@ -121,6 +122,8 @@
 #include <framework/keycodes.h>
 
 #include <zlib.h>
+#include <openssl/md4.h>
+#include <openssl/md5.h>
 
 #include <framework/IOAPI.h>
 #include <framework/Unzip.h>
@@ -128,7 +131,6 @@
 #include <framework/SurfaceFlags_Tech3.h>
 #include <platform/systemLocal.h>
 
-#include <API/FileSystem_api.h>
 #include <framework/FileSystem.h>
 #include <API/CVarSystem_api.h>
 #include <framework/CVarSystem.h>
@@ -152,6 +154,8 @@
 #include <framework/CmdDelay.h>
 #include <API/MD4_api.h>
 #include <framework/MD4.h>
+#include <API/MD5_api.h>
+#include <framework/MD5.h>
 #include <server/serverDemo.h>
 #include <server/serverCrypto.h>
 #include <server/serverOACS.h>

@@ -98,10 +98,28 @@
 #endif
 #include <curl/curl.h>
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <ws2spi.h>
+#else
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <unistd.h>
+#endif
+
 #include <framework/appConfig.h>
 #include <framework/types.h>
 #include <qcommon/q_platform.h>
 #include <qcommon/q_shared.h>
+#include <qcommon/qfiles.h>
 #include <API/cm_api.h>
 #include <cm/cm_polylib.h>
 #include <cm/cm_patch.h>
@@ -198,6 +216,9 @@
 #include <AL/alc.h>
 #endif
 
+#include <openssl/md4.h>
+#include <openssl/md5.h>
+
 #include <API/FileSystem_api.h>
 #include <framework/FileSystem.h>
 #include <API/CVarSystem_api.h>
@@ -222,6 +243,8 @@
 #include <framework/CmdDelay.h>
 #include <API/MD4_api.h>
 #include <framework/MD4.h>
+#include <API/MD5_api.h>
+#include <framework/MD5.h>
 #include <server/serverDemo.h>
 #include <server/serverCrypto.h>
 #include <server/serverOACS.h>

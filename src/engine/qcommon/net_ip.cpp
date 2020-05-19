@@ -44,21 +44,6 @@
 #endif
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#if WINVER < 0x501
-#ifdef __MINGW32__
-// wspiapi.h isn't available on MinGW, so if it's
-// present it's because the end user has added it
-// and we should look for it in our tree
-#include "wspiapi.h"
-#else
-#include <wspiapi.h>
-#endif
-#else
-#include <ws2spi.h>
-#endif
-
 typedef S32 socklen_t;
 #ifdef ADDRESS_FAMILY
 #define sa_family_t	ADDRESS_FAMILY
@@ -80,24 +65,6 @@ static bool	winsockInitialized = false;
 #if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
 // needed for socklen_t on OSX 10.2
 #define _BSD_SOCKLEN_T_
-#endif
-
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <unistd.h>
-#if !defined(__sun) && !defined(__sgi)
-#include <ifaddrs.h>
-#endif
-
-#ifdef __sun
-#include <sys/filio.h>
 #endif
 
 typedef S32 SOCKET;

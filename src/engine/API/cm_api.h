@@ -37,10 +37,6 @@
 #ifndef __CM_PUBLIC_H__
 #define __CM_PUBLIC_H__
 
-#ifndef __QFILES_H__
-#include <qcommon/qfiles.h>
-#endif
-
 // plane types are used to speed some tests
 // 0-2 are axial planes
 #define PLANE_X             0
