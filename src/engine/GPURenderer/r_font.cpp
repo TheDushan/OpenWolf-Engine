@@ -76,12 +76,6 @@
 #include <framework/precompiled.h>
 
 #ifdef BUILD_FREETYPE
-#include FT_FREETYPE_H
-#include FT_ERRORS_H
-#include FT_SYSTEM_H
-#include FT_IMAGE_H
-#include FT_OUTLINE_H
-
 #define _FLOOR(x)  ((x) & -64)
 #define _CEIL(x)   (((x)+63) & -64)
 #define _TRUNC(x)  ((x) >> 6)

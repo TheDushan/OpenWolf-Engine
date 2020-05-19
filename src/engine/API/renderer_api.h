@@ -29,13 +29,6 @@
 #ifndef __R_PUBLIC_H__
 #define __R_PUBLIC_H__
 
-#ifndef __R_TYPES_H__
-#include <GPURenderer/r_types.h>
-#endif
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-
 // AVI files have the start of pixel lines 4 byte-aligned
 #define AVI_LINE_PADDING 4
 

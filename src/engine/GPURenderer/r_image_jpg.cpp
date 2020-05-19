@@ -38,12 +38,7 @@
  * You may also wish to include "jerror.h".
  */
 
-extern "C"
-{
-#include <jpeglib.h>
-}
-
-/* Catching errors, as done in libjpeg's example.c */
+ /* Catching errors, as done in libjpeg's example.c */
 typedef struct q_jpeg_error_mgr_s
 {
     struct jpeg_error_mgr pub;  /* "public" fields */

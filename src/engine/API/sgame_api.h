@@ -29,10 +29,6 @@
 #ifndef __SG_API_H__
 #define __SG_API_H__
 
-#ifndef __SERVERMAIN_API_H__
-#include <API/serverMain_api.h>
-#endif
-
 typedef void ( *xcommand_t )( void );
 
 #define GAME_API_VERSION 1

@@ -115,6 +115,11 @@
 #include <unistd.h>
 #endif
 
+extern "C"
+{
+#include <jpeglib.h>
+}
+
 #include <framework/appConfig.h>
 #include <framework/types.h>
 #include <qcommon/q_platform.h>
@@ -123,10 +128,12 @@
 #include <API/cm_api.h>
 #include <cm/cm_polylib.h>
 #include <cm/cm_patch.h>
+#include <GPURenderer/r_types.h>
 #include <API/renderer_api.h>
 #include <API/sound_api.h>
 #include <API/FileSystem_api.h>
 #include <API/CVarSystem_api.h>
+#include <API/download_api.h>
 #include <qcommon/qcommon.h>
 #include <API/serverGame_api.h>
 #include <server/server.h>
@@ -181,8 +188,18 @@
 
 #ifdef _WIN32
 #include <freetype/ft2build.h>
+#include <freetype/freetype.h>
+#include <freetype/fterrors.h>
+#include <freetype/ftsystem.h>
+#include <freetype/ftimage.h>
+#include <freetype/ftoutln.h>
 #else
 #include <freetype2/ft2build.h>
+#include <freetype2/freetype.h>
+#include <freetype2/fterrors.h>
+#include <freetype2/ftsystem.h>
+#include <freetype2/ftimage.h>
+#include <freetype2/ftoutln.h>
 #endif
 #undef getch
 
@@ -224,6 +241,7 @@
 #include <API/CVarSystem_api.h>
 #include <framework/CVarSystem.h>
 #include <API/bgame_api.h>
+#include <API/serverMain_api.h>
 #include <API/sgame_api.h>
 #include <server/serverCcmds.h>
 #include <API/serverClient_api.h>
