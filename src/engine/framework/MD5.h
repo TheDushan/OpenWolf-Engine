@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2020 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,29 +26,27 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   md4.h
-// Version:     v1.01
-// Created:
+// File name:   md5.h
 // Compilers:   Visual Studio 2019, gcc 7.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __MD4_H__
-#define __MD4_H__
+#ifndef __MD5_H__
+#define __MD5_H__
 
 //
-// idServerBotSystemLocal
+// idMD5SystemLocal
 //
-class idMD4SystemLocal : public idMD4System
+class idMD5SystemLocal : public idMD5System
 {
 public:
-    idMD4SystemLocal();
-    ~idMD4SystemLocal();
+    idMD5SystemLocal();
+    ~idMD5SystemLocal();
     
-    virtual U32 BlockChecksum( const void* buffer, S32 length );
+    virtual UTF8* MD5File( StringEntry fn, S32 length, StringEntry prefix, S32 prefix_len );
 };
 
-extern idMD4SystemLocal MD4Local;
+extern idMD5SystemLocal MD5Local;
 
-#endif //!__MD4_H__
+#endif //!__MD5_H__

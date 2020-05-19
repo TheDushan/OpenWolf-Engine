@@ -1126,7 +1126,7 @@ static void CL_UpdateGUID( StringEntry prefix, S32 prefix_len )
     }
     else
     {
-        cvarSystem->Set( "cl_guid", Com_MD5File( GUIDKEY_FILE, GUIDKEY_SIZE, prefix, prefix_len ) );
+        cvarSystem->Set( "cl_guid", MD5System->MD5File( GUIDKEY_FILE, GUIDKEY_SIZE, prefix, prefix_len ) );
     }
 }
 /*

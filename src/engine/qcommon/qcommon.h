@@ -450,8 +450,6 @@ void            Com_EndRedirect( void );
 void            Com_Quit_f( void );
 S32             Com_EventLoop( void );
 S32             Com_Milliseconds( void );	// will be journaled properly
-UTF8*           Com_MD5File( StringEntry fn, S32 length, StringEntry prefix, S32 prefix_len );
-UTF8*           Com_MD5FileOWCompat( StringEntry filename );
 S32             Com_Filter( UTF8* filter, UTF8* name, S32 casesensitive );
 S32             Com_FilterPath( UTF8* filter, UTF8* name, S32 casesensitive );
 S32             Com_RealTime( qtime_t* qtime );
