@@ -196,11 +196,11 @@ extern "C"
 #include <freetype/ftoutln.h>
 #else
 #include <freetype2/ft2build.h>
-#include <freetype2/freetype.h>
-#include <freetype2/fterrors.h>
-#include <freetype2/ftsystem.h>
-#include <freetype2/ftimage.h>
-#include <freetype2/ftoutln.h>
+#include <freetype2/freetype/freetype.h>
+#include <freetype2/freetype/fterrors.h>
+#include <freetype2/freetype/ftsystem.h>
+#include <freetype2/freetype/ftimage.h>
+#include <freetype2/freetype/ftoutln.h>
 #endif
 #undef getch
 
