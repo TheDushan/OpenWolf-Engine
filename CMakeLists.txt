@@ -4,14 +4,13 @@
 # cmake required (http://www.cmake.org/)
 #
 
-cmake_minimum_required( VERSION 2.8 )
+cmake_minimum_required( VERSION 3.16 )
 
 if( POLICY CMP0017 )
   cmake_policy( SET CMP0072 NEW )
 endif()
 
 include( CMakeDependentOption )
-include( cmake/precompiledHeaders.cmake )
 
 set( GAME_APP_NAME "" CACHE            STRING "The Application name")
 set( GAME_APP_VERSION "" CACHE         STRING "The Application version")
@@ -496,10 +495,11 @@ endif(MSVC)
 	    
 if(WIN32)
 	set_property( TARGET engine APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG _WINDOWS USE_CRYPTO HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  BUILD_FREETYPE HAVE_BOOLEAN HAVE_BZIP2 SODIUM_STATIC )
-	ADD_PRECOMPILED_HEADER( engine "${MOUNT_DIR}/framework/precompiled.h" "${MOUNT_DIR}/framework/precompiled.cpp" )
 elseif( UNIX )
 	set_property( TARGET engine APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX USE_CRYPTO HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  BUILD_FREETYPE HAVE_BZIP2 SODIUM_STATIC )
 endif()
+
+	target_precompile_headers( engine PRIVATE "${MOUNT_DIR}/framework/precompiled.h" )
   
   	set_target_properties( engine PROPERTIES OUTPUT_NAME "engine.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
@@ -538,12 +538,13 @@ endif()
 	target_link_libraries( engine ${CURSES_LIBRARIES} )
 
 	if ( WIN32)
+		target_compile_options(engine PRIVATE "/MP")
 		target_link_libraries( engine ${OS_LIBRARIES} )
 	else ( UNIX )
 		target_link_libraries( engine ${OS_LIBRARIES} -fopenmp)
 	endif() 
 	
-if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+	if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 		link_directories( /opt/local/lib )
 	endif()
  
@@ -569,6 +570,7 @@ if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 	TARGET_LINK_LIBRARIES( client ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} )
 
 if(MSVC)
+	target_compile_options(client PRIVATE "/MP")
 	set_property( TARGET client APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG _WINDOWS HAVE_CONFIG_H  __STDC_CONSTANT_MACROS )
 elseif( UNIX )
 	set_property( TARGET client APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX __STDC_CONSTANT_MACROS )
@@ -591,12 +593,13 @@ if( BUILD_SERVER )
 	add_executable( server ${SHAREDLIST_HEADERS} ${QCOMMONLIST_HEADERS} ${FRAMEWORKS_HEADERS} ${DOWNLOADLIST_HEADERS} ${SERVERLIST_HEADERS} ${COLLISIONMODEL_HEADERS} ${CLIENTLIST_HEADERS}  ${SHAREDLIST_SOURCES} ${SERVERLIST_SOURCES} ${DOWNLOADLIST_SOURCES} ${COLLISIONMODEL_SOURCES} ${QCOMMONLIST_SOURCES} ${FRAMEWORKS_SOURCES} ${PLATFORMLIST_HEADERS} ${PLATFORM_DEDICATED_SOURCES} ${NULL_SERVER_SOURCES} ${NULL_SERVER_HEADERS} )
 
 	if(WIN32)
+		target_compile_options(server PRIVATE "/MP")
 		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG DEDICATED _WINDOWS USE_CRYPTO HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  HAVE_BOOLEAN HAVE_BZIP2 SODIUM_STATIC )
-        ADD_PRECOMPILED_HEADER( server "${MOUNT_DIR}/null/null_serverprecompiled.h" "${MOUNT_DIR}/null/null_serverprecompiled.cpp" )
-
 	elseif( UNIX )
 		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED USE_CRYPTO HAVE_CONFIG_H USE_INCREASED_ENTITIES __STDC_CONSTANT_MACROS BUILD_FREETYPE HAVE_BZIP2 SODIUM_STATIC )
 	endif()
+
+	target_precompile_headers( server PRIVATE "${MOUNT_DIR}/null/null_serverprecompiled.h" )
 	
 	set_target_properties( server PROPERTIES OUTPUT_NAME "${GAME_APP_NAME}ded.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
@@ -638,11 +641,13 @@ if( BUILD_AUTOUPDATE_SERVER )
 
 	target_link_libraries( autoupdateserver ${OS_LIBRARIES} )
 	if(WIN32)
+		target_compile_options(autoupdateserver PRIVATE "/MP")
         set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS DEDICATED USE_CRYPTO _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ UPDATE_SERVER SODIUM_STATIC )
-        ADD_PRECOMPILED_HEADER( autoupdateserver "${MOUNT_DIR}/null/null_autoprecompiled.h" "${MOUNT_DIR}/null/null_autoprecompiled.cpp" )
 	elseif( UNIX )
 		set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED UPDATE_SERVER SODIUM_STATIC )
 	endif()
+
+	target_precompile_headers( autoupdateserver PRIVATE "${MOUNT_DIR}/null/null_autoprecompiled.h" )
 
 	# The following section finds the REQUIRED dependencies and makes them available to the target
 	find_package( SDL REQUIRED )
@@ -681,6 +686,7 @@ if( BUILD_MASTER_SERVER )
 	# Setup OWMaster target
 	add_executable( OWMaster ${OWMASTERSERVERLIST_SOURCES} ${OWMASTERSERVERLIST_HEADERS} )
 	if(WIN32)
+		target_compile_options(OWMaster PRIVATE "/MP")
 		set_property( TARGET OWMaster APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ NDEBUG _WIN32 WIN32 _AMD64 _WIN64 __WIN64__  )
 	elseif( UNIX )
 		set_property( TARGET OWMaster APPEND PROPERTY COMPILE_DEFINITIONS __LINUX__ _LINUX_ LINUX )
