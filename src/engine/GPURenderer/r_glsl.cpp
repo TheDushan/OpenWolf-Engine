@@ -1505,7 +1505,7 @@ void idRenderSystemLocal::InitGPUShaders( void )
     /////////////////////////////////////////////////////////////////////////////
     attribs = 0;
     extradefines[0] = '\0';
-    Q_strcat( extradefines, sizeof( extradefines ), "#define BLUR_X" );
+    Q_strcat( extradefines, sizeof( extradefines ), "#define BLUR_X\n" );
     
     if( !GLSL_InitGPUShader( &tr.gaussianBlurShader[0], "gaussian_blur", attribs, true, extradefines, true ) )
     {
