@@ -39,8 +39,11 @@
 #define __SERVERMAIN_H__
 
 #define HEARTBEAT_MSEC  50 * 1000
-#define HEARTBEAT_GAME  "CelestialHarvest-1"
-#define HEARTBEAT_DEAD  "CelestialHarvestFlatline-1"
+
+//Dushan - I will soon move this in the appConfig.h
+#define HEARTBEAT_GAME  "StellarPray-1"
+#define HEARTBEAT_DEAD  "StellarPrayFlatline-1"
+
 static S32 lastTimeResolve[MAX_MASTER_SERVERS];
 
 //

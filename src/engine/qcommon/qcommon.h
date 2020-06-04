@@ -292,31 +292,25 @@ The server you attempted to join is running an incompatible version of the game.
 You or the server may be running older versions of the game. Press the auto-update\
  button if it appears on the Main Menu screen."
 
-#define GAMENAME_STRING "CelestialHarvest"
+//Dushan - I will soon move this in the appConfig.h
+#define GAMENAME_STRING "StellarPray"
+
 #ifndef PRE_RELEASE_DEMO
-// 2.56 - protocol 83
-// 2.4 - protocol 80
-// 1.33 - protocol 59
-// 1.4 - protocol 60
 #define ETPROTOCOL_VERSION    2
 #else
 // the demo uses a different protocol version for independant browsing
 #define ETPROTOCOL_VERSION    1
 #endif
 
-// maintain a list of compatible protocols for demo playing
-// NOTE: that stuff only works with two digits protocols
-extern S32 demo_protocols[];
-
 // NERVE - SMF - wolf multiplayer master servers
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME      "74.91.120.190"
+#define MASTER_SERVER_NAME      "master.stellarprey.com"
 #endif
-#define MOTD_SERVER_NAME        "74.91.120.190"//"etmotd.idsoftware.com" // ?.?.?.?
+#define MOTD_SERVER_NAME        "master.stellarprey.com"//"etmotd.idsoftware.com" // ?.?.?.?
 
 // TTimo: override autoupdate server for testing
 #ifndef AUTOUPDATE_SERVER_NAME
-#define AUTOUPDATE_SERVER_NAME "74.91.120.190"
+#define AUTOUPDATE_SERVER_NAME "update.stellarprey.com"
 //#define AUTOUPDATE_SERVER_NAME "au2rtcw2.activision.com"
 #endif
 
@@ -344,6 +338,10 @@ extern S32 demo_protocols[];
 #define NUM_SERVER_PORTS    4	// broadcast scan this many ports after
 // PORT_SERVER so a single machine can
 // run multiple servers
+
+// maintain a list of compatible protocols for demo playing
+// NOTE: that stuff only works with two digits protocols
+extern S32 demo_protocols[];
 
 // the svc_strings[] array in cl_parse.c should mirror this
 //

@@ -152,7 +152,7 @@ qboolean Game_IsAccepted( const char* game_name )
 #define GAMENAME_Q3A	"Quake3Arena"	// Quake 3 Arena
 #define GAMENAME_RTCW	"wolfmp"		// Return to Castle Wolfenstein
 #define GAMENAME_WOET	"et"			// Wolfenstein: Enemy Territory
-
+#define GAMENAME_ST     "StellarPrey"   // Stellar Prey
 
 // ---------- Private types (game properties) ---------- //
 
@@ -569,6 +569,18 @@ void Game_InitProperties( void )
                 "options=send-empty-servers,send-full-servers",
                 "heartbeat=EnemyTerritory-1",
                 "flatline=ETFlatline-1",
+            },
+        },
+        
+        // Stellar Prey
+        {
+            GAMENAME_ST,
+            4,
+            {
+                "protocols=1,2",
+                "options=send-empty-servers,send-full-servers",
+                "heartbeat=StellarPray-1",
+                "flatline=StellarPrayFlatline-1",
             },
         },
         

@@ -37,7 +37,7 @@ qboolean Game_IsAccepted( const char* game_name );
 // ---------- Public constants (game properties) ---------- //
 
 // Heartbeat tag for the DarkPlaces protocol
-#define HEARTBEAT_DARKPLACES	"Tremulous-1"
+#define HEARTBEAT_DARKPLACES	"StellarPrey-1"
 
 
 // ---------- Public types (game properties) ---------- //
