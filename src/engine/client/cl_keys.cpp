@@ -391,12 +391,12 @@ void Field_VariableSizeDraw( field_t* edit, S32 x, S32 y, S32 size, bool showCur
         
         color[0] = color[1] = color[2] = 1.0;
         color[3] = alpha;
-        SCR_DrawSmallStringExt( x, y, str, color, false, noColorEscape );
+        idClientScreenSystemLocal::DrawSmallStringExt( x, y, str, color, false, noColorEscape );
     }
     else
     {
         // draw big string with drop shadow
-        SCR_DrawBigString( x, y, str, 1.0, noColorEscape );
+        idClientScreenSystemLocal::DrawBigString( x, y, str, 1.0, noColorEscape );
     }
     
     // draw the cursor
@@ -420,14 +420,14 @@ void Field_VariableSizeDraw( field_t* edit, S32 x, S32 y, S32 size, bool showCur
         
         if( size == SMALLCHAR_WIDTH )
         {
-            F32 xlocation = x + SCR_ConsoleFontStringWidth( str + prestep, edit->cursor - prestep ) ;
-            SCR_DrawConsoleFontChar( xlocation , y, cursorChar );
+            F32 xlocation = x + idClientScreenSystemLocal::ConsoleFontStringWidth( str + prestep, edit->cursor - prestep ) ;
+            idClientScreenSystemLocal::DrawConsoleFontChar( xlocation , y, cursorChar );
         }
         else
         {
             str[0] = cursorChar;
             str[1] = 0;
-            SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, false );
+            idClientScreenSystemLocal::DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, false );
             
         }
     }
@@ -727,7 +727,7 @@ void Console_Key( S32 key )
         Hist_Add( g_consoleField.buffer );
         if( cls.state == CA_DISCONNECTED )
         {
-            SCR_UpdateScreen();     // force an update, because the command
+            clientScreenSystem->UpdateScreen();     // force an update, because the command
         }                           // may take some time
         Field_Clear( &g_consoleField );
         return;

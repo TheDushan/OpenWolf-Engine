@@ -79,8 +79,6 @@ convar_t*         con_notifytime;
 convar_t*         con_autoclear;
 
 // Color and alpha for console
-convar_t*		scr_conUseShader;
-
 convar_t*		scr_conColorAlpha;
 convar_t*		scr_conColorRed;
 convar_t*		scr_conColorBlue;
@@ -94,7 +92,6 @@ convar_t*		scr_conBarColorRed;
 convar_t*		scr_conBarColorBlue;
 convar_t*		scr_conBarColorGreen;
 
-convar_t*		scr_conUseOld;
 convar_t*		scr_conBarSize;
 convar_t*		scr_conHeight;
 
@@ -545,14 +542,8 @@ void Con_CheckResize( void )
     
     if( cls.glconfig.vidWidth )
     {
-        if( scr_conUseOld->integer )
-        {
-            width = cls.glconfig.vidWidth / SCR_ConsoleFontCharWidth( 'W' );
-        }
-        else
-        {
-            width = ( cls.glconfig.vidWidth - 30 ) / SCR_ConsoleFontCharWidth( 'W' );
-        }
+        width = ( cls.glconfig.vidWidth - 30 ) / idClientScreenSystemLocal::ConsoleFontCharWidth( 'W' );
+        
         g_consoleField.widthInChars = width - Q_PrintStrlen( cl_consolePrompt->string ) - 1;
     }
     else
@@ -623,15 +614,10 @@ void Con_Init( void )
     con_autoclear = cvarSystem->Get( "con_autoclear", "1", CVAR_ARCHIVE, "^1Toggles clearing of unfinished text after closing console." );
     con_restricted = cvarSystem->Get( "con_restricted", "0", CVAR_INIT, "^1Toggles clearing of unfinished text after closing console." );
     
-    // Defines cvar for color and alpha for console/bar under console
-    scr_conUseShader = cvarSystem->Get( "scr_conUseShader", "0", CVAR_ARCHIVE, "^1Use console shader. " );
-    
     scr_conColorAlpha = cvarSystem->Get( "scr_conColorAlpha", "0.5", CVAR_ARCHIVE, "^1Defines the backgroud Alpha color of the console." );
     scr_conColorRed = cvarSystem->Get( "scr_conColorRed", "0", CVAR_ARCHIVE, "^1Defines the backgroud Red color of the console." );
     scr_conColorBlue = cvarSystem->Get( "scr_conColorBlue", "0.3", CVAR_ARCHIVE, "^1Defines the backgroud Blue color of the console." );
     scr_conColorGreen = cvarSystem->Get( "scr_conColorGreen", "0.23", CVAR_ARCHIVE, "^1Defines the backgroud Green color of the console." );
-    
-    scr_conUseOld = cvarSystem->Get( "scr_conUseOld", "0", CVAR_ARCHIVE, "^1Use old console." );
     
     scr_conBarHeight = cvarSystem->Get( "scr_conBarHeight", "2", CVAR_ARCHIVE, "^1Defines the bar height of the console." );
     
@@ -870,19 +856,19 @@ void Con_DrawInput( void )
     
     Com_RealTime( &realtime );
     
-    y = con.vislines - ( SCR_ConsoleFontCharHeight() * 2 ) + 2 ;
+    y = con.vislines - ( idClientScreenSystemLocal::ConsoleFontCharHeight() * 2 ) + 2 ;
     
     Com_sprintf( prompt,  sizeof( prompt ), "^0[^3%02d%c%02d^0]^7 %s", realtime.tm_hour, ( realtime.tm_sec & 1 ) ? ':' : ' ', realtime.tm_min, cl_consolePrompt->string );
     
     color[0] = 1.0f;
     color[1] = 1.0f;
     color[2] = 1.0f;
-    color[3] = ( scr_conUseOld->integer ? 1.0f : con.displayFrac * 2.0f );
+    color[3] = con.displayFrac * 2.0f;
     
-    SCR_DrawSmallStringExt( con.xadjust + cl_conXOffset->integer, y + 10, prompt, color, false, false );
+    idClientScreenSystemLocal::DrawSmallStringExt( con.xadjust + cl_conXOffset->integer, y + 10, prompt, color, false, false );
     
     Q_CleanStr( prompt );
-    Field_Draw( &g_consoleField, con.xadjust + cl_conXOffset->integer + SCR_ConsoleFontStringWidth( prompt, strlen( prompt ) ), y + 10, true, true, color[3] );
+    Field_Draw( &g_consoleField, con.xadjust + cl_conXOffset->integer + idClientScreenSystemLocal::ConsoleFontStringWidth( prompt, strlen( prompt ) ), y + 10, true, true, color[3] );
 }
 
 
@@ -940,7 +926,7 @@ void Con_DrawNotify( void )
                 currentColor = ( text[x] >> 8 ) & COLOR_BITS;
                 renderSystem->SetColor( g_color_table[currentColor] );
             }
-            SCR_DrawSmallChar( cl_conXOffset->integer + con.xadjust + ( x + 1 ) * SMALLCHAR_WIDTH, v, text[x] & 0xff );
+            idClientScreenSystemLocal::DrawSmallChar( cl_conXOffset->integer + con.xadjust + ( x + 1 ) * SMALLCHAR_WIDTH, v, text[x] & 0xff );
         }
         
         v += SMALLCHAR_HEIGHT;
@@ -961,7 +947,7 @@ void Con_DrawNotify( void )
             UTF8            buf[128];
             
             CL_TranslateString( "say_team:", buf );
-            SCR_DrawBigString( 8, v, buf, 1.0f, false );
+            idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
             skip = strlen( buf ) + 2;
         }
         else if( chat_buddy )
@@ -969,7 +955,7 @@ void Con_DrawNotify( void )
             UTF8            buf[128];
             
             CL_TranslateString( "say_fireteam:", buf );
-            SCR_DrawBigString( 8, v, buf, 1.0f, false );
+            idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
             skip = strlen( buf ) + 2;
         }
         else
@@ -977,7 +963,7 @@ void Con_DrawNotify( void )
             UTF8            buf[128];
             
             CL_TranslateString( "say:", buf );
-            SCR_DrawBigString( 8, v, buf, 1.0f, false );
+            idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
             skip = strlen( buf ) + 1;
         }
         
@@ -1007,125 +993,62 @@ void Con_DrawSolidConsole( F32 frac )
     F32           totalwidth;
     F32           currentWidthLocation = 0;
     
-    if( scr_conUseOld->integer )
-    {
-        lines = cls.glconfig.vidHeight * frac;
-        if( lines <= 0 )
-            return;
-            
-        if( lines > cls.glconfig.vidHeight )
-            lines = cls.glconfig.vidHeight;
-    }
-    else
-    {
-        lines = cls.glconfig.vidHeight * frac;
-    }
+    lines = cls.glconfig.vidHeight * frac;
     
-    // on wide screens, we will center the text
-    if( !scr_conUseOld->integer )
-    {
-        con.xadjust = 15;
-    }
-    else
-    {
-        // Dushan - Old console need 0
-        con.xadjust = 0;
-    }
-    SCR_AdjustFrom640( &con.xadjust, nullptr, nullptr, nullptr );
+    con.xadjust = 15;
     
-    // draw the background
-    if( scr_conUseOld->integer )
-    {
-        y = frac * SCREEN_HEIGHT;
-        if( y < 1 )
-        {
-            y = 0;
-        }
-        else
-        {
-            if( scr_conUseShader->integer )
-            {
-                SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.consoleShader );
-            }
-            else
-            {
-                // This will be overwrote, so ill just abuse it here, no need to define another array
-                color[0] = scr_conColorRed->value;
-                color[1] = scr_conColorGreen->value;
-                color[2] = scr_conColorBlue->value;
-                color[3] = scr_conColorAlpha->value;
-                
-                SCR_FillRect( 0, 0, SCREEN_WIDTH, y, color );
-            }
-        }
-        
-        color[0] = scr_conBarColorRed->value;
-        color[1] = scr_conBarColorGreen->value;
-        color[2] = scr_conBarColorBlue->value;
-        color[3] = scr_conBarColorAlpha->value;
-        
-        SCR_FillRect( 0, y, SCREEN_WIDTH, scr_conBarSize->value, color );
-    }
-    else
-    {
-        color[0] = scr_conColorRed->value;
-        color[1] = scr_conColorGreen->value;
-        color[2] = scr_conColorBlue->value;
-        color[3] = frac * 2 * scr_conColorAlpha->value;
-        SCR_FillRect( 10, 10, 620, 460 * scr_conHeight->integer * 0.01, color );
-        
-        color[0] = scr_conBarColorRed->value;
-        color[1] = scr_conBarColorGreen->value;
-        color[2] = scr_conBarColorBlue->value;
-        color[3] = frac * 2 * scr_conBarColorAlpha->value;
-        SCR_FillRect( 10, 10, 620, 1, color );	//top
-        SCR_FillRect( 10, 460 * scr_conHeight->integer * 0.01 + 10, 621, 1, color );	//bottom
-        SCR_FillRect( 10, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//left
-        SCR_FillRect( 630, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//right
-    }
+    idClientScreenSystemLocal::AdjustFrom640( &con.xadjust, nullptr, nullptr, nullptr );
     
+    color[0] = scr_conColorRed->value;
+    color[1] = scr_conColorGreen->value;
+    color[2] = scr_conColorBlue->value;
+    color[3] = frac * 2 * scr_conColorAlpha->value;
+    idClientScreenSystemLocal::FillRect( 10, 10, 620, 460 * scr_conHeight->integer * 0.01, color );
+    
+    color[0] = scr_conBarColorRed->value;
+    color[1] = scr_conBarColorGreen->value;
+    color[2] = scr_conBarColorBlue->value;
+    color[3] = frac * 2 * scr_conBarColorAlpha->value;
+    idClientScreenSystemLocal::FillRect( 10, 10, 620, 1, color );	//top
+    idClientScreenSystemLocal::FillRect( 10, 460 * scr_conHeight->integer * 0.01 + 10, 621, 1, color );	//bottom
+    idClientScreenSystemLocal::FillRect( 10, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//left
+    idClientScreenSystemLocal::FillRect( 630, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//right
     
     // draw the version number
     color[0] = 1.0f;
     color[1] = 1.0f;
     color[2] = 1.0f;
-    color[3] = ( scr_conUseOld->integer ? 1.0f : frac * 2.0f );
+    color[3] = frac * 2.0f;
     renderSystem->SetColor( color );
     
     i = strlen( Q3_VERSION );
-    totalwidth = SCR_ConsoleFontStringWidth( Q3_VERSION, i ) + cl_conXOffset->integer;
-    if( !scr_conUseOld->integer )
-    {
-        totalwidth += 30;
-    }
+    totalwidth = idClientScreenSystemLocal::ConsoleFontStringWidth( Q3_VERSION, i ) + cl_conXOffset->integer;
+    totalwidth += 30;
+    
     for( x = 0 ; x < i ; x++ )
     {
-        SCR_DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - SCR_ConsoleFontCharHeight() * 2, Q3_VERSION[x] );
-        currentWidthLocation += SCR_ConsoleFontCharWidth( Q3_VERSION[x] );
+        idClientScreenSystemLocal::DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - idClientScreenSystemLocal::ConsoleFontCharHeight() * 2, Q3_VERSION[x] );
+        currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( Q3_VERSION[x] );
     }
     
     // engine string
     i = strlen( Q3_ENGINE );
-    totalwidth = SCR_ConsoleFontStringWidth( Q3_ENGINE, i ) + cl_conXOffset->integer;
-    if( !scr_conUseOld->integer )
-    {
-        totalwidth += 30;
-    }
+    totalwidth = idClientScreenSystemLocal::ConsoleFontStringWidth( Q3_ENGINE, i ) + cl_conXOffset->integer;
+    totalwidth += 30;
     
     currentWidthLocation = 0;
     for( x = 0 ; x < i ; x++ )
     {
-        SCR_DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - SCR_ConsoleFontCharHeight(), Q3_ENGINE[x] );
-        currentWidthLocation += SCR_ConsoleFontCharWidth( Q3_ENGINE[x] );
+        idClientScreenSystemLocal::DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - idClientScreenSystemLocal::ConsoleFontCharHeight(), Q3_ENGINE[x] );
+        currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( Q3_ENGINE[x] );
     }
     
     // draw the text
     con.vislines = lines;
-    rows = ( lines ) / SCR_ConsoleFontCharHeight() - 3;		// rows of text to draw
-    if( scr_conUseOld->integer )
-        rows++;
-        
-    y = lines - ( SCR_ConsoleFontCharHeight() * 3 ) + 10;
+    rows = ( lines ) / idClientScreenSystemLocal::ConsoleFontCharHeight() - 3;		// rows of text to draw
+    rows++;
+    
+    y = lines - ( idClientScreenSystemLocal::ConsoleFontCharHeight() * 3 ) + 10;
     
     // draw from the bottom up
     if( con.display != con.current )
@@ -1134,11 +1057,11 @@ void Con_DrawSolidConsole( F32 frac )
         color[0] = 1.0f;
         color[1] = 0.0f;
         color[2] = 0.0f;
-        color[3] = ( scr_conUseOld->integer ? 1.0f : frac * 2.0f );
+        color[3] = frac * 2.0f;
         renderSystem->SetColor( color );
-        for( x = 0 ; x < con.linewidth - ( scr_conUseOld->integer ? 0 : 4 ); x += 4 )
-            SCR_DrawConsoleFontChar( con.xadjust + ( x + 1 ) * SCR_ConsoleFontCharWidth( '^' ), y, '^' );
-        y -= SCR_ConsoleFontCharHeight();
+        for( x = 0 ; x < con.linewidth - 4; x += 4 )
+            idClientScreenSystemLocal::DrawConsoleFontChar( con.xadjust + ( x + 1 ) * idClientScreenSystemLocal::ConsoleFontCharWidth( '^' ), y, '^' );
+        y -= idClientScreenSystemLocal::ConsoleFontCharHeight();
         rows--;
     }
     
@@ -1153,10 +1076,10 @@ void Con_DrawSolidConsole( F32 frac )
     color[0] = g_color_table[currentColor][0];
     color[1] = g_color_table[currentColor][1];
     color[2] = g_color_table[currentColor][2];
-    color[3] = ( scr_conUseOld->integer ? 1.0f : frac * 2.0f );
+    color[3] = frac * 2.0f;
     renderSystem->SetColor( color );
     
-    for( i = 0 ; i < rows ; i++, y -= SCR_ConsoleFontCharHeight(), row-- )
+    for( i = 0 ; i < rows ; i++, y -= idClientScreenSystemLocal::ConsoleFontCharHeight(), row-- )
     {
         F32 currentWidthLocation = cl_conXOffset->integer;
         
@@ -1178,12 +1101,12 @@ void Con_DrawSolidConsole( F32 frac )
                 color[0] = g_color_table[currentColor][0];
                 color[1] = g_color_table[currentColor][1];
                 color[2] = g_color_table[currentColor][2];
-                color[3] = ( scr_conUseOld->integer ? 1.0f : frac * 2.0f );
+                color[3] = frac * 2.0f;
                 renderSystem->SetColor( color );
             }
             
-            SCR_DrawConsoleFontChar( con.xadjust + currentWidthLocation, y, text[x] & 0xff );
-            currentWidthLocation += SCR_ConsoleFontCharWidth( text[x] & 0xff );
+            idClientScreenSystemLocal::DrawConsoleFontChar( con.xadjust + currentWidthLocation, y, text[x] & 0xff );
+            currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( text[x] & 0xff );
         }
     }
     
@@ -1241,14 +1164,9 @@ void Con_RunConsole( void )
 {
     // decide on the destination height of the console
     if( cls.keyCatchers & KEYCATCH_CONSOLE )
-        if( scr_conUseOld->integer )
-        {
-            con.finalFrac = MAX( 0.10, 0.01 * scr_conHeight->integer ); // configured console percentage
-        }
-        else
-        {
-            con.finalFrac = 0.5f;
-        }
+    {
+        con.finalFrac = 0.5f;
+    }
     else
         con.finalFrac = 0.0f;				// none visible
         

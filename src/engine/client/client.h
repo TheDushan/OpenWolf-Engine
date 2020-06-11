@@ -633,26 +633,6 @@ void            CL_SaveConsoleHistory( void );
 StringEntry     Con_GetText( S32 console );
 
 //
-// cl_scrn.c
-//
-void            SCR_Init( void );
-void            SCR_UpdateScreen( void );
-void            SCR_DebugGraph( F32 value, S32 color );
-S32             SCR_GetBigStringWidth( StringEntry str );	// returns in virtual 640x480 coordinates
-void            SCR_AdjustFrom640( F32* x, F32* y, F32* w, F32* h );
-void            SCR_FillRect( F32 x, F32 y, F32 width, F32 height, const F32* color );
-void            SCR_DrawPic( F32 x, F32 y, F32 width, F32 height, qhandle_t hShader );
-void            SCR_DrawNamedPic( F32 x, F32 y, F32 width, F32 height, StringEntry picname );
-void            SCR_DrawBigString( S32 x, S32 y, StringEntry s, F32 alpha, bool noColorEscape );	// draws a string with embedded color control characters with fade
-void            SCR_DrawBigStringColor( S32 x, S32 y, StringEntry s, vec4_t color, bool noColorEscape );	// ignores embedded color control characters
-void            SCR_DrawSmallStringExt( S32 x, S32 y, StringEntry string, F32* setColor, bool forceColor, bool noColorEscape );
-void            SCR_DrawSmallChar( S32 x, S32 y, S32 ch );
-void            SCR_DrawConsoleFontChar( F32 x, F32 y, S32 ch );
-F32           SCR_ConsoleFontCharWidth( S32 ch );
-F32           SCR_ConsoleFontCharHeight( void );
-F32           SCR_ConsoleFontStringWidth( StringEntry s, S32 len );
-
-//
 // cl_cin.c
 //
 

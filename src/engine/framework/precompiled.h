@@ -145,6 +145,8 @@ extern "C"
 #include <API/serverDemo_api.h>
 #include <API/system_api.h>
 #include <API/serverCrypto_api.h>
+#include <API/clientScreen_api.h>
+#include <client/clientScreen.h>
 #include <API/clientGame_api.h>
 #include <API/clientLAN_api.h>
 #include <API/clientGUI_api.h>
@@ -172,8 +174,8 @@ extern "C"
 #include <GPURenderer/r_dsa.h>
 #include <GPURenderer/r_local.h>
 
-#include <API/gui_api.h>
 #include <API/cgame_api.h>
+#include <API/gui_api.h>
 #include <client/client.h>
 #include <client/keys.h>
 #include <framework/keycodes.h>

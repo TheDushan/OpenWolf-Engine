@@ -1175,11 +1175,11 @@ usercmd_t CL_CreateCmd( void )
     {
         if( cl_debugMove->integer == 1 )
         {
-            SCR_DebugGraph( fabs( cl.viewangles[YAW] - oldAngles[YAW] ), 0 );
+            idClientScreenSystemLocal::DebugGraph( fabs( cl.viewangles[YAW] - oldAngles[YAW] ), 0 );
         }
         if( cl_debugMove->integer == 2 )
         {
-            SCR_DebugGraph( fabs( cl.viewangles[PITCH] - oldAngles[PITCH] ), 0 );
+            idClientScreenSystemLocal::DebugGraph( fabs( cl.viewangles[PITCH] - oldAngles[PITCH] ), 0 );
         }
     }
     

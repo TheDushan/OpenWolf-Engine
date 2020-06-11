@@ -1073,7 +1073,7 @@ void CL_MapLoading( void )
         memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
         memset( &cl.gameState, 0, sizeof( cl.gameState ) );
         clc.lastPacketSentTime = -9999;
-        SCR_UpdateScreen();
+        clientScreenSystem->UpdateScreen();
     }
     else
     {
@@ -1083,7 +1083,7 @@ void CL_MapLoading( void )
         Q_strncpyz( cls.servername, "localhost", sizeof( cls.servername ) );
         cls.state = CA_CHALLENGING;     // so the connect screen is drawn
         cls.keyCatchers = 0;
-        SCR_UpdateScreen();
+        clientScreenSystem->UpdateScreen();
         clc.connectTime = -RETRANSMIT_TIMEOUT;
         NET_StringToAdr( cls.servername, &clc.serverAddress, NA_UNSPEC );
         // we don't need a challenge on the localhost
@@ -1224,7 +1224,7 @@ void CL_Disconnect( bool showMainMenu )
     if( clientAVISystem->VideoRecording() )
     {
         // finish rendering current frame
-        //SCR_UpdateScreen();
+        //clientScreenSystem->UpdateScreen();
         clientAVISystem->CloseAVI();
     }
     
@@ -3043,7 +3043,7 @@ void CL_Frame( S32 msec )
     if( !com_cl_running->integer )
     {
         soundSystem->Update();
-        SCR_UpdateScreen();
+        clientScreenSystem->UpdateScreen();
         return;
     }
     
@@ -3086,7 +3086,7 @@ void CL_Frame( S32 msec )
     
     if( cl_timegraph->integer )
     {
-        SCR_DebugGraph( cls.realFrametime * 0.25, 0 );
+        idClientScreenSystemLocal::DebugGraph( cls.realFrametime * 0.25, 0 );
     }
     
     // see if we need to update any userinfo
@@ -3112,7 +3112,7 @@ void CL_Frame( S32 msec )
     clientGameSystem->SetCGameTime();
     
     // update the screen
-    SCR_UpdateScreen();
+    clientScreenSystem->UpdateScreen();
     
     // update the sound
     soundSystem->Update();
@@ -3719,6 +3719,19 @@ void CL_Userinfo_f( void )
 }
 
 /*
+===============
+CL_UpdateScreen
+
+I had a problem with AddCommand and pointing to the class member so this is one way of doing
+pointing to a function that is a class member
+===============
+*/
+void CL_UpdateScreen( void )
+{
+    static_cast<idClientScreenSystemLocal*>( clientScreenSystem )->UpdateScreen();
+}
+
+/*
 ====================
 CL_Init
 ====================
@@ -3945,7 +3958,7 @@ void CL_Init( void )
     cmdSystem->AddCommand( "cache_endgather", CL_Cache_EndGather_f, "Startup-caching system" );
     
     cmdSystem->AddCommand( "updatehunkusage", &idClientGameSystemLocal::UpdateLevelHunkUsage, "Update hunk memory usage" );
-    cmdSystem->AddCommand( "updatescreen", SCR_UpdateScreen, "Toggle command to update the screen" );
+    cmdSystem->AddCommand( "updatescreen", CL_UpdateScreen, "Toggle command to update the screen" );
     // done.
     
     cmdSystem->AddCommand( "SaveTranslations", CL_SaveTranslations_f, "Toggle command to save translations" );	// NERVE - SMF - localization
@@ -3962,7 +3975,7 @@ void CL_Init( void )
     
     CL_InitRef();
     
-    SCR_Init();
+    idClientScreenSystemLocal::Init();
     
     cmdBufferSystem->Execute();
     
@@ -4053,6 +4066,7 @@ void CL_Shutdown( void )
     cmdSystem->RemoveCommand( "wav_stoprecord" );
     // done.
     
+    soundSystem->Shutdown();
     cvarSystem->Set( "cl_running", "0" );
     
     recursive = false;

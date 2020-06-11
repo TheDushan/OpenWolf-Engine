@@ -1640,8 +1640,7 @@ void CIN_DrawCinematic( S32 handle )
     w = cinTable[handle].width;
     h = cinTable[handle].height;
     buf = cinTable[handle].buf;
-    SCR_AdjustFrom640( &x, &y, &w, &h );
-    
+    idClientScreenSystemLocal::AdjustFrom640( &x, &y, &w, &h );
     
     if( cinTable[handle].letterBox )
     {

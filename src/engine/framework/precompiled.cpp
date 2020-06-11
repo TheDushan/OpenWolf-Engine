@@ -18,7 +18,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   sg_precompiled.cpp
+// File name:   precompiled.h
 // Version:     v1.01
 // Created:
 // Compilers:   Visual Studio 2019, gcc 7.3.0

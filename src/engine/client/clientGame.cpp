@@ -715,7 +715,6 @@ void idClientGameSystemLocal::CreateExportTable( void )
     exports.DemoPos = CL_DemoPos;
     
     exports.AddReliableCommand = CL_AddReliableCommand;
-    exports.UpdateScreen = SCR_UpdateScreen;
     
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
     
@@ -755,7 +754,7 @@ void idClientGameSystemLocal::CreateExportTable( void )
     exports.cmdSystem = cmdSystem;
     exports.idsystem = idsystem;
     exports.idGUISystem = clientGUISystem;
-    
+    exports.clientScreenSystem = clientScreenSystem;
 }
 
 /*

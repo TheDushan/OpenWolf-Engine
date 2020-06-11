@@ -29,16 +29,6 @@
 #ifndef __GUI_PUBLIC_H__
 #define __GUI_PUBLIC_H__
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-#ifndef __R_TYPES_H__
-#include <GPURenderer/r_types.h>
-#endif
-#ifndef __CGAME_API__
-#include <API/cgame_api.h>
-#endif
-
 #define UI_API_VERSION 1
 
 typedef enum
@@ -191,7 +181,6 @@ struct guiImports_t
 {
     void( *Print )( StringEntry fmt, ... );
     void( *Error )( S32 level, StringEntry fmt, ... );
-    void( *UpdateScreen )( void );
     void( *CheckAutoUpdate )( void );
     void( *GetAutoUpdate )( void );
     S32( *Parse_LoadSourceHandle )( StringEntry filename );
@@ -227,6 +216,7 @@ struct guiImports_t
     idCGame* idcgame;
     idClientLANSystem* idLANSystem;
     idClientGUISystem* idGUISystem;
+    idClientScreenSystem* clientScreenSystem;
 };
 
 //

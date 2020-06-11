@@ -284,7 +284,6 @@ void idClientGUISystemLocal::CreateExportTable( void )
     exports.Print = Com_Printf;
     exports.Error = Com_Error;
     
-    exports.UpdateScreen = SCR_UpdateScreen;
     exports.Parse_LoadSourceHandle = Parse_LoadSourceHandle;
     exports.Parse_FreeSourceHandle = Parse_FreeSourceHandle;
     exports.Parse_ReadTokenHandle = Parse_ReadTokenHandle;
@@ -319,6 +318,7 @@ void idClientGUISystemLocal::CreateExportTable( void )
     exports.idcgame = cgame;
     exports.idLANSystem = clientLANSystem;
     exports.idGUISystem = clientGUISystem;
+    exports.clientScreenSystem = clientScreenSystem;
 }
 
 /*

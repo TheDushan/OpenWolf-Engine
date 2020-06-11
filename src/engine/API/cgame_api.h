@@ -29,13 +29,6 @@
 #ifndef __CG_API_H__
 #define __CG_API_H__
 
-#ifndef __Q_SHARED_H__
-#include <qcommon/q_shared.h>
-#endif
-#ifndef __R_TYPES_H__
-#include <GPURenderer/r_types.h>
-#endif
-
 #define CGAME_IMPORT_API_VERSION 5
 #define CAM_PRIMARY 0
 
@@ -62,7 +55,6 @@ struct cgameImports_t
     void( *AddCommand )( StringEntry cmdName, StringEntry cmdDesc );
     void( *RemoveCommand )( StringEntry cmdName );
     void( *SendClientCommand )( StringEntry s );
-    void( *UpdateScreen )( void );
     void( *GetCurrentSnapshotNumber )( S32* snapshotNumber, S32* serverTime );
     S32( *MemoryRemaining )( void );
     bool( *loadCamera )( S32 camNum, StringEntry name );
@@ -121,6 +113,7 @@ struct cgameImports_t
     idCmdSystem* cmdSystem;
     idSystem* idsystem;
     idClientGUISystem* idGUISystem;
+    idClientScreenSystem* clientScreenSystem;
 };
 
 class idCGame
