@@ -109,7 +109,7 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
     
     for( i = 0; i < MAX_CHALLENGES; i++, challenge++ )
     {
-        if( !challenge->connected && NET_CompareAdr( from, challenge->adr ) )
+        if( !challenge->connected && networkSystem->CompareAdr( from, challenge->adr ) )
         {
             wasfound = true;
             
@@ -210,11 +210,11 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     // quick reject
     for( i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++ )
     {
-        if( NET_CompareBaseAdr( from, cl->netchan.remoteAddress )  && ( cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port ) )
+        if( networkSystem->CompareBaseAdr( from, cl->netchan.remoteAddress )  && ( cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port ) )
         {
             if( ( svs.time - cl->lastConnectTime ) < ( sv_reconnectlimit->integer * 1000 ) )
             {
-                Com_DPrintf( "%s:reconnect rejected : too soon\n", NET_AdrToString( from ) );
+                Com_DPrintf( "%s:reconnect rejected : too soon\n", networkSystem->AdrToString( from ) );
                 return;
             }
             
@@ -223,13 +223,13 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     }
     
     // don't let "ip" overflow userinfo string
-    if( NET_IsLocalAddress( from ) )
+    if( networkSystem->IsLocalAddress( from ) )
     {
         ip = "localhost";
     }
     else
     {
-        ip = ( valueType* )NET_AdrToString( from );
+        ip = ( valueType* )networkSystem->AdrToString( from );
     }
     
     if( !Info_SetValueForKey( userinfo, "ip", ip ) )
@@ -259,13 +259,13 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         oldInfoLen2 = newInfoLen2;
     }
     
-    if( NET_IsLocalAddress( from ) )
+    if( networkSystem->IsLocalAddress( from ) )
     {
         ip = "localhost";
     }
     else
     {
-        ip = ( valueType* )NET_AdrToString( from );
+        ip = ( valueType* )networkSystem->AdrToString( from );
     }
     
     if( ( ( sint )::strlen( ip ) + ( sint )::strlen( userinfo ) + 4 ) >= MAX_INFO_STRING )
@@ -279,14 +279,14 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     Info_SetValueForKey( userinfo, "ip", ip );
     
     // see if the challenge is valid (local clients don't need to challenge)
-    if( !NET_IsLocalAddress( from ) )
+    if( !networkSystem->IsLocalAddress( from ) )
     {
         sint ping;
         challenge_t* challengeptr;
         
         for( i = 0 ; i < MAX_CHALLENGES ; i++ )
         {
-            if( NET_CompareAdr( from, svs.challenges[i].adr ) )
+            if( networkSystem->CompareAdr( from, svs.challenges[i].adr ) )
             {
                 if( challenge == svs.challenges[i].challenge )
                 {
@@ -319,7 +319,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         }
         
         // never reject a LAN client based on ping
-        if( !Net_IsLANAddress( from ) )
+        if( !networkSystem->IsLANAddress( from ) )
         {
             if( sv_minPing->value && ping < sv_minPing->value )
             {
@@ -343,14 +343,14 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     }
     
     // q3fill protection
-    if( !Net_IsLANAddress( from ) )
+    if( !networkSystem->IsLANAddress( from ) )
     {
         sint connectingip = 0;
         
         for( i = 0; i < sv_maxclients->integer; i++ )
         {
             if( svs.clients[i].netchan.remoteAddress.type != NA_BOT && svs.clients[i].state == CS_CONNECTED
-                    && NET_CompareBaseAdr( svs.clients[i].netchan.remoteAddress, from ) )
+                    && networkSystem->CompareBaseAdr( svs.clients[i].netchan.remoteAddress, from ) )
             {
                 connectingip++;
             }
@@ -373,9 +373,9 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
             continue;
         }
         
-        if( NET_CompareBaseAdr( from, cl->netchan.remoteAddress ) && ( cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port ) )
+        if( networkSystem->CompareBaseAdr( from, cl->netchan.remoteAddress ) && ( cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port ) )
         {
-            Com_Printf( "%s:reconnect\n", NET_AdrToString( from ) );
+            Com_Printf( "%s:reconnect\n", networkSystem->AdrToString( from ) );
             newcl = cl;
             
             reconnect = true;
@@ -582,7 +582,7 @@ void idServerClientSystemLocal::DropClient( client_t* drop, pointer reason )
         
         for( i = 0; i < MAX_CHALLENGES; i++, challenge++ )
         {
-            if( NET_CompareAdr( drop->netchan.remoteAddress, challenge->adr ) )
+            if( networkSystem->CompareAdr( drop->netchan.remoteAddress, challenge->adr ) )
             {
                 challenge->connected = false;
                 break;
@@ -1713,7 +1713,7 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
     // rate command
     // if the client is on the same subnet as the server and we aren't running an
     // internet public server, assume they don't need a rate choke
-    if( Net_IsLANAddress( cl->netchan.remoteAddress ) && com_dedicated->integer != 2 && sv_lanForceRate->integer == 1 )
+    if( networkSystem->IsLANAddress( cl->netchan.remoteAddress ) && com_dedicated->integer != 2 && sv_lanForceRate->integer == 1 )
     {
         cl->rate = 99999; // lans should not rate limit
     }
@@ -1753,7 +1753,7 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
     // snaps command
     val = Info_ValueForKey( cl->userinfo, "snaps" );
     
-    if( val[0] && !NET_IsLocalAddress( cl->netchan.remoteAddress ) )
+    if( val[0] && !networkSystem->IsLocalAddress( cl->netchan.remoteAddress ) )
     {
         i = atoi( val );
     }
@@ -1790,9 +1790,9 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
     
     //Com_DPrintf("Maintain IP in userinfo for '%s'\n", cl->name);
     
-    if( !NET_IsLocalAddress( cl->netchan.remoteAddress ) )
+    if( !networkSystem->IsLocalAddress( cl->netchan.remoteAddress ) )
     {
-        Info_SetValueForKey( cl->userinfo, "ip", NET_AdrToString( cl->netchan.remoteAddress ) );
+        Info_SetValueForKey( cl->userinfo, "ip", networkSystem->AdrToString( cl->netchan.remoteAddress ) );
     }
     else
     {
@@ -1821,7 +1821,7 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
         if( !isalnum( val[i] ) )
         {
             Info_SetValueForKey( cl->userinfo, "cl_guid", "" );
-            Com_Printf( "Cleared malformed cl_guid from %s.\n", NET_AdrToString( cl->netchan.remoteAddress ) );
+            Com_Printf( "Cleared malformed cl_guid from %s.\n", networkSystem->AdrToString( cl->netchan.remoteAddress ) );
             break;
         }
     }
@@ -1830,7 +1830,7 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
             CheckFunstuffExploit( cl->userinfo, "funred" ) ||
             CheckFunstuffExploit( cl->userinfo, "funblue" ) )
     {
-        Com_Printf( "funstuff exploit attempt from %s\n", NET_AdrToString( cl->netchan.remoteAddress ) );
+        Com_Printf( "funstuff exploit attempt from %s\n", networkSystem->AdrToString( cl->netchan.remoteAddress ) );
     }
 }
 
@@ -1965,7 +1965,7 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, b
                 if( strpbrk( cmdSystem->Argv( 1 ), ";\n\r" ) || strpbrk( cmdSystem->Argv( 2 ), ";\n\r" ) )
                 {
                     Com_Printf( "Callvote from %s (client #%i, %s): %s\n", cl->name, ( sint )( cl - svs.clients ),
-                                NET_AdrToString( cl->netchan.remoteAddress ), cmdSystem->Args() );
+                                networkSystem->AdrToString( cl->netchan.remoteAddress ), cmdSystem->Args() );
                     return;
                 }
             }
@@ -1980,7 +1980,7 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, b
             {
                 if( cl - svs.clients != serverGameSystem->GameClientNum( cl - svs.clients )->clientNum )
                 {
-                    Com_Printf( "Stats command exploit attempt from %s\n", NET_AdrToString( cl->netchan.remoteAddress ) );
+                    Com_Printf( "Stats command exploit attempt from %s\n", networkSystem->AdrToString( cl->netchan.remoteAddress ) );
                     serverMainSystem->SendServerCommand( cl, "print \"^7Stats command exploit attempt detected. This has been ^1reported^7.\n\"" );
                     return;
                 }
@@ -2056,7 +2056,7 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, b
                 
                 if( exploitDetected )
                 {
-                    Com_Printf( "Buffer overflow exploit radio/say, possible attempt from %s\n", NET_AdrToString( cl->netchan.remoteAddress ) );
+                    Com_Printf( "Buffer overflow exploit radio/say, possible attempt from %s\n", networkSystem->AdrToString( cl->netchan.remoteAddress ) );
                     serverMainSystem->SendServerCommand( cl, "print \"Chat dropped due to message length constraints.\n\"" );
                     return;
                 }
@@ -2065,7 +2065,7 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, b
                 {
                     if( cl - svs.clients != serverGameSystem->GameClientNum( cl - svs.clients )->clientNum )
                     {
-                        Com_Printf( "Stats command exploit attempt from %s\n", NET_AdrToString( cl->netchan.remoteAddress ) );
+                        Com_Printf( "Stats command exploit attempt from %s\n", networkSystem->AdrToString( cl->netchan.remoteAddress ) );
                         serverMainSystem->SendServerCommand( cl, "print \"^7Stats command exploit attempt detected. This has been ^1reported^7.\n\"" );
                         return;
                     }

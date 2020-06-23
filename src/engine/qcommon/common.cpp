@@ -2384,7 +2384,7 @@ sysEvent_t Com_GetSystemEvent( void )
     // check for network packets
     MSG_Init( &netmsg, sys_packetReceived, sizeof( sys_packetReceived ) );
     adr.type = NA_UNSPEC;
-    if( Net_GetPacket( &adr, &netmsg ) )
+    if( networkSystem->GetPacket( &adr, &netmsg ) )
     {
         netadr_t*  buf;
         sint       len;
@@ -3741,7 +3741,7 @@ void Com_Shutdown( bool badProfile )
 {
     valueType* cl_profileStr = cvarSystem->VariableString( "cl_profile" );
     
-    NET_Shutdown();
+    networkSystem->Shutdown();
     
     collisionModelManager->ClearMap();
     

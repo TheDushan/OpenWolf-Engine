@@ -1522,6 +1522,7 @@ void GLimp_Shutdown( void )
     
     ::memset( &glConfig, 0, sizeof( glConfig ) );
     ::memset( &glState, 0, sizeof( glState ) );
+    ::memset( &glRefConfig, 0, sizeof( glRefConfig ) );
 }
 
 /*

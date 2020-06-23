@@ -474,7 +474,7 @@ void idServerInitSystemLocal::Startup( void )
     cvarSystem->Set( "sv_running", "1" );
     
     // Join the ipv6 multicast group now that a map is running so clients can scan for us on the local network.
-    NET_JoinMulticast6();
+    networkSystem->JoinMulticast6();
 }
 
 /*
@@ -1216,7 +1216,7 @@ void idServerInitSystemLocal::Init( void )
     
     idServerWallhackSystemLocal::InitWallhack();
     
-    // can't ResolveAuthHost() here since NET_Init() hasn't been
+    // can't ResolveAuthHost() here since networkSystem->Init() hasn't been
     // called yet; works if we move ResolveAuthHost() to platform/systemMain.cpp
     // but that's introducing another #ifdef DEDICATED there, kinda sad; seems
     // that Rambetter added his stuff in Frame() but that incurs (at least
@@ -1318,7 +1318,7 @@ void idServerInitSystemLocal::Shutdown( valueType* finalmsg )
     
     Com_Printf( "----- Server Shutdown -----\n" );
     
-    NET_LeaveMulticast6();
+    networkSystem->LeaveMulticast6();
     
     if( svs.clients && !com_errorEntered )
     {

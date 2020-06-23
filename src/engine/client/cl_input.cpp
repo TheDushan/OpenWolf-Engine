@@ -1272,7 +1272,7 @@ bool CL_ReadyToSendPacket( void )
     }
     
     // send every frame for LAN
-    if( Net_IsLANAddress( clc.netchan.remoteAddress ) )
+    if( networkSystem->IsLANAddress( clc.netchan.remoteAddress ) )
     {
         return true;
     }

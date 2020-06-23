@@ -197,33 +197,13 @@ typedef struct
     uint32 scope_id;	// Needed for IPv6 link-local addresses
 } netadr_t;
 
-void			NET_Init( void );
-void            NET_Shutdown( void );
-void			NET_Restart_f( void );
-void			NET_Config( bool enableNetworking );
 void            NET_FlushPacketQueue( void );
 void			NET_SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to );
 void      NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, pointer format, ... ) __attribute__( ( format( printf, 3, 4 ) ) );
 void 	NET_OutOfBandData( netsrc_t sock, netadr_t adr, uchar8* format, sint len );
 
-bool		NET_CompareAdr( netadr_t a, netadr_t b );
-bool		NET_CompareBaseAdr( netadr_t a, netadr_t b );
-bool		NET_IsLocalAddress( netadr_t adr );
-bool		NET_IsIPXAddress( pointer buf );
-pointer		NET_AdrToString( netadr_t a );
-pointer		NET_AdrToStringwPort( netadr_t a );
 sint				NET_StringToAdr( pointer s, netadr_t* a, netadrtype_t family );
 bool		NET_GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message );
-void            NET_JoinMulticast6( void );
-void            NET_LeaveMulticast6( void );
-
-void			NET_Sleep( sint msec );
-
-bool Net_IsLANAddress( netadr_t adr );
-bool Net_GetPacket( netadr_t* net_from, msg_t* net_message );
-void Net_SendPacket( sint length, const void* data, netadr_t to );
-void Net_ShowIP( void );
-bool Net_StringToAdr( pointer s, netadr_t* a, netadrtype_t family );
 
 //----(SA)  increased for larger submodel entity counts
 #define MAX_MSGLEN					32768		// max length of a message, which may

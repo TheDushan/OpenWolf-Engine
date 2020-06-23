@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2020 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,8 +27,7 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   net_ip.cpp
-// Version:     v1.01
+// File name:   network.cpp
 // Created:
 // Compilers:   Visual Studio 2019, gcc 7.3.0
 // Description:
@@ -43,101 +42,33 @@
 #include <framework/precompiled.h>
 #endif
 
-#ifdef _WIN32
-typedef sint socklen_t;
-#ifdef ADDRESS_FAMILY
-#define sa_family_t	ADDRESS_FAMILY
-#else
-typedef uchar16 sa_family_t;
-#endif
+idNetworkSystemLocal networkSystemLocal;
+idNetworkSystem* networkSystem = &networkSystemLocal;
 
-#define EAGAIN					WSAEWOULDBLOCK
-#define EADDRNOTAVAIL	WSAEADDRNOTAVAIL
-#define EAFNOSUPPORT		WSAEAFNOSUPPORT
-#define ECONNRESET			WSAECONNRESET
-#define socketError		WSAGetLastError( )
-
-static WSADATA	winsockdata;
-static bool	winsockInitialized = false;
-
-#else
-
-#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
-// needed for socklen_t on OSX 10.2
-#define _BSD_SOCKLEN_T_
-#endif
-
-typedef sint SOCKET;
-#define INVALID_SOCKET		-1
-#define SOCKET_ERROR			-1
-#define closesocket			close
-#define ioctlsocket			ioctl
-#define socketError			errno
-typedef uchar16 sa_family_t;
-#endif
-
-static bool usingSocks = false;
-static bool networkingEnabled = false;
-
-static convar_t*	net_enabled;
-
-static convar_t*	net_socksEnabled;
-static convar_t*	net_socksServer;
-static convar_t*	net_socksPort;
-static convar_t*	net_socksUsername;
-static convar_t*	net_socksPassword;
-
-static convar_t*	net_ip;
-static convar_t*	net_ip6;
-static convar_t*	net_port;
-static convar_t*	net_port6;
-static convar_t*	net_mcast6addr;
-static convar_t*	net_mcast6iface;
-
-static struct sockaddr	socksRelayAddr;
-
-static SOCKET	ip_socket = INVALID_SOCKET;
-static SOCKET	ip6_socket = INVALID_SOCKET;
-static SOCKET	socks_socket = INVALID_SOCKET;
-static SOCKET	multicast6_socket = INVALID_SOCKET;
-
-// Keep track of currently joined multicast group.
-static struct ipv6_mreq curgroup;
-// And the currently bound address.
-static struct sockaddr_in6 boundto;
-
-#ifndef IF_NAMESIZE
-#define IF_NAMESIZE 16
-#endif
-
-// use an admin local address per default so that network admins can decide on how to handle quake3 traffic.
-#define NET_MULTICAST_IP6 "ff04::696f:7175:616b:6533"
-
-#define	MAX_IPS		32
-
-typedef struct
+/*
+===============
+idNetworkSystemLocal::idNetworkSystemLocal
+===============
+*/
+idNetworkSystemLocal::idNetworkSystemLocal( void )
 {
-    valueType ifname[IF_NAMESIZE];
-    
-    netadrtype_t type;
-    sa_family_t family;
-    struct sockaddr_storage addr;
-    struct sockaddr_storage netmask;
-} nip_localaddr_t;
+}
 
-static nip_localaddr_t localIP[MAX_IPS];
-static sint numIP;
-
-
-//=============================================================================
-
+/*
+===============
+idNetworkSystemLocal::~idNetworkSystemLocal
+===============
+*/
+idNetworkSystemLocal::~idNetworkSystemLocal( void )
+{
+}
 
 /*
 ====================
-NET_ErrorString
+idNetworkSystemLocal::ErrorString
 ====================
 */
-valueType* NET_ErrorString( void )
+valueType* idNetworkSystemLocal::ErrorString( void )
 {
 #ifdef _WIN32
     //FIXME: replace with FormatMessage?
@@ -239,7 +170,12 @@ valueType* NET_ErrorString( void )
 #endif
 }
 
-static void NetadrToSockadr( netadr_t* a, struct sockaddr* s )
+/*
+=============
+idNetworkSystemLocal::NetadrToSockadr
+=============
+*/
+void idNetworkSystemLocal::NetadrToSockadr( netadr_t* a, struct sockaddr* s )
 {
     if( a->type == NA_BROADCAST )
     {
@@ -268,8 +204,12 @@ static void NetadrToSockadr( netadr_t* a, struct sockaddr* s )
     }
 }
 
-
-static void SockadrToNetadr( struct sockaddr* s, netadr_t* a )
+/*
+=============
+idNetworkSystemLocal::SockadrToNetadr
+=============
+*/
+void idNetworkSystemLocal::SockadrToNetadr( struct sockaddr* s, netadr_t* a )
 {
     if( s->sa_family == AF_INET )
     {
@@ -286,8 +226,12 @@ static void SockadrToNetadr( struct sockaddr* s, netadr_t* a )
     }
 }
 
-
-static struct addrinfo* SearchAddrInfo( struct addrinfo* hints, sa_family_t family )
+/*
+=============
+idNetworkSystemLocal::SearchAddrInfo
+=============
+*/
+struct addrinfo* idNetworkSystemLocal::SearchAddrInfo( struct addrinfo* hints, sa_family_t family )
 {
     while( hints )
     {
@@ -302,10 +246,10 @@ static struct addrinfo* SearchAddrInfo( struct addrinfo* hints, sa_family_t fami
 
 /*
 =============
-Sys_StringToSockaddr
+idNetworkSystemLocal::StringToSockaddr
 =============
 */
-static bool Sys_StringToSockaddr( pointer s, struct sockaddr* sadr, sint sadr_len, sa_family_t family )
+bool idNetworkSystemLocal::StringToSockaddr( pointer s, struct sockaddr* sadr, sint sadr_len, sa_family_t family )
 {
     struct addrinfo hints;
     struct addrinfo* res = nullptr;
@@ -358,10 +302,10 @@ static bool Sys_StringToSockaddr( pointer s, struct sockaddr* sadr, sint sadr_le
             return true;
         }
         else
-            Com_Printf( "Sys_StringToSockaddr: Error resolving %s: No address of required type found.\n", s );
+            Com_Printf( "idNetworkSystemLocal::StringToSockaddr: Error resolving %s: No address of required type found.\n", s );
     }
     else
-        Com_Printf( "Sys_StringToSockaddr: Error resolving %s: %s\n", s, gai_strerror( retval ) );
+        Com_Printf( "idNetworkSystemLocal::StringToSockaddr: Error resolving %s: %s\n", s, gai_strerror( retval ) );
         
     if( res )
         freeaddrinfo( res );
@@ -371,10 +315,10 @@ static bool Sys_StringToSockaddr( pointer s, struct sockaddr* sadr, sint sadr_le
 
 /*
 =============
-Sys_SockaddrToString
+idNetworkSystemLocal::SockaddrToString
 =============
 */
-static void Sys_SockaddrToString( valueType* dest, sint destlen, struct sockaddr* input )
+void idNetworkSystemLocal::SockaddrToString( valueType* dest, sint destlen, struct sockaddr* input )
 {
     socklen_t inputlen;
     
@@ -389,10 +333,10 @@ static void Sys_SockaddrToString( valueType* dest, sint destlen, struct sockaddr
 
 /*
 =============
-Net_StringToAdr
+idNetworkSystemLocal::StringToAdr
 =============
 */
-bool Net_StringToAdr( pointer s, netadr_t* a, netadrtype_t family )
+bool idNetworkSystemLocal::StringToAdr( pointer s, netadr_t* a, netadrtype_t family )
 {
     struct sockaddr_storage sadr;
     sa_family_t fam;
@@ -409,7 +353,8 @@ bool Net_StringToAdr( pointer s, netadr_t* a, netadrtype_t family )
             fam = AF_UNSPEC;
             break;
     }
-    if( !Sys_StringToSockaddr( s, ( struct sockaddr* ) &sadr, sizeof( sadr ), fam ) )
+    
+    if( !StringToSockaddr( s, ( struct sockaddr* ) &sadr, sizeof( sadr ), fam ) )
     {
         return false;
     }
@@ -420,12 +365,12 @@ bool Net_StringToAdr( pointer s, netadr_t* a, netadrtype_t family )
 
 /*
 ===================
-NET_CompareBaseAdrMask
+idNetworkSystemLocal::CompareBaseAdrMask
 
 Compare without port, and up to the bit number given in netmask.
 ===================
 */
-bool NET_CompareBaseAdrMask( netadr_t a, netadr_t b, sint netmask )
+bool idNetworkSystemLocal::CompareBaseAdrMask( netadr_t a, netadr_t b, sint netmask )
 {
     bool differed;
     uchar8 cmpmask, *addra, *addrb;
@@ -455,7 +400,7 @@ bool NET_CompareBaseAdrMask( netadr_t a, netadr_t b, sint netmask )
     }
     else
     {
-        Com_Printf( "NET_CompareBaseAdr: bad address type\n" );
+        Com_Printf( "idNetworkSystemLocal::CompareBaseAdr: bad address type\n" );
         return false;
     }
     
@@ -491,20 +436,24 @@ bool NET_CompareBaseAdrMask( netadr_t a, netadr_t b, sint netmask )
     return false;
 }
 
-
 /*
 ===================
-NET_CompareBaseAdr
+idNetworkSystemLocal::CompareBaseAdr
 
 Compares without the port
 ===================
 */
-bool NET_CompareBaseAdr( netadr_t a, netadr_t b )
+bool idNetworkSystemLocal::CompareBaseAdr( netadr_t a, netadr_t b )
 {
-    return NET_CompareBaseAdrMask( a, b, -1 );
+    return CompareBaseAdrMask( a, b, -1 );
 }
 
-pointer	NET_AdrToString( netadr_t a )
+/*
+=============
+idNetworkSystemLocal::AdrToString
+=============
+*/
+pointer	idNetworkSystemLocal::AdrToString( netadr_t a )
 {
     static	valueType	s[NET_ADDRSTRMAXLEN];
     
@@ -518,13 +467,18 @@ pointer	NET_AdrToString( netadr_t a )
         
         memset( &sadr, 0, sizeof( sadr ) );
         NetadrToSockadr( &a, ( struct sockaddr* ) &sadr );
-        Sys_SockaddrToString( s, sizeof( s ), ( struct sockaddr* ) &sadr );
+        SockaddrToString( s, sizeof( s ), ( struct sockaddr* ) &sadr );
     }
     
     return s;
 }
 
-pointer	NET_AdrToStringwPort( netadr_t a )
+/*
+=============
+idNetworkSystemLocal::AdrToStringwPort
+=============
+*/
+pointer	idNetworkSystemLocal::AdrToStringwPort( netadr_t a )
 {
     static	valueType	s[NET_ADDRSTRMAXLEN];
     
@@ -533,16 +487,20 @@ pointer	NET_AdrToStringwPort( netadr_t a )
     else if( a.type == NA_BOT )
         Com_sprintf( s, sizeof( s ), "bot" );
     else if( a.type == NA_IP )
-        Com_sprintf( s, sizeof( s ), "%s:%d", NET_AdrToString( a ), ( uint32 )ntohs( a.port ) );
+        Com_sprintf( s, sizeof( s ), "%s:%d", AdrToString( a ), ( uint32 )ntohs( a.port ) );
     else if( a.type == NA_IP6 )
-        Com_sprintf( s, sizeof( s ), "[%s]:%d", NET_AdrToString( a ), ( uint32 )ntohs( a.port ) );
+        Com_sprintf( s, sizeof( s ), "[%s]:%d", AdrToString( a ), ( uint32 )ntohs( a.port ) );
     return s;
 }
 
-
-bool	NET_CompareAdr( netadr_t a, netadr_t b )
+/*
+=============
+idNetworkSystemLocal::CompareAdr
+=============
+*/
+bool idNetworkSystemLocal::CompareAdr( netadr_t a, netadr_t b )
 {
-    if( !NET_CompareBaseAdr( a, b ) )
+    if( !CompareBaseAdr( a, b ) )
         return false;
         
     if( a.type == NA_IP || a.type == NA_IP6 )
@@ -558,8 +516,12 @@ bool	NET_CompareAdr( netadr_t a, netadr_t b )
     return false;
 }
 
-
-bool	NET_IsLocalAddress( netadr_t adr )
+/*
+=============
+idNetworkSystemLocal::IsLocalAddress
+=============
+*/
+bool idNetworkSystemLocal::IsLocalAddress( netadr_t adr )
 {
     return ( bool )( adr.type == NA_LOOPBACK );
 }
@@ -568,7 +530,7 @@ bool	NET_IsLocalAddress( netadr_t adr )
 
 /*
 ==================
-Net_GetPacket
+idNetworkSystemLocal::GetPacket
 
 Never called by the game logic, just the system event queing
 ==================
@@ -577,7 +539,7 @@ Never called by the game logic, just the system event queing
 sint	recvfromCount;
 #endif
 
-bool Net_GetPacket( netadr_t* net_from, msg_t* net_message )
+bool idNetworkSystemLocal::GetPacket( netadr_t* net_from, msg_t* net_message )
 {
     sint 	ret;
     struct sockaddr_storage from;
@@ -598,7 +560,7 @@ bool Net_GetPacket( netadr_t* net_from, msg_t* net_message )
             err = socketError;
             
             if( err != EAGAIN && err != ECONNRESET )
-                Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
+                Com_Printf( "idNetworkSystemLocal::GetPacket: %s\n", ErrorString() );
         }
         else
         {
@@ -627,7 +589,7 @@ bool Net_GetPacket( netadr_t* net_from, msg_t* net_message )
             
             if( ret == net_message->maxsize )
             {
-                Com_Printf( "Oversize packet from %s\n", NET_AdrToString( *net_from ) );
+                Com_Printf( "Oversize packet from %s\n", AdrToString( *net_from ) );
                 return false;
             }
             
@@ -646,7 +608,7 @@ bool Net_GetPacket( netadr_t* net_from, msg_t* net_message )
             err = socketError;
             
             if( err != EAGAIN && err != ECONNRESET )
-                Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
+                Com_Printf( "idNetworkSystemLocal::GetPacket: %s\n", ErrorString() );
         }
         else
         {
@@ -655,7 +617,7 @@ bool Net_GetPacket( netadr_t* net_from, msg_t* net_message )
             
             if( ret == net_message->maxsize )
             {
-                Com_Printf( "Oversize packet from %s\n", NET_AdrToString( *net_from ) );
+                Com_Printf( "Oversize packet from %s\n", AdrToString( *net_from ) );
                 return false;
             }
             
@@ -674,7 +636,7 @@ bool Net_GetPacket( netadr_t* net_from, msg_t* net_message )
             err = socketError;
             
             if( err != EAGAIN && err != ECONNRESET )
-                Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
+                Com_Printf( "idNetworkSystemLocal::GetPacket: %s\n", ErrorString() );
         }
         else
         {
@@ -683,7 +645,7 @@ bool Net_GetPacket( netadr_t* net_from, msg_t* net_message )
             
             if( ret == net_message->maxsize )
             {
-                Com_Printf( "Oversize packet from %s\n", NET_AdrToString( *net_from ) );
+                Com_Printf( "Oversize packet from %s\n", AdrToString( *net_from ) );
                 return false;
             }
             
@@ -696,23 +658,19 @@ bool Net_GetPacket( netadr_t* net_from, msg_t* net_message )
     return false;
 }
 
-//=============================================================================
-
-static valueType socksBuf[4096];
-
 /*
 ==================
-Net_SendPacket
+idNetworkSystemLocal::SendPacket
 ==================
 */
-void Net_SendPacket( sint length, const void* data, netadr_t to )
+void idNetworkSystemLocal::SendPacket( sint length, const void* data, netadr_t to )
 {
     sint				ret = SOCKET_ERROR;
     struct			sockaddr_storage addr;
     
     if( to.type != NA_BROADCAST && to.type != NA_IP && to.type != NA_IP6 && to.type != NA_MULTICAST6 )
     {
-        Com_Error( ERR_FATAL, "Sys_SendPacket: bad address type" );
+        Com_Error( ERR_FATAL, "idNetworkSystemLocal::SendPacket: bad address type" );
         return;
     }
     
@@ -761,21 +719,18 @@ void Net_SendPacket( sint length, const void* data, netadr_t to )
             return;
         }
         
-        Com_Printf( "NET_SendPacket: %s\n", NET_ErrorString() );
+        Com_Printf( "idNetworkSystemLocal::SendPacket: %s\n", ErrorString() );
     }
 }
 
-
-//=============================================================================
-
 /*
 ==================
-Net_IsLANAddress
+idNetworkSystemLocal::IsLANAddress
 
 LAN clients will have their rate var ignored
 ==================
 */
-bool Net_IsLANAddress( netadr_t adr )
+bool idNetworkSystemLocal::IsLANAddress( netadr_t adr )
 {
     sint		index, run, addrsize;
     bool differed;
@@ -855,17 +810,17 @@ bool Net_IsLANAddress( netadr_t adr )
 
 /*
 ==================
-Net_ShowIP
+idNetworkSystemLocal::ShowIP
 ==================
 */
-void Net_ShowIP( void )
+void idNetworkSystemLocal::ShowIP( void )
 {
     sint i;
     valueType addrbuf[NET_ADDRSTRMAXLEN];
     
     for( i = 0; i < numIP; i++ )
     {
-        Sys_SockaddrToString( addrbuf, sizeof( addrbuf ), ( struct sockaddr* ) &localIP[i].addr );
+        SockaddrToString( addrbuf, sizeof( addrbuf ), ( struct sockaddr* ) &localIP[i].addr );
         
         if( localIP[i].type == NA_IP )
             Com_Printf( "IP: %s\n", addrbuf );
@@ -874,16 +829,12 @@ void Net_ShowIP( void )
     }
 }
 
-
-//=============================================================================
-
-
 /*
 ====================
-NET_IPSocket
+idNetworkSystemLocal::IPSocket
 ====================
 */
-SOCKET NET_IPSocket( valueType* net_interface, sint port, sint* err )
+SOCKET idNetworkSystemLocal::IPSocket( valueType* net_interface, sint port, sint* err )
 {
     SOCKET				newsocket;
     struct sockaddr_in	address;
@@ -904,13 +855,13 @@ SOCKET NET_IPSocket( valueType* net_interface, sint port, sint* err )
     if( ( newsocket = socket( PF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET )
     {
         *err = socketError;
-        Com_Printf( "WARNING: NET_IPSocket: socket: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::IPSocket: socket: %s\n", ErrorString() );
         return newsocket;
     }
     // make it non-blocking
     if( ioctlsocket( newsocket, FIONBIO, &_true ) == SOCKET_ERROR )
     {
-        Com_Printf( "WARNING: NET_IPSocket: ioctl FIONBIO: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::IPSocket: ioctl FIONBIO: %s\n", ErrorString() );
         *err = socketError;
         closesocket( newsocket );
         return INVALID_SOCKET;
@@ -919,7 +870,7 @@ SOCKET NET_IPSocket( valueType* net_interface, sint port, sint* err )
     // make it broadcast capable
     if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, ( valueType* ) &i, sizeof( i ) ) == SOCKET_ERROR )
     {
-        Com_Printf( "WARNING: NET_IPSocket: setsockopt SO_BROADCAST: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::IPSocket: setsockopt SO_BROADCAST: %s\n", ErrorString() );
     }
     
     if( !net_interface || !net_interface[0] )
@@ -929,7 +880,7 @@ SOCKET NET_IPSocket( valueType* net_interface, sint port, sint* err )
     }
     else
     {
-        if( !Sys_StringToSockaddr( net_interface, ( struct sockaddr* )&address, sizeof( address ), AF_INET ) )
+        if( !StringToSockaddr( net_interface, ( struct sockaddr* )&address, sizeof( address ), AF_INET ) )
         {
             closesocket( newsocket );
             return INVALID_SOCKET;
@@ -947,7 +898,7 @@ SOCKET NET_IPSocket( valueType* net_interface, sint port, sint* err )
     
     if( bind( newsocket, ( struct sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
     {
-        Com_Printf( "WARNING: NET_IPSocket: bind: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::IPSocket: bind: %s\n", ErrorString() );
         *err = socketError;
         closesocket( newsocket );
         return INVALID_SOCKET;
@@ -958,10 +909,10 @@ SOCKET NET_IPSocket( valueType* net_interface, sint port, sint* err )
 
 /*
 ====================
-NET_IP6Socket
+idNetworkSystemLocal::IP6Socket
 ====================
 */
-SOCKET NET_IP6Socket( valueType* net_interface, sint port, struct sockaddr_in6* bindto, sint* err )
+SOCKET idNetworkSystemLocal::IP6Socket( valueType* net_interface, sint port, struct sockaddr_in6* bindto, sint* err )
 {
     SOCKET				newsocket;
     struct sockaddr_in6	address;
@@ -983,14 +934,14 @@ SOCKET NET_IP6Socket( valueType* net_interface, sint port, struct sockaddr_in6* 
     if( ( newsocket = socket( PF_INET6, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET )
     {
         *err = socketError;
-        Com_Printf( "WARNING: NET_IP6Socket: socket: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::IP6Socket: socket: %s\n", ErrorString() );
         return newsocket;
     }
     
     // make it non-blocking
     if( ioctlsocket( newsocket, FIONBIO, &_true ) == SOCKET_ERROR )
     {
-        Com_Printf( "WARNING: NET_IP6Socket: ioctl FIONBIO: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::IP6Socket: ioctl FIONBIO: %s\n", ErrorString() );
         *err = socketError;
         closesocket( newsocket );
         return INVALID_SOCKET;
@@ -1004,7 +955,7 @@ SOCKET NET_IP6Socket( valueType* net_interface, sint port, struct sockaddr_in6* 
         if( setsockopt( newsocket, IPPROTO_IPV6, IPV6_V6ONLY, ( valueType* ) &i, sizeof( i ) ) == SOCKET_ERROR )
         {
             // win32 systems don't seem to support this anyways.
-            Com_DPrintf( "WARNING: NET_IP6Socket: setsockopt IPV6_V6ONLY: %s\n", NET_ErrorString() );
+            Com_DPrintf( "WARNING: idNetworkSystemLocal::IP6Socket: setsockopt IPV6_V6ONLY: %s\n", ErrorString() );
         }
     }
 #endif
@@ -1016,7 +967,7 @@ SOCKET NET_IP6Socket( valueType* net_interface, sint port, struct sockaddr_in6* 
     }
     else
     {
-        if( !Sys_StringToSockaddr( net_interface, ( struct sockaddr* )&address, sizeof( address ), AF_INET6 ) )
+        if( !StringToSockaddr( net_interface, ( struct sockaddr* )&address, sizeof( address ), AF_INET6 ) )
         {
             closesocket( newsocket );
             return INVALID_SOCKET;
@@ -1034,7 +985,7 @@ SOCKET NET_IP6Socket( valueType* net_interface, sint port, struct sockaddr_in6* 
     
     if( bind( newsocket, ( struct sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
     {
-        Com_Printf( "WARNING: NET_IP6Socket: bind: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::IP6Socket: bind: %s\n", ErrorString() );
         *err = socketError;
         closesocket( newsocket );
         return INVALID_SOCKET;
@@ -1048,17 +999,18 @@ SOCKET NET_IP6Socket( valueType* net_interface, sint port, struct sockaddr_in6* 
 
 /*
 ====================
-NET_SetMulticast
+idNetworkSystemLocal::SetMulticast
+
 Set the current multicast group
 ====================
 */
-void NET_SetMulticast6( void )
+void idNetworkSystemLocal::SetMulticast6( void )
 {
     struct sockaddr_in6 addr;
     
-    if( !*net_mcast6addr->string || !Sys_StringToSockaddr( net_mcast6addr->string, ( struct sockaddr* ) &addr, sizeof( addr ), AF_INET6 ) )
+    if( !*net_mcast6addr->string || !StringToSockaddr( net_mcast6addr->string, ( struct sockaddr* ) &addr, sizeof( addr ), AF_INET6 ) )
     {
-        Com_Printf( "WARNING: NET_JoinMulticast6: Incorrect multicast address given, "
+        Com_Printf( "WARNING: idNetworkSystemLocal::JoinMulticast6: Incorrect multicast address given, "
                     "please set cvar %s to a sane value.\n", net_mcast6addr->name );
                     
         cvarSystem->SetValue( net_enabled->name, net_enabled->integer | NET_DISABLEMCAST );
@@ -1077,16 +1029,19 @@ void NET_SetMulticast6( void )
 #endif
     }
     else
+    {
         curgroup.ipv6mr_interface = 0;
+    }
 }
 
 /*
 ====================
-NET_JoinMulticast
+idNetworkSystemLocal::JoinMulticast
+
 Join an ipv6 multicast group
 ====================
 */
-void NET_JoinMulticast6( void )
+void idNetworkSystemLocal::JoinMulticast6( void )
 {
     sint err;
     
@@ -1100,7 +1055,7 @@ void NET_JoinMulticast6( void )
     }
     else
     {
-        if( ( multicast6_socket = NET_IP6Socket( net_mcast6addr->string, ntohs( boundto.sin6_port ), nullptr, &err ) ) == INVALID_SOCKET )
+        if( ( multicast6_socket = IP6Socket( net_mcast6addr->string, ntohs( boundto.sin6_port ), nullptr, &err ) ) == INVALID_SOCKET )
         {
             // If the OS does not support binding to multicast addresses, like WinXP, at least try with the normal file descriptor.
             multicast6_socket = ip6_socket;
@@ -1112,7 +1067,7 @@ void NET_JoinMulticast6( void )
         if( setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_MULTICAST_IF,
                         ( valueType* ) &curgroup.ipv6mr_interface, sizeof( curgroup.ipv6mr_interface ) ) < 0 )
         {
-            Com_Printf( "NET_JoinMulticast6: Couldn't set scope on multicast socket: %s\n", NET_ErrorString() );
+            Com_Printf( "idNetworkSystemLocal::JoinMulticast6: Couldn't set scope on multicast socket: %s\n", ErrorString() );
             
             if( multicast6_socket != ip6_socket )
             {
@@ -1125,7 +1080,7 @@ void NET_JoinMulticast6( void )
     
     if( setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP, ( valueType* ) &curgroup, sizeof( curgroup ) ) )
     {
-        Com_Printf( "NET_JoinMulticast6: Couldn't join multicast group: %s\n", NET_ErrorString() );
+        Com_Printf( "idNetworkSystemLocal::JoinMulticast6: Couldn't join multicast group: %s\n", ErrorString() );
         
         if( multicast6_socket != ip6_socket )
         {
@@ -1136,25 +1091,34 @@ void NET_JoinMulticast6( void )
     }
 }
 
-void NET_LeaveMulticast6()
+/*
+=============
+idNetworkSystemLocal::LeaveMulticast6
+=============
+*/
+void idNetworkSystemLocal::LeaveMulticast6( void )
 {
     if( multicast6_socket != INVALID_SOCKET )
     {
         if( multicast6_socket != ip6_socket )
+        {
             closesocket( multicast6_socket );
+        }
         else
-            setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_LEAVE_GROUP, ( valueType* ) &curgroup, sizeof( curgroup ) );
-            
+        {
+            setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_LEAVE_GROUP, ( valueType* )&curgroup, sizeof( curgroup ) );
+        }
+        
         multicast6_socket = INVALID_SOCKET;
     }
 }
 
 /*
 ====================
-NET_OpenSocks
+idNetworkSystemLocal::OpenSocks
 ====================
 */
-void NET_OpenSocks( sint port )
+void idNetworkSystemLocal::OpenSocks( sint port )
 {
     struct sockaddr_in	address;
     sint					err;
@@ -1170,7 +1134,7 @@ void NET_OpenSocks( sint port )
     if( ( socks_socket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) == INVALID_SOCKET )
     {
         err = socketError;
-        Com_Printf( "WARNING: NET_OpenSocks: socket: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::OpenSocks: socket: %s\n", ErrorString() );
         return;
     }
     
@@ -1178,12 +1142,12 @@ void NET_OpenSocks( sint port )
     if( h == nullptr )
     {
         err = socketError;
-        Com_Printf( "WARNING: NET_OpenSocks: gethostbyname: %s\n", NET_ErrorString() );
+        Com_Printf( "WARNING: idNetworkSystemLocal::OpenSocks: gethostbyname: %s\n", ErrorString() );
         return;
     }
     if( h->h_addrtype != AF_INET )
     {
-        Com_Printf( "WARNING: NET_OpenSocks: gethostbyname: address type was not AF_INET\n" );
+        Com_Printf( "WARNING: idNetworkSystemLocal::OpenSocks: gethostbyname: address type was not AF_INET\n" );
         return;
     }
     address.sin_family = AF_INET;
@@ -1193,7 +1157,7 @@ void NET_OpenSocks( sint port )
     if( connect( socks_socket, ( struct sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
     {
         err = socketError;
-        Com_Printf( "NET_OpenSocks: connect: %s\n", NET_ErrorString() );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: connect: %s\n", ErrorString() );
         return;
     }
     
@@ -1227,7 +1191,7 @@ void NET_OpenSocks( sint port )
     if( send( socks_socket, ( valueType* )buf, len, 0 ) == SOCKET_ERROR )
     {
         err = socketError;
-        Com_Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString() );
         return;
     }
     
@@ -1236,12 +1200,12 @@ void NET_OpenSocks( sint port )
     if( len == SOCKET_ERROR )
     {
         err = socketError;
-        Com_Printf( "NET_OpenSocks: recv: %s\n", NET_ErrorString() );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: recv: %s\n", ErrorString() );
         return;
     }
     if( len != 2 || buf[0] != 5 )
     {
-        Com_Printf( "NET_OpenSocks: bad response\n" );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: bad response\n" );
         return;
     }
     switch( buf[1] )
@@ -1251,7 +1215,7 @@ void NET_OpenSocks( sint port )
         case 2: // username/password authentication
             break;
         default:
-            Com_Printf( "NET_OpenSocks: request denied\n" );
+            Com_Printf( "idNetworkSystemLocal::OpenSocks: request denied\n" );
             return;
     }
     
@@ -1281,7 +1245,7 @@ void NET_OpenSocks( sint port )
         if( send( socks_socket, ( valueType* )buf, 3 + ulen + plen, 0 ) == SOCKET_ERROR )
         {
             err = socketError;
-            Com_Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
+            Com_Printf( "idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString() );
             return;
         }
         
@@ -1290,17 +1254,17 @@ void NET_OpenSocks( sint port )
         if( len == SOCKET_ERROR )
         {
             err = socketError;
-            Com_Printf( "NET_OpenSocks: recv: %s\n", NET_ErrorString() );
+            Com_Printf( "idNetworkSystemLocal::OpenSocks: recv: %s\n", ErrorString() );
             return;
         }
         if( len != 2 || buf[0] != 1 )
         {
-            Com_Printf( "NET_OpenSocks: bad response\n" );
+            Com_Printf( "idNetworkSystemLocal::OpenSocks: bad response\n" );
             return;
         }
         if( buf[1] != 0 )
         {
-            Com_Printf( "NET_OpenSocks: authentication failed\n" );
+            Com_Printf( "idNetworkSystemLocal::OpenSocks: authentication failed\n" );
             return;
         }
     }
@@ -1315,7 +1279,7 @@ void NET_OpenSocks( sint port )
     if( send( socks_socket, ( valueType* )buf, 10, 0 ) == SOCKET_ERROR )
     {
         err = socketError;
-        Com_Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString() );
         return;
     }
     
@@ -1324,23 +1288,23 @@ void NET_OpenSocks( sint port )
     if( len == SOCKET_ERROR )
     {
         err = socketError;
-        Com_Printf( "NET_OpenSocks: recv: %s\n", NET_ErrorString() );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: recv: %s\n", ErrorString() );
         return;
     }
     if( len < 2 || buf[0] != 5 )
     {
-        Com_Printf( "NET_OpenSocks: bad response\n" );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: bad response\n" );
         return;
     }
     // check completion code
     if( buf[1] != 0 )
     {
-        Com_Printf( "NET_OpenSocks: request denied: %i\n", buf[1] );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: request denied: %i\n", buf[1] );
         return;
     }
     if( buf[3] != 1 )
     {
-        Com_Printf( "NET_OpenSocks: relay address is not IPV4: %i\n", buf[3] );
+        Com_Printf( "idNetworkSystemLocal::OpenSocks: relay address is not IPV4: %i\n", buf[3] );
         return;
     }
     ( ( struct sockaddr_in* )&socksRelayAddr )->sin_family = AF_INET;
@@ -1354,10 +1318,10 @@ void NET_OpenSocks( sint port )
 
 /*
 =====================
-NET_AddLocalAddress
+idNetworkSystemLocal::AddLocalAddress
 =====================
 */
-static void NET_AddLocalAddress( valueType* ifname, struct sockaddr* addr, struct sockaddr* netmask )
+void idNetworkSystemLocal::AddLocalAddress( valueType* ifname, struct sockaddr* addr, struct sockaddr* netmask )
 {
     sint addrlen;
     sa_family_t family;
@@ -1394,87 +1358,101 @@ static void NET_AddLocalAddress( valueType* ifname, struct sockaddr* addr, struc
     }
 }
 
-#if defined(__linux__) || defined(MACOSX) || defined(__BSD__)
-static void NET_GetLocalAddress( void )
+/*
+=============
+idNetworkSystemLocal::GetLocalAddress
+=============
+*/
+void idNetworkSystemLocal::GetLocalAddress( void )
 {
-    struct ifaddrs* ifap, *search;
+#if defined(__linux__) || defined(MACOSX) || defined(__BSD__)
+    struct ifaddrs* ifap, * search;
+#else
+    valueType hostname[256];
+    struct addrinfo	hint;
+    struct addrinfo* res = NULL;
+#endif
     
     numIP = 0;
     
+#if defined(__linux__) || defined(MACOSX) || defined(__BSD__)
     if( getifaddrs( &ifap ) )
-        Com_Printf( "NET_GetLocalAddress: Unable to get list of network interfaces: %s\n", NET_ErrorString() );
+    {
+        Com_Printf( "idNetworkSystemLocal::GetLocalAddress: Unable to get list of network interfaces: %s\n", ErrorString() );
+    }
     else
     {
         for( search = ifap; search; search = search->ifa_next )
         {
             // Only add interfaces that are up.
             if( ifap->ifa_flags & IFF_UP )
-                NET_AddLocalAddress( search->ifa_name, search->ifa_addr, search->ifa_netmask );
+            {
+                AddLocalAddress( search->ifa_name, search->ifa_addr, search->ifa_netmask );
+            }
         }
         
         freeifaddrs( ifap );
         
-        Net_ShowIP();
+        networkSystemLocal.ShowIP();
     }
-}
 #else
-static void NET_GetLocalAddress( void )
-{
-    valueType				hostname[256];
-    struct addrinfo	hint;
-    struct addrinfo*	res = nullptr;
-
-    numIP = 0;
-
     if( gethostname( hostname, 256 ) == SOCKET_ERROR )
+    {
         return;
-
+    }
+    
     Com_Printf( "Hostname: %s\n", hostname );
-
-    memset( &hint, 0, sizeof( hint ) );
-
+    
+    ::memset( &hint, 0, sizeof( hint ) );
+    
     hint.ai_family = AF_UNSPEC;
     hint.ai_socktype = SOCK_DGRAM;
-
-    if( !getaddrinfo( hostname, nullptr, &hint, &res ) )
+    
+    if( !getaddrinfo( hostname, NULL, &hint, &res ) )
     {
         struct sockaddr_in mask4;
         struct sockaddr_in6 mask6;
         struct addrinfo* search;
-
-        /* On operating systems where it's more difficult to find out the configured interfaces, we'll just assume a
-         * netmask with all bits set. */
-
-        memset( &mask4, 0, sizeof( mask4 ) );
-        memset( &mask6, 0, sizeof( mask6 ) );
+    
+        //On operating systems where it's more difficult to find out the configured interfaces, we'll just assume a
+        //netmask with all bits set.
+    
+        ::memset( &mask4, 0, sizeof( mask4 ) );
+        ::memset( &mask6, 0, sizeof( mask6 ) );
         mask4.sin_family = AF_INET;
-        memset( &mask4.sin_addr.s_addr, 0xFF, sizeof( mask4.sin_addr.s_addr ) );
+        ::memset( &mask4.sin_addr.s_addr, 0xFF, sizeof( mask4.sin_addr.s_addr ) );
         mask6.sin6_family = AF_INET6;
-        memset( &mask6.sin6_addr, 0xFF, sizeof( mask6.sin6_addr ) );
-
+        ::memset( &mask6.sin6_addr, 0xFF, sizeof( mask6.sin6_addr ) );
+    
         // add all IPs from returned list.
         for( search = res; search; search = search->ai_next )
         {
             if( search->ai_family == AF_INET )
-                NET_AddLocalAddress( "", search->ai_addr, ( struct sockaddr* ) &mask4 );
+            {
+                AddLocalAddress( "", search->ai_addr, ( struct sockaddr* )&mask4 );
+            }
             else if( search->ai_family == AF_INET6 )
-                NET_AddLocalAddress( "", search->ai_addr, ( struct sockaddr* ) &mask6 );
+            {
+                AddLocalAddress( "", search->ai_addr, ( struct sockaddr* )&mask6 );
+            }
         }
-
-        Net_ShowIP();
+    
+        networkSystemLocal.ShowIP();
     }
-
+    
     if( res )
+    {
         freeaddrinfo( res );
-}
+    }
 #endif
+}
 
 /*
 ====================
-NET_OpenIP
+idNetworkSystemLocal::OpenIP
 ====================
 */
-void NET_OpenIP( void )
+void idNetworkSystemLocal::OpenIP( void )
 {
     sint		i;
     sint		err;
@@ -1484,7 +1462,7 @@ void NET_OpenIP( void )
     port = net_port->integer;
     port6 = net_port6->integer;
     
-    NET_GetLocalAddress();
+    GetLocalAddress();
     
     // automatically scan for a valid port, so multiple
     // dedicated servers can be started without requiring
@@ -1494,7 +1472,7 @@ void NET_OpenIP( void )
     {
         for( i = 0 ; i < 10 ; i++ )
         {
-            ip6_socket = NET_IP6Socket( net_ip6->string, port6 + i, &boundto, &err );
+            ip6_socket = IP6Socket( net_ip6->string, port6 + i, &boundto, &err );
             if( ip6_socket != INVALID_SOCKET )
             {
                 cvarSystem->SetValue( "net_port6", port6 + i );
@@ -1514,13 +1492,13 @@ void NET_OpenIP( void )
     {
         for( i = 0 ; i < 10 ; i++ )
         {
-            ip_socket = NET_IPSocket( net_ip->string, port + i, &err );
+            ip_socket = IPSocket( net_ip->string, port + i, &err );
             if( ip_socket != INVALID_SOCKET )
             {
                 cvarSystem->SetValue( "net_port", port + i );
                 
                 if( net_socksEnabled->integer )
-                    NET_OpenSocks( port + i );
+                    OpenSocks( port + i );
                     
                 break;
             }
@@ -1536,16 +1514,12 @@ void NET_OpenIP( void )
     }
 }
 
-
-//===================================================================
-
-
 /*
 ====================
-NET_GetCvars
+idNetworkSystemLocal::GetCvars
 ====================
 */
-static bool NET_GetCvars( void )
+bool idNetworkSystemLocal::GetCvars( void )
 {
     sint modified;
     
@@ -1615,17 +1589,17 @@ static bool NET_GetCvars( void )
 
 /*
 ====================
-NET_Config
+idNetworkSystemLocal::Config
 ====================
 */
-void NET_Config( bool enableNetworking )
+void idNetworkSystemLocal::Config( bool enableNetworking )
 {
     bool	modified;
     bool	stop;
     bool	start;
     
     // get any latched changes to cvars
-    modified = NET_GetCvars();
+    modified = GetCvars();
     
     if( !net_enabled->integer )
     {
@@ -1700,19 +1674,31 @@ void NET_Config( bool enableNetworking )
     {
         if( net_enabled->integer )
         {
-            NET_OpenIP();
-            NET_SetMulticast6();
+            OpenIP();
+            SetMulticast6();
         }
     }
 }
 
+/*
+===============
+idNetworkSystemLocal::NETRestart_f
+
+I had a problem with AddCommand and pointing to the class member so this is one way of doing
+pointing to a function that is a class member
+===============
+*/
+void idNetworkSystemLocal::NETRestart_f( void )
+{
+    static_cast<idNetworkSystemLocal*>( networkSystem )->Restart_f();
+}
 
 /*
 ====================
-NET_Init
+idNetworkSystemLocal::Init
 ====================
 */
-void NET_Init( void )
+void idNetworkSystemLocal::Init( void )
 {
 #ifdef _WIN32
     sint		r;
@@ -1728,25 +1714,25 @@ void NET_Init( void )
     Com_Printf( "Winsock Initialized\n" );
 #endif
     
-    NET_Config( true );
+    Config( true );
     
-    cmdSystem->AddCommand( "net_restart", NET_Restart_f, "If you change any net_ setting in-game or in a config you need to also to a net_restart to make the changes take effect, i have seen very few people with this in their configurations, but i have seen some people specify a lot of net_ settings and they have it in their config." );
+    cmdSystem->AddCommand( "net_restart", NETRestart_f, "If you change any net_ setting in-game or in a config you need to also to a net_restart to make the changes take effect, i have seen very few people with this in their configurations, but i have seen some people specify a lot of net_ settings and they have it in their config." );
 }
 
 
 /*
 ====================
-NET_Shutdown
+idNetworkSystemLocal::Shutdown
 ====================
 */
-void NET_Shutdown( void )
+void idNetworkSystemLocal::Shutdown( void )
 {
     if( !networkingEnabled )
     {
         return;
     }
     
-    NET_Config( false );
+    Config( false );
     
 #ifdef _WIN32
     WSACleanup();
@@ -1757,12 +1743,12 @@ void NET_Shutdown( void )
 
 /*
 ====================
-NET_Sleep
+idNetworkSystemLocal::Sleep
 
 Sleeps msec or until something happens on the network
 ====================
 */
-void NET_Sleep( sint msec )
+void idNetworkSystemLocal::Sleep( sint msec )
 {
     struct timeval timeout;
     fd_set	fdset;
@@ -1801,10 +1787,10 @@ void NET_Sleep( sint msec )
 
 /*
 ====================
-NET_Restart_f
+idNetworkSystemLocal::Restart_f
 ====================
 */
-void NET_Restart_f( void )
+void idNetworkSystemLocal::Restart_f( void )
 {
-    NET_Config( networkingEnabled );
+    Config( networkingEnabled );
 }

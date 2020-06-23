@@ -427,7 +427,7 @@ bool Netchan_Process( netchan_t* chan, msg_t* msg )
         if( showdrop->integer || showpackets->integer )
         {
             Com_Printf( "%s:Out of order packet %i at %i\n"
-                        , NET_AdrToString( chan->remoteAddress )
+                        , networkSystem->AdrToString( chan->remoteAddress )
                         ,  sequence
                         , chan->incomingSequence );
         }
@@ -443,7 +443,7 @@ bool Netchan_Process( netchan_t* chan, msg_t* msg )
         if( showdrop->integer || showpackets->integer )
         {
             Com_Printf( "%s:Dropped %i packets at %i\n"
-                        , NET_AdrToString( chan->remoteAddress )
+                        , networkSystem->AdrToString( chan->remoteAddress )
                         , chan->dropped
                         , sequence );
         }
@@ -473,7 +473,7 @@ bool Netchan_Process( netchan_t* chan, msg_t* msg )
             if( showdrop->integer || showpackets->integer )
             {
                 Com_Printf( "%s:Dropped a message fragment\n"
-                            , NET_AdrToString( chan->remoteAddress ) );
+                            , networkSystem->AdrToString( chan->remoteAddress ) );
             }
             // we can still keep the part that we have so far,
             // so we don't need to clear chan->fragmentLength
@@ -487,7 +487,7 @@ bool Netchan_Process( netchan_t* chan, msg_t* msg )
             if( showdrop->integer || showpackets->integer )
             {
                 Com_Printf( "%s:illegal fragment length\n"
-                            , NET_AdrToString( chan->remoteAddress ) );
+                            , networkSystem->AdrToString( chan->remoteAddress ) );
             }
             return false;
         }
@@ -506,7 +506,7 @@ bool Netchan_Process( netchan_t* chan, msg_t* msg )
         if( chan->fragmentLength > msg->maxsize )
         {
             Com_Printf( "%s:fragmentLength %i > msg->maxsize\n"
-                        , NET_AdrToString( chan->remoteAddress ),
+                        , networkSystem->AdrToString( chan->remoteAddress ),
                         chan->fragmentLength );
             return false;
         }
@@ -662,7 +662,7 @@ void NET_FlushPacketQueue( void )
         now = idsystem->Milliseconds();
         if( packetQueue->release >= now )
             break;
-        Net_SendPacket( packetQueue->length, packetQueue->data, packetQueue->to );
+        networkSystem->SendPacket( packetQueue->length, packetQueue->data, packetQueue->to );
         last = packetQueue;
         packetQueue = packetQueue->next;
         Z_Free( last->data );
@@ -703,7 +703,7 @@ void NET_SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
     }
     else
     {
-        Net_SendPacket( length, data, to );
+        networkSystem->SendPacket( length, data, to );
     }
 }
 
@@ -822,7 +822,7 @@ sint NET_StringToAdr( pointer s, netadr_t* a, netadrtype_t family )
         search = base;
     }
     
-    if( !Net_StringToAdr( search, a, family ) )
+    if( !networkSystem->StringToAdr( search, a, family ) )
     {
         a->type = NA_BAD;
         return 0;

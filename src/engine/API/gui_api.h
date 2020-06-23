@@ -213,10 +213,12 @@ struct guiImports_t
     idCmdBufferSystem* cmdBufferSystem;
     idCmdSystem* cmdSystem;
     idSystem* idsystem;
+#ifndef DEDICATED
     idCGame* idcgame;
     idClientLANSystem* idLANSystem;
     idClientGUISystem* idGUISystem;
     idClientScreenSystem* clientScreenSystem;
+#endif
 };
 
 //

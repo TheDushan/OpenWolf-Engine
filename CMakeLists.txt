@@ -261,7 +261,6 @@ set( QCOMMONLIST_SOURCES
 	${MOUNT_DIR}/qcommon/common.cpp
 	${MOUNT_DIR}/qcommon/msg.cpp
 	${MOUNT_DIR}/qcommon/net_chan.cpp
-	${MOUNT_DIR}/qcommon/net_ip.cpp
 	${MOUNT_DIR}/qcommon/parse.cpp
 )
 
@@ -273,6 +272,7 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/API/CmdDelay_api.h
 	${MOUNT_DIR}/API/MD4_api.h
 	${MOUNT_DIR}/API/MD5_api.h
+	${MOUNT_DIR}/API/Network_api.h
 	${MOUNT_DIR}/framework/FileSystem.h
 	${MOUNT_DIR}/framework/CVarSystem.h
 	${MOUNT_DIR}/framework/CmdSystem.h
@@ -285,6 +285,7 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/framework/Puff.h
 	${MOUNT_DIR}/framework/Unzip.h
 	${MOUNT_DIR}/framework/SurfaceFlags_Tech3.h
+	${MOUNT_DIR}/framework/Network.h
 )
 
 set( FRAMEWORKS_SOURCES
@@ -299,6 +300,7 @@ set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/MD5.cpp
 	${MOUNT_DIR}/framework/Puff.cpp
 	${MOUNT_DIR}/framework/Unzip.cpp
+	${MOUNT_DIR}/framework/Network.cpp
 )
 
 set( CLIENTLIST_HEADERS
@@ -308,8 +310,10 @@ set( CLIENTLIST_HEADERS
 	${MOUNT_DIR}/client/clientGame.h
 	${MOUNT_DIR}/client/clientGUI.h
 	${MOUNT_DIR}/client/clientLAN.h
+	${MOUNT_DIR}/client/clientScreen.h
 	${MOUNT_DIR}/client/keycodes.h
 	${MOUNT_DIR}/client/keys.h
+	${MOUNT_DIR}/API/clientScreen_api.h
 	${MOUNT_DIR}/API/clientAVI_api.h
 	${MOUNT_DIR}/API/clientGame_api.h
 	${MOUNT_DIR}/API/clientGUI_api.h
@@ -326,7 +330,7 @@ set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/cl_main.cpp
 	${MOUNT_DIR}/client/cl_net_chan.cpp
 	${MOUNT_DIR}/client/cl_parse.cpp
-	${MOUNT_DIR}/client/cl_scrn.cpp
+	${MOUNT_DIR}/client/clientScreen.cpp
 	${MOUNT_DIR}/client/clientBrowser.cpp
 	${MOUNT_DIR}/client/clientBrowser.h
 	${MOUNT_DIR}/client/clientGUI.h

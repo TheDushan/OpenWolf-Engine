@@ -817,7 +817,7 @@ bool idServerCcmdsSystemLocal::TempBanIsBanned( netadr_t address )
     {
         if( svs.tempBanAddresses[i].endtime && svs.tempBanAddresses[i].endtime > svs.time )
         {
-            if( NET_CompareAdr( address, svs.tempBanAddresses[i].adr ) )
+            if( networkSystem->CompareAdr( address, svs.tempBanAddresses[i].adr ) )
             {
                 return true;
             }
@@ -900,7 +900,7 @@ void idServerCcmdsSystemLocal::Status_f( void )
         
         Com_Printf( "%7i ", svs.time - cl->lastPacketTime );
         
-        s = NET_AdrToString( cl->netchan.remoteAddress );
+        s = networkSystem->AdrToString( cl->netchan.remoteAddress );
         Com_Printf( "%s", s );
         l = 22 - ( sint )::strlen( s );
         for( j = 0; j < l; j++ )

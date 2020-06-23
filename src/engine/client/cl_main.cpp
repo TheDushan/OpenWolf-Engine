@@ -376,7 +376,7 @@ void CL_Record_f( void )
     
     // ATVI Wolfenstein Misc #479 - changing this to a warning
     // sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
-    if( NET_IsLocalAddress( clc.serverAddress ) && !cvarSystem->VariableValue( "g_synchronousClients" ) )
+    if( networkSystem->IsLocalAddress( clc.serverAddress ) && !cvarSystem->VariableValue( "g_synchronousClients" ) )
     {
         Com_Printf( S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n" );
     }
@@ -1419,7 +1419,7 @@ void CL_RequestMotd( void )
     }
     
     Com_DPrintf( "%s resolved to %s\n", MASTER_SERVER_NAME,
-                 NET_AdrToStringwPort( cls.updateServer ) );
+                 networkSystem->AdrToStringwPort( cls.updateServer ) );
                  
     info[0] = 0;
     
@@ -1610,7 +1610,7 @@ void CL_Connect_f( void )
         clc.serverAddress.port = BigShort( PORT_SERVER );
     }
     
-    serverString = NET_AdrToStringwPort( clc.serverAddress );
+    serverString = networkSystem->AdrToStringwPort( clc.serverAddress );
     Com_Printf( "%s resolved to %s\n", cls.servername, serverString );
     
     if( cl_guidServerUniq->integer )
@@ -1620,7 +1620,7 @@ void CL_Connect_f( void )
         
     // if we aren't playing on a lan, we needto authenticate
     // with the cd key
-    if( NET_IsLocalAddress( clc.serverAddress ) )
+    if( networkSystem->IsLocalAddress( clc.serverAddress ) )
     {
         cls.state = CA_CHALLENGING;
     }
@@ -1633,7 +1633,7 @@ void CL_Connect_f( void )
     
     // show_bug.cgi?id=507
     // prepare to catch a connection process that would turn bad
-    cvarSystem->Set( "com_errorDiagnoseIP", NET_AdrToString( clc.serverAddress ) );
+    cvarSystem->Set( "com_errorDiagnoseIP", networkSystem->AdrToString( clc.serverAddress ) );
     // ATVI Wolfenstein Misc #439
     // we need to setup a correct default for this, otherwise the first val we set might reappear
     cvarSystem->Set( "com_errorMessage", "" );
@@ -2285,7 +2285,7 @@ void CL_InitDownloads( void )
     cls.bWWWDlDisconnected = false;
     CL_ClearStaticDownload();
     
-    if( autoupdateStarted && NET_CompareAdr( cls.autoupdateServer, clc.serverAddress ) )
+    if( autoupdateStarted && networkSystem->CompareAdr( cls.autoupdateServer, clc.serverAddress ) )
     {
         if( strlen( cl_updatefiles->string ) > 4 )
         {
@@ -2430,7 +2430,7 @@ void CL_DisconnectPacket( netadr_t from )
     }
     
     // if not from our server, ignore it
-    if( !NET_CompareAdr( from, clc.netchan.remoteAddress ) )
+    if( !networkSystem->CompareAdr( from, clc.netchan.remoteAddress ) )
     {
         return;
     }
@@ -2502,7 +2502,7 @@ void CL_MotdPacket( netadr_t from, pointer info )
     valueType* w;
     
     // if not from our server, ignore it
-    if( !NET_CompareAdr( from, cls.updateServer ) )
+    if( !networkSystem->CompareAdr( from, cls.updateServer ) )
     {
         Com_DPrintf( "MOTD packet from unexpected source\n" );
         return;
@@ -2603,7 +2603,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
     
     c = cmdSystem->Argv( 0 );
     
-    Com_DPrintf( "CL packet %s: %s\n", NET_AdrToStringwPort( from ), c );
+    Com_DPrintf( "CL packet %s: %s\n", networkSystem->AdrToStringwPort( from ), c );
     
     if( !Q_stricmp( c, "disconnectResponse" ) )
     {
@@ -2629,7 +2629,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
             challenge = atoi( c );
         }
         
-        if( !NET_CompareAdr( from, clc.serverAddress ) )
+        if( !networkSystem->CompareAdr( from, clc.serverAddress ) )
         {
             // This challenge response is not coming from the expected address.
             // Check whether we have a matching client challenge to prevent
@@ -2676,16 +2676,16 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
             Com_Printf( "connectResponse packet while not connecting.  Ignored.\n" );
             return;
         }
-        if( !NET_CompareAdr( from, clc.serverAddress ) )
+        if( !networkSystem->CompareAdr( from, clc.serverAddress ) )
         {
             Com_Printf( "connectResponse from a different address.  Ignored.\n" );
-            Com_Printf( "%s should have been %s\n", NET_AdrToString( from ),
-                        NET_AdrToStringwPort( clc.serverAddress ) );
+            Com_Printf( "%s should have been %s\n", networkSystem->AdrToString( from ),
+                        networkSystem->AdrToStringwPort( clc.serverAddress ) );
             return;
         }
         
         // DHM - Nerve :: If we have completed a connection to the Auto-Update server...
-        if( autoupdateChecked && NET_CompareAdr( cls.autoupdateServer, clc.serverAddress ) )
+        if( autoupdateChecked && networkSystem->CompareAdr( cls.autoupdateServer, clc.serverAddress ) )
         {
             // Mark the client as being in the process of getting an update
             if( cl_updateavailable->integer )
@@ -2746,7 +2746,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
     // echo request from server
     if( !Q_stricmp( c, "print" ) )
     {
-        if( NET_CompareAdr( from, clc.serverAddress ) || NET_CompareAdr( from, rcon_address ) )
+        if( networkSystem->CompareAdr( from, clc.serverAddress ) || networkSystem->CompareAdr( from, rcon_address ) )
         {
             CL_PrintPacket( from, msg );
         }
@@ -2806,17 +2806,17 @@ void CL_PacketEvent( netadr_t from, msg_t* msg )
     
     if( msg->cursize < 4 )
     {
-        Com_Printf( "%s: Runt packet\n", NET_AdrToStringwPort( from ) );
+        Com_Printf( "%s: Runt packet\n", networkSystem->AdrToStringwPort( from ) );
         return;
     }
     
     //
     // packet from server
     //
-    if( !NET_CompareAdr( from, clc.netchan.remoteAddress ) )
+    if( !networkSystem->CompareAdr( from, clc.netchan.remoteAddress ) )
     {
         Com_DPrintf( "%s:sequenced packet without connection\n"
-                     , NET_AdrToStringwPort( from ) );
+                     , networkSystem->AdrToStringwPort( from ) );
         // FIXME: send a client disconnect?
         return;
     }
@@ -4817,7 +4817,7 @@ void CL_UpdateInfoPacket( netadr_t from )
                  cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
                  BigShort( cls.autoupdateServer.port ) );
                  
-    if( !NET_CompareAdr( from, cls.autoupdateServer ) )
+    if( !networkSystem->CompareAdr( from, cls.autoupdateServer ) )
     {
         Com_DPrintf( "CL_UpdateInfoPacket:  Received packet from %i.%i.%i.%i:%i\n",
                      from.ip[0], from.ip[1], from.ip[2], from.ip[3],

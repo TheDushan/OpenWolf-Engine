@@ -357,7 +357,7 @@ void idServerMainSystemLocal::MasterHeartbeat( pointer hbname )
                 
                 if( res )
                 {
-                    Com_Printf( "%s resolved to %s\n", master, NET_AdrToString( adr[i][0] ) );
+                    Com_Printf( "%s resolved to %s\n", master, networkSystem->AdrToString( adr[i][0] ) );
                 }
                 else
                 {
@@ -381,7 +381,7 @@ void idServerMainSystemLocal::MasterHeartbeat( pointer hbname )
                 
                 if( res )
                 {
-                    Com_Printf( "%s resolved to %s\n", master, NET_AdrToString( adr[i][1] ) );
+                    Com_Printf( "%s resolved to %s\n", master, networkSystem->AdrToString( adr[i][1] ) );
                 }
                 else
                 {
@@ -530,7 +530,7 @@ void idServerMainSystemLocal::MasterGameStat( pointer data )
             break;
     }
     
-    Com_Printf( "%s resolved to %s\n", MASTER_SERVER_NAME, NET_AdrToStringwPort( adr ) );
+    Com_Printf( "%s resolved to %s\n", MASTER_SERVER_NAME, networkSystem->AdrToStringwPort( adr ) );
     
     Com_Printf( "Sending gamestat to %s\n", MASTER_SERVER_NAME );
     NET_OutOfBandPrint( NS_SERVER, adr, "gamestat %s", data );
@@ -924,7 +924,7 @@ bool idServerMainSystemLocal::CheckDRDoS( netadr_t from )
     // with a source address being a spoofed LAN address.  Even if that's not
     // the case, sending packets to other hosts in the LAN is not a big deal.
     // NA_LOOPBACK qualifies as a LAN address.
-    if( Net_IsLANAddress( from ) )
+    if( networkSystem->IsLANAddress( from ) )
     {
         return false;
     }
@@ -950,13 +950,13 @@ bool idServerMainSystemLocal::CheckDRDoS( netadr_t from )
     for( i = 0; i < MAX_INFO_FLOOD_BANS; i++, ban++ )
     {
         if( svs.time - ban->time < 120000 && // Two minute ban.
-                NET_CompareBaseAdr( from, ban->adr ) )
+                networkSystem->CompareBaseAdr( from, ban->adr ) )
         {
             ban->count++;
             
             if( !ban->flood && ( ( svs.time - ban->time ) >= 3000 ) && ban->count <= 5 )
             {
-                Com_DPrintf( "Unban info flood protect for address %s, they're not flooding\n", NET_AdrToString( exactFrom ) );
+                Com_DPrintf( "Unban info flood protect for address %s, they're not flooding\n", networkSystem->AdrToString( exactFrom ) );
                 ::memset( ban, 0, sizeof( floodBan_t ) );
                 oldestBan = i;
                 break;
@@ -964,7 +964,7 @@ bool idServerMainSystemLocal::CheckDRDoS( netadr_t from )
             
             if( ban->count >= 180 )
             {
-                Com_DPrintf( "Renewing info flood ban for address %s, received %i getinfo/getstatus requests in %i milliseconds\n", NET_AdrToString( exactFrom ), ban->count, svs.time - ban->time );
+                Com_DPrintf( "Renewing info flood ban for address %s, received %i getinfo/getstatus requests in %i milliseconds\n", networkSystem->AdrToString( exactFrom ), ban->count, svs.time - ban->time );
                 ban->time = svs.time;
                 ban->count = 0;
                 ban->flood = true;
@@ -1002,7 +1002,7 @@ bool idServerMainSystemLocal::CheckDRDoS( netadr_t from )
                 globalCount++;
             }
             
-            if( NET_CompareBaseAdr( from, receipt->adr ) )
+            if( networkSystem->CompareBaseAdr( from, receipt->adr ) )
             {
                 specificCount++;
             }
@@ -1017,7 +1017,7 @@ bool idServerMainSystemLocal::CheckDRDoS( netadr_t from )
     
     if( specificCount >= 3 )  // Already sent 3 to this IP in last 2 seconds.
     {
-        Com_Printf( "Possible DRDoS attack to address %s, putting into temporary getinfo/getstatus ban list\n", NET_AdrToString( exactFrom ) );
+        Com_Printf( "Possible DRDoS attack to address %s, putting into temporary getinfo/getstatus ban list\n", networkSystem->AdrToString( exactFrom ) );
         ban = &svs.infoFloodBans[oldestBan];
         ban->adr = from;
         ban->time = svs.time;
@@ -1086,7 +1086,7 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
         
         valid = false;
         
-        Com_Printf( "Bad rcon from %s:\n%s\n", NET_AdrToString( from ), cmdSystem->Argv( 2 ) );
+        Com_Printf( "Bad rcon from %s:\n%s\n", networkSystem->AdrToString( from ), cmdSystem->Argv( 2 ) );
     }
     else
     {
@@ -1098,7 +1098,7 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
         
         valid = true;
         
-        Com_Printf( "Rcon from %s:\n%s\n", NET_AdrToString( from ), cmdSystem->Argv( 2 ) );
+        Com_Printf( "Rcon from %s:\n%s\n", networkSystem->AdrToString( from ), cmdSystem->Argv( 2 ) );
     }
     
     lasttime = time;
@@ -1165,7 +1165,7 @@ void idServerMainSystemLocal::ConnectionlessPacket( netadr_t from, msg_t* msg )
     cmdSystem->TokenizeString( s );
     
     c = cmdSystem->Argv( 0 );
-    Com_DPrintf( "SV packet %s : %s\n", NET_AdrToString( from ), c );
+    Com_DPrintf( "SV packet %s : %s\n", networkSystem->AdrToString( from ), c );
     
     if( !Q_stricmp( c, "getstatus" ) )
     {
@@ -1210,7 +1210,7 @@ void idServerMainSystemLocal::ConnectionlessPacket( netadr_t from, msg_t* msg )
     }
     else
     {
-        Com_DPrintf( "bad connectionless packet from %s:\n%s\n", NET_AdrToString( from ), s );
+        Com_DPrintf( "bad connectionless packet from %s:\n%s\n", networkSystem->AdrToString( from ), s );
     }
 }
 
@@ -1250,7 +1250,7 @@ void idServerMainSystemLocal::PacketEvent( netadr_t from, msg_t* msg )
             continue;
         }
         
-        if( !NET_CompareBaseAdr( from, cl->netchan.remoteAddress ) )
+        if( !networkSystem->CompareBaseAdr( from, cl->netchan.remoteAddress ) )
         {
             continue;
         }
@@ -1607,9 +1607,9 @@ void idServerMainSystemLocal::Frame( sint msec )
     
     if( com_dedicated->integer && sv.timeResidual < frameMsec )
     {
-        // NET_Sleep will give the OS time slices until either get a packet
+        // networkSystem->Sleep will give the OS time slices until either get a packet
         // or time enough for a server frame has gone by
-        NET_Sleep( frameMsec - sv.timeResidual );
+        networkSystem->Sleep( frameMsec - sv.timeResidual );
         return;
     }
     

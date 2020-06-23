@@ -87,7 +87,7 @@ void idClientBrowserSystemLocal::ServersResponsePacket( const netadr_t* from, ms
     uchar8* buffptr;
     uchar8* buffend;
     
-    Com_Printf( "idClientBrowserSystemLocal::ServersResponsePacket from %s\n", NET_AdrToStringwPort( *from ) );
+    Com_Printf( "idClientBrowserSystemLocal::ServersResponsePacket from %s\n", networkSystem->AdrToStringwPort( *from ) );
     
     if( cls.numglobalservers == -1 )
     {
@@ -183,7 +183,7 @@ void idClientBrowserSystemLocal::ServersResponsePacket( const netadr_t* from, ms
         
         for( j = 0; j < count; j++ )
         {
-            if( NET_CompareAdr( cls.globalServers[j].adr, addresses[i] ) )
+            if( networkSystem->CompareAdr( cls.globalServers[j].adr, addresses[i] ) )
             {
                 break;
             }
@@ -273,7 +273,7 @@ void idClientBrowserSystemLocal::SetServerInfoByAddress( netadr_t from, pointer 
     
     for( i = 0; i < MAX_OTHER_SERVERS; i++ )
     {
-        if( NET_CompareAdr( from, cls.localServers[i].adr ) )
+        if( networkSystem->CompareAdr( from, cls.localServers[i].adr ) )
         {
             SetServerInfo( &cls.localServers[i], info, ping );
         }
@@ -281,7 +281,7 @@ void idClientBrowserSystemLocal::SetServerInfoByAddress( netadr_t from, pointer 
     
     for( i = 0; i < MAX_GLOBAL_SERVERS; i++ )
     {
-        if( NET_CompareAdr( from, cls.globalServers[i].adr ) )
+        if( networkSystem->CompareAdr( from, cls.globalServers[i].adr ) )
         {
             SetServerInfo( &cls.globalServers[i], info, ping );
         }
@@ -289,7 +289,7 @@ void idClientBrowserSystemLocal::SetServerInfoByAddress( netadr_t from, pointer 
     
     for( i = 0; i < MAX_OTHER_SERVERS; i++ )
     {
-        if( NET_CompareAdr( from, cls.favoriteServers[i].adr ) )
+        if( networkSystem->CompareAdr( from, cls.favoriteServers[i].adr ) )
         {
             SetServerInfo( &cls.favoriteServers[i], info, ping );
         }
@@ -332,11 +332,11 @@ void idClientBrowserSystemLocal::ServerInfoPacket( netadr_t from, msg_t* msg )
     // iterate servers waiting for ping response
     for( i = 0; i < MAX_PINGREQUESTS; i++ )
     {
-        if( cl_pinglist[i].adr.port && !cl_pinglist[i].time && NET_CompareAdr( from, cl_pinglist[i].adr ) )
+        if( cl_pinglist[i].adr.port && !cl_pinglist[i].time && networkSystem->CompareAdr( from, cl_pinglist[i].adr ) )
         {
             // calc ping time
             cl_pinglist[i].time = cls.realtime - cl_pinglist[i].start + 1;
-            Com_DPrintf( "ping time %dms from %s\n", cl_pinglist[i].time, NET_AdrToString( from ) );
+            Com_DPrintf( "ping time %dms from %s\n", cl_pinglist[i].time, networkSystem->AdrToString( from ) );
             
             // save of info
             Q_strncpyz( cl_pinglist[i].info, infoString, sizeof( cl_pinglist[i].info ) );
@@ -381,7 +381,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket( netadr_t from, msg_t* msg )
         }
         
         // avoid duplicate
-        if( NET_CompareAdr( from, cls.localServers[i].adr ) )
+        if( networkSystem->CompareAdr( from, cls.localServers[i].adr ) )
         {
             return;
         }
@@ -424,7 +424,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket( netadr_t from, msg_t* msg )
             ::strncat( info, "\n", sizeof( info ) );
         }
         
-        Com_Printf( "%s: %s", NET_AdrToStringwPort( from ), info );
+        Com_Printf( "%s: %s", networkSystem->AdrToStringwPort( from ), info );
     }
 }
 
@@ -442,7 +442,7 @@ serverStatus_t* idClientBrowserSystemLocal::GetServerStatus( netadr_t from )
     
     for( i = 0; i < MAX_SERVERSTATUSREQUESTS; i++ )
     {
-        if( NET_CompareAdr( from, cl_serverStatusList[i].address ) )
+        if( networkSystem->CompareAdr( from, cl_serverStatusList[i].address ) )
         {
             return &cl_serverStatusList[i];
         }
@@ -516,7 +516,7 @@ sint idClientBrowserSystemLocal::ServerStatus( valueType* serverAddress, valueTy
     }
     
     // if this server status request has the same address
-    if( NET_CompareAdr( to, serverStatus->address ) )
+    if( networkSystem->CompareAdr( to, serverStatus->address ) )
     {
         // if we recieved an response for this server status request
         if( !serverStatus->pending )
@@ -572,7 +572,7 @@ void idClientBrowserSystemLocal::ServerStatusResponse( netadr_t from, msg_t* msg
     
     for( i = 0; i < MAX_SERVERSTATUSREQUESTS; i++ )
     {
-        if( NET_CompareAdr( from, cl_serverStatusList[i].address ) )
+        if( networkSystem->CompareAdr( from, cl_serverStatusList[i].address ) )
         {
             serverStatus = &cl_serverStatusList[i];
             break;
@@ -806,7 +806,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
         to.port = BigShort( PORT_MASTER );
     }
     
-    Com_Printf( "Requesting servers from %s (%s)...\n", masteraddress, NET_AdrToStringwPort( to ) );
+    Com_Printf( "Requesting servers from %s (%s)...\n", masteraddress, networkSystem->AdrToStringwPort( to ) );
     
     cls.numglobalservers = -1;
     cls.pingUpdateSource = AS_GLOBAL;
@@ -858,7 +858,7 @@ void idClientBrowserSystemLocal::GetPing( sint n, valueType* buf, sint buflen, s
         return;
     }
     
-    str = NET_AdrToStringwPort( cl_pinglist[n].adr );
+    str = networkSystem->AdrToStringwPort( cl_pinglist[n].adr );
     Q_strncpyz( buf, str, buflen );
     
     time = cl_pinglist[n].time;
@@ -1124,7 +1124,7 @@ bool idClientBrowserSystemLocal::UpdateVisiblePings( sint source )
                             continue;
                         }
                         
-                        if( NET_CompareAdr( cl_pinglist[j].adr, server[i].adr ) )
+                        if( networkSystem->CompareAdr( cl_pinglist[j].adr, server[i].adr ) )
                         {
                             // already on the list
                             break;
@@ -1276,5 +1276,5 @@ idClientBrowserSystemLocal::ShowIP
 */
 void idClientBrowserSystemLocal::ShowIP( void )
 {
-    Net_ShowIP();
+    networkSystem->ShowIP();
 }

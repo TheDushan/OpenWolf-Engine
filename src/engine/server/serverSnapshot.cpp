@@ -876,7 +876,7 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
     // local clients get snapshots every frame
     // TTimo - show_bug.cgi?id=491
     // added sv_lanForceRate check
-    if( client->netchan.remoteAddress.type == NA_LOOPBACK || ( sv_lanForceRate->integer && Net_IsLANAddress( client->netchan.remoteAddress ) ) )
+    if( client->netchan.remoteAddress.type == NA_LOOPBACK || ( sv_lanForceRate->integer && networkSystem->IsLANAddress( client->netchan.remoteAddress ) ) )
     {
         //client->nextSnapshotTime = svs.time - 1;
         client->nextSnapshotTime = svs.time + ( 1000.0 / sv_fps->integer * com_timescale->value );

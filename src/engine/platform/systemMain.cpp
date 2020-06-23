@@ -699,7 +699,7 @@ Q_EXPORT sint engineMain( sint argc, valueType * *argv )
     consoleCursesSystem->Init();
     
     Com_Init( commandLine );
-    NET_Init( );
+    networkSystem->Init( );
     
     signal( SIGILL, systemLocal.SigHandler );
     signal( SIGFPE, systemLocal.SigHandler );

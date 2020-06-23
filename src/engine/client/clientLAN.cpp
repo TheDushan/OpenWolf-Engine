@@ -191,7 +191,7 @@ sint idClientLANSystemLocal::AddServer( sint source, pointer name, pointer addre
         
         for( i = 0; i < *count; i++ )
         {
-            if( NET_CompareAdr( servers[i].adr, adr ) )
+            if( networkSystem->CompareAdr( servers[i].adr, adr ) )
             {
                 break;
             }
@@ -250,7 +250,7 @@ void idClientLANSystemLocal::RemoveServer( sint source, pointer addr )
         
         for( i = 0; i < *count; i++ )
         {
-            if( NET_CompareAdr( comp, servers[i].adr ) )
+            if( networkSystem->CompareAdr( comp, servers[i].adr ) )
             {
                 sint j = i;
                 
@@ -304,7 +304,7 @@ void idClientLANSystemLocal::GetServerAddressString( sint source, sint n, valueT
         case AS_LOCAL:
             if( n >= 0 && n < MAX_OTHER_SERVERS )
             {
-                Q_strncpyz( buf, NET_AdrToStringwPort( cls.localServers[n].adr ), buflen );
+                Q_strncpyz( buf, networkSystem->AdrToStringwPort( cls.localServers[n].adr ), buflen );
                 return;
             }
             break;
@@ -312,7 +312,7 @@ void idClientLANSystemLocal::GetServerAddressString( sint source, sint n, valueT
         case AS_GLOBAL:
             if( n >= 0 && n < MAX_GLOBAL_SERVERS )
             {
-                Q_strncpyz( buf, NET_AdrToStringwPort( cls.globalServers[n].adr ), buflen );
+                Q_strncpyz( buf, networkSystem->AdrToStringwPort( cls.globalServers[n].adr ), buflen );
                 return;
             }
             break;
@@ -320,7 +320,7 @@ void idClientLANSystemLocal::GetServerAddressString( sint source, sint n, valueT
         case AS_FAVORITES:
             if( n >= 0 && n < MAX_OTHER_SERVERS )
             {
-                Q_strncpyz( buf, NET_AdrToStringwPort( cls.favoriteServers[n].adr ), buflen );
+                Q_strncpyz( buf, networkSystem->AdrToStringwPort( cls.favoriteServers[n].adr ), buflen );
                 return;
             }
             break;
@@ -379,7 +379,7 @@ void idClientLANSystemLocal::GetServerInfo( sint source, sint n, valueType* buf,
         Info_SetValueForKey( info, "game", server->game );
         Info_SetValueForKey( info, "gametype", va( "%i", server->gameType ) );
         Info_SetValueForKey( info, "nettype", va( "%i", server->netType ) );
-        Info_SetValueForKey( info, "addr", NET_AdrToStringwPort( server->adr ) );
+        Info_SetValueForKey( info, "addr", networkSystem->AdrToStringwPort( server->adr ) );
         Info_SetValueForKey( info, "sv_allowAnonymous", va( "%i", server->allowAnonymous ) );
         Info_SetValueForKey( info, "friendlyFire", va( "%i", server->friendlyFire ) );
         Info_SetValueForKey( info, "maxlives", va( "%i", server->maxlives ) );
@@ -791,7 +791,7 @@ bool idClientLANSystemLocal::ServerIsInFavoriteList( sint source, sint n )
     
     for( i = 0; i < cls.numfavoriteservers; i++ )
     {
-        if( NET_CompareAdr( cls.favoriteServers[i].adr, server->adr ) )
+        if( networkSystem->CompareAdr( cls.favoriteServers[i].adr, server->adr ) )
         {
             return true;
         }

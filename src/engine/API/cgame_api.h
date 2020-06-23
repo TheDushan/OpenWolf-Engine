@@ -112,8 +112,10 @@ struct cgameImports_t
     idCmdBufferSystem* cmdBufferSystem;
     idCmdSystem* cmdSystem;
     idSystem* idsystem;
+#ifndef DEDICATED
     idClientGUISystem* idGUISystem;
     idClientScreenSystem* clientScreenSystem;
+#endif
 };
 
 class idCGame

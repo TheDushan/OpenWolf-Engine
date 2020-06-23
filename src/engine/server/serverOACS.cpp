@@ -928,7 +928,7 @@ void idServerOACSSystemLocal::ExtendedRecordPlayersTableInit( sint client )
     
     // Set IP
     //sv_playerstable.ip = Info_ValueForKey( cl->userinfo, "ip" ); // alternative way to get the ip, from the userinfo string
-    Q_strncpyz( sv_playerstable.ip, NET_AdrToString( cl->netchan.remoteAddress ), MAX_STRING_CHARS ); // reliable way to get the client's ip adress
+    Q_strncpyz( sv_playerstable.ip, networkSystem->AdrToString( cl->netchan.remoteAddress ), MAX_STRING_CHARS ); // reliable way to get the client's ip adress
     //snprintf(sv_playerstable.ip, MAX_STRING_CHARS, "%i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3]);
     
     // Set GUID
@@ -1311,7 +1311,7 @@ void idServerOACSSystemLocal::ExtendedRecordSetCheaterFromClient_f( client_t* cl
     if( !strlen( sv_oacsLabelPassword->string ) || Q_stricmp( cmdSystem->Argv( 1 ), sv_oacsLabelPassword->string ) )
     {
         Com_Printf( "OACS: Client tried to declare being cheater: Bad label password from %s\n",
-                    NET_AdrToString( cl->netchan.remoteAddress ) );
+                    networkSystem->AdrToString( cl->netchan.remoteAddress ) );
         return;
     }
     
@@ -1326,7 +1326,7 @@ void idServerOACSSystemLocal::ExtendedRecordSetCheaterFromClient_f( client_t* cl
         else
         {
             Com_Printf( "OACS: Client tried to declare being cheater: Bad cheat label from %s: %i\n",
-                        NET_AdrToString( cl->netchan.remoteAddress ), atoi( cmdSystem->Argv( 2 ) ) );
+                        networkSystem->AdrToString( cl->netchan.remoteAddress ), atoi( cmdSystem->Argv( 2 ) ) );
         }
     }
     else
@@ -1359,7 +1359,7 @@ void idServerOACSSystemLocal::ExtendedRecordSetHonestFromClient_f( client_t* cl 
     
     if( !strlen( sv_oacsLabelPassword->string ) || Q_stricmp( cmdSystem->Argv( 1 ), sv_oacsLabelPassword->string ) )
     {
-        Com_Printf( "OACS: Client tried to declare being honest: Bad label password from %s\n", NET_AdrToString( cl->netchan.remoteAddress ) );
+        Com_Printf( "OACS: Client tried to declare being honest: Bad label password from %s\n", networkSystem->AdrToString( cl->netchan.remoteAddress ) );
         return;
     }
     
