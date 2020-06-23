@@ -88,8 +88,8 @@ idClientGUISystemLocal::GetNews
 bool idClientGUISystemLocal::GetNews( bool begin )
 {
     bool finished = false;
-    S32 readSize;
-    static UTF8 newsFile[MAX_QPATH] = "";
+    sint readSize;
+    static valueType newsFile[MAX_QPATH] = "";
     
     if( !newsFile[0] )
     {
@@ -146,9 +146,9 @@ void idClientGUISystemLocal::GetGlconfig( vidconfig_t* config )
 idClientGUISystemLocal::GUIGetClipboarzdData
 ====================
 */
-void idClientGUISystemLocal::GUIGetClipboardData( UTF8* buf, S32 buflen )
+void idClientGUISystemLocal::GUIGetClipboardData( valueType* buf, sint buflen )
 {
-    UTF8* cbd;
+    valueType* cbd;
     
     cbd = idsystem->SysGetClipboardData();
     
@@ -168,7 +168,7 @@ void idClientGUISystemLocal::GUIGetClipboardData( UTF8* buf, S32 buflen )
 idClientGUISystemLocal::KeynumToStringBuf
 ====================
 */
-void idClientGUISystemLocal::KeynumToStringBuf( S32 keynum, UTF8* buf, S32 buflen )
+void idClientGUISystemLocal::KeynumToStringBuf( sint keynum, valueType* buf, sint buflen )
 {
     Q_strncpyz( buf, Key_KeynumToString( keynum ), buflen );
 }
@@ -178,9 +178,9 @@ void idClientGUISystemLocal::KeynumToStringBuf( S32 keynum, UTF8* buf, S32 bufle
 idClientGUISystemLocal::GetBindingBuf
 ====================
 */
-void idClientGUISystemLocal::GetBindingBuf( S32 keynum, UTF8* buf, S32 buflen )
+void idClientGUISystemLocal::GetBindingBuf( sint keynum, valueType* buf, sint buflen )
 {
-    UTF8* value;
+    valueType* value;
     
     value = Key_GetBinding( keynum );
     if( value )
@@ -198,7 +198,7 @@ void idClientGUISystemLocal::GetBindingBuf( S32 keynum, UTF8* buf, S32 buflen )
 idClientGUISystemLocal::GetCatcher
 ====================
 */
-S32 idClientGUISystemLocal::GetCatcher( void )
+sint idClientGUISystemLocal::GetCatcher( void )
 {
     return cls.keyCatchers;
 }
@@ -208,7 +208,7 @@ S32 idClientGUISystemLocal::GetCatcher( void )
 idClientGUISystemLocal::SetCatcher
 ====================
 */
-void idClientGUISystemLocal::SetCatcher( S32 catcher )
+void idClientGUISystemLocal::SetCatcher( sint catcher )
 {
     // console overrides everything
     if( cls.keyCatchers & KEYCATCH_CONSOLE )
@@ -227,9 +227,9 @@ void idClientGUISystemLocal::SetCatcher( S32 catcher )
 idClientGUISystemLocal::GetConfigString
 ====================
 */
-S32 idClientGUISystemLocal::GetConfigString( S32 index, UTF8* buf, S32 size )
+sint idClientGUISystemLocal::GetConfigString( sint index, valueType* buf, sint size )
 {
-    S32 offset;
+    sint offset;
     
     if( index < 0 || index >= MAX_CONFIGSTRINGS )
     {
@@ -326,7 +326,6 @@ void idClientGUISystemLocal::CreateExportTable( void )
 idClientGUISystemLocal::InitGUI
 ====================
 */
-
 void idClientGUISystemLocal::InitGUI( void )
 {
     // load the GUI module
@@ -357,7 +356,7 @@ void idClientGUISystemLocal::InitGUI( void )
 idClientGUISystemLocal::checkKeyExec
 ====================
 */
-bool idClientGUISystemLocal::checkKeyExec( S32 key )
+bool idClientGUISystemLocal::checkKeyExec( sint key )
 {
     if( uivm )
     {

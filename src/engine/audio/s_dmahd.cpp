@@ -37,24 +37,24 @@ bool S_ScanChannelStarts( void );
 
 extern channel_t s_channels[];
 extern channel_t loop_channels[];
-extern S32 numLoopChannels;
+extern sint numLoopChannels;
 
-extern S32 s_soundStarted;
+extern sint s_soundStarted;
 extern bool s_soundMuted;
 
-extern S32 listener_number;
+extern sint listener_number;
 vec3_t g_listener_origin;
 vec3_t g_listener_axis[3];
 
-extern S32 s_soundtime;
-extern S32 s_paintedtime;
-static S32 dmaHD_inwater;
+extern sint s_soundtime;
+extern sint s_paintedtime;
+static sint dmaHD_inwater;
 
 // MAX_SFX may be larger than MAX_SOUNDS because of custom player sounds
 #define MAX_SFX 4096 // This must be the same as the snd_dma.c
 #define MAX_SOUNDBYTES (256*1024*1024) // 256MiB MAXIMUM...
 extern sfx_t s_knownSfx[];
-extern S32 s_numSfx;
+extern sint s_numSfx;
 
 extern convar_t* s_mixahead;
 convar_t* dmaHD_Enable = nullptr;
@@ -65,19 +65,19 @@ convar_t* dmaEX_StereoSeparation;
 extern loopSound_t loopSounds[];
 
 #ifdef MAX_RAW_STREAMS
-extern S32 s_rawend[MAX_RAW_STREAMS];
+extern sint s_rawend[MAX_RAW_STREAMS];
 extern portable_samplepair_t s_rawsamples[MAX_RAW_STREAMS][MAX_RAW_SAMPLES];
 #else
-extern S32 s_rawend;
+extern sint s_rawend;
 extern portable_samplepair_t s_rawsamples[];
 #endif
 
 #define DMAHD_PAINTBUFFER_SIZE 65536
 static portable_samplepair_t dmaHD_paintbuffer[DMAHD_PAINTBUFFER_SIZE];
-static S32 dmaHD_snd_vol;
+static sint dmaHD_snd_vol;
 
 bool g_tablesinit = false;
-F32 g_voltable[256];
+float32 g_voltable[256];
 
 #define SMPCLAMP(a) (((a) < -32768) ? -32768 : ((a) > 32767) ? 32767 : (a))
 #define VOLCLAMP(a) (((a) < 0) ? 0 : ((a) > 255) ? 255 : (a))
@@ -86,8 +86,8 @@ void dmaHD_InitTables( void )
 {
     if( !g_tablesinit )
     {
-        S32 i;
-        F32 x, y;
+        sint i;
+        float32 x, y;
         
         // Volume table.
         for( i = 0; i < 256; i++ )
@@ -107,7 +107,7 @@ PART#01: dmaHD: dma sound EXtension : MEMORY
 ===============================================================================
 */
 
-S32 g_dmaHD_allocatedsoundmemory = 0;
+sint g_dmaHD_allocatedsoundmemory = 0;
 
 /*
 ======================
@@ -117,9 +117,9 @@ dmaHD_FreeOldestSound
 
 void dmaHD_FreeOldestSound( void )
 {
-    S32	i, oldest, used;
+    sint	i, oldest, used;
     sfx_t* sfx;
-    S16* buffer;
+    schar16* buffer;
     
     oldest = Com_Milliseconds();
     used = 0;
@@ -138,7 +138,7 @@ void dmaHD_FreeOldestSound( void )
     
     Com_DPrintf( "dmaHD_FreeOldestSound: freeing sound %s\n", sfx->soundName );
     
-    i = ( sfx->soundLength * 2 ) * sizeof( S16 );
+    i = ( sfx->soundLength * 2 ) * sizeof( schar16 );
     
     g_dmaHD_allocatedsoundmemory -= i;
     
@@ -147,7 +147,7 @@ void dmaHD_FreeOldestSound( void )
         g_dmaHD_allocatedsoundmemory = 0;
     }
     
-    if( ( buffer = ( S16* )sfx->soundData ) != nullptr )
+    if( ( buffer = ( schar16* )sfx->soundData ) != nullptr )
     {
         free( buffer );
     }
@@ -162,10 +162,10 @@ dmaHD_AllocateSoundBuffer
 ======================
 */
 
-S16* dmaHD_AllocateSoundBuffer( S32 samples )
+schar16* dmaHD_AllocateSoundBuffer( sint samples )
 {
-    S32 bytes = samples * sizeof( S16 );
-    S16* buffer;
+    sint bytes = samples * sizeof( schar16 );
+    schar16* buffer;
     
     while( g_dmaHD_allocatedsoundmemory > 0 && ( g_dmaHD_allocatedsoundmemory + bytes ) > MAX_SOUNDBYTES )
     {
@@ -179,7 +179,7 @@ S16* dmaHD_AllocateSoundBuffer( S32 samples )
     
     do
     {
-        if( ( buffer = ( S16* )malloc( bytes ) ) != nullptr )
+        if( ( buffer = ( schar16* )malloc( bytes ) ) != nullptr )
         {
             break;
         }
@@ -202,9 +202,9 @@ S16* dmaHD_AllocateSoundBuffer( S32 samples )
 // once on load and not on playback. This also means that at least twice more memory is used.
 // =======================================================
 // x0-----x1--t--x2-----x3 / x0/2/3/4 are know samples / t = 0.0 - 1.0 between x1 and x2 / returns y value at point t
-static F32 dmaHD_InterpolateCubic( F32 x0, F32 x1, F32 x2, F32 x3, F32 t )
+static float32 dmaHD_InterpolateCubic( float32 x0, float32 x1, float32 x2, float32 x3, float32 t )
 {
-    F32 a0, a1, a2, a3;
+    float32 a0, a1, a2, a3;
     
     a0 = x3 - x2 - x0 + x1;
     a1 = x0 - x1 - a0;
@@ -214,9 +214,9 @@ static F32 dmaHD_InterpolateCubic( F32 x0, F32 x1, F32 x2, F32 x3, F32 t )
     return ( a0 * ( t * t * t ) ) + ( a1 * ( t * t ) ) + ( a2 * t ) + ( a3 );
 }
 
-static F32 dmaHD_InterpolateHermite4pt3oX( F32 x0, F32 x1, F32 x2, F32 x3, F32 t )
+static float32 dmaHD_InterpolateHermite4pt3oX( float32 x0, float32 x1, float32 x2, float32 x3, float32 t )
 {
-    F32 c0, c1, c2, c3;
+    float32 c0, c1, c2, c3;
     
     c0 = x1;
     c1 = 0.5f * ( x2 - x0 );
@@ -226,7 +226,7 @@ static F32 dmaHD_InterpolateHermite4pt3oX( F32 x0, F32 x1, F32 x2, F32 x3, F32 t
     return ( ( ( ( ( c3 * t ) + c2 ) * t ) + c1 ) * t ) + c0;
 }
 
-static F32 dmaHD_NormalizeSamplePosition( F32 t, S32 samples )
+static float32 dmaHD_NormalizeSamplePosition( float32 t, sint samples )
 {
     if( !samples )
     {
@@ -235,18 +235,18 @@ static F32 dmaHD_NormalizeSamplePosition( F32 t, S32 samples )
     
     while( t < 0.0 )
     {
-        t += ( F32 )samples;
+        t += ( float32 )samples;
     }
     
-    while( t >= ( F32 )samples )
+    while( t >= ( float32 )samples )
     {
-        t -= ( F32 )samples;
+        t -= ( float32 )samples;
     }
     
     return t;
 }
 
-static S32 dmaHD_GetSampleRaw_8bitMono( S32 index, S32 samples, U8* data )
+static sint dmaHD_GetSampleRaw_8bitMono( sint index, sint samples, uchar8* data )
 {
     if( index < 0 )
     {
@@ -257,10 +257,10 @@ static S32 dmaHD_GetSampleRaw_8bitMono( S32 index, S32 samples, U8* data )
         index -= samples;
     }
     
-    return ( S32 )( ( ( U8 )( data[index] ) - 128 ) << 8 );
+    return ( sint )( ( ( uchar8 )( data[index] ) - 128 ) << 8 );
 }
 
-static S32 dmaHD_GetSampleRaw_16bitMono( S32 index, S32 samples, U8* data )
+static sint dmaHD_GetSampleRaw_16bitMono( sint index, sint samples, uchar8* data )
 {
     if( index < 0 )
     {
@@ -271,11 +271,11 @@ static S32 dmaHD_GetSampleRaw_16bitMono( S32 index, S32 samples, U8* data )
         index -= samples;
     }
     
-    return ( S32 )LittleShort( ( ( S16* )data )[index] );
+    return ( sint )LittleShort( ( ( schar16* )data )[index] );
 }
-static S32 dmaHD_GetSampleRaw_8bitStereo( S32 index, S32 samples, U8* data )
+static sint dmaHD_GetSampleRaw_8bitStereo( sint index, sint samples, uchar8* data )
 {
-    S32 left, right;
+    sint left, right;
     
     if( index < 0 )
     {
@@ -286,14 +286,14 @@ static S32 dmaHD_GetSampleRaw_8bitStereo( S32 index, S32 samples, U8* data )
         index -= samples;
     }
     
-    left = ( S32 )( ( ( U8 )( data[index * 2] ) - 128 ) << 8 );
-    right = ( S32 )( ( ( U8 )( data[index * 2 + 1] ) - 128 ) << 8 );
+    left = ( sint )( ( ( uchar8 )( data[index * 2] ) - 128 ) << 8 );
+    right = ( sint )( ( ( uchar8 )( data[index * 2 + 1] ) - 128 ) << 8 );
     
     return ( left + right ) / 2;
 }
-static S32 dmaHD_GetSampleRaw_16bitStereo( S32 index, S32 samples, U8* data )
+static sint dmaHD_GetSampleRaw_16bitStereo( sint index, sint samples, uchar8* data )
 {
-    S32 left, right;
+    sint left, right;
     
     if( index < 0 )
     {
@@ -303,86 +303,86 @@ static S32 dmaHD_GetSampleRaw_16bitStereo( S32 index, S32 samples, U8* data )
     {
         index -= samples;
     }
-    left = ( S32 )LittleShort( ( ( S16* )data )[index * 2] );
-    right = ( S32 )LittleShort( ( ( S16* )data )[index * 2 + 1] );
+    left = ( sint )LittleShort( ( ( schar16* )data )[index * 2] );
+    right = ( sint )LittleShort( ( ( schar16* )data )[index * 2 + 1] );
     
     return ( left + right ) / 2;
 }
 
 // Get only decimal part (a - floor(a))
-#define FLOAT_DECIMAL_PART(a) (a-(F32)((S32)a))
+#define FLOAT_DECIMAL_PART(a) (a-(float32)((sint)a))
 
-// t must be a F32 between 0 and samples
-static S32 dmaHD_GetInterpolatedSampleHermite4pt3oX( F32 t, S32 samples, U8* data, S32( *dmaHD_GetSampleRaw )( S32, S32, U8* ) )
+// t must be a float32 between 0 and samples
+static sint dmaHD_GetInterpolatedSampleHermite4pt3oX( float32 t, sint samples, uchar8* data, sint( *dmaHD_GetSampleRaw )( sint, sint, uchar8* ) )
 {
-    S32 x, val;
+    sint x, val;
     
     t = dmaHD_NormalizeSamplePosition( t, samples );
     
     // Get points
-    x = ( S32 )t;
+    x = ( sint )t;
     
     // Interpolate
-    val = ( S32 )dmaHD_InterpolateHermite4pt3oX(
-              ( F32 )dmaHD_GetSampleRaw( x - 1, samples, data ),
-              ( F32 )dmaHD_GetSampleRaw( x, samples, data ),
-              ( F32 )dmaHD_GetSampleRaw( x + 1, samples, data ),
-              ( F32 )dmaHD_GetSampleRaw( x + 2, samples, data ), FLOAT_DECIMAL_PART( t ) );
+    val = ( sint )dmaHD_InterpolateHermite4pt3oX(
+              ( float32 )dmaHD_GetSampleRaw( x - 1, samples, data ),
+              ( float32 )dmaHD_GetSampleRaw( x, samples, data ),
+              ( float32 )dmaHD_GetSampleRaw( x + 1, samples, data ),
+              ( float32 )dmaHD_GetSampleRaw( x + 2, samples, data ), FLOAT_DECIMAL_PART( t ) );
               
     // Clamp
     return SMPCLAMP( val );
 }
 
-// t must be a F32 between 0 and samples
-static S32 dmaHD_GetInterpolatedSampleCubic( F32 t, S32 samples, U8* data, S32( *dmaHD_GetSampleRaw )( S32, S32, U8* ) )
+// t must be a float32 between 0 and samples
+static sint dmaHD_GetInterpolatedSampleCubic( float32 t, sint samples, uchar8* data, sint( *dmaHD_GetSampleRaw )( sint, sint, uchar8* ) )
 {
-    S32 x, val;
+    sint x, val;
     
     t = dmaHD_NormalizeSamplePosition( t, samples );
     
     // Get points
-    x = ( S32 )t;
+    x = ( sint )t;
     
     // Interpolate
-    val = ( S32 )dmaHD_InterpolateCubic(
-              ( F32 )dmaHD_GetSampleRaw( x - 1, samples, data ),
-              ( F32 )dmaHD_GetSampleRaw( x, samples, data ),
-              ( F32 )dmaHD_GetSampleRaw( x + 1, samples, data ),
-              ( F32 )dmaHD_GetSampleRaw( x + 2, samples, data ), FLOAT_DECIMAL_PART( t ) );
+    val = ( sint )dmaHD_InterpolateCubic(
+              ( float32 )dmaHD_GetSampleRaw( x - 1, samples, data ),
+              ( float32 )dmaHD_GetSampleRaw( x, samples, data ),
+              ( float32 )dmaHD_GetSampleRaw( x + 1, samples, data ),
+              ( float32 )dmaHD_GetSampleRaw( x + 2, samples, data ), FLOAT_DECIMAL_PART( t ) );
               
     // Clamp
     return SMPCLAMP( val );
 }
 
-// t must be a F32 between 0 and samples
-static S32 dmaHD_GetInterpolatedSampleLinear( F32 t, S32 samples, U8* data, S32( *dmaHD_GetSampleRaw )( S32, S32, U8* ) )
+// t must be a float32 between 0 and samples
+static sint dmaHD_GetInterpolatedSampleLinear( float32 t, sint samples, uchar8* data, sint( *dmaHD_GetSampleRaw )( sint, sint, uchar8* ) )
 {
-    S32 x, val;
-    F32 c0, c1;
+    sint x, val;
+    float32 c0, c1;
     
     t = dmaHD_NormalizeSamplePosition( t, samples );
     
     // Get points
-    x = ( S32 )t;
+    x = ( sint )t;
     
-    c0 = ( F32 )dmaHD_GetSampleRaw( x, samples, data );
-    c1 = ( F32 )dmaHD_GetSampleRaw( x + 1, samples, data );
+    c0 = ( float32 )dmaHD_GetSampleRaw( x, samples, data );
+    c1 = ( float32 )dmaHD_GetSampleRaw( x + 1, samples, data );
     
-    val = ( S32 )( ( ( c1 - c0 ) * FLOAT_DECIMAL_PART( t ) ) + c0 );
+    val = ( sint )( ( ( c1 - c0 ) * FLOAT_DECIMAL_PART( t ) ) + c0 );
     
     // No need to clamp for linear
     return val;
 }
 
 // t must be a float between 0 and samples
-static S32 dmaHD_GetNoInterpolationSample( F32 t, S32 samples, U8* data, S32( *dmaHD_GetSampleRaw )( S32, S32, U8* ) )
+static sint dmaHD_GetNoInterpolationSample( float32 t, sint samples, uchar8* data, sint( *dmaHD_GetSampleRaw )( sint, sint, uchar8* ) )
 {
-    S32 x;
+    sint x;
     
     t = dmaHD_NormalizeSamplePosition( t, samples );
     
     // Get points
-    x = ( S32 )t;
+    x = ( sint )t;
     
     if( FLOAT_DECIMAL_PART( t ) > 0.5 )
     {
@@ -392,7 +392,7 @@ static S32 dmaHD_GetNoInterpolationSample( F32 t, S32 samples, U8* data, S32( *d
     return dmaHD_GetSampleRaw( x, samples, data );
 }
 
-S32( *dmaHD_GetInterpolatedSample )( F32 t, S32 samples, U8* data, S32( *dmaHD_GetSampleRaw )( S32, S32, U8* ) ) = dmaHD_GetInterpolatedSampleHermite4pt3oX;
+sint( *dmaHD_GetInterpolatedSample )( float32 t, sint samples, uchar8* data, sint( *dmaHD_GetSampleRaw )( sint, sint, uchar8* ) ) = dmaHD_GetInterpolatedSampleHermite4pt3oX;
 
 /*
 ================
@@ -401,16 +401,16 @@ dmaHD_ResampleSfx
 resample / decimate to the current source rate
 ================
 */
-void dmaHD_ResampleSfx( sfx_t* sfx, S32 channels, S32 inrate, S32 inwidth, U8* data, bool compressed )
+void dmaHD_ResampleSfx( sfx_t* sfx, sint channels, sint inrate, sint inwidth, uchar8* data, bool compressed )
 {
-    S16* buffer;
-    S32( *dmaHD_GetSampleRaw )( S32, S32, U8* );
-    F32 stepscale, idx_smp, sample, bsample;
-    F32 lp_inva, lp_a, hp_a, lp_data, lp_last, hp_data, hp_last, hp_lastsample;
-    S32 outcount, idx_hp, idx_lp;
+    schar16* buffer;
+    sint( *dmaHD_GetSampleRaw )( sint, sint, uchar8* );
+    float32 stepscale, idx_smp, sample, bsample;
+    float32 lp_inva, lp_a, hp_a, lp_data, lp_last, hp_data, hp_last, hp_lastsample;
+    sint outcount, idx_hp, idx_lp;
     
-    stepscale = ( F32 )inrate / ( F32 )dma.speed;
-    outcount = ( S32 )( ( F32 )sfx->soundLength / stepscale );
+    stepscale = ( float32 )inrate / ( float32 )dma.speed;
+    outcount = ( sint )( ( float32 )sfx->soundLength / stepscale );
     
     // Create secondary buffer for bass sound while performing lowpass filter;
     buffer = dmaHD_AllocateSoundBuffer( outcount * 2 );
@@ -460,7 +460,7 @@ void dmaHD_ResampleSfx( sfx_t* sfx, S32 channels, S32 inrate, S32 inwidth, U8* d
         hp_lastsample = sample;
         
         // Low pass.
-        lp_data = lp_a * ( F32 )bsample + lp_inva * lp_last;
+        lp_data = lp_a * ( float32 )bsample + lp_inva * lp_last;
         buffer[idx_lp++] = SMPCLAMP( lp_data );
         lp_last = lp_data;
     }
@@ -471,10 +471,10 @@ void dmaHD_ResampleSfx( sfx_t* sfx, S32 channels, S32 inrate, S32 inwidth, U8* d
 
 bool dmaHD_LoadSound( sfx_t* sfx )
 {
-    U8* data;
+    uchar8* data;
     snd_info_t info;
-    UTF8 dmahd_soundName[MAX_QPATH];
-    UTF8* lpext;
+    valueType dmahd_soundName[MAX_QPATH];
+    valueType* lpext;
     
     // Player specific sounds are never directly loaded.
     if( sfx->soundName[0] == '*' ) return false;
@@ -492,7 +492,7 @@ bool dmaHD_LoadSound( sfx_t* sfx )
     if( fileSystem->FOpenFileRead( dmahd_soundName, nullptr, true ) == true )
     {
         // Load it in.
-        if( !( data = static_cast<U8*>( S_CodecLoad( dmahd_soundName, &info ) ) ) )
+        if( !( data = static_cast<uchar8*>( S_CodecLoad( dmahd_soundName, &info ) ) ) )
         {
             return false;
         }
@@ -500,7 +500,7 @@ bool dmaHD_LoadSound( sfx_t* sfx )
     else
     {
         // Load it in.
-        if( !( data = static_cast<U8*>( S_CodecLoad( sfx->soundName, &info ) ) ) )
+        if( !( data = static_cast<uchar8*>( S_CodecLoad( sfx->soundName, &info ) ) ) )
         {
             return false;
         }
@@ -541,13 +541,13 @@ PART#02: dmaHD: Mixing
 ===============================================================================
 */
 
-static void dmaHD_PaintChannelFrom16_HHRTF( channel_t* ch, const sfx_t* sc, S32 count, S32 sampleOffset, S32 bufferOffset, S32 chan )
+static void dmaHD_PaintChannelFrom16_HHRTF( channel_t* ch, const sfx_t* sc, sint count, sint sampleOffset, sint bufferOffset, sint chan )
 {
-    S32 vol, i, so;
+    sint vol, i, so;
     portable_samplepair_t* samp = &dmaHD_paintbuffer[bufferOffset];
-    S16* samples;
-    S16* tsamples;
-    S32* out;
+    schar16* samples;
+    schar16* tsamples;
+    sint* out;
     ch_side_t* chs = ( chan == 0 ) ? &ch->l : &ch->r;
     
     if( dmaHD_snd_vol <= 0 ) return;
@@ -574,12 +574,12 @@ static void dmaHD_PaintChannelFrom16_HHRTF( channel_t* ch, const sfx_t* sc, S32 
     if( chs->bassvol > 0 )
     {
         // Select bass frequency offset (just after high frequency)
-        samples = &( ( S16* )sc->soundData )[sc->soundLength];
+        samples = &( ( schar16* )sc->soundData )[sc->soundLength];
         
         // Calculate volumes.
         vol = chs->bassvol * dmaHD_snd_vol;
         tsamples = &samples[so];
-        out = ( S32* )samp;
+        out = ( sint* )samp;
         if( chan == 1 )
         {
             out++;
@@ -598,12 +598,12 @@ static void dmaHD_PaintChannelFrom16_HHRTF( channel_t* ch, const sfx_t* sc, S32 
     if( chs->vol > 0 )
     {
         // Select high frequency offset.
-        samples = ( S16* )sc->soundData;
+        samples = ( schar16* )sc->soundData;
         
         // Calculate volumes.
         vol = chs->vol * dmaHD_snd_vol;
         tsamples = &samples[so];
-        out = ( S32* )samp;
+        out = ( sint* )samp;
         
         if( chan == 1 )
         {
@@ -620,13 +620,13 @@ static void dmaHD_PaintChannelFrom16_HHRTF( channel_t* ch, const sfx_t* sc, S32 
     }
 }
 
-static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, S32 count, S32 sampleOffset, S32 bufferOffset )
+static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, sint count, sint sampleOffset, sint bufferOffset )
 {
-    S32 data, rvol, lvol, i, so;
+    sint data, rvol, lvol, i, so;
     portable_samplepair_t* samp = &dmaHD_paintbuffer[bufferOffset];
-    S16* samples;
-    S16* tsamples;
-    S32* out;
+    schar16* samples;
+    schar16* tsamples;
+    sint* out;
     
     if( dmaHD_snd_vol <= 0 )
     {
@@ -654,12 +654,12 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, S32
     // Process low frequency.
     if( ch->l.bassvol > 0 )
     {
-        samples = &( ( S16* )sc->soundData )[sc->soundLength]; // Select bass frequency offset (just after high frequency)
+        samples = &( ( schar16* )sc->soundData )[sc->soundLength]; // Select bass frequency offset (just after high frequency)
         
         // Calculate volumes.
         lvol = ch->l.bassvol * dmaHD_snd_vol;
         tsamples = &samples[so];
-        out = ( S32* )samp;
+        out = ( sint* )samp;
         for( i = 0; i < count; i++ )
         {
             data = ( *tsamples * lvol ) >> 8;
@@ -675,7 +675,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, S32
     if( ch->l.vol > 0 || ch->r.vol > 0 )
     {
         // Select high frequency offset.
-        samples = ( S16* )sc->soundData;
+        samples = ( schar16* )sc->soundData;
         
         // Calculate volumes.
         lvol = ch->l.vol * dmaHD_snd_vol;
@@ -695,7 +695,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, S32
         }
         
         tsamples = &samples[so];
-        out = ( S32* )samp;
+        out = ( sint* )samp;
         for( i = 0; i < count; i++ )
         {
             *out += ( *tsamples * lvol ) >> 8;
@@ -710,7 +710,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, S32
     if( ch->l.reverbvol > 0 || ch->r.reverbvol > 0 )
     {
         // Select high frequency offset.
-        samples = ( S16* )sc->soundData;
+        samples = ( schar16* )sc->soundData;
         so = sampleOffset - ch->l.reverboffset;
         if( so < 0 )
         {
@@ -728,7 +728,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, S32
         lvol = ch->l.reverbvol * dmaHD_snd_vol;
         rvol = ch->r.reverbvol * dmaHD_snd_vol;
         tsamples = &samples[so];
-        out = ( S32* )samp;
+        out = ( sint* )samp;
         
         for( i = 0; i < count; i++ )
         {
@@ -741,12 +741,12 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, S32
     }
 }
 
-static void dmaHD_PaintChannelFrom16_dmaEX( channel_t* ch, const sfx_t* sc, S32 count, S32 sampleOffset, S32 bufferOffset )
+static void dmaHD_PaintChannelFrom16_dmaEX( channel_t* ch, const sfx_t* sc, sint count, sint sampleOffset, sint bufferOffset )
 {
-    S32 rvol, lvol, i, so;
+    sint rvol, lvol, i, so;
     portable_samplepair_t* samp = &dmaHD_paintbuffer[bufferOffset];
-    S16* samples, *bsamples;
-    S32* out;
+    schar16* samples, *bsamples;
+    sint* out;
     
     if( dmaHD_snd_vol <= 0 )
     {
@@ -772,8 +772,8 @@ static void dmaHD_PaintChannelFrom16_dmaEX( channel_t* ch, const sfx_t* sc, S32 
         return;
     }
     
-    samples = &( ( S16* )sc->soundData )[so]; // Select high frequency offset.
-    bsamples = &( ( S16* )sc->soundData )[sc->soundLength + so]; // Select bass frequency offset (just after high frequency)
+    samples = &( ( schar16* )sc->soundData )[so]; // Select high frequency offset.
+    bsamples = &( ( schar16* )sc->soundData )[sc->soundLength + so]; // Select bass frequency offset (just after high frequency)
     
     // Calculate volumes.
     lvol = ch->l.vol * dmaHD_snd_vol;
@@ -791,7 +791,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX( channel_t* ch, const sfx_t* sc, S32 
             rvol = -rvol;
         }
     }
-    out = ( S32* )samp;
+    out = ( sint* )samp;
     for( i = 0; i < count; i++ )
     {
         *out += ( ( *samples * lvol ) >> 8 ) + ( ( *bsamples * lvol ) >> 8 );
@@ -803,7 +803,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX( channel_t* ch, const sfx_t* sc, S32 
     }
 }
 
-static void dmaHD_PaintChannelFrom16( channel_t* ch, const sfx_t* sc, S32 count, S32 sampleOffset, S32 bufferOffset )
+static void dmaHD_PaintChannelFrom16( channel_t* ch, const sfx_t* sc, sint count, sint sampleOffset, sint bufferOffset )
 {
     switch( dmaHD_Mixer->integer )
     {
@@ -829,19 +829,19 @@ static void dmaHD_PaintChannelFrom16( channel_t* ch, const sfx_t* sc, S32 count,
     }
 }
 
-void dmaHD_TransferPaintBuffer( S32 endtime )
+void dmaHD_TransferPaintBuffer( sint endtime )
 {
-    S32 lpos;
-    S32 ls_paintedtime;
-    S32 i;
-    S32 val;
-    S32* snd_p;
-    S32 snd_linear_count;
-    S16* snd_out;
-    S16* snd_outtmp;
-    U64* pbuf = ( U64* )dma.buffer;
+    sint lpos;
+    sint ls_paintedtime;
+    sint i;
+    sint val;
+    sint* snd_p;
+    sint snd_linear_count;
+    schar16* snd_out;
+    schar16* snd_outtmp;
+    uint32* pbuf = ( uint32* )dma.buffer;
     
-    snd_p = ( S32* )dmaHD_paintbuffer;
+    snd_p = ( sint* )dmaHD_paintbuffer;
     ls_paintedtime = s_paintedtime;
     
     while( ls_paintedtime < endtime )
@@ -849,7 +849,7 @@ void dmaHD_TransferPaintBuffer( S32 endtime )
         // handle recirculating buffer issues
         lpos = ls_paintedtime & ( ( dma.samples >> 1 ) - 1 );
         
-        snd_out = ( S16* )pbuf + ( lpos << 1 );
+        snd_out = ( schar16* )pbuf + ( lpos << 1 );
         
         snd_linear_count = ( dma.samples >> 1 ) - lpos;
         if( ls_paintedtime + snd_linear_count > endtime )
@@ -870,21 +870,21 @@ void dmaHD_TransferPaintBuffer( S32 endtime )
         
         if( clientAVISystem->VideoRecording() )
         {
-            clientAVISystem->WriteAVIAudioFrame( ( U8* )snd_out, snd_linear_count << 1 );
+            clientAVISystem->WriteAVIAudioFrame( ( uchar8* )snd_out, snd_linear_count << 1 );
         }
     }
 }
 
-void dmaHD_PaintChannels( S32 endtime )
+void dmaHD_PaintChannels( sint endtime )
 {
-    S32 i;
-    S32 end;
+    sint i;
+    sint end;
     channel_t* ch;
     sfx_t* sc;
-    S32 ltime, count;
-    S32 sampleOffset;
+    sint ltime, count;
+    sint sampleOffset;
 #ifdef MAX_RAW_STREAMS
-    S32 stream;
+    sint stream;
 #endif
     
     dmaHD_snd_vol =
@@ -911,10 +911,10 @@ void dmaHD_PaintChannels( S32 endtime )
             {
                 // copy from the streaming sound source
                 const portable_samplepair_t* rawsamples = s_rawsamples[stream];
-                const S32 stop = ( end < s_rawend[stream] ) ? end : s_rawend[stream];
+                const sint stop = ( end < s_rawend[stream] ) ? end : s_rawend[stream];
                 for( i = s_paintedtime ; i < stop ; i++ )
                 {
-                    const S32 s = i & ( MAX_RAW_SAMPLES - 1 );
+                    const sint s = i & ( MAX_RAW_SAMPLES - 1 );
                     dmaHD_paintbuffer[i - s_paintedtime].left += rawsamples[s].left;
                     dmaHD_paintbuffer[i - s_paintedtime].right += rawsamples[s].right;
                 }
@@ -929,8 +929,8 @@ void dmaHD_PaintChannels( S32 endtime )
         else
         {
             // copy from the streaming sound source
-            S32 s;
-            S32 stop;
+            sint s;
+            sint stop;
         
             stop = ( end < s_rawend ) ? end : s_rawend;
         
@@ -1042,7 +1042,7 @@ Used for spatializing s_channels
 =================
 */
 
-#define CALCVOL(dist) (((tmp = (S32)((F32)ch->master_vol * g_voltable[ \
+#define CALCVOL(dist) (((tmp = (sint)((float32)ch->master_vol * g_voltable[ \
 (((idx = (dist / iattenuation)) > 255) ? 255 : idx)])) < 0) ? 0 : tmp)
 #define CALCSMPOFF(dist) (dist * dma.speed) >> ismpshift
 
@@ -1053,13 +1053,13 @@ void dmaHD_SpatializeOrigin_HHRTF( vec3_t so, channel_t* ch )
     // lo = listener origin/[l]eft/[r]ight
     vec3_t lol, lor;
     // distance to ears/[l]eft/[r]ight
-    S32 distl, distr; // using S32 since calculations are integer based.
+    sint distl, distr; // using sint since calculations are integer based.
     // temp, index
-    S32 tmp, idx;
-    F32 t;
+    sint tmp, idx;
+    float32 t;
     
-    S32 iattenuation = ( dmaHD_inwater ) ? 2 : 6;
-    S32 ismpshift = ( dmaHD_inwater ) ? 19 : 17;
+    sint iattenuation = ( dmaHD_inwater ) ? 2 : 6;
+    sint ismpshift = ( dmaHD_inwater ) ? 19 : 17;
     
     // Increase attenuation for weapon sounds since they would be very loud!
     if( ch->thesfx && ch->thesfx->weaponsound )
@@ -1086,8 +1086,8 @@ void dmaHD_SpatializeOrigin_HHRTF( vec3_t so, channel_t* ch )
     
     VectorNormalize( ch->sodrot );
     // Calculate length of sound origin direction vector.
-    distl = ( S32 )VectorNormalize( sodl ); // left
-    distr = ( S32 )VectorNormalize( sodr ); // right
+    distl = ( sint )VectorNormalize( sodl ); // left
+    distr = ( sint )VectorNormalize( sodr ); // right
     
     // Close enough to be at full volume?
     if( distl < 80 )
@@ -1173,13 +1173,13 @@ void dmaHD_SpatializeOrigin_dmaEX2( vec3_t so, channel_t* ch )
     // so = sound origin/[d]irection/[n]ormalized/[rot]ated
     vec3_t sod;
     // distance to head
-    S32 dist; // using S32 since calculations are integer based.
+    sint dist; // using sint since calculations are integer based.
     // temp, index
-    S32 tmp, idx, vol;
+    sint tmp, idx, vol;
     vec_t dot;
     
-    S32 iattenuation = ( dmaHD_inwater ) ? 2 : 6;
-    S32 ismpshift = ( dmaHD_inwater ) ? 19 : 17;
+    sint iattenuation = ( dmaHD_inwater ) ? 2 : 6;
+    sint ismpshift = ( dmaHD_inwater ) ? 19 : 17;
     
     // Increase attenuation for weapon sounds since they would be very loud!
     if( ch->thesfx && ch->thesfx->weaponsound )
@@ -1194,7 +1194,7 @@ void dmaHD_SpatializeOrigin_dmaEX2( vec3_t so, channel_t* ch )
     
     VectorNormalize( ch->sodrot );
     // Calculate length of sound origin direction vector.
-    dist = ( S32 )VectorNormalize( sod ); // left
+    dist = ( sint )VectorNormalize( sod ); // left
     
     // Close enough to be at full volume?
     if( dist < 0 )
@@ -1279,9 +1279,9 @@ void dmaHD_SpatializeOrigin_dmaEX( vec3_t origin, channel_t* ch )
     vec_t dist;
     vec_t lscale, rscale, scale;
     vec3_t source_vec;
-    S32 tmp;
+    sint tmp;
     
-    const F32 dist_mult = SOUND_ATTENUATE;
+    const float32 dist_mult = SOUND_ATTENUATE;
     
     // calculate stereo seperation and distance attenuation
     VectorSubtract( origin, g_listener_origin, source_vec );
@@ -1371,10 +1371,10 @@ sum up the channel multipliers.
 */
 void dmaHD_AddLoopSounds( void )
 {
-    S32 i, time;
+    sint i, time;
     channel_t* ch;
     loopSound_t* loop;
-    static S32 loopFrame;
+    static sint loopFrame;
     
     numLoopChannels = 0;
     
@@ -1433,9 +1433,9 @@ dmaHD_Respatialize
 Change the volumes of all the playing sounds for changes in their positions
 ============
 */
-void dmaHD_Respatialize( S32 entityNum, const vec3_t head, vec3_t axis[3], S32 inwater )
+void dmaHD_Respatialize( sint entityNum, const vec3_t head, vec3_t axis[3], sint inwater )
 {
-    S32 i;
+    sint i;
     channel_t* ch;
     vec3_t origin;
     
@@ -1527,11 +1527,11 @@ void dmaHD_Update( void )
 
 void dmaHD_Update_Mix( void )
 {
-    U32 endtime;
-    S32 samps;
-    static S32 lastTime = 0.0f;
-    S32 mixahead, op, thisTime, sane;
-    static S32 lastsoundtime = -1;
+    uint endtime;
+    sint samps;
+    static sint lastTime = 0.0f;
+    sint mixahead, op, thisTime, sane;
+    static sint lastsoundtime = -1;
     
     if( !s_soundStarted || s_soundMuted ) return;
     
@@ -1552,8 +1552,8 @@ void dmaHD_Update_Mix( void )
         // ms since last mix (cap to 8ms @ 125fps)
         sane = 8;
     }
-    op = ( S32 )( ( F32 )( dma.speed * sane ) * 0.001 ); // samples to mix based on last mix time
-    mixahead = ( S32 )( ( F32 )dma.speed * s_mixahead->value );
+    op = ( sint )( ( float32 )( dma.speed * sane ) * 0.001 ); // samples to mix based on last mix time
+    mixahead = ( sint )( ( float32 )dma.speed * s_mixahead->value );
     
     if( mixahead < op )
     {
@@ -1629,7 +1629,7 @@ void dmaHD_SoundInfo( void )
         Com_Printf( " %d ch / %d Hz / %d bps\n", dma.channels, dma.speed, dma.samplebits );
         if( s_numSfx > 0 || g_dmaHD_allocatedsoundmemory > 0 )
         {
-            Com_Printf( " %d sounds in %.2f MiB\n", s_numSfx, ( F32 )g_dmaHD_allocatedsoundmemory / 1048576.0f );
+            Com_Printf( " %d sounds in %.2f MiB\n", s_numSfx, ( float32 )g_dmaHD_allocatedsoundmemory / 1048576.0f );
         }
         else
         {
@@ -1641,7 +1641,7 @@ void dmaHD_SoundInfo( void )
 
 void dmaHD_SoundList( void )
 {
-    S32 i;
+    sint i;
     sfx_t* sfx;
     
     Com_Printf( "\n" );
@@ -1651,9 +1651,9 @@ void dmaHD_SoundList( void )
     {
         for( sfx = s_knownSfx, i = 0; i < s_numSfx; i++, sfx++ )
         {
-            Com_Printf( " %s %.2f KiB %s\n", sfx->soundName, ( F32 )sfx->soundLength / 1024.0f, ( sfx->inMemory ? "" : "!" ) );
+            Com_Printf( " %s %.2f KiB %s\n", sfx->soundName, ( float32 )sfx->soundLength / 1024.0f, ( sfx->inMemory ? "" : "!" ) );
         }
-        Com_Printf( " %d sounds in %.2f MiB\n", s_numSfx, ( F32 )g_dmaHD_allocatedsoundmemory / 1048576.0f );
+        Com_Printf( " %d sounds in %.2f MiB\n", s_numSfx, ( float32 )g_dmaHD_allocatedsoundmemory / 1048576.0f );
     }
     else
     {

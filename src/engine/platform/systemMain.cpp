@@ -69,7 +69,7 @@ idSystemLocal::~idSystemLocal( void )
 idSystemLocal::SetBinaryPath
 =================
 */
-void idSystemLocal::SetBinaryPath( StringEntry path )
+void idSystemLocal::SetBinaryPath( pointer path )
 {
     Q_strncpyz( binaryPath, path, sizeof( binaryPath ) );
 }
@@ -79,7 +79,7 @@ void idSystemLocal::SetBinaryPath( StringEntry path )
 idSystemLocal::BinaryPath
 =================
 */
-UTF8* idSystemLocal::BinaryPath( void )
+valueType* idSystemLocal::BinaryPath( void )
 {
     return binaryPath;
 }
@@ -89,7 +89,7 @@ UTF8* idSystemLocal::BinaryPath( void )
 idSystemLocal::SetDefaultInstallPath
 =================
 */
-void idSystemLocal::SetDefaultInstallPath( StringEntry path )
+void idSystemLocal::SetDefaultInstallPath( pointer path )
 {
     Q_strncpyz( installPath, path, sizeof( installPath ) );
 }
@@ -99,9 +99,9 @@ void idSystemLocal::SetDefaultInstallPath( StringEntry path )
 idSystemLocal::DefaultInstallPath
 =================
 */
-UTF8* idSystemLocal::DefaultInstallPath( void )
+valueType* idSystemLocal::DefaultInstallPath( void )
 {
-    static UTF8 installdir[MAX_OSPATH];
+    static valueType installdir[MAX_OSPATH];
     
     Com_sprintf( installdir, sizeof( installdir ), "%s", Cwd() );
     
@@ -126,7 +126,7 @@ UTF8* idSystemLocal::DefaultInstallPath( void )
 idSystemLocal::SetDefaultLibPath
 =================
 */
-void idSystemLocal::SetDefaultLibPath( StringEntry path )
+void idSystemLocal::SetDefaultLibPath( pointer path )
 {
     Q_strncpyz( libPath, path, sizeof( libPath ) );
 }
@@ -136,7 +136,7 @@ void idSystemLocal::SetDefaultLibPath( StringEntry path )
 idSystemLocal::DefaultLibPath
 =================
 */
-UTF8* idSystemLocal::DefaultLibPath( void )
+valueType* idSystemLocal::DefaultLibPath( void )
 {
     if( *libPath )
     {
@@ -153,7 +153,7 @@ UTF8* idSystemLocal::DefaultLibPath( void )
 idSystemLocal::DefaultAppPath
 =================
 */
-UTF8* idSystemLocal::DefaultAppPath( void )
+valueType* idSystemLocal::DefaultAppPath( void )
 {
     return BinaryPath();
 }
@@ -177,7 +177,7 @@ idSystemLocal::ConsoleInput
 Handle new console input
 =================
 */
-UTF8* idSystemLocal::ConsoleInput( void )
+valueType* idSystemLocal::ConsoleInput( void )
 {
     return consoleCursesSystem->Input( );
 }
@@ -187,7 +187,7 @@ UTF8* idSystemLocal::ConsoleInput( void )
 idSystemLocal::PIDFileName
 =================
 */
-UTF8* idSystemLocal::PIDFileName( void )
+valueType* idSystemLocal::PIDFileName( void )
 {
     return va( "%s/%s", TempPath( ), PID_FILENAME );
 }
@@ -201,17 +201,17 @@ Return true if there is an existing stale PID file
 */
 bool idSystemLocal::WritePIDFile( void )
 {
-    UTF8* pidFile = PIDFileName( );
+    valueType* pidFile = PIDFileName( );
     FILE* f;
     bool stale = false;
     
     // First, check if the pid file is already there
     if( ( f = fopen( pidFile, "r" ) ) != nullptr )
     {
-        UTF8  pidBuffer[ 64 ] = { 0 };
-        S32   pid;
+        valueType  pidBuffer[ 64 ] = { 0 };
+        sint   pid;
         
-        fread( pidBuffer, sizeof( UTF8 ), sizeof( pidBuffer ) - 1, f );
+        fread( pidBuffer, sizeof( valueType ), sizeof( pidBuffer ) - 1, f );
         fclose( f );
         
         pid = atoi( pidBuffer );
@@ -241,7 +241,7 @@ idSystemLocal::Exit
 Single exit point (regular exit or in case of error)
 =================
 */
-void idSystemLocal::Exit( S32 exitCode )
+void idSystemLocal::Exit( sint exitCode )
 {
     consoleCursesSystem->Shutdown( );
     
@@ -285,7 +285,7 @@ void idSystemLocal::Init( void )
 Host_RecordError
 =================
 */
-void idSystemLocal::RecordError( StringEntry msg )
+void idSystemLocal::RecordError( pointer msg )
 {
     msg;
 }
@@ -295,7 +295,7 @@ void idSystemLocal::RecordError( StringEntry msg )
 idSystemLocal::WriteDump
 =================
 */
-void idSystemLocal::WriteDump( StringEntry fmt, ... )
+void idSystemLocal::WriteDump( pointer fmt, ... )
 {
 #if defined( _WIN32 )
 
@@ -304,7 +304,7 @@ void idSystemLocal::WriteDump( StringEntry fmt, ... )
 #endif
     {
         //this memory should live as long as the SEH is doing its thing...I hope
-        static UTF8 msg[2048];
+        static valueType msg[2048];
         va_list vargs;
         
         /*
@@ -329,7 +329,7 @@ void idSystemLocal::WriteDump( StringEntry fmt, ... )
 idSystemLocal::Print
 =================
 */
-void idSystemLocal::Print( StringEntry msg )
+void idSystemLocal::Print( pointer msg )
 {
     consoleLoggingSystem->LogWrite( msg );
     consoleCursesSystem->Print( msg );
@@ -340,10 +340,10 @@ void idSystemLocal::Print( StringEntry msg )
 idSystemLocal::Error
 =================
 */
-void idSystemLocal::Error( StringEntry error, ... )
+void idSystemLocal::Error( pointer error, ... )
 {
     va_list argptr;
-    UTF8 string[4096];
+    valueType string[4096];
     
     va_start( argptr, error );
     Q_vsnprintf( string, sizeof( string ), error, argptr );
@@ -381,7 +381,7 @@ idSystemLocal::GetDLLName
 Used to load a development dll instead of a virtual machine
 =================
 */
-UTF8* idSystemLocal::GetDLLName( StringEntry name )
+valueType* idSystemLocal::GetDLLName( pointer name )
 {
     //Dushan - I have no idea what this mess is and what I made it before
     return va( "%s" ARCH_STRING DLL_EXT, name );
@@ -397,15 +397,15 @@ Used to load a development dll instead of a virtual machine
 #4 look in fs_libpath under FreeBSD
 =================
 */
-void* idSystemLocal::LoadDll( StringEntry name )
+void* idSystemLocal::LoadDll( pointer name )
 {
     void* libHandle = nullptr;
-    static S32 lastWarning = 0;
-    UTF8* basepath;
-    UTF8* homepath;
-    UTF8* gamedir;
-    UTF8* fn;
-    UTF8 filename[MAX_QPATH];
+    static sint lastWarning = 0;
+    valueType* basepath;
+    valueType* homepath;
+    valueType* gamedir;
+    valueType* fn;
+    valueType filename[MAX_QPATH];
     
     assert( name );
     
@@ -476,7 +476,7 @@ void* idSystemLocal::LoadDll( StringEntry name )
 idSystemLocal::GetProcAddress
 =================
 */
-void* idSystemLocal::GetProcAddress( void* dllhandle, StringEntry name )
+void* idSystemLocal::GetProcAddress( void* dllhandle, pointer name )
 {
     return SDL_LoadFunction( dllhandle, name );
 }
@@ -486,15 +486,15 @@ void* idSystemLocal::GetProcAddress( void* dllhandle, StringEntry name )
 idSystemLocal::ParseArgs
 =================
 */
-void idSystemLocal::ParseArgs( S32 argc, UTF8** argv )
+void idSystemLocal::ParseArgs( sint argc, valueType** argv )
 {
-    S32 i;
+    sint i;
     
     if( argc == 2 )
     {
         if( !strcmp( argv[1], "--version" ) || !strcmp( argv[1], "-v" ) )
         {
-            StringEntry date = __DATE__;
+            pointer date = __DATE__;
 #ifdef DEDICATED
             fprintf( stdout, Q3_VERSION " dedicated server (%s)\n", date );
 #else
@@ -518,7 +518,7 @@ void idSystemLocal::ParseArgs( S32 argc, UTF8** argv )
 idSystemLocal::SignalToString
 ================
 */
-StringEntry idSystemLocal::SignalToString( S32 sig )
+pointer idSystemLocal::SignalToString( sint sig )
 {
     switch( sig )
     {
@@ -548,7 +548,7 @@ StringEntry idSystemLocal::SignalToString( S32 sig )
 idSystemLocal::SigHandler
 =================
 */
-void idSystemLocal::SigHandler( S32 signal )
+void idSystemLocal::SigHandler( sint signal )
 {
     static bool signalcaught = false;
     
@@ -581,14 +581,14 @@ void idSystemLocal::SigHandler( S32 signal )
 idSystemLocal::SnapVector
 ================
 */
-F32 idSystemLocal::roundfloat( F32 n )
+float32 idSystemLocal::roundfloat( float32 n )
 {
 #ifdef _WIN32
     return ( n < 0.0f ) ? ceilf( n - 0.5f ) : floorf( n + 0.5f );
 #endif
 }
 
-void idSystemLocal::SysSnapVector( F32* v )
+void idSystemLocal::SysSnapVector( float32* v )
 {
 #ifdef _WIN32
     __m128 vf0, vf1, vf2;
@@ -624,15 +624,15 @@ main
 =================
 */
 #if defined (DEDICATED)
-S32 main( S32 argc, UTF8** argv )
+sint main( sint argc, valueType** argv )
 #elif defined (__LINUX__)
-extern "C" S32 engineMain( S32 argc, UTF8 * *argv )
+extern "C" sint engineMain( sint argc, valueType * *argv )
 #else
-Q_EXPORT S32 engineMain( S32 argc, UTF8 * *argv )
+Q_EXPORT sint engineMain( sint argc, valueType * *argv )
 #endif
 {
-    S32 i;
-    UTF8 commandLine[ MAX_STRING_CHARS ] = { 0 };
+    sint i;
+    valueType commandLine[ MAX_STRING_CHARS ] = { 0 };
     
 #ifndef DEDICATED
     // SDL version check

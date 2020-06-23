@@ -31,42 +31,42 @@
 #define __R_DSA_H__
 
 void GL_BindNullTextures( void );
-S32 GL_BindMultiTexture( U32 texunit, U32 target, U32 texture );
+sint GL_BindMultiTexture( uint texunit, uint target, uint texture );
 
-void GLDSA_BindMultiTextureEXT( U32 texunit, U32 target, U32 texture );
-void GLDSA_TextureParameterfEXT( U32 texture, U32 target, U32 pname, F32 param );
-void GLDSA_TextureParameteriEXT( U32 texture, U32 target, U32 pname, S32 param );
-void GLDSA_TextureImage2DEXT( U32 texture, U32 target, S32 level, S32 internalformat, S32 width, S32 height, S32 border, U32 format, U32 type, const void* pixels );
-void GLDSA_TextureSubImage2DEXT( U32 texture, U32 target, S32 level, S32 xoffset, S32 yoffset, S32 width, S32 height, U32 format, U32 type, const void* pixels );
-void GLDSA_CopyTextureSubImage2DEXT( U32 texture, U32 target, S32 level, S32 xoffset, S32 yoffset, S32 x, S32 y, S32 width, S32 height );
-void GLDSA_CompressedTextureImage2DEXT( U32 texture, U32 target, S32 level, U32 internalformat, S32 width, S32 height, S32 border, S32 imageSize, const void* data );
-void GLDSA_CompressedTextureSubImage2DEXT( U32 texture, U32 target, S32 level, S32 xoffset, S32 yoffset, S32 width, S32 height, U32 format, S32 imageSize, const void* data );
-void GLDSA_GenerateTextureMipmapEXT( U32 texture, U32 target );
+void GLDSA_BindMultiTextureEXT( uint texunit, uint target, uint texture );
+void GLDSA_TextureParameterfEXT( uint texture, uint target, uint pname, float32 param );
+void GLDSA_TextureParameteriEXT( uint texture, uint target, uint pname, sint param );
+void GLDSA_TextureImage2DEXT( uint texture, uint target, sint level, sint internalformat, sint width, sint height, sint border, uint format, uint type, const void* pixels );
+void GLDSA_TextureSubImage2DEXT( uint texture, uint target, sint level, sint xoffset, sint yoffset, sint width, sint height, uint format, uint type, const void* pixels );
+void GLDSA_CopyTextureSubImage2DEXT( uint texture, uint target, sint level, sint xoffset, sint yoffset, sint x, sint y, sint width, sint height );
+void GLDSA_CompressedTextureImage2DEXT( uint texture, uint target, sint level, uint internalformat, sint width, sint height, sint border, sint imageSize, const void* data );
+void GLDSA_CompressedTextureSubImage2DEXT( uint texture, uint target, sint level, sint xoffset, sint yoffset, sint width, sint height, uint format, sint imageSize, const void* data );
+void GLDSA_GenerateTextureMipmapEXT( uint texture, uint target );
 
 void GL_BindNullProgram( void );
-S32 GL_UseProgram( U32 program );
+sint GL_UseProgram( uint program );
 
-void GLDSA_ProgramUniform1iEXT( U32 program, S32 location, S32 v0 );
-void GLDSA_ProgramUniform1fEXT( U32 program, S32 location, F32 v0 );
-void GLDSA_ProgramUniform2fEXT( U32 program, S32 location, F32 v0, F32 v1 );
-void GLDSA_ProgramUniform2fvEXT( U32 program, S32 location, S32 count, const F32* value );
-void GLDSA_ProgramUniform3fEXT( U32 program, S32 location, F32 v0, F32 v1, F32 v2 );
-void GLDSA_ProgramUniform4fEXT( U32 program, S32 location, F32 v0, F32 v1, F32 v2, F32 v3 );
-void GLDSA_ProgramUniform1fvEXT( U32 program, S32 location, S32 count, const F32* value );
-void GLDSA_ProgramUniformMatrix4fvEXT( U32 program, S32 location, S32 count, U8 transpose, const F32* value );
-void GLDSA_ProgramUniform3fEXT( U32 program, S32 location, S32 count, const F32* value );
+void GLDSA_ProgramUniform1iEXT( uint program, sint location, sint v0 );
+void GLDSA_ProgramUniform1fEXT( uint program, sint location, float32 v0 );
+void GLDSA_ProgramUniform2fEXT( uint program, sint location, float32 v0, float32 v1 );
+void GLDSA_ProgramUniform2fvEXT( uint program, sint location, sint count, const float32* value );
+void GLDSA_ProgramUniform3fEXT( uint program, sint location, float32 v0, float32 v1, float32 v2 );
+void GLDSA_ProgramUniform4fEXT( uint program, sint location, float32 v0, float32 v1, float32 v2, float32 v3 );
+void GLDSA_ProgramUniform1fvEXT( uint program, sint location, sint count, const float32* value );
+void GLDSA_ProgramUniformMatrix4fvEXT( uint program, sint location, sint count, uchar8 transpose, const float32* value );
+void GLDSA_ProgramUniform3fEXT( uint program, sint location, sint count, const float32* value );
 void GL_BindNullFramebuffers( void );
-void GL_BindFramebuffer( U32 target, U32 framebuffer );
-void GL_BindRenderbuffer( U32 renderbuffer );
-void GL_BindFragDataLocation( U32 program, U32 color, StringEntry name );
+void GL_BindFramebuffer( uint target, uint framebuffer );
+void GL_BindRenderbuffer( uint renderbuffer );
+void GL_BindFragDataLocation( uint program, uint color, pointer name );
 
-void GLDSA_NamedRenderbufferStorageEXT( U32 renderbuffer, U32 internalformat, S32 width, S32 height );
-void GLDSA_NamedRenderbufferStorageMultisampleEXT( U32 renderbuffer, S32 samples, U32 internalformat, S32 width, S32 height );
-U32 GLDSA_CheckNamedFramebufferStatusEXT( U32 framebuffer, U32 target );
-void GLDSA_NamedFramebufferTexture2DEXT( U32 framebuffer, U32 attachment, U32 textarget, U32 texture, S32 level );
-void GLDSA_NamedFramebufferRenderbufferEXT( U32 framebuffer, U32 attachment, U32 renderbuffertarget, U32 renderbuffer );
-void GLDSA_CopyTexImage2DEXT( U32 framebuffer, U32 target, S32 level, U32 internalformat, S32 x, S32 y, S32 width, S32 height, S32 border );
+void GLDSA_NamedRenderbufferStorageEXT( uint renderbuffer, uint internalformat, sint width, sint height );
+void GLDSA_NamedRenderbufferStorageMultisampleEXT( uint renderbuffer, sint samples, uint internalformat, sint width, sint height );
+uint GLDSA_CheckNamedFramebufferStatusEXT( uint framebuffer, uint target );
+void GLDSA_NamedFramebufferTexture2DEXT( uint framebuffer, uint attachment, uint textarget, uint texture, sint level );
+void GLDSA_NamedFramebufferRenderbufferEXT( uint framebuffer, uint attachment, uint renderbuffertarget, uint renderbuffer );
+void GLDSA_CopyTexImage2DEXT( uint framebuffer, uint target, sint level, uint internalformat, sint x, sint y, sint width, sint height, sint border );
 
-void GL_PatchParameteri( U32 pname, S32 value );
+void GL_PatchParameteri( uint pname, sint value );
 
 #endif

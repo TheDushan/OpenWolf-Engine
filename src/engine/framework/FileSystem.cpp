@@ -210,7 +210,7 @@ or configs will never get loaded from disk!
 */
 
 //bani - made fs_gamedir non-static
-UTF8 fs_gamedir[MAX_OSPATH]; // this will be a single file name with no separators
+valueType fs_gamedir[MAX_OSPATH]; // this will be a single file name with no separators
 static convar_t* fs_debug;
 static convar_t* fs_homepath;
 static convar_t* fs_basepath;
@@ -230,12 +230,12 @@ static convar_t* fs_missing;
 static convar_t* fs_restrict;
 static searchpath_t* fs_searchpaths;
 
-static S32 fs_readCount; // total bytes read
-static S32 fs_loadCount; // total files read
-static S32 fs_loadStack; // total files in memory
-static S32 fs_packFiles; // total number of files in packs
-static S32 fs_fakeChkSum;
-static S32 fs_checksumFeed;
+static sint fs_readCount; // total bytes read
+static sint fs_loadCount; // total files read
+static sint fs_loadStack; // total files in memory
+static sint fs_packFiles; // total number of files in packs
+static sint fs_fakeChkSum;
+static sint fs_checksumFeed;
 
 idFileSystemLocal fileSystemLocal;
 idFileSystem* fileSystem = &fileSystemLocal;
@@ -276,7 +276,7 @@ idFileSystemLocal::PakIsPure
 */
 bool idFileSystemLocal::PakIsPure( pack_t* pack )
 {
-    S32 i;
+    sint i;
     
     if( fs_numServerPaks )
     {
@@ -304,7 +304,7 @@ idFileSystemLocal::LoadStack
 return load stack
 =================
 */
-S32 idFileSystemLocal::LoadStack( void )
+sint idFileSystemLocal::LoadStack( void )
 {
     return fs_loadStack;
 }
@@ -316,11 +316,11 @@ idFileSystemLocal::HashFileName
 return a hash value for the filename
 ================
 */
-S64 idFileSystemLocal::HashFileName( StringEntry fname, S32 hashSize )
+sint32 idFileSystemLocal::HashFileName( pointer fname, sint hashSize )
 {
-    S32 i;
-    S64 hash;
-    UTF8 letter;
+    sint i;
+    sint32 hash;
+    valueType letter;
     
     hash = 0;
     i = 0;
@@ -340,7 +340,7 @@ S64 idFileSystemLocal::HashFileName( StringEntry fname, S32 hashSize )
         {
             letter = '/'; // damn path names
         }
-        hash += ( S64 )( letter ) * ( i + 119 );
+        hash += ( sint32 )( letter ) * ( i + 119 );
         i++;
     }
     
@@ -357,7 +357,7 @@ idFileSystemLocal::HandleForFile
 */
 fileHandle_t idFileSystemLocal::HandleForFile( void )
 {
-    for( S32 i = 1 ; i < MAX_FILE_HANDLES ; i++ )
+    for( sint i = 1 ; i < MAX_FILE_HANDLES ; i++ )
     {
         if( fsh[i].handleFiles.file.o == nullptr )
         {
@@ -413,9 +413,9 @@ it will return the size of the pak file, not the expected
 size of the file.
 ================
 */
-S32 idFileSystemLocal::filelength( fileHandle_t f )
+sint idFileSystemLocal::filelength( fileHandle_t f )
 {
-    S32 pos, end;
+    sint pos, end;
     FILE* h;
     
     h = FileForHandle( f );
@@ -436,9 +436,9 @@ idFileSystemLocal::ReplaceSeparators
 Fix things up differently for win/unix/mac
 ====================
 */
-void idFileSystemLocal::ReplaceSeparators( UTF8* path )
+void idFileSystemLocal::ReplaceSeparators( valueType* path )
 {
-    UTF8* s;
+    valueType* s;
     
     for( s = path ; *s ; s++ )
     {
@@ -456,11 +456,11 @@ idFileSystemLocal::BuildOSPath
 Qpath may have either forward or backwards slashes
 ===================
 */
-UTF8* idFileSystemLocal::BuildOSPath( StringEntry base, StringEntry game, StringEntry qpath )
+valueType* idFileSystemLocal::BuildOSPath( pointer base, pointer game, pointer qpath )
 {
-    UTF8 temp[MAX_OSPATH];
-    static UTF8 ospath[2][MAX_OSPATH];
-    static S32 toggle;
+    valueType temp[MAX_OSPATH];
+    static valueType ospath[2][MAX_OSPATH];
+    static sint toggle;
     
     toggle ^= 1;        // flip-flop to allow two returns without clash
     
@@ -485,7 +485,7 @@ idFileSystemLocal::BuildOSHomePath
 return a path to a file in the users homepath
 =====================
 */
-void idFileSystemLocal::BuildOSHomePath( UTF8* ospath, S32 size, S32 qpath )
+void idFileSystemLocal::BuildOSHomePath( valueType* ospath, sint size, sint qpath )
 {
     Com_sprintf( ospath, size, "%s/%s/%s", fs_homepath->string, fs_gamedir, qpath );
     ReplaceSeparators( ospath );
@@ -498,11 +498,11 @@ idFileSystemLocal::CreatePath
 Creates any directories needed to store the given filename
 ============
 */
-S32 idFileSystemLocal::CreatePath( StringEntry OSPath_ )
+sint idFileSystemLocal::CreatePath( pointer OSPath_ )
 {
-    // use va() to have a clean StringEntry prototype
-    UTF8* OSPath = va( "%s", OSPath_ );
-    UTF8* ofs;
+    // use va() to have a clean pointer prototype
+    valueType* OSPath = va( "%s", OSPath_ );
+    valueType* ofs;
     
     // make absolutely sure that it can't back up the path
     // FIXME: is c: allowed???
@@ -532,11 +532,11 @@ idFileSystemLocal::FSCopyFile
 Copy a fully specified file from one place to another
 =================
 */
-void idFileSystemLocal::FSCopyFile( UTF8* fromOSPath, UTF8* toOSPath )
+void idFileSystemLocal::FSCopyFile( valueType* fromOSPath, valueType* toOSPath )
 {
     FILE* f;
-    S32 len;
-    U8* buf;
+    sint len;
+    uchar8* buf;
     
     Com_Printf( "copy %s to %s\n", fromOSPath, toOSPath );
     
@@ -556,7 +556,7 @@ void idFileSystemLocal::FSCopyFile( UTF8* fromOSPath, UTF8* toOSPath )
     len = ftell( f );
     fseek( f, 0, SEEK_SET );
     
-    buf = ( U8* )Z_Malloc( len );
+    buf = ( uchar8* )Z_Malloc( len );
     
     if( fread( buf, 1, len, f ) != len )
     {
@@ -593,7 +593,7 @@ void idFileSystemLocal::FSCopyFile( UTF8* fromOSPath, UTF8* toOSPath )
 idFileSystemLocal::Remove
 ===========
 */
-bool idFileSystemLocal::Remove( StringEntry osPath )
+bool idFileSystemLocal::Remove( pointer osPath )
 {
     return ( bool )!remove( osPath );
 }
@@ -603,7 +603,7 @@ bool idFileSystemLocal::Remove( StringEntry osPath )
 idFileSystemLocal::HomeRemove
 ===========
 */
-void idFileSystemLocal::HomeRemove( StringEntry homePath )
+void idFileSystemLocal::HomeRemove( pointer homePath )
 {
     remove( BuildOSPath( fs_homepath->string, fs_gamedir, homePath ) );
 }
@@ -618,10 +618,10 @@ search the paths.  This is to determine if opening a file to write
 NOTE TTimo: this goes with idFileSystemLocal::FOpenFileWrite for opening the file afterwards
 ================
 */
-bool idFileSystemLocal::FileExists( StringEntry file )
+bool idFileSystemLocal::FileExists( pointer file )
 {
     FILE* f;
-    UTF8* testpath;
+    valueType* testpath;
     
     testpath = BuildOSPath( fs_homepath->string, fs_gamedir, file );
     
@@ -643,10 +643,10 @@ idFileSystemLocal::SV_FileExists
 Tests if the file exists
 ================
 */
-bool idFileSystemLocal::SV_FileExists( StringEntry file )
+bool idFileSystemLocal::SV_FileExists( pointer file )
 {
     FILE* f;
-    UTF8* testpath;
+    valueType* testpath;
     
     testpath = BuildOSPath( fs_homepath->string, file, "" );
     testpath[strlen( testpath ) - 1] = '\0';
@@ -667,7 +667,7 @@ bool idFileSystemLocal::SV_FileExists( StringEntry file )
 idFileSystemLocal::OS_FileExists
 ===========
 */
-bool idFileSystemLocal::OS_FileExists( StringEntry file )
+bool idFileSystemLocal::OS_FileExists( pointer file )
 {
     FILE* f;
     f = fopen( file, "rb" );
@@ -686,9 +686,9 @@ bool idFileSystemLocal::OS_FileExists( StringEntry file )
 idFileSystemLocal::SV_FOpenFileWrite
 ===========
 */
-fileHandle_t idFileSystemLocal::SV_FOpenFileWrite( StringEntry filename )
+fileHandle_t idFileSystemLocal::SV_FOpenFileWrite( pointer filename )
 {
-    UTF8* ospath;
+    valueType* ospath;
     fileHandle_t f;
     
     if( !fs_searchpaths )
@@ -734,9 +734,9 @@ search for a file somewhere below the home path, base path or cd path
 we search in that order, matching idFileSystemLocal::SV_FOpenFileRead order
 ===========
 */
-S32 idFileSystemLocal::SV_FOpenFileRead( StringEntry filename, fileHandle_t* fp )
+sint idFileSystemLocal::SV_FOpenFileRead( pointer filename, fileHandle_t* fp )
 {
-    UTF8* ospath;
+    valueType* ospath;
     fileHandle_t f = 0;
     
     if( !fs_searchpaths )
@@ -803,9 +803,9 @@ S32 idFileSystemLocal::SV_FOpenFileRead( StringEntry filename, fileHandle_t* fp 
 idFileSystemLocal::SV_Rename
 ===========
 */
-void idFileSystemLocal::SV_Rename( StringEntry from, StringEntry to )
+void idFileSystemLocal::SV_Rename( pointer from, pointer to )
 {
-    UTF8* from_ospath, *to_ospath;
+    valueType* from_ospath, *to_ospath;
     
     if( !fs_searchpaths )
     {
@@ -838,9 +838,9 @@ void idFileSystemLocal::SV_Rename( StringEntry from, StringEntry to )
 idFileSystemLocal::Rename
 ===========
 */
-void idFileSystemLocal::Rename( StringEntry from, StringEntry to )
+void idFileSystemLocal::Rename( pointer from, pointer to )
 {
-    UTF8* from_ospath, *to_ospath;
+    valueType* from_ospath, *to_ospath;
     
     if( !fs_searchpaths )
     {
@@ -908,9 +908,9 @@ void idFileSystemLocal::FCloseFile( fileHandle_t f )
 idFileSystemLocal::FOpenFileWrite
 ===========
 */
-fileHandle_t idFileSystemLocal::FOpenFileWrite( StringEntry filename )
+fileHandle_t idFileSystemLocal::FOpenFileWrite( pointer filename )
 {
-    UTF8* ospath;
+    valueType* ospath;
     fileHandle_t f;
     
     if( !fs_searchpaths )
@@ -955,9 +955,9 @@ fileHandle_t idFileSystemLocal::FOpenFileWrite( StringEntry filename )
 idFileSystemLocal::FOpenFileAppend
 ===========
 */
-fileHandle_t idFileSystemLocal::FOpenFileAppend( StringEntry filename )
+fileHandle_t idFileSystemLocal::FOpenFileAppend( pointer filename )
 {
-    UTF8* ospath;
+    valueType* ospath;
     fileHandle_t f;
     
     if( !fs_searchpaths )
@@ -1001,10 +1001,10 @@ fileHandle_t idFileSystemLocal::FOpenFileAppend( StringEntry filename )
 idFileSystemLocal::FOpenFileWrite
 ===========
 */
-S32 idFileSystemLocal::FOpenFileDirect( StringEntry filename, fileHandle_t* f )
+sint idFileSystemLocal::FOpenFileDirect( pointer filename, fileHandle_t* f )
 {
-    S32 r;
-    UTF8* ospath;
+    sint r;
+    valueType* ospath;
     
     if( !fs_searchpaths )
     {
@@ -1044,9 +1044,9 @@ S32 idFileSystemLocal::FOpenFileDirect( StringEntry filename, fileHandle_t* f )
 idFileSystemLocal::FOpenFileUpdate
 ===========
 */
-fileHandle_t idFileSystemLocal::FOpenFileUpdate( StringEntry filename, S32* length )
+fileHandle_t idFileSystemLocal::FOpenFileUpdate( pointer filename, sint* length )
 {
-    UTF8* ospath;
+    valueType* ospath;
     fileHandle_t f;
     
     if( !fs_searchpaths )
@@ -1086,12 +1086,12 @@ fileHandle_t idFileSystemLocal::FOpenFileUpdate( StringEntry filename, S32* leng
 ===========
 idFileSystemLocal::FilenameCompare
 
-Ignore case and seprator UTF8 distinctions
+Ignore case and seprator valueType distinctions
 ===========
 */
-bool idFileSystemLocal::FilenameCompare( StringEntry s1, StringEntry s2 )
+bool idFileSystemLocal::FilenameCompare( pointer s1, pointer s2 )
 {
-    S32 c1, c2;
+    sint c1, c2;
     
     do
     {
@@ -1131,10 +1131,10 @@ bool idFileSystemLocal::FilenameCompare( StringEntry s1, StringEntry s2 )
 idFileSystemLocal::ShiftedStrStr
 ===========
 */
-UTF8* idFileSystemLocal::ShiftedStrStr( StringEntry string, StringEntry substring, S32 shift )
+valueType* idFileSystemLocal::ShiftedStrStr( pointer string, pointer substring, sint shift )
 {
-    UTF8 buf[MAX_STRING_TOKENS];
-    S32 i;
+    valueType buf[MAX_STRING_TOKENS];
+    sint i;
     
     for( i = 0; substring[i]; i++ )
     {
@@ -1142,7 +1142,7 @@ UTF8* idFileSystemLocal::ShiftedStrStr( StringEntry string, StringEntry substrin
     }
     buf[i] = '\0';
     
-    return ( UTF8* )strstr( string, buf );
+    return ( valueType* )strstr( string, buf );
 }
 
 /*
@@ -1152,10 +1152,10 @@ idFileSystemLocal::ShiftStr
 perform simple string shifting to avoid scanning from the exe
 ==========
 */
-UTF8* idFileSystemLocal::ShiftStr( StringEntry string, S32 shift )
+valueType* idFileSystemLocal::ShiftStr( pointer string, sint shift )
 {
-    static UTF8 buf[MAX_STRING_CHARS];
-    S32 i, l;
+    static valueType buf[MAX_STRING_CHARS];
+    sint i, l;
     
     l = strlen( string );
     
@@ -1179,17 +1179,17 @@ Used for streaming data out of either a
 separate file or a ZIP file.
 ===========
 */
-S32 idFileSystemLocal::FOpenFileRead( StringEntry filename, fileHandle_t* file, bool uniqueFILE )
+sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, bool uniqueFILE )
 {
     searchpath_t* search;
-    UTF8* netpath;
+    valueType* netpath;
     pack_t* pak;
     fileInPack_t* pakFile;
     directory_t* dir;
-    S64 hash = 0;
+    sint32 hash = 0;
     FILE* temp;
-    S32 l;
-    UTF8 demoExt[16];
+    sint l;
+    valueType demoExt[16];
     
     hash = 0;
     
@@ -1389,10 +1389,10 @@ S32 idFileSystemLocal::FOpenFileRead( StringEntry filename, fileHandle_t* file, 
                     // Arnout: let's make this thing work from pakfiles as well
                     // FIXME: doing this seems to break things?
                     /*if ( fs_copyfiles->integer && fs_buildpath->string[0] && Q_stricmpn( fs_buildpath->string, pak->pakFilename, strlen(fs_buildpath->string) ) ) {
-                    	UTF8			copypath[MAX_OSPATH];
+                    	valueType			copypath[MAX_OSPATH];
                     	fileHandle_t	f;
-                    	U8			*srcData;
-                    	S32				len = zfi->cur_file_info.uncompressed_size;
+                    	uchar8			*srcData;
+                    	sint				len = zfi->cur_file_info.uncompressed_size;
                     
                     	Q_strncpyz( copypath, BuildOSPath( fs_buildpath->string, fs_buildgame->string, filename ), sizeof(copypath) );
                     	netpath = BuildOSPath( fs_basepath->string, fs_gamedir, filename );
@@ -1507,9 +1507,9 @@ idFileSystemLocal::FOpenFileRead_Filtered
 perform simple string shifting to avoid scanning from the exe
 ==========
 */
-S32 idFileSystemLocal::FOpenFileRead_Filtered( StringEntry qpath, fileHandle_t* file, bool uniqueFILE, S32 filter_flag )
+sint idFileSystemLocal::FOpenFileRead_Filtered( pointer qpath, fileHandle_t* file, bool uniqueFILE, sint filter_flag )
 {
-    S32 ret;
+    sint ret;
     
     fs_filter_flag = filter_flag;
     ret = FOpenFileRead( qpath, file, uniqueFILE );
@@ -1543,13 +1543,13 @@ NOTE TTimo:
 
 ==================
 */
-bool idFileSystemLocal::CL_ExtractFromPakFile( StringEntry base, StringEntry gamedir, StringEntry filename )
+bool idFileSystemLocal::CL_ExtractFromPakFile( pointer base, pointer gamedir, pointer filename )
 {
-    S32 srcLength, destLength;
-    U8* srcData, *destData;
+    sint srcLength, destLength;
+    uchar8* srcData, *destData;
     bool needToCopy;
     FILE* destHandle;
-    UTF8* fn;
+    valueType* fn;
     
     fn = BuildOSPath( base, gamedir, filename );
     needToCopy = true;
@@ -1575,14 +1575,14 @@ bool idFileSystemLocal::CL_ExtractFromPakFile( StringEntry base, StringEntry gam
         
         if( destLength > 0 )
         {
-            destData = ( U8* )Z_Malloc( destLength );
+            destData = ( uchar8* )Z_Malloc( destLength );
             
             fread( destData, destLength, 1, destHandle );
             
             // compare files
             if( destLength == srcLength )
             {
-                S32 i;
+                sint i;
                 
                 for( i = 0; i < destLength; i++ )
                 {
@@ -1630,7 +1630,7 @@ bool idFileSystemLocal::CL_ExtractFromPakFile( StringEntry base, StringEntry gam
 idFileSystemLocal::AllowDeletion
 ==============
 */
-bool idFileSystemLocal::AllowDeletion( UTF8* filename )
+bool idFileSystemLocal::AllowDeletion( valueType* filename )
 {
     // for safety, only allow deletion from the save, profiles and demo directory
     if( Q_strncmp( filename, "save/", 5 ) != 0 && Q_strncmp( filename, "profiles/", 9 ) != 0 && Q_strncmp( filename, "demos/", 6 ) != 0 )
@@ -1646,13 +1646,13 @@ bool idFileSystemLocal::AllowDeletion( UTF8* filename )
 idFileSystemLocal::DeleteDir
 ==============
 */
-S32 idFileSystemLocal::DeleteDir( UTF8* dirname, bool nonEmpty, bool recursive )
+sint idFileSystemLocal::DeleteDir( valueType* dirname, bool nonEmpty, bool recursive )
 {
-    UTF8* ospath;
-    UTF8** pFiles = nullptr;
-    S32 i, nFiles = 0;
+    valueType* ospath;
+    valueType** pFiles = nullptr;
+    sint i, nFiles = 0;
     // Dushan
-    static UTF8* root = "/";
+    static valueType* root = "/";
     
     if( !fs_searchpaths )
     {
@@ -1675,7 +1675,7 @@ S32 idFileSystemLocal::DeleteDir( UTF8* dirname, bool nonEmpty, bool recursive )
         pFiles = idsystem->ListFiles( ospath, root, nullptr, &nFiles, false );
         for( i = 0; i < nFiles; i++ )
         {
-            UTF8 temp[MAX_OSPATH];
+            valueType temp[MAX_OSPATH];
             
             if( !Q_stricmp( pFiles[i], ".." ) || !Q_stricmp( pFiles[i], "." ) )
             {
@@ -1727,7 +1727,7 @@ returns 1 if directory
 returns 0 otherwise
 ==============
 */
-S32 idFileSystemLocal::OSStatFile( UTF8* ospath )
+sint idFileSystemLocal::OSStatFile( valueType* ospath )
 {
 #ifdef _WIN32
     struct _stat stat;
@@ -1757,10 +1757,10 @@ TTimo - this was not in the 1.30 filesystem code
 using fs_homepath for the file to remove
 ==============
 */
-S32 idFileSystemLocal::Delete( UTF8* filename )
+sint idFileSystemLocal::Delete( valueType* filename )
 {
-    UTF8* ospath;
-    S32 stat;
+    valueType* ospath;
+    sint stat;
     
     if( !fs_searchpaths )
     {
@@ -1805,11 +1805,11 @@ S32 idFileSystemLocal::Delete( UTF8* filename )
 idFileSystemLocal::FPrintf
 ================
 */
-S32 idFileSystemLocal::FPrintf( fileHandle_t f, StringEntry fmt, ... )
+sint idFileSystemLocal::FPrintf( fileHandle_t f, pointer fmt, ... )
 {
     va_list argptr;
-    UTF8 msg[8192];
-    S32 l, r;
+    valueType msg[8192];
+    sint l, r;
     
     va_start( argptr, fmt );
     Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
@@ -1828,7 +1828,7 @@ idFileSystemLocal::Read2
 Properly handles partial reads
 =================
 */
-S32 idFileSystemLocal::Read2( void* buffer, S32 len, fileHandle_t f )
+sint idFileSystemLocal::Read2( void* buffer, sint len, fileHandle_t f )
 {
     if( !fs_searchpaths )
     {
@@ -1843,7 +1843,7 @@ S32 idFileSystemLocal::Read2( void* buffer, S32 len, fileHandle_t f )
     
     if( fsh[f].streamed )
     {
-        S32 r;
+        sint r;
         
         fsh[f].streamed = false;
         
@@ -1864,10 +1864,10 @@ S32 idFileSystemLocal::Read2( void* buffer, S32 len, fileHandle_t f )
 idFileSystemLocal::Read
 ================
 */
-S32 idFileSystemLocal::Read( void* buffer, S32 len, fileHandle_t f )
+sint idFileSystemLocal::Read( void* buffer, sint len, fileHandle_t f )
 {
-    S32 block, remaining, read, tries;
-    U8* buf;
+    sint block, remaining, read, tries;
+    uchar8* buf;
     
     if( !fs_searchpaths )
     {
@@ -1879,7 +1879,7 @@ S32 idFileSystemLocal::Read( void* buffer, S32 len, fileHandle_t f )
         return 0;
     }
     
-    buf = ( U8* )buffer;
+    buf = ( uchar8* )buffer;
     fs_readCount += len;
     
     if( fsh[f].zipFile == false )
@@ -1931,10 +1931,10 @@ idFileSystemLocal::Write
 Properly handles partial writes
 =================
 */
-S32 idFileSystemLocal::Write( const void* buffer, S32 len, fileHandle_t h )
+sint idFileSystemLocal::Write( const void* buffer, sint len, fileHandle_t h )
 {
-    S32 block, remaining, written, tries;
-    U8* buf;
+    sint block, remaining, written, tries;
+    uchar8* buf;
     FILE* f;
     
     if( !fs_searchpaths )
@@ -1954,7 +1954,7 @@ S32 idFileSystemLocal::Write( const void* buffer, S32 len, fileHandle_t h )
     }
     
     f = FileForHandle( h );
-    buf = ( U8* )buffer;
+    buf = ( uchar8* )buffer;
     
     remaining = len;
     tries = 0;
@@ -1999,10 +1999,10 @@ S32 idFileSystemLocal::Write( const void* buffer, S32 len, fileHandle_t h )
 idFileSystemLocal::Printf
 ================
 */
-void idFileSystemLocal::Printf( fileHandle_t h, StringEntry fmt, ... )
+void idFileSystemLocal::Printf( fileHandle_t h, pointer fmt, ... )
 {
     va_list argptr;
-    UTF8 msg[MAXPRINTMSG];
+    valueType msg[MAXPRINTMSG];
     
     va_start( argptr, fmt );
     Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
@@ -2016,9 +2016,9 @@ void idFileSystemLocal::Printf( fileHandle_t h, StringEntry fmt, ... )
 idFileSystemLocal::Seek
 =================
 */
-S32 idFileSystemLocal::Seek( fileHandle_t f, S64 offset, S32 origin )
+sint idFileSystemLocal::Seek( fileHandle_t f, sint32 offset, sint origin )
 {
-    S32 _origin;
+    sint _origin;
     
     if( !fs_searchpaths )
     {
@@ -2037,8 +2037,8 @@ S32 idFileSystemLocal::Seek( fileHandle_t f, S64 offset, S32 origin )
     {
         //FIXME: this is incomplete and really, really
         //crappy (but better than what was here before)
-        U8 buffer[PK3_SEEK_BUFFER_SIZE];
-        S32 remainder = offset;
+        uchar8 buffer[PK3_SEEK_BUFFER_SIZE];
+        sint remainder = offset;
         
         if( offset < 0 || origin == FS_SEEK_END )
         {
@@ -2112,12 +2112,12 @@ CONVENIENCE FUNCTIONS FOR ENTIRE FILES
 idFileSystemLocal::FileIsInPAK
 ================
 */
-S32 idFileSystemLocal::FileIsInPAK( StringEntry filename, S32* pChecksum )
+sint idFileSystemLocal::FileIsInPAK( pointer filename, sint* pChecksum )
 {
     searchpath_t* search;
     pack_t* pak;
     fileInPack_t* pakFile;
-    S64 hash = 0;
+    sint32 hash = 0;
     
     if( !fs_searchpaths )
     {
@@ -2203,12 +2203,12 @@ Filename are relative to the quake search path
 a null buffer will just return the file length without loading
 ============
 */
-S32 idFileSystemLocal::ReadFile( StringEntry qpath, void** buffer )
+sint idFileSystemLocal::ReadFile( pointer qpath, void** buffer )
 {
     fileHandle_t h;
-    U8* buf;
+    uchar8* buf;
     bool isConfig;
-    S32 len;
+    sint len;
     
     if( !fs_searchpaths )
     {
@@ -2229,7 +2229,7 @@ S32 idFileSystemLocal::ReadFile( StringEntry qpath, void** buffer )
         isConfig = true;
         if( com_journal && com_journal->integer == 2 )
         {
-            S32 r;
+            sint r;
             
             Com_DPrintf( "Loading %s from journal file.\n", qpath );
             
@@ -2261,8 +2261,8 @@ S32 idFileSystemLocal::ReadFile( StringEntry qpath, void** buffer )
                 return len;
             }
             
-            //buf = ( U8* )Hunk_AllocateTempMemory( len + 1 );
-            buf = ( U8* )Z_Malloc( len + 1 );
+            //buf = ( uchar8* )Hunk_AllocateTempMemory( len + 1 );
+            buf = ( uchar8* )Z_Malloc( len + 1 );
             buf[len] = '\0';	// because we're not calling Z_Malloc with optional trailing 'bZeroIt' bool
             *buffer = buf;
             
@@ -2317,7 +2317,7 @@ S32 idFileSystemLocal::ReadFile( StringEntry qpath, void** buffer )
         return len;
     }
     
-    buf = ( U8* )Hunk_AllocateTempMemory( len + 1 );
+    buf = ( uchar8* )Hunk_AllocateTempMemory( len + 1 );
     *buffer = buf;
     
     Read( buf, len, h );
@@ -2373,7 +2373,7 @@ idFileSystemLocal::WriteFile
 Filename are reletive to the quake search path
 ============
 */
-void idFileSystemLocal::WriteFile( StringEntry qpath, const void* buffer, S32 size )
+void idFileSystemLocal::WriteFile( pointer qpath, const void* buffer, sint size )
 {
     fileHandle_t f;
     
@@ -2413,17 +2413,17 @@ Creates a new pak_t in the search chain for the contents
 of a zip file.
 =================
 */
-pack_t* idFileSystemLocal::LoadZipFile( StringEntry zipfile, StringEntry basename )
+pack_t* idFileSystemLocal::LoadZipFile( pointer zipfile, pointer basename )
 {
     fileInPack_t* buildBuffer;
     pack_t* pack;
     unzFile uf;
-    S32 err, i, len, fs_numHeaderLongs, *fs_headerLongs, sizeOfHeaderLongs;
+    sint err, i, len, fs_numHeaderLongs, *fs_headerLongs, sizeOfHeaderLongs;
     unz_global_info gi;
-    UTF8 filename_inzip[MAX_ZPATH];
+    valueType filename_inzip[MAX_ZPATH];
     unz_file_info file_info;
-    S64	hash;
-    UTF8* namePtr;
+    sint32	hash;
+    valueType* namePtr;
     
     fs_numHeaderLongs = 0;
     
@@ -2457,8 +2457,8 @@ pack_t* idFileSystemLocal::LoadZipFile( StringEntry zipfile, StringEntry basenam
     }
     
     buildBuffer = ( fileInPack_t* )Z_Malloc( ( gi.number_entry * sizeof( fileInPack_t ) ) + len );
-    namePtr = ( ( UTF8* ) buildBuffer ) + gi.number_entry * sizeof( fileInPack_t );
-    fs_headerLongs = ( S32* )Z_Malloc( ( gi.number_entry + 1 ) * sizeof( S32 ) );
+    namePtr = ( ( valueType* ) buildBuffer ) + gi.number_entry * sizeof( fileInPack_t );
+    fs_headerLongs = ( sint* )Z_Malloc( ( gi.number_entry + 1 ) * sizeof( sint ) );
     fs_headerLongs[ fs_numHeaderLongs++ ] = LittleLong( fs_checksumFeed );
     
     // get the hash table size from the number of files in the zip
@@ -2473,7 +2473,7 @@ pack_t* idFileSystemLocal::LoadZipFile( StringEntry zipfile, StringEntry basenam
     
     pack = ( pack_t* )Z_Malloc( sizeof( pack_t ) + i * sizeof( fileInPack_t* ) );
     pack->hashSize = i;
-    pack->hashTable = ( fileInPack_t** )( ( ( UTF8* ) pack ) + sizeof( pack_t ) );
+    pack->hashTable = ( fileInPack_t** )( ( ( valueType* ) pack ) + sizeof( pack_t ) );
     
     for( i = 0; i < pack->hashSize; i++ )
     {
@@ -2547,9 +2547,9 @@ pack_t* idFileSystemLocal::LoadZipFile( StringEntry zipfile, StringEntry basenam
 DIRECTORY SCANNING FUNCTIONS
 =================================================================================
 */
-S32 idFileSystemLocal::ReturnPath( StringEntry zname, UTF8* zpath, S32* depth )
+sint idFileSystemLocal::ReturnPath( pointer zname, valueType* zpath, sint* depth )
 {
-    S32 len, at, newdep;
+    sint len, at, newdep;
     
     newdep = 0;
     zpath[0] = 0;
@@ -2579,9 +2579,9 @@ S32 idFileSystemLocal::ReturnPath( StringEntry zname, UTF8* zpath, S32* depth )
 idFileSystemLocal::AddFileToList
 ==================
 */
-S32 idFileSystemLocal::AddFileToList( UTF8* name, UTF8* list[MAX_FOUND_FILES], S32 nfiles )
+sint idFileSystemLocal::AddFileToList( valueType* name, valueType* list[MAX_FOUND_FILES], sint nfiles )
 {
-    S32 i;
+    sint i;
     
     if( nfiles == MAX_FOUND_FILES - 1 )
     {
@@ -2610,14 +2610,14 @@ Returns a uniqued list of files that match the given criteria
 from all search paths
 ===============
 */
-UTF8** idFileSystemLocal::ListFilteredFiles( StringEntry path, StringEntry extension, UTF8* filter, S32* numfiles )
+valueType** idFileSystemLocal::ListFilteredFiles( pointer path, pointer extension, valueType* filter, sint* numfiles )
 {
-    S32 nfiles, i, pathLength, extensionLength, length, pathDepth, temp;
-    UTF8** listCopy, *list[MAX_FOUND_FILES];
+    sint nfiles, i, pathLength, extensionLength, length, pathDepth, temp;
+    valueType** listCopy, *list[MAX_FOUND_FILES];
     searchpath_t* search;
     pack_t* pak;
     fileInPack_t* buildBuffer;
-    UTF8 zpath[MAX_ZPATH];
+    valueType zpath[MAX_ZPATH];
     
     if( !fs_searchpaths )
     {
@@ -2664,8 +2664,8 @@ UTF8** idFileSystemLocal::ListFilteredFiles( StringEntry path, StringEntry exten
             buildBuffer = pak->buildBuffer;
             for( i = 0; i < pak->numfiles; i++ )
             {
-                UTF8*    name;
-                S32 zpathLen, depth;
+                valueType*    name;
+                sint zpathLen, depth;
                 
                 // check for directory match
                 name = buildBuffer[i].name;
@@ -2715,10 +2715,10 @@ UTF8** idFileSystemLocal::ListFilteredFiles( StringEntry path, StringEntry exten
         }
         else if( search->dir ) // scan for files in the filesystem
         {
-            UTF8* netpath;
-            S32 numSysFiles;
-            UTF8** sysFiles;
-            UTF8* name;
+            valueType* netpath;
+            sint numSysFiles;
+            valueType** sysFiles;
+            valueType* name;
             
             // don't scan directories for files if we are pure or restricted
             if( fs_numServerPaks )
@@ -2755,7 +2755,7 @@ UTF8** idFileSystemLocal::ListFilteredFiles( StringEntry path, StringEntry exten
         return nullptr;
     }
     
-    listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+    listCopy = ( valueType** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
     
     for( i = 0 ; i < nfiles ; i++ )
     {
@@ -2771,7 +2771,7 @@ UTF8** idFileSystemLocal::ListFilteredFiles( StringEntry path, StringEntry exten
 idFileSystemLocal::ListFiles
 =================
 */
-UTF8** idFileSystemLocal::ListFiles( StringEntry path, StringEntry extension, S32* numfiles )
+valueType** idFileSystemLocal::ListFiles( pointer path, pointer extension, sint* numfiles )
 {
     return ListFilteredFiles( path, extension, nullptr, numfiles );
 }
@@ -2781,9 +2781,9 @@ UTF8** idFileSystemLocal::ListFiles( StringEntry path, StringEntry extension, S3
 idFileSystemLocal::FreeFileList
 =================
 */
-void idFileSystemLocal::FreeFileList( UTF8** list )
+void idFileSystemLocal::FreeFileList( valueType** list )
 {
-    S32 i;
+    sint i;
     
     if( !fs_searchpaths )
     {
@@ -2808,10 +2808,10 @@ void idFileSystemLocal::FreeFileList( UTF8** list )
 idFileSystemLocal::GetFileList
 ================
 */
-S32 idFileSystemLocal::GetFileList( StringEntry path, StringEntry extension, UTF8* listbuf, S32 bufsize )
+sint idFileSystemLocal::GetFileList( pointer path, pointer extension, valueType* listbuf, sint bufsize )
 {
-    S32 nFiles, i, nTotal, nLen;
-    UTF8** pFiles = nullptr;
+    sint nFiles, i, nTotal, nLen;
+    valueType** pFiles = nullptr;
     
     *listbuf = 0;
     nFiles = 0;
@@ -2857,9 +2857,9 @@ bk001129 - from cvs1.17 (mkv)
 FIXME TTimo those two should move to common.c next to idServerLocal::ListFiles
 =======================
 */
-U32 idFileSystemLocal::CountFileList( UTF8** list )
+uint idFileSystemLocal::CountFileList( valueType** list )
 {
-    S32 i = 0;
+    sint i = 0;
     
     if( list )
     {
@@ -2877,17 +2877,17 @@ U32 idFileSystemLocal::CountFileList( UTF8** list )
 idFileSystemLocal::ConcatenateFileLists
 =======================
 */
-UTF8** idFileSystemLocal::ConcatenateFileLists( UTF8** list0, UTF8** list1, UTF8** list2 )
+valueType** idFileSystemLocal::ConcatenateFileLists( valueType** list0, valueType** list1, valueType** list2 )
 {
-    S32 totalLength = 0;
-    UTF8** cat = nullptr, **dst, **src;
+    sint totalLength = 0;
+    valueType** cat = nullptr, **dst, **src;
     
     totalLength += CountFileList( list0 );
     totalLength += CountFileList( list1 );
     totalLength += CountFileList( list2 );
     
     /* Create new list. */
-    dst = cat = ( UTF8** )Z_Malloc( ( totalLength + 1 ) * sizeof( UTF8* ) );
+    dst = cat = ( valueType** )Z_Malloc( ( totalLength + 1 ) * sizeof( valueType* ) );
     
     /* Copy over lists. */
     if( list0 )
@@ -2946,19 +2946,19 @@ A mod directory is a peer to baseq3 with a pk3 in it
 The directories are searched in base path, cd path and home path
 ================
 */
-S32 idFileSystemLocal::GetModList( UTF8* listbuf, S32 bufsize )
+sint idFileSystemLocal::GetModList( valueType* listbuf, sint bufsize )
 {
-    S32 nMods, i, j, nTotal, nLen, nPaks, nPotential, nDescLen;
-    UTF8** pFiles = nullptr;
-    UTF8** pPaks = nullptr;
-    UTF8* name, *path;
-    UTF8 descPath[MAX_OSPATH];
+    sint nMods, i, j, nTotal, nLen, nPaks, nPotential, nDescLen;
+    valueType** pFiles = nullptr;
+    valueType** pPaks = nullptr;
+    valueType* name, *path;
+    valueType descPath[MAX_OSPATH];
     fileHandle_t descHandle;
     
-    S32 dummy;
-    UTF8** pFiles0 = nullptr;
-    UTF8** pFiles1 = nullptr;
-    UTF8** pFiles2 = nullptr;
+    sint dummy;
+    valueType** pFiles0 = nullptr;
+    valueType** pFiles1 = nullptr;
+    valueType** pFiles2 = nullptr;
     bool bDrop = false;
     
     *listbuf = 0;
@@ -3081,10 +3081,10 @@ idFileSystemLocal::Dir_f
 */
 void idFileSystemLocal::Dir_f( void )
 {
-    UTF8* path;
-    UTF8* extension;
-    UTF8** dirnames;
-    S32 ndirs, i;
+    valueType* path;
+    valueType* extension;
+    valueType** dirnames;
+    sint ndirs, i;
     
     if( cmdSystem->Argc() < 2 || cmdSystem->Argc() > 3 )
     {
@@ -3121,7 +3121,7 @@ void idFileSystemLocal::Dir_f( void )
 idFileSystemLocal::ConvertPath
 ===========
 */
-void idFileSystemLocal::ConvertPath( UTF8* s )
+void idFileSystemLocal::ConvertPath( valueType* s )
 {
     while( *s )
     {
@@ -3137,12 +3137,12 @@ void idFileSystemLocal::ConvertPath( UTF8* s )
 ===========
 idFileSystemLocal::PathCmp
 
-Ignore case and seprator UTF8 distinctions
+Ignore case and seprator valueType distinctions
 ===========
 */
-S32 idFileSystemLocal::PathCmp( StringEntry s1, StringEntry s2 )
+sint idFileSystemLocal::PathCmp( pointer s1, pointer s2 )
 {
-    S32 c1, c2;
+    sint c1, c2;
     
     do
     {
@@ -3189,12 +3189,12 @@ S32 idFileSystemLocal::PathCmp( StringEntry s1, StringEntry s2 )
 idFileSystemLocal::SortFileList
 ================
 */
-void idFileSystemLocal::SortFileList( UTF8** filelist, S32 numfiles )
+void idFileSystemLocal::SortFileList( valueType** filelist, sint numfiles )
 {
-    S32 i, j, k, numsortedfiles;
-    UTF8** sortedlist;
+    sint i, j, k, numsortedfiles;
+    valueType** sortedlist;
     
-    sortedlist = ( UTF8** )Z_Malloc( ( numfiles + 1 ) * sizeof( *sortedlist ) );
+    sortedlist = ( valueType** )Z_Malloc( ( numfiles + 1 ) * sizeof( *sortedlist ) );
     sortedlist[0] = nullptr;
     numsortedfiles = 0;
     
@@ -3228,10 +3228,10 @@ idFileSystemLocal::NewDir_f
 */
 void idFileSystemLocal::NewDir_f( void )
 {
-    UTF8* filter;
-    UTF8** dirnames;
-    S32 ndirs;
-    S32 i;
+    valueType* filter;
+    valueType** dirnames;
+    sint ndirs;
+    sint i;
     
     if( cmdSystem->Argc() < 2 )
     {
@@ -3267,7 +3267,7 @@ idFileSystemLocal::Path_f
 void idFileSystemLocal::Path_f( void )
 {
     searchpath_t* s;
-    S32 i;
+    sint i;
     
     Com_Printf( "Current search path:\n" );
     
@@ -3341,14 +3341,14 @@ idFileSystemLocal::Which_f
 void idFileSystemLocal::Which_f( void )
 {
     searchpath_t* search;
-    UTF8* netpath;
+    valueType* netpath;
     pack_t* pak;
     fileInPack_t* pakFile;
     directory_t* dir;
-    S64 hash;
+    sint32 hash;
     FILE* temp;
-    UTF8* filename;
-    UTF8 buf[ MAX_OSPATH ];
+    valueType* filename;
+    valueType buf[ MAX_OSPATH ];
     
     hash = 0;
     filename = cmdSystem->Argv( 1 );
@@ -3424,12 +3424,12 @@ void idFileSystemLocal::Which_f( void )
 idFileSystemLocal::paksort
 ===========
 */
-S32 idFileSystemLocal::paksort( const void* a, const void* b )
+sint idFileSystemLocal::paksort( const void* a, const void* b )
 {
-    UTF8* aa, *bb;
+    valueType* aa, *bb;
     
-    aa = *( UTF8** )a;
-    bb = *( UTF8** )b;
+    aa = *( valueType** )a;
+    bb = *( valueType** )b;
     
     // downloaded files have priority
 // this is needed because otherwise even if a clientside was downloaded, there is no gurantee it is actually used.
@@ -3456,9 +3456,9 @@ idFileSystemLocal::IsExt
 Return true if ext matches file extension filename
 ===========
 */
-bool idFileSystemLocal::IsExt( StringEntry filename, StringEntry ext, S32 namelen )
+bool idFileSystemLocal::IsExt( pointer filename, pointer ext, sint namelen )
 {
-    S32 extlen;
+    sint extlen;
     
     extlen = strlen( ext );
     
@@ -3481,22 +3481,22 @@ Sets fs_gamedir, adds the directory to the head of the path,
 then loads the zip headers
 ================
 */
-void idFileSystemLocal::AddGameDirectory( StringEntry path, StringEntry dir )
+void idFileSystemLocal::AddGameDirectory( pointer path, pointer dir )
 {
     searchpath_t* sp;
     searchpath_t* search;
     pack_t* pak;
-    UTF8 curpath[MAX_OSPATH + 1], *pakfile;
-    S32 numfiles;
-    UTF8** pakfiles;
-    S32 pakfilesi;
-    UTF8** pakfilestmp;
-    S32 numdirs;
-    UTF8** pakdirs;
-    S32 pakdirsi;
-    UTF8** pakdirstmp;
-    S32 pakwhich;
-    S32 len;
+    valueType curpath[MAX_OSPATH + 1], *pakfile;
+    sint numfiles;
+    valueType** pakfiles;
+    sint pakfilesi;
+    valueType** pakfilestmp;
+    sint numdirs;
+    valueType** pakdirs;
+    sint pakdirsi;
+    valueType** pakdirstmp;
+    sint pakwhich;
+    sint len;
     
     // Unique
     for( sp = fs_searchpaths; sp; sp = sp->next )
@@ -3519,8 +3519,8 @@ void idFileSystemLocal::AddGameDirectory( StringEntry path, StringEntry dir )
     // Get top level directories (we'll filter them later since the idSystemLocal::ListFiles filtering is terrible)
     pakdirs = idsystem->ListFiles( curpath, "/", nullptr, &numdirs, false );
     
-    qsort( pakfiles, numfiles, sizeof( UTF8* ), fileSystemLocal.paksort );
-    qsort( pakdirs, numdirs, sizeof( UTF8* ), fileSystemLocal.paksort );
+    qsort( pakfiles, numfiles, sizeof( valueType* ), fileSystemLocal.paksort );
+    qsort( pakdirs, numdirs, sizeof( valueType* ), fileSystemLocal.paksort );
     
     pakfilesi = 0;
     pakdirsi = 0;
@@ -3629,9 +3629,9 @@ void idFileSystemLocal::AddGameDirectory( StringEntry path, StringEntry dir )
 idFileSystemLocal::idPak
 ================
 */
-bool idFileSystemLocal::idPak( UTF8* pak, UTF8* base )
+bool idFileSystemLocal::idPak( valueType* pak, valueType* base )
 {
-    S32 i;
+    sint i;
     
     if( !FilenameCompare( pak, va( "%s/mp_bin", base ) ) )
     {
@@ -3674,10 +3674,10 @@ idFileSystemLocal::VerifyOfficialPaks
 */
 bool idFileSystemLocal::VerifyOfficialPaks( void )
 {
-    S32 i, j;
+    sint i, j;
     searchpath_t*    sp;
-    S32 numOfficialPaksOnServer = 0;
-    S32 numOfficialPaksLocal = 0;
+    sint numOfficialPaksOnServer = 0;
+    sint numOfficialPaksLocal = 0;
     officialpak_t officialpaks[64];
     
     if( !fs_numServerPaks )
@@ -3701,7 +3701,7 @@ bool idFileSystemLocal::VerifyOfficialPaks( void )
         {
             if( sp->pack && sp->pack->checksum == fs_serverPaks[i] )
             {
-                UTF8 packPath[MAX_QPATH];
+                valueType packPath[MAX_QPATH];
                 
                 Com_sprintf( packPath, sizeof( packPath ), "%s/%s", sp->pack->pakGamename, sp->pack->pakBasename );
                 
@@ -3753,9 +3753,9 @@ The string is the format:
 
 @remotename@localname [repeat]
 
-static S32		fs_numServerReferencedPaks;
-static S32		fs_serverReferencedPaks[MAX_SEARCH_PATHS];
-static UTF8		*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];
+static sint		fs_numServerReferencedPaks;
+static sint		fs_serverReferencedPaks[MAX_SEARCH_PATHS];
+static valueType		*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];
 
 ----------------
 dlstring == false
@@ -3765,12 +3765,12 @@ we are not interested in a download string format, we want something human-reada
 
 ================
 */
-bool CL_WWWBadChecksum( StringEntry pakname );
-bool idFileSystemLocal::ComparePaks( UTF8* neededpaks, S32 len, bool dlstring )
+bool CL_WWWBadChecksum( pointer pakname );
+bool idFileSystemLocal::ComparePaks( valueType* neededpaks, sint len, bool dlstring )
 {
     searchpath_t* sp;
     bool havepak, badchecksum;
-    S32 i;
+    sint i;
     
     if( !fs_numServerReferencedPaks )
     {
@@ -3816,7 +3816,7 @@ bool idFileSystemLocal::ComparePaks( UTF8* neededpaks, S32 len, bool dlstring )
                 // Do we have one with the same name?
                 if( SV_FileExists( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) )
                 {
-                    UTF8 st[MAX_ZPATH];
+                    valueType st[MAX_ZPATH];
                     // We already have one called this, we need to download it to another name
                     // Make something up with the checksum in it
                     Com_sprintf( st, sizeof( st ), "%s.%08x.pk3", fs_serverReferencedPakNames[i], fs_serverReferencedPaks[i] );
@@ -3843,7 +3843,7 @@ bool idFileSystemLocal::ComparePaks( UTF8* neededpaks, S32 len, bool dlstring )
                     {
                         // remove a potentially malicious download file
                         // (this is also intended to avoid expansion of the pk3 into a file with different checksum .. messes up wwwdl chkfail)
-                        UTF8* rmv = BuildOSPath( fs_homepath->string, va( "%s.pk3", fs_serverReferencedPakNames[i] ), "" );
+                        valueType* rmv = BuildOSPath( fs_homepath->string, va( "%s.pk3", fs_serverReferencedPakNames[i] ), "" );
                         rmv[strlen( rmv ) - 1] = '\0';
                         Remove( rmv );
                     }
@@ -3873,7 +3873,7 @@ Frees all resources and closes all files
 void idFileSystemLocal::Shutdown( bool closemfp )
 {
     searchpath_t* p, *next;
-    S32 i;
+    sint i;
     
     for( i = 0; i < MAX_FILE_HANDLES; i++ )
     {
@@ -3925,7 +3925,7 @@ this can lead to misleading situations, see show_bug.cgi?id=540
 void idFileSystemLocal::ReorderPurePaks( void )
 {
     searchpath_t* s;
-    S32 i;
+    sint i;
     searchpath_t** p_insert_index, // for linked list reordering
                  **p_previous;     // when doing the scan
                  
@@ -3969,10 +3969,10 @@ void idFileSystemLocal::ReorderPurePaks( void )
 idFileSystemLocal::Startup
 ================
 */
-void idFileSystemLocal::Startup( StringEntry gameName )
+void idFileSystemLocal::Startup( pointer gameName )
 {
-    StringEntry homePath;
-    UTF8 tmp[ MAX_OSPATH ];
+    pointer homePath;
+    valueType tmp[ MAX_OSPATH ];
     
     Com_Printf( "----- idFileSystemLocal::Startup -----\n" );
     
@@ -4078,9 +4078,9 @@ Returns the checksum of the pk3 from which the server loaded the qagame.qvm
 NOTE TTimo: this is not used in RTCW so far
 =====================
 */
-StringEntry idFileSystemLocal::GamePureChecksum( void )
+pointer idFileSystemLocal::GamePureChecksum( void )
 {
-    static UTF8 info[MAX_STRING_TOKENS];
+    static valueType info[MAX_STRING_TOKENS];
     searchpath_t* search;
     
     info[0] = 0;
@@ -4108,9 +4108,9 @@ Returns a space separated string containing the checksums of all loaded pk3 file
 Servers with sv_pure set will get this string and pass it to clients.
 =====================
 */
-StringEntry idFileSystemLocal::LoadedPakChecksums( void )
+pointer idFileSystemLocal::LoadedPakChecksums( void )
 {
-    static UTF8 info[BIG_INFO_STRING];
+    static valueType info[BIG_INFO_STRING];
     searchpath_t* search;
     
     info[0] = 0;
@@ -4137,9 +4137,9 @@ Returns a space separated string containing the names of all loaded pk3 files.
 Servers with sv_pure set will get this string and pass it to clients.
 =====================
 */
-StringEntry idFileSystemLocal::LoadedPakNames( void )
+pointer idFileSystemLocal::LoadedPakNames( void )
 {
-    static UTF8 info[BIG_INFO_STRING];
+    static valueType info[BIG_INFO_STRING];
     searchpath_t* search;
     
     info[0] = 0;
@@ -4176,9 +4176,9 @@ Servers with sv_pure use these checksums to compare with the checksums the clien
 back to the server.
 =====================
 */
-StringEntry idFileSystemLocal::LoadedPakPureChecksums( void )
+pointer idFileSystemLocal::LoadedPakPureChecksums( void )
 {
-    static UTF8 info[BIG_INFO_STRING];
+    static valueType info[BIG_INFO_STRING];
     searchpath_t* search;
     
     info[0] = 0;
@@ -4209,9 +4209,9 @@ Returns a space separated string containing the checksums of all referenced pk3 
 The server will send this to the clients so they can check which files should be auto-downloaded.
 =====================
 */
-StringEntry idFileSystemLocal::ReferencedPakChecksums( void )
+pointer idFileSystemLocal::ReferencedPakChecksums( void )
 {
-    static UTF8 info[BIG_INFO_STRING];
+    static valueType info[BIG_INFO_STRING];
     searchpath_t* search;
     
     info[0] = 0;
@@ -4239,9 +4239,9 @@ Returns a space separated string containing the names of all referenced pk3 file
 The server will send this to the clients so they can check which files should be auto-downloaded.
 =====================
 */
-StringEntry idFileSystemLocal::ReferencedPakNames( void )
+pointer idFileSystemLocal::ReferencedPakNames( void )
 {
-    static UTF8 info[BIG_INFO_STRING];
+    static valueType info[BIG_INFO_STRING];
     searchpath_t* search;
     
     info[0] = 0;
@@ -4284,11 +4284,11 @@ this function is only used by the client to build the string sent back to server
 we don't have any need of overriding it for light, but it's useless in dedicated
 =====================
 */
-StringEntry idFileSystemLocal::ReferencedPakPureChecksums( void )
+pointer idFileSystemLocal::ReferencedPakPureChecksums( void )
 {
-    static UTF8 info[BIG_INFO_STRING];
+    static valueType info[BIG_INFO_STRING];
     searchpath_t* search;
-    S32 nFlags, numPaks, checksum;
+    sint nFlags, numPaks, checksum;
     
     info[0] = 0;
     
@@ -4339,7 +4339,7 @@ StringEntry idFileSystemLocal::ReferencedPakPureChecksums( void )
 idFileSystemLocal::ClearPakReferences
 =====================
 */
-void idFileSystemLocal::ClearPakReferences( S32 flags )
+void idFileSystemLocal::ClearPakReferences( sint flags )
 {
     searchpath_t* search;
     
@@ -4368,9 +4368,9 @@ separated checksums will be checked for files, with the
 exception of .cfg and .dat files.
 =====================
 */
-void idFileSystemLocal::PureServerSetLoadedPaks( StringEntry pakSums, StringEntry pakNames )
+void idFileSystemLocal::PureServerSetLoadedPaks( pointer pakSums, pointer pakNames )
 {
-    S32 i, c, d;
+    sint i, c, d;
     
     cmdSystem->TokenizeString( pakSums );
     
@@ -4439,9 +4439,9 @@ are sent to the client and stored here. The client will use these
 checksums to see if any pk3 files need to be auto-downloaded.
 =====================
 */
-void idFileSystemLocal::PureServerSetReferencedPaks( StringEntry pakSums, StringEntry pakNames )
+void idFileSystemLocal::PureServerSetReferencedPaks( pointer pakSums, pointer pakNames )
 {
-    S32 i, c, d;
+    sint i, c, d;
     
     cmdSystem->TokenizeString( pakSums );
     
@@ -4532,7 +4532,7 @@ void idFileSystemLocal::InitFilesystem( void )
 idFileSystemLocal::Restart
 ================
 */
-void idFileSystemLocal::Restart( S32 checksumFeed )
+void idFileSystemLocal::Restart( sint checksumFeed )
 {
     // free anything we currently have loaded
     Shutdown( false );
@@ -4576,7 +4576,7 @@ void idFileSystemLocal::Restart( S32 checksumFeed )
         // skip the wolfconfig.cfg if "safe" is on the command line
         if( !Com_SafeMode() )
         {
-            UTF8* cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+            valueType* cl_profileStr = cvarSystem->VariableString( "cl_profile" );
             
             if( com_gameInfo.usesProfiles && cl_profileStr[0] )
             {
@@ -4622,7 +4622,7 @@ this doesn't catch all cases where an idFileSystemLocal::Restart is necessary
 see show_bug.cgi?id=478
 =================
 */
-bool idFileSystemLocal::ConditionalRestart( S32 checksumFeed )
+bool idFileSystemLocal::ConditionalRestart( sint checksumFeed )
 {
     if( fs_gamedirvar->modified || checksumFeed != fs_checksumFeed )
     {
@@ -4643,9 +4643,9 @@ Handle based file calls for virtual machines
 idFileSystemLocal::FOpenFileByMode
 =================
 */
-S32 idFileSystemLocal::FOpenFileByMode( StringEntry qpath, fileHandle_t* f, fsMode_t mode )
+sint idFileSystemLocal::FOpenFileByMode( pointer qpath, fileHandle_t* f, fsMode_t mode )
 {
-    S32 r;
+    sint r;
     bool sync;
     
     sync = false;
@@ -4738,9 +4738,9 @@ S32 idFileSystemLocal::FOpenFileByMode( StringEntry qpath, fileHandle_t* f, fsMo
 idFileSystemLocal::FOpenFileByMode
 =================
 */
-S32 idFileSystemLocal::FTell( fileHandle_t f )
+sint idFileSystemLocal::FTell( fileHandle_t f )
 {
-    S32 pos;
+    sint pos;
     if( fsh[f].zipFile == true )
     {
         pos = unztell( fsh[f].handleFiles.file.z );
@@ -4770,9 +4770,9 @@ CVE-2006-2082
 compared requested pak against the names as we built them in idFileSystemLocal::ReferencedPakNames
 =================
 */
-bool idFileSystemLocal::VerifyPak( StringEntry pak )
+bool idFileSystemLocal::VerifyPak( pointer pak )
 {
-    UTF8 teststring[ BIG_INFO_STRING ];
+    valueType teststring[ BIG_INFO_STRING ];
     searchpath_t* search;
     
     for( search = fs_searchpaths ; search ; search = search->next )
@@ -4809,24 +4809,24 @@ bool idFileSystemLocal::IsPure( void )
 idFileSystemLocal::FOpenFileByMode
 =================
 */
-U32 idFileSystemLocal::ChecksumOSPath( UTF8* OSPath )
+uint idFileSystemLocal::ChecksumOSPath( valueType* OSPath )
 {
     FILE* f;
-    S32 len;
-    U8* buf;
-    U32 checksum;
+    sint len;
+    uchar8* buf;
+    uint checksum;
     
     f = fopen( OSPath, "rb" );
     if( !f )
     {
-        return ( U32 ) - 1;
+        return ( uint ) - 1;
     }
     
     fseek( f, 0, SEEK_END );
     len = ftell( f );
     fseek( f, 0, SEEK_SET );
     
-    buf = ( U8* )malloc( len );
+    buf = ( uchar8* )malloc( len );
     
     if( fread( buf, 1, len, f ) != len )
     {
@@ -4848,11 +4848,11 @@ U32 idFileSystemLocal::ChecksumOSPath( UTF8* OSPath )
 idFileSystemLocal::FOpenFileByMode
 =================
 */
-void idFileSystemLocal::FilenameCompletion( StringEntry dir, StringEntry ext, bool stripExt, void( *callback )( StringEntry s ) )
+void idFileSystemLocal::FilenameCompletion( pointer dir, pointer ext, bool stripExt, void( *callback )( pointer s ) )
 {
-    UTF8** filenames;
-    S32 i, nfiles;
-    UTF8 filename[ MAX_STRING_CHARS ];
+    valueType** filenames;
+    sint i, nfiles;
+    valueType filename[ MAX_STRING_CHARS ];
     
     filenames = ListFilteredFiles( dir, ext, nullptr, &nfiles );
     
@@ -4880,24 +4880,24 @@ idFileSystemLocal::FOpenFileByMode
 return the current gamedir (eg. "baseq3", "mymod", ...)
 =================
 */
-StringEntry idFileSystemLocal::GetGameDir( void )
+pointer idFileSystemLocal::GetGameDir( void )
 {
     return fs_gamedir;
 }
 
 
 // Check if a file is empty
-bool idFileSystemLocal::IsFileEmpty( UTF8* filename )
+bool idFileSystemLocal::IsFileEmpty( valueType* filename )
 {
     bool result;
     fileHandle_t file;
-    UTF8 buf[1];
+    valueType buf[1];
     
     // Open the file (we need to use ioquake3 functions because it will build the full path relative to homepath and gamedir, see fileSystem->BuildOSPath)
     FOpenFileRead( filename, &file, false ); // the length returned by fileSystem->FOpenFileRead is equal to 1 when the file has no content or when it has 1 character, so this length can't be used to know if the file is empty or not
     
     // Get the first character from the file, but what we are interested in is the number of characters read, which we store in the var c
-    S32 c = Read( buf, 1, file );
+    sint c = Read( buf, 1, file );
     
     // If the number of characters that were read is 0, then the file is empty
     if( c == 0 )

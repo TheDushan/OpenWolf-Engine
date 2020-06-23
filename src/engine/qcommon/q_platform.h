@@ -209,9 +209,9 @@
 #endif
 
 //endianness
-S16 ShortSwap( S16 l );
-S32 LongSwap( S32 l );
-F32 FloatSwap( F32 f );
+schar16 ShortSwap( schar16 l );
+sint LongSwap( sint l );
+float32 FloatSwap( float32 f );
 
 #if defined( Q3_BIG_ENDIAN ) && defined( Q3_LITTLE_ENDIAN )
 #error "Endianness defined as both big and little"

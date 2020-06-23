@@ -46,9 +46,9 @@
 idCmdSystemLocal cmdSystemLocal;
 idCmdSystem* cmdSystem = &cmdSystemLocal;
 
-S32 cmd_wait;
+sint cmd_wait;
 cmd_t cmd_text;
-U8 cmd_text_buf[MAX_CMD_BUFFER];
+uchar8 cmd_text_buf[MAX_CMD_BUFFER];
 
 cmdContext_t cmd;
 cmdContext_t savedCmd;
@@ -83,7 +83,7 @@ idCmdSystemLocal::~idCmdSystemLocal( void )
 idCmdSystemLocal::FindCommand
 ============
 */
-cmd_function_t* idCmdSystemLocal::FindCommand( StringEntry cmdName )
+cmd_function_t* idCmdSystemLocal::FindCommand( pointer cmdName )
 {
     cmd_function_t* cmd;
     
@@ -129,9 +129,9 @@ void idCmdSystemLocal::Wait( void )
 idCmdSystemLocal::Exec_f
 ===============
 */
-void idCmdSystemLocal::ExecFile( UTF8* f )
+void idCmdSystemLocal::ExecFile( valueType* f )
 {
-    S32 i;
+    sint i;
     
     COM_Compress( f );
     
@@ -158,12 +158,12 @@ void idCmdSystemLocal::Exec_f( void )
 {
     union
     {
-        UTF8* c;
+        valueType* c;
         void* v;
     } f;
     
-    S32 len;
-    UTF8 filename[MAX_QPATH];
+    sint len;
+    valueType filename[MAX_QPATH];
     fileHandle_t h;
     bool success = false;
     
@@ -214,7 +214,7 @@ Inserts the current value of a variable as command text
 */
 void idCmdSystemLocal::Vstr( void )
 {
-    UTF8* v;
+    valueType* v;
     
     if( cmdSystemLocal.Argc() != 2 )
     {
@@ -233,12 +233,12 @@ modifierMask_t idCmdSystemLocal::getModifierMask
 Helper functions for idCmdSystemLocal::If & idCmdSystemLocal::ModCase
 ===============
 */
-modifierMask_t idCmdSystemLocal::getModifierMask( StringEntry mods )
+modifierMask_t idCmdSystemLocal::getModifierMask( pointer mods )
 {
-    S32 i;
+    sint i;
     modifierMask_t mask;
     static const modifierMask_t none;
-    StringEntry ptr;
+    pointer ptr;
     
     mask = none;
     
@@ -248,7 +248,7 @@ modifierMask_t idCmdSystemLocal::getModifierMask( StringEntry mods )
     
     while( *ptr )
     {
-        S32 invert = ( *ptr == '!' );
+        sint invert = ( *ptr == '!' );
         if( invert )
         {
             ++ptr;
@@ -316,9 +316,9 @@ modifierMask_t idCmdSystemLocal::getModifierMask( StringEntry mods )
 idCmdSystemLocal::checkKeysDown
 ===============
 */
-S32 idCmdSystemLocal::checkKeysDown( modifierMask_t mask )
+sint idCmdSystemLocal::checkKeysDown( modifierMask_t mask )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; modifierKeys[i].bit; ++i )
     {
@@ -348,13 +348,13 @@ Executes the command for the first matching modifier set
 */
 void idCmdSystemLocal::ModCase( void )
 {
-    S32 argc = cmdSystemLocal.Argc();
-    S32 index = 0;
-    S32 max = 0;
-    S32 count = ( argc - 1 ) / 2; // round down :-)
-    UTF8* v;
+    sint argc = cmdSystemLocal.Argc();
+    sint index = 0;
+    sint max = 0;
+    sint count = ( argc - 1 ) / 2; // round down :-)
+    valueType* v;
     
-    S32 mods[1 << NUM_RECOGNISED_MODIFIERS];
+    sint mods[1 << NUM_RECOGNISED_MODIFIERS];
     
     // want 'modifierMask_t mods[argc / 2 - 1];' (variable array, C99)
     // but MSVC apparently doesn't like that
@@ -392,7 +392,7 @@ void idCmdSystemLocal::ModCase( void )
     // (descending) then parameter index no. (ascending).
     for( ; max > 0; --max )
     {
-        S32 i;
+        sint i;
         for( i = 0; i < index; ++i )
         {
             if( mods[i] == max )
@@ -427,13 +427,13 @@ Compares two values, if true executes the third argument, if false executes the 
 */
 void idCmdSystemLocal::If( void )
 {
-    S32 v1;
-    S32 v2;
-    S32 argc;
-    UTF8* v = nullptr;
-    UTF8* vt;
-    UTF8* vf = nullptr;
-    UTF8* op;
+    sint v1;
+    sint v2;
+    sint argc;
+    valueType* v = nullptr;
+    valueType* vt;
+    valueType* vf = nullptr;
+    valueType* op;
 #ifndef DEDICATED
     modifierMask_t mask;
 #endif
@@ -525,10 +525,10 @@ Compares two cvars, if true vstr the third, if false vstr the forth
 */
 void idCmdSystemLocal::Math( void )
 {
-    UTF8* v;
-    UTF8* v1;
-    UTF8* v2;
-    UTF8* op;
+    valueType* v;
+    valueType* v1;
+    valueType* v2;
+    valueType* op;
     
     if( cmdSystemLocal.Argc() == 3 )
     {
@@ -629,12 +629,12 @@ Compares two strings, if true executes the third argument, if false executes the
 */
 void idCmdSystemLocal::Strcmp( void )
 {
-    UTF8* v;
-    UTF8* v1;
-    UTF8* v2;
-    UTF8* vt;
-    UTF8* vf;
-    UTF8* op;
+    valueType* v;
+    valueType* v1;
+    valueType* v2;
+    valueType* vt;
+    valueType* vf;
+    valueType* op;
     
     if( ( cmdSystemLocal.Argc() == 6 ) || ( cmdSystemLocal.Argc() == 5 ) )
     {
@@ -683,10 +683,10 @@ concatenates cvars together
 */
 void idCmdSystemLocal::Concat( void )
 {
-    UTF8* v;
-    UTF8* v1;
-    UTF8* v2;
-    UTF8 vc[MAX_CVAR_VALUE_STRING];
+    valueType* v;
+    valueType* v1;
+    valueType* v2;
+    valueType vc[MAX_CVAR_VALUE_STRING];
     
     if( cmdSystemLocal.Argc() != 4 )
     {
@@ -712,9 +712,9 @@ Does math and displays the value into the chat/console, this is used for basic m
 */
 void idCmdSystemLocal::Calc( void )
 {
-    UTF8* arg1;
-    UTF8* arg2;
-    UTF8* func;
+    valueType* arg1;
+    valueType* arg2;
+    valueType* func;
     
     if( cmdSystemLocal.Argc() < 3 )
     {
@@ -784,8 +784,8 @@ Removes a pending delay with a given name
 */
 void idCmdSystemLocal::Undelay( void )
 {
-    S32 i;
-    UTF8* find, *limit;
+    sint i;
+    valueType* find, *limit;
     
     // Check if the call is valid
     if( cmdSystemLocal.Argc() < 1 )
@@ -816,7 +816,7 @@ Removes all pending delays
 */
 void idCmdSystemLocal::UndelayAll( void )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; ( i < MAX_DELAYED_COMMANDS ); i++ )
     {
@@ -833,8 +833,8 @@ Delays a comand
 */
 void idCmdSystemLocal::Delay( void )
 {
-    S32 i, delay, type, lastchar;
-    UTF8* raw_delay, *name, *cmd;
+    sint i, delay, type, lastchar;
+    valueType* raw_delay, *name, *cmd;
     bool availiable_cmd = false;
     
     // Check if the call is valid
@@ -910,14 +910,14 @@ Give a random integer
 */
 void idCmdSystemLocal::Random( void )
 {
-    S32 v1, v2;
+    sint v1, v2;
     
     if( cmdSystemLocal.Argc() == 4 )
     {
         v1 = atoi( cmdSystemLocal.Argv( 2 ) );
         v2 = atoi( cmdSystemLocal.Argv( 3 ) );
         
-        cvarSystem->SetValueLatched( cmdSystemLocal.Argv( 1 ), ( S32 )( rand() / ( F32 )RAND_MAX * ( MAX( v1, v2 ) - MIN( v1, v2 ) ) + MIN( v1, v2 ) ) );
+        cvarSystem->SetValueLatched( cmdSystemLocal.Argv( 1 ), ( sint )( rand() / ( float32 )RAND_MAX * ( MAX( v1, v2 ) - MIN( v1, v2 ) ) + MIN( v1, v2 ) ) );
     }
     else
     {
@@ -938,8 +938,8 @@ idCmdSystemLocal::RunAlias
 */
 void idCmdSystemLocal::RunAlias( void )
 {
-    UTF8* name = cmdSystemLocal.Argv( 0 );
-    UTF8* args = cmdSystemLocal.ArgsFrom( 1 );
+    valueType* name = cmdSystemLocal.Argv( 0 );
+    valueType* args = cmdSystemLocal.ArgsFrom( 1 );
     cmd_alias_t* alias;
     
     // Find existing alias
@@ -966,7 +966,7 @@ idCmdSystemLocal::WriteAliases
 */
 void idCmdSystemLocal::WriteAliases( fileHandle_t f )
 {
-    UTF8 buffer[1024] = "clearaliases\n";
+    valueType buffer[1024] = "clearaliases\n";
     cmd_alias_t* alias = cmd_aliases;
     
     fileSystem->Write( buffer, strlen( buffer ), f );
@@ -986,9 +986,9 @@ idCmdSystemLocal::AliasList
 */
 void idCmdSystemLocal::AliasList( void )
 {
-    S32	i;
+    sint	i;
     cmd_alias_t* alias;
-    UTF8* match;
+    valueType* match;
     
     if( cmdSystemLocal.Argc() > 1 )
     {
@@ -1052,7 +1052,7 @@ idCmdSystemLocal::UnAlias
 void idCmdSystemLocal::UnAlias( void )
 {
     cmd_alias_t* alias, **back;
-    StringEntry	name;
+    pointer	name;
     
     // Get args
     if( cmdSystemLocal.Argc() < 2 )
@@ -1102,7 +1102,7 @@ idCmdSystemLocal::Alias
 void idCmdSystemLocal::Alias( void )
 {
     cmd_alias_t* alias;
-    StringEntry	name;
+    pointer	name;
     
     // Get args
     if( cmdSystemLocal.Argc() < 2 )
@@ -1182,7 +1182,7 @@ void idCmdSystemLocal::Alias( void )
 idCmdSystemLocal::AliasCompletion
 ============
 */
-void idCmdSystemLocal::AliasCompletion( void( *callback )( StringEntry s ) )
+void idCmdSystemLocal::AliasCompletion( void( *callback )( pointer s ) )
 {
     cmd_alias_t*	alias;
     
@@ -1197,9 +1197,9 @@ void idCmdSystemLocal::AliasCompletion( void( *callback )( StringEntry s ) )
 idCmdSystemLocal::DelayCompletion
 ============
 */
-void idCmdSystemLocal::DelayCompletion( void( *callback )( StringEntry s ) )
+void idCmdSystemLocal::DelayCompletion( void( *callback )( pointer s ) )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < MAX_DELAYED_COMMANDS; i++ )
     {
@@ -1241,7 +1241,7 @@ void idCmdSystemLocal::RestoreCmdContext( void )
 idCmdSystemLocal::Argc
 ============
 */
-S32 idCmdSystemLocal::Argc( void )
+sint idCmdSystemLocal::Argc( void )
 {
     return cmd.argc;
 }
@@ -1251,9 +1251,9 @@ S32 idCmdSystemLocal::Argc( void )
 idCmdSystemLocal::Argv
 ============
 */
-UTF8* idCmdSystemLocal::Argv( S32 arg )
+valueType* idCmdSystemLocal::Argv( sint arg )
 {
-    if( ( U32 )arg >= cmd.argc )
+    if( ( uint )arg >= cmd.argc )
     {
         return "";
     }
@@ -1269,7 +1269,7 @@ The interpreted versions use this because
 they can't have pointers returned to them
 ============
 */
-void idCmdSystemLocal::ArgvBuffer( S32 arg, UTF8* buffer, S32 bufferLength )
+void idCmdSystemLocal::ArgvBuffer( sint arg, valueType* buffer, sint bufferLength )
 {
     Q_strncpyz( buffer, cmdSystemLocal.Argv( arg ), bufferLength );
 }
@@ -1281,10 +1281,10 @@ idCmdSystemLocal::Args
 Returns a single string containing argv(1) to argv(argc()-1)
 ============
 */
-UTF8* idCmdSystemLocal::Args( void )
+valueType* idCmdSystemLocal::Args( void )
 {
-    S32 i;
-    static UTF8 cmd_args[MAX_STRING_CHARS];
+    sint i;
+    static valueType cmd_args[MAX_STRING_CHARS];
     
     cmd_args[0] = 0;
     
@@ -1307,10 +1307,10 @@ idCmdSystemLocal::Args
 Returns a single string containing argv(arg) to argv(argc()-1)
 ============
 */
-UTF8* idCmdSystemLocal::ArgsFrom( S32 arg )
+valueType* idCmdSystemLocal::ArgsFrom( sint arg )
 {
-    S32 i;
-    static UTF8 cmd_args[BIG_INFO_STRING];
+    sint i;
+    static valueType cmd_args[BIG_INFO_STRING];
     
     cmd_args[0] = 0;
     
@@ -1340,7 +1340,7 @@ The interpreted versions use this because
 they can't have pointers returned to them
 ============
 */
-void idCmdSystemLocal::ArgsBuffer( UTF8* buffer, S32 bufferLength )
+void idCmdSystemLocal::ArgsBuffer( valueType* buffer, sint bufferLength )
 {
     Q_strncpyz( buffer, cmdSystemLocal.Args(), bufferLength );
 }
@@ -1353,7 +1353,7 @@ The interpreted versions use this because
 they can't have pointers returned to them
 ============
 */
-void idCmdSystemLocal::LiteralArgsBuffer( UTF8* buffer, S32 bufferLength )
+void idCmdSystemLocal::LiteralArgsBuffer( valueType* buffer, sint bufferLength )
 {
     Q_strncpyz( buffer, cmd.cmd, bufferLength );
 }
@@ -1367,7 +1367,7 @@ For rcon use when you want to transmit without altering quoting
 ATVI Wolfenstein Misc #284
 ============
 */
-UTF8* idCmdSystemLocal::Cmd( void )
+valueType* idCmdSystemLocal::Cmd( void )
 {
     return cmd.cmd;
 }
@@ -1381,10 +1381,10 @@ For rcon use when you want to transmit without altering quoting
 ATVI Wolfenstein Misc #284
 ============
 */
-UTF8* idCmdSystemLocal::FromNth( S32 count )
+valueType* idCmdSystemLocal::FromNth( sint count )
 {
-    UTF8* ret = cmd.cmd - 1;
-    S32 i = 0, q = 0;
+    valueType* ret = cmd.cmd - 1;
+    sint i = 0, q = 0;
     
     while( count && *++ret )
     {
@@ -1425,10 +1425,10 @@ idCmdSystemLocal::EscapeString
 Escape all \$ in a string into \$$
 ============
 */
-UTF8* idCmdSystemLocal::EscapeString( StringEntry in )
+valueType* idCmdSystemLocal::EscapeString( pointer in )
 {
-    static UTF8 buffer[MAX_STRING_CHARS];
-    UTF8* out = buffer;
+    static valueType buffer[MAX_STRING_CHARS];
+    valueType* out = buffer;
     
     while( *in )
     {
@@ -1468,12 +1468,12 @@ will point into this temporary buffer.
 ============
 */
 //#define TKN_DBG
-void idCmdSystemLocal::TokenizeString2( StringEntry text_in, bool ignoreQuotes, bool parseCvar )
+void idCmdSystemLocal::TokenizeString2( pointer text_in, bool ignoreQuotes, bool parseCvar )
 {
-    UTF8* text;
-    UTF8* textOut;
-    StringEntry cvarName;
-    UTF8 buffer[ BIG_INFO_STRING ];
+    valueType* text;
+    valueType* textOut;
+    pointer cvarName;
+    valueType buffer[ BIG_INFO_STRING ];
     
 #ifdef TKN_DBG
     // FIXME TTimo blunt hook to try to find the tokenization of userinfo
@@ -1523,8 +1523,8 @@ void idCmdSystemLocal::TokenizeString2( StringEntry text_in, bool ignoreQuotes, 
                 
                 if( cvarSystem->Flags( cvarName ) != CVAR_NONEXISTENT )
                 {
-                    UTF8 cvarValue[ MAX_CVAR_VALUE_STRING ];
-                    UTF8* badchar;
+                    valueType cvarValue[ MAX_CVAR_VALUE_STRING ];
+                    valueType* badchar;
                     
                     cvarSystem->VariableStringBuffer( cvarName, cvarValue, sizeof( cvarValue ) );
                     
@@ -1758,7 +1758,7 @@ void idCmdSystemLocal::TokenizeString2( StringEntry text_in, bool ignoreQuotes, 
 idCmdSystemLocal::TokenizeString
 ============
 */
-void idCmdSystemLocal::TokenizeString( StringEntry text_in )
+void idCmdSystemLocal::TokenizeString( pointer text_in )
 {
     TokenizeString2( text_in, false, false );
 }
@@ -1768,7 +1768,7 @@ void idCmdSystemLocal::TokenizeString( StringEntry text_in )
 idCmdSystemLocal::TokenizeStringIgnoreQuotes
 ============
 */
-void idCmdSystemLocal::TokenizeStringIgnoreQuotes( StringEntry text_in )
+void idCmdSystemLocal::TokenizeStringIgnoreQuotes( pointer text_in )
 {
     TokenizeString2( text_in, true, false );
 }
@@ -1778,7 +1778,7 @@ void idCmdSystemLocal::TokenizeStringIgnoreQuotes( StringEntry text_in )
 idCmdSystemLocal::TokenizeStringParseCvar
 ============
 */
-void idCmdSystemLocal::TokenizeStringParseCvar( StringEntry text_in )
+void idCmdSystemLocal::TokenizeStringParseCvar( pointer text_in )
 {
     TokenizeString2( text_in, false, true );
 }
@@ -1788,7 +1788,7 @@ void idCmdSystemLocal::TokenizeStringParseCvar( StringEntry text_in )
 idCmdSystemLocal::AddCommand
 ============
 */
-void idCmdSystemLocal::AddCommand( StringEntry cmd_name, xcommand_t function, StringEntry cmd_desc )
+void idCmdSystemLocal::AddCommand( pointer cmd_name, xcommand_t function, pointer cmd_desc )
 {
     cmd_function_t* cmd;
     
@@ -1822,7 +1822,7 @@ void idCmdSystemLocal::AddCommand( StringEntry cmd_name, xcommand_t function, St
 idCmdSystemLocal::SetCommandCompletionFunc
 ============
 */
-void idCmdSystemLocal::SetCommandCompletionFunc( StringEntry command, completionFunc_t complete )
+void idCmdSystemLocal::SetCommandCompletionFunc( pointer command, completionFunc_t complete )
 {
     cmd_function_t*	cmd;
     
@@ -1840,7 +1840,7 @@ void idCmdSystemLocal::SetCommandCompletionFunc( StringEntry command, completion
 idCmdSystemLocal::RemoveCommand
 ============
 */
-void idCmdSystemLocal::RemoveCommand( StringEntry cmd_name )
+void idCmdSystemLocal::RemoveCommand( pointer cmd_name )
 {
     cmd_function_t** back = &cmd_functions;
     
@@ -1871,7 +1871,7 @@ void idCmdSystemLocal::RemoveCommand( StringEntry cmd_name )
 idCmdSystemLocal::CommandCompletion
 ============
 */
-void idCmdSystemLocal::CommandCompletion( void ( *callback )( StringEntry s ) )
+void idCmdSystemLocal::CommandCompletion( void ( *callback )( pointer s ) )
 {
     cmd_function_t* cmd;
     
@@ -1886,7 +1886,7 @@ void idCmdSystemLocal::CommandCompletion( void ( *callback )( StringEntry s ) )
 idCmdSystemLocal::CompleteArgument
 ============
 */
-void idCmdSystemLocal::CompleteArgument( StringEntry command, UTF8* args, S32 argNum )
+void idCmdSystemLocal::CompleteArgument( pointer command, valueType* args, sint argNum )
 {
     cmd_function_t*	cmd;
     
@@ -1906,7 +1906,7 @@ idCmdSystemLocal::ExecuteString
 A complete command line has been parsed, so try to execute it
 ============
 */
-void idCmdSystemLocal::ExecuteString( StringEntry text )
+void idCmdSystemLocal::ExecuteString( pointer text )
 {
     // execute the command line
     TokenizeStringParseCvar( text );
@@ -1991,9 +1991,9 @@ idCmdSystemLocal::List
 */
 void idCmdSystemLocal::List( void )
 {
-    S32 i;
+    sint i;
     cmd_function_t* cmd;
-    UTF8* match;
+    valueType* match;
     
     if( cmdSystemLocal.Argc() > 1 )
     {
@@ -2025,14 +2025,14 @@ void idCmdSystemLocal::List( void )
 idCmdSystemLocal::CompleteCfgName
 ==================
 */
-extern StringEntry completionString;
-void idCmdSystemLocal::CompleteCfgName( UTF8* args, S32 argNum )
+extern pointer completionString;
+void idCmdSystemLocal::CompleteCfgName( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
-        S32 i = 0;
-        UTF8* s = args, *token = s;
-        StringEntry pos = nullptr;
+        sint i = 0;
+        valueType* s = args, *token = s;
+        pointer pos = nullptr;
         
         for( i = 0; i < argNum; i++ )
         {
@@ -2041,7 +2041,7 @@ void idCmdSystemLocal::CompleteCfgName( UTF8* args, S32 argNum )
         
         if( ( pos = Q_stristr( s, "/" ) ) )
         {
-            UTF8 realdir[MAX_QPATH] = { 0 };
+            valueType realdir[MAX_QPATH] = { 0 };
             Q_strncpyz( realdir, s, /*strlen(s)-*/( pos - s ) + 1 );
             completionString = pos + 1;
             Field_CompleteFilename( realdir, "cfg", true );
@@ -2058,7 +2058,7 @@ void idCmdSystemLocal::CompleteCfgName( UTF8* args, S32 argNum )
 idCmdSystemLocal::CompleteAliasName
 ==================
 */
-void idCmdSystemLocal::CompleteAliasName( UTF8* args, S32 argNum )
+void idCmdSystemLocal::CompleteAliasName( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
@@ -2071,10 +2071,10 @@ void idCmdSystemLocal::CompleteAliasName( UTF8* args, S32 argNum )
 idCmdSystemLocal::CompleteConcat
 ==================
 */
-void idCmdSystemLocal::CompleteConcat( UTF8* args, S32 argNum )
+void idCmdSystemLocal::CompleteConcat( valueType* args, sint argNum )
 {
     // Skip
-    UTF8* p = Com_SkipTokens( args, argNum - 1, " " );
+    valueType* p = Com_SkipTokens( args, argNum - 1, " " );
     
     if( p > args )
     {
@@ -2087,12 +2087,12 @@ void idCmdSystemLocal::CompleteConcat( UTF8* args, S32 argNum )
 idCmdSystemLocal::CompleteIf
 ==================
 */
-void idCmdSystemLocal::CompleteIf( UTF8* args, S32 argNum )
+void idCmdSystemLocal::CompleteIf( valueType* args, sint argNum )
 {
     if( argNum == 5 || argNum == 6 )
     {
         // Skip
-        UTF8* p = Com_SkipTokens( args, argNum - 1, " " );
+        valueType* p = Com_SkipTokens( args, argNum - 1, " " );
         
         if( p > args )
         {
@@ -2106,12 +2106,12 @@ void idCmdSystemLocal::CompleteIf( UTF8* args, S32 argNum )
 idCmdSystemLocal::CompleteDelay
 ==================
 */
-void idCmdSystemLocal::CompleteDelay( UTF8* args, S32 argNum )
+void idCmdSystemLocal::CompleteDelay( valueType* args, sint argNum )
 {
     if( argNum == 3 || argNum == 4 )
     {
         // Skip "delay "
-        UTF8* p = Com_SkipTokens( args, 1, " " );
+        valueType* p = Com_SkipTokens( args, 1, " " );
         
         if( p > args )
         {
@@ -2125,7 +2125,7 @@ void idCmdSystemLocal::CompleteDelay( UTF8* args, S32 argNum )
 idCmdSystemLocal::CompleteUnDelay
 ==================
 */
-void idCmdSystemLocal::CompleteUnDelay( UTF8* args, S32 argNum )
+void idCmdSystemLocal::CompleteUnDelay( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {

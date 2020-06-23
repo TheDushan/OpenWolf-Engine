@@ -69,14 +69,14 @@
 typedef struct
 {
     vec3_t		xyz;
-    F32		st[2];
-    U8		modulate[4];
+    float32		st[2];
+    uchar8		modulate[4];
 } polyVert_t;
 
 typedef struct poly_s
 {
     qhandle_t			hShader;
-    S32					numVerts;
+    sint					numVerts;
     polyVert_t*			verts;
 } poly_t;
 
@@ -97,37 +97,37 @@ typedef enum
 typedef struct
 {
     refEntityType_t	reType;
-    S32			renderfx;
+    sint			renderfx;
     
     qhandle_t	hModel;				// opaque type outside refresh
     
     // most recent data
     vec3_t		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
-    F32		shadowPlane;		// projection shadows go here, stencils go slightly lower
+    float32		shadowPlane;		// projection shadows go here, stencils go slightly lower
     
     vec3_t		axis[3];			// rotation vectors
     bool	    nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
-    F32		origin[3];			// also used as MODEL_BEAM's "from"
-    S32			frame;				// also used as MODEL_BEAM's diameter
+    float32		origin[3];			// also used as MODEL_BEAM's "from"
+    sint			frame;				// also used as MODEL_BEAM's diameter
     
     // previous data for frame interpolation
-    F32		oldorigin[3];		// also used as MODEL_BEAM's "to"
-    S32			oldframe;
-    F32		backlerp;			// 0.0 = current, 1.0 = old
+    float32		oldorigin[3];		// also used as MODEL_BEAM's "to"
+    sint			oldframe;
+    float32		backlerp;			// 0.0 = current, 1.0 = old
     
     // texturing
-    S32			skinNum;			// inline skin index
+    sint			skinNum;			// inline skin index
     qhandle_t	customSkin;			// nullptr for default skin
     qhandle_t	customShader;		// use one image for the entire thing
     
     // misc
-    U8		shaderRGBA[4];		// colors used by rgbgen entity shaders
-    F32		shaderTexCoord[2];	// texture coordinates used by tcMod entity modifiers
-    F32		shaderTime;			// subtracted from refdef time to control effect start times
+    uchar8		shaderRGBA[4];		// colors used by rgbgen entity shaders
+    float32		shaderTexCoord[2];	// texture coordinates used by tcMod entity modifiers
+    float32		shaderTime;			// subtracted from refdef time to control effect start times
     
     // extra sprite information
-    F32		radius;
-    F32		rotation;
+    float32		radius;
+    float32		rotation;
 } refEntity_t;
 
 
@@ -136,21 +136,21 @@ typedef struct
 
 typedef struct
 {
-    S32			x, y, width, height;
-    F32		fov_x, fov_y;
+    sint			x, y, width, height;
+    float32		fov_x, fov_y;
     vec3_t		vieworg;
     vec3_t		viewaxis[3];		// transformation matrix
     
     // time in milliseconds for shader effects and other time dependent rendering issues
-    S32			time;
+    sint			time;
     
-    S32			rdflags;			// RDF_NOWORLDMODEL, etc
+    sint			rdflags;			// RDF_NOWORLDMODEL, etc
     
     // 1 bits will prevent the associated area from rendering at all
-    U8		areamask[MAX_MAP_AREA_BYTES];
+    uchar8		areamask[MAX_MAP_AREA_BYTES];
     
     // text messages for deform text shaders
-    UTF8		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
+    valueType		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
 } refdef_t;
 
 
@@ -216,31 +216,31 @@ typedef enum
 
 typedef struct
 {
-    UTF8					renderer_string[MAX_STRING_CHARS];
-    UTF8					vendor_string[MAX_STRING_CHARS];
-    UTF8					version_string[MAX_STRING_CHARS];
-    UTF8					extensions_string[BIG_INFO_STRING];
+    valueType					renderer_string[MAX_STRING_CHARS];
+    valueType					vendor_string[MAX_STRING_CHARS];
+    valueType					version_string[MAX_STRING_CHARS];
+    valueType					extensions_string[BIG_INFO_STRING];
     
-    S32						maxTextureSize;			// queried from GL
-    S32						numTextureUnits;		// multitexture ability
+    sint						maxTextureSize;			// queried from GL
+    sint						numTextureUnits;		// multitexture ability
     
-    S32						colorBits, depthBits, stencilBits;
+    sint						colorBits, depthBits, stencilBits;
     
     glDriverType_t			driverType;
     glHardwareType_t		hardwareType;
     
     bool				deviceSupportsGamma;
-    S32/*textureCompression_t*/	textureCompression;
+    sint/*textureCompression_t*/	textureCompression;
     bool				textureEnvAddAvailable;
     
-    S32						vidWidth, vidHeight;
+    sint						vidWidth, vidHeight;
     // aspect is the screen's physical width / height, which may be different
     // than scrWidth / scrHeight if the pixels are non-square
     // normal screens should be 4/3, but wide aspect monitors may be 16/9
-    F32					windowAspect;
-    F32					displayAspect;
+    float32					windowAspect;
+    float32					displayAspect;
     
-    S32						displayFrequency;
+    sint						displayFrequency;
     
     // synonymous with "does rendering consume the entire screen?", therefore
     // a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
@@ -248,7 +248,7 @@ typedef struct
     bool				isFullscreen;
     bool				stereoEnabled;
     bool				textureFilterAnisotropic;
-    S32							maxAnisotropy;
+    sint							maxAnisotropy;
     bool smpActive;
 } vidconfig_t;
 

@@ -57,18 +57,18 @@ typedef enum
 
 typedef struct image_s
 {
-    UTF8		imgName[MAX_QPATH];		// game path, including extension
-    S32			width, height;				// source image
-    S32			uploadWidth, uploadHeight;	// after power of two and picmip but not including clamp to MAX_TEXTURE_SIZE
-    U32			texnum;					// gl texture binding
+    valueType		imgName[MAX_QPATH];		// game path, including extension
+    sint			width, height;				// source image
+    sint			uploadWidth, uploadHeight;	// after power of two and picmip but not including clamp to MAX_TEXTURE_SIZE
+    uint			texnum;					// gl texture binding
     
-    S32			frameUsed;			// for texture usage in frame statistics
+    sint			frameUsed;			// for texture usage in frame statistics
     
-    S32			internalFormat;
-    S32			TMU;				// only needed for voodoo2
+    sint			internalFormat;
+    sint			TMU;				// only needed for voodoo2
     
     imgType_t   type;
-    S32 /*imgFlags_t*/  flags;
+    sint /*imgFlags_t*/  flags;
     
     struct image_s*	next;
 } image_t;
@@ -116,17 +116,17 @@ extern convar_t* r_stereoEnabled;
 
 extern	convar_t*	r_saveFontData;
 
-bool	R_GetModeInfo( S32* width, S32* height, F32* windowAspect, S32 mode );
+bool	R_GetModeInfo( sint* width, sint* height, float32* windowAspect, sint mode );
 
-F32 R_NoiseGet4f( F32 x, F32 y, F32 z, F64 t );
+float32 R_NoiseGet4f( float32 x, float32 y, float32 z, float64 t );
 void  R_NoiseInit( void );
 
-image_t* R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ flags );
-image_t* R_CreateImage( StringEntry name, U8* pic, S32 width, S32 height, imgType_t type, S32 flags, S32 internalFormat );
+image_t* R_FindImageFile( pointer name, imgType_t type, sint/*imgFlags_t*/ flags );
+image_t* R_CreateImage( pointer name, uchar8* pic, sint width, sint height, imgType_t type, sint flags, sint internalFormat );
 
 void R_IssuePendingRenderCommands( void );
-qhandle_t		 RE_RegisterShaderLightMap( StringEntry name, S32 lightmapIndex );
-qhandle_t RE_RegisterShaderFromImage( StringEntry name, S32 lightmapIndex, image_t* image, bool mipRawImage );
+qhandle_t		 RE_RegisterShaderLightMap( pointer name, sint lightmapIndex );
+qhandle_t RE_RegisterShaderFromImage( pointer name, sint lightmapIndex, image_t* image, bool mipRawImage );
 
 // font stuff
 void R_InitFreeType( void );
@@ -140,9 +140,9 @@ IMAGE LOADERS
 =============================================================
 */
 
-void R_LoadJPG( StringEntry name, U8** pic, S32* width, S32* height );
-void R_LoadPNG( StringEntry name, U8** pic, S32* width, S32* height );
-void R_LoadTGA( StringEntry name, U8** pic, S32* width, S32* height );
+void R_LoadJPG( pointer name, uchar8** pic, sint* width, sint* height );
+void R_LoadPNG( pointer name, uchar8** pic, sint* width, sint* height );
+void R_LoadTGA( pointer name, uchar8** pic, sint* width, sint* height );
 
 /*
 ====================================================================
@@ -155,9 +155,9 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 void		GLimp_Init( bool fixedFunction );
 void		GLimp_Shutdown( void );
 void		GLimp_EndFrame( void );
-void		GLimp_LogComment( StringEntry comment );
+void		GLimp_LogComment( pointer comment );
 void		GLimp_Minimize( void );
-void		GLimp_SetGamma( U8 red[256], U8 green[256], U8 blue[256] );
+void		GLimp_SetGamma( uchar8 red[256], uchar8 green[256], uchar8 blue[256] );
 
 bool GLimp_SpawnRenderThread( void ( *function )( void ) );
 void* GLimp_RendererSleep( void );

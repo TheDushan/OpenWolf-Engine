@@ -50,14 +50,14 @@ typedef struct msg_t msg_t;
 class idServerMainSystem
 {
 public:
-    virtual void AddServerCommand( client_t* client, StringEntry cmd ) = 0;
-    virtual void SendServerCommand( client_t* cl, StringEntry fmt, ... ) = 0;
+    virtual void AddServerCommand( client_t* client, pointer cmd ) = 0;
+    virtual void SendServerCommand( client_t* cl, pointer fmt, ... ) = 0;
     virtual void MasterShutdown( void ) = 0;
     virtual void MasterGameCompleteStatus( void ) = 0;
-    virtual void MasterGameStat( StringEntry data ) = 0;
+    virtual void MasterGameStat( pointer data ) = 0;
     virtual void PacketEvent( netadr_t from, msg_t* msg ) = 0;
-    virtual void Frame( S32 msec ) = 0;
-    virtual S32 LoadTag( StringEntry mod_name ) = 0;
+    virtual void Frame( sint msec ) = 0;
+    virtual sint LoadTag( pointer mod_name ) = 0;
 };
 
 extern idServerMainSystem* serverMainSystem;

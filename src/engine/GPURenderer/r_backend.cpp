@@ -33,7 +33,7 @@
 backEndData_t* backEndData[SMP_FRAMES];
 backEndState_t	backEnd;
 
-static F32	s_flipMatrix[16] =
+static float32	s_flipMatrix[16] =
 {
     // convert from our coordinate system (looking down X)
     // to OpenGL's coordinate system (looking down -Z)
@@ -46,10 +46,10 @@ static F32	s_flipMatrix[16] =
 /*
 ** GL_BindToTMU
 */
-void GL_BindToTMU( image_t* image, S32 tmu )
+void GL_BindToTMU( image_t* image, sint tmu )
 {
-    U32 texture = ( tmu == TB_COLORMAP ) ? tr.defaultImage->texnum : 0;
-    U32 target = GL_TEXTURE_2D;
+    uint texture = ( tmu == TB_COLORMAP ) ? tr.defaultImage->texnum : 0;
+    uint target = GL_TEXTURE_2D;
     
     if( image )
     {
@@ -72,7 +72,7 @@ void GL_BindToTMU( image_t* image, S32 tmu )
 /*
 ** GL_Cull
 */
-void GL_Cull( S32 cullType )
+void GL_Cull( sint cullType )
 {
     if( glState.faceCulling == cullType )
     {
@@ -85,7 +85,7 @@ void GL_Cull( S32 cullType )
     }
     else
     {
-        S32 cullFront = ( cullType == CT_FRONT_SIDED );
+        sint cullFront = ( cullType == CT_FRONT_SIDED );
         
         if( glState.faceCulling == CT_TWO_SIDED )
             qglEnable( GL_CULL_FACE );
@@ -105,9 +105,9 @@ void GL_Cull( S32 cullType )
 ** This routine is responsible for setting the most commonly changed state
 ** in Q3.
 */
-void GL_State( U64 stateBits )
+void GL_State( uint32 stateBits )
 {
-    U64 diff = stateBits ^ glState.glStateBits;
+    uint32 diff = stateBits ^ glState.glStateBits;
     
     if( !diff )
     {
@@ -138,9 +138,9 @@ void GL_State( U64 stateBits )
     //
     if( diff & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
     {
-        U32 oldState = glState.glStateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
-        U32 newState = stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
-        U32 storedState = glState.storedGlState & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
+        uint oldState = glState.glStateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
+        uint newState = stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
+        uint storedState = glState.storedGlState & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
         
         if( oldState == 0 )
         {
@@ -153,7 +153,7 @@ void GL_State( U64 stateBits )
         
         if( newState != 0 && storedState != newState )
         {
-            U32 srcFactor = GL_ONE, dstFactor = GL_ONE;
+            uint srcFactor = GL_ONE, dstFactor = GL_ONE;
             
             glState.storedGlState &= ~( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
             glState.storedGlState |= newState;
@@ -303,7 +303,7 @@ A player has predicted a teleport, but hasn't arrived yet
 */
 static void RB_Hyperspace( void )
 {
-    F32		c;
+    float32		c;
     
     if( !backEnd.isHyperspace )
     {
@@ -340,7 +340,7 @@ to actually render the visible surfaces for this view
 */
 void RB_BeginDrawingView( void )
 {
-    S32 clearBits = 0;
+    sint clearBits = 0;
     
     // sync with gl if needed
     if( r_finish->integer == 1 && !glState.finishCalled )
@@ -419,7 +419,7 @@ void RB_BeginDrawingView( void )
     if( backEnd.viewParms.isPortal )
     {
 #if 0
-        F32	plane[4];
+        float32	plane[4];
         GLdouble	plane2[4];
         
         plane[0] = backEnd.viewParms.portalPlane.normal[0];
@@ -442,24 +442,24 @@ void RB_BeginDrawingView( void )
 RB_RenderDrawSurfList
 ==================
 */
-void RB_RenderDrawSurfList( drawSurf_t* drawSurfs, S32 numDrawSurfs )
+void RB_RenderDrawSurfList( drawSurf_t* drawSurfs, sint numDrawSurfs )
 {
     shader_t* shader, *oldShader;
-    S32 fogNum, oldFogNum;
-    S32 entityNum, oldEntityNum;
-    S32 dlighted, oldDlighted;
-    S32 pshadowed, oldPshadowed;
-    S32 cubemapIndex, oldCubemapIndex;
+    sint fogNum, oldFogNum;
+    sint entityNum, oldEntityNum;
+    sint dlighted, oldDlighted;
+    sint pshadowed, oldPshadowed;
+    sint cubemapIndex, oldCubemapIndex;
     bool depthRange, oldDepthRange, isCrosshair, wasCrosshair;
-    S32 i;
+    sint i;
     drawSurf_t* drawSurf;
     size_t oldSort;
     FBO_t* fbo = nullptr;
     bool inQuery = false;
-    F32 depth[2];
+    float32 depth[2];
     
     // save original time for entity shader offsets
-    F64 originalTime = backEnd.refdef.floatTime;
+    float64 originalTime = backEnd.refdef.floatTime;
     
     fbo = glState.currentFBO;
     
@@ -530,8 +530,8 @@ void RB_RenderDrawSurfList( drawSurf_t* drawSurfs, S32 numDrawSurfs )
             {
                 backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
                 
-                // FIXME: e.shaderTime must be passed as S32 to avoid fp-precision loss issues
-                backEnd.refdef.floatTime = originalTime - ( F64 )backEnd.currentEntity->e.shaderTime;
+                // FIXME: e.shaderTime must be passed as sint to avoid fp-precision loss issues
+                backEnd.refdef.floatTime = originalTime - ( float64 )backEnd.currentEntity->e.shaderTime;
                 
                 // we have to reset the shaderTime as well otherwise image animations start
                 // from the wrong frame
@@ -669,7 +669,7 @@ RB_SetGL2D
 void	RB_SetGL2D( void )
 {
     mat4_t matrix;
-    S32 width, height;
+    sint width, height;
     
     if( backEnd.projection2D && backEnd.last2DFBO == glState.currentFBO )
         return;
@@ -719,10 +719,10 @@ Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void idRenderSystemLocal::DrawStretchRaw( S32 x, S32 y, S32 w, S32 h, S32 cols, S32 rows, const U8* data, S32 client, bool dirty )
+void idRenderSystemLocal::DrawStretchRaw( sint x, sint y, sint w, sint h, sint cols, sint rows, const uchar8* data, sint client, bool dirty )
 {
-    S32			i, j;
-    S32			start, end;
+    sint			i, j;
+    sint			start, end;
     vec4_t quadVerts[4];
     vec2_t texCoords[4];
     
@@ -794,9 +794,9 @@ void idRenderSystemLocal::DrawStretchRaw( S32 x, S32 y, S32 w, S32 h, S32 cols, 
     RB_InstantQuad2( quadVerts, texCoords );
 }
 
-void idRenderSystemLocal::UploadCinematic( S32 w, S32 h, S32 cols, S32 rows, const U8* data, S32 client, bool dirty )
+void idRenderSystemLocal::UploadCinematic( sint w, sint h, sint cols, sint rows, const uchar8* data, sint client, bool dirty )
 {
-    U32 texture;
+    uint texture;
     
     R_IssuePendingRenderCommands();
     
@@ -860,7 +860,7 @@ const void* RB_StretchPic( const void* data )
 {
     const stretchPicCommand_t*	cmd;
     shader_t* shader;
-    S32		numVerts, numIndexes;
+    sint		numVerts, numIndexes;
     
     cmd = ( const stretchPicCommand_t* )data;
     
@@ -896,7 +896,7 @@ const void* RB_StretchPic( const void* data )
     tess.indexes[ numIndexes + 5 ] = numVerts + 1;
     
     {
-        U16 color[4];
+        uchar16 color[4];
         
         VectorScale4( backEnd.color2D, 257, color );
         
@@ -942,7 +942,7 @@ const void* RB_StretchPic( const void* data )
 RB_PrefilterEnvMap
 =============
 */
-void RB_PrefilterEnvMap( S32 numCubeMap )
+void RB_PrefilterEnvMap( sint numCubeMap )
 {
     cubemap_t* cubemap = &tr.cubemaps[backEnd.viewParms.targetFboCubemapIndex];
     
@@ -956,11 +956,11 @@ void RB_PrefilterEnvMap( S32 numCubeMap )
         return;
     }
     
-    S32 cubeMipSize = r_cubemapSize->integer;
-    S32 numMips = 0;
+    sint cubeMipSize = r_cubemapSize->integer;
+    sint numMips = 0;
     
-    S32 width = r_cubemapSize->integer;
-    S32 height = r_cubemapSize->integer;
+    sint width = r_cubemapSize->integer;
+    sint height = r_cubemapSize->integer;
     
     vec4_t quadVerts[4];
     vec2_t texCoords[4];
@@ -992,13 +992,13 @@ void RB_PrefilterEnvMap( S32 numCubeMap )
     
     GLSL_BindProgram( &tr.prefilterEnvMapShader );
     
-    for( S32 level = 1; level <= numMips; level++ )
+    for( sint level = 1; level <= numMips; level++ )
     {
         width = width / 2.0;
         height = height / 2.0;
         qglViewport( 0, 0, width, height );
         qglScissor( 0, 0, width, height );
-        for( S32 j = 0; j < 6; j++ )
+        for( sint j = 0; j < 6; j++ )
         {
             //////////////////////////////////////////////////////////////////////////////////////////////
             {
@@ -1093,18 +1093,18 @@ const void* RB_DrawSurfs( const void* data )
                 
                 FBO_Bind( tr.screenShadowFbo );
                 
-                box[0] = backEnd.viewParms.viewportX * tr.screenShadowFbo->width / ( F32 )glConfig.vidWidth;
-                box[1] = backEnd.viewParms.viewportY * tr.screenShadowFbo->height / ( F32 )glConfig.vidHeight;
-                box[2] = backEnd.viewParms.viewportWidth * tr.screenShadowFbo->width / ( F32 )glConfig.vidWidth;
-                box[3] = backEnd.viewParms.viewportHeight * tr.screenShadowFbo->height / ( F32 )glConfig.vidHeight;
+                box[0] = backEnd.viewParms.viewportX * tr.screenShadowFbo->width / ( float32 )glConfig.vidWidth;
+                box[1] = backEnd.viewParms.viewportY * tr.screenShadowFbo->height / ( float32 )glConfig.vidHeight;
+                box[2] = backEnd.viewParms.viewportWidth * tr.screenShadowFbo->width / ( float32 )glConfig.vidWidth;
+                box[3] = backEnd.viewParms.viewportHeight * tr.screenShadowFbo->height / ( float32 )glConfig.vidHeight;
                 
                 qglViewport( box[0], box[1], box[2], box[3] );
                 qglScissor( box[0], box[1], box[2], box[3] );
                 
-                box[0] = backEnd.viewParms.viewportX / ( F32 )glConfig.vidWidth;
-                box[1] = backEnd.viewParms.viewportY / ( F32 )glConfig.vidHeight;
-                box[2] = box[0] + backEnd.viewParms.viewportWidth / ( F32 )glConfig.vidWidth;
-                box[3] = box[1] + backEnd.viewParms.viewportHeight / ( F32 )glConfig.vidHeight;
+                box[0] = backEnd.viewParms.viewportX / ( float32 )glConfig.vidWidth;
+                box[1] = backEnd.viewParms.viewportY / ( float32 )glConfig.vidHeight;
+                box[2] = box[0] + backEnd.viewParms.viewportWidth / ( float32 )glConfig.vidWidth;
+                box[3] = box[1] + backEnd.viewParms.viewportHeight / ( float32 )glConfig.vidHeight;
                 
                 texCoords[0][0] = box[0];
                 texCoords[0][1] = box[3];
@@ -1153,9 +1153,9 @@ const void* RB_DrawSurfs( const void* data )
                 {
                     vec3_t viewVector;
                     
-                    F32 zmax = backEnd.viewParms.zFar;
-                    F32 ymax = zmax * tan( backEnd.viewParms.fovY * M_PI / 360.0f );
-                    F32 xmax = zmax * tan( backEnd.viewParms.fovX * M_PI / 360.0f );
+                    float32 zmax = backEnd.viewParms.zFar;
+                    float32 ymax = zmax * tan( backEnd.viewParms.fovY * M_PI / 360.0f );
+                    float32 xmax = zmax * tan( backEnd.viewParms.fovX * M_PI / 360.0f );
                     
                     VectorScale( backEnd.refdef.viewaxis[0], zmax, viewVector );
                     GLSL_SetUniformVec3( &tr.shadowmaskShader, UNIFORM_VIEWFORWARD, viewVector );
@@ -1171,8 +1171,8 @@ const void* RB_DrawSurfs( const void* data )
                 
                 if( r_shadowBlur->integer )
                 {
-                    viewInfo[2] = 1.0f / ( F32 )( tr.screenScratchFbo->width );
-                    viewInfo[3] = 1.0f / ( F32 )( tr.screenScratchFbo->height );
+                    viewInfo[2] = 1.0f / ( float32 )( tr.screenScratchFbo->width );
+                    viewInfo[3] = 1.0f / ( float32 )( tr.screenScratchFbo->height );
                     
                     FBO_Bind( tr.screenScratchFbo );
                     
@@ -1203,9 +1203,9 @@ const void* RB_DrawSurfs( const void* data )
                 vec4_t quadVerts[4];
                 vec2_t texCoords[4];
                 
-                viewInfo[2] = 1.0f / ( ( F32 )( tr.quarterImage[0]->width ) * tan( backEnd.viewParms.fovX * M_PI / 360.0f ) * 2.0f );
-                viewInfo[3] = 1.0f / ( ( F32 )( tr.quarterImage[0]->height ) * tan( backEnd.viewParms.fovY * M_PI / 360.0f ) * 2.0f );
-                viewInfo[3] *= ( F32 )backEnd.viewParms.viewportHeight / ( F32 )backEnd.viewParms.viewportWidth;
+                viewInfo[2] = 1.0f / ( ( float32 )( tr.quarterImage[0]->width ) * tan( backEnd.viewParms.fovX * M_PI / 360.0f ) * 2.0f );
+                viewInfo[3] = 1.0f / ( ( float32 )( tr.quarterImage[0]->height ) * tan( backEnd.viewParms.fovY * M_PI / 360.0f ) * 2.0f );
+                viewInfo[3] *= ( float32 )backEnd.viewParms.viewportHeight / ( float32 )backEnd.viewParms.viewportWidth;
                 
                 FBO_Bind( tr.quarterFbo[0] );
                 
@@ -1237,8 +1237,8 @@ const void* RB_DrawSurfs( const void* data )
                 RB_InstantQuad2( quadVerts, texCoords ); //, color, shaderProgram, invTexRes);
                 
                 
-                viewInfo[2] = 1.0f / ( F32 )( tr.quarterImage[0]->width );
-                viewInfo[3] = 1.0f / ( F32 )( tr.quarterImage[0]->height );
+                viewInfo[2] = 1.0f / ( float32 )( tr.quarterImage[0]->width );
+                viewInfo[3] = 1.0f / ( float32 )( tr.quarterImage[0]->height );
                 
                 FBO_Bind( tr.quarterFbo[1] );
                 
@@ -1402,10 +1402,10 @@ Also called by idRenderSystemLocal::EndRegistration
 */
 void RB_ShowImages( void )
 {
-    S32		i;
+    sint		i;
     image_t*	image;
-    F32	x, y, w, h;
-    S32		start, end;
+    float32	x, y, w, h;
+    sint		start, end;
     
     RB_SetGL2D();
     
@@ -1544,11 +1544,11 @@ const void*	RB_SwapBuffers( const void* data )
     // counting up the number of increments that have happened
     if( r_measureOverdraw->integer )
     {
-        S32 i;
-        S64 sum = 0;
-        U8* stencilReadback = nullptr;
+        sint i;
+        sint32 sum = 0;
+        uchar8* stencilReadback = nullptr;
         
-        stencilReadback = ( U8* )Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );
+        stencilReadback = ( uchar8* )Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );
         qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
         
         for( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ )
@@ -1660,10 +1660,10 @@ const void* RB_PostProcess( const void* data )
     
     if( r_ssao->integer )
     {
-        srcBox[0] = backEnd.viewParms.viewportX      * tr.screenSsaoImage->width  / ( F32 )glConfig.vidWidth;
-        srcBox[1] = backEnd.viewParms.viewportY      * tr.screenSsaoImage->height / ( F32 )glConfig.vidHeight;
-        srcBox[2] = backEnd.viewParms.viewportWidth  * tr.screenSsaoImage->width  / ( F32 )glConfig.vidWidth;
-        srcBox[3] = backEnd.viewParms.viewportHeight * tr.screenSsaoImage->height / ( F32 )glConfig.vidHeight;
+        srcBox[0] = backEnd.viewParms.viewportX      * tr.screenSsaoImage->width  / ( float32 )glConfig.vidWidth;
+        srcBox[1] = backEnd.viewParms.viewportY      * tr.screenSsaoImage->height / ( float32 )glConfig.vidHeight;
+        srcBox[2] = backEnd.viewParms.viewportWidth  * tr.screenSsaoImage->width  / ( float32 )glConfig.vidWidth;
+        srcBox[3] = backEnd.viewParms.viewportHeight * tr.screenSsaoImage->height / ( float32 )glConfig.vidHeight;
         
         FBO_Blit( tr.screenSsaoFbo, srcBox, nullptr, srcFbo, dstBox, nullptr, nullptr, GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO );
     }
@@ -1689,7 +1689,7 @@ const void* RB_PostProcess( const void* data )
         
         if( r_darkexpand->integer )
         {
-            for( S32 pass = 0; pass < 2; pass++ )
+            for( sint pass = 0; pass < 2; pass++ )
             {
                 RB_DarkExpand( srcFbo, srcBox, tr.genericFbo, dstBox );
                 FBO_FastBlit( tr.genericFbo, srcBox, srcFbo, dstBox, GL_COLOR_BUFFER_BIT, GL_NEAREST );
@@ -1752,7 +1752,7 @@ const void* RB_PostProcess( const void* data )
         
         if( r_ssgi->integer )
         {
-            //for (S32 i = 0; i < r_ssgi->integer; i++)
+            //for (sint i = 0; i < r_ssgi->integer; i++)
             {
                 RB_SSGI( srcFbo, srcBox, tr.genericFbo, dstBox );
                 FBO_FastBlit( tr.genericFbo, srcBox, srcFbo, dstBox, GL_COLOR_BUFFER_BIT, GL_NEAREST );
@@ -1773,7 +1773,7 @@ const void* RB_PostProcess( const void* data )
         
         if( r_dof->integer )
         {
-            for( S32 pass_num = 0; pass_num < 3; pass_num++ )
+            for( sint pass_num = 0; pass_num < 3; pass_num++ )
             {
                 RB_DOF( srcFbo, srcBox, tr.genericFbo, dstBox );
                 FBO_FastBlit( tr.genericFbo, srcBox, srcFbo, dstBox, GL_COLOR_BUFFER_BIT, GL_NEAREST );
@@ -1831,7 +1831,7 @@ const void* RB_PostProcess( const void* data )
         ivec4_t iQtrBox;
         vec4_t box;
         vec4_t viewInfo;
-        static F32 scale = 5.0f;
+        static float32 scale = 5.0f;
         
         scale -= 0.005f;
         if( scale < 0.01f )
@@ -1839,10 +1839,10 @@ const void* RB_PostProcess( const void* data )
             
         FBO_FastBlit( nullptr, nullptr, tr.quarterFbo[0], nullptr, GL_COLOR_BUFFER_BIT, GL_LINEAR );
         
-        iQtrBox[0] = backEnd.viewParms.viewportX      * tr.quarterImage[0]->width / ( F32 )glConfig.vidWidth;
-        iQtrBox[1] = backEnd.viewParms.viewportY      * tr.quarterImage[0]->height / ( F32 )glConfig.vidHeight;
-        iQtrBox[2] = backEnd.viewParms.viewportWidth  * tr.quarterImage[0]->width / ( F32 )glConfig.vidWidth;
-        iQtrBox[3] = backEnd.viewParms.viewportHeight * tr.quarterImage[0]->height / ( F32 )glConfig.vidHeight;
+        iQtrBox[0] = backEnd.viewParms.viewportX      * tr.quarterImage[0]->width / ( float32 )glConfig.vidWidth;
+        iQtrBox[1] = backEnd.viewParms.viewportY      * tr.quarterImage[0]->height / ( float32 )glConfig.vidHeight;
+        iQtrBox[2] = backEnd.viewParms.viewportWidth  * tr.quarterImage[0]->width / ( float32 )glConfig.vidWidth;
+        iQtrBox[3] = backEnd.viewParms.viewportHeight * tr.quarterImage[0]->height / ( float32 )glConfig.vidHeight;
         
         qglViewport( iQtrBox[0], iQtrBox[1], iQtrBox[2], iQtrBox[3] );
         qglScissor( iQtrBox[0], iQtrBox[1], iQtrBox[2], iQtrBox[3] );
@@ -1870,8 +1870,8 @@ const void* RB_PostProcess( const void* data )
         
         VectorSet4( viewInfo, backEnd.viewParms.zFar / r_znear->value, backEnd.viewParms.zFar, 0.0, 0.0 );
         
-        viewInfo[2] = scale / ( F32 )( tr.quarterImage[0]->width );
-        viewInfo[3] = scale / ( F32 )( tr.quarterImage[0]->height );
+        viewInfo[2] = scale / ( float32 )( tr.quarterImage[0]->width );
+        viewInfo[3] = scale / ( float32 )( tr.quarterImage[0]->height );
         
         FBO_Bind( tr.quarterFbo[1] );
         GLSL_BindProgram( &tr.depthBlurShader[2] );
@@ -1938,7 +1938,7 @@ const void* RB_PostProcess( const void* data )
     if( r_cubeMapping->integer && tr.numCubemaps )
     {
         ivec4_t dstBox;
-        S32 cubemapIndex = R_CubemapForPoint( backEnd.viewParms.orientation.origin );
+        sint cubemapIndex = R_CubemapForPoint( backEnd.viewParms.orientation.origin );
         
         if( cubemapIndex )
         {
@@ -1955,7 +1955,7 @@ const void* RB_PostProcess( const void* data )
 }
 
 // FIXME: put this function declaration elsewhere
-void R_SaveDDS( StringEntry filename, U8* pic, S32 width, S32 height, S32 depth );
+void R_SaveDDS( pointer filename, uchar8* pic, sint width, sint height, sint depth );
 
 /*
 =============
@@ -1981,17 +1981,17 @@ const void* RB_ExportCubemaps( const void* data )
     if( cmd )
     {
         FBO_t* oldFbo = glState.currentFBO;
-        S32 sideSize = r_cubemapSize->integer * r_cubemapSize->integer * 4;
-        U8* cubemapPixels = ( U8* )CL_RefMalloc( sideSize * 6 );
-        S32 i, j;
+        sint sideSize = r_cubemapSize->integer * r_cubemapSize->integer * 4;
+        uchar8* cubemapPixels = ( uchar8* )CL_RefMalloc( sideSize * 6 );
+        sint i, j;
         
         FBO_Bind( tr.renderCubeFbo );
         
         for( i = 0; i < tr.numCubemaps; i++ )
         {
-            UTF8 filename[MAX_QPATH];
+            valueType filename[MAX_QPATH];
             cubemap_t* cubemap = &tr.cubemaps[i];
-            U8* p = cubemapPixels;
+            uchar8* p = cubemapPixels;
             
             for( j = 0; j < 6; j++ )
             {
@@ -2030,7 +2030,7 @@ RB_ExecuteRenderCommands
 */
 void RB_ExecuteRenderCommands( const void* data )
 {
-    S32		t1, t2;
+    sint		t1, t2;
     
     t1 = CL_ScaledMilliseconds();
     
@@ -2047,7 +2047,7 @@ void RB_ExecuteRenderCommands( const void* data )
     {
         data = PADP( data, sizeof( void* ) );
         
-        switch( *( const S32* )data )
+        switch( *( const sint* )data )
         {
             case RC_SET_COLOR:
                 data = RB_SetColor( data );

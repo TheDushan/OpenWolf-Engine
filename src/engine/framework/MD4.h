@@ -47,7 +47,7 @@ public:
     idMD4SystemLocal();
     ~idMD4SystemLocal();
     
-    virtual U32 BlockChecksum( const void* buffer, S32 length );
+    virtual uint BlockChecksum( const void* buffer, sint length );
 };
 
 extern idMD4SystemLocal MD4Local;

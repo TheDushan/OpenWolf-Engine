@@ -33,8 +33,8 @@
 vidconfig_t glConfig;
 glRefConfig_t glRefConfig;
 bool textureFilterAnisotropic = false;
-S32 maxAnisotropy = 0;
-F32 displayAspect = 0.0f;
+sint maxAnisotropy = 0;
+float32 displayAspect = 0.0f;
 
 glstate_t glState;
 
@@ -269,9 +269,9 @@ convar_t* r_bloomScale;
 convar_t* r_fxaa;
 
 convar_t*	r_maxpolys;
-S32		max_polys;
+sint		max_polys;
 convar_t*	r_maxpolyverts;
-S32		max_polyverts;
+sint		max_polyverts;
 
 /*
 ** InitOpenGL
@@ -296,7 +296,7 @@ static void InitOpenGL( void )
     
     if( glConfig.vidWidth == 0 )
     {
-        S32		temp;
+        sint		temp;
         
         memset( &glConfig, 0, sizeof( glConfig ) );
         
@@ -353,10 +353,10 @@ static void InitOpenGL( void )
 GL_CheckErrors
 ==================
 */
-void GL_CheckErrs( StringEntry file, S32 line )
+void GL_CheckErrs( pointer file, sint line )
 {
-    S32		err;
-    UTF8	s[64];
+    sint		err;
+    valueType	s[64];
     
     err = qglGetError();
     if( err == GL_NO_ERROR )
@@ -400,9 +400,9 @@ void GL_CheckErrs( StringEntry file, S32 line )
 */
 typedef struct vidmode_s
 {
-    StringEntry description;
-    S32        width, height;
-    F32      pixelAspect; // pixel width / height
+    pointer description;
+    sint        width, height;
+    float32      pixelAspect; // pixel width / height
 } vidmode_t;
 
 //Dushan
@@ -443,9 +443,9 @@ static const vidmode_t r_vidModes[] =
     { "Mode 32: 5120x4096 (5:4)",   5120, 4096, 1 },
     { "Mode 33: 7680x4800 (16:10)", 7680, 4800, 1 },
 };
-static const S32 s_numVidModes = ARRAY_LEN( r_vidModes );
+static const sint s_numVidModes = ARRAY_LEN( r_vidModes );
 
-bool R_GetModeInfo( S32* width, S32* height, F32* windowAspect, S32 mode )
+bool R_GetModeInfo( sint* width, sint* height, float32* windowAspect, sint mode )
 {
     const vidmode_t* vm;
     
@@ -462,7 +462,7 @@ bool R_GetModeInfo( S32* width, S32* height, F32* windowAspect, S32 mode )
     if( mode == -2 )
     {
         // Must set width and height to display size before calling this function!
-        *windowAspect = ( F32 ) * width / *height;
+        *windowAspect = ( float32 ) * width / *height;
     }
     else if( mode == -1 )
     {
@@ -475,7 +475,7 @@ bool R_GetModeInfo( S32* width, S32* height, F32* windowAspect, S32 mode )
         
         *width = vm->width;
         *height = vm->height;
-        *windowAspect = ( F32 ) vm->width / ( vm->height * vm->pixelAspect );
+        *windowAspect = ( float32 ) vm->width / ( vm->height * vm->pixelAspect );
     }
     
     return true;
@@ -486,7 +486,7 @@ bool R_GetModeInfo( S32* width, S32* height, F32* windowAspect, S32 mode )
 */
 static void R_ModeList_f( void )
 {
-    S32 i;
+    sint i;
     
     CL_RefPrintf( PRINT_ALL, "\n" );
     
@@ -535,11 +535,11 @@ Return value must be freed with Hunk_FreeTempMemory()
 ==================
 */
 
-U8* RB_ReadPixels( S32 x, S32 y, S32 width, S32 height, U64* offset, S32* padlen )
+uchar8* RB_ReadPixels( sint x, sint y, sint width, sint height, uint32* offset, sint* padlen )
 {
-    U8* buffer = nullptr, *bufstart;
-    S32 padwidth, linelen;
-    S32 packAlign;
+    uchar8* buffer = nullptr, *bufstart;
+    sint padwidth, linelen;
+    sint packAlign;
     
     qglGetIntegerv( GL_PACK_ALIGNMENT, &packAlign );
     
@@ -547,9 +547,9 @@ U8* RB_ReadPixels( S32 x, S32 y, S32 width, S32 height, U64* offset, S32* padlen
     padwidth = PAD( linelen, packAlign );
     
     // Allocate a few more bytes so that we can choose an alignment we like
-    buffer = ( U8* )Hunk_AllocateTempMemory( padwidth * height + *offset + packAlign - 1 );
+    buffer = ( uchar8* )Hunk_AllocateTempMemory( padwidth * height + *offset + packAlign - 1 );
     
-    bufstart = ( U8* )PADP( ( intptr_t ) buffer + *offset, packAlign );
+    bufstart = ( uchar8* )PADP( ( intptr_t ) buffer + *offset, packAlign );
     
     qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, bufstart );
     
@@ -564,15 +564,15 @@ U8* RB_ReadPixels( S32 x, S32 y, S32 width, S32 height, U64* offset, S32* padlen
 RB_TakeScreenshot
 ==================
 */
-void RB_TakeScreenshot( S32 x, S32 y, S32 width, S32 height, UTF8* fileName )
+void RB_TakeScreenshot( sint x, sint y, sint width, sint height, valueType* fileName )
 {
-    U8* allbuf, *buffer;
-    U8* srcptr, *destptr;
-    U8* endline, *endmem;
-    U8 temp;
+    uchar8* allbuf, *buffer;
+    uchar8* srcptr, *destptr;
+    uchar8* endline, *endmem;
+    uchar8 temp;
     
-    S32 linelen, padlen;
-    U64 offset = 18, memcount;
+    sint linelen, padlen;
+    uint32 offset = 18, memcount;
     
     allbuf = RB_ReadPixels( x, y, width, height, &offset, &padlen );
     buffer = allbuf + offset - 18;
@@ -622,11 +622,11 @@ RB_TakeScreenshotJPEG
 ==================
 */
 
-void RB_TakeScreenshotJPEG( S32 x, S32 y, S32 width, S32 height, UTF8* fileName )
+void RB_TakeScreenshotJPEG( sint x, sint y, sint width, sint height, valueType* fileName )
 {
-    U8* buffer;
-    U64 offset = 0, memcount;
-    S32 padlen;
+    uchar8* buffer;
+    uint32 offset = 0, memcount;
+    sint padlen;
     
     buffer = RB_ReadPixels( x, y, width, height, &offset, &padlen );
     memcount = ( width * 3 + padlen ) * height;
@@ -663,9 +663,9 @@ const void* RB_TakeScreenshotCmd( const void* data )
 R_TakeScreenshot
 ==================
 */
-void R_TakeScreenshot( S32 x, S32 y, S32 width, S32 height, UTF8* name, bool jpeg )
+void R_TakeScreenshot( sint x, sint y, sint width, sint height, valueType* name, bool jpeg )
 {
-    static UTF8	fileName[MAX_OSPATH]; // bad things if two screenshots per frame?
+    static valueType	fileName[MAX_OSPATH]; // bad things if two screenshots per frame?
     screenshotCommand_t*	cmd;
     
     cmd = ( screenshotCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
@@ -689,9 +689,9 @@ void R_TakeScreenshot( S32 x, S32 y, S32 width, S32 height, UTF8* name, bool jpe
 R_ScreenshotFilename
 ==================
 */
-void R_ScreenshotFilename( S32 lastNumber, UTF8* fileName )
+void R_ScreenshotFilename( sint lastNumber, valueType* fileName )
 {
-    S32		a, b, c, d;
+    sint		a, b, c, d;
     
     if( lastNumber < 0 || lastNumber > 9999 )
     {
@@ -716,9 +716,9 @@ void R_ScreenshotFilename( S32 lastNumber, UTF8* fileName )
 R_ScreenshotFilename
 ==================
 */
-void R_ScreenshotFilenameJPEG( S32 lastNumber, UTF8* fileName )
+void R_ScreenshotFilenameJPEG( sint lastNumber, valueType* fileName )
 {
-    S32		a, b, c, d;
+    sint		a, b, c, d;
     
     if( lastNumber < 0 || lastNumber > 9999 )
     {
@@ -748,23 +748,23 @@ the menu system, sampled down from full screen distorted images
 */
 void R_LevelShot( void )
 {
-    UTF8		checkname[MAX_OSPATH];
-    U8*		buffer = nullptr;
-    U8*		source, *allsource;
-    U8*		src, *dst;
-    U64			offset = 0;
-    S32			padlen;
-    S32			x, y;
-    S32			r, g, b;
-    F32		xScale, yScale;
-    S32			xx, yy;
+    valueType		checkname[MAX_OSPATH];
+    uchar8*		buffer = nullptr;
+    uchar8*		source, *allsource;
+    uchar8*		src, *dst;
+    uint32			offset = 0;
+    sint			padlen;
+    sint			x, y;
+    sint			r, g, b;
+    float32		xScale, yScale;
+    sint			xx, yy;
     
     Com_sprintf( checkname, sizeof( checkname ), "levelshots/%s.tga", tr.world->baseName );
     
     allsource = RB_ReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, &offset, &padlen );
     source = allsource + offset;
     
-    buffer = ( U8* )Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
+    buffer = ( uchar8* )Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
     ::memset( buffer, 0, 18 );
     buffer[2] = 2;		// uncompressed type
     buffer[12] = 128;
@@ -783,8 +783,8 @@ void R_LevelShot( void )
             {
                 for( xx = 0 ; xx < 4 ; xx++ )
                 {
-                    src = source + ( 3 * glConfig.vidWidth + padlen ) * ( S32 )( ( y * 3 + yy ) * yScale ) +
-                          3 * ( S32 )( ( x * 4 + xx ) * xScale );
+                    src = source + ( 3 * glConfig.vidWidth + padlen ) * ( sint )( ( y * 3 + yy ) * yScale ) +
+                          3 * ( sint )( ( x * 4 + xx ) * xScale );
                     r += src[0];
                     g += src[1];
                     b += src[2];
@@ -819,8 +819,8 @@ Doesn't print the pacifier message if there is a second arg
 */
 void R_ScreenShot_f( void )
 {
-    UTF8	checkname[MAX_OSPATH];
-    static	S32	lastNumber = -1;
+    valueType	checkname[MAX_OSPATH];
+    static	sint	lastNumber = -1;
     bool	silent;
     
     if( !strcmp( cmdSystem->Argv( 1 ), "levelshot" ) )
@@ -884,8 +884,8 @@ void R_ScreenShot_f( void )
 
 void R_ScreenShotJPEG_f( void )
 {
-    UTF8		checkname[MAX_OSPATH];
-    static	S32	lastNumber = -1;
+    valueType		checkname[MAX_OSPATH];
+    static	sint	lastNumber = -1;
     bool	silent;
     
     if( !strcmp( cmdSystem->Argv( 1 ), "levelshot" ) )
@@ -987,10 +987,10 @@ RB_TakeVideoFrameCmd
 const void* RB_TakeVideoFrameCmd( const void* data )
 {
     const videoFrameCommand_t*	cmd;
-    U8*				cBuf;
-    U64				memcount, linelen;
-    S32				padwidth, avipadwidth, padlen, avipadlen;
-    S32 packAlign;
+    uchar8*				cBuf;
+    uint32				memcount, linelen;
+    sint				padwidth, avipadwidth, padlen, avipadlen;
+    sint packAlign;
     
     // finish any 2D drawing if needed
     if( tess.numIndexes )
@@ -1009,7 +1009,7 @@ const void* RB_TakeVideoFrameCmd( const void* data )
     avipadwidth = PAD( linelen, AVI_LINE_PADDING );
     avipadlen = avipadwidth - linelen;
     
-    cBuf = ( U8* )PADP( cmd->captureBuffer, packAlign );
+    cBuf = ( uchar8* )PADP( cmd->captureBuffer, packAlign );
     
     qglReadPixels( 0, 0, cmd->width, cmd->height, GL_RGB,
                    GL_UNSIGNED_BYTE, cBuf );
@@ -1025,8 +1025,8 @@ const void* RB_TakeVideoFrameCmd( const void* data )
     }
     else
     {
-        U8* lineend, *memend;
-        U8* srcptr, *destptr;
+        uchar8* lineend, *memend;
+        uchar8* srcptr, *destptr;
         
         srcptr = cBuf;
         destptr = cmd->encodeBuffer;
@@ -1118,11 +1118,11 @@ R_PrintLongString
 Workaround for CL_RefPrintf's 1024 characters buffer limit.
 ================
 */
-void R_PrintLongString( StringEntry string )
+void R_PrintLongString( pointer string )
 {
-    UTF8 buffer[1024];
-    StringEntry p;
-    S32 size = strlen( string );
+    valueType buffer[1024];
+    pointer p;
+    sint size = strlen( string );
     
     p = string;
     while( size > 0 )
@@ -1141,12 +1141,12 @@ GfxInfo_f
 */
 void GfxInfo_f( void )
 {
-    StringEntry enablestrings[] =
+    pointer enablestrings[] =
     {
         "disabled",
         "enabled"
     };
-    StringEntry fsstrings[] =
+    pointer fsstrings[] =
     {
         "windowed",
         "fullscreen"
@@ -1158,7 +1158,7 @@ void GfxInfo_f( void )
     if( qglGetStringi )
     {
         GLint numExtensions;
-        S32 i;
+        sint i;
         
         qglGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
         for( i = 0; i < numExtensions; i++ )
@@ -1301,7 +1301,7 @@ void R_Register( void )
     r_cubemapSize = cvarSystem->Get( "r_cubemapSize", "128", CVAR_ARCHIVE | CVAR_LATCH, "Cubempa size" );
     r_deluxeSpecular = cvarSystem->Get( "r_deluxeSpecular", "0.3", CVAR_ARCHIVE | CVAR_LATCH, "Enable deluxe specular for materials that support it" );
     r_pbr = cvarSystem->Get( "r_pbr", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable physically based rendering." );
-    r_pbrIBL = cvarSystem->Get( "r_pbrIBL", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enable IBL physically based rendering. " );
+    r_pbrIBL = cvarSystem->Get( "r_pbrIBL", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable IBL physically based rendering. " );
     r_baseNormalX = cvarSystem->Get( "r_baseNormalX", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "Set the scale of the X values from normal maps when the normalScale keyword is not used. -1 - Flip X. 0 - Ignore X. 1 - Normal X. (default) 2 - Double X." );
     r_baseNormalY = cvarSystem->Get( "r_baseNormalY", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "Set the scale of the Y values from normal maps when the normalScale keyword is not used. -1 - Flip Y. 0 - Ignore Y. 1 - Normal Y. (default) 2 - Double Y" );
     r_baseParallax = cvarSystem->Get( "r_baseParallax", "0.001", CVAR_ARCHIVE | CVAR_LATCH, "Sets the scale of the parallax effect for materials when the parallaxDepth keyword is not used. 0 - No depth. 0.01 - Pretty smooth. 0.05 - Standard depth. (default) 0.001" );
@@ -1326,8 +1326,8 @@ void R_Register( void )
     r_shadowBlur = cvarSystem->Get( "r_shadowBlur", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable shadow blur." );
     r_shadowMapSize = cvarSystem->Get( "r_shadowMapSize", "1024", CVAR_ARCHIVE | CVAR_LATCH, "Size of each cascaded shadow map. 256 - 256x256, ugly, probably shouldn't go below this. 512 - 512x512, passable. 1024 - 1024x1024, good. (default) 2048 - 2048x2048, extreme. 4096 - 4096x4096, indistinguishable from 2048." );
     r_shadowCascadeZNear = cvarSystem->Get( "r_shadowCascadeZNear", "4", CVAR_ARCHIVE | CVAR_LATCH, "Size of each cascaded shadow map. 256 - 256x256, ugly, probably shouldn't go below this. 512 - 512x512, passable. 1024 - 1024x1024, good. (default) 2048 - 2048x2048, extreme. 4096 - 4096x4096, indistinguishable from 2048." );
-    r_shadowCascadeZFar = cvarSystem->Get( "r_shadowCascadeZFar", "3072", CVAR_ARCHIVE | CVAR_LATCH, "Far plane for shadow cascade frustums. 3072 - Default." );
-    r_shadowCascadeZBias = cvarSystem->Get( "r_shadowCascadeZBias", "-256", CVAR_ARCHIVE | CVAR_LATCH, "Z-bias for shadow cascade frustums. -256 - Default." );
+    r_shadowCascadeZFar = cvarSystem->Get( "r_shadowCascadeZFar", "1024", CVAR_ARCHIVE | CVAR_LATCH, "Far plane for shadow cascade frustums. 3072 - Default." );
+    r_shadowCascadeZBias = cvarSystem->Get( "r_shadowCascadeZBias", "0", CVAR_ARCHIVE | CVAR_LATCH, "Z-bias for shadow cascade frustums. -256 - Default." );
     r_ignoreDstAlpha = cvarSystem->Get( "r_ignoreDstAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH, "Ignoring DST Alpha" );
     
     r_lensflare = cvarSystem->Get( "r_lensflare", "1", CVAR_ARCHIVE, "Enabled lens flare effects" );
@@ -1497,9 +1497,9 @@ R_Init
 */
 void R_Init( void )
 {
-    S32	err;
-    S32 i;
-    U8* ptr = nullptr;
+    sint	err;
+    sint i;
+    uchar8* ptr = nullptr;
     
     CL_RefPrintf( PRINT_ALL, "----- R_Init -----\n" );
     
@@ -1512,7 +1512,7 @@ void R_Init( void )
 
     if( ( intptr_t )tess.xyz & 15 )
     {
-        CL_RefPrintf( PRINT_WARNING, "tess.xyz not 16 U8 aligned\n" );
+        CL_RefPrintf( PRINT_WARNING, "tess.xyz not 16 uchar8 aligned\n" );
     }
     //::memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
     
@@ -1523,16 +1523,16 @@ void R_Init( void )
     //
     for( i = 0; i < FUNCTABLE_SIZE; i++ )
     {
-        tr.sinTable[i]		= sin( DEG2RAD( i * 360.0f / ( ( F32 )( FUNCTABLE_SIZE - 1 ) ) ) );
+        tr.sinTable[i]		= sin( DEG2RAD( i * 360.0f / ( ( float32 )( FUNCTABLE_SIZE - 1 ) ) ) );
         tr.squareTable[i]	= ( i < FUNCTABLE_SIZE / 2 ) ? 1.0f : -1.0f;
-        tr.sawToothTable[i] = ( F32 )i / FUNCTABLE_SIZE;
+        tr.sawToothTable[i] = ( float32 )i / FUNCTABLE_SIZE;
         tr.inverseSawToothTable[i] = 1.0f - tr.sawToothTable[i];
         
         if( i < FUNCTABLE_SIZE / 2 )
         {
             if( i < FUNCTABLE_SIZE / 4 )
             {
-                tr.triangleTable[i] = ( F32 ) i / ( FUNCTABLE_SIZE / 4 );
+                tr.triangleTable[i] = ( float32 ) i / ( FUNCTABLE_SIZE / 4 );
             }
             else
             {
@@ -1557,17 +1557,17 @@ void R_Init( void )
     if( max_polyverts < MAX_POLYVERTS )
         max_polyverts = MAX_POLYVERTS;
         
-    ptr = ( U8* )( Hunk_Alloc( sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low ) );
+    ptr = ( uchar8* )( Hunk_Alloc( sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low ) );
     backEndData[0] = ( backEndData_t* )ptr;
-    backEndData[0]->polys = ( srfPoly_t* )( ( UTF8* )( ptr ) + sizeof( *backEndData[0] ) );
-    backEndData[0]->polyVerts = ( polyVert_t* )( ( UTF8* )( ptr ) + sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys );
+    backEndData[0]->polys = ( srfPoly_t* )( ( valueType* )( ptr ) + sizeof( *backEndData[0] ) );
+    backEndData[0]->polyVerts = ( polyVert_t* )( ( valueType* )( ptr ) + sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys );
     
     if( r_smp->integer )
     {
-        ptr = ( U8* )( Hunk_Alloc( sizeof( *backEndData[1] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low ) );
+        ptr = ( uchar8* )( Hunk_Alloc( sizeof( *backEndData[1] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low ) );
         backEndData[1] = ( backEndData_t* )ptr;
-        backEndData[1]->polys = ( srfPoly_t* )( ( UTF8* )( ptr ) + sizeof( *backEndData[1] ) );
-        backEndData[1]->polyVerts = ( polyVert_t* )( ( UTF8* )( ptr ) + sizeof( *backEndData[1] ) + sizeof( srfPoly_t ) * max_polys );
+        backEndData[1]->polys = ( srfPoly_t* )( ( valueType* )( ptr ) + sizeof( *backEndData[1] ) );
+        backEndData[1]->polyVerts = ( polyVert_t* )( ( valueType* )( ptr ) + sizeof( *backEndData[1] ) + sizeof( srfPoly_t ) * max_polys );
     }
     else
     {

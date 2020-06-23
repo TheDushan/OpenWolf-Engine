@@ -33,8 +33,8 @@
 #define SKY_SUBDIVISIONS		8
 #define HALF_SKY_SUBDIVISIONS	(SKY_SUBDIVISIONS/2)
 
-static F32 s_cloudTexCoords[6][SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1][2];
-static F32 s_cloudTexP[6][SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1];
+static float32 s_cloudTexCoords[6][SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1][2];
+static float32 s_cloudTexP[6][SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1];
 
 /*
 ===================================================================================
@@ -54,23 +54,23 @@ static vec3_t sky_clip[6] =
     { -1, 0, 1}
 };
 
-static F32	sky_mins[2][6], sky_maxs[2][6];
-static F32	sky_min, sky_max;
+static float32	sky_mins[2][6], sky_maxs[2][6];
+static float32	sky_min, sky_max;
 
 /*
 ================
 AddSkyPolygon
 ================
 */
-static void AddSkyPolygon( S32 nump, vec3_t vecs )
+static void AddSkyPolygon( sint nump, vec3_t vecs )
 {
-    S32		i, j;
+    sint		i, j;
     vec3_t	v, av;
-    F32	s, t, dv;
-    S32		axis;
-    F32*	vp;
+    float32	s, t, dv;
+    sint		axis;
+    float32*	vp;
     // s = [0]/[2], t = [1]/[2]
-    static S32	vec_to_st[6][3] =
+    static sint	vec_to_st[6][3] =
     {
         { -2, 3, 1},
         {2, 3, -1},
@@ -155,17 +155,17 @@ static void AddSkyPolygon( S32 nump, vec3_t vecs )
 ClipSkyPolygon
 ================
 */
-static void ClipSkyPolygon( S32 nump, vec3_t vecs, S32 stage )
+static void ClipSkyPolygon( sint nump, vec3_t vecs, sint stage )
 {
-    F32*	norm;
-    F32*	v;
+    float32*	norm;
+    float32*	v;
     bool	front, back;
-    F32	d, e;
-    F32	dists[MAX_CLIP_VERTS];
-    S32		sides[MAX_CLIP_VERTS];
+    float32	d, e;
+    float32	dists[MAX_CLIP_VERTS];
+    sint		sides[MAX_CLIP_VERTS];
     vec3_t	newv[2][MAX_CLIP_VERTS];
-    S32		newc[2];
-    S32		i, j;
+    sint		newc[2];
+    sint		i, j;
     
     if( nump > MAX_CLIP_VERTS - 2 )
         Com_Error( ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS" );
@@ -255,7 +255,7 @@ ClearSkyBox
 */
 static void ClearSkyBox( void )
 {
-    S32		i;
+    sint		i;
     
     for( i = 0 ; i < 6 ; i++ )
     {
@@ -272,7 +272,7 @@ RB_ClipSkyPolygons
 void RB_ClipSkyPolygons( shaderCommands_t* input )
 {
     vec3_t		p[5];	// need one extra point for clipping
-    S32			i, j;
+    sint			i, j;
     
     ClearSkyBox();
     
@@ -301,10 +301,10 @@ CLOUD VERTEX GENERATION
 **
 ** Parms: s, t range from -1 to 1
 */
-static void MakeSkyVec( F32 s, F32 t, S32 axis, F32 outSt[2], vec3_t outXYZ )
+static void MakeSkyVec( float32 s, float32 t, sint axis, float32 outSt[2], vec3_t outXYZ )
 {
     // 1 = s, 2 = t, 3 = 2048
-    static S32	st_to_vec[6][3] =
+    static sint	st_to_vec[6][3] =
     {
         {3, -1, 2},
         { -3, 1, 2},
@@ -317,8 +317,8 @@ static void MakeSkyVec( F32 s, F32 t, S32 axis, F32 outSt[2], vec3_t outXYZ )
     };
     
     vec3_t		b;
-    S32			j, k;
-    F32	boxSize;
+    sint			j, k;
+    float32	boxSize;
     
     boxSize = backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
     b[0] = s * boxSize;
@@ -369,15 +369,15 @@ static void MakeSkyVec( F32 s, F32 t, S32 axis, F32 outSt[2], vec3_t outXYZ )
     }
 }
 
-static S32	sky_texorder[6] = {0, 2, 1, 3, 4, 5};
+static sint	sky_texorder[6] = {0, 2, 1, 3, 4, 5};
 static vec3_t	s_skyPoints[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1];
-static F32	s_skyTexCoords[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1][2];
+static float32	s_skyTexCoords[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1][2];
 
-static void DrawSkySide( struct image_s* image, const S32 mins[2], const S32 maxs[2] )
+static void DrawSkySide( struct image_s* image, const sint mins[2], const sint maxs[2] )
 {
-    S32 s, t;
-    S32 firstVertex = tess.numVertexes;
-    //S32 firstIndex = tess.numIndexes;
+    sint s, t;
+    sint firstVertex = tess.numVertexes;
+    //sint firstIndex = tess.numIndexes;
     vec4_t color;
     
     //tess.numVertexes = 0;
@@ -488,7 +488,7 @@ static void DrawSkySide( struct image_s* image, const S32 mins[2], const S32 max
 
 static void DrawSkyBox( shader_t* shader )
 {
-    S32		i;
+    sint		i;
     
     sky_min = 0;
     sky_max = 1;
@@ -497,8 +497,8 @@ static void DrawSkyBox( shader_t* shader )
     
     for( i = 0 ; i < 6 ; i++ )
     {
-        S32 sky_mins_subd[2], sky_maxs_subd[2];
-        S32 s, t;
+        sint sky_mins_subd[2], sky_maxs_subd[2];
+        sint s, t;
         
         sky_mins[0][i] = floor( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
         sky_mins[1][i] = floor( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
@@ -541,8 +541,8 @@ static void DrawSkyBox( shader_t* shader )
         {
             for( s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS; s++ )
             {
-                MakeSkyVec( ( s - HALF_SKY_SUBDIVISIONS ) / ( F32 ) HALF_SKY_SUBDIVISIONS,
-                            ( t - HALF_SKY_SUBDIVISIONS ) / ( F32 ) HALF_SKY_SUBDIVISIONS,
+                MakeSkyVec( ( s - HALF_SKY_SUBDIVISIONS ) / ( float32 ) HALF_SKY_SUBDIVISIONS,
+                            ( t - HALF_SKY_SUBDIVISIONS ) / ( float32 ) HALF_SKY_SUBDIVISIONS,
                             i,
                             s_skyTexCoords[t][s],
                             s_skyPoints[t][s] );
@@ -556,11 +556,11 @@ static void DrawSkyBox( shader_t* shader )
     
 }
 
-static void FillCloudySkySide( const S32 mins[2], const S32 maxs[2], bool addIndexes )
+static void FillCloudySkySide( const sint mins[2], const sint maxs[2], bool addIndexes )
 {
-    S32 s, t;
-    S32 vertexStart = tess.numVertexes;
-    S32 tHeight, sWidth;
+    sint s, t;
+    sint vertexStart = tess.numVertexes;
+    sint tHeight, sWidth;
     
     tHeight = maxs[1] - mins[1] + 1;
     sWidth = maxs[0] - mins[0] + 1;
@@ -607,15 +607,15 @@ static void FillCloudySkySide( const S32 mins[2], const S32 maxs[2], bool addInd
     }
 }
 
-static void FillCloudBox( const shader_t* shader, S32 stage )
+static void FillCloudBox( const shader_t* shader, sint stage )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < 6; i++ )
     {
-        S32 sky_mins_subd[2], sky_maxs_subd[2];
-        S32 s, t;
-        F32 MIN_T;
+        sint sky_mins_subd[2], sky_maxs_subd[2];
+        sint s, t;
+        float32 MIN_T;
         
         if( 1 )  // FIXME? shader->sky.fullClouds )
         {
@@ -656,10 +656,10 @@ static void FillCloudBox( const shader_t* shader, S32 stage )
             continue;
         }
         
-        sky_mins_subd[0] = static_cast<S32>( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS );
-        sky_mins_subd[1] = static_cast<S32>( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS );
-        sky_maxs_subd[0] = static_cast<S32>( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS );
-        sky_maxs_subd[1] = static_cast<S32>( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS );
+        sky_mins_subd[0] = static_cast<sint>( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS );
+        sky_mins_subd[1] = static_cast<sint>( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS );
+        sky_maxs_subd[0] = static_cast<sint>( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS );
+        sky_maxs_subd[1] = static_cast<sint>( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS );
         
         if( sky_mins_subd[0] < -HALF_SKY_SUBDIVISIONS )
             sky_mins_subd[0] = -HALF_SKY_SUBDIVISIONS;
@@ -686,8 +686,8 @@ static void FillCloudBox( const shader_t* shader, S32 stage )
         {
             for( s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS; s++ )
             {
-                MakeSkyVec( ( s - HALF_SKY_SUBDIVISIONS ) / ( F32 ) HALF_SKY_SUBDIVISIONS,
-                            ( t - HALF_SKY_SUBDIVISIONS ) / ( F32 ) HALF_SKY_SUBDIVISIONS,
+                MakeSkyVec( ( s - HALF_SKY_SUBDIVISIONS ) / ( float32 ) HALF_SKY_SUBDIVISIONS,
+                            ( t - HALF_SKY_SUBDIVISIONS ) / ( float32 ) HALF_SKY_SUBDIVISIONS,
                             i,
                             nullptr,
                             s_skyPoints[t][s] );
@@ -707,7 +707,7 @@ static void FillCloudBox( const shader_t* shader, S32 stage )
 */
 void R_BuildCloudData( shaderCommands_t* input )
 {
-    S32			i;
+    sint			i;
     shader_t*	shader;
     
     shader = input->shader;
@@ -740,12 +740,12 @@ void R_BuildCloudData( shaderCommands_t* input )
 ** Called when a sky shader is parsed
 */
 #define SQR( a ) ((a)*(a))
-void R_InitSkyTexCoords( F32 heightCloud )
+void R_InitSkyTexCoords( float32 heightCloud )
 {
-    S32 i, s, t;
-    F32 radiusWorld = 4096;
-    F32 p;
-    F32 sRad, tRad;
+    sint i, s, t;
+    float32 radiusWorld = 4096;
+    float32 p;
+    float32 sRad, tRad;
     vec3_t skyVec;
     vec3_t v;
     
@@ -760,8 +760,8 @@ void R_InitSkyTexCoords( F32 heightCloud )
             for( s = 0; s <= SKY_SUBDIVISIONS; s++ )
             {
                 // compute vector from view origin to sky side integral point
-                MakeSkyVec( ( s - HALF_SKY_SUBDIVISIONS ) / ( F32 ) HALF_SKY_SUBDIVISIONS,
-                            ( t - HALF_SKY_SUBDIVISIONS ) / ( F32 ) HALF_SKY_SUBDIVISIONS,
+                MakeSkyVec( ( s - HALF_SKY_SUBDIVISIONS ) / ( float32 ) HALF_SKY_SUBDIVISIONS,
+                            ( t - HALF_SKY_SUBDIVISIONS ) / ( float32 ) HALF_SKY_SUBDIVISIONS,
                             i,
                             nullptr,
                             skyVec );
@@ -801,11 +801,11 @@ void R_InitSkyTexCoords( F32 heightCloud )
 /*
 ** RB_DrawSun
 */
-void RB_DrawSun( F32 scale, shader_t* shader )
+void RB_DrawSun( float32 scale, shader_t* shader )
 {
 #if 0
-    F32		size;
-    F32		dist;
+    float32		size;
+    float32		dist;
     vec3_t		origin, vec1, vec2;
     
     if( !backEnd.skyRenderedThisView )

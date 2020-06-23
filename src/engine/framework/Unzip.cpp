@@ -353,7 +353,7 @@ local int unz64local_getLong64( const zlib_filefunc64_32_def* pzlib_filefunc_def
 }
 
 /* My own strcmpi / strcasecmp */
-local int strcmpcasenosensitive_internal( StringEntry fileName1, StringEntry fileName2 )
+local int strcmpcasenosensitive_internal( pointer fileName1, pointer fileName2 )
 {
     for( ;; )
     {
@@ -394,8 +394,8 @@ local int strcmpcasenosensitive_internal( StringEntry fileName1, StringEntry fil
         (like 1 on Unix, 2 on Windows)
 
 */
-extern int ZEXPORT unzStringFileNameCompare( StringEntry  fileName1,
-        StringEntry  fileName2,
+extern int ZEXPORT unzStringFileNameCompare( pointer  fileName1,
+        pointer  fileName2,
         int iCaseSensitivity )
 
 {
@@ -769,7 +769,7 @@ local unzFile unzOpenInternal( const void* path,
 }
 
 
-extern unzFile ZEXPORT unzOpen2( StringEntry path,
+extern unzFile ZEXPORT unzOpen2( pointer path,
                                  zlib_filefunc_def* pzlib_filefunc32_def )
 {
     if( pzlib_filefunc32_def != nullptr )
@@ -797,7 +797,7 @@ extern unzFile ZEXPORT unzOpen2_64( const void* path,
         return unzOpenInternal( path, nullptr, 1 );
 }
 
-extern unzFile ZEXPORT unzOpen( StringEntry path )
+extern unzFile ZEXPORT unzOpen( pointer path )
 {
     return unzOpenInternal( path, nullptr, 0 );
 }
@@ -1241,7 +1241,7 @@ extern int ZEXPORT unzGoToNextFile( unzFile  file )
   UNZ_OK if the file is found. It becomes the current file.
   UNZ_END_OF_LIST_OF_FILE if the file is not found
 */
-extern int ZEXPORT unzLocateFile( unzFile file, StringEntry szFileName, int iCaseSensitivity )
+extern int ZEXPORT unzLocateFile( unzFile file, pointer szFileName, int iCaseSensitivity )
 {
     unz64_s* s;
     int err;
@@ -1482,7 +1482,7 @@ local int unz64local_CheckCurrentFileCoherencyHeader( unz64_s* s, uInt* piSizeVa
   If there is no error and the file is opened, the return value is UNZ_OK.
 */
 extern int ZEXPORT unzOpenCurrentFile3( unzFile file, int* method,
-                                        int* level, int raw, StringEntry password )
+                                        int* level, int raw, pointer password )
 {
     int err = UNZ_OK;
     uInt iSizeVar;
@@ -1661,7 +1661,7 @@ extern int ZEXPORT unzOpenCurrentFile( unzFile file )
     return unzOpenCurrentFile3( file, nullptr, nullptr, 0, nullptr );
 }
 
-extern int ZEXPORT unzOpenCurrentFilePassword( unzFile file, StringEntry  password )
+extern int ZEXPORT unzOpenCurrentFilePassword( unzFile file, pointer  password )
 {
     return unzOpenCurrentFile3( file, nullptr, nullptr, 0, password );
 }

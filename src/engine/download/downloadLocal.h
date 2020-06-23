@@ -42,7 +42,7 @@
 #define APP_VERSION "2.0"
 
 // initialize once
-static S32 dl_initialized = 0;
+static sint dl_initialized = 0;
 
 static CURLM* dl_multi = nullptr;
 static CURL* dl_request = nullptr;
@@ -59,11 +59,11 @@ public:
     
     virtual void InitDownload( void );
     virtual void Shutdown( void );
-    virtual S32 BeginDownload( StringEntry localName, StringEntry remoteName, S32 debug );
+    virtual sint BeginDownload( pointer localName, pointer remoteName, sint debug );
     virtual dlStatus_t DownloadLoop( void );
     
-    static U64 FWriteFile( void* ptr, U64 size, U64 nmemb, void* stream );
-    static S32 Progress( void* clientp, F64 dltotal, F64 dlnow, F64 ultotal, F64 ulnow );
+    static uint32 FWriteFile( void* ptr, uint32 size, uint32 nmemb, void* stream );
+    static sint Progress( void* clientp, float64 dltotal, float64 dlnow, float64 ultotal, float64 ulnow );
 };
 
 extern idDownloadSystemLocal downloadLocal;

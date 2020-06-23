@@ -83,9 +83,9 @@ idCmdBufferSystemLocal::AddText
 Adds command text at the end of the buffer, does NOT add a final \n
 ============
 */
-void idCmdBufferSystemLocal::AddText( StringEntry text )
+void idCmdBufferSystemLocal::AddText( pointer text )
 {
-    S32 l;
+    sint l;
     
     l = strlen( text );
     
@@ -108,9 +108,9 @@ Adds command text immediately after the current command
 Adds a \n to the text
 ============
 */
-void idCmdBufferSystemLocal::InsertText( StringEntry text )
+void idCmdBufferSystemLocal::InsertText( pointer text )
 {
-    S32 i, len;
+    sint i, len;
     
     len = strlen( text ) + 1;
     
@@ -140,7 +140,7 @@ void idCmdBufferSystemLocal::InsertText( StringEntry text )
 idCmdBufferSystemLocal::ExecuteText
 ============
 */
-void idCmdBufferSystemLocal::ExecuteText( S32 exec_when, StringEntry text )
+void idCmdBufferSystemLocal::ExecuteText( sint exec_when, pointer text )
 {
     switch( exec_when )
     {
@@ -178,9 +178,9 @@ idCmdBufferSystemLocal::Execute
 */
 void idCmdBufferSystemLocal::Execute( void )
 {
-    S32 i, quotes;
-    UTF8* text;
-    UTF8 line[MAX_CMD_LINE];
+    sint i, quotes;
+    valueType* text;
+    valueType line[MAX_CMD_LINE];
     
     // This will keep // style comments all on one line by not breaking on
     // a semicolon.  It will keep /* ... */ style comments all on one line by not
@@ -198,7 +198,7 @@ void idCmdBufferSystemLocal::Execute( void )
         }
         
         // find a \n or ; line break or comment: // or /* */
-        text = reinterpret_cast<UTF8*>( cmd_text.data );
+        text = reinterpret_cast<valueType*>( cmd_text.data );
         
         quotes = 0;
         for( i = 0; i < cmd_text.cursize; i++ )

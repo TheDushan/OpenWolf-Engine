@@ -53,7 +53,7 @@ static convar_t* in_joystickThreshold = nullptr;
 static convar_t* in_joystickNo = nullptr;
 static convar_t* in_joystickUseAnalog = nullptr;
 
-static S32 vidRestartTime = 0;
+static sint vidRestartTime = 0;
 
 static SDL_Window* SDL_window = nullptr;
 
@@ -137,7 +137,7 @@ TODO: If the SDL_Scancode situation improves, use it instead of
 both of these methods
 ===============
 */
-bool idSystemLocal::IsConsoleKey( keyNum_t key, S32 character )
+bool idSystemLocal::IsConsoleKey( keyNum_t key, sint character )
 {
     typedef struct consoleKey_s
     {
@@ -146,18 +146,18 @@ bool idSystemLocal::IsConsoleKey( keyNum_t key, S32 character )
         union
         {
             keyNum_t key;
-            S32 character;
+            sint character;
         } u;
     } consoleKey_t;
     
     static consoleKey_t consoleKeys[MAX_CONSOLE_KEYS];
-    static S32 numConsoleKeys = 0;
-    S32 i;
+    static sint numConsoleKeys = 0;
+    sint i;
     
     // Only parse the variable when it changes
     if( cl_consoleKeys->modified )
     {
-        UTF8* text_p, *token;
+        valueType* text_p, *token;
         
         cl_consoleKeys->modified = false;
         text_p = cl_consoleKeys->string;
@@ -166,7 +166,7 @@ bool idSystemLocal::IsConsoleKey( keyNum_t key, S32 character )
         while( numConsoleKeys < MAX_CONSOLE_KEYS )
         {
             consoleKey_t* c = &consoleKeys[numConsoleKeys];
-            S32 charCode = 0;
+            sint charCode = 0;
             
             token = COM_Parse( &text_p );
             if( !token[0] )
@@ -465,7 +465,7 @@ idSystemLocal::GobbleMotionEvents
 void idSystemLocal::GobbleMotionEvents( void )
 {
     SDL_Event dummy[1];
-    S32 val = 0;
+    sint val = 0;
     
     // Gobble any mouse motion events
     SDL_PumpEvents();
@@ -570,9 +570,9 @@ idSystemLocal::InitJoystick
 */
 void idSystemLocal::InitJoystick( void )
 {
-    S32 i = 0;
-    S32 total = 0;
-    UTF8 buf[16384] = "";
+    sint i = 0;
+    sint total = 0;
+    valueType buf[16384] = "";
     
     if( stick != nullptr )
     {
@@ -665,13 +665,13 @@ void idSystemLocal::ShutdownJoystick( void )
 idSystemLocal::JoyMove
 ===============
 */
-void idSystemLocal::JoyMove( S32 eventTime )
+void idSystemLocal::JoyMove( sint eventTime )
 {
     bool joy_pressed[ARRAY_LEN( joy_keys )];
-    U32 axes = 0;
-    U32 hats = 0;
-    S32 total = 0;
-    S32 i = 0;
+    uint axes = 0;
+    uint hats = 0;
+    sint total = 0;
+    sint i = 0;
     
     if( !stick )
     {
@@ -686,13 +686,13 @@ void idSystemLocal::JoyMove( S32 eventTime )
     total = SDL_JoystickNumBalls( stick );
     if( total > 0 )
     {
-        S32 balldx = 0;
-        S32 balldy = 0;
+        sint balldx = 0;
+        sint balldy = 0;
         
         for( i = 0; i < total; i++ )
         {
-            S32 dx = 0;
-            S32 dy = 0;
+            sint dx = 0;
+            sint dy = 0;
             SDL_JoystickGetBall( stick, i, &dx, &dy );
             balldx += dx;
             balldy += dy;
@@ -745,7 +745,7 @@ void idSystemLocal::JoyMove( S32 eventTime )
         
         for( i = 0; i < total; i++ )
         {
-            ( ( U8* )&hats )[i] = SDL_JoystickGetHat( stick, i );
+            ( ( uchar8* )&hats )[i] = SDL_JoystickGetHat( stick, i );
         }
     }
     
@@ -754,10 +754,10 @@ void idSystemLocal::JoyMove( S32 eventTime )
     {
         for( i = 0; i < 4; i++ )
         {
-            if( ( ( U8* )&hats )[i] != ( ( U8* )&stick_state.oldhats )[i] )
+            if( ( ( uchar8* )&hats )[i] != ( ( uchar8* )&stick_state.oldhats )[i] )
             {
                 // release event
-                switch( ( ( U8* )&stick_state.oldhats )[i] )
+                switch( ( ( uchar8* )&stick_state.oldhats )[i] )
                 {
                     case SDL_HAT_UP:
                         Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0, nullptr );
@@ -844,8 +844,8 @@ void idSystemLocal::JoyMove( S32 eventTime )
             
             for( i = 0; i < total; i++ )
             {
-                S16 axis = SDL_JoystickGetAxis( stick, i );
-                F32 f = ( ( F32 )abs( axis ) ) / 32767.0f;
+                schar16 axis = SDL_JoystickGetAxis( stick, i );
+                float32 f = ( ( float32 )abs( axis ) ) / 32767.0f;
                 
                 if( f < in_joystickThreshold->value )
                 {
@@ -868,9 +868,9 @@ void idSystemLocal::JoyMove( S32 eventTime )
             
             for( i = 0; i < total; i++ )
             {
-                S16 axis = SDL_JoystickGetAxis( stick, i );
+                schar16 axis = SDL_JoystickGetAxis( stick, i );
                 
-                F32 f = ( ( F32 )axis ) / 32767.0f;
+                float32 f = ( ( float32 )axis ) / 32767.0f;
                 
                 if( f < -in_joystickThreshold->value )
                 {
@@ -910,11 +910,11 @@ void idSystemLocal::JoyMove( S32 eventTime )
 idSystemLocal::ProcessEvents
 ===============
 */
-void idSystemLocal::ProcessEvents( S32 eventTime )
+void idSystemLocal::ProcessEvents( sint eventTime )
 {
     SDL_Event e;
     keyNum_t key = ( keyNum_t )0;
-    S32 mx = 0, my = 0;
+    sint mx = 0, my = 0;
     static keyNum_t lastKeyDown = ( keyNum_t )0;
     
     if( !SDL_WasInit( SDL_INIT_VIDEO ) )
@@ -961,12 +961,12 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
             case SDL_TEXTINPUT:
                 if( lastKeyDown != K_CONSOLE )
                 {
-                    UTF8* c = e.text.text;
+                    valueType* c = e.text.text;
                     
                     // Quick and dirty UTF-8 to UTF-32 conversion
                     while( *c )
                     {
-                        S32 utf32 = 0;
+                        sint utf32 = 0;
                         
                         if( ( *c & 0x80 ) == 0 )
                         {
@@ -992,7 +992,7 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
                         }
                         else
                         {
-                            Com_DPrintf( "Unrecognised UTF-8 lead byte: 0x%x\n", ( U32 )*c );
+                            Com_DPrintf( "Unrecognised UTF-8 lead byte: 0x%x\n", ( uint )*c );
                             c++;
                         }
                         
@@ -1021,7 +1021,7 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
             {
-                S32 b;
+                sint b;
                 switch( e.button.button )
                 {
                     case SDL_BUTTON_LEFT:
@@ -1069,7 +1069,7 @@ void idSystemLocal::ProcessEvents( S32 eventTime )
                 {
                     case SDL_WINDOWEVENT_RESIZED:
                     {
-                        S32 width, height;
+                        sint width, height;
                         
                         width = e.window.data1;
                         height = e.window.data2;
@@ -1129,7 +1129,7 @@ idSystemLocal::Frame
 */
 void idSystemLocal::Frame( void )
 {
-    static S32 eventTime;
+    static sint eventTime;
     bool loading;
     
     JoyMove( eventTime );
@@ -1180,7 +1180,7 @@ idSystemLocal::InitKeyLockStates
 */
 void idSystemLocal::InitKeyLockStates( void )
 {
-    const U8* keystate = SDL_GetKeyboardState( nullptr );
+    const uchar8* keystate = SDL_GetKeyboardState( nullptr );
     
     keys[K_SCROLLOCK].down = keystate[SDL_SCANCODE_SCROLLLOCK];
     keys[K_KP_NUMLOCK].down = keystate[SDL_SCANCODE_NUMLOCKCLEAR];
@@ -1194,7 +1194,7 @@ idSystemLocal::Init
 */
 void idSystemLocal::Init( void* windowData )
 {
-    S32 appState;
+    sint appState;
     
     if( !SDL_WasInit( SDL_INIT_VIDEO ) )
     {

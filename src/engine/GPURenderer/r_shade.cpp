@@ -45,9 +45,9 @@ R_DrawElements
 ==================
 */
 
-void R_DrawElements( S32 numIndexes, S32 firstIndex )
+void R_DrawElements( sint numIndexes, sint firstIndex )
 {
-    qglDrawElements( GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET( firstIndex * sizeof( U32 ) ) );
+    qglDrawElements( GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET( firstIndex * sizeof( uint ) ) );
 }
 
 
@@ -68,9 +68,9 @@ R_BindAnimatedImageToTMU
 
 =================
 */
-static void R_BindAnimatedImageToTMU( textureBundle_t* bundle, S32 tmu )
+static void R_BindAnimatedImageToTMU( textureBundle_t* bundle, sint tmu )
 {
-    S32 i;
+    sint i;
     
     if( bundle->isVideoMap )
     {
@@ -88,7 +88,7 @@ static void R_BindAnimatedImageToTMU( textureBundle_t* bundle, S32 tmu )
     
     // it is necessary to do this messy calc to make sure animations line up
     // exactly with waveforms of the same frequency
-    i = ( S32 )( tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
+    i = ( sint )( tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
     i >>= FUNCTABLE_SIZE2;
     
     if( i < 0 )
@@ -162,7 +162,7 @@ because a surface may be forced to perform a RB_End due
 to overflow.
 ==============
 */
-void RB_BeginSurface( shader_t* shader, S32 fogNum, S32 cubemapIndex )
+void RB_BeginSurface( shader_t* shader, sint fogNum, sint cubemapIndex )
 {
 
     shader_t* state = ( shader->remappedShader ) ? shader->remappedShader : shader;
@@ -195,14 +195,14 @@ void RB_BeginSurface( shader_t* shader, S32 fogNum, S32 cubemapIndex )
 
 
 
-extern F32 EvalWaveForm( const waveForm_t* wf );
-extern F32 EvalWaveFormClamped( const waveForm_t* wf );
+extern float32 EvalWaveForm( const waveForm_t* wf );
+extern float32 EvalWaveFormClamped( const waveForm_t* wf );
 
 
-static void ComputeTexMods( shaderStage_t* pStage, S32 bundleNum, F32* outMatrix, F32* outOffTurb )
+static void ComputeTexMods( shaderStage_t* pStage, sint bundleNum, float32* outMatrix, float32* outOffTurb )
 {
-    S32 tm;
-    F32 matrix[6], currentmatrix[6];
+    sint tm;
+    float32 matrix[6], currentmatrix[6];
     textureBundle_t* bundle = &pStage->bundle[bundleNum];
     
     matrix[0] = 1.0f;
@@ -310,7 +310,7 @@ static void ComputeTexMods( shaderStage_t* pStage, S32 bundleNum, F32* outMatrix
 }
 
 
-static void ComputeDeformValues( S32* deformGen, vec5_t deformParams )
+static void ComputeDeformValues( sint* deformGen, vec5_t deformParams )
 {
     // u_DeformGen
     *deformGen = DGEN_NONE;
@@ -352,11 +352,11 @@ static void ComputeDeformValues( S32* deformGen, vec5_t deformParams )
 
 static void ProjectDlightTexture( void )
 {
-    S32		l;
+    sint		l;
     vec3_t	origin;
-    F32	scale;
-    F32	radius;
-    S32 deformGen;
+    float32	scale;
+    float32	radius;
+    sint deformGen;
     vec5_t deformParams;
     
     if( !backEnd.refdef.num_dlights )
@@ -435,7 +435,7 @@ static void ProjectDlightTexture( void )
 }
 
 
-static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t vertColor, S32 blend )
+static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t vertColor, sint blend )
 {
     bool isBlend = ( ( blend & GLS_SRCBLEND_BITS ) == GLS_SRCBLEND_DST_COLOR )
                    || ( ( blend & GLS_SRCBLEND_BITS ) == GLS_SRCBLEND_ONE_MINUS_DST_COLOR )
@@ -444,7 +444,7 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
                    
     bool is2DDraw = backEnd.currentEntity == &backEnd.entity2D;
     
-    F32 overbright = ( isBlend || is2DDraw ) ? 1.0f : ( F32 )( 1 << tr.overbrightBits );
+    float32 overbright = ( isBlend || is2DDraw ) ? 1.0f : ( float32 )( 1 << tr.overbrightBits );
     
     fog_t* fog;
     
@@ -505,10 +505,10 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
         case CGEN_FOG:
             fog = tr.world->fogs + tess.fogNum;
             
-            baseColor[0] = ( ( U8* )( &fog->colorInt ) )[0] / 255.0f;
-            baseColor[1] = ( ( U8* )( &fog->colorInt ) )[1] / 255.0f;
-            baseColor[2] = ( ( U8* )( &fog->colorInt ) )[2] / 255.0f;
-            baseColor[3] = ( ( U8* )( &fog->colorInt ) )[3] / 255.0f;
+            baseColor[0] = ( ( uchar8* )( &fog->colorInt ) )[0] / 255.0f;
+            baseColor[1] = ( ( uchar8* )( &fog->colorInt ) )[1] / 255.0f;
+            baseColor[2] = ( ( uchar8* )( &fog->colorInt ) )[2] / 255.0f;
+            baseColor[3] = ( ( uchar8* )( &fog->colorInt ) )[3] / 255.0f;
             break;
         case CGEN_WAVEFORM:
             baseColor[0] =
@@ -518,19 +518,19 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
         case CGEN_ENTITY:
             if( backEnd.currentEntity )
             {
-                baseColor[0] = ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[0] / 255.0f;
-                baseColor[1] = ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[1] / 255.0f;
-                baseColor[2] = ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[2] / 255.0f;
-                baseColor[3] = ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
+                baseColor[0] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[0] / 255.0f;
+                baseColor[1] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[1] / 255.0f;
+                baseColor[2] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[2] / 255.0f;
+                baseColor[3] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
             }
             break;
         case CGEN_ONE_MINUS_ENTITY:
             if( backEnd.currentEntity )
             {
-                baseColor[0] = 1.0f - ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[0] / 255.0f;
-                baseColor[1] = 1.0f - ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[1] / 255.0f;
-                baseColor[2] = 1.0f - ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[2] / 255.0f;
-                baseColor[3] = 1.0f - ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
+                baseColor[0] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[0] / 255.0f;
+                baseColor[1] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[1] / 255.0f;
+                baseColor[2] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[2] / 255.0f;
+                baseColor[3] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
             }
             break;
         case CGEN_IDENTITY:
@@ -562,14 +562,14 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
         case AGEN_ENTITY:
             if( backEnd.currentEntity )
             {
-                baseColor[3] = ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
+                baseColor[3] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
             }
             vertColor[3] = 0.0f;
             break;
         case AGEN_ONE_MINUS_ENTITY:
             if( backEnd.currentEntity )
             {
-                baseColor[3] = 1.0f - ( ( U8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
+                baseColor[3] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
             }
             vertColor[3] = 0.0f;
             break;
@@ -595,7 +595,7 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
     // if in greyscale rendering mode turn all color values into greyscale.
     if( r_greyscale->integer )
     {
-        S32 scale;
+        sint scale;
         
         for( i = 0; i < tess.numVertexes; i++ )
         {
@@ -607,7 +607,7 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
 }
 
 
-static void ComputeFogValues( vec4_t fogDistanceVector, vec4_t fogDepthVector, F32* eyeT )
+static void ComputeFogValues( vec4_t fogDistanceVector, vec4_t fogDepthVector, float32* eyeT )
 {
     // from RB_CalcFogTexCoords()
     fog_t*  fog;
@@ -681,16 +681,16 @@ static void ComputeFogColorMask( shaderStage_t* pStage, vec4_t fogColorMask )
 
 static void ForwardDlight( void )
 {
-    S32		l;
+    sint		l;
     //vec3_t	origin;
-    //F32	scale;
-    F32	radius;
+    //float32	scale;
+    float32	radius;
     
-    S32 deformGen;
+    sint deformGen;
     vec5_t deformParams;
     
     vec4_t fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
-    F32 eyeT = 0;
+    float32 eyeT = 0;
     
     shaderCommands_t* input = &tess;
     shaderStage_t* pStage = tess.xstages[tess.shader->lightingStage];
@@ -724,7 +724,7 @@ static void ForwardDlight( void )
         
         //if (pStage->glslShaderGroup == tr.lightallShader)
         {
-            S32 index = pStage->glslShaderIndex;
+            sint index = pStage->glslShaderIndex;
             
             index &= ~LIGHTDEF_LIGHTTYPE_MASK;
             index |= LIGHTDEF_USE_LIGHT_VECTOR;
@@ -859,11 +859,11 @@ static void ForwardDlight( void )
 
 static void ProjectPshadowVBOGLSL( void )
 {
-    S32		l;
+    sint		l;
     vec3_t	origin;
-    F32	radius;
+    float32	radius;
     
-    S32 deformGen;
+    sint deformGen;
     vec5_t deformParams;
     
     shaderCommands_t* input = &tess;
@@ -943,16 +943,16 @@ static void RB_FogPass( void )
     fog_t*		fog;
     vec4_t  color;
     vec4_t	fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
-    F32	eyeT = 0;
+    float32	eyeT = 0;
     shaderProgram_t* sp;
     
-    S32 deformGen;
+    sint deformGen;
     vec5_t deformParams;
     
     ComputeDeformValues( &deformGen, deformParams );
     
     {
-        S32 index = 0;
+        sint index = 0;
         
         if( deformGen != DGEN_NONE )
             index |= FOGDEF_USE_DEFORM_VERTEXES;
@@ -987,10 +987,10 @@ static void RB_FogPass( void )
         GLSL_SetUniformFloat( sp, UNIFORM_TIME, tess.shaderTime );
     }
     
-    color[0] = ( ( U8* )( &fog->colorInt ) )[0] / 255.0f;
-    color[1] = ( ( U8* )( &fog->colorInt ) )[1] / 255.0f;
-    color[2] = ( ( U8* )( &fog->colorInt ) )[2] / 255.0f;
-    color[3] = ( ( U8* )( &fog->colorInt ) )[3] / 255.0f;
+    color[0] = ( ( uchar8* )( &fog->colorInt ) )[0] / 255.0f;
+    color[1] = ( ( uchar8* )( &fog->colorInt ) )[1] / 255.0f;
+    color[2] = ( ( uchar8* )( &fog->colorInt ) )[2] / 255.0f;
+    color[3] = ( ( uchar8* )( &fog->colorInt ) )[3] / 255.0f;
     GLSL_SetUniformVec4( sp, UNIFORM_COLOR, color );
     
     ComputeFogValues( fogDistanceVector, fogDepthVector, &eyeT );
@@ -1013,9 +1013,9 @@ static void RB_FogPass( void )
 }
 
 
-static U32 RB_CalcShaderVertexAttribs( shaderCommands_t* input )
+static uint RB_CalcShaderVertexAttribs( shaderCommands_t* input )
 {
-    U32 vertexAttribs = input->shader->vertexAttribs;
+    uint vertexAttribs = input->shader->vertexAttribs;
     
     if( glState.vertexAnimation )
     {
@@ -1033,16 +1033,16 @@ static U32 RB_CalcShaderVertexAttribs( shaderCommands_t* input )
 void RB_SetMaterialBasedProperties( shaderProgram_t* sp, shaderStage_t* pStage )
 {
     vec4_t local1;
-    F32	specularScale = 1.0;
-    F32	materialType = 0.0;
-    F32 parallaxScale = 1.0;
-    F32	cubemapScale = 0.0;
-    F32	isMetalic = 0.0;
+    float32	specularScale = 1.0;
+    float32	materialType = 0.0;
+    float32 parallaxScale = 1.0;
+    float32	cubemapScale = 0.0;
+    float32	isMetalic = 0.0;
     
     if( pStage->isWater )
     {
         specularScale = 1.5;
-        materialType = ( F32 )MATERIAL_WATER;
+        materialType = ( float32 )MATERIAL_WATER;
         parallaxScale = 2.0;
     }
     else
@@ -1052,165 +1052,165 @@ void RB_SetMaterialBasedProperties( shaderProgram_t* sp, shaderStage_t* pStage )
             case MATERIAL_WATER:			// 13			// light covering of water on a surface
                 specularScale = 1.0;
                 cubemapScale = 1.5;
-                materialType = ( F32 )MATERIAL_WATER;
+                materialType = ( float32 )MATERIAL_WATER;
                 parallaxScale = 2.0;
                 break;
             case MATERIAL_SHORTGRASS:		// 5			// manicured lawn
                 specularScale = 0.53;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_SHORTGRASS;
+                materialType = ( float32 )MATERIAL_SHORTGRASS;
                 parallaxScale = 2.5;
                 break;
             case MATERIAL_LONGGRASS:		// 6			// long jungle grass
                 specularScale = 0.5;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_LONGGRASS;
+                materialType = ( float32 )MATERIAL_LONGGRASS;
                 parallaxScale = 3.0;
                 break;
             case MATERIAL_SAND:				// 8			// sandy beach
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_SAND;
+                materialType = ( float32 )MATERIAL_SAND;
                 parallaxScale = 2.5;
                 break;
             case MATERIAL_CARPET:			// 27			// lush carpet
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_CARPET;
+                materialType = ( float32 )MATERIAL_CARPET;
                 parallaxScale = 2.5;
                 break;
             case MATERIAL_GRAVEL:			// 9			// lots of small stones
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_GRAVEL;
+                materialType = ( float32 )MATERIAL_GRAVEL;
                 parallaxScale = 3.0;
                 break;
             case MATERIAL_ROCK:				// 23			//
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_ROCK;
+                materialType = ( float32 )MATERIAL_ROCK;
                 parallaxScale = 3.0;
                 break;
             case MATERIAL_TILES:			// 26			// tiled floor
                 specularScale = 0.86;
                 cubemapScale = 0.9;
-                materialType = ( F32 )MATERIAL_TILES;
+                materialType = ( float32 )MATERIAL_TILES;
                 parallaxScale = 2.5;
                 break;
             case MATERIAL_SOLIDWOOD:		// 1			// freshly cut timber
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_SOLIDWOOD;
+                materialType = ( float32 )MATERIAL_SOLIDWOOD;
                 parallaxScale = 2.5;
                 break;
             case MATERIAL_HOLLOWWOOD:		// 2			// termite infested creaky wood
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_HOLLOWWOOD;
+                materialType = ( float32 )MATERIAL_HOLLOWWOOD;
                 parallaxScale = 2.5;
                 break;
             case MATERIAL_SOLIDMETAL:		// 3			// solid girders
                 specularScale = 0.92;
                 cubemapScale = 0.92;
-                materialType = ( F32 )MATERIAL_SOLIDMETAL;
+                materialType = ( float32 )MATERIAL_SOLIDMETAL;
                 parallaxScale = 0.005;
                 isMetalic = 1.0;
                 break;
             case MATERIAL_HOLLOWMETAL:		// 4			// hollow metal machines -- Used for weapons to force lower parallax...
                 specularScale = 0.92;
                 cubemapScale = 0.92;
-                materialType = ( F32 )MATERIAL_HOLLOWMETAL;
+                materialType = ( float32 )MATERIAL_HOLLOWMETAL;
                 parallaxScale = 2.0;
                 isMetalic = 1.0;
                 break;
             case MATERIAL_DRYLEAVES:		// 19			// dried up leaves on the floor
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_DRYLEAVES;
+                materialType = ( float32 )MATERIAL_DRYLEAVES;
                 parallaxScale = 0.0;
                 break;
             case MATERIAL_GREENLEAVES:		// 20			// fresh leaves still on a tree
                 specularScale = 0.75;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_GREENLEAVES;
+                materialType = ( float32 )MATERIAL_GREENLEAVES;
                 parallaxScale = 0.0; // GreenLeaves should NEVER be parallaxed.. It's used for surfaces with an alpha channel and parallax screws it up...
                 break;
             case MATERIAL_FABRIC:			// 21			// Cotton sheets
                 specularScale = 0.48;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_FABRIC;
+                materialType = ( float32 )MATERIAL_FABRIC;
                 parallaxScale = 2.5;
                 break;
             case MATERIAL_CANVAS:			// 22			// tent material
                 specularScale = 0.45;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_CANVAS;
+                materialType = ( float32 )MATERIAL_CANVAS;
                 parallaxScale = 2.5;
                 break;
             case MATERIAL_MARBLE:			// 12			// marble floors
                 specularScale = 0.86;
                 cubemapScale = 1.0;
-                materialType = ( F32 )MATERIAL_MARBLE;
+                materialType = ( float32 )MATERIAL_MARBLE;
                 parallaxScale = 2.0;
                 break;
             case MATERIAL_SNOW:				// 14			// freshly laid snow
                 specularScale = 0.65;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_SNOW;
+                materialType = ( float32 )MATERIAL_SNOW;
                 parallaxScale = 3.0;
                 break;
             case MATERIAL_MUD:				// 17			// wet soil
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_MUD;
+                materialType = ( float32 )MATERIAL_MUD;
                 parallaxScale = 3.0;
                 break;
             case MATERIAL_DIRT:				// 7			// hard mud
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_DIRT;
+                materialType = ( float32 )MATERIAL_DIRT;
                 parallaxScale = 3.0;
                 break;
             case MATERIAL_CONCRETE:			// 11			// hardened concrete pavement
                 specularScale = 0.3;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_CONCRETE;
+                materialType = ( float32 )MATERIAL_CONCRETE;
                 parallaxScale = 3.0;
                 break;
             case MATERIAL_FLESH:			// 16			// hung meat, corpses in the world
                 specularScale = 0.2;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_FLESH;
+                materialType = ( float32 )MATERIAL_FLESH;
                 parallaxScale = 1.0;
                 break;
             case MATERIAL_RUBBER:			// 24			// hard tire like rubber
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_RUBBER;
+                materialType = ( float32 )MATERIAL_RUBBER;
                 parallaxScale = 1.0;
                 break;
             case MATERIAL_PLASTIC:			// 25			//
                 specularScale = 0.88;
                 cubemapScale = 0.5;
-                materialType = ( F32 )MATERIAL_PLASTIC;
+                materialType = ( float32 )MATERIAL_PLASTIC;
                 parallaxScale = 1.0;
                 break;
             case MATERIAL_PLASTER:			// 28			// drywall style plaster
                 specularScale = 0.4;
                 cubemapScale = 0.0;
-                materialType = ( F32 )MATERIAL_PLASTER;
+                materialType = ( float32 )MATERIAL_PLASTER;
                 parallaxScale = 2.0;
                 break;
             case MATERIAL_SHATTERGLASS:		// 29			// glass with the Crisis Zone style shattering
                 specularScale = 0.88;
                 cubemapScale = 1.0;
-                materialType = ( F32 )MATERIAL_SHATTERGLASS;
+                materialType = ( float32 )MATERIAL_SHATTERGLASS;
                 parallaxScale = 1.0;
                 break;
             case MATERIAL_ARMOR:			// 30			// body armor
                 specularScale = 0.4;
                 cubemapScale = 2.0;
-                materialType = ( F32 )MATERIAL_ARMOR;
+                materialType = ( float32 )MATERIAL_ARMOR;
                 parallaxScale = 2.0;
                 isMetalic = 1.0;
                 break;
@@ -1218,30 +1218,30 @@ void RB_SetMaterialBasedProperties( shaderProgram_t* sp, shaderStage_t* pStage )
                 specularScale = 0.9;
                 cubemapScale = 0.8;
                 parallaxScale = 2.0;
-                materialType = ( F32 )MATERIAL_ICE;
+                materialType = ( float32 )MATERIAL_ICE;
                 break;
             case MATERIAL_GLASS:			// 10			//
                 specularScale = 0.95;
                 cubemapScale = 1.0;
-                materialType = ( F32 )MATERIAL_GLASS;
+                materialType = ( float32 )MATERIAL_GLASS;
                 parallaxScale = 1.0;
                 break;
             case MATERIAL_BPGLASS:			// 18			// bulletproof glass
                 specularScale = 0.93;
                 cubemapScale = 0.93;
-                materialType = ( F32 )MATERIAL_BPGLASS;
+                materialType = ( float32 )MATERIAL_BPGLASS;
                 parallaxScale = 1.0;
                 break;
             case MATERIAL_COMPUTER:			// 31			// computers/electronic equipment
                 specularScale = 0.92;
                 cubemapScale = 0.92;
-                materialType = ( F32 )MATERIAL_COMPUTER;
+                materialType = ( float32 )MATERIAL_COMPUTER;
                 parallaxScale = 2.0;
                 break;
             default:
                 specularScale = 0.0;
                 cubemapScale = 0.0;
-                materialType = ( F32 )0.0;
+                materialType = ( float32 )0.0;
                 parallaxScale = 1.0;
                 break;
         }
@@ -1253,7 +1253,7 @@ void RB_SetMaterialBasedProperties( shaderProgram_t* sp, shaderStage_t* pStage )
         realNormalMap = true;
     }
     
-    VectorSet4( local1, parallaxScale, ( F32 )pStage->hasSpecular, specularScale, materialType );
+    VectorSet4( local1, parallaxScale, ( float32 )pStage->hasSpecular, specularScale, materialType );
     GLSL_SetUniformVec4( sp, UNIFORM_LOCAL1, local1 );
     
     //GLSL_SetUniformFloat(sp, UNIFORM_TIME, tess.shaderTime);
@@ -1293,12 +1293,12 @@ void RB_SetStageImageDimensions( shaderProgram_t* sp, shaderStage_t* pStage )
 
 static void RB_IterateStagesGeneric( shaderCommands_t* input )
 {
-    S32 stage;
+    sint stage;
     
     vec4_t fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
-    F32 eyeT = 0;
+    float32 eyeT = 0;
     
-    S32 deformGen;
+    sint deformGen;
     vec5_t deformParams;
     
     bool renderToCubemap = tr.renderCubeFbo && glState.currentFBO == tr.renderCubeFbo;
@@ -1323,7 +1323,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
         {
             if( pStage->glslShaderGroup == tr.lightallShader )
             {
-                S32 index = 0;
+                sint index = 0;
                 
                 if( backEnd.currentEntity && backEnd.currentEntity != &tr.worldEntity )
                 {
@@ -1346,7 +1346,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
             }
             else
             {
-                S32 shaderAttribs = 0;
+                sint shaderAttribs = 0;
                 
                 if( tess.shader->numDeforms && !ShaderRequiresCPUDeforms( tess.shader ) )
                 {
@@ -1372,7 +1372,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
         }
         else if( pStage->glslShaderGroup == tr.lightallShader )
         {
-            S32 index = pStage->glslShaderIndex;
+            sint index = pStage->glslShaderIndex;
             
             if( backEnd.currentEntity && backEnd.currentEntity != &tr.worldEntity )
             {
@@ -1415,7 +1415,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
             
             RB_SetMaterialBasedProperties( sp, pStage );
             
-            GLSL_SetUniformFloat( sp, UNIFORM_TIME, ( F32 )tess.shaderTime );
+            GLSL_SetUniformFloat( sp, UNIFORM_TIME, ( float32 )tess.shaderTime );
         }
         
         RB_SetMaterialBasedProperties( sp, pStage );
@@ -1573,7 +1573,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
         }
         else if( pStage->glslShaderGroup == tr.lightallShader )
         {
-            S32 i;
+            sint i;
             vec4_t enableTextures;
             
             if( r_sunlightMode->integer && ( backEnd.viewParms.flags & VPF_USESUNLIGHT ) && ( pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK ) )
@@ -1724,7 +1724,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
 
 static void RB_RenderShadowmap( shaderCommands_t* input )
 {
-    S32 deformGen;
+    sint deformGen;
     vec5_t deformParams;
     
     ComputeDeformValues( &deformGen, deformParams );
@@ -1793,7 +1793,7 @@ static void RB_RenderShadowmap( shaderCommands_t* input )
 void RB_StageIteratorGeneric( void )
 {
     shaderCommands_t* input;
-    U32 vertexAttribs = 0;
+    uint vertexAttribs = 0;
     
     input = &tess;
     
@@ -1825,7 +1825,7 @@ void RB_StageIteratorGeneric( void )
     {
         // don't just call LogComment, or we will get
         // a call to va() every frame!
-        GLimp_LogComment( reinterpret_cast< UTF8* >( va( "--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name ) ) );
+        GLimp_LogComment( reinterpret_cast< valueType* >( va( "--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name ) ) );
     }
     
     //
@@ -1866,7 +1866,7 @@ void RB_StageIteratorGeneric( void )
     if( ( tess.shader->contentFlags & CONTENTS_WATER ) )
     {
         if( input->xstages[0]->isWater != true ) // In case it is already set, no need looping more then once on the same shader...
-            for( S32 stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+            for( sint stage = 0; stage < MAX_SHADER_STAGES; stage++ )
                 if( input->xstages[stage] )
                     input->xstages[stage]->isWater = true;
     }

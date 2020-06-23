@@ -48,15 +48,15 @@ public:
     
     virtual bool InitCrypto( void );
     virtual bool GenerateCryptoKeys( publicKey_t* pk, secretKey_t* sk );
-    virtual bool LoadCryptoKeysFromFS( publicKey_t* pk, StringEntry pkFilename, secretKey_t* sk, StringEntry skFilename );
-    virtual bool SaveCryptoKeysToFS( publicKey_t* pk, StringEntry pkFilename, secretKey_t* sk, StringEntry skFilename );
-    virtual bool EncryptString( publicKey_t* pk, StringEntry inRaw, UTF8* outHex, size_t outHexSize );
-    virtual bool DecryptString( publicKey_t* pk, secretKey_t* sk, StringEntry inHex, UTF8* outRaw, size_t outRawSize );
-    virtual bool CryptoHash( StringEntry inRaw, UTF8* outHex, size_t outHexSize );
-    static bool LoadKeyFromFile( StringEntry filename, U8* out, size_t outSize );
-    static bool HexToBinary( U8* outBin, size_t binMaxLen, StringEntry inHex );
-    static bool BinaryToHex( UTF8* outHex, size_t hexMaxLen, const U8* inBin, size_t binSize );
-    static bool SaveKeyToFile( StringEntry filename, const U8* in, size_t inSize );
+    virtual bool LoadCryptoKeysFromFS( publicKey_t* pk, pointer pkFilename, secretKey_t* sk, pointer skFilename );
+    virtual bool SaveCryptoKeysToFS( publicKey_t* pk, pointer pkFilename, secretKey_t* sk, pointer skFilename );
+    virtual bool EncryptString( publicKey_t* pk, pointer inRaw, valueType* outHex, size_t outHexSize );
+    virtual bool DecryptString( publicKey_t* pk, secretKey_t* sk, pointer inHex, valueType* outRaw, size_t outRawSize );
+    virtual bool CryptoHash( pointer inRaw, valueType* outHex, size_t outHexSize );
+    static bool LoadKeyFromFile( pointer filename, uchar8* out, size_t outSize );
+    static bool HexToBinary( uchar8* outBin, size_t binMaxLen, pointer inHex );
+    static bool BinaryToHex( valueType* outHex, size_t hexMaxLen, const uchar8* inBin, size_t binSize );
+    static bool SaveKeyToFile( pointer filename, const uchar8* in, size_t inSize );
 };
 
 extern idServerCryptoSystemLocal serverCryptoSystemLocal;

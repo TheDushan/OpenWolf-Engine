@@ -44,8 +44,8 @@ class idCmdBufferSystem
 {
 public:
     virtual void Init( void ) = 0;
-    virtual void AddText( StringEntry text ) = 0;
-    virtual void ExecuteText( S32 exec_when, StringEntry text ) = 0;
+    virtual void AddText( pointer text ) = 0;
+    virtual void ExecuteText( sint exec_when, pointer text ) = 0;
     virtual void Execute( void ) = 0;
 };
 

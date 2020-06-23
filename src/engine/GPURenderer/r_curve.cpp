@@ -39,7 +39,7 @@ distance from the true curve.
 
 Only a single entry point:
 
-srfBspSurface_t *R_SubdividePatchToGrid( S32 width, S32 height, srfVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] ) {
+srfBspSurface_t *R_SubdividePatchToGrid( sint width, sint height, srfVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] ) {
 */
 
 
@@ -68,15 +68,15 @@ static void LerpDrawVert( srfVert_t* a, srfVert_t* b, srfVert_t* out )
     out->tangent[1] = 0.5f * ( a->tangent[1] + b->tangent[1] );
     out->tangent[2] = 0.5f * ( a->tangent[2] + b->tangent[2] );
     
-    out->lightdir[0] = ( ( S32 )a->lightdir[0] + ( S32 )b->lightdir[0] ) >> 1;
-    out->lightdir[1] = ( ( S32 )a->lightdir[1] + ( S32 )b->lightdir[1] ) >> 1;
-    out->lightdir[2] = ( ( S32 )a->lightdir[2] + ( S32 )b->lightdir[2] ) >> 1;
-    out->lightdir[3] = ( ( S32 )a->lightdir[3] + ( S32 )b->lightdir[3] ) >> 1;
+    out->lightdir[0] = ( ( sint )a->lightdir[0] + ( sint )b->lightdir[0] ) >> 1;
+    out->lightdir[1] = ( ( sint )a->lightdir[1] + ( sint )b->lightdir[1] ) >> 1;
+    out->lightdir[2] = ( ( sint )a->lightdir[2] + ( sint )b->lightdir[2] ) >> 1;
+    out->lightdir[3] = ( ( sint )a->lightdir[3] + ( sint )b->lightdir[3] ) >> 1;
     
-    out->color[0] = ( ( S32 )a->color[0] + ( S32 )b->color[0] ) >> 1;
-    out->color[1] = ( ( S32 )a->color[1] + ( S32 )b->color[1] ) >> 1;
-    out->color[2] = ( ( S32 )a->color[2] + ( S32 )b->color[2] ) >> 1;
-    out->color[3] = ( ( S32 )a->color[3] + ( S32 )b->color[3] ) >> 1;
+    out->color[0] = ( ( sint )a->color[0] + ( sint )b->color[0] ) >> 1;
+    out->color[1] = ( ( sint )a->color[1] + ( sint )b->color[1] ) >> 1;
+    out->color[2] = ( ( sint )a->color[2] + ( sint )b->color[2] ) >> 1;
+    out->color[3] = ( ( sint )a->color[3] + ( sint )b->color[3] ) >> 1;
 }
 
 /*
@@ -84,9 +84,9 @@ static void LerpDrawVert( srfVert_t* a, srfVert_t* b, srfVert_t* out )
 Transpose
 ============
 */
-static void Transpose( S32 width, S32 height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] )
+static void Transpose( sint width, sint height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] )
 {
-    S32		i, j;
+    sint		i, j;
     srfVert_t	temp;
     
     if( width > height )
@@ -142,21 +142,21 @@ MakeMeshNormals
 Handles all the complicated wrapping and degenerate cases
 =================
 */
-static void MakeMeshNormals( S32 width, S32 height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] )
+static void MakeMeshNormals( sint width, sint height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] )
 {
-    S32		i, j, k, dist;
+    sint		i, j, k, dist;
     vec3_t	normal;
     vec3_t	sum;
-    S32		count = 0;
+    sint		count = 0;
     vec3_t	base;
     vec3_t	delta;
-    S32		x, y;
+    sint		x, y;
     srfVert_t*	dv;
     vec3_t		around[8], temp;
     bool	good[8];
     bool	wrapWidth, wrapHeight;
-    F32		len;
-    static	S32	neighbors[8][2] =
+    float32		len;
+    static	sint	neighbors[8][2] =
     {
         {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, { -1, -1}, { -1, 0}, { -1, 1}
     };
@@ -276,13 +276,13 @@ static void MakeMeshNormals( S32 width, S32 height, srfVert_t ctrl[MAX_GRID_SIZE
     }
 }
 
-static void MakeMeshTangentVectors( S32 width, S32 height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], S32 numIndexes,
-                                    U32 indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3] )
+static void MakeMeshTangentVectors( sint width, sint height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], sint numIndexes,
+                                    uint indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3] )
 {
-    S32             i, j;
+    sint             i, j;
     srfVert_t*      dv[3];
     static srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
-    U32*  tri;
+    uint*  tri;
     
     // FIXME: use more elegant way
     for( i = 0; i < width; i++ )
@@ -316,11 +316,11 @@ static void MakeMeshTangentVectors( S32 width, S32 height, srfVert_t ctrl[MAX_GR
 }
 
 
-static S32 MakeMeshIndexes( S32 width, S32 height, U32 indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3] )
+static sint MakeMeshIndexes( sint width, sint height, uint indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3] )
 {
-    S32             i, j;
-    S32             numIndexes;
-    S32             w, h;
+    sint             i, j;
+    sint             numIndexes;
+    sint             w, h;
     
     h = height - 1;
     w = width - 1;
@@ -329,7 +329,7 @@ static S32 MakeMeshIndexes( S32 width, S32 height, U32 indexes[( MAX_GRID_SIZE -
     {
         for( j = 0; j < w; j++ )
         {
-            S32             v1, v2, v3, v4;
+            sint             v1, v2, v3, v4;
             
             // vertex order to be reckognized as tristrips
             v1 = i * width + j + 1;
@@ -356,9 +356,9 @@ static S32 MakeMeshIndexes( S32 width, S32 height, U32 indexes[( MAX_GRID_SIZE -
 InvertCtrl
 ============
 */
-static void InvertCtrl( S32 width, S32 height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] )
+static void InvertCtrl( sint width, sint height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] )
 {
-    S32		i, j;
+    sint		i, j;
     srfVert_t	temp;
     
     for( i = 0 ; i < height ; i++ )
@@ -378,10 +378,10 @@ static void InvertCtrl( S32 width, S32 height, srfVert_t ctrl[MAX_GRID_SIZE][MAX
 InvertErrorTable
 =================
 */
-static void InvertErrorTable( F32 errorTable[2][MAX_GRID_SIZE], S32 width, S32 height )
+static void InvertErrorTable( float32 errorTable[2][MAX_GRID_SIZE], sint width, sint height )
 {
-    S32		i;
-    F32	copy[2][MAX_GRID_SIZE];
+    sint		i;
+    float32	copy[2][MAX_GRID_SIZE];
     
     ::memcpy( copy, errorTable, sizeof( copy ) );
     
@@ -403,9 +403,9 @@ PutPointsOnCurve
 ==================
 */
 static void PutPointsOnCurve( srfVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
-                              S32 width, S32 height )
+                              sint width, sint height )
 {
-    S32			i, j;
+    sint			i, j;
     srfVert_t	prev, next;
     
     for( i = 0 ; i < width ; i++ )
@@ -435,10 +435,10 @@ static void PutPointsOnCurve( srfVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
 R_CreateSurfaceGridMesh
 =================
 */
-void R_CreateSurfaceGridMesh( srfBspSurface_t* grid, S32 width, S32 height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], F32 errorTable[2][MAX_GRID_SIZE],
-                              S32 numIndexes, U32 indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3] )
+void R_CreateSurfaceGridMesh( srfBspSurface_t* grid, sint width, sint height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], float32 errorTable[2][MAX_GRID_SIZE],
+                              sint numIndexes, uint indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3] )
 {
-    S32 i, j;
+    sint i, j;
     srfVert_t*	vert;
     vec3_t		tmpVec;
     
@@ -446,15 +446,15 @@ void R_CreateSurfaceGridMesh( srfBspSurface_t* grid, S32 width, S32 height, srfV
     ::memset( grid, 0, sizeof( *grid ) );
     
 #ifdef PATCH_STITCHING
-    grid->widthLodError = ( F32* )/*Hunk_Alloc*/ CL_RefMalloc( width * 4 );
+    grid->widthLodError = ( float32* )/*Hunk_Alloc*/ CL_RefMalloc( width * 4 );
     ::memcpy( grid->widthLodError, errorTable[0], width * 4 );
     
-    grid->heightLodError = ( F32* )/*Hunk_Alloc*/ CL_RefMalloc( height * 4 );
+    grid->heightLodError = ( float32* )/*Hunk_Alloc*/ CL_RefMalloc( height * 4 );
     ::memcpy( grid->heightLodError, errorTable[1], height * 4 );
     
     grid->numIndexes = numIndexes;
-    grid->indexes = ( U32* )CL_RefMalloc( grid->numIndexes * sizeof( U32 ) );
-    ::memcpy( grid->indexes, indexes, numIndexes * sizeof( U32 ) );
+    grid->indexes = ( uint* )CL_RefMalloc( grid->numIndexes * sizeof( uint ) );
+    ::memcpy( grid->indexes, indexes, numIndexes * sizeof( uint ) );
     
     grid->numVerts = ( width * height );
     grid->verts = ( srfVert_t* )CL_RefMalloc( grid->numVerts * sizeof( srfVert_t ) );
@@ -466,8 +466,8 @@ void R_CreateSurfaceGridMesh( srfBspSurface_t* grid, S32 width, S32 height, srfV
     ::memcpy( grid->heightLodError, errorTable[1], height * 4 );
     
     grid->numIndexes = numIndexes;
-    grid->indexes = Hunk_Alloc( grid->numIndexes * sizeof( U32 ), h_low );
-    ::memcpy( grid->indexes, indexes, numIndexes * sizeof( U32 ) );
+    grid->indexes = Hunk_Alloc( grid->numIndexes * sizeof( uint ), h_low );
+    ::memcpy( grid->indexes, indexes, numIndexes * sizeof( uint ) );
     
     grid->numVerts = ( width * height );
     grid->verts = Hunk_Alloc( grid->numVerts * sizeof( srfVert_t ), h_low );
@@ -516,21 +516,21 @@ static void R_FreeSurfaceGridMeshData( srfBspSurface_t* grid )
 R_SubdividePatchToGrid
 =================
 */
-void R_SubdividePatchToGrid( srfBspSurface_t* grid, S32 width, S32 height,
+void R_SubdividePatchToGrid( srfBspSurface_t* grid, sint width, sint height,
                              srfVert_t points[MAX_PATCH_SIZE* MAX_PATCH_SIZE] )
 {
-    S32			i, j, k, l;
+    sint			i, j, k, l;
     srfVert_t_cleared( prev );
     srfVert_t_cleared( next );
     srfVert_t_cleared( mid );
-    F32		len, maxLen;
-    S32			dir;
-    S32			t;
+    float32		len, maxLen;
+    sint			dir;
+    sint			t;
     srfVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
-    F32		errorTable[2][MAX_GRID_SIZE];
-    S32			numIndexes;
-    static U32 indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3];
-    S32 consecutiveComplete;
+    float32		errorTable[2][MAX_GRID_SIZE];
+    sint			numIndexes;
+    static uint indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3];
+    sint consecutiveComplete;
     
     for( i = 0 ; i < width ; i++ )
     {
@@ -565,7 +565,7 @@ void R_SubdividePatchToGrid( srfBspSurface_t* grid, S32 width, S32 height,
                 vec3_t		midxyz2;
                 vec3_t		dir;
                 vec3_t		projected;
-                F32		d;
+                float32		d;
                 
                 // calculate the point on the curve
                 for( l = 0 ; l < 3 ; l++ )
@@ -720,16 +720,16 @@ void R_SubdividePatchToGrid( srfBspSurface_t* grid, S32 width, S32 height,
 R_GridInsertColumn
 ===============
 */
-void R_GridInsertColumn( srfBspSurface_t* grid, S32 column, S32 row, vec3_t point, F32 loderror )
+void R_GridInsertColumn( srfBspSurface_t* grid, sint column, sint row, vec3_t point, float32 loderror )
 {
-    S32 i, j;
-    S32 width, height, oldwidth;
+    sint i, j;
+    sint width, height, oldwidth;
     srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
-    F32 errorTable[2][MAX_GRID_SIZE];
-    F32 lodRadius;
+    float32 errorTable[2][MAX_GRID_SIZE];
+    float32 lodRadius;
     vec3_t lodOrigin;
-    S32    numIndexes;
-    static U32 indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3];
+    sint    numIndexes;
+    static uint indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3];
     
     oldwidth = 0;
     width = grid->width + 1;
@@ -786,16 +786,16 @@ void R_GridInsertColumn( srfBspSurface_t* grid, S32 column, S32 row, vec3_t poin
 R_GridInsertRow
 ===============
 */
-void R_GridInsertRow( srfBspSurface_t* grid, S32 row, S32 column, vec3_t point, F32 loderror )
+void R_GridInsertRow( srfBspSurface_t* grid, sint row, sint column, vec3_t point, float32 loderror )
 {
-    S32 i, j;
-    S32 width, height, oldheight;
+    sint i, j;
+    sint width, height, oldheight;
     srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
-    F32 errorTable[2][MAX_GRID_SIZE];
-    F32 lodRadius;
+    float32 errorTable[2][MAX_GRID_SIZE];
+    float32 lodRadius;
     vec3_t lodOrigin;
-    S32             numIndexes;
-    static U32 indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3];
+    sint             numIndexes;
+    static uint indexes[( MAX_GRID_SIZE - 1 ) * ( MAX_GRID_SIZE - 1 ) * 2 * 3];
     
     oldheight = 0;
     width = grid->width;

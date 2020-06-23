@@ -48,9 +48,9 @@ Used by both the front end (for DlightBmodel) and
 the back end (before doing the lighting calculation)
 ===============
 */
-void R_TransformDlights( S32 count, dlight_t* dl, orientationr_t* orientation )
+void R_TransformDlights( sint count, dlight_t* dl, orientationr_t* orientation )
 {
-    S32		i;
+    sint		i;
     vec3_t	temp;
     
     for( i = 0 ; i < count ; i++, dl++ )
@@ -71,9 +71,9 @@ Determine which dynamic lights may effect this bmodel
 */
 void R_DlightBmodel( bmodel_t* bmodel )
 {
-    S32			i, j;
+    sint			i, j;
     dlight_t*	dl;
-    S32			mask;
+    sint			mask;
     msurface_t*	surf;
     
     // transform all the lights
@@ -148,13 +148,13 @@ R_SetupEntityLightingGrid
 static void R_SetupEntityLightingGrid( trRefEntity_t* ent, world_t* world )
 {
     vec3_t	lightOrigin;
-    S32		pos[3];
-    S32		i, j;
-    U8*	gridData;
-    F32	frac[3];
-    S32		gridStep[3];
+    sint		pos[3];
+    sint		i, j;
+    uchar8*	gridData;
+    float32	frac[3];
+    sint		gridStep[3];
     vec3_t	direction;
-    F32	totalFactor;
+    float32	totalFactor;
     
     if( ent->e.renderfx & RF_LIGHTING_ORIGIN )
     {
@@ -171,7 +171,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t* ent, world_t* world )
     VectorSubtract( lightOrigin, world->lightGridOrigin, lightOrigin );
     for( i = 0 ; i < 3 ; i++ )
     {
-        F32	v;
+        float32	v;
         
         v = lightOrigin[i] * world->lightGridInverseSize[i];
         pos[i] = floor( v );
@@ -202,12 +202,12 @@ static void R_SetupEntityLightingGrid( trRefEntity_t* ent, world_t* world )
     totalFactor = 0;
     for( i = 0 ; i < 8 ; i++ )
     {
-        F32	factor;
-        U8*	data;
-        S32		lat, lng;
+        float32	factor;
+        uchar8*	data;
+        sint		lat, lng;
         vec3_t	normal;
 #if idppc
-        F32 d0, d1, d2, d3, d4, d5;
+        float32 d0, d1, d2, d3, d4, d5;
 #endif
         factor = 1.0;
         data = gridData;
@@ -235,7 +235,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t* ent, world_t* world )
         
         if( world->lightGrid16 )
         {
-            U16* data16 = world->lightGrid16 + ( S32 )( data - world->lightGridData ) / 8 * 6;
+            uchar16* data16 = world->lightGrid16 + ( sint )( data - world->lightGridData ) / 8 * 6;
             if( !( data16[0] + data16[1] + data16[2] + data16[3] + data16[4] + data16[5] ) )
             {
                 continue;	// ignore samples in walls
@@ -268,7 +268,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t* ent, world_t* world )
         if( world->lightGrid16 )
         {
             // FIXME: this is hideous
-            U16* data16 = world->lightGrid16 + ( S32 )( data - world->lightGridData ) / 8 * 6;
+            uchar16* data16 = world->lightGrid16 + ( sint )( data - world->lightGridData ) / 8 * 6;
         
             ent->ambientLight[0] += factor * data16[0] / 257.0f;
             ent->ambientLight[1] += factor * data16[1] / 257.0f;
@@ -326,7 +326,7 @@ LogLight
 */
 static void LogLight( trRefEntity_t* ent )
 {
-    S32	max1, max2;
+    sint	max1, max2;
     
     if( !( ent->e.renderfx & RF_FIRST_PERSON ) )
     {
@@ -368,7 +368,7 @@ effect a entity.
 void R_AddLightToEntity( trRefEntity_t* ent, dlight_t* light, float dist )
 {
     // Fill all the light slots first.
-    for( S32 i = 0; i < MAX_ENTITY_LIGHTS; i++ )
+    for( sint i = 0; i < MAX_ENTITY_LIGHTS; i++ )
     {
         if( ent->lights[i] == nullptr )
         {
@@ -378,7 +378,7 @@ void R_AddLightToEntity( trRefEntity_t* ent, dlight_t* light, float dist )
     }
     
     // See if the light is closer than any of the current that effect this entity.
-    for( S32 i = 0; i < MAX_ENTITY_LIGHTS; i++ )
+    for( sint i = 0; i < MAX_ENTITY_LIGHTS; i++ )
     {
         if( dist < ent->lightdist[i] )
         {
@@ -399,11 +399,11 @@ by the Calc_* functions
 */
 void R_SetupEntityLighting( const trRefdef_t* refdef, trRefEntity_t* ent )
 {
-    S32				i;
+    sint				i;
     dlight_t*		dl;
-    F32			power;
+    float32			power;
     vec3_t			dir;
-    F32			d;
+    float32			d;
     vec3_t			lightDir;
     vec3_t			lightOrigin;
     
@@ -472,9 +472,9 @@ void R_SetupEntityLighting( const trRefdef_t* refdef, trRefEntity_t* ent )
         if( r_pbr->integer )
         {
             d = VectorNormalize( dir );
-            F32 sqrd = d * d;
-            F32 sqrr = dl->radius * dl->radius;
-            F32 factor = sqrd / sqrr;
+            float32 sqrd = d * d;
+            float32 sqrr = dl->radius * dl->radius;
+            float32 factor = sqrd / sqrr;
             factor = Com_Clamp( 0.0f, 1.0f, ( 1.0f - ( factor * factor ) ) );
             factor *= factor;
             
@@ -502,7 +502,7 @@ void R_SetupEntityLighting( const trRefdef_t* refdef, trRefEntity_t* ent )
     // FIXME: old renderer clamps (ambient + NL * directed) per vertex
     //        check if that's worth implementing
     {
-        F32 r, g, b, max;
+        float32 r, g, b, max;
         
         r = ent->ambientLight[0];
         g = ent->ambientLight[1];
@@ -539,11 +539,11 @@ void R_SetupEntityLighting( const trRefdef_t* refdef, trRefEntity_t* ent )
         LogLight( ent );
     }
     
-    // save out the U8 packet version
-    ( ( U8* )&ent->ambientLightInt )[0] = static_cast<S32>( ent->ambientLight[0] );
-    ( ( U8* )&ent->ambientLightInt )[1] = static_cast<S32>( ent->ambientLight[1] );
-    ( ( U8* )&ent->ambientLightInt )[2] = static_cast<S32>( ent->ambientLight[2] );
-    ( ( U8* )&ent->ambientLightInt )[3] = 0xff;
+    // save out the uchar8 packet version
+    ( ( uchar8* )&ent->ambientLightInt )[0] = static_cast<sint>( ent->ambientLight[0] );
+    ( ( uchar8* )&ent->ambientLightInt )[1] = static_cast<sint>( ent->ambientLight[1] );
+    ( ( uchar8* )&ent->ambientLightInt )[2] = static_cast<sint>( ent->ambientLight[2] );
+    ( ( uchar8* )&ent->ambientLightInt )[3] = 0xff;
     
     // transform the direction to local space
     VectorNormalize( lightDir );
@@ -597,14 +597,14 @@ bool R_LightDirForPoint( vec3_t point, vec3_t lightDir, vec3_t normal, world_t* 
 }
 
 
-S32 R_CubemapForPoint( vec3_t point )
+sint R_CubemapForPoint( vec3_t point )
 {
-    S32 cubemapIndex = -1;
+    sint cubemapIndex = -1;
     
     if( r_cubeMapping->integer && tr.numCubemaps )
     {
-        S32 i;
-        vec_t shortest = ( F32 )WORLD_SIZE * ( F32 )WORLD_SIZE;
+        sint i;
+        vec_t shortest = ( float32 )WORLD_SIZE * ( float32 )WORLD_SIZE;
         
         for( i = 0; i < tr.numCubemaps; i++ )
         {

@@ -30,13 +30,13 @@
 
 #include <framework/precompiled.h>
 
-static F32 ProjectRadius( F32 r, vec3_t location )
+static float32 ProjectRadius( float32 r, vec3_t location )
 {
-    F32 pr;
-    F32 dist;
-    F32 c;
+    float32 pr;
+    float32 dist;
+    float32 c;
     vec3_t	p;
-    F32	projected[4];
+    float32	projected[4];
     
     c = DotProduct( tr.viewParms.orientation.axis[0], tr.viewParms.orientation.origin );
     dist = DotProduct( tr.viewParms.orientation.axis[0], location ) - c;
@@ -82,11 +82,11 @@ static F32 ProjectRadius( F32 r, vec3_t location )
 R_CullModel
 =============
 */
-static S32 R_CullModel( mdvModel_t* model, trRefEntity_t* ent )
+static sint R_CullModel( mdvModel_t* model, trRefEntity_t* ent )
 {
     vec3_t		bounds[2];
     mdvFrame_t*	oldFrame, *newFrame;
-    S32			i;
+    sint			i;
     
     // compute frame pointers
     newFrame = model->frames + ent->e.frame;
@@ -114,7 +114,7 @@ static S32 R_CullModel( mdvModel_t* model, trRefEntity_t* ent )
         }
         else
         {
-            S32 sphereCull, sphereCullB;
+            sint sphereCull, sphereCullB;
             
             sphereCull  = R_CullLocalPointAndRadius( newFrame->localOrigin, newFrame->radius );
             if( newFrame == oldFrame )
@@ -175,15 +175,15 @@ R_ComputeLOD
 
 =================
 */
-S32 R_ComputeLOD( trRefEntity_t* ent )
+sint R_ComputeLOD( trRefEntity_t* ent )
 {
-    F32 radius;
-    F32 flod, lodscale;
-    F32 projectedRadius;
+    float32 radius;
+    float32 flod, lodscale;
+    float32 projectedRadius;
     mdvFrame_t* frame;
     mdrHeader_t* mdr;
     mdrFrame_t* mdrframe;
-    S32 lod;
+    sint lod;
     
     if( tr.currentModel->numLods < 2 )
     {
@@ -197,17 +197,17 @@ S32 R_ComputeLOD( trRefEntity_t* ent )
         
         if( tr.currentModel->type == MOD_MDR )
         {
-            S32 frameSize;
+            sint frameSize;
             mdr = ( mdrHeader_t* ) tr.currentModel->modelData;
             frameSize = ( size_t )( &( ( mdrFrame_t* )0 )->bones[mdr->numBones] );
             
-            mdrframe = ( mdrFrame_t* )( ( U8* ) mdr + mdr->ofsFrames + frameSize * ent->e.frame );
+            mdrframe = ( mdrFrame_t* )( ( uchar8* ) mdr + mdr->ofsFrames + frameSize * ent->e.frame );
             
             radius = RadiusFromBounds( mdrframe->bounds[0], mdrframe->bounds[1] );
         }
         else
         {
-            //frame = ( md3Frame_t * ) ( ( ( U8 * ) tr.currentModel->md3[0] ) + tr.currentModel->md3[0]->ofsFrames );
+            //frame = ( md3Frame_t * ) ( ( ( uchar8 * ) tr.currentModel->md3[0] ) + tr.currentModel->md3[0]->ofsFrames );
             frame = tr.currentModel->mdv[0]->frames;
             
             frame += ent->e.frame;
@@ -228,7 +228,7 @@ S32 R_ComputeLOD( trRefEntity_t* ent )
         }
         
         flod *= tr.currentModel->numLods;
-        lod = static_cast<S32>( flod );
+        lod = static_cast<sint>( flod );
         
         if( lod < 0 )
         {
@@ -256,9 +256,9 @@ R_ComputeFogNum
 
 =================
 */
-S32 R_ComputeFogNum( mdvModel_t* model, trRefEntity_t* ent )
+sint R_ComputeFogNum( mdvModel_t* model, trRefEntity_t* ent )
 {
-    S32				i, j;
+    sint				i, j;
     fog_t*			fog;
     mdvFrame_t*		mdvFrame;
     vec3_t			localOrigin;
@@ -302,14 +302,14 @@ R_AddMD3Surfaces
 */
 void R_AddMD3Surfaces( trRefEntity_t* ent )
 {
-    S32				i;
+    sint				i;
     mdvModel_t*		model = nullptr;
     mdvSurface_t*	surface = nullptr;
     shader_t*		shader = nullptr;
-    S32				cull;
-    S32				lod;
-    S32				fogNum;
-    S32             cubemapIndex;
+    sint				cull;
+    sint				lod;
+    sint				fogNum;
+    sint             cubemapIndex;
     bool		personalModel;
     
     // don't add third_person objects if not in a portal
@@ -386,7 +386,7 @@ void R_AddMD3Surfaces( trRefEntity_t* ent )
         else if( ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins )
         {
             skin_t* skin;
-            S32		j;
+            sint		j;
             
             skin = R_GetSkinByHandle( ent->e.customSkin );
             
@@ -414,7 +414,7 @@ void R_AddMD3Surfaces( trRefEntity_t* ent )
         }
         else
         {
-            //md3Shader = (md3Shader_t *) ( (U8 *)surface + surface->ofsShaders );
+            //md3Shader = (md3Shader_t *) ( (uchar8 *)surface + surface->ofsShaders );
             //md3Shader += ent->e.skinNum % surface->numShaders;
             //shader = tr.shaders[ md3Shader->shaderIndex ];
             shader = tr.shaders[ surface->shaderIndexes[ ent->e.skinNum % surface->numShaderIndexes ] ];

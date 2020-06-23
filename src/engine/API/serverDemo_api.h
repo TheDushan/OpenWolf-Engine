@@ -35,8 +35,8 @@
 class idServerDemoSystem
 {
 public:
-    virtual void DemoWriteServerCommand( StringEntry str ) = 0;
-    virtual void DemoWriteGameCommand( S32 cmd, StringEntry str ) = 0;
+    virtual void DemoWriteServerCommand( pointer str ) = 0;
+    virtual void DemoWriteGameCommand( sint cmd, pointer str ) = 0;
     virtual void DemoWriteFrame( void ) = 0;
     virtual void DemoReadFrame( void ) = 0;
     virtual void DemoStartRecord( void ) = 0;

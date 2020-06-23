@@ -51,10 +51,10 @@ typedef enum
 } demo_ops_e;
 
 // Big fat buffer to store all our stuff
-static U8 buf[0x400000];
+static uchar8 buf[0x400000];
 
 // Save maxclients and democlients and restore them after the demo
-static S32 savedMaxClients, savedDemoClients;
+static sint savedMaxClients, savedDemoClients;
 
 //
 // idServerBotSystemLocal
@@ -65,8 +65,8 @@ public:
     idServerDemoSystemLocal();
     ~idServerDemoSystemLocal();
     
-    virtual void DemoWriteServerCommand( StringEntry str );
-    virtual void DemoWriteGameCommand( S32 cmd, StringEntry str );
+    virtual void DemoWriteServerCommand( pointer str );
+    virtual void DemoWriteGameCommand( sint cmd, pointer str );
     virtual void DemoWriteFrame( void );
     virtual void DemoReadFrame( void );
     virtual void DemoStartRecord( void );

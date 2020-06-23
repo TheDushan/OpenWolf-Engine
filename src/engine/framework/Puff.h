@@ -33,9 +33,9 @@
 /*
 * See puff.c for purpose and usage.
 */
-S32 puff( U8*  dest,		/* pointer to destination pointer */
-          U32* destlen,		/* amount of output space */
-          U8*  source,		/* pointer to source data pointer */
-          U32* sourcelen );	/* amount of input available */
+sint puff( uchar8*  dest,		/* pointer to destination pointer */
+           uint* destlen,		/* amount of output space */
+           uchar8*  source,		/* pointer to source data pointer */
+           uint* sourcelen );	/* amount of input available */
 
 #endif // __PUFF_H

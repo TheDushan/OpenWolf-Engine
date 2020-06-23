@@ -43,7 +43,7 @@
 FILESYSTEM
 
 No stdio calls should be used by any part of the game, because
-we need to deal with all sorts of directory and seperator UTF8
+we need to deal with all sorts of directory and seperator valueType
 issues.
 ==============================================================
 */
@@ -56,9 +56,9 @@ issues.
 
 typedef struct
 {
-    UTF8 path[MAX_OSPATH]; // c:\quake3
-    UTF8 fullpath[MAX_OSPATH];
-    UTF8 gamedir[MAX_OSPATH]; // baseq3
+    valueType path[MAX_OSPATH]; // c:\quake3
+    valueType fullpath[MAX_OSPATH];
+    valueType gamedir[MAX_OSPATH]; // baseq3
 } directory_t;
 
 typedef struct searchpath_s
@@ -85,12 +85,12 @@ typedef struct
 {
     qfile_ut handleFiles;
     bool handleSync;
-    S32 baseOffset;
-    S32 fileSize;
-    S32 zipFilePos;
+    sint baseOffset;
+    sint fileSize;
+    sint zipFilePos;
     bool zipFile;
     bool streamed;
-    UTF8 name[MAX_ZPATH];
+    valueType name[MAX_ZPATH];
 } fileHandleData_t;
 
 static fileHandleData_t fsh[MAX_FILE_HANDLES];
@@ -101,19 +101,19 @@ static bool fs_reordered;
 
 // never load anything from pk3 files that are not present at the server when pure
 // ex: when fs_numServerPaks != 0, FS_FOpenFileRead won't load anything outside of pk3 except .cfg .menu .game .dat
-static S32 fs_numServerPaks;
-static S32 fs_serverPaks[MAX_SEARCH_PATHS]; // checksums
-static UTF8* fs_serverPakNames[MAX_SEARCH_PATHS]; // pk3 names
+static sint fs_numServerPaks;
+static sint fs_serverPaks[MAX_SEARCH_PATHS]; // checksums
+static valueType* fs_serverPakNames[MAX_SEARCH_PATHS]; // pk3 names
 
 // only used for autodownload, to make sure the client has at least
 // all the pk3 files that are referenced at the server side
-static S32 fs_numServerReferencedPaks;
-static S32 fs_serverReferencedPaks[MAX_SEARCH_PATHS]; // checksums
-static UTF8* fs_serverReferencedPakNames[MAX_SEARCH_PATHS]; // pk3 names
+static sint fs_numServerReferencedPaks;
+static sint fs_serverReferencedPaks[MAX_SEARCH_PATHS]; // checksums
+static valueType* fs_serverReferencedPakNames[MAX_SEARCH_PATHS]; // pk3 names
 
 // last valid game folder used
-static UTF8 lastValidBase[MAX_OSPATH];
-static UTF8 lastValidGame[MAX_OSPATH];
+static valueType lastValidBase[MAX_OSPATH];
+static valueType lastValidGame[MAX_OSPATH];
 
 static bool legacy_bin = false;
 
@@ -135,13 +135,13 @@ static bool legacy_bin = false;
 extern bool com_fullyInitialized;
 
 // see idFileSystemLocal::FOpenFileRead_Filtered
-static S32 fs_filter_flag = 0;
+static sint fs_filter_flag = 0;
 
 #define PK3_SEEK_BUFFER_SIZE 65536
 
 typedef struct
 {
-    UTF8 pakname[MAX_QPATH];
+    valueType pakname[MAX_QPATH];
     bool ok;
 } officialpak_t;
 
@@ -159,100 +159,100 @@ public:
     
     virtual bool Initialized( void );
     virtual bool PakIsPure( pack_t* pack );
-    virtual S32 LoadStack( void );
-    virtual S64 HashFileName( StringEntry fname, S32 hashSize );
+    virtual sint LoadStack( void );
+    virtual sint32 HashFileName( pointer fname, sint hashSize );
     virtual fileHandle_t HandleForFile( void );
     virtual FILE* FileForHandle( fileHandle_t f );
     virtual void ForceFlush( fileHandle_t f );
-    virtual S32 filelength( fileHandle_t f );
-    virtual void ReplaceSeparators( UTF8* path );
-    virtual UTF8* BuildOSPath( StringEntry base, StringEntry game, StringEntry qpath );
-    virtual void BuildOSHomePath( UTF8* ospath, S32 size, S32 qpath );
-    virtual S32 CreatePath( StringEntry OSPath_ );
-    virtual void FSCopyFile( UTF8* fromOSPath, UTF8* toOSPath );
-    virtual bool Remove( StringEntry osPath );
-    virtual void HomeRemove( StringEntry homePath );
-    virtual bool FileExists( StringEntry file );
-    virtual bool SV_FileExists( StringEntry file );
-    virtual bool OS_FileExists( StringEntry file );
-    virtual fileHandle_t SV_FOpenFileWrite( StringEntry filename );
-    virtual S32 SV_FOpenFileRead( StringEntry filename, fileHandle_t* fp );
-    virtual void SV_Rename( StringEntry from, StringEntry to );
-    virtual void Rename( StringEntry from, StringEntry to );
+    virtual sint filelength( fileHandle_t f );
+    virtual void ReplaceSeparators( valueType* path );
+    virtual valueType* BuildOSPath( pointer base, pointer game, pointer qpath );
+    virtual void BuildOSHomePath( valueType* ospath, sint size, sint qpath );
+    virtual sint CreatePath( pointer OSPath_ );
+    virtual void FSCopyFile( valueType* fromOSPath, valueType* toOSPath );
+    virtual bool Remove( pointer osPath );
+    virtual void HomeRemove( pointer homePath );
+    virtual bool FileExists( pointer file );
+    virtual bool SV_FileExists( pointer file );
+    virtual bool OS_FileExists( pointer file );
+    virtual fileHandle_t SV_FOpenFileWrite( pointer filename );
+    virtual sint SV_FOpenFileRead( pointer filename, fileHandle_t* fp );
+    virtual void SV_Rename( pointer from, pointer to );
+    virtual void Rename( pointer from, pointer to );
     virtual void FCloseFile( fileHandle_t f );
-    virtual fileHandle_t FOpenFileWrite( StringEntry filename );
-    virtual fileHandle_t FOpenFileAppend( StringEntry filename );
-    virtual S32 FOpenFileDirect( StringEntry filename, fileHandle_t* f );
-    virtual fileHandle_t FOpenFileUpdate( StringEntry filename, S32* length );
-    virtual bool FilenameCompare( StringEntry s1, StringEntry s2 );
-    virtual UTF8* ShiftedStrStr( StringEntry string, StringEntry substring, S32 shift );
-    virtual UTF8* ShiftStr( StringEntry string, S32 shift );
-    virtual S32 FOpenFileRead( StringEntry filename, fileHandle_t* file, bool uniqueFILE );
-    virtual S32 FOpenFileRead_Filtered( StringEntry qpath, fileHandle_t* file, bool uniqueFILE, S32 filter_flag );
-    virtual bool CL_ExtractFromPakFile( StringEntry base, StringEntry gamedir, StringEntry filename );
-    virtual bool AllowDeletion( UTF8* filename );
-    virtual S32 DeleteDir( UTF8* dirname, bool nonEmpty, bool recursive );
-    virtual S32 OSStatFile( UTF8* ospath );
-    virtual S32 Delete( UTF8* filename );
-    virtual S32 FPrintf( fileHandle_t f, StringEntry fmt, ... );
-    virtual S32 Read2( void* buffer, S32 len, fileHandle_t f );
-    virtual S32 Read( void* buffer, S32 len, fileHandle_t f );
-    virtual S32 Write( const void* buffer, S32 len, fileHandle_t h );
-    virtual void Printf( fileHandle_t h, StringEntry fmt, ... );
-    virtual S32 Seek( fileHandle_t f, S64 offset, S32 origin );
-    virtual S32 FileIsInPAK( StringEntry filename, S32* pChecksum );
-    virtual S32 ReadFile( StringEntry qpath, void** buffer );
+    virtual fileHandle_t FOpenFileWrite( pointer filename );
+    virtual fileHandle_t FOpenFileAppend( pointer filename );
+    virtual sint FOpenFileDirect( pointer filename, fileHandle_t* f );
+    virtual fileHandle_t FOpenFileUpdate( pointer filename, sint* length );
+    virtual bool FilenameCompare( pointer s1, pointer s2 );
+    virtual valueType* ShiftedStrStr( pointer string, pointer substring, sint shift );
+    virtual valueType* ShiftStr( pointer string, sint shift );
+    virtual sint FOpenFileRead( pointer filename, fileHandle_t* file, bool uniqueFILE );
+    virtual sint FOpenFileRead_Filtered( pointer qpath, fileHandle_t* file, bool uniqueFILE, sint filter_flag );
+    virtual bool CL_ExtractFromPakFile( pointer base, pointer gamedir, pointer filename );
+    virtual bool AllowDeletion( valueType* filename );
+    virtual sint DeleteDir( valueType* dirname, bool nonEmpty, bool recursive );
+    virtual sint OSStatFile( valueType* ospath );
+    virtual sint Delete( valueType* filename );
+    virtual sint FPrintf( fileHandle_t f, pointer fmt, ... );
+    virtual sint Read2( void* buffer, sint len, fileHandle_t f );
+    virtual sint Read( void* buffer, sint len, fileHandle_t f );
+    virtual sint Write( const void* buffer, sint len, fileHandle_t h );
+    virtual void Printf( fileHandle_t h, pointer fmt, ... );
+    virtual sint Seek( fileHandle_t f, sint32 offset, sint origin );
+    virtual sint FileIsInPAK( pointer filename, sint* pChecksum );
+    virtual sint ReadFile( pointer qpath, void** buffer );
     virtual void FreeFile( void* buffer );
-    virtual void WriteFile( StringEntry qpath, const void* buffer, S32 size );
-    virtual pack_t* LoadZipFile( StringEntry zipfile, StringEntry basename );
-    virtual S32 ReturnPath( StringEntry zname, UTF8* zpath, S32* depth );
-    virtual S32 AddFileToList( UTF8* name, UTF8* list[MAX_FOUND_FILES], S32 nfiles );
-    virtual UTF8** ListFilteredFiles( StringEntry path, StringEntry extension, UTF8* filter, S32* numfiles );
-    virtual UTF8** ListFiles( StringEntry path, StringEntry extension, S32* numfiles );
-    virtual void FreeFileList( UTF8** list );
-    virtual S32 GetFileList( StringEntry path, StringEntry extension, UTF8* listbuf, S32 bufsize );
-    virtual U32 CountFileList( UTF8** list );
-    virtual UTF8** ConcatenateFileLists( UTF8** list0, UTF8** list1, UTF8** list2 );
-    virtual S32 GetModList( UTF8* listbuf, S32 bufsize );
+    virtual void WriteFile( pointer qpath, const void* buffer, sint size );
+    virtual pack_t* LoadZipFile( pointer zipfile, pointer basename );
+    virtual sint ReturnPath( pointer zname, valueType* zpath, sint* depth );
+    virtual sint AddFileToList( valueType* name, valueType* list[MAX_FOUND_FILES], sint nfiles );
+    virtual valueType** ListFilteredFiles( pointer path, pointer extension, valueType* filter, sint* numfiles );
+    virtual valueType** ListFiles( pointer path, pointer extension, sint* numfiles );
+    virtual void FreeFileList( valueType** list );
+    virtual sint GetFileList( pointer path, pointer extension, valueType* listbuf, sint bufsize );
+    virtual uint CountFileList( valueType** list );
+    virtual valueType** ConcatenateFileLists( valueType** list0, valueType** list1, valueType** list2 );
+    virtual sint GetModList( valueType* listbuf, sint bufsize );
     static void Dir_f( void );
-    virtual void ConvertPath( UTF8* s );
-    virtual S32 PathCmp( StringEntry s1, StringEntry s2 );
-    virtual void SortFileList( UTF8** filelist, S32 numfiles );
+    virtual void ConvertPath( valueType* s );
+    virtual sint PathCmp( pointer s1, pointer s2 );
+    virtual void SortFileList( valueType** filelist, sint numfiles );
     static void NewDir_f( void );
     static void Path_f( void );
     static void TouchFile_f( void );
     static void Which_f( void );
-    static S32 paksort( const void* a, const void* b );
-    virtual bool IsExt( StringEntry filename, StringEntry ext, S32 namelen );
-    static void AddGameDirectory( StringEntry path, StringEntry dir );
-    virtual bool idPak( UTF8* pak, UTF8* base );
+    static sint paksort( const void* a, const void* b );
+    virtual bool IsExt( pointer filename, pointer ext, sint namelen );
+    static void AddGameDirectory( pointer path, pointer dir );
+    virtual bool idPak( valueType* pak, valueType* base );
     virtual bool VerifyOfficialPaks( void );
-    virtual bool ComparePaks( UTF8* neededpaks, S32 len, bool dlstring );
+    virtual bool ComparePaks( valueType* neededpaks, sint len, bool dlstring );
     virtual void Shutdown( bool closemfp );
     virtual void ReorderPurePaks( void );
-    virtual void Startup( StringEntry gameName );
-    virtual StringEntry GamePureChecksum( void );
-    virtual StringEntry LoadedPakChecksums( void );
-    virtual StringEntry LoadedPakNames( void );
-    virtual StringEntry LoadedPakPureChecksums( void );
-    virtual StringEntry ReferencedPakChecksums( void );
-    virtual StringEntry ReferencedPakNames( void );
-    virtual StringEntry ReferencedPakPureChecksums( void );
-    virtual void ClearPakReferences( S32 flags );
-    virtual void PureServerSetLoadedPaks( StringEntry pakSums, StringEntry pakNames );
-    virtual void PureServerSetReferencedPaks( StringEntry pakSums, StringEntry pakNames );
+    virtual void Startup( pointer gameName );
+    virtual pointer GamePureChecksum( void );
+    virtual pointer LoadedPakChecksums( void );
+    virtual pointer LoadedPakNames( void );
+    virtual pointer LoadedPakPureChecksums( void );
+    virtual pointer ReferencedPakChecksums( void );
+    virtual pointer ReferencedPakNames( void );
+    virtual pointer ReferencedPakPureChecksums( void );
+    virtual void ClearPakReferences( sint flags );
+    virtual void PureServerSetLoadedPaks( pointer pakSums, pointer pakNames );
+    virtual void PureServerSetReferencedPaks( pointer pakSums, pointer pakNames );
     virtual void InitFilesystem( void );
-    virtual void Restart( S32 checksumFeed );
-    virtual bool ConditionalRestart( S32 checksumFeed );
-    virtual S32 FOpenFileByMode( StringEntry qpath, fileHandle_t* f, fsMode_t mode );
-    virtual S32 FTell( fileHandle_t f );
+    virtual void Restart( sint checksumFeed );
+    virtual bool ConditionalRestart( sint checksumFeed );
+    virtual sint FOpenFileByMode( pointer qpath, fileHandle_t* f, fsMode_t mode );
+    virtual sint FTell( fileHandle_t f );
     virtual void Flush( fileHandle_t f );
-    virtual bool VerifyPak( StringEntry pak );
+    virtual bool VerifyPak( pointer pak );
     virtual bool IsPure( void );
-    virtual U32 ChecksumOSPath( UTF8* OSPath );
-    virtual void FilenameCompletion( StringEntry dir, StringEntry ext, bool stripExt, void( *callback )( StringEntry s ) );
-    virtual StringEntry GetGameDir( void );
-    virtual bool IsFileEmpty( UTF8* filename );
+    virtual uint ChecksumOSPath( valueType* OSPath );
+    virtual void FilenameCompletion( pointer dir, pointer ext, bool stripExt, void( *callback )( pointer s ) );
+    virtual pointer GetGameDir( void );
+    virtual bool IsFileEmpty( valueType* filename );
 };
 
 extern idFileSystemLocal fileSystemLocal;

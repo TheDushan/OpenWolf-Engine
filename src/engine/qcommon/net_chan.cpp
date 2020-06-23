@@ -49,7 +49,7 @@ packet header
 -------------
 4	outgoing sequence.  high bit will be set if this is a fragmented message
 [2	qport (only for client to server)]
-[2	fragment start U8]
+[2	fragment start uchar8]
 [2	fragment length. if < FRAGMENT_SIZE, this is the last fragment]
 
 if the sequence number is -1, the packet should be handled as an out-of-band
@@ -78,7 +78,7 @@ convar_t*		showpackets;
 convar_t*		showdrop;
 convar_t*		qport;
 
-static UTF8* netsrcString[2] =
+static valueType* netsrcString[2] =
 {
     "client",
     "server"
@@ -90,7 +90,7 @@ Netchan_Init
 
 ===============
 */
-void Netchan_Init( S32 port )
+void Netchan_Init( sint port )
 {
     port &= 0xffff;
     showpackets = cvarSystem->Get( "showpackets", "0", CVAR_TEMP, "Toggles the running display of all packets sent and received. 0=disables;1=enables. " );
@@ -105,7 +105,7 @@ Netchan_Setup
 called to open a channel to a remote system
 ==============
 */
-void Netchan_Setup( netsrc_t sock, netchan_t* chan, netadr_t adr, S32 qport )
+void Netchan_Setup( netsrc_t sock, netchan_t* chan, netadr_t adr, sint qport )
 {
     ::memset( chan, 0, sizeof( *chan ) );
     
@@ -129,11 +129,11 @@ more difficult.
 #define	SCRAMBLE_START	6
 static void Netchan_ScramblePacket( msg_t* buf )
 {
-    U32	seed;
-    S32			i, j, c, mask, temp;
-    S32			seq[MAX_PACKETLEN];
+    uint	seed;
+    sint			i, j, c, mask, temp;
+    sint			seq[MAX_PACKETLEN];
     
-    seed = ( LittleLong( *( U32* )buf->data ) * 3 ) ^ ( buf->cursize * 123 );
+    seed = ( LittleLong( *( uint* )buf->data ) * 3 ) ^ ( buf->cursize * 123 );
     c = buf->cursize;
     if( c <= SCRAMBLE_START )
     {
@@ -164,7 +164,7 @@ static void Netchan_ScramblePacket( msg_t* buf )
         buf->data[i] = temp;
     }
     
-    // U8 xor the data after the header
+    // uchar8 xor the data after the header
     for( i = SCRAMBLE_START ; i < c ; i++ )
     {
         buf->data[i] ^= seq[i];
@@ -173,11 +173,11 @@ static void Netchan_ScramblePacket( msg_t* buf )
 
 static void Netchan_UnScramblePacket( msg_t* buf )
 {
-    U32	seed;
-    S32			i, j, c, mask, temp;
-    S32			seq[MAX_PACKETLEN];
+    uint	seed;
+    sint			i, j, c, mask, temp;
+    sint			seq[MAX_PACKETLEN];
     
-    seed = ( LittleLong( *( U32* )buf->data ) * 3 ) ^ ( buf->cursize * 123 );
+    seed = ( LittleLong( *( uint* )buf->data ) * 3 ) ^ ( buf->cursize * 123 );
     c = buf->cursize;
     if( c <= SCRAMBLE_START )
     {
@@ -195,7 +195,7 @@ static void Netchan_UnScramblePacket( msg_t* buf )
         seq[i] = seed;
     }
     
-    // U8 xor the data after the header
+    // uchar8 xor the data after the header
     for( i = SCRAMBLE_START ; i < c ; i++ )
     {
         buf->data[i] ^= seq[i];
@@ -226,8 +226,8 @@ Send one fragment of the current message
 void Netchan_TransmitNextFragment( netchan_t* chan )
 {
     msg_t		send;
-    U8		send_buf[MAX_PACKETLEN];
-    S32			fragmentLength;
+    uchar8		send_buf[MAX_PACKETLEN];
+    sint			fragmentLength;
     
     // write the packet header
     MSG_InitOOB( &send, send_buf, sizeof( send_buf ) );				// <-- only do the oob here
@@ -289,10 +289,10 @@ Sends a message to a connection, fragmenting if necessary
 A 0 length will still generate a packet.
 ================
 */
-void Netchan_Transmit( netchan_t* chan, S32 length, const U8* data )
+void Netchan_Transmit( netchan_t* chan, sint length, const uchar8* data )
 {
     msg_t		send;
-    U8		send_buf[MAX_PACKETLEN];
+    uchar8		send_buf[MAX_PACKETLEN];
     
     if( length > MAX_MSGLEN )
     {
@@ -359,9 +359,9 @@ copied out.
 */
 bool Netchan_Process( netchan_t* chan, msg_t* msg )
 {
-    S32			sequence;
-    S32			qport;
-    S32			fragmentStart, fragmentLength;
+    sint			sequence;
+    sint			qport;
+    sint			fragmentStart, fragmentLength;
     bool	fragmented;
     
     // XOR unscramble all data in the packet after the header
@@ -514,7 +514,7 @@ bool Netchan_Process( netchan_t* chan, msg_t* msg )
         // copy the full message over the partial fragment
         
         // make sure the sequence number is still there
-        *( S32* )msg->data = LittleLong( sequence );
+        *( sint* )msg->data = LittleLong( sequence );
         
         ::memcpy( msg->data + 4, chan->fragmentBuffer, chan->fragmentLength );
         msg->cursize = chan->fragmentLength + 4;
@@ -555,14 +555,14 @@ LOOPBACK BUFFERS FOR LOCAL PLAYER
 
 typedef struct
 {
-    U8	data[MAX_PACKETLEN];
-    S32		datalen;
+    uchar8	data[MAX_PACKETLEN];
+    sint		datalen;
 } loopmsg_t;
 
 typedef struct
 {
     loopmsg_t	msgs[MAX_LOOPBACK];
-    S32			get, send;
+    sint			get, send;
 } loopback_t;
 
 loopback_t	loopbacks[2];
@@ -570,7 +570,7 @@ loopback_t	loopbacks[2];
 
 bool	NET_GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message )
 {
-    S32		i;
+    sint		i;
     loopback_t*	loop;
     
     loop = &loopbacks[sock];
@@ -593,9 +593,9 @@ bool	NET_GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message )
 }
 
 
-void NET_SendLoopPacket( netsrc_t sock, S32 length, const void* data, netadr_t to )
+void NET_SendLoopPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
 {
-    S32		i;
+    sint		i;
     loopback_t*	loop;
     
     loop = &loopbacks[sock ^ 1];
@@ -612,16 +612,16 @@ void NET_SendLoopPacket( netsrc_t sock, S32 length, const void* data, netadr_t t
 typedef struct packetQueue_s
 {
     struct packetQueue_s* next;
-    S32 length;
-    U8* data;
+    sint length;
+    uchar8* data;
     netadr_t to;
-    S32 release;
+    sint release;
 } packetQueue_t;
 
 packetQueue_t* packetQueue = nullptr;
 
-static void NET_QueuePacket( S32 length, const void* data, netadr_t to,
-                             S32 offset )
+static void NET_QueuePacket( sint length, const void* data, netadr_t to,
+                             sint offset )
 {
     packetQueue_t* _new, *next = packetQueue;
     
@@ -629,11 +629,11 @@ static void NET_QueuePacket( S32 length, const void* data, netadr_t to,
         offset = 999;
         
     _new = ( packetQueue_t* )S_Malloc( sizeof( packetQueue_t ) );
-    _new->data = ( U8* )S_Malloc( length );
+    _new->data = ( uchar8* )S_Malloc( length );
     ::memcpy( _new->data, data, length );
     _new->length = length;
     _new->to = to;
-    _new->release = idsystem->Milliseconds() + ( S32 )( ( F32 )offset / com_timescale->value );
+    _new->release = idsystem->Milliseconds() + ( sint )( ( float32 )offset / com_timescale->value );
     _new->next = nullptr;
     
     if( !packetQueue )
@@ -655,7 +655,7 @@ static void NET_QueuePacket( S32 length, const void* data, netadr_t to,
 void NET_FlushPacketQueue( void )
 {
     packetQueue_t* last;
-    S32 now;
+    sint now;
     
     while( packetQueue )
     {
@@ -670,11 +670,11 @@ void NET_FlushPacketQueue( void )
     }
 }
 
-void NET_SendPacket( netsrc_t sock, S32 length, const void* data, netadr_t to )
+void NET_SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
 {
 
     // sequenced packets are shown in netchan, so just show oob
-    if( showpackets->integer && *( S32* )data == -1 )
+    if( showpackets->integer && *( sint* )data == -1 )
     {
         Com_Printf( "send packet %4i\n", length );
     }
@@ -714,10 +714,10 @@ NET_OutOfBandPrint
 Sends a text message in an out-of-band datagram
 ================
 */
-void NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, StringEntry format, ... )
+void NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, pointer format, ... )
 {
     va_list		argptr;
-    UTF8		string[MAX_MSGLEN];
+    valueType		string[MAX_MSGLEN];
     
     
     // set the header
@@ -741,10 +741,10 @@ NET_OutOfBandPrint
 Sends a data message in an out-of-band datagram (only used for "connect")
 ================
 */
-void NET_OutOfBandData( netsrc_t sock, netadr_t adr, U8* format, S32 len )
+void NET_OutOfBandData( netsrc_t sock, netadr_t adr, uchar8* format, sint len )
 {
-    U8		string[MAX_MSGLEN * 2];
-    S32			i;
+    uchar8		string[MAX_MSGLEN * 2];
+    sint			i;
     msg_t		mbuf;
     
     MSG_InitOOB( &mbuf, string, sizeof( string ) );
@@ -775,10 +775,10 @@ Traps "localhost" for loopback, passes everything else to system
 return 0 on address not found, 1 on address found with port, 2 on address found without port.
 =============
 */
-S32 NET_StringToAdr( StringEntry s, netadr_t* a, netadrtype_t family )
+sint NET_StringToAdr( pointer s, netadr_t* a, netadrtype_t family )
 {
-    UTF8	base[MAX_STRING_CHARS], *search;
-    UTF8*	port = nullptr;
+    valueType	base[MAX_STRING_CHARS], *search;
+    valueType*	port = nullptr;
     
     if( !strcmp( s, "localhost" ) )
     {
@@ -830,7 +830,7 @@ S32 NET_StringToAdr( StringEntry s, netadr_t* a, netadrtype_t family )
     
     if( port )
     {
-        a->port = BigShort( ( S16 ) atoi( port ) );
+        a->port = BigShort( ( schar16 ) atoi( port ) );
         return 1;
     }
     else

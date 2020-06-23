@@ -68,7 +68,7 @@ idServerWallhackSystemLocal::~idServerWallhackSystemLocal( void )
 idServerWallhackSystemLocal::zero_vector
 ===============
 */
-S32 idServerWallhackSystemLocal::zero_vector( vec3_t v )
+sint idServerWallhackSystemLocal::zero_vector( vec3_t v )
 {
     if( v[0] > POS_LIM || v[0] < NEG_LIM )
     {
@@ -100,7 +100,7 @@ WEB site: http://www.ra.is/unlagged
 */
 void idServerWallhackSystemLocal::predict_clip_velocity( vec3_t in, vec3_t normal, vec3_t out )
 {
-    F32 backoff;
+    float32 backoff;
     
     // find the magnitude of the vector "in" along "normal"
     backoff = DotProduct( in, normal );
@@ -124,10 +124,10 @@ void idServerWallhackSystemLocal::predict_clip_velocity( vec3_t in, vec3_t norma
 idServerWallhackSystemLocal::predict_slide_move
 ===============
 */
-S32 idServerWallhackSystemLocal::predict_slide_move( sharedEntity_t* ent, F32 frametime, trajectory_t* tr, vec3_t result )
+sint idServerWallhackSystemLocal::predict_slide_move( sharedEntity_t* ent, float32 frametime, trajectory_t* tr, vec3_t result )
 {
-    S32 count, numplanes = 0, i, j, k;
-    F32 d, time_left = frametime, into;
+    sint count, numplanes = 0, i, j, k;
+    float32 d, time_left = frametime, into;
     vec3_t planes[MAX_CLIP_PLANES], velocity, origin, clipVelocity, endVelocity, endClipVelocity, dir, end;
     trace_t trace;
     
@@ -283,9 +283,9 @@ S32 idServerWallhackSystemLocal::predict_slide_move( sharedEntity_t* ent, F32 fr
 idServerWallhackSystemLocal::predict_move
 ===============
 */
-void idServerWallhackSystemLocal::predict_move( sharedEntity_t* ent, F32 frametime, trajectory_t* tr, vec3_t result )
+void idServerWallhackSystemLocal::predict_move( sharedEntity_t* ent, float32 frametime, trajectory_t* tr, vec3_t result )
 {
-    F32 stepSize;
+    float32 stepSize;
     vec3_t start_o, start_v, down, up;
     trace_t trace;
     
@@ -372,9 +372,9 @@ void idServerWallhackSystemLocal::calc_viewpoint( playerState_t* ps, vec3_t org,
 idServerWallhackSystemLocal::player_in_fov
 ===============
 */
-S32 idServerWallhackSystemLocal::player_in_fov( vec3_t viewangle, vec3_t ppos, vec3_t opos )
+sint idServerWallhackSystemLocal::player_in_fov( vec3_t viewangle, vec3_t ppos, vec3_t opos )
 {
-    F32 yaw, pitch, cos_angle;
+    float32 yaw, pitch, cos_angle;
     vec3_t dir, los;
     
     VectorSubtract( opos, ppos, los );
@@ -427,7 +427,7 @@ void idServerWallhackSystemLocal::copy_trajectory( trajectory_t* src, trajectory
 idServerWallhackSystemLocal::is_visible
 ===============
 */
-S32 idServerWallhackSystemLocal::is_visible( vec3_t start, vec3_t end )
+sint idServerWallhackSystemLocal::is_visible( vec3_t start, vec3_t end )
 {
     trace_t trace;
     
@@ -448,7 +448,7 @@ idServerWallhackSystemLocal::init_horz_delta
 */
 void idServerWallhackSystemLocal::init_horz_delta( void )
 {
-    S32 i;
+    sint i;
     
     bbox_horz = sv_wh_bbox_horz->integer;
     
@@ -466,7 +466,7 @@ idServerWallhackSystemLocal::init_vert_delta
 */
 void idServerWallhackSystemLocal::init_vert_delta( void )
 {
-    S32 i;
+    sint i;
     
     bbox_vert = sv_wh_bbox_vert->integer;
     
@@ -507,12 +507,12 @@ tests are carried out again. The result is reported by returning non-zero
 in the next frame).
 ===============
 */
-S32 idServerWallhackSystemLocal::CanSee( S32 player, S32 other )
+sint idServerWallhackSystemLocal::CanSee( sint player, sint other )
 {
     sharedEntity_t* pent, * oent;
     playerState_t* ps;
     vec3_t viewpoint, tmp;
-    S32 i;
+    sint i;
     
     // check if bounding box has been changed
     if( sv_wh_bbox_horz->integer != bbox_horz )
@@ -601,11 +601,11 @@ below 'player'. The distance is maintained so that sound scaling
 will work correctly.
 ===============
 */
-void idServerWallhackSystemLocal::RandomizePos( S32 player, S32 other )
+void idServerWallhackSystemLocal::RandomizePos( sint player, sint other )
 {
     sharedEntity_t* pent, * oent;
     vec3_t los;
-    F32 dist;
+    float32 dist;
     
     pent = serverGameSystem->GentityNum( player );
     oent = serverGameSystem->GentityNum( other );
@@ -627,7 +627,7 @@ void idServerWallhackSystemLocal::RandomizePos( S32 player, S32 other )
 idServerWallhackSystemLocal::RestorePos
 ===============
 */
-void idServerWallhackSystemLocal::RestorePos( S32 cli )
+void idServerWallhackSystemLocal::RestorePos( sint cli )
 {
     sharedEntity_t* ent;
     
@@ -641,7 +641,7 @@ void idServerWallhackSystemLocal::RestorePos( S32 cli )
 idServerWallhackSystemLocal::PositionChanged
 ===============
 */
-S32 idServerWallhackSystemLocal::PositionChanged( S32 cli )
+sint idServerWallhackSystemLocal::PositionChanged( sint cli )
 {
     return origin_changed[cli];
 }

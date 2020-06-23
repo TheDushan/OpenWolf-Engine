@@ -43,8 +43,8 @@
 class idConsoleLoggingSystem
 {
 public:
-    virtual U32 LogWrite( StringEntry in ) = 0;
-    virtual U32 LogRead( UTF8* out, U32 outSize ) = 0;
+    virtual uint LogWrite( pointer in ) = 0;
+    virtual uint LogRead( valueType* out, uint outSize ) = 0;
 };
 
 extern idConsoleLoggingSystem* consoleLoggingSystem;

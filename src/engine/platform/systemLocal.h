@@ -38,22 +38,22 @@
 #ifdef __LINUX__
 static bool stdinIsATTY;
 // Used to determine where to store user-specific files
-static UTF8 exit_cmdline[MAX_CMD] = "";
+static valueType exit_cmdline[MAX_CMD] = "";
 /* base time in seconds, that's our origin
-timeval:tv_sec is an S32:
+timeval:tv_sec is an sint:
 assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038
 using unsigned long data type to work right with Sys_XTimeToSysTime */
 
 static time_t initial_tv_sec = 0;
 #endif
 
-static UTF8 homePath[MAX_OSPATH] = { 0 };
-static S32 sys_timeBase;
+static valueType homePath[MAX_OSPATH] = { 0 };
+static sint sys_timeBase;
 #define MAX_FOUND_FILES 0x1000
 #define MEM_THRESHOLD 96*1024*1024
-static UTF8 binaryPath[MAX_OSPATH] = { 0 };
-static UTF8 installPath[MAX_OSPATH] = { 0 };
-static UTF8 libPath[MAX_OSPATH] = { 0 };
+static valueType binaryPath[MAX_OSPATH] = { 0 };
+static valueType installPath[MAX_OSPATH] = { 0 };
+static valueType libPath[MAX_OSPATH] = { 0 };
 
 #ifdef _WIN32
 #define FPUCWMASK1 (_MCW_RC|_MCW_EM)
@@ -98,7 +98,7 @@ typedef enum
 } keyType_t;
 
 // We translate axes movement into keypresses
-static S32 joy_keys[16] =
+static sint joy_keys[16] =
 {
     K_LEFTARROW, K_RIGHTARROW,
     K_UPARROW, K_DOWNARROW,
@@ -112,7 +112,7 @@ static S32 joy_keys[16] =
 
 // translate hat events into keypresses
 // the 4 highest buttons are used for the first hat ...
-static S32 hat_keys[16] =
+static sint hat_keys[16] =
 {
     K_JOY29, K_JOY30,
     K_JOY31, K_JOY32,
@@ -128,9 +128,9 @@ static S32 hat_keys[16] =
 static struct
 {
     bool buttons[16];  // !!! FIXME: these might be too many.
-    U32 oldaxes;
-    S32 oldaaxes[MAX_JOYSTICK_AXIS];
-    U32 oldhats;
+    uint oldaxes;
+    sint oldaaxes[MAX_JOYSTICK_AXIS];
+    uint oldhats;
 } stick_state;
 
 //
@@ -142,86 +142,86 @@ public:
     idSystemLocal();
     ~idSystemLocal();
     
-    virtual UTF8* DefaultHomePath( UTF8* buffer, S32 size );
-    virtual S32 Milliseconds( void );
-    virtual bool RandomBytes( U8* string, S32 len );
-    virtual UTF8* GetCurrentUser( void );
+    virtual valueType* DefaultHomePath( valueType* buffer, sint size );
+    virtual sint Milliseconds( void );
+    virtual bool RandomBytes( uchar8* string, sint len );
+    virtual valueType* GetCurrentUser( void );
     virtual bool LowPhysicalMemory( void );
-    virtual bool Mkdir( StringEntry path );
-    virtual UTF8** ListFiles( StringEntry directory, StringEntry extension, UTF8* filter, S32* numfiles, bool wantsubs );
-    virtual void FreeFileList( UTF8** list );
-    virtual void Sleep( S32 msec );
-    virtual bool OpenUrl( StringEntry url );
-    virtual dialogResult_t Dialog( dialogType_t type, StringEntry message, StringEntry title );
+    virtual bool Mkdir( pointer path );
+    virtual valueType** ListFiles( pointer directory, pointer extension, valueType* filter, sint* numfiles, bool wantsubs );
+    virtual void FreeFileList( valueType** list );
+    virtual void Sleep( sint msec );
+    virtual bool OpenUrl( pointer url );
+    virtual dialogResult_t Dialog( dialogType_t type, pointer message, pointer title );
     virtual void GLimpSafeInit( void );
     virtual void GLimpInit( void );
-    virtual void StartProcess( UTF8* exeName, bool doexit );
-    virtual void OpenURL( StringEntry url, bool doexit );
+    virtual void StartProcess( valueType* exeName, bool doexit );
+    virtual void OpenURL( pointer url, bool doexit );
     virtual bool IsNumLockDown( void );
-    virtual void Chmod( UTF8* file, S32 mode );
-    virtual UTF8* SysGetClipboardData( void );
-    virtual UTF8* DefaultInstallPath( void );
-    virtual UTF8* DefaultLibPath( void );
-    virtual UTF8* DefaultAppPath( void );
+    virtual void Chmod( valueType* file, sint mode );
+    virtual valueType* SysGetClipboardData( void );
+    virtual valueType* DefaultInstallPath( void );
+    virtual valueType* DefaultLibPath( void );
+    virtual valueType* DefaultAppPath( void );
     virtual void Restart_f( void );
-    virtual UTF8* ConsoleInput( void );
+    virtual valueType* ConsoleInput( void );
     virtual bool WritePIDFile( void );
     virtual void Quit( void );
     virtual void Init( void );
-    virtual void WriteDump( StringEntry fmt, ... );
-    virtual void Print( StringEntry msg );
-    virtual void Error( StringEntry error, ... );
+    virtual void WriteDump( pointer fmt, ... );
+    virtual void Print( pointer msg );
+    virtual void Error( pointer error, ... );
     virtual void UnloadDll( void* dllHandle );
-    virtual UTF8* GetDLLName( StringEntry name );
-    virtual void* LoadDll( StringEntry name );
-    virtual void* GetProcAddress( void* dllhandle, StringEntry name );
-    virtual void SysSnapVector( F32* v );
+    virtual valueType* GetDLLName( pointer name );
+    virtual void* LoadDll( pointer name );
+    virtual void* GetProcAddress( void* dllhandle, pointer name );
+    virtual void SysSnapVector( float32* v );
     virtual void Init( void* windowData );
     virtual void Shutdown( void );
     
-    static void SetBinaryPath( StringEntry path );
+    static void SetBinaryPath( pointer path );
     static void SetFloatEnv( void );
-    static StringEntry TempPath( void );
-    static StringEntry Basename( UTF8* path );
-    static StringEntry Dirname( UTF8* path );
-    static UTF8* Cwd( void );
-    static void ListFilteredFiles( StringEntry basedir, UTF8* subdirs, UTF8* filter, UTF8** list, S32* numfiles );
-    static void ErrorDialog( StringEntry error );
+    static pointer TempPath( void );
+    static pointer Basename( valueType* path );
+    static pointer Dirname( valueType* path );
+    static valueType* Cwd( void );
+    static void ListFilteredFiles( pointer basedir, valueType* subdirs, valueType* filter, valueType** list, sint* numfiles );
+    static void ErrorDialog( pointer error );
     static void resetTime( void );
     static void PlatformInit( void );
-    static void SetEnv( StringEntry name, StringEntry value );
-    static S32 PID( void );
-    static bool PIDIsRunning( S32 pid );
-    static void DoStartProcess( UTF8* cmdline );
-    static bool Fork( StringEntry path, StringEntry cmdLine );
-    static UTF8* BinaryPath( void );
-    static void SetDefaultInstallPath( StringEntry path );
-    static void SetDefaultLibPath( StringEntry path );
-    static UTF8* PIDFileName( void );
-    static void Exit( S32 exitCode );
-    static void RecordError( StringEntry msg );
-    static void ParseArgs( S32 argc, UTF8** argv );
-    static StringEntry SignalToString( S32 sig );
-    static void SigHandler( S32 signal );
-    static F32 roundfloat( F32 n );
+    static void SetEnv( pointer name, pointer value );
+    static sint PID( void );
+    static bool PIDIsRunning( sint pid );
+    static void DoStartProcess( valueType* cmdline );
+    static bool Fork( pointer path, pointer cmdLine );
+    static valueType* BinaryPath( void );
+    static void SetDefaultInstallPath( pointer path );
+    static void SetDefaultLibPath( pointer path );
+    static valueType* PIDFileName( void );
+    static void Exit( sint exitCode );
+    static void RecordError( pointer msg );
+    static void ParseArgs( sint argc, valueType** argv );
+    static pointer SignalToString( sint sig );
+    static void SigHandler( sint signal );
+    static float32 roundfloat( float32 n );
     static void InitJoystick( void );
     static void ShutdownJoystick( void );
-    static void JoyMove( S32 eventTime );
-    static void ProcessEvents( S32 eventTime );
+    static void JoyMove( sint eventTime );
+    static void ProcessEvents( sint eventTime );
     static void Frame( void );
     static void InitKeyLockStates( void );
     static void Restart( void );
     static void PrintKey( const SDL_Keysym* keysym, keyNum_t key, bool down );
-    static bool IsConsoleKey( keyNum_t key, S32 character );
+    static bool IsConsoleKey( keyNum_t key, sint character );
     static keyNum_t TranslateSDLToQ3Key( SDL_Keysym* keysym, bool down );
     static void GobbleMotionEvents( void );
     static void ActivateMouse( void );
     static void DeactivateMouse( void );
-    static S32 CtrlHandler( U64 sig );
-    static bool strgtr( StringEntry s0, StringEntry s1 );
-    static S32 ZenityCommand( dialogType_t type, StringEntry message, StringEntry title );
-    static S32 KdialogCommand( dialogType_t type, StringEntry message, StringEntry title );
-    static S32 XmessageCommand( dialogType_t type, StringEntry message, StringEntry title );
+    static sint CtrlHandler( uint32 sig );
+    static bool strgtr( pointer s0, pointer s1 );
+    static sint ZenityCommand( dialogType_t type, pointer message, pointer title );
+    static sint KdialogCommand( dialogType_t type, pointer message, pointer title );
+    static sint XmessageCommand( dialogType_t type, pointer message, pointer title );
 };
 
 extern idSystemLocal systemLocal;

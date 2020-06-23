@@ -157,14 +157,14 @@ netadr_t rcon_address;
 bool        autoupdateChecked;
 bool        autoupdateStarted;
 
-// TTimo : moved from char* to array (was getting the UTF8* from va(), broke on big downloads)
-UTF8            autoupdateFilename[MAX_QPATH];
+// TTimo : moved from char* to array (was getting the valueType* from va(), broke on big downloads)
+valueType            autoupdateFilename[MAX_QPATH];
 
 // "updates" shifted from -7
 #define AUTOUPDATE_DIR "ni]Zm^l"
 #define AUTOUPDATE_DIR_SHIFT 7
 
-extern void     SV_BotFrame( S32 time );
+extern void     SV_BotFrame( sint time );
 void            CL_CheckForResend( void );
 void            CL_ShowIP_f( void );
 void            CL_SaveTranslations_f( void );
@@ -223,9 +223,9 @@ The given command will be transmitted to the server, and is gauranteed to
 not have future usercmd_t executed before it is executed
 ======================
 */
-void CL_AddReliableCommand( StringEntry cmd )
+void CL_AddReliableCommand( pointer cmd )
 {
-    S32             index;
+    sint             index;
     
     // if we would be losing an old command that hasn't been acknowledged,
     // we must drop the connection
@@ -245,7 +245,7 @@ CL_ChangeReliableCommand
 */
 void CL_ChangeReliableCommand( void )
 {
-    S32             r, index, l;
+    sint             r, index, l;
     
     // NOTE TTimo: what is the randomize for?
     r = clc.reliableSequence - ( random() * 5 );
@@ -274,9 +274,9 @@ CL_WriteDemoMessage
 Dumps the current net message, prefixed by the length
 ====================
 */
-void CL_WriteDemoMessage( msg_t* msg, S32 headerBytes )
+void CL_WriteDemoMessage( msg_t* msg, sint headerBytes )
 {
-    S32             len, swlen;
+    sint             len, swlen;
     
     // write the packet sequence
     len = clc.serverMessageSequence;
@@ -300,7 +300,7 @@ stop recording a demo
 */
 void CL_StopRecord_f( void )
 {
-    S32             len;
+    sint             len;
     
     if( !clc.demorecording )
     {
@@ -327,7 +327,7 @@ void CL_StopRecord_f( void )
 CL_DemoFilename
 ==================
 */
-void CL_DemoFilename( S32 number, UTF8* fileName )
+void CL_DemoFilename( sint number, valueType* fileName )
 {
     if( number < 0 || number > 9999 )
     {
@@ -348,12 +348,12 @@ Begins recording a demo from the current position
 ====================
 */
 
-static UTF8     demoName[MAX_QPATH];	// compiler bug workaround
+static valueType     demoName[MAX_QPATH];	// compiler bug workaround
 void CL_Record_f( void )
 {
-    UTF8            name[MAX_OSPATH];
-    S32             len;
-    UTF8*           s;
+    valueType            name[MAX_OSPATH];
+    sint             len;
+    valueType*           s;
     
     if( cmdSystem->Argc() > 2 )
     {
@@ -389,7 +389,7 @@ void CL_Record_f( void )
     }
     else
     {
-        S32             number;
+        sint             number;
         
         // scan for a free demo name
         for( number = 0; number <= 9999; number++ )
@@ -408,15 +408,15 @@ void CL_Record_f( void )
     CL_Record( name );
 }
 
-void CL_Record( StringEntry name )
+void CL_Record( pointer name )
 {
-    S32             i;
+    sint             i;
     msg_t           buf;
-    U8            bufData[MAX_MSGLEN];
+    uchar8            bufData[MAX_MSGLEN];
     entityState_t*  ent;
     entityState_t   nullstate;
-    UTF8*           s;
-    S32             len;
+    valueType*           s;
+    sint             len;
     
     // open the demo file
     
@@ -514,7 +514,7 @@ void CL_DemoCompleted( void )
 {
     if( cl_timedemo && cl_timedemo->integer )
     {
-        S32             time;
+        sint             time;
         
         time = idsystem->Milliseconds() - clc.timeDemoStart;
         if( time > 0 )
@@ -544,10 +544,10 @@ CL_ReadDemoMessage
 
 void CL_ReadDemoMessage( void )
 {
-    S32             r;
+    sint             r;
     msg_t           buf;
-    U8            bufData[MAX_MSGLEN];
-    S32             s;
+    uchar8            bufData[MAX_MSGLEN];
+    sint             s;
     
     if( !clc.demofile )
     {
@@ -614,7 +614,7 @@ void CL_ReadDemoMessage( void )
 CL_DemoFilename
 ==================
 */
-void CL_WavFilename( S32 number, UTF8* fileName )
+void CL_WavFilename( sint number, valueType* fileName )
 {
     if( number < 0 || number > 9999 )
     {
@@ -627,23 +627,23 @@ void CL_WavFilename( S32 number, UTF8* fileName )
 
 typedef struct wav_hdr_s
 {
-    U32    ChunkID;	// big endian
-    U32    ChunkSize;	// little endian
-    U32    Format;		// big endian
+    uint    ChunkID;	// big endian
+    uint    ChunkSize;	// little endian
+    uint    Format;		// big endian
     
-    U32    Subchunk1ID;	// big endian
-    U32    Subchunk1Size;	// little endian
-    U16  AudioFormat;	// little endian
-    U16  NumChannels;	// little endian
-    U32    SampleRate;	// little endian
-    U32    ByteRate;	// little endian
-    U16  BlockAlign;	// little endian
-    U16  BitsPerSample;	// little endian
+    uint    Subchunk1ID;	// big endian
+    uint    Subchunk1Size;	// little endian
+    uchar16  AudioFormat;	// little endian
+    uchar16  NumChannels;	// little endian
+    uint    SampleRate;	// little endian
+    uint    ByteRate;	// little endian
+    uchar16  BlockAlign;	// little endian
+    uchar16  BitsPerSample;	// little endian
     
-    U32    Subchunk2ID;	// big endian
-    U32    Subchunk2Size;	// little indian ;)
+    uint    Subchunk2ID;	// big endian
+    uint    Subchunk2Size;	// little indian ;)
     
-    U32    NumSamples;
+    uint    NumSamples;
 } wav_hdr_t;
 
 wav_hdr_t       hdr;
@@ -679,14 +679,14 @@ static void CL_WriteWaveHeader( void )
     fileSystem->Write( &hdr.ChunkID, 44, clc.wavefile );
 }
 
-static UTF8     wavName[MAX_QPATH];	// compiler bug workaround
+static valueType     wavName[MAX_QPATH];	// compiler bug workaround
 void CL_WriteWaveOpen()
 {
     // we will just save it as a 16bit stereo 22050kz pcm file
     
-    UTF8            name[MAX_OSPATH];
-    S32             len;
-    UTF8*           s;
+    valueType            name[MAX_OSPATH];
+    sint             len;
+    valueType*           s;
     
     if( cmdSystem->Argc() > 2 )
     {
@@ -712,7 +712,7 @@ void CL_WriteWaveOpen()
     }
     else
     {
-        S32             number;
+        sint             number;
         
         // I STOLE THIS
         for( number = 0; number <= 9999; number++ )
@@ -769,11 +769,11 @@ void CL_WriteWaveClose()
 CL_CompleteDemoName
 ====================
 */
-static void CL_CompleteDemoName( UTF8* args, S32 argNum )
+static void CL_CompleteDemoName( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
-        UTF8 demoExt[ 16 ];
+        valueType demoExt[ 16 ];
         
         Com_sprintf( demoExt, sizeof( demoExt ), ".dm_%d", com_protocol->integer );
         Field_CompleteFilename( "demos", demoExt, true );
@@ -792,9 +792,9 @@ demo <demoname>
 */
 void CL_PlayDemo_f( void )
 {
-    UTF8            name[MAX_OSPATH], extension[32];
-    UTF8*           arg;
-    S32             prot_ver;
+    valueType            name[MAX_OSPATH], extension[32];
+    valueType*           arg;
+    sint             prot_ver;
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -903,7 +903,7 @@ CL_DemoPos
 Returns the current position of the demo
 ==================
 */
-S32 CL_DemoPos( void )
+sint CL_DemoPos( void )
 {
     if( clc.demoplaying || clc.demorecording )
     {
@@ -925,7 +925,7 @@ If the "nextdemo" cvar is set, that command will be issued
 */
 void CL_NextDemo( void )
 {
-    UTF8            v[MAX_STRING_CHARS];
+    valueType            v[MAX_STRING_CHARS];
     
     Q_strncpyz( v, cvarSystem->VariableString( "nextdemo" ), sizeof( v ) );
     v[MAX_STRING_CHARS - 1] = 0;
@@ -949,7 +949,7 @@ CL_DemoName
 Returns the name of the demo
 ==================
 */
-void CL_DemoName( UTF8* buffer, S32 size )
+void CL_DemoName( valueType* buffer, sint size )
 {
     if( clc.demoplaying || clc.demorecording )
     {
@@ -1112,10 +1112,10 @@ CL_UpdateGUID
 update cl_guid using ETKEY_FILE and optional prefix
 ====================
 */
-static void CL_UpdateGUID( StringEntry prefix, S32 prefix_len )
+static void CL_UpdateGUID( pointer prefix, sint prefix_len )
 {
     fileHandle_t    f;
-    S32             len;
+    sint             len;
     
     len = fileSystem->SV_FOpenFileRead( GUIDKEY_FILE, &f );
     fileSystem->FCloseFile( f );
@@ -1258,9 +1258,9 @@ things like godmode, noclip, etc, are commands directed to the server,
 so when they are typed in at the console, they will need to be forwarded.
 ===================
 */
-void CL_ForwardCommandToServer( StringEntry string )
+void CL_ForwardCommandToServer( pointer string )
 {
-    UTF8*           cmd;
+    valueType*           cmd;
     
     cmd = cmdSystem->Argv( 0 );
     
@@ -1299,7 +1299,7 @@ CL_OpenUrl_f
 */
 void CL_OpenUrl_f( void )
 {
-    StringEntry url;
+    pointer url;
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -1317,17 +1317,17 @@ void CL_OpenUrl_f( void )
         	parsing and validating functions USE THEM HERE, this code
         	is a placeholder!!!
         */
-        S32 i;
-        StringEntry u;
+        sint i;
+        pointer u;
         
-        StringEntry allowPrefixes[] = { "http://", "https://", "" };
-        StringEntry allowDomains[2] = { "localhost", 0 };
+        pointer allowPrefixes[] = { "http://", "https://", "" };
+        pointer allowDomains[2] = { "localhost", 0 };
         
         u = url;
         for( i = 0; i < lengthof( allowPrefixes ); i++ )
         {
-            StringEntry p = allowPrefixes[i];
-            U64 len = strlen( p );
+            pointer p = allowPrefixes[i];
+            uint32 len = strlen( p );
             if( Q_strncmp( u, p, len ) == 0 )
             {
                 u += len;
@@ -1348,8 +1348,8 @@ void CL_OpenUrl_f( void )
         
         for( i = 0; i < lengthof( allowDomains ); i++ )
         {
-            U64 len;
-            StringEntry d = allowDomains[i];
+            uint32 len;
+            pointer d = allowDomains[i];
             if( !d )
                 break;
                 
@@ -1397,7 +1397,7 @@ CL_RequestMotd
 */
 void CL_RequestMotd( void )
 {
-    UTF8		info[MAX_INFO_STRING];
+    valueType		info[MAX_INFO_STRING];
     
     if( !cl_motd->integer )
     {
@@ -1470,12 +1470,12 @@ Mostly for controlling voodoo environment variables
 */
 void CL_Setenv_f( void )
 {
-    S32 argc = cmdSystem->Argc();
+    sint argc = cmdSystem->Argc();
     
     if( argc > 2 )
     {
-        UTF8 buffer[1024];
-        S32 i;
+        valueType buffer[1024];
+        sint i;
         
         ::strcpy( buffer, cmdSystem->Argv( 1 ) );
         ::strcat( buffer, "=" );
@@ -1490,7 +1490,7 @@ void CL_Setenv_f( void )
     }
     else if( argc == 2 )
     {
-        UTF8* env = getenv( cmdSystem->Argv( 1 ) );
+        valueType* env = getenv( cmdSystem->Argv( 1 ) );
         
         if( env )
         {
@@ -1546,9 +1546,9 @@ CL_Connect_f
 */
 void CL_Connect_f( void )
 {
-    UTF8*			server;
-    StringEntry		serverString;
-    S32				argc = cmdSystem->Argc();
+    valueType*			server;
+    pointer		serverString;
+    sint				argc = cmdSystem->Argc();
     netadrtype_t	family = NA_UNSPEC;
     
     if( argc != 2 && argc != 3 )
@@ -1672,7 +1672,7 @@ CL_Rcon_f
 #define MAX_RCON_MESSAGE 1024
 void CL_Rcon_f( void )
 {
-    UTF8 message[MAX_RCON_MESSAGE];
+    valueType message[MAX_RCON_MESSAGE];
     
     if( !strlen( rcon_client_password->string ) )
     {
@@ -1726,9 +1726,9 @@ CL_SendPureChecksums
 */
 void CL_SendPureChecksums( void )
 {
-    StringEntry     pChecksums;
-    UTF8            cMsg[MAX_INFO_VALUE];
-    S32             i;
+    pointer     pChecksums;
+    valueType            cMsg[MAX_INFO_VALUE];
+    sint             i;
     
     // if we are pure we need to send back a command with our referenced pk3 checksums
     pChecksums = fileSystem->ReferencedPakPureChecksums();
@@ -1922,8 +1922,8 @@ CL_Configstrings_f
 */
 void CL_Configstrings_f( void )
 {
-    S32             i;
-    S32             ofs;
+    sint             i;
+    sint             ofs;
     
     if( cls.state != CA_ACTIVE )
     {
@@ -2008,8 +2008,8 @@ video [filename]
 */
 void CL_Video_f( void )
 {
-    UTF8            filename[MAX_OSPATH];
-    S32             i, last;
+    valueType            filename[MAX_OSPATH];
+    sint             i, last;
     
     if( !clc.demoplaying )
     {
@@ -2027,7 +2027,7 @@ void CL_Video_f( void )
         // scan for a free filename
         for( i = 0; i <= 9999; i++ )
         {
-            S32             a, b, c, d;
+            sint             a, b, c, d;
             
             last = i;
             
@@ -2075,9 +2075,9 @@ Called when all downloading has been completed
 void CL_DownloadsComplete( void )
 {
 #ifndef _WIN32
-    UTF8*    fs_write_path;
+    valueType*    fs_write_path;
 #endif
-    UTF8*    fn;
+    valueType*    fn;
     
     if( cls.state < CA_CONNECTING )
     {
@@ -2187,7 +2187,7 @@ Requests a file to download from the server.  Stores it in the current
 game directory.
 =================
 */
-void CL_BeginDownload( StringEntry localName, StringEntry remoteName )
+void CL_BeginDownload( pointer localName, pointer remoteName )
 {
 
     Com_DPrintf( "***** CL_BeginDownload *****\n"
@@ -2217,8 +2217,8 @@ A download completed or failed
 */
 void CL_NextDownload( void )
 {
-    UTF8*           s;
-    UTF8*           remoteName, *localName;
+    valueType*           s;
+    valueType*           remoteName, *localName;
     
     // We are looking to start a download here
     if( *clc.downloadList )
@@ -2275,8 +2275,8 @@ and determine if we need to download them
 void CL_InitDownloads( void )
 {
 #ifndef PRE_RELEASE_DEMO
-    UTF8            missingfiles[1024];
-    UTF8*           dir = fileSystem->ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT );
+    valueType            missingfiles[1024];
+    valueType*           dir = fileSystem->ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT );
     
     // TTimo
     // init some of the www dl data
@@ -2340,11 +2340,11 @@ Resend a connect message if the last one has timed out
 */
 void CL_CheckForResend( void )
 {
-    S32             port, i;
-    UTF8            info[MAX_INFO_STRING];
-    UTF8            data[MAX_INFO_STRING];
-    UTF8            pkt[1024 + 1];	// EVEN BALANCE - T.RAY
-    S32             pktlen;		// EVEN BALANCE - T.RAY
+    sint             port, i;
+    valueType            info[MAX_INFO_STRING];
+    valueType            data[MAX_INFO_STRING];
+    valueType            pkt[1024 + 1];	// EVEN BALANCE - T.RAY
+    sint             pktlen;		// EVEN BALANCE - T.RAY
     
     // don't send anything if playing back a demo
     if( clc.demoplaying )
@@ -2399,7 +2399,7 @@ void CL_CheckForResend( void )
             pktlen = i + 10;
             memcpy( pkt, &data[0], pktlen );
             
-            NET_OutOfBandData( NS_CLIENT, clc.serverAddress, ( U8* ) pkt, pktlen );
+            NET_OutOfBandData( NS_CLIENT, clc.serverAddress, ( uchar8* ) pkt, pktlen );
             // the most current userinfo has been sent, so watch for any
             // newer changes to userinfo variables
             cvar_modifiedFlags &= ~CVAR_USERINFO;
@@ -2422,7 +2422,7 @@ to the client so it doesn't have to wait for the full timeout period.
 */
 void CL_DisconnectPacket( netadr_t from )
 {
-    StringEntry     message;
+    pointer     message;
     
     if( cls.state < CA_AUTHORIZING )
     {
@@ -2464,18 +2464,18 @@ void CL_DisconnectPacket( netadr_t from )
 }
 
 
-UTF8* str_replace( StringEntry string, StringEntry substr, StringEntry replacement )
+valueType* str_replace( pointer string, pointer substr, pointer replacement )
 {
-    UTF8* tok = nullptr;
-    UTF8* newstr = nullptr;
-    UTF8* oldstr = nullptr;
+    valueType* tok = nullptr;
+    valueType* newstr = nullptr;
+    valueType* oldstr = nullptr;
     /* if either substr or replacement is nullptr, duplicate string a let caller handle it */
     if( substr == nullptr || replacement == nullptr ) return strdup( string );
     newstr = strdup( string );
     while( ( tok = strstr( newstr, substr ) ) )
     {
         oldstr = newstr;
-        newstr = ( UTF8* )malloc( strlen( oldstr ) - strlen( substr ) + strlen( replacement ) + 1 );
+        newstr = ( valueType* )malloc( strlen( oldstr ) - strlen( substr ) + strlen( replacement ) + 1 );
         /*failed to alloc mem, free old string and return nullptr */
         if( newstr == nullptr )
         {
@@ -2496,10 +2496,10 @@ UTF8* str_replace( StringEntry string, StringEntry substr, StringEntry replaceme
 CL_MotdPacket
 ===================
 */
-void CL_MotdPacket( netadr_t from, StringEntry info )
+void CL_MotdPacket( netadr_t from, pointer info )
 {
-    StringEntry v;
-    UTF8* w;
+    pointer v;
+    valueType* w;
     
     // if not from our server, ignore it
     if( !NET_CompareAdr( from, cls.updateServer ) )
@@ -2548,7 +2548,7 @@ print OOB are the only messages we handle markups in
 */
 void CL_PrintPacket( netadr_t from, msg_t* msg )
 {
-    UTF8*           s;
+    valueType*           s;
     
     s = MSG_ReadBigString( msg );
     if( !Q_stricmpn( s, "[err_dialog]", 12 ) )
@@ -2591,8 +2591,8 @@ Responses to broadcasts, etc
 */
 void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
 {
-    UTF8* s, *c;
-    S32 challenge = 0;
+    valueType* s, *c;
+    sint challenge = 0;
     
     MSG_BeginReadingOOB( msg );
     MSG_ReadLong( msg );    // skip the -1
@@ -2789,9 +2789,9 @@ A packet has arrived from the main event loop
 */
 void CL_PacketEvent( netadr_t from, msg_t* msg )
 {
-    S32 headerBytes;
+    sint headerBytes;
     
-    if( msg->cursize >= 4 && *( S32* )msg->data == -1 )
+    if( msg->cursize >= 4 && *( sint* )msg->data == -1 )
     {
         CL_ConnectionlessPacket( from, msg );
         return;
@@ -2832,7 +2832,7 @@ void CL_PacketEvent( netadr_t from, msg_t* msg )
     // track the last message received so it can be returned in
     // client messages, allowing the server to detect a dropped
     // gamestate
-    clc.serverMessageSequence = LittleLong( *( S32* )msg->data );
+    clc.serverMessageSequence = LittleLong( *( sint* )msg->data );
     
     clc.lastPacketTime = cls.realtime;
     CL_ParseServerMessage( msg );
@@ -2912,7 +2912,7 @@ CL_WWWDownload
 */
 void CL_WWWDownload( void )
 {
-    UTF8*           to_ospath;
+    valueType*           to_ospath;
     dlStatus_t      ret;
     static bool bAbort = false;
     
@@ -2985,7 +2985,7 @@ void CL_WWWDownload( void )
             // but in this case we can't get anything from server
             // if we just reconnect it's likely we'll get the same disconnected download message, and error out again
             // this may happen for a regular dl or an auto update
-            StringEntry     error = va( "Download failure while getting '%s'\n", cls.downloadName );	// get the msg before clearing structs
+            pointer     error = va( "Download failure while getting '%s'\n", cls.downloadName );	// get the msg before clearing structs
             
             cls.bWWWDlDisconnected = false;	// need clearing structs before ERR_DROP, or it goes into endless reload
             CL_ClearStaticDownload();
@@ -3014,7 +3014,7 @@ we can detect files that we got from a www dl redirect with a wrong checksum
 this indicates that the redirect setup is broken, and next dl attempt should NOT redirect
 ==================
 */
-bool CL_WWWBadChecksum( StringEntry pakname )
+bool CL_WWWBadChecksum( pointer pakname )
 {
     if( strstr( clc.redirectedList, va( "@%s", pakname ) ) )
     {
@@ -3038,7 +3038,7 @@ bool CL_WWWBadChecksum( StringEntry pakname )
 CL_Frame
 ==================
 */
-void CL_Frame( S32 msec )
+void CL_Frame( sint msec )
 {
     if( !com_cl_running->integer )
     {
@@ -3068,7 +3068,7 @@ void CL_Frame( S32 msec )
             clientAVISystem->TakeVideoFrame();
             
             // fixed time for next frame'
-            msec = ( S32 )ceil( ( 1000.0f / cl_aviFrameRate->value ) * com_timescale->value );
+            msec = ( sint )ceil( ( 1000.0f / cl_aviFrameRate->value ) * com_timescale->value );
             if( msec == 0 )
             {
                 msec = 1;
@@ -3130,9 +3130,9 @@ void CL_Frame( S32 msec )
 // Ridah, startup-caching system
 typedef struct
 {
-    UTF8            name[MAX_QPATH];
-    S32             hits;
-    S32             lastSetIndex;
+    valueType            name[MAX_QPATH];
+    sint             hits;
+    sint             lastSetIndex;
 } cacheItem_t;
 typedef enum
 {
@@ -3152,7 +3152,7 @@ static cacheItem_t cacheGroups[CACHE_NUMGROUPS] =
 #define MAX_CACHE_ITEMS     4096
 #define CACHE_HIT_RATIO     0.75	// if hit on this percentage of maps, it'll get cached
 
-static S32      cacheIndex;
+static sint      cacheIndex;
 static cacheItem_t cacheItems[CACHE_NUMGROUPS][MAX_CACHE_ITEMS];
 
 static void CL_Cache_StartGather_f( void )
@@ -3165,9 +3165,9 @@ static void CL_Cache_StartGather_f( void )
 
 static void CL_Cache_UsedFile_f( void )
 {
-    UTF8            groupStr[MAX_QPATH];
-    UTF8            itemStr[MAX_QPATH];
-    S32             i, group;
+    valueType            groupStr[MAX_QPATH];
+    valueType            itemStr[MAX_QPATH];
+    sint             i, group;
     cacheItem_t*    item;
     
     if( cmdSystem->Argc() < 2 )
@@ -3251,10 +3251,10 @@ static void CL_Cache_MapChange_f( void )
 static void CL_Cache_EndGather_f( void )
 {
     // save the frequently used files to the cache list file
-    S32             i, j, handle, cachePass;
-    UTF8            filename[MAX_QPATH];
+    sint             i, j, handle, cachePass;
+    valueType            filename[MAX_QPATH];
     
-    cachePass = ( S32 )floor( ( F32 )cacheIndex * CACHE_HIT_RATIO );
+    cachePass = ( sint )floor( ( float32 )cacheIndex * CACHE_HIT_RATIO );
     
     for( i = 0; i < CACHE_NUMGROUPS; i++ )
     {
@@ -3299,10 +3299,10 @@ CL_RefPrintf
 DLL glue
 ================
 */
-void CL_RefPrintf( S32 print_level, StringEntry fmt, ... )
+void CL_RefPrintf( sint print_level, pointer fmt, ... )
 {
     va_list         argptr;
-    UTF8            msg[MAXPRINTMSG];
+    valueType            msg[MAXPRINTMSG];
     
     va_start( argptr, fmt );
     Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
@@ -3459,7 +3459,7 @@ void CL_CheckAutoUpdate( void )
 
 bool CL_NextUpdateServer( void )
 {
-    UTF8*        servername;
+    valueType*        servername;
     
 #ifdef PRE_RELEASE_DEMO
     return false;
@@ -3588,7 +3588,7 @@ void CL_GetAutoUpdate( void )
 CL_RefMalloc
 ============
 */
-void* CL_RefMalloc( S32 size )
+void* CL_RefMalloc( sint size )
 {
     return Z_TagMalloc( size, TAG_RENDERER );
 }
@@ -3604,7 +3604,7 @@ void CL_RefTagFree( void )
     return;
 }
 
-S32 CL_ScaledMilliseconds( void )
+sint CL_ScaledMilliseconds( void )
 {
     return idsystem->Milliseconds() * com_timescale->value;
     //return cls.realtime;
@@ -3644,7 +3644,7 @@ void CL_SaveTranslations_f( void )
 
 void CL_SaveNewTranslations_f( void )
 {
-    UTF8            fileName[512];
+    valueType            fileName[512];
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -3675,8 +3675,8 @@ it by filling it with 2048 bytes of random data.
 */
 static void CL_GenerateGUIDKey( void )
 {
-    S32             len = 0;
-    U8   buff[GUIDKEY_SIZE];
+    sint             len = 0;
+    uchar8   buff[GUIDKEY_SIZE];
     fileHandle_t    f;
     
     len = fileSystem->SV_FOpenFileRead( GUIDKEY_FILE, &f );
@@ -4084,11 +4084,11 @@ void CL_Shutdown( void )
 
 typedef struct trans_s
 {
-    UTF8            original[MAX_TRANS_STRING];
-    UTF8            translated[MAX_LANGUAGES][MAX_TRANS_STRING];
+    valueType            original[MAX_TRANS_STRING];
+    valueType            translated[MAX_LANGUAGES][MAX_TRANS_STRING];
     struct trans_s* next;
-    F32           x_offset;
-    F32           y_offset;
+    float32           x_offset;
+    float32           y_offset;
     bool        fromFile;
 } trans_t;
 
@@ -4099,10 +4099,10 @@ static trans_t* transTable[FILE_HASH_SIZE];
 AllocTrans
 =======================
 */
-static trans_t* AllocTrans( UTF8* original, UTF8* translated[MAX_LANGUAGES] )
+static trans_t* AllocTrans( valueType* original, valueType* translated[MAX_LANGUAGES] )
 {
     trans_t*        t;
-    S32             i;
+    sint             i;
     
     t = ( trans_t* )malloc( sizeof( trans_t ) );
     memset( t, 0, sizeof( trans_t ) );
@@ -4126,18 +4126,18 @@ static trans_t* AllocTrans( UTF8* original, UTF8* translated[MAX_LANGUAGES] )
 generateHashValue
 =======================
 */
-static S64 generateHashValue( StringEntry fname )
+static sint32 generateHashValue( pointer fname )
 {
-    S32             i;
-    S64            hash;
-    UTF8            letter;
+    sint             i;
+    sint32            hash;
+    valueType            letter;
     
     hash = 0;
     i = 0;
     while( fname[i] != '\0' )
     {
         letter = tolower( fname[i] );
-        hash += ( S64 )( letter ) * ( i + 119 );
+        hash += ( sint32 )( letter ) * ( i + 119 );
         i++;
     }
     hash &= ( FILE_HASH_SIZE - 1 );
@@ -4149,10 +4149,10 @@ static S64 generateHashValue( StringEntry fname )
 LookupTrans
 =======================
 */
-static trans_t* LookupTrans( UTF8* original, UTF8* translated[MAX_LANGUAGES], bool isLoading )
+static trans_t* LookupTrans( valueType* original, valueType* translated[MAX_LANGUAGES], bool isLoading )
 {
     trans_t*        t, *newt, *prev = nullptr;
-    S64            hash;
+    sint32            hash;
     
     hash = generateHashValue( original );
     
@@ -4198,14 +4198,14 @@ static trans_t* LookupTrans( UTF8* original, UTF8* translated[MAX_LANGUAGES], bo
 CL_SaveTransTable
 =======================
 */
-void CL_SaveTransTable( StringEntry fileName, bool newOnly )
+void CL_SaveTransTable( pointer fileName, bool newOnly )
 {
-    S32             bucketlen, bucketnum, maxbucketlen, avebucketlen;
-    S32             untransnum, transnum;
-    StringEntry     buf;
+    sint             bucketlen, bucketnum, maxbucketlen, avebucketlen;
+    sint             untransnum, transnum;
+    pointer     buf;
     fileHandle_t    f;
     trans_t*        t;
-    S32             i, j, len;
+    sint             i, j, len;
     
     if( cl.corruptedTranslationFile )
     {
@@ -4309,7 +4309,7 @@ void CL_SaveTransTable( StringEntry fileName, bool newOnly )
     }
     
     Com_Printf( "Saved translation table.\nTotal = %i, Translated = %i, Untranslated = %i, aveblen = %2.2f, maxblen = %i\n",
-                transnum + untransnum, transnum, untransnum, ( F32 )avebucketlen / bucketnum, maxbucketlen );
+                transnum + untransnum, transnum, untransnum, ( float32 )avebucketlen / bucketnum, maxbucketlen );
                 
     fileSystem->FCloseFile( f );
 }
@@ -4321,10 +4321,10 @@ CL_CheckTranslationString
 NERVE - SMF - compare formatting UTF8acters
 =======================
 */
-bool CL_CheckTranslationString( UTF8* original, UTF8* translated )
+bool CL_CheckTranslationString( valueType* original, valueType* translated )
 {
-    UTF8 format_org[128], format_trans[128];
-    S32 len, i;
+    valueType format_org[128], format_trans[128];
+    sint len, i;
     
     memset( format_org, 0, 128 );
     memset( format_trans, 0, 128 );
@@ -4383,18 +4383,18 @@ bool CL_CheckTranslationString( UTF8* original, UTF8* translated )
 CL_LoadTransTable
 =======================
 */
-void CL_LoadTransTable( StringEntry fileName )
+void CL_LoadTransTable( pointer fileName )
 {
-    UTF8            translated[MAX_LANGUAGES][MAX_VA_STRING];
-    UTF8            original[MAX_VA_STRING];
+    valueType            translated[MAX_LANGUAGES][MAX_VA_STRING];
+    valueType            original[MAX_VA_STRING];
     bool        aborted;
-    UTF8*           text;
+    valueType*           text;
     fileHandle_t    f;
-    UTF8*           text_p;
-    UTF8*           token;
-    S32             len, i;
+    valueType*           text_p;
+    valueType*           token;
+    sint             len, i;
     trans_t*        t;
-    S32             count;
+    sint             count;
     
     count = 0;
     aborted = false;
@@ -4407,7 +4407,7 @@ void CL_LoadTransTable( StringEntry fileName )
     }
     
     // Gordon: shouldn't this be a z_malloc or something?
-    text = ( UTF8* )malloc( len + 1 );
+    text = ( valueType* )malloc( len + 1 );
     if( !text )
     {
         return;
@@ -4557,7 +4557,7 @@ void CL_LoadTransTable( StringEntry fileName )
     
     if( aborted )
     {
-        S32             i, line = 1;
+        sint             i, line = 1;
         
         for( i = 0; i < len && ( text + i ) < text_p; i++ )
         {
@@ -4586,8 +4586,8 @@ CL_ReloadTranslation
 */
 void CL_ReloadTranslation()
 {
-    UTF8**          fileList;
-    S32             numFiles, i;
+    valueType**          fileList;
+    sint             numFiles, i;
     
     for( i = 0; i < FILE_HASH_SIZE; i++ )
     {
@@ -4615,8 +4615,8 @@ CL_InitTranslation
 */
 void CL_InitTranslation()
 {
-    UTF8**          fileList;
-    S32             numFiles, i;
+    valueType**          fileList;
+    sint             numFiles, i;
     
     memset( transTable, 0, sizeof( trans_t* ) * FILE_HASH_SIZE );
     CL_LoadTransTable( "scripts/translation.lang" );
@@ -4634,12 +4634,12 @@ void CL_InitTranslation()
 CL_TranslateString
 =======================
 */
-void CL_TranslateString( StringEntry string, UTF8* dest_buffer )
+void CL_TranslateString( pointer string, valueType* dest_buffer )
 {
-    S32             i, count, currentLanguage;
+    sint             i, count, currentLanguage;
     trans_t*        t;
     bool        newline = false;
-    UTF8*           buf;
+    valueType*           buf;
     
     buf = dest_buffer;
     currentLanguage = cl_language->integer - 1;
@@ -4675,7 +4675,7 @@ void CL_TranslateString( StringEntry string, UTF8* dest_buffer )
     
     if( t && strlen( t->translated[currentLanguage] ) )
     {
-        S32             offset = 0;
+        sint             offset = 0;
         
         if( cl_debugTranslation->integer >= 1 )
         {
@@ -4689,7 +4689,7 @@ void CL_TranslateString( StringEntry string, UTF8* dest_buffer )
         
         if( cl_debugTranslation->integer >= 1 )
         {
-            S32             len2 = strlen( buf );
+            sint             len2 = strlen( buf );
             
             buf[len2] = ']';
             buf[len2 + 1] = '^';
@@ -4699,7 +4699,7 @@ void CL_TranslateString( StringEntry string, UTF8* dest_buffer )
         
         if( newline )
         {
-            S32             len2 = strlen( buf );
+            sint             len2 = strlen( buf );
             
             buf[len2] = '\n';
             buf[len2 + 1] = '\0';
@@ -4707,7 +4707,7 @@ void CL_TranslateString( StringEntry string, UTF8* dest_buffer )
     }
     else
     {
-        S32             offset = 0;
+        sint             offset = 0;
         
         if( cl_debugTranslation->integer >= 1 )
         {
@@ -4721,7 +4721,7 @@ void CL_TranslateString( StringEntry string, UTF8* dest_buffer )
         
         if( cl_debugTranslation->integer >= 1 )
         {
-            S32             len2 = strlen( buf );
+            sint             len2 = strlen( buf );
             bool        addnewline = false;
             
             if( buf[len2 - 1] == '\n' )
@@ -4750,11 +4750,11 @@ CL_TranslateStringBuf
 TTimo - handy, stores in a static buf, converts \n to chr(13)
 =======================
 */
-StringEntry     CL_TranslateStringBuf( StringEntry string )
+pointer     CL_TranslateStringBuf( pointer string )
 {
-    UTF8*           p;
-    S32             i, l;
-    static UTF8     buf[MAX_VA_STRING];
+    valueType*           p;
+    sint             i, l;
+    static valueType     buf[MAX_VA_STRING];
     
     CL_TranslateString( string, buf );
     while( ( p = strstr( buf, "\\n" ) ) != nullptr )
@@ -4777,7 +4777,7 @@ StringEntry     CL_TranslateStringBuf( StringEntry string )
 CL_OpenURLForCvar
 =======================
 */
-void CL_OpenURL( StringEntry url )
+void CL_OpenURL( pointer url )
 {
     if( !url || !strlen( url ) )
     {
@@ -4793,7 +4793,7 @@ void CL_OpenURL( StringEntry url )
 BotImport_DrawPolygon
 ==================
 */
-void BotImport_DrawPolygon( S32 color, S32 numpoints, F32* points )
+void BotImport_DrawPolygon( sint color, sint numpoints, float32* points )
 {
     //renderSystem->DrawDebugPolygon( color, numpoints, points );
 }
@@ -4840,10 +4840,10 @@ void CL_UpdateInfoPacket( netadr_t from )
 CL_AddToLimboChat
 =======================
 */
-void CL_AddToLimboChat( StringEntry str )
+void CL_AddToLimboChat( pointer str )
 {
-    S32 i, len, lastcolor, chatHeight;
-    UTF8* p, * ls;
+    sint i, len, lastcolor, chatHeight;
+    valueType* p, * ls;
     
     chatHeight = LIMBOCHAT_HEIGHT;
     cl.limboChatPos = LIMBOCHAT_HEIGHT - 1;

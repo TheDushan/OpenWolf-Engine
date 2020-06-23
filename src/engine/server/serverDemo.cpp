@@ -73,7 +73,7 @@ Write a message to the demo file
 */
 void idServerDemoSystemLocal::DemoWriteMessage( msg_t* msg )
 {
-    S32 len;
+    sint len;
     
     // Write the entire message to the file, prefixed by the length
     MSG_WriteByte( msg, demo_EOF );
@@ -90,7 +90,7 @@ idServerDemoSystemLocal::DemoWriteServerCommand
 Write a server command to the demo file
 ====================
 */
-void idServerDemoSystemLocal::DemoWriteServerCommand( StringEntry str )
+void idServerDemoSystemLocal::DemoWriteServerCommand( pointer str )
 {
     msg_t msg;
     
@@ -107,7 +107,7 @@ SV_DemoWriteGameCommand
 Write a game command to the demo file
 ====================
 */
-void idServerDemoSystemLocal::DemoWriteGameCommand( S32 cmd, StringEntry str )
+void idServerDemoSystemLocal::DemoWriteGameCommand( sint cmd, pointer str )
 {
     msg_t msg;
     
@@ -130,7 +130,7 @@ void idServerDemoSystemLocal::DemoWriteFrame( void )
     msg_t msg;
     playerState_t* player;
     sharedEntity_t* entity;
-    S32 i;
+    sint i;
     
     MSG_Init( &msg, buf, sizeof( buf ) );
     
@@ -189,7 +189,7 @@ Play a frame from the demo file
 void idServerDemoSystemLocal::DemoReadFrame( void )
 {
     msg_t msg;
-    S32 cmd, r, num, i;
+    sint cmd, r, num, i;
     playerState_t* player;
     sharedEntity_t* entity;
     
@@ -375,8 +375,8 @@ sv.demo* have already been set and the demo file opened, start reading gamestate
 void idServerDemoSystemLocal::DemoStartPlayback( void )
 {
     msg_t msg;
-    S32 r, i, clients;
-    UTF8* s;
+    sint r, i, clients;
+    valueType* s;
     
     MSG_Init( &msg, buf, sizeof( buf ) );
     
@@ -426,7 +426,7 @@ void idServerDemoSystemLocal::DemoStartPlayback( void )
     clients = MSG_ReadBits( &msg, CLIENTNUM_BITS );
     if( sv_democlients->integer < clients )
     {
-        S32 count = 0;
+        sint count = 0;
         // get the number of clients in use
         for( i = 0 ; i < sv_maxclients->integer ; i++ )
         {

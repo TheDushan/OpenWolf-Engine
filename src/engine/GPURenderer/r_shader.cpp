@@ -30,7 +30,7 @@
 
 #include <framework/precompiled.h>
 
-static UTF8* s_shaderText;
+static valueType* s_shaderText;
 
 // the shader is parsed into these global variables, then copied into
 // dynamically allocated memory if it is valid.
@@ -47,17 +47,17 @@ static	shader_t*		hashTable[FILE_HASH_SIZE];
 typedef struct shaderText_s     // 8 bytes + strlen(text)+1
 {
     struct shaderText_s* next;	// linked list hashtable
-    UTF8* name;					// shader name
-    UTF8 text[0];				// shader text
+    valueType* name;					// shader name
+    valueType text[0];				// shader text
 } shaderText_t;
 
 static shaderText_t* shaderTextHashTable[MAX_SHADERTEXT_HASH];
 
-static S32 fileShaderCount;		// total .shader files found
-static S32 shaderCount;			// total shaders parsed
+static sint fileShaderCount;		// total .shader files found
+static sint shaderCount;			// total shaders parsed
 
 // ydnar: these are here because they are only referenced while parsing a shader
-static UTF8 implicitMap[MAX_QPATH];
+static valueType implicitMap[MAX_QPATH];
 static unsigned implicitStateBits;
 static cullType_t implicitCullType;
 
@@ -67,13 +67,13 @@ return a hash value for the filename
 ================
 */
 #ifdef __GNUCC__
-#warning TODO: check if S64 is ok here
+#warning TODO: check if sint32 is ok here
 #endif
-static S64 generateHashValue( StringEntry fname, const S32 size )
+static sint32 generateHashValue( pointer fname, const sint size )
 {
-    S32		i;
-    S64	hash;
-    UTF8	letter;
+    sint		i;
+    sint32	hash;
+    valueType	letter;
     
     hash = 0;
     i = 0;
@@ -83,7 +83,7 @@ static S64 generateHashValue( StringEntry fname, const S32 size )
         if( letter == '.' ) break;				// don't include extension
         if( letter == '\\' ) letter = '/';		// damn path names
         if( letter == PATH_SEP ) letter = '/';		// damn path names
-        hash += ( S64 )( letter ) * ( i + 119 );
+        hash += ( sint32 )( letter ) * ( i + 119 );
         i++;
     }
     hash = ( hash ^ ( hash >> 10 ) ^ ( hash >> 20 ) );
@@ -91,10 +91,10 @@ static S64 generateHashValue( StringEntry fname, const S32 size )
     return hash;
 }
 
-void idRenderSystemLocal::RemapShader( StringEntry shaderName, StringEntry newShaderName, StringEntry timeOffset )
+void idRenderSystemLocal::RemapShader( pointer shaderName, pointer newShaderName, pointer timeOffset )
 {
-    UTF8		strippedName[MAX_QPATH];
-    S32			hash;
+    valueType		strippedName[MAX_QPATH];
+    sint			hash;
     shader_t*	sh, *sh2;
     qhandle_t	h;
     
@@ -152,10 +152,10 @@ void idRenderSystemLocal::RemapShader( StringEntry shaderName, StringEntry newSh
 ParseVector
 ===============
 */
-static bool ParseVector( UTF8** text, S32 count, F32* v )
+static bool ParseVector( valueType** text, sint count, float32* v )
 {
-    UTF8*	token;
-    S32		i;
+    valueType*	token;
+    sint		i;
     
     // FIXME: spaces are currently required after parens, should change parseext...
     token = COM_ParseExt2( text, false );
@@ -192,7 +192,7 @@ static bool ParseVector( UTF8** text, S32 count, F32* v )
 NameToAFunc
 ===============
 */
-static U32 NameToAFunc( StringEntry funcname )
+static uint NameToAFunc( pointer funcname )
 {
     if( !Q_stricmp( funcname, "GT0" ) )
     {
@@ -217,7 +217,7 @@ static U32 NameToAFunc( StringEntry funcname )
 NameToSrcBlendMode
 ===============
 */
-static S32 NameToSrcBlendMode( StringEntry name )
+static sint NameToSrcBlendMode( pointer name )
 {
     if( !Q_stricmp( name, "GL_ONE" ) )
     {
@@ -271,7 +271,7 @@ static S32 NameToSrcBlendMode( StringEntry name )
 NameToDstBlendMode
 ===============
 */
-static S32 NameToDstBlendMode( StringEntry name )
+static sint NameToDstBlendMode( pointer name )
 {
     if( !Q_stricmp( name, "GL_ONE" ) )
     {
@@ -321,7 +321,7 @@ static S32 NameToDstBlendMode( StringEntry name )
 NameToGenFunc
 ===============
 */
-static genFunc_t NameToGenFunc( StringEntry funcname )
+static genFunc_t NameToGenFunc( pointer funcname )
 {
     if( !Q_stricmp( funcname, "sin" ) )
     {
@@ -358,9 +358,9 @@ static genFunc_t NameToGenFunc( StringEntry funcname )
 ParseWaveForm
 ===================
 */
-static void ParseWaveForm( UTF8** text, waveForm_t* wave )
+static void ParseWaveForm( valueType** text, waveForm_t* wave )
 {
-    UTF8* token;
+    valueType* token;
     
     token = COM_ParseExt2( text, false );
     if( token[0] == 0 )
@@ -410,10 +410,10 @@ static void ParseWaveForm( UTF8** text, waveForm_t* wave )
 ParseTexMod
 ===================
 */
-static void ParseTexMod( UTF8* _text, shaderStage_t* stage )
+static void ParseTexMod( valueType* _text, shaderStage_t* stage )
 {
-    StringEntry token;
-    UTF8** text = &_text;
+    pointer token;
+    valueType** text = &_text;
     texModInfo_t* tmi;
     
     if( stage->bundle[0].numTexMods == TR_MAX_TEXMODS )
@@ -641,10 +641,10 @@ static void ParseTexMod( UTF8* _text, shaderStage_t* stage )
 ParseStage
 ===================
 */
-static bool ParseStage( shaderStage_t* stage, UTF8** text )
+static bool ParseStage( shaderStage_t* stage, valueType** text )
 {
-    UTF8* token;
-    S32 depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
+    valueType* token;
+    sint depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
     bool depthMaskExplicit = false;
     
     stage->active = true;
@@ -714,7 +714,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
             else
             {
                 imgType_t type = IMGTYPE_COLORALPHA;
-                S32/*imgFlags_t*/ flags = IMGFLAG_NONE;
+                sint/*imgFlags_t*/ flags = IMGFLAG_NONE;
                 
                 if( !shader.noMipMaps )
                     flags |= IMGFLAG_MIPMAP;
@@ -751,7 +751,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
         else if( !Q_stricmp( token, "clampmap" ) )
         {
             imgType_t type = IMGTYPE_COLORALPHA;
-            S32/*imgFlags_t*/ flags = IMGFLAG_CLAMPTOEDGE;
+            sint/*imgFlags_t*/ flags = IMGFLAG_CLAMPTOEDGE;
             
             token = COM_ParseExt2( text, false );
             if( !token[0] )
@@ -844,7 +844,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
         //
         else if( !Q_stricmp( token, "animMap" ) )
         {
-            S32 totalImages = 0;
+            sint totalImages = 0;
             
             token = COM_ParseExt2( text, false );
             if( !token[0] )
@@ -857,7 +857,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
             // parse up to MAX_IMAGE_ANIMATIONS animations
             while( 1 )
             {
-                S32		num;
+                sint		num;
                 
                 token = COM_ParseExt2( text, false );
                 if( !token[0] )
@@ -867,7 +867,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
                 num = stage->bundle[0].numImageAnimations;
                 if( num < MAX_IMAGE_ANIMATIONS )
                 {
-                    S32/*imgFlags_t*/ flags = IMGFLAG_NONE;
+                    sint/*imgFlags_t*/ flags = IMGFLAG_NONE;
                     
                     if( !shader.noMipMaps )
                         flags |= IMGFLAG_MIPMAP;
@@ -1090,7 +1090,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
         //
         else if( !Q_stricmp( token, "specularexponent" ) )
         {
-            F32 exponent;
+            float32 exponent;
             
             token = COM_ParseExt2( text, false );
             if( token[0] == 0 )
@@ -1116,7 +1116,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
         //
         else if( !Q_stricmp( token, "gloss" ) )
         {
-            F32 gloss;
+            float32 gloss;
             
             token = COM_ParseExt2( text, false );
             if( token[0] == 0 )
@@ -1141,7 +1141,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
         //
         else if( !Q_stricmp( token, "roughness" ) )
         {
-            F32 roughness;
+            float32 roughness;
             
             token = COM_ParseExt2( text, false );
             if( token[0] == 0 )
@@ -1247,7 +1247,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
                 if( r_pbr->integer )
                 {
                     // two values, metallic then smoothness
-                    F32 smoothness = stage->specularScale[1];
+                    float32 smoothness = stage->specularScale[1];
                     stage->specularScale[1] = ( stage->specularScale[0] < 0.5f ) ? 0.0f : 1.0f;
                     stage->specularScale[0] = smoothness;
                 }
@@ -1465,7 +1465,7 @@ static bool ParseStage( shaderStage_t* stage, UTF8** text )
         //
         else if( !Q_stricmp( token, "tcMod" ) )
         {
-            UTF8 buffer[1024] = "";
+            valueType buffer[1024] = "";
             
             while( 1 )
             {
@@ -1560,9 +1560,9 @@ deformVertexes autoSprite2
 deformVertexes text[0-7]
 ===============
 */
-static void ParseDeform( UTF8** text )
+static void ParseDeform( valueType** text )
 {
-    UTF8*	token;
+    valueType*	token;
     deformStage_t*	ds;
     
     token = COM_ParseExt2( text, false );
@@ -1601,7 +1601,7 @@ static void ParseDeform( UTF8** text )
     
     if( !Q_stricmpn( token, "text", 4 ) )
     {
-        S32		n;
+        sint		n;
         
         n = token[4] - '0';
         if( n < 0 || n > 7 )
@@ -1690,7 +1690,7 @@ static void ParseDeform( UTF8** text )
     
     if( !Q_stricmp( token, "move" ) )
     {
-        S32		i;
+        sint		i;
         
         for( i = 0 ; i < 3 ; i++ )
         {
@@ -1719,13 +1719,13 @@ ParseSkyParms
 skyParms <outerbox> <cloudheight> <innerbox>
 ===============
 */
-static void ParseSkyParms( UTF8** text )
+static void ParseSkyParms( valueType** text )
 {
-    UTF8*		token;
-    static StringEntry suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
-    UTF8		pathname[MAX_QPATH];
-    S32			i;
-    S32/*imgFlags_t*/ imgFlags = IMGFLAG_MIPMAP | IMGFLAG_PICMIP;
+    valueType*		token;
+    static pointer suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
+    valueType		pathname[MAX_QPATH];
+    sint			i;
+    sint/*imgFlags_t*/ imgFlags = IMGFLAG_MIPMAP | IMGFLAG_PICMIP;
     
     // outerbox
     token = COM_ParseExt2( text, false );
@@ -1740,7 +1740,7 @@ static void ParseSkyParms( UTF8** text )
         {
             Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
                          , token, suf[i] );
-            shader.sky.outerbox[i] = R_FindImageFile( const_cast< UTF8* >( pathname ), IMGTYPE_COLORALPHA, imgFlags | IMGFLAG_CLAMPTOEDGE );
+            shader.sky.outerbox[i] = R_FindImageFile( const_cast< valueType* >( pathname ), IMGTYPE_COLORALPHA, imgFlags | IMGFLAG_CLAMPTOEDGE );
             
             if( !shader.sky.outerbox[i] )
             {
@@ -1777,7 +1777,7 @@ static void ParseSkyParms( UTF8** text )
         {
             Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
                          , token, suf[i] );
-            shader.sky.innerbox[i] = R_FindImageFile( const_cast< UTF8* >( pathname ), IMGTYPE_COLORALPHA, imgFlags );
+            shader.sky.innerbox[i] = R_FindImageFile( const_cast< valueType* >( pathname ), IMGTYPE_COLORALPHA, imgFlags );
             if( !shader.sky.innerbox[i] )
             {
                 shader.sky.innerbox[i] = tr.defaultImage;
@@ -1794,9 +1794,9 @@ static void ParseSkyParms( UTF8** text )
 ParseSort
 =================
 */
-void ParseSort( UTF8** text )
+void ParseSort( valueType** text )
 {
-    UTF8*	token;
+    valueType*	token;
     
     token = COM_ParseExt2( text, false );
     if( token[0] == 0 )
@@ -1852,15 +1852,15 @@ void ParseSort( UTF8** text )
 ParseMaterial
 =================
 */
-StringEntry materialNames[MATERIAL_LAST] =
+pointer materialNames[MATERIAL_LAST] =
 {
     MATERIALS
 };
 
-void ParseMaterial( UTF8** text )
+void ParseMaterial( valueType** text )
 {
-    S32 i;
-    UTF8* token;
+    sint i;
+    valueType* token;
     
     token = COM_ParseExt2( text, false );
     if( token[0] == 0 )
@@ -1885,8 +1885,8 @@ void ParseMaterial( UTF8** text )
 
 typedef struct
 {
-    StringEntry name;
-    U32 clearSolid, surfaceFlags, contents;
+    pointer name;
+    uint clearSolid, surfaceFlags, contents;
 } infoParm_t;
 
 infoParm_t	infoParms[] =
@@ -1941,11 +1941,11 @@ ParseSurfaceParm
 surfaceparm <name>
 ===============
 */
-static void ParseSurfaceParm( UTF8** text )
+static void ParseSurfaceParm( valueType** text )
 {
-    UTF8*	token;
-    S32		numInfoParms = ARRAY_LEN( infoParms );
-    S32		i;
+    valueType*	token;
+    sint		numInfoParms = ARRAY_LEN( infoParms );
+    sint		i;
     
     token = COM_ParseExt2( text, false );
     for( i = 0 ; i < numInfoParms ; i++ )
@@ -1965,7 +1965,7 @@ static void ParseSurfaceParm( UTF8** text )
     }
 }
 
-static bool HaveSurfaceType( S32 surfaceFlags )
+static bool HaveSurfaceType( sint surfaceFlags )
 {
     switch( surfaceFlags & MATERIAL_MASK )
     {
@@ -2009,7 +2009,7 @@ static bool HaveSurfaceType( S32 surfaceFlags )
     return false;
 }
 
-static bool StringsContainWord( StringEntry heystack, StringEntry heystack2, UTF8* needle )
+static bool StringsContainWord( pointer heystack, pointer heystack2, valueType* needle )
 {
     if( StringContainsWord( heystack, needle ) ) return true;
     if( StringContainsWord( heystack2, needle ) ) return true;
@@ -2025,10 +2025,10 @@ shader.  Parse it into the global shader variable.  Later functions
 will optimize it.
 =================
 */
-static bool ParseShader( StringEntry name, UTF8** text )
+static bool ParseShader( pointer name, valueType** text )
 {
-    UTF8* token;
-    S32 s;
+    valueType* token;
+    sint s;
     
     s = 0;
     
@@ -2094,7 +2094,7 @@ static bool ParseShader( StringEntry name, UTF8** text )
         // sun parms
         else if( !Q_stricmp( token, "q3map_sun" ) || !Q_stricmp( token, "q3map_sunExt" ) || !Q_stricmp( token, "q3gl2_sun" ) )
         {
-            F32	a, b;
+            float32	a, b;
             bool isGL2Sun = false;
             
             if( !Q_stricmp( token, "q3gl2_sun" ) && r_sunShadows->integer )
@@ -2239,14 +2239,14 @@ static bool ParseShader( StringEntry name, UTF8** text )
             
             if( r_greyscale->integer )
             {
-                F32 luminance;
+                float32 luminance;
                 
                 luminance = LUMA( shader.fogParms.color[0], shader.fogParms.color[1], shader.fogParms.color[2] );
                 VectorSet( shader.fogParms.color, luminance, luminance, luminance );
             }
             else if( r_greyscale->value )
             {
-                F32 luminance;
+                float32 luminance;
                 
                 luminance = LUMA( shader.fogParms.color[0], shader.fogParms.color[1], shader.fogParms.color[2] );
                 shader.fogParms.color[0] = LERP( shader.fogParms.color[0], luminance, r_greyscale->value );
@@ -2282,8 +2282,8 @@ static bool ParseShader( StringEntry name, UTF8** text )
         else if( !Q_stricmp( token, "waterfogvars" ) )
         {
             vec3_t watercolor;
-            F32 fogvar;
-            UTF8 fogString[64];
+            float32 fogvar;
+            valueType fogString[64];
             
             if( !ParseVector( text, 3, watercolor ) )
             {
@@ -2309,7 +2309,7 @@ static bool ParseShader( StringEntry name, UTF8** text )
             }
             else if( fogvar > 1 )  // distance "linear" fog
             {
-                Com_sprintf( fogString, sizeof( fogString ), "0 %d 1.1 %f %f %f 200", ( S32 )fogvar, watercolor[0], watercolor[1], watercolor[2] );
+                Com_sprintf( fogString, sizeof( fogString ), "0 %d 1.1 %f %f %f 200", ( sint )fogvar, watercolor[0], watercolor[1], watercolor[2] );
                 //				R_SetFog(FOG_WATER, 0, fogvar, watercolor[0], watercolor[1], watercolor[2], 1.1);
             }
             else                        // density "exp" fog
@@ -2331,8 +2331,8 @@ static bool ParseShader( StringEntry name, UTF8** text )
         else if( !Q_stricmp( token, "fogvars" ) )
         {
             vec3_t fogColor;
-            F32 fogDensity;
-            S32 fogFar;
+            float32 fogDensity;
+            sint fogFar;
             
             if( !ParseVector( text, 3, fogColor ) )
             {
@@ -2435,7 +2435,7 @@ static bool ParseShader( StringEntry name, UTF8** text )
         //q3map_bouncescale 1.25
         else if( !Q_stricmp( token, "dpoffsetmapping" ) )
         {
-            UTF8* keyword = token;
+            valueType* keyword = token;
             token = COM_ParseExt2( text, false );
             
             // in common case this is not used since heightmap is detected by engine
@@ -2517,8 +2517,8 @@ static bool ParseShader( StringEntry name, UTF8** text )
             }
             
             // dpoffsetmapping - 2 match8 65
-            F32 off;
-            F32 div;
+            float32 off;
+            float32 div;
             
             if( !Q_stricmp( token, "bias" ) )
             {
@@ -2555,7 +2555,7 @@ static bool ParseShader( StringEntry name, UTF8** text )
                 continue;
             }
             
-            //F32 bias = atof(token);
+            //float32 bias = atof(token);
             // shader.offsetBias = off - bias / div;
             continue;
         }
@@ -2718,7 +2718,7 @@ don't need to submit/copy all of them.
 */
 static void ComputeVertexAttribs( void )
 {
-    S32 i, stage;
+    sint i, stage;
     
     // dlights always need ATTR_NORMAL
     shader.vertexAttribs = ATTR_POSITION | ATTR_NORMAL;
@@ -2867,7 +2867,7 @@ static void CollapseStagesToLightall( shaderStage_t* diffuse,
                                       shaderStage_t* normal, shaderStage_t* specular, shaderStage_t* lightmap,
                                       bool useLightVector, bool useLightVertex, bool parallax, bool tcgen )
 {
-    S32 defs = 0;
+    sint defs = 0;
     
     //CL_RefPrintf(PRINT_ALL, "shader %s has diffuse %s", shader.name, diffuse->bundle[0].image[0]->imgName);
     
@@ -2910,9 +2910,9 @@ static void CollapseStagesToLightall( shaderStage_t* diffuse,
         }
         else if( ( lightmap || useLightVector || useLightVertex ) && ( diffuseImg = diffuse->bundle[TB_DIFFUSEMAP].image[0] ) )
         {
-            UTF8 normalName[MAX_QPATH];
+            valueType normalName[MAX_QPATH];
             image_t* normalImg;
-            S32/*imgFlags_t*/ normalFlags = ( diffuseImg->flags & ~IMGFLAG_GENNORMALMAP ) | IMGFLAG_NOLIGHTSCALE;
+            sint/*imgFlags_t*/ normalFlags = ( diffuseImg->flags & ~IMGFLAG_GENNORMALMAP ) | IMGFLAG_NOLIGHTSCALE;
             
             // try a normalheight image first
             COM_StripExtension2( diffuseImg->imgName, normalName, MAX_QPATH );
@@ -2956,9 +2956,9 @@ static void CollapseStagesToLightall( shaderStage_t* diffuse,
         }
         else if( ( lightmap || useLightVector || useLightVertex ) && ( diffuseImg = diffuse->bundle[TB_DIFFUSEMAP].image[0] ) && r_pbr->integer )
         {
-            UTF8 specularName[MAX_QPATH];
+            valueType specularName[MAX_QPATH];
             image_t* specularImg;
-            S32/*imgFlags_t*/ specularFlags = ( diffuseImg->flags & ~IMGFLAG_GENNORMALMAP ) | IMGFLAG_NOLIGHTSCALE;
+            sint/*imgFlags_t*/ specularFlags = ( diffuseImg->flags & ~IMGFLAG_GENNORMALMAP ) | IMGFLAG_NOLIGHTSCALE;
             
             COM_StripExtension2( diffuseImg->imgName, specularName, MAX_QPATH );
             Q_strcat( specularName, MAX_QPATH, "_s" );
@@ -2988,9 +2988,9 @@ static void CollapseStagesToLightall( shaderStage_t* diffuse,
 }
 
 
-static S32 CollapseStagesToGLSL( void )
+static sint CollapseStagesToGLSL( void )
 {
-    S32 i, j, numStages;
+    sint i, j, numStages;
     bool skip = false;
     
     // skip shaders with deforms
@@ -3005,13 +3005,13 @@ static S32 CollapseStagesToGLSL( void )
         // this makes it easier for the later bits to process
         if( stages[0].active && stages[0].bundle[0].tcGen == TCGEN_LIGHTMAP && stages[1].active )
         {
-            S32 blendBits = stages[1].stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
+            sint blendBits = stages[1].stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
             
             if( blendBits == ( GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO )
                     || blendBits == ( GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR ) )
             {
-                S32 stateBits0 = stages[0].stateBits;
-                S32 stateBits1 = stages[1].stateBits;
+                sint stateBits0 = stages[0].stateBits;
+                sint stateBits1 = stages[1].stateBits;
                 shaderStage_t swapStage;
                 
                 swapStage = stages[0];
@@ -3042,7 +3042,7 @@ static S32 CollapseStagesToGLSL( void )
             
             if( pStage->bundle[0].tcGen == TCGEN_LIGHTMAP )
             {
-                S32 blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
+                sint blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
                 
                 if( blendBits != ( GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO )
                         && blendBits != ( GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR ) )
@@ -3138,7 +3138,7 @@ static S32 CollapseStagesToGLSL( void )
                         if( pStage2->bundle[0].tcGen == TCGEN_LIGHTMAP )
                         {
                             lightmap = pStage2;
-                            S32 blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
+                            sint blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
                             
                             // Only add lightmap to blendfunc filter stage if it's the first time lightmap is used
                             // otherwise it will cause the shader to be darkened by the lightmap multiple times.
@@ -3300,7 +3300,7 @@ to be rendered with bad shaders. To fix this, need to go through all render comm
 sortedIndex.
 ==============
 */
-static void FixRenderCommandList( S32 newShader )
+static void FixRenderCommandList( sint newShader )
 {
     renderCommandList_t* cmdList = &backEndData[tr.smpFrame]->commands;
     
@@ -3312,7 +3312,7 @@ static void FixRenderCommandList( S32 newShader )
         {
             curCmd = PADP( curCmd, sizeof( void* ) );
             
-            switch( *( const S32* )curCmd )
+            switch( *( const sint* )curCmd )
             {
                 case RC_SET_COLOR:
                 {
@@ -3328,14 +3328,14 @@ static void FixRenderCommandList( S32 newShader )
                 }
                 case RC_DRAW_SURFS:
                 {
-                    S32 i;
+                    sint i;
                     drawSurf_t*	drawSurf;
                     shader_t*	shader;
-                    S32			fogNum;
-                    S32			entityNum;
-                    S32			dlightMap;
-                    S32         pshadowMap;
-                    S32			sortedIndex;
+                    sint			fogNum;
+                    sint			entityNum;
+                    sint			dlightMap;
+                    sint         pshadowMap;
+                    sint			sortedIndex;
                     const drawSurfsCommand_t* ds_cmd = ( const drawSurfsCommand_t* )curCmd;
                     
                     for( i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++ )
@@ -3345,7 +3345,7 @@ static void FixRenderCommandList( S32 newShader )
                         if( sortedIndex >= newShader )
                         {
                             sortedIndex++;
-                            drawSurf->sort = ( sortedIndex << QSORT_SHADERNUM_SHIFT ) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( ( S32 )pshadowMap << QSORT_PSHADOW_SHIFT ) | ( S32 )dlightMap;
+                            drawSurf->sort = ( sortedIndex << QSORT_SHADERNUM_SHIFT ) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( ( sint )pshadowMap << QSORT_PSHADOW_SHIFT ) | ( sint )dlightMap;
                         }
                     }
                     curCmd = ( const void* )( ds_cmd + 1 );
@@ -3384,8 +3384,8 @@ Sets shader->sortedIndex
 */
 static void SortNewShader( void )
 {
-    S32		i;
-    F32	sort;
+    sint		i;
+    float32	sort;
     shader_t*	newShader;
     
     newShader = tr.shaders[ tr.numShaders - 1 ];
@@ -3418,8 +3418,8 @@ GeneratePermanentShader
 static shader_t* GeneratePermanentShader( void )
 {
     shader_t*	newShader = nullptr;
-    S32			i, b;
-    S32			size, hash;
+    sint			i, b;
+    sint			size, hash;
     
     if( tr.numShaders == MAX_SHADERS )
     {
@@ -3483,7 +3483,7 @@ Find proper stage for dlight pass
 #define GLS_BLEND_BITS (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)
 static void FindLightingStages( void )
 {
-    S32 i;
+    sint i;
     shader.lightingStage = -1;
     
     if( shader.isSky || ( shader.surfaceFlags & ( SURF_NODLIGHT | SURF_SKY ) ) || shader.sort > SS_OPAQUE )
@@ -3520,10 +3520,10 @@ what it is supposed to look like.
 */
 static void VertexLightingCollapse( void )
 {
-    S32		stage;
+    sint		stage;
     shaderStage_t*	bestStage;
-    S32		bestImageRank;
-    S32		rank;
+    sint		bestImageRank;
+    sint		rank;
     
     // if we aren't opaque, just use the first pass
     if( shader.sort == SS_OPAQUE )
@@ -3623,9 +3623,9 @@ static void VertexLightingCollapse( void )
 InitShader
 ===============
 */
-static void InitShader( StringEntry name, S32 lightmapIndex )
+static void InitShader( pointer name, sint lightmapIndex )
 {
-    S32 i;
+    sint i;
     
     // make sure the render thread is stopped, because we are probably
 // going to have to upload an image
@@ -3677,7 +3677,7 @@ from the current global working shader
 */
 static shader_t* FinishShader( void )
 {
-    S32 stage;
+    sint stage;
     bool		hasLightmapStage;
     bool		vertexLightmap;
     
@@ -3726,7 +3726,7 @@ static shader_t* FinishShader( void )
         //
         if( pStage->isDetail && !r_detailTextures->integer )
         {
-            S32 index;
+            sint index;
             
             for( index = stage + 1; index < MAX_SHADER_STAGES; index++ )
             {
@@ -3781,8 +3781,8 @@ static shader_t* FinishShader( void )
         if( ( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) &&
                 ( stages[0].stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) )
         {
-            S32 blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
-            S32 blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
+            sint blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
+            sint blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
             
             // fog color adjustment only works for blend modes that have a contribution
             // that aproaches 0 as the modulate values aproach 0 --
@@ -3905,10 +3905,10 @@ return nullptr if not found
 If found, it will return a valid shader
 =====================
 */
-static UTF8* FindShaderInShaderText( StringEntry shadername )
+static valueType* FindShaderInShaderText( pointer shadername )
 {
     shaderText_t* st;
-    S32 hash;
+    sint hash;
     
     hash = generateHashValue( shadername, MAX_SHADERTEXT_HASH );
     
@@ -3932,10 +3932,10 @@ Will always return a valid shader, but it might be the
 default shader if the real one can't be found.
 ==================
 */
-shader_t* R_FindShaderByName( StringEntry name )
+shader_t* R_FindShaderByName( pointer name )
 {
-    UTF8		strippedName[MAX_QPATH];
-    S32			hash;
+    valueType		strippedName[MAX_QPATH];
+    sint			hash;
     shader_t*	sh;
     
     if( ( name == nullptr ) || ( name[0] == 0 ) )
@@ -3995,14 +3995,14 @@ most world construction surfaces.
 
 ===============
 */
-shader_t* R_FindShader( StringEntry name, S32 lightmapIndex, bool mipRawImage )
+shader_t* R_FindShader( pointer name, sint lightmapIndex, bool mipRawImage )
 {
-    UTF8		strippedName[MAX_QPATH];
-    S32			hash;
-    UTF8*		shaderText;
+    valueType		strippedName[MAX_QPATH];
+    sint			hash;
+    valueType*		shaderText;
     image_t*		image;
     shader_t*	sh;
-    UTF8 fileName[MAX_QPATH];
+    valueType fileName[MAX_QPATH];
     
     if( name[0] == 0 )
     {
@@ -4098,7 +4098,7 @@ shader_t* R_FindShader( StringEntry name, S32 lightmapIndex, bool mipRawImage )
     // look for a single supported image file
     //
     {
-        S32/*imgFlags_t*/ flags;
+        sint/*imgFlags_t*/ flags;
         
         flags = IMGFLAG_NONE;
         
@@ -4211,9 +4211,9 @@ shader_t* R_FindShader( StringEntry name, S32 lightmapIndex, bool mipRawImage )
 }
 
 
-qhandle_t RE_RegisterShaderFromImage( StringEntry name, S32 lightmapIndex, image_t* image, bool mipRawImage )
+qhandle_t RE_RegisterShaderFromImage( pointer name, sint lightmapIndex, image_t* image, bool mipRawImage )
 {
-    S32			hash;
+    sint			hash;
     shader_t*	sh;
     
     hash = generateHashValue( name, FILE_HASH_SIZE );
@@ -4322,7 +4322,7 @@ This should really only be used for explicit shaders, because there is no
 way to ask for different implicit lighting modes (vertex, lightmap, etc)
 ====================
 */
-qhandle_t RE_RegisterShaderLightMap( StringEntry name, S32 lightmapIndex )
+qhandle_t RE_RegisterShaderLightMap( pointer name, sint lightmapIndex )
 {
     shader_t*	sh;
     
@@ -4359,7 +4359,7 @@ This should really only be used for explicit shaders, because there is no
 way to ask for different implicit lighting modes (vertex, lightmap, etc)
 ====================
 */
-qhandle_t idRenderSystemLocal::RegisterShader( StringEntry name )
+qhandle_t idRenderSystemLocal::RegisterShader( pointer name )
 {
     shader_t*	sh;
     
@@ -4392,7 +4392,7 @@ idRenderSystemLocal::RegisterShaderNoMip
 For menu graphics that should never be picmiped
 ====================
 */
-qhandle_t idRenderSystemLocal::RegisterShaderNoMip( StringEntry name )
+qhandle_t idRenderSystemLocal::RegisterShaderNoMip( pointer name )
 {
     shader_t*	sh;
     
@@ -4440,7 +4440,7 @@ shader_t* R_GetShaderByHandle( qhandle_t hShader )
     return tr.shaders[hShader];
 }
 
-void RE_ShaderNameFromIndex( UTF8* name, qhandle_t hShader )
+void RE_ShaderNameFromIndex( valueType* name, qhandle_t hShader )
 {
     if( name )
     {
@@ -4467,8 +4467,8 @@ A second parameter will cause it to print in sorted order
 */
 void	R_ShaderList_f( void )
 {
-    S32			i;
-    S32			count;
+    sint			i;
+    sint			count;
     shader_t*	shader;
     
     CL_RefPrintf( PRINT_ALL, "-----------------------\n" );
@@ -4539,14 +4539,14 @@ Finds and loads all .shader files, combining them into
 a single large text block that can be scanned for shader names
 =====================
 */
-static void LoadShaderFromBuffer( UTF8* buff )
+static void LoadShaderFromBuffer( valueType* buff )
 {
-    UTF8 shadername[MAX_SHADERNAME_LENGTH + 1];
+    valueType shadername[MAX_SHADERNAME_LENGTH + 1];
     shaderText_t* st;
-    UTF8* p, * name, * text;
-    S32 nameLength, textLength;
-    S64 size, hash;
-    S32 shaderBug = 1;
+    valueType* p, * name, * text;
+    sint nameLength, textLength;
+    sint32 size, hash;
+    sint shaderBug = 1;
     
     if( !buff )
     {
@@ -4610,10 +4610,10 @@ static void LoadShaderFromBuffer( UTF8* buff )
 
 static void ScanAndLoadShaderFiles( void )
 {
-    S32 i, numShaderFiles;
-    UTF8 filename[MAX_QPATH];
-    UTF8* buffer;
-    UTF8** shaderFiles;
+    sint i, numShaderFiles;
+    valueType filename[MAX_QPATH];
+    valueType* buffer;
+    valueType** shaderFiles;
     
     // scan for shader files
     shaderFiles = fileSystem->ListFiles( "scripts", ".shader", &numShaderFiles );
@@ -4680,7 +4680,7 @@ static void CreateExternalShaders( void )
     // in tr_flare.c already.
     if( !tr.flareShader->defaultShader )
     {
-        S32 index;
+        sint index;
         
         for( index = 0; index < tr.flareShader->numUnfoggedPasses; index++ )
         {
@@ -4719,7 +4719,7 @@ R_InitShaders
 */
 void R_InitShaders( void )
 {
-    S32 time, mem;
+    sint time, mem;
     
     CL_RefPrintf( PRINT_ALL, "Initializing Shaders\n" );
     

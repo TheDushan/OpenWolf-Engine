@@ -58,11 +58,11 @@ idMD5SystemLocal::~idMD5SystemLocal( void )
 idMD5SystemLocal::MD5File
 ====================
 */
-UTF8* idMD5SystemLocal::MD5File( StringEntry fn, S32 length, StringEntry prefix, S32 prefix_len )
+valueType* idMD5SystemLocal::MD5File( pointer fn, sint length, pointer prefix, sint prefix_len )
 {
-    S32 i, filelen = 0, r = 0, total = 0;
-    static UTF8 final[33] = { "" };
-    U8 digest[16] = { "" }, buffer[2048];
+    sint i, filelen = 0, r = 0, total = 0;
+    static valueType final[33] = { "" };
+    uchar8 digest[16] = { "" }, buffer[2048];
     fileHandle_t f;
     MD5_CTX md5;
     
@@ -90,7 +90,7 @@ UTF8* idMD5SystemLocal::MD5File( StringEntry fn, S32 length, StringEntry prefix,
     
     if( prefix_len && *prefix )
     {
-        MD5_Update( &md5, ( U8* )prefix, prefix_len );
+        MD5_Update( &md5, ( uchar8* )prefix, prefix_len );
     }
     
     for( ;; )

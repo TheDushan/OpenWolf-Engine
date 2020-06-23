@@ -49,7 +49,7 @@ void*  gvm = nullptr;		// game
 
 #if defined (UPDATE_SERVER)
 versionMapping_t versionMap[MAX_UPDATE_VERSIONS];
-S32 numVersions = 0;
+sint numVersions = 0;
 #endif
 
 convar_t* sv_fps = nullptr;			// time rate for running non-clients
@@ -142,10 +142,10 @@ idServerMainSystemLocal::ExpandNewlines
 Converts newlines to "\n" so a line prints nicer
 ===============
 */
-UTF8* idServerMainSystemLocal::ExpandNewlines( UTF8* in )
+valueType* idServerMainSystemLocal::ExpandNewlines( valueType* in )
 {
-    S32 l;
-    static UTF8 string[1024];
+    sint l;
+    static valueType string[1024];
     
     l = 0;
     while( *in && l < sizeof( string ) - 3 )
@@ -181,9 +181,9 @@ The given command will be transmitted to the client, and is guaranteed to
 not have future snapshot_t executed before it is executed
 ======================
 */
-void idServerMainSystemLocal::AddServerCommand( client_t* client, StringEntry cmd )
+void idServerMainSystemLocal::AddServerCommand( client_t* client, pointer cmd )
 {
-    S32 index, i;
+    sint index, i;
     
     // do not send commands until the gamestate has been sent
     if( client->state < CS_PRIMED )
@@ -225,40 +225,40 @@ the client game module: "cp", "print", "chat", etc
 A nullptr client will broadcast to all clients
 =================
 */
-void idServerMainSystemLocal::SendServerCommand( client_t* cl, StringEntry fmt, ... )
+void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... )
 {
-    S32 j;
-    U8 message[MAX_MSGLEN];
+    sint j;
+    uchar8 message[MAX_MSGLEN];
     va_list argptr;
     client_t* client;
     
     va_start( argptr, fmt );
-    Q_vsnprintf( ( UTF8* )message, sizeof( message ), fmt, argptr );
+    Q_vsnprintf( ( valueType* )message, sizeof( message ), fmt, argptr );
     va_end( argptr );
     
     // do not forward server command messages that would be too big to clients
     // ( q3infoboom / q3msgboom stuff )
-    if( strlen( ( UTF8* )message ) > 1022 )
+    if( strlen( ( valueType* )message ) > 1022 )
     {
         return;
     }
     
     if( cl != nullptr )
     {
-        AddServerCommand( cl, ( UTF8* )message );
+        AddServerCommand( cl, ( valueType* )message );
         return;
     }
     
     // hack to echo broadcast prints to console
-    if( com_dedicated->integer && !strncmp( ( UTF8* )message, "print", 5 ) )
+    if( com_dedicated->integer && !strncmp( ( valueType* )message, "print", 5 ) )
     {
-        Com_Printf( "broadcast: %s\n", ExpandNewlines( ( UTF8* )message ) );
+        Com_Printf( "broadcast: %s\n", ExpandNewlines( ( valueType* )message ) );
     }
     
     // save broadcasts to demo
     if( sv.demoState == DS_RECORDING )
     {
-        serverDemoSystem->DemoWriteServerCommand( ( UTF8* )message );
+        serverDemoSystem->DemoWriteServerCommand( ( valueType* )message );
     }
     
     // send the data to all relevent clients
@@ -276,7 +276,7 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, StringEntry fmt, 
         }
         // done.
         
-        AddServerCommand( client, ( UTF8* )message );
+        AddServerCommand( client, ( valueType* )message );
     }
 }
 
@@ -297,13 +297,13 @@ changes from empty to non-empty, and full to non-full,
 but not on every player enter or exit.
 ===============
 */
-void idServerMainSystemLocal::MasterHeartbeat( StringEntry hbname )
+void idServerMainSystemLocal::MasterHeartbeat( pointer hbname )
 {
     static netadr_t adr[MAX_MASTER_SERVERS][2]; // [2] for v4 and v6 address for the same address string.
-    S32             i;
-    S32             res;
-    S32             netenabled;
-    UTF8* master;
+    sint             i;
+    sint             res;
+    sint             netenabled;
+    valueType* master;
     
     // Update Server doesn't send heartbeat
 #if defined (UPDATE_SERVER)
@@ -427,7 +427,7 @@ NERVE - SMF - Sends gameCompleteStatus messages to all master servers
 */
 void idServerMainSystemLocal::MasterGameCompleteStatus( void )
 {
-    S32 i;
+    sint i;
     static netadr_t adr[MAX_MASTER_SERVERS];
     
     // "dedicated 1" is for lan play, "dedicated 2" is for inet public play
@@ -507,7 +507,7 @@ void idServerMainSystemLocal::MasterShutdown( void )
 idServerMainSystemLocal::MasterGameStat
 =================
 */
-void idServerMainSystemLocal::MasterGameStat( StringEntry data )
+void idServerMainSystemLocal::MasterGameStat( pointer data )
 {
     netadr_t adr;
     
@@ -552,9 +552,9 @@ CONNECTIONLESS COMMANDS
 idServerMainSystemLocal::VerifyChallenge
 ===============
 */
-bool idServerMainSystemLocal::VerifyChallenge( UTF8* challenge )
+bool idServerMainSystemLocal::VerifyChallenge( valueType* challenge )
 {
-    S32 i, j;
+    sint i, j;
     
     if( !challenge )
     {
@@ -589,8 +589,8 @@ the simple info query.
 */
 void idServerMainSystemLocal::Status( netadr_t from )
 {
-    S32 i, statusLength, playerLength;
-    UTF8 player[1024], status[MAX_MSGLEN], infostring[MAX_INFO_STRING];
+    sint i, statusLength, playerLength;
+    valueType player[1024], status[MAX_MSGLEN], infostring[MAX_INFO_STRING];
     client_t* cl;
     playerState_t* ps;
     
@@ -619,7 +619,7 @@ void idServerMainSystemLocal::Status( netadr_t from )
     // add "demo" to the sv_keywords if restricted
     if( cvarSystem->VariableValue( "fs_restrict" ) )
     {
-        UTF8 keywords[MAX_INFO_STRING];
+        valueType keywords[MAX_INFO_STRING];
         
         Com_sprintf( keywords, sizeof( keywords ), "ettest %s", Info_ValueForKey( infostring, "sv_keywords" ) );
         Info_SetValueForKey( infostring, "sv_keywords", keywords );
@@ -667,8 +667,8 @@ game complete. Useful for tracking global player stats.
 */
 void idServerMainSystemLocal::GameCompleteStatus( netadr_t from )
 {
-    S32 i, statusLength, playerLength;
-    UTF8 player[1024], status[MAX_MSGLEN], infostring[MAX_INFO_STRING];
+    sint i, statusLength, playerLength;
+    valueType player[1024], status[MAX_MSGLEN], infostring[MAX_INFO_STRING];
     client_t* cl;
     playerState_t* ps;
     
@@ -693,7 +693,7 @@ void idServerMainSystemLocal::GameCompleteStatus( netadr_t from )
     // add "demo" to the sv_keywords if restricted
     if( cvarSystem->VariableValue( "fs_restrict" ) )
     {
-        UTF8 keywords[MAX_INFO_STRING];
+        valueType keywords[MAX_INFO_STRING];
         
         Com_sprintf( keywords, sizeof( keywords ), "ettest %s", Info_ValueForKey( infostring, "sv_keywords" ) );
         Info_SetValueForKey( infostring, "sv_keywords", keywords );
@@ -738,8 +738,8 @@ if a user is interested in a server to do a full status
 */
 void idServerMainSystemLocal::Info( netadr_t from )
 {
-    S32 i, count;
-    UTF8* gamedir, infostring[MAX_INFO_STRING], *antilag, *weaprestrict, *balancedteams;
+    sint i, count;
+    valueType* gamedir, infostring[MAX_INFO_STRING], *antilag, *weaprestrict, *balancedteams;
     
     // ignore if we are in single player
     if( serverGameSystem->GameIsSinglePlayer() )
@@ -853,8 +853,8 @@ have an update available for their version
 void idServerMainSystemLocal::GetUpdateInfo( netadr_t from )
 {
 #if defined (UPDATE_SERVER)
-    UTF8* version, *platform;
-    S32 i;
+    valueType* version, *platform;
+    sint i;
     bool found = false;
     
     version = cmdSystem->Argv( 1 );
@@ -894,7 +894,7 @@ void idServerMainSystemLocal::GetUpdateInfo( netadr_t from )
 idServerMainSystemLocal::FlushRedirect
 ==============
 */
-void idServerMainSystemLocal::FlushRedirect( UTF8* outputbuf )
+void idServerMainSystemLocal::FlushRedirect( valueType* outputbuf )
 {
     if( *outputbuf )
     {
@@ -915,7 +915,7 @@ If the address isn't NA_IP, it's automatically denied.
 */
 bool idServerMainSystemLocal::CheckDRDoS( netadr_t from )
 {
-    S32 i, oldestBan, oldestBanTime, globalCount, specificCount, oldest, oldestTime, lastGlobalLogTime = 0;
+    sint i, oldestBan, oldestBanTime, globalCount, specificCount, oldest, oldestTime, lastGlobalLogTime = 0;
     receipt_t* receipt;
     netadr_t exactFrom;
     floodBan_t* ban;
@@ -1031,7 +1031,7 @@ bool idServerMainSystemLocal::CheckDRDoS( netadr_t from )
         // Detect time wrap where the server sets time back to zero.  Problem
         // is that we're using a static variable here that doesn't get zeroed out when
         // the time wraps.  TTimo's way of doing this is casting everything including
-        // the difference to U32, but I think that's confusing to the programmer.
+        // the difference to uint, but I think that's confusing to the programmer.
         if( svs.time < lastGlobalLogTime )
         {
             lastGlobalLogTime = 0;
@@ -1063,23 +1063,23 @@ Redirect all printfs
 void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
 {
     bool valid;
-    U32 i, time;
-    UTF8 remaining[1024];
+    uint i, time;
+    valueType remaining[1024];
     
     // show_bug.cgi?id=376
     // if we send an OOB print message this size, 1.31 clients die in a Com_Printf buffer overflow
     // the buffer overflow will be fixed in > 1.31 clients
     // but we want a server side fix
     // we must NEVER send an OOB message that will be > 1.31 MAXPRINTMSG (4096)
-    UTF8 sv_outputbuf[MAX_MSGLEN - 16];
-    static U32 lasttime = 0;
+    valueType sv_outputbuf[MAX_MSGLEN - 16];
+    static uint lasttime = 0;
     
     // TTimo - show_bug.cgi?id=534
     time = Com_Milliseconds();
     if( !::strlen( sv_rconPassword->string ) || strcmp( cmdSystem->Argv( 1 ), sv_rconPassword->string ) )
     {
         // MaJ - If the rconpassword is bad and one just happned recently, don't spam the log file, just die.
-        if( ( U32 )( time - lasttime ) < 500u )
+        if( ( uint )( time - lasttime ) < 500u )
         {
             return;
         }
@@ -1091,7 +1091,7 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
     else
     {
         // MaJ - If the rconpassword is good, allow it much sooner than a bad one.
-        if( ( U32 )( time - lasttime ) < 200u )
+        if( ( uint )( time - lasttime ) < 200u )
         {
             return;
         }
@@ -1150,12 +1150,12 @@ connectionless packets.
 */
 void idServerMainSystemLocal::ConnectionlessPacket( netadr_t from, msg_t* msg )
 {
-    UTF8* s, *c;
+    valueType* s, *c;
     
     MSG_BeginReadingOOB( msg );
     MSG_ReadLong( msg );			// skip the -1 marker
     
-    if( !Q_strncmp( "connect", ( UTF8* )&msg->data[4], 7 ) )
+    if( !Q_strncmp( "connect", ( valueType* )&msg->data[4], 7 ) )
     {
         idHuffmanSystemLocal::DynDecompress( msg, 12 );
     }
@@ -1221,11 +1221,11 @@ idServerMainSystemLocal::ReadPackets
 */
 void idServerMainSystemLocal::PacketEvent( netadr_t from, msg_t* msg )
 {
-    S32 i, qport;
+    sint i, qport;
     client_t* cl;
     
     // check for connectionless packet (0xffffffff) first
-    if( msg->cursize >= 4 && *( S32* )msg->data == -1 )
+    if( msg->cursize >= 4 && *( sint* )msg->data == -1 )
     {
         ConnectionlessPacket( from, msg );
         return;
@@ -1300,7 +1300,7 @@ Updates the cl->ping variables
 */
 void idServerMainSystemLocal::CalcPings( void )
 {
-    S32 i, j, total, count, delta;
+    sint i, j, total, count, delta;
     client_t* cl;
     playerState_t* ps;
     
@@ -1382,7 +1382,7 @@ if necessary
 */
 void idServerMainSystemLocal::CheckTimeouts( void )
 {
-    S32 i, droppoint, zombiepoint;
+    sint i, droppoint, zombiepoint;
     client_t* cl;
     
     droppoint = svs.time - 1000 * sv_timeout->integer;
@@ -1429,7 +1429,7 @@ idServerMainSystemLocal::CheckPaused
 */
 bool idServerMainSystemLocal::CheckPaused( void )
 {
-    S32 count, i;
+    sint count, i;
     client_t* cl;
     
     if( !cl_paused->integer )
@@ -1474,13 +1474,13 @@ idServerMainSystemLocal::CheckCvars
 */
 void idServerMainSystemLocal::CheckCvars( void )
 {
-    static S32 lastMod = -1;
+    static sint lastMod = -1;
     bool changed = false;
     
     if( sv_hostname->modificationCount != lastMod )
     {
-        UTF8 hostname[MAX_INFO_STRING];
-        UTF8* c = hostname;
+        valueType hostname[MAX_INFO_STRING];
+        valueType* c = hostname;
         lastMod = sv_hostname->modificationCount;
         
         strcpy( hostname, sv_hostname->string );
@@ -1506,10 +1506,10 @@ void idServerMainSystemLocal::CheckCvars( void )
 idServerMainSystemLocal::IntegerOverflowShutDown
 ==================
 */
-void idServerMainSystemLocal::IntegerOverflowShutDown( UTF8* msg )
+void idServerMainSystemLocal::IntegerOverflowShutDown( valueType* msg )
 {
     // save the map name in case it gets cleared during the shut down
-    UTF8 mapName[MAX_QPATH];
+    valueType mapName[MAX_QPATH];
     Q_strncpyz( mapName, cvarSystem->VariableString( "mapname" ), sizeof( mapName ) );
     
     serverInitSystem->Shutdown( msg );
@@ -1524,14 +1524,14 @@ Player movement occurs as a result of packet events, which
 happen before idServerMainSystemLocal::Frame is called
 ==================
 */
-void idServerMainSystemLocal::Frame( S32 msec )
+void idServerMainSystemLocal::Frame( sint msec )
 {
-    S32 frameMsec, startTime, frameStartTime = 0, frameEndTime;
-    static S32 start, end;
-    UTF8 mapname[MAX_QPATH];
+    sint frameMsec, startTime, frameStartTime = 0, frameEndTime;
+    static sint start, end;
+    valueType mapname[MAX_QPATH];
     
     start = idsystem->Milliseconds();
-    svs.stats.idle += ( F64 )( start - end ) / 1000;
+    svs.stats.idle += ( float64 )( start - end ) / 1000;
     
     // the menu kills the server with this cvar
     if( sv_killserver->integer )
@@ -1543,7 +1543,7 @@ void idServerMainSystemLocal::Frame( S32 msec )
     
     if( svs.initialized && svs.gameStarted )
     {
-        S32 i = 0, players = 0;
+        sint i = 0, players = 0;
         for( i = 0; i < sv_maxclients->integer; i++ )
         {
             if( svs.clients[i].state >= CS_CONNECTED && svs.clients[i].netchan.remoteAddress.type != NA_BOT )
@@ -1555,7 +1555,7 @@ void idServerMainSystemLocal::Frame( S32 msec )
         //Check for hibernation mode
         if( sv_hibernateTime->integer && !svs.hibernation.enabled && !players )
         {
-            S32 elapsed_time = idsystem->Milliseconds() - svs.hibernation.lastTimeDisconnected;
+            sint elapsed_time = idsystem->Milliseconds() - svs.hibernation.lastTimeDisconnected;
             
             if( elapsed_time >= sv_hibernateTime->integer )
             {
@@ -1614,7 +1614,7 @@ void idServerMainSystemLocal::Frame( S32 msec )
     }
     
     bool hasHuman = false;
-    for( S32 i = 0; i < sv_maxclients->integer; ++i )
+    for( sint i = 0; i < sv_maxclients->integer; ++i )
     {
         client_t* cl = &svs.clients[i];
         if( cl->state >= CS_CONNECTED )
@@ -1632,10 +1632,10 @@ void idServerMainSystemLocal::Frame( S32 msec )
     // Some mods may still have code like "sin(cg.time / 1000.0f)".
     // IEEE 754 floats have a 23-bit mantissa.
     // Rounding errors will start after roughly ((1<<23) / (60*1000)) ~ 139.8 minutes.
-    const S32 minRebootTimeCvar = 60 * 1000 * cvarSystem->Get( "sv_minRebootDelayMins", "1440", 0, "Automatic dedicated server process restarts for crashes and timed reboots" )->integer;
-    const S32 minRebootTimeConst = 60 * 60 * 1000;	// absolute min. time: 1 hour
-    const S32 maxRebootTime = 0x7FFFFFFF;			// absolute max. time: ~ 24.86 days
-    const S32 minRebootTime = max( minRebootTimeCvar, minRebootTimeConst );
+    const sint minRebootTimeCvar = 60 * 1000 * cvarSystem->Get( "sv_minRebootDelayMins", "1440", 0, "Automatic dedicated server process restarts for crashes and timed reboots" )->integer;
+    const sint minRebootTimeConst = 60 * 60 * 1000;	// absolute min. time: 1 hour
+    const sint maxRebootTime = 0x7FFFFFFF;			// absolute max. time: ~ 24.86 days
+    const sint minRebootTime = max( minRebootTimeCvar, minRebootTimeConst );
     if( svs.time >= minRebootTime && !hasHuman )
     {
         IntegerOverflowShutDown( "Restarting server early to avoid time wrapping and/or precision issues" );
@@ -1766,7 +1766,7 @@ void idServerMainSystemLocal::Frame( S32 msec )
         
         if( svs.currentFrameIndex == SERVER_PERFORMANCECOUNTER_FRAMES )
         {
-            S32 averageFrameTime;
+            sint averageFrameTime;
             
             averageFrameTime = svs.totalFrameTime / SERVER_PERFORMANCECOUNTER_FRAMES;
             
@@ -1775,7 +1775,7 @@ void idServerMainSystemLocal::Frame( S32 msec )
             
             if( svs.currentSampleIndex > SERVER_PERFORMANCECOUNTER_SAMPLES )
             {
-                S32 totalTime, i;
+                sint totalTime, i;
                 
                 totalTime = 0;
                 
@@ -1791,7 +1791,7 @@ void idServerMainSystemLocal::Frame( S32 msec )
                 
                 averageFrameTime = totalTime / SERVER_PERFORMANCECOUNTER_SAMPLES;
                 
-                svs.serverLoad = ( averageFrameTime / ( F32 )frameMsec ) * 100;
+                svs.serverLoad = ( averageFrameTime / ( float32 )frameMsec ) * 100;
             }
             
             //Com_Printf( "serverload: %i (%i/%i)\n", svs.serverLoad, averageFrameTime, frameMsec );
@@ -1807,7 +1807,7 @@ void idServerMainSystemLocal::Frame( S32 msec )
     
     // collect timing statistics
     end = idsystem->Milliseconds();
-    svs.stats.active += ( ( F64 )( end - start ) ) / 1000;
+    svs.stats.active += ( ( float64 )( end - start ) ) / 1000;
     
     if( ++svs.stats.count == STATFRAMES )
     {
@@ -1826,10 +1826,10 @@ void idServerMainSystemLocal::Frame( S32 msec )
 idServerMainSystemLocal::LoadTag
 =================
 */
-S32 idServerMainSystemLocal::LoadTag( StringEntry mod_name )
+sint idServerMainSystemLocal::LoadTag( pointer mod_name )
 {
-    S32 i, j, version;
-    U8* buffer;
+    sint i, j, version;
+    uchar8* buffer;
     tagHeader_t* pinmodel;
     md3Tag_t* tag, *readTag;
     

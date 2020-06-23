@@ -69,14 +69,14 @@ idServerNetChanSystemLocal::~idServerNetChanSystemLocal( void )
 idServerNetChanSystemLocal::Netchan_Encode
 
 // first four bytes of the data are always:
-S64 reliableAcknowledge;
+sint32 reliableAcknowledge;
 ==============
 */
-void idServerNetChanSystemLocal::NetchanEncode( client_t* client, msg_t* msg, UTF8* commandString )
+void idServerNetChanSystemLocal::NetchanEncode( client_t* client, msg_t* msg, valueType* commandString )
 {
-    U8 key, *string;
-    S32 srdc, sbit;
-    S64 reliableAcknowledge, i, index;
+    uchar8 key, *string;
+    sint srdc, sbit;
+    sint32 reliableAcknowledge, i, index;
     bool soob;
     
     if( msg->cursize < SV_ENCODE_START )
@@ -99,7 +99,7 @@ void idServerNetChanSystemLocal::NetchanEncode( client_t* client, msg_t* msg, UT
     msg->bit = sbit;
     msg->readcount = srdc;
     
-    string = ( U8* ) client->lastClientCommandString;
+    string = ( uchar8* ) client->lastClientCommandString;
     index = 0;
     
     // xor the client challenge with the netchan sequence number
@@ -134,15 +134,15 @@ void idServerNetChanSystemLocal::NetchanEncode( client_t* client, msg_t* msg, UT
 idServerNetChanSystemLocal::Netchan_Decode
 
 // first 12 bytes of the data are always:
-S64 serverId;
-S64 messageAcknowledge;
-S64 reliableAcknowledge;
+sint32 serverId;
+sint32 messageAcknowledge;
+sint32 reliableAcknowledge;
 ==============
 */
 void idServerNetChanSystemLocal::NetchanDecode( client_t* client, msg_t* msg )
 {
-    U8 key, *string;
-    S32 serverId, messageAcknowledge, reliableAcknowledge, i, index, srdc, sbit;
+    uchar8 key, *string;
+    sint serverId, messageAcknowledge, reliableAcknowledge, i, index, srdc, sbit;
     bool soob;
     
     srdc = msg->readcount;
@@ -159,7 +159,7 @@ void idServerNetChanSystemLocal::NetchanDecode( client_t* client, msg_t* msg )
     msg->bit = sbit;
     msg->readcount = srdc;
     
-    string = reinterpret_cast<U8*>( client->reliableCommands[reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 )] );
+    string = reinterpret_cast<uchar8*>( client->reliableCommands[reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 )] );
     index = 0;
     
     //

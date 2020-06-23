@@ -44,8 +44,8 @@
 
 typedef struct
 {
-    S32 numSnapshotEntities;
-    S32 snapshotEntities[MAX_SNAPSHOT_ENTITIES];
+    sint numSnapshotEntities;
+    sint snapshotEntities[MAX_SNAPSHOT_ENTITIES];
 } snapshotEntityNumbers_t;
 
 //
@@ -67,11 +67,11 @@ public:
     
     static void EmitPacketEntities( clientSnapshot_t* from, clientSnapshot_t* to, msg_t* msg );
     static void WriteSnapshotToClient( client_t* client, msg_t* msg );
-    static S32 QsortEntityNumbers( const void* a, const void* b );
+    static sint QsortEntityNumbers( const void* a, const void* b );
     static void AddEntToSnapshot( sharedEntity_t* clientEnt, svEntity_t* svEnt, sharedEntity_t* gEnt, snapshotEntityNumbers_t* eNums );
     static void AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t* frame, snapshotEntityNumbers_t* eNums, bool portal );
     static void BuildClientSnapshot( client_t* client );
-    static S32 RateMsec( client_t* client, S32 messageSize );
+    static sint RateMsec( client_t* client, sint messageSize );
 };
 
 extern idServerSnapshotSystemLocal serverSnapshotSystemLocal;

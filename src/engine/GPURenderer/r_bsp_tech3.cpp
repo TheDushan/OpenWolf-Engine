@@ -31,18 +31,18 @@
 #include <framework/precompiled.h>
 
 static	world_t		s_worldData;
-static	U8*		fileBase;
+static	uchar8*		fileBase;
 
-S32			c_subdivisions;
-S32			c_gridVerts;
+sint			c_subdivisions;
+sint			c_gridVerts;
 
 //===============================================================================
 
-static void HSVtoRGB( F32 h, F32 s, F32 v, F32 rgb[3] )
+static void HSVtoRGB( float32 h, float32 s, float32 v, float32 rgb[3] )
 {
-    S32 i;
-    F32 f;
-    F32 p, q, t;
+    sint i;
+    float32 f;
+    float32 p, q, t;
     
     h *= 5;
     
@@ -94,9 +94,9 @@ R_ColorShiftLightingBytes
 
 ===============
 */
-static	void R_ColorShiftLightingBytes( U8 in[4], U8 out[4] )
+static	void R_ColorShiftLightingBytes( uchar8 in[4], uchar8 out[4] )
 {
-    S32		shift, r, g, b;
+    sint		shift, r, g, b;
     
     // shift the color data based on overbright range
     shift = r_mapOverBrightBits->integer - tr.overbrightBits;
@@ -109,7 +109,7 @@ static	void R_ColorShiftLightingBytes( U8 in[4], U8 out[4] )
     // normalize by color instead of saturating to white
     if( ( r | g | b ) > 255 )
     {
-        S32		max;
+        sint		max;
         
         max = r > g ? r : g;
         max = max > b ? max : b;
@@ -131,10 +131,10 @@ R_ColorShiftLightingFloats
 
 ===============
 */
-static void R_ColorShiftLightingFloats( F32 in[4], F32 out[4] )
+static void R_ColorShiftLightingFloats( float32 in[4], float32 out[4] )
 {
-    F32	r, g, b;
-    F32   scale = ( 1 << ( r_mapOverBrightBits->integer - tr.overbrightBits ) ) / 255.0f;
+    float32	r, g, b;
+    float32   scale = ( 1 << ( r_mapOverBrightBits->integer - tr.overbrightBits ) ) / 255.0f;
     
     r = in[0] * scale;
     g = in[1] * scale;
@@ -143,7 +143,7 @@ static void R_ColorShiftLightingFloats( F32 in[4], F32 out[4] )
     // normalize by color instead of saturating to white
     if( r > 1 || g > 1 || b > 1 )
     {
-        F32	max;
+        float32	max;
         
         max = r > g ? r : g;
         max = max > b ? max : b;
@@ -159,10 +159,10 @@ static void R_ColorShiftLightingFloats( F32 in[4], F32 out[4] )
 }
 
 // Modified from http://graphicrants.blogspot.jp/2009/04/rgbm-color-encoding.html
-void ColorToRGBM( const vec3_t color, U8 rgbm[4] )
+void ColorToRGBM( const vec3_t color, uchar8 rgbm[4] )
 {
     vec3_t          sample;
-    F32			maxComponent;
+    float32			maxComponent;
     
     VectorCopy( color, sample );
     
@@ -170,17 +170,17 @@ void ColorToRGBM( const vec3_t color, U8 rgbm[4] )
     maxComponent = MAX( maxComponent, sample[2] );
     maxComponent = CLAMP( maxComponent, 1.0f / 255.0f, 1.0f );
     
-    rgbm[3] = ( U8 ) ceil( maxComponent * 255.0f );
+    rgbm[3] = ( uchar8 ) ceil( maxComponent * 255.0f );
     maxComponent = 255.0f / rgbm[3];
     
     VectorScale( sample, maxComponent, sample );
     
-    rgbm[0] = ( U8 )( sample[0] * 255 );
-    rgbm[1] = ( U8 )( sample[1] * 255 );
-    rgbm[2] = ( U8 )( sample[2] * 255 );
+    rgbm[0] = ( uchar8 )( sample[0] * 255 );
+    rgbm[1] = ( uchar8 )( sample[1] * 255 );
+    rgbm[2] = ( uchar8 )( sample[2] * 255 );
 }
 
-void ColorToRGB16( const vec3_t color, U16 rgb16[3] )
+void ColorToRGB16( const vec3_t color, uchar16 rgb16[3] )
 {
     rgb16[0] = color[0] * 65535.0f + 0.5f;
     rgb16[1] = color[1] * 65535.0f + 0.5f;
@@ -197,15 +197,15 @@ R_LoadLightmaps
 #define	DEFAULT_LIGHTMAP_SIZE	128
 static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
 {
-    S32/*imgFlags_t*/  imgFlags = IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE;
-    U8*		buf, *buf_p;
+    sint/*imgFlags_t*/  imgFlags = IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE;
+    uchar8*		buf, *buf_p;
     dsurface_t*  surf;
-    S32			len;
-    U8*		image;
-    S32			i, j, numLightmaps, textureInternalFormat = 0;
-    S32			numLightmapsPerPage = 16;
-    F32 maxIntensity = 0;
-    F64 sumIntensity = 0;
+    sint			len;
+    uchar8*		image;
+    sint			i, j, numLightmaps, textureInternalFormat = 0;
+    sint			numLightmapsPerPage = 16;
+    float32 maxIntensity = 0;
+    float64 sumIntensity = 0;
     
     len = l->filelen;
     if( !len )
@@ -232,7 +232,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
         for( i = 0, surf = ( dsurface_t* )( fileBase + surfs->fileofs );
                 i < surfs->filelen / sizeof( dsurface_t ); i++, surf++ )
         {
-            S32 lightmapNum = LittleLong( surf->lightmapNum );
+            sint lightmapNum = LittleLong( surf->lightmapNum );
             
             if( lightmapNum >= 0 && ( lightmapNum & 1 ) != 0 )
             {
@@ -242,7 +242,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
         }
     }
     
-    image = ( U8* )CL_RefMalloc( tr.lightmapSize * tr.lightmapSize * 4 * 2 );
+    image = ( uchar8* )CL_RefMalloc( tr.lightmapSize * tr.lightmapSize * 4 * 2 );
     
     if( tr.worldDeluxeMapping )
         numLightmaps >>= 1;
@@ -250,8 +250,8 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
     // Use fat lightmaps of an appropriate size.
     if( r_mergeLightmaps->integer )
     {
-        S32 maxLightmapsPerAxis = glConfig.maxTextureSize / tr.lightmapSize;
-        S32 lightmapCols = 4, lightmapRows = 4;
+        sint maxLightmapsPerAxis = glConfig.maxTextureSize / tr.lightmapSize;
+        sint lightmapCols = 4, lightmapRows = 4;
         
         // Increase width at first, then height.
         while( lightmapCols * lightmapRows < numLightmaps && lightmapCols != maxLightmapsPerAxis )
@@ -280,7 +280,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
     if( r_hdr->integer )
     {
         // Check for the first hdr lightmap, if it exists, use GL_RGBA16 for textures.
-        UTF8 filename[MAX_QPATH];
+        valueType filename[MAX_QPATH];
         
         Com_sprintf( filename, sizeof( filename ), "maps/%s/lm_0000.hdr", s_worldData.baseName );
         if( fileSystem->FileExists( filename ) )
@@ -289,8 +289,8 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
     
     if( r_mergeLightmaps->integer )
     {
-        S32 width  = tr.fatLightmapCols * tr.lightmapSize;
-        S32 height = tr.fatLightmapRows * tr.lightmapSize;
+        sint width  = tr.fatLightmapCols * tr.lightmapSize;
+        sint height = tr.fatLightmapRows * tr.lightmapSize;
         
         #pragma omp critical
         for( i = 0; i < tr.numLightmaps; i++ )
@@ -305,13 +305,13 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
     #pragma omp critical
     for( i = 0; i < numLightmaps; i++ )
     {
-        S32 xoff = 0, yoff = 0;
-        S32 lightmapnum = i;
+        sint xoff = 0, yoff = 0;
+        sint lightmapnum = i;
         // expand the 24 bit on-disk to 32 bit
         
         if( r_mergeLightmaps->integer )
         {
-            S32 lightmaponpage = i % numLightmapsPerPage;
+            sint lightmaponpage = i % numLightmapsPerPage;
             xoff = ( lightmaponpage % tr.fatLightmapCols ) * tr.lightmapSize;
             yoff = ( lightmaponpage / tr.fatLightmapCols ) * tr.lightmapSize;
             
@@ -320,9 +320,9 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
         
         // if (tr.worldLightmapping)
         {
-            UTF8 filename[MAX_QPATH];
-            U8* hdrLightmap = nullptr;
-            S32 size = 0;
+            valueType filename[MAX_QPATH];
+            uchar8* hdrLightmap = nullptr;
+            sint size = 0;
             
             // look for hdr lightmaps
             if( textureInternalFormat == GL_RGBA16 )
@@ -335,7 +335,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
             
             if( hdrLightmap )
             {
-                U8* p = hdrLightmap, *end = hdrLightmap + size;
+                uchar8* p = hdrLightmap, *end = hdrLightmap + size;
                 //CL_RefPrintf(PRINT_ALL, "found!\n");
                 
                 /* FIXME: don't just skip over this header and actually parse it */
@@ -355,16 +355,16 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
                 buf_p = p;
                 
 #if 0 // HDRFILE_RGBE
-                if( ( S32 )( end - hdrLightmap ) != tr.lightmapSize * tr.lightmapSize * 4 )
+                if( ( sint )( end - hdrLightmap ) != tr.lightmapSize * tr.lightmapSize * 4 )
                     Com_Error( ERR_DROP, "Bad size for %s (%i)!", filename, size );
 #else // HDRFILE_FLOAT
-                if( ( S32 )( end - hdrLightmap ) != tr.lightmapSize * tr.lightmapSize * 12 )
+                if( ( sint )( end - hdrLightmap ) != tr.lightmapSize * tr.lightmapSize * 12 )
                     Com_Error( ERR_DROP, "Bad size for %s (%i)!", filename, size );
 #endif
             }
             else
             {
-                S32 imgOffset = tr.worldDeluxeMapping ? i * 2 : i;
+                sint imgOffset = tr.worldDeluxeMapping ? i * 2 : i;
                 buf_p = buf + imgOffset * tr.lightmapSize * tr.lightmapSize * 3;
             }
             
@@ -376,7 +376,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
                     vec4_t color;
                     
 #if 0 // HDRFILE_RGBE
-                    F32 exponent = exp2( buf_p[j * 4 + 3] - 128 );
+                    float32 exponent = exp2( buf_p[j * 4 + 3] - 128 );
                     
                     color[0] = buf_p[j * 4 + 0] * exponent;
                     color[1] = buf_p[j * 4 + 1] * exponent;
@@ -392,8 +392,8 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
                     
                     R_ColorShiftLightingFloats( color, color );
                     
-                    ColorToRGB16( color, ( U16* )( &image[j * 8] ) );
-                    ( ( U16* )( &image[j * 8] ) )[3] = 65535;
+                    ColorToRGB16( color, ( uchar16* )( &image[j * 8] ) );
+                    ( ( uchar16* )( &image[j * 8] ) )[3] = 65535;
                 }
                 else if( textureInternalFormat == GL_RGBA16 )
                 {
@@ -408,7 +408,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
                     // this prevents weird splotches in dimly lit areas
                     if( color[0] + color[1] + color[2] < 12.0f )
                     {
-                        F32 avg = ( color[0] + color[1] + color[2] ) * 0.3333f;
+                        float32 avg = ( color[0] + color[1] + color[2] ) * 0.3333f;
                         color[0] = avg;
                         color[1] = avg;
                         color[2] = avg;
@@ -417,19 +417,19 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
                     
                     R_ColorShiftLightingFloats( color, color );
                     
-                    ColorToRGB16( color, ( U16* )( &image[j * 8] ) );
-                    ( ( U16* )( &image[j * 8] ) )[3] = 65535;
+                    ColorToRGB16( color, ( uchar16* )( &image[j * 8] ) );
+                    ( ( uchar16* )( &image[j * 8] ) )[3] = 65535;
                 }
                 else
                 {
                     if( r_lightmap->integer == 2 )
                     {
                         // color code by intensity as development tool	(FIXME: check range)
-                        F32 r = buf_p[j * 3 + 0];
-                        F32 g = buf_p[j * 3 + 1];
-                        F32 b = buf_p[j * 3 + 2];
-                        F32 intensity;
-                        F32 out[3] = {0.0, 0.0, 0.0};
+                        float32 r = buf_p[j * 3 + 0];
+                        float32 g = buf_p[j * 3 + 1];
+                        float32 b = buf_p[j * 3 + 2];
+                        float32 intensity;
+                        float32 out[3] = {0.0, 0.0, 0.0};
                         
                         intensity = 0.33f * r + 0.685f * g + 0.063f * b;
                         
@@ -498,14 +498,14 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
     
     if( r_lightmap->integer == 2 )
     {
-        CL_RefPrintf( PRINT_ALL, "Brightest lightmap value: %d\n", ( S32 )( maxIntensity * 255 ) );
+        CL_RefPrintf( PRINT_ALL, "Brightest lightmap value: %d\n", ( sint )( maxIntensity * 255 ) );
     }
     
     Z_Free( image );
 }
 
 
-static F32 FatPackU( F32 input, S32 lightmapnum )
+static float32 FatPackU( float32 input, sint lightmapnum )
 {
     if( lightmapnum < 0 )
         return input;
@@ -516,13 +516,13 @@ static F32 FatPackU( F32 input, S32 lightmapnum )
     if( tr.fatLightmapCols > 0 )
     {
         lightmapnum %= ( tr.fatLightmapCols * tr.fatLightmapRows );
-        return ( input + ( lightmapnum % tr.fatLightmapCols ) ) / ( F32 )( tr.fatLightmapCols );
+        return ( input + ( lightmapnum % tr.fatLightmapCols ) ) / ( float32 )( tr.fatLightmapCols );
     }
     
     return input;
 }
 
-static F32 FatPackV( F32 input, S32 lightmapnum )
+static float32 FatPackV( float32 input, sint lightmapnum )
 {
     if( lightmapnum < 0 )
         return input;
@@ -533,14 +533,14 @@ static F32 FatPackV( F32 input, S32 lightmapnum )
     if( tr.fatLightmapCols > 0 )
     {
         lightmapnum %= ( tr.fatLightmapCols * tr.fatLightmapRows );
-        return ( input + ( lightmapnum / tr.fatLightmapCols ) ) / ( F32 )( tr.fatLightmapRows );
+        return ( input + ( lightmapnum / tr.fatLightmapCols ) ) / ( float32 )( tr.fatLightmapRows );
     }
     
     return input;
 }
 
 
-static S32 FatLightmap( S32 lightmapnum )
+static sint FatLightmap( sint lightmapnum )
 {
     if( lightmapnum < 0 )
         return lightmapnum;
@@ -562,7 +562,7 @@ This is called by the clipmodel subsystem so we can share the 1.8 megs of
 space in big maps...
 =================
 */
-void idRenderSystemLocal::SetWorldVisData( const U8* vis )
+void idRenderSystemLocal::SetWorldVisData( const uchar8* vis )
 {
     tr.externalVisData = vis;
 }
@@ -574,8 +574,8 @@ R_LoadVisibility
 */
 static	void R_LoadVisibility( lump_t* l )
 {
-    S32		len;
-    U8*	buf;
+    sint		len;
+    uchar8*	buf;
     
     len = l->filelen;
     if( !len )
@@ -584,8 +584,8 @@ static	void R_LoadVisibility( lump_t* l )
     }
     buf = fileBase + l->fileofs;
     
-    s_worldData.numClusters = LittleLong( ( ( S32* )buf )[0] );
-    s_worldData.clusterBytes = LittleLong( ( ( S32* )buf )[1] );
+    s_worldData.numClusters = LittleLong( ( ( sint* )buf )[0] );
+    s_worldData.clusterBytes = LittleLong( ( ( sint* )buf )[1] );
     
     // CM_Load should have given us the vis data to share, so
     // we don't need to allocate another copy
@@ -595,8 +595,8 @@ static	void R_LoadVisibility( lump_t* l )
     }
     else
     {
-        U8* dest = nullptr;
-        dest = reinterpret_cast<U8*>( Hunk_Alloc( len - 8, h_low ) );
+        uchar8* dest = nullptr;
+        dest = reinterpret_cast<uchar8*>( Hunk_Alloc( len - 8, h_low ) );
         ::memcpy( dest, buf + 8, len - 8 );
         s_worldData.vis = dest;
     }
@@ -610,12 +610,12 @@ static	void R_LoadVisibility( lump_t* l )
 ShaderForShaderNum
 ===============
 */
-static shader_t* ShaderForShaderNum( S32 shaderNum, S32 lightmapNum )
+static shader_t* ShaderForShaderNum( sint shaderNum, sint lightmapNum )
 {
     shader_t*	_shader;
     dshader_t*	dsh;
     
-    S32 _shaderNum = LittleLong( shaderNum );
+    sint _shaderNum = LittleLong( shaderNum );
     if( _shaderNum < 0 || _shaderNum >= s_worldData.numShaders )
     {
         Com_Error( ERR_DROP, "ShaderForShaderNum: bad num %i", _shaderNum );
@@ -643,7 +643,7 @@ static shader_t* ShaderForShaderNum( S32 shaderNum, S32 lightmapNum )
     return _shader;
 }
 
-void LoadDrawVertToSrfVert( srfVert_t* s, drawVert_t* d, S32 realLightmapNum, F32 hdrVertColors[3], vec3_t* bounds )
+void LoadDrawVertToSrfVert( srfVert_t* s, drawVert_t* d, sint realLightmapNum, float32 hdrVertColors[3], vec3_t* bounds )
 {
     vec4_t v;
     
@@ -709,13 +709,13 @@ void LoadDrawVertToSrfVert( srfVert_t* s, drawVert_t* d, S32 realLightmapNum, F3
 ParseFace
 ===============
 */
-static void ParseFace( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors, msurface_t* surf, S32* indexes )
+static void ParseFace( dsurface_t* ds, drawVert_t* verts, float32* hdrVertColors, msurface_t* surf, sint* indexes )
 {
-    S32			i, j;
+    sint			i, j;
     srfBspSurface_t*	cv;
-    U32*  tri;
-    S32			numVerts, numIndexes, badTriangles;
-    S32 realLightmapNum;
+    uint*  tri;
+    sint			numVerts, numIndexes, badTriangles;
+    sint realLightmapNum;
     
     realLightmapNum = LittleLong( ds->lightmapNum );
     
@@ -744,7 +744,7 @@ static void ParseFace( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors, ms
     cv->surfaceType = SF_FACE;
     
     cv->numIndexes = numIndexes;
-    cv->indexes = reinterpret_cast<U32*>( Hunk_Alloc( numIndexes * sizeof( cv->indexes[0] ), h_low ) );
+    cv->indexes = reinterpret_cast<uint*>( Hunk_Alloc( numIndexes * sizeof( cv->indexes[0] ), h_low ) );
     
     cv->numVerts = numVerts;
     cv->verts = reinterpret_cast<srfVert_t*>( Hunk_Alloc( numVerts * sizeof( cv->verts[0] ), h_low ) );
@@ -821,16 +821,16 @@ static void ParseFace( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors, ms
 ParseMesh
 ===============
 */
-static void ParseMesh( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors, msurface_t* surf )
+static void ParseMesh( dsurface_t* ds, drawVert_t* verts, float32* hdrVertColors, msurface_t* surf )
 {
     srfBspSurface_t*	grid = ( srfBspSurface_t* )surf->data;
-    S32				i;
-    S32				width, height, numPoints;
+    sint				i;
+    sint				width, height, numPoints;
     srfVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
     vec3_t			bounds[2];
     vec3_t			tmpVec;
     static surfaceType_t	skipData = SF_SKIP;
-    S32 realLightmapNum;
+    sint realLightmapNum;
     
     realLightmapNum = LittleLong( ds->lightmapNum );
     
@@ -893,12 +893,12 @@ static void ParseMesh( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors, ms
 ParseTriSurf
 ===============
 */
-static void ParseTriSurf( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors, msurface_t* surf, S32* indexes )
+static void ParseTriSurf( dsurface_t* ds, drawVert_t* verts, float32* hdrVertColors, msurface_t* surf, sint* indexes )
 {
     srfBspSurface_t* cv;
-    U32*  tri;
-    S32             i, j;
-    S32             numVerts, numIndexes, badTriangles;
+    uint*  tri;
+    sint             i, j;
+    sint             numVerts, numIndexes, badTriangles;
     
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
@@ -918,7 +918,7 @@ static void ParseTriSurf( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors,
     cv->surfaceType = SF_TRIANGLES;
     
     cv->numIndexes = numIndexes;
-    cv->indexes = reinterpret_cast<U32*>( Hunk_Alloc( numIndexes * sizeof( cv->indexes[0] ), h_low ) );
+    cv->indexes = reinterpret_cast<uint*>( Hunk_Alloc( numIndexes * sizeof( cv->indexes[0] ), h_low ) );
     
     cv->numVerts = numVerts;
     cv->verts = reinterpret_cast<srfVert_t*>( Hunk_Alloc( numVerts * sizeof( cv->verts[0] ), h_low ) );
@@ -983,10 +983,10 @@ static void ParseTriSurf( dsurface_t* ds, drawVert_t* verts, F32* hdrVertColors,
 ParseFlare
 ===============
 */
-static void ParseFlare( dsurface_t* ds, drawVert_t* verts, msurface_t* surf, S32* indexes )
+static void ParseFlare( dsurface_t* ds, drawVert_t* verts, msurface_t* surf, sint* indexes )
 {
     srfFlare_t*		flare;
-    S32				i;
+    sint				i;
     
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
@@ -1023,9 +1023,9 @@ R_MergedWidthPoints
 returns true if there are grid points merged on a width edge
 =================
 */
-S32 R_MergedWidthPoints( srfBspSurface_t* grid, S32 offset )
+sint R_MergedWidthPoints( srfBspSurface_t* grid, sint offset )
 {
-    S32 i, j;
+    sint i, j;
     
     #pragma omp critical
     for( i = 1; i < grid->width - 1; i++ )
@@ -1048,9 +1048,9 @@ R_MergedHeightPoints
 returns true if there are grid points merged on a height edge
 =================
 */
-S32 R_MergedHeightPoints( srfBspSurface_t* grid, S32 offset )
+sint R_MergedHeightPoints( srfBspSurface_t* grid, sint offset )
 {
-    S32 i, j;
+    sint i, j;
     
     #pragma omp critical
     for( i = 1; i < grid->height - 1; i++ )
@@ -1075,9 +1075,9 @@ NOTE: never sync LoD through grid edges with merged points!
 FIXME: write generalized version that also avoids cracks between a patch and one that meets half way?
 =================
 */
-void R_FixSharedVertexLodError_r( S32 start, srfBspSurface_t* grid1 )
+void R_FixSharedVertexLodError_r( sint start, srfBspSurface_t* grid1 )
 {
-    S32 j, k, l, m, n, offset1, offset2, touch;
+    sint j, k, l, m, n, offset1, offset2, touch;
     srfBspSurface_t* grid2;
     
     #pragma omp critical
@@ -1207,7 +1207,7 @@ If this is not the case this function will still do its job but won't fix the hi
 */
 void R_FixSharedVertexLodError( void )
 {
-    S32 i;
+    sint i;
     srfBspSurface_t* grid1;
     
     #pragma omp parallel for
@@ -1234,11 +1234,11 @@ void R_FixSharedVertexLodError( void )
 R_StitchPatches
 ===============
 */
-S32 R_StitchPatches( S32 grid1num, S32 grid2num )
+sint R_StitchPatches( sint grid1num, sint grid2num )
 {
-    F32* v1, *v2;
+    float32* v1, *v2;
     srfBspSurface_t* grid1, *grid2;
-    S32 k, l, m, n, offset1, offset2, row, column;
+    sint k, l, m, n, offset1, offset2, row, column;
     
     grid1 = ( srfBspSurface_t* ) s_worldData.surfaces[grid1num].data;
     grid2 = ( srfBspSurface_t* ) s_worldData.surfaces[grid2num].data;
@@ -1677,9 +1677,9 @@ of the patch (on the same row or column) the vertices will not be joined and cra
 might still appear at that side.
 ===============
 */
-S32 R_TryStitchingPatch( S32 grid1num )
+sint R_TryStitchingPatch( sint grid1num )
 {
-    S32 j, numstitches;
+    sint j, numstitches;
     srfBspSurface_t* grid1, *grid2;
     
     numstitches = 0;
@@ -1712,7 +1712,7 @@ R_StitchAllPatches
 */
 void R_StitchAllPatches( void )
 {
-    S32 i, stitched, numstitches;
+    sint i, stitched, numstitches;
     srfBspSurface_t* grid1;
     
     numstitches = 0;
@@ -1747,7 +1747,7 @@ R_MovePatchSurfacesToHunk
 */
 void R_MovePatchSurfacesToHunk( void )
 {
-    S32 i;
+    sint i;
     srfBspSurface_t* grid;
     
     for( i = 0; i < s_worldData.numsurfaces; i++ )
@@ -1761,18 +1761,18 @@ void R_MovePatchSurfacesToHunk( void )
         //
         
         copyFrom = grid->widthLodError;
-        grid->widthLodError = reinterpret_cast<F32*>( Hunk_Alloc( grid->width * 4, h_low ) );
+        grid->widthLodError = reinterpret_cast<float32*>( Hunk_Alloc( grid->width * 4, h_low ) );
         ::memcpy( grid->widthLodError, copyFrom, grid->width * 4 );
         Z_Free( copyFrom );
         
         copyFrom = grid->heightLodError;
-        grid->heightLodError = reinterpret_cast<F32*>( Hunk_Alloc( grid->height * 4, h_low ) );
+        grid->heightLodError = reinterpret_cast<float32*>( Hunk_Alloc( grid->height * 4, h_low ) );
         ::memcpy( grid->heightLodError, copyFrom, grid->height * 4 );
         Z_Free( copyFrom );
         
         copyFrom = grid->indexes;
-        grid->indexes = reinterpret_cast<U32*>( Hunk_Alloc( grid->numIndexes * sizeof( U32 ), h_low ) );
-        ::memcpy( grid->indexes, copyFrom, grid->numIndexes * sizeof( U32 ) );
+        grid->indexes = reinterpret_cast<uint*>( Hunk_Alloc( grid->numIndexes * sizeof( uint ), h_low ) );
+        ::memcpy( grid->indexes, copyFrom, grid->numIndexes * sizeof( uint ) );
         Z_Free( copyFrom );
         
         copyFrom = grid->verts;
@@ -1793,11 +1793,11 @@ static	void R_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexLump )
     dsurface_t*	in;
     msurface_t*	out = nullptr;
     drawVert_t*	dv;
-    S32*			indexes;
-    S32			count;
-    S32			numFaces, numMeshes, numTriSurfs, numFlares;
-    S32			i;
-    F32* hdrVertColors = nullptr;
+    sint*			indexes;
+    sint			count;
+    sint			numFaces, numMeshes, numTriSurfs, numFlares;
+    sint			i;
+    float32* hdrVertColors = nullptr;
     
     numFaces = 0;
     numMeshes = 0;
@@ -1812,7 +1812,7 @@ static	void R_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexLump )
     if( verts->filelen % sizeof( *dv ) )
         Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name );
         
-    indexes = ( S32* )( fileBase + indexLump->fileofs );
+    indexes = ( sint* )( fileBase + indexLump->fileofs );
     if( indexLump->filelen % sizeof( *indexes ) )
         Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name );
         
@@ -1820,15 +1820,15 @@ static	void R_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexLump )
     
     s_worldData.surfaces = out;
     s_worldData.numsurfaces = count;
-    s_worldData.surfacesViewCount = reinterpret_cast<S32*>( Hunk_Alloc( count * sizeof( *s_worldData.surfacesViewCount ), h_low ) );
-    s_worldData.surfacesDlightBits = reinterpret_cast<S32*>( Hunk_Alloc( count * sizeof( *s_worldData.surfacesDlightBits ), h_low ) );
-    s_worldData.surfacesPshadowBits = reinterpret_cast<S32*>( Hunk_Alloc( count * sizeof( *s_worldData.surfacesPshadowBits ), h_low ) );
+    s_worldData.surfacesViewCount = reinterpret_cast<sint*>( Hunk_Alloc( count * sizeof( *s_worldData.surfacesViewCount ), h_low ) );
+    s_worldData.surfacesDlightBits = reinterpret_cast<sint*>( Hunk_Alloc( count * sizeof( *s_worldData.surfacesDlightBits ), h_low ) );
+    s_worldData.surfacesPshadowBits = reinterpret_cast<sint*>( Hunk_Alloc( count * sizeof( *s_worldData.surfacesPshadowBits ), h_low ) );
     
     // load hdr vertex colors
     if( r_hdr->integer )
     {
-        UTF8 filename[MAX_QPATH];
-        S32 size;
+        valueType filename[MAX_QPATH];
+        sint size;
         
         Com_sprintf( filename, sizeof( filename ), "maps/%s/vertlight.raw", s_worldData.baseName );
         //CL_RefPrintf(PRINT_ALL, "looking for %s\n", filename);
@@ -1838,8 +1838,8 @@ static	void R_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexLump )
         if( hdrVertColors )
         {
             //CL_RefPrintf(PRINT_ALL, "Found!\n");
-            if( size != sizeof( F32 ) * 3 * ( verts->filelen / sizeof( *dv ) ) )
-                Com_Error( ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, ( S32 )( ( sizeof( F32 ) ) * 3 * ( verts->filelen / sizeof( *dv ) ) ) );
+            if( size != sizeof( float32 ) * 3 * ( verts->filelen / sizeof( *dv ) ) )
+                Com_Error( ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, ( sint )( ( sizeof( float32 ) ) * 3 * ( verts->filelen / sizeof( *dv ) ) ) );
         }
     }
     
@@ -1927,7 +1927,7 @@ static	void R_LoadSubmodels( lump_t* l )
 {
     dmodel_t*	in;
     bmodel_t*	out;
-    S32			i, j, count;
+    sint			i, j, count;
     
     in = ( dmodel_t* )( fileBase + l->fileofs );
     if( l->filelen % sizeof( *in ) )
@@ -1995,11 +1995,11 @@ R_LoadNodesAndLeafs
 */
 static	void R_LoadNodesAndLeafs( lump_t* nodeLump, lump_t* leafLump )
 {
-    S32			i, j, p;
+    sint			i, j, p;
     dnode_t*		in;
     dleaf_t*		inLeaf;
     mnode_t*	 out = nullptr;
-    S32			numNodes, numLeafs;
+    sint			numNodes, numLeafs;
     
     in = ( dnode_t* )( fileBase + nodeLump->fileofs );
     if( nodeLump->filelen % sizeof( dnode_t ) ||
@@ -2075,7 +2075,7 @@ R_LoadShaders
 */
 static	void R_LoadShaders( lump_t* l )
 {
-    S32		i, count;
+    sint		i, count;
     dshader_t*	in, *out = nullptr;
     
     in = ( dshader_t* )( fileBase + l->fileofs );
@@ -2104,15 +2104,15 @@ R_LoadMarksurfaces
 */
 static	void R_LoadMarksurfaces( lump_t* l )
 {
-    S32		i, j, count;
-    S32*		in;
-    S32*     out = nullptr;
+    sint		i, j, count;
+    sint*		in;
+    sint*     out = nullptr;
     
-    in = ( S32* )( fileBase + l->fileofs );
+    in = ( sint* )( fileBase + l->fileofs );
     if( l->filelen % sizeof( *in ) )
         Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name );
     count = l->filelen / sizeof( *in );
-    out = reinterpret_cast<S32*>( Hunk_Alloc( count * sizeof( *out ), h_low ) );
+    out = reinterpret_cast<sint*>( Hunk_Alloc( count * sizeof( *out ), h_low ) );
     
     s_worldData.marksurfaces = out;
     s_worldData.nummarksurfaces = count;
@@ -2132,11 +2132,11 @@ R_LoadPlanes
 */
 static	void R_LoadPlanes( lump_t* l )
 {
-    S32			i, j;
+    sint			i, j;
     cplane_t*	out = nullptr;
     dplane_t*	 in;
-    S32			count;
-    S32			bits;
+    sint			count;
+    sint			bits;
     
     in = ( dplane_t* )( fileBase + l->fileofs );
     if( l->filelen % sizeof( *in ) )
@@ -2173,17 +2173,17 @@ R_LoadFogs
 */
 static	void R_LoadFogs( lump_t* l, lump_t* brushesLump, lump_t* sidesLump )
 {
-    S32			i;
+    sint			i;
     fog_t*		out;
     dfog_t*		fogs;
     dbrush_t*	 brushes, *brush;
     dbrushside_t*	sides;
-    S32			count, brushesCount, sidesCount;
-    S32			sideNum;
-    S32			planeNum;
+    sint			count, brushesCount, sidesCount;
+    sint			sideNum;
+    sint			planeNum;
     shader_t*	shader;
-    F32		d;
-    S32			firstSide;
+    float32		d;
+    sint			firstSide;
     
     fogs = ( dfog_t* )( fileBase + l->fileofs );
     if( l->filelen % sizeof( *fogs ) )
@@ -2220,7 +2220,7 @@ static	void R_LoadFogs( lump_t* l, lump_t* brushesLump, lump_t* sidesLump )
     {
         out->originalBrushNumber = LittleLong( fogs->brushNum );
         
-        if( ( U32 )out->originalBrushNumber >= brushesCount )
+        if( ( uint )out->originalBrushNumber >= brushesCount )
         {
             Com_Error( ERR_DROP, "fog brushNumber out of range" );
         }
@@ -2228,7 +2228,7 @@ static	void R_LoadFogs( lump_t* l, lump_t* brushesLump, lump_t* sidesLump )
         
         firstSide = LittleLong( brush->firstSide );
         
-        if( ( U32 )firstSide > sidesCount - 6 )
+        if( ( uint )firstSide > sidesCount - 6 )
         {
             Com_Error( ERR_DROP, "fog brush sideNumber out of range" );
         }
@@ -2298,11 +2298,11 @@ R_LoadLightGrid
 */
 void R_LoadLightGrid( lump_t* l )
 {
-    S32		i;
+    sint		i;
     vec3_t	maxs;
-    S32		numGridPoints;
+    sint		numGridPoints;
     world_t*	w;
-    F32*	wMins, *wMaxs;
+    float32*	wMins, *wMaxs;
     
     w = &s_worldData;
     
@@ -2329,7 +2329,7 @@ void R_LoadLightGrid( lump_t* l )
         return;
     }
     
-    w->lightGridData = reinterpret_cast<U8*>( Hunk_Alloc( l->filelen, h_low ) );
+    w->lightGridData = reinterpret_cast<uchar8*>( Hunk_Alloc( l->filelen, h_low ) );
     ::memcpy( w->lightGridData, ( void* )( fileBase + l->fileofs ), l->filelen );
     
     // deal with overbright bits
@@ -2342,9 +2342,9 @@ void R_LoadLightGrid( lump_t* l )
     // load hdr lightgrid
     if( r_hdr->integer )
     {
-        UTF8 filename[MAX_QPATH];
-        F32* hdrLightGrid;
-        S32 size;
+        valueType filename[MAX_QPATH];
+        float32* hdrLightGrid;
+        sint size;
         
         Com_sprintf( filename, sizeof( filename ), "maps/%s/lightgrid.raw", s_worldData.baseName );
         //CL_RefPrintf(PRINT_ALL, "looking for %s\n", filename);
@@ -2355,10 +2355,10 @@ void R_LoadLightGrid( lump_t* l )
         {
             //CL_RefPrintf(PRINT_ALL, "found!\n");
             
-            if( size != sizeof( F32 ) * 6 * numGridPoints )
-                Com_Error( ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, ( S32 )( sizeof( F32 ) ) * 6 * numGridPoints );
+            if( size != sizeof( float32 ) * 6 * numGridPoints )
+                Com_Error( ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, ( sint )( sizeof( float32 ) ) * 6 * numGridPoints );
                 
-            w->lightGrid16 = reinterpret_cast<U16*>( Hunk_Alloc( sizeof( w->lightGrid16 ) * 6 * numGridPoints, h_low ) );
+            w->lightGrid16 = reinterpret_cast<uchar16*>( Hunk_Alloc( sizeof( w->lightGrid16 ) * 6 * numGridPoints, h_low ) );
             
             for( i = 0; i < numGridPoints ; i++ )
             {
@@ -2384,7 +2384,7 @@ void R_LoadLightGrid( lump_t* l )
         else if( 0 )
         {
             // promote 8-bit lightgrid to 16-bit
-            w->lightGrid16 = reinterpret_cast<U16*>( Hunk_Alloc( sizeof( w->lightGrid16 ) * 6 * numGridPoints, h_low ) );
+            w->lightGrid16 = reinterpret_cast<uchar16*>( Hunk_Alloc( sizeof( w->lightGrid16 ) * 6 * numGridPoints, h_low ) );
             
             for( i = 0; i < numGridPoints; i++ )
             {
@@ -2409,10 +2409,10 @@ R_LoadEntities
 */
 void R_LoadEntities( lump_t* l )
 {
-    UTF8* p, *token;
-    UTF8* s;
-    UTF8 keyname[MAX_TOKEN_CHARS];
-    UTF8 value[MAX_TOKEN_CHARS];
+    valueType* p, *token;
+    valueType* s;
+    valueType keyname[MAX_TOKEN_CHARS];
+    valueType value[MAX_TOKEN_CHARS];
     world_t*	w;
     
     w = &s_worldData;
@@ -2420,10 +2420,10 @@ void R_LoadEntities( lump_t* l )
     w->lightGridSize[1] = 64;
     w->lightGridSize[2] = 128;
     
-    p = reinterpret_cast< UTF8* >( ( fileBase + l->fileofs ) );
+    p = reinterpret_cast< valueType* >( ( fileBase + l->fileofs ) );
     
     // store for reference by the cgame
-    w->entityString = reinterpret_cast<UTF8*>( Hunk_Alloc( l->filelen + 1, h_low ) );
+    w->entityString = reinterpret_cast<valueType*>( Hunk_Alloc( l->filelen + 1, h_low ) );
     strcpy( w->entityString, p );
     w->entityParsePoint = w->entityString;
     
@@ -2504,9 +2504,9 @@ void R_LoadEntities( lump_t* l )
 idRenderSystemLocal::GetEntityToken
 =================
 */
-bool idRenderSystemLocal::GetEntityToken( UTF8* buffer, S32 size )
+bool idRenderSystemLocal::GetEntityToken( valueType* buffer, sint size )
 {
-    StringEntry	s;
+    pointer	s;
     
     s = COM_Parse( &s_worldData.entityParsePoint );
     Q_strncpyz( buffer, s, size );
@@ -2526,11 +2526,11 @@ bool idRenderSystemLocal::GetEntityToken( UTF8* buffer, S32 size )
 #endif
 
 // derived from G_ParseSpawnVars() in g_spawn.c
-bool R_ParseSpawnVars( UTF8* spawnVarChars, S32 maxSpawnVarChars, S32* numSpawnVars, UTF8* spawnVars[MAX_SPAWN_VARS][2] )
+bool R_ParseSpawnVars( valueType* spawnVarChars, sint maxSpawnVarChars, sint* numSpawnVars, valueType* spawnVars[MAX_SPAWN_VARS][2] )
 {
-    UTF8		keyname[MAX_TOKEN_CHARS];
-    UTF8		com_token[MAX_TOKEN_CHARS];
-    S32			numSpawnVarChars = 0;
+    valueType		keyname[MAX_TOKEN_CHARS];
+    valueType		com_token[MAX_TOKEN_CHARS];
+    sint			numSpawnVarChars = 0;
     
     *numSpawnVars = 0;
     
@@ -2549,7 +2549,7 @@ bool R_ParseSpawnVars( UTF8* spawnVarChars, S32 maxSpawnVarChars, S32* numSpawnV
     // go through all the key / value pairs
     while( 1 )
     {
-        S32 keyLength, tokenLength;
+        sint keyLength, tokenLength;
         
         // parse key
         if( !renderSystemLocal.GetEntityToken( keyname, sizeof( keyname ) ) )
@@ -2605,18 +2605,18 @@ bool R_ParseSpawnVars( UTF8* spawnVarChars, S32 maxSpawnVarChars, S32* numSpawnV
     return true;
 }
 
-void R_LoadCubemapEntities( StringEntry cubemapEntityName )
+void R_LoadCubemapEntities( pointer cubemapEntityName )
 {
-    UTF8 spawnVarChars[2048];
-    S32 numSpawnVars;
-    UTF8* spawnVars[MAX_SPAWN_VARS][2];
-    S32 numCubemaps = 0;
+    valueType spawnVarChars[2048];
+    sint numSpawnVars;
+    valueType* spawnVars[MAX_SPAWN_VARS][2];
+    sint numCubemaps = 0;
     
     // count cubemaps
     numCubemaps = 0;
     while( R_ParseSpawnVars( spawnVarChars, sizeof( spawnVarChars ), &numSpawnVars, spawnVars ) )
     {
-        S32 i;
+        sint i;
         
         for( i = 0; i < numSpawnVars; i++ )
         {
@@ -2635,12 +2635,12 @@ void R_LoadCubemapEntities( StringEntry cubemapEntityName )
     numCubemaps = 0;
     while( R_ParseSpawnVars( spawnVarChars, sizeof( spawnVarChars ), &numSpawnVars, spawnVars ) )
     {
-        S32 i;
-        UTF8 name[MAX_QPATH];
+        sint i;
+        valueType name[MAX_QPATH];
         bool isCubemap = false;
         bool originSet = false;
         vec3_t origin;
-        F32 parallaxRadius = 1000.0f;
+        float32 parallaxRadius = 1000.0f;
         
         name[0] = '\0';
         for( i = 0; i < numSpawnVars; i++ )
@@ -2673,7 +2673,7 @@ void R_LoadCubemapEntities( StringEntry cubemapEntityName )
     }
 }
 
-bool R_MaterialUsesCubemap( S32 surfaceFlags )
+bool R_MaterialUsesCubemap( sint surfaceFlags )
 {
     switch( surfaceFlags & MATERIAL_MASK )
     {
@@ -2781,7 +2781,7 @@ bool R_MaterialUsesCubemap( S32 surfaceFlags )
 void R_AssignCubemapsToWorldSurfaces( void )
 {
     world_t*	w;
-    S32 i;
+    sint i;
     
     w = &s_worldData;
     
@@ -2820,13 +2820,13 @@ void R_AssignCubemapsToWorldSurfaces( void )
 
 void R_LoadCubemaps( void )
 {
-    S32 i;
-    S32/*imgFlags_t*/ flags = IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP | IMGFLAG_NOLIGHTSCALE | IMGFLAG_CUBEMAP;
+    sint i;
+    sint/*imgFlags_t*/ flags = IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP | IMGFLAG_NOLIGHTSCALE | IMGFLAG_CUBEMAP;
     
     #pragma omp parallel for
     for( i = 0; i < tr.numCubemaps; i++ )
     {
-        UTF8 filename[MAX_QPATH];
+        valueType filename[MAX_QPATH];
         cubemap_t* cubemap = &tr.cubemaps[i];
         
         Com_sprintf( filename, MAX_QPATH, "cubemaps/%s/%03d.dds", tr.world->baseName, i );
@@ -2839,9 +2839,9 @@ void R_LoadCubemaps( void )
 
 void R_RenderMissingCubemaps( void )
 {
-    S32 i, j;
-    S32/*imgFlags_t*/ flags = IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP | IMGFLAG_NOLIGHTSCALE | IMGFLAG_CUBEMAP;
-    U32 cubemapFormat = GL_RGBA8;
+    sint i, j;
+    sint/*imgFlags_t*/ flags = IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP | IMGFLAG_NOLIGHTSCALE | IMGFLAG_CUBEMAP;
+    uint cubemapFormat = GL_RGBA8;
     
     if( r_hdr->integer )
     {
@@ -2870,7 +2870,7 @@ void R_RenderMissingCubemaps( void )
 
 void R_CalcVertexLightDirs( void )
 {
-    S32 i, k;
+    sint i, k;
     msurface_t* surface;
     
     for( k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numsurfaces /* s_worldData.numWorldSurfaces */; k++, surface++ )
@@ -2900,6 +2900,28 @@ void R_CalcVertexLightDirs( void )
     }
 }
 
+/*
+============
+SkipPath
+============
+*/
+valueType* SkipPath( valueType* pathname )
+{
+    valueType* last;
+    
+    last = pathname;
+    
+    while( *pathname )
+    {
+        if( *pathname == '/' )
+        {
+            last = pathname + 1;
+        }
+        pathname++;
+    }
+    
+    return last;
+}
 
 /*
 =================
@@ -2908,16 +2930,16 @@ idRenderSystemLocal::LoadWorld
 Called directly from cgame
 =================
 */
-void idRenderSystemLocal::LoadWorld( StringEntry name )
+void idRenderSystemLocal::LoadWorld( pointer name )
 {
-    S32			i;
+    sint			i;
     dheader_t*	header;
     union
     {
-        U8* b;
+        uchar8* b;
         void* v;
     } buffer;
-    S32	startMarker = 0;
+    sint	startMarker = 0;
     
     if( tr.worldMapLoaded )
     {
@@ -2965,14 +2987,14 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
     ::memset( &s_worldData, 0, sizeof( s_worldData ) );
     Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
     
-    Q_strncpyz( s_worldData.baseName, COM_SkipPath( s_worldData.baseName ), sizeof( s_worldData.name ) );
+    Q_strncpyz( s_worldData.baseName, SkipPath( s_worldData.baseName ), sizeof( s_worldData.name ) );
     COM_StripExtension2( s_worldData.baseName, s_worldData.baseName, sizeof( s_worldData.baseName ) );
     
-    startMarker = ( S32 )Hunk_Alloc( 0, h_low );
+    startMarker = ( sint )Hunk_Alloc( 0, h_low );
     c_gridVerts = 0;
     
     header = ( dheader_t* )buffer.b;
-    fileBase = ( U8* )header;
+    fileBase = ( uchar8* )header;
     
     i = LittleLong( header->version );
 #if 0
@@ -2986,7 +3008,7 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
     // swap all the lumps
     for( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ )
     {
-        ( ( S32* )header )[i] = LittleLong( ( ( S32* )header )[i] );
+        ( ( sint* )header )[i] = LittleLong( ( ( sint* )header )[i] );
     }
     
     // load into heap
@@ -3009,21 +3031,21 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
     if( 0 )
     {
         world_t*	w;
-        U8* primaryLightGrid, *data;
-        S32 lightGridSize;
-        S32 i;
+        uchar8* primaryLightGrid, *data;
+        sint lightGridSize;
+        sint i;
         
         w = &s_worldData;
         
         lightGridSize = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
-        primaryLightGrid = ( U8* )CL_RefMalloc( lightGridSize * sizeof( *primaryLightGrid ) );
+        primaryLightGrid = ( uchar8* )CL_RefMalloc( lightGridSize * sizeof( *primaryLightGrid ) );
         
         memset( primaryLightGrid, 0, lightGridSize * sizeof( *primaryLightGrid ) );
         
         data = w->lightGridData;
         for( i = 0; i < lightGridSize; i++, data += 8 )
         {
-            S32 lat, lng;
+            sint lat, lng;
             vec3_t gridLightDir, gridLightCol;
             
             // skip samples in wall
@@ -3061,11 +3083,11 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
         
         if( 0 )
         {
-            S32 i;
-            U8* buffer = ( U8* )CL_RefMalloc( w->lightGridBounds[0] * w->lightGridBounds[1] * 3 + 18 );
-            U8* out;
-            U8* in;
-            UTF8 fileName[MAX_QPATH];
+            sint i;
+            uchar8* buffer = ( uchar8* )CL_RefMalloc( w->lightGridBounds[0] * w->lightGridBounds[1] * 3 + 18 );
+            uchar8* out;
+            uchar8* in;
+            valueType fileName[MAX_QPATH];
             
             ::memset( buffer, 0, 18 );
             buffer[2] = 2;		// uncompressed type
@@ -3078,7 +3100,7 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
             in = primaryLightGrid;
             for( i = 0; i < w->lightGridBounds[2]; i++ )
             {
-                S32 j;
+                sint j;
                 
                 Com_sprintf( fileName, sizeof( fileName ), "primarylg%d.tga", i );
                 
@@ -3128,7 +3150,7 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
             
             if( ci->type & CULLINFO_BOX )
             {
-                S32 ibounds[2][3], x, y, z, goodSamples, numSamples;
+                sint ibounds[2][3], x, y, z, goodSamples, numSamples;
                 vec3_t lightOrigin;
                 
                 VectorSubtract( ci->bounds[0], w->lightGridOrigin, lightOrigin );
@@ -3167,7 +3189,7 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
                     {
                         for( z = ibounds[0][2]; z <= ibounds[1][2]; z++ )
                         {
-                            U8 primaryLight = primaryLightGrid[x * 8 + y * 8 * w->lightGridBounds[0] + z * 8 * w->lightGridBounds[0] * w->lightGridBounds[2]];
+                            uchar8 primaryLight = primaryLightGrid[x * 8 + y * 8 * w->lightGridBounds[0] + z * 8 * w->lightGridBounds[0] * w->lightGridBounds[2]];
                             
                             if( primaryLight == 0 )
                                 continue;
@@ -3208,7 +3230,7 @@ void idRenderSystemLocal::LoadWorld( StringEntry name )
         }
     }
     
-    s_worldData.dataSize = ( S32 )Hunk_Alloc( 0, h_low ) - startMarker;
+    s_worldData.dataSize = ( sint )Hunk_Alloc( 0, h_low ) - startMarker;
     
     CL_RefPrintf( PRINT_ALL, "total world data size: %d.%02d MB\n", s_worldData.dataSize / ( 1024 * 1024 ),
                   ( s_worldData.dataSize % ( 1024 * 1024 ) ) * 100 / ( 1024 * 1024 ) );

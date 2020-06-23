@@ -98,7 +98,7 @@ idServerWorldSystemLocal::SectorList_f
 */
 void idServerWorldSystemLocal::SectorList_f( void )
 {
-    S32 i, c;
+    sint i, c;
     worldSector_t* sec;
     svEntity_t* ent;
     
@@ -123,7 +123,7 @@ idServerWorldSystemLocal::CreateworldSector
 Builds a uniformly subdivided tree for the given world size
 ===============
 */
-worldSector_t* idServerWorldSystemLocal::CreateworldSector( S32 depth, vec3_t mins, vec3_t maxs )
+worldSector_t* idServerWorldSystemLocal::CreateworldSector( sint depth, vec3_t mins, vec3_t maxs )
 {
     worldSector_t* anode = &sv_worldSectors[sv_numworldSectors];
     vec3_t size, mins1, maxs1, mins2, maxs2;
@@ -175,7 +175,7 @@ void idServerWorldSystemLocal::ClearWorld( void )
     memset( sv_worldSectors, 0, sizeof( sv_worldSectors ) );
     sv_numworldSectors = 0;
     
-    for( U32 i = 0; i < ARRAY_LEN( sv.svEntities ); i++ )
+    for( uint i = 0; i < ARRAY_LEN( sv.svEntities ); i++ )
     {
         sv.svEntities[i].worldSector = nullptr;
         sv.svEntities[i].nextEntityInWorldSector = nullptr;
@@ -235,8 +235,8 @@ idServerWorldSystemLocal::LinkEntity
 */
 void idServerWorldSystemLocal::LinkEntity( sharedEntity_t* gEnt )
 {
-    S32 leafs[MAX_TOTAL_ENT_LEAFS], cluster, num_leafs, i, j, k, area, lastLeaf;
-    F32* origin, *angles;
+    sint leafs[MAX_TOTAL_ENT_LEAFS], cluster, num_leafs, i, j, k, area, lastLeaf;
+    float32* origin, *angles;
     worldSector_t* node;
     svEntity_t* ent;
     
@@ -323,8 +323,8 @@ void idServerWorldSystemLocal::LinkEntity( sharedEntity_t* gEnt )
     if( gEnt->r.bmodel && ( angles[0] || angles[1] || angles[2] ) )
     {
         // expand for rotation
-        F32 max;
-        S32 i;
+        float32 max;
+        sint i;
         
         max = RadiusFromBounds( gEnt->r.mins, gEnt->r.maxs );
         for( i = 0; i < 3; i++ )
@@ -450,7 +450,7 @@ idServerWorldSystemLocal::AreaEntities_r
 */
 void idServerWorldSystemLocal::AreaEntities_r( worldSector_t* node, areaParms_t* ap )
 {
-    S32 count;
+    sint count;
     svEntity_t* check, *next;
     sharedEntity_t* gcheck;
     
@@ -504,7 +504,7 @@ void idServerWorldSystemLocal::AreaEntities_r( worldSector_t* node, areaParms_t*
 idServerWorldSystemLocal::AreaEntities
 ================
 */
-S32 idServerWorldSystemLocal::AreaEntities( const vec3_t mins, const vec3_t maxs, S32* entityList, S32 maxcount )
+sint idServerWorldSystemLocal::AreaEntities( const vec3_t mins, const vec3_t maxs, sint* entityList, sint maxcount )
 {
     areaParms_t ap;
     
@@ -524,11 +524,11 @@ S32 idServerWorldSystemLocal::AreaEntities( const vec3_t mins, const vec3_t maxs
 idServerWorldSystemLocal::ClipToEntity
 ====================
 */
-void idServerWorldSystemLocal::ClipToEntity( trace_t* trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, S32 entityNum, S32 contentmask, traceType_t type )
+void idServerWorldSystemLocal::ClipToEntity( trace_t* trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, sint entityNum, sint contentmask, traceType_t type )
 {
     sharedEntity_t* touch;
     clipHandle_t clipHandle;
-    F32* origin, *angles;
+    float32* origin, *angles;
     
     touch = serverGameSystem->GentityNum( entityNum );
     
@@ -553,8 +553,8 @@ void idServerWorldSystemLocal::ClipToEntity( trace_t* trace, const vec3_t start,
         angles = vec3_origin;	// boxes don't rotate
     }
     
-    collisionModelManager->TransformedBoxTrace( trace, const_cast<F32*>( start ), const_cast<F32*>( end ), const_cast<F32*>( mins ),
-            const_cast<F32*>( maxs ), clipHandle, contentmask, origin, angles, type );
+    collisionModelManager->TransformedBoxTrace( trace, const_cast<float32*>( start ), const_cast<float32*>( end ), const_cast<float32*>( mins ),
+            const_cast<float32*>( maxs ), clipHandle, contentmask, origin, angles, type );
             
     if( trace->fraction < 1 )
     {
@@ -569,11 +569,11 @@ idServerWorldSystemLocal::ClipMoveToEntities
 */
 void idServerWorldSystemLocal::ClipMoveToEntities( moveclip_t* clip )
 {
-    S32 i, num, touchlist[MAX_GENTITIES], passOwnerNum;
+    sint i, num, touchlist[MAX_GENTITIES], passOwnerNum;
     sharedEntity_t* touch;
     trace_t trace;
     clipHandle_t clipHandle;
-    F32* origin, *angles;
+    float32* origin, *angles;
     
     num = serverWorldSystemLocal.AreaEntities( clip->boxmins, clip->boxmaxs, touchlist, MAX_GENTITIES );
     
@@ -647,10 +647,10 @@ void idServerWorldSystemLocal::ClipMoveToEntities( moveclip_t* clip )
         }
         
         collisionModelManager->TransformedBoxTrace( &trace,
-                ( F32* )clip->start,
-                ( F32* )clip->end,
-                ( F32* )clip->mins,
-                ( F32* )clip->maxs,
+                ( float32* )clip->start,
+                ( float32* )clip->end,
+                ( float32* )clip->mins,
+                ( float32* )clip->maxs,
                 clipHandle,
                 clip->contentmask,
                 origin, angles,
@@ -678,7 +678,7 @@ void idServerWorldSystemLocal::ClipMoveToEntities( moveclip_t* clip )
             
             trace.entityNum = touch->s.number;
             clip->trace = trace;
-            clip->trace.startsolid = ( bool )( ( U32 )clip->trace.startsolid | ( U32 )oldStart );
+            clip->trace.startsolid = ( bool )( ( uint )clip->trace.startsolid | ( uint )oldStart );
         }
         
         // Reset contents to default
@@ -698,9 +698,9 @@ Moves the given mins/maxs volume through the world from start to end.
 passEntityNum and entities owned by passEntityNum are explicitly not checked.
 ==================
 */
-void idServerWorldSystemLocal::Trace( trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, S32 passEntityNum, S32 contentmask, traceType_t type )
+void idServerWorldSystemLocal::Trace( trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, sint passEntityNum, sint contentmask, traceType_t type )
 {
-    S32 i;
+    sint i;
     moveclip_t clip;
     
     if( !mins )
@@ -763,10 +763,10 @@ void idServerWorldSystemLocal::Trace( trace_t* results, const vec3_t start, cons
 idServerWorldSystemLocal::PointContents
 =============
 */
-S32 idServerWorldSystemLocal::PointContents( const vec3_t p, S32 passEntityNum )
+sint idServerWorldSystemLocal::PointContents( const vec3_t p, sint passEntityNum )
 {
-    S32 touch[MAX_GENTITIES], i, num, contents, c2;
-    F32* angles;
+    sint touch[MAX_GENTITIES], i, num, contents, c2;
+    float32* angles;
     sharedEntity_t* hit;
     clipHandle_t clipHandle;
     

@@ -46,9 +46,9 @@ class idServerWorldSystem
 public:
     virtual void UnlinkEntity( sharedEntity_t* gEnt ) = 0;
     virtual void LinkEntity( sharedEntity_t* gEnt ) = 0;
-    virtual S32 AreaEntities( const vec3_t mins, const vec3_t maxs, S32* entityList, S32 maxcount ) = 0;
-    virtual S32 PointContents( const vec3_t p, S32 passEntityNum ) = 0;
-    virtual void Trace( trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, S32 passEntityNum, S32 contentmask, traceType_t type ) = 0;
+    virtual sint AreaEntities( const vec3_t mins, const vec3_t maxs, sint* entityList, sint maxcount ) = 0;
+    virtual sint PointContents( const vec3_t p, sint passEntityNum ) = 0;
+    virtual void Trace( trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, sint passEntityNum, sint contentmask, traceType_t type ) = 0;
 };
 
 extern idServerWorldSystem* serverWorldSystem;

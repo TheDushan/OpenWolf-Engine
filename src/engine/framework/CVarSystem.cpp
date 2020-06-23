@@ -45,11 +45,11 @@
 
 convar_t* cvar_vars;
 convar_t* cvar_cheats;
-S32 cvar_modifiedFlags;
+sint cvar_modifiedFlags;
 
 #define MAX_CVARS 2048
 convar_t cvar_indexes[MAX_CVARS];
-S32 cvar_numIndexes;
+sint cvar_numIndexes;
 
 #define FILE_HASH_SIZE 512
 static convar_t* hashTable[FILE_HASH_SIZE];
@@ -82,11 +82,11 @@ idCVarSystemLocal::generateHashValue
 return a hash value for the filename
 ================
 */
-S64 idCVarSystemLocal::generateHashValue( StringEntry fname )
+sint32 idCVarSystemLocal::generateHashValue( pointer fname )
 {
-    S32 i;
-    S64 hash;
-    UTF8 letter;
+    sint i;
+    sint32 hash;
+    valueType letter;
     
     if( !fname )
     {
@@ -99,7 +99,7 @@ S64 idCVarSystemLocal::generateHashValue( StringEntry fname )
     while( fname[i] != '\0' )
     {
         letter = tolower( fname[i] );
-        hash += ( S64 )( letter ) * ( i + 119 );
+        hash += ( sint32 )( letter ) * ( i + 119 );
         i++;
     }
     
@@ -113,7 +113,7 @@ S64 idCVarSystemLocal::generateHashValue( StringEntry fname )
 idCVarSystemLocal::ValidateString
 ============
 */
-bool idCVarSystemLocal::ValidateString( StringEntry s )
+bool idCVarSystemLocal::ValidateString( pointer s )
 {
     if( !s )
     {
@@ -139,10 +139,10 @@ bool idCVarSystemLocal::ValidateString( StringEntry s )
 idCVarSystemLocal::FindVar
 ============
 */
-convar_t* idCVarSystemLocal::FindVar( StringEntry var_name )
+convar_t* idCVarSystemLocal::FindVar( pointer var_name )
 {
     convar_t* var;
-    S64 hash;
+    sint32 hash;
     
     if( !var_name )
         return nullptr;
@@ -165,7 +165,7 @@ convar_t* idCVarSystemLocal::FindVar( StringEntry var_name )
 idCVarSystemLocal::VariableValue
 ============
 */
-F32 idCVarSystemLocal::VariableValue( StringEntry var_name )
+float32 idCVarSystemLocal::VariableValue( pointer var_name )
 {
     convar_t* var;
     
@@ -185,7 +185,7 @@ F32 idCVarSystemLocal::VariableValue( StringEntry var_name )
 idCVarSystemLocal::VariableIntegerValue
 ============
 */
-S32 idCVarSystemLocal::VariableIntegerValue( StringEntry var_name )
+sint idCVarSystemLocal::VariableIntegerValue( pointer var_name )
 {
     convar_t* var;
     
@@ -205,7 +205,7 @@ S32 idCVarSystemLocal::VariableIntegerValue( StringEntry var_name )
 idCVarSystemLocal::VariableString
 ============
 */
-UTF8* idCVarSystemLocal::VariableString( StringEntry var_name )
+valueType* idCVarSystemLocal::VariableString( pointer var_name )
 {
     convar_t*         var;
     
@@ -225,7 +225,7 @@ UTF8* idCVarSystemLocal::VariableString( StringEntry var_name )
 idCVarSystemLocal::VariableStringBuffer
 ============
 */
-void idCVarSystemLocal::VariableStringBuffer( StringEntry var_name, UTF8* buffer, S32 bufsize )
+void idCVarSystemLocal::VariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize )
 {
     convar_t* var;
     
@@ -245,7 +245,7 @@ void idCVarSystemLocal::VariableStringBuffer( StringEntry var_name, UTF8* buffer
 idCVarSystemLocal::VariableStringBuffer
 ============
 */
-void idCVarSystemLocal::LatchedVariableStringBuffer( StringEntry var_name, UTF8* buffer, S32 bufsize )
+void idCVarSystemLocal::LatchedVariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize )
 {
     convar_t* var;
     
@@ -273,7 +273,7 @@ void idCVarSystemLocal::LatchedVariableStringBuffer( StringEntry var_name, UTF8*
 idCVarSystemLocal::Flags
 ============
 */
-S32 idCVarSystemLocal::Flags( StringEntry var_name )
+sint idCVarSystemLocal::Flags( pointer var_name )
 {
     convar_t* var;
     
@@ -292,7 +292,7 @@ S32 idCVarSystemLocal::Flags( StringEntry var_name )
 idCVarSystemLocal::CommandCompletion
 ============
 */
-void idCVarSystemLocal::CommandCompletion( void ( *callback )( StringEntry s ) )
+void idCVarSystemLocal::CommandCompletion( void ( *callback )( pointer s ) )
 {
     convar_t* cvar;
     
@@ -311,17 +311,17 @@ idCVarSystemLocal::ClearForeignCharacters
 some cvar values need to be safe from foreign characters
 ============
 */
-UTF8* idCVarSystemLocal::ClearForeignCharacters( StringEntry value )
+valueType* idCVarSystemLocal::ClearForeignCharacters( pointer value )
 {
-    static UTF8 clean[MAX_CVAR_VALUE_STRING];
-    S32 i, j;
+    static valueType clean[MAX_CVAR_VALUE_STRING];
+    sint i, j;
     
     j = 0;
     
     for( i = 0; value[i] != '\0'; i++ )
     {
         //if( !(value[i] & 128) )
-        if( ( ( U8* ) value )[i] != 0xFF && ( ( ( U8* ) value )[i] <= 127 || ( ( U8* ) value )[i] >= 161 ) )
+        if( ( ( uchar8* ) value )[i] != 0xFF && ( ( ( uchar8* ) value )[i] <= 127 || ( ( uchar8* ) value )[i] >= 161 ) )
         {
             clean[j] = value[i];
             j++;
@@ -338,10 +338,10 @@ UTF8* idCVarSystemLocal::ClearForeignCharacters( StringEntry value )
 idCVarSystemLocal::Validate
 ============
 */
-const UTF8* idCVarSystemLocal::Validate( convar_t* var, StringEntry value, bool warn )
+const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool warn )
 {
-    static UTF8 s[MAX_CVAR_VALUE_STRING];
-    F32 valuef;
+    static valueType s[MAX_CVAR_VALUE_STRING];
+    float32 valuef;
     bool changed = false;
     
     if( !var->validate )
@@ -474,10 +474,10 @@ The flags will be or'ed in if the variable exists.
 You can pass nullptr for the description.
 ============
 */
-convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S32 flags, StringEntry description )
+convar_t* idCVarSystemLocal::Get( pointer var_name, pointer var_value, sint flags, pointer description )
 {
     convar_t* var;
-    S64 hash;
+    sint32 hash;
     
     if( !var_name || !var_value )
     {
@@ -534,7 +534,7 @@ convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S
         // if we have a latched string, take that value now
         if( var->latchedString )
         {
-            UTF8*           s;
+            valueType*           s;
             
             s = var->latchedString;
             var->latchedString = nullptr;	// otherwise idCVarSystemLocal::GetSet2 would free it
@@ -547,7 +547,7 @@ convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S
         // (for instance, seta name "name-with-foreign-chars" in the config file, and toggle to CVAR_USERINFO happens later in CL_Init)
         if( flags & CVAR_USERINFO )
         {
-            UTF8* cleaned = ClearForeignCharacters( var->string );// NOTE: it is probably harmless to call idCVarSystemLocal::Set2 in all cases, but I don't want to risk it
+            valueType* cleaned = ClearForeignCharacters( var->string );// NOTE: it is probably harmless to call idCVarSystemLocal::Set2 in all cases, but I don't want to risk it
             
             if( strcmp( var->string, cleaned ) )
             {
@@ -593,7 +593,7 @@ convar_t* idCVarSystemLocal::Get( StringEntry var_name, StringEntry var_value, S
     }
     var->modified = true;
     var->modificationCount = 1;
-    F64 strValue = strtod( var->string, nullptr );
+    float64 strValue = strtod( var->string, nullptr );
     var->value = strValue;
     var->integer = strValue;
     var->resetString = CopyString( var_value );
@@ -618,9 +618,9 @@ idCVarSystemLocal::GetSet2
 */
 #define FOREIGN_MSG "Foreign characters are not allowed in userinfo variables.\n"
 #ifndef DEDICATED
-StringEntry     CL_TranslateStringBuf( StringEntry string );
+pointer     CL_TranslateStringBuf( pointer string );
 #endif
-convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, bool force )
+convar_t* idCVarSystemLocal::GetSet2( pointer var_name, pointer value, bool force )
 {
     convar_t* var;
     
@@ -663,7 +663,7 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
     
     if( var->flags & CVAR_USERINFO )
     {
-        UTF8* cleaned = ClearForeignCharacters( value );
+        valueType* cleaned = ClearForeignCharacters( value );
         
         if( strcmp( value, cleaned ) )
         {
@@ -790,7 +790,7 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
     Z_Free( var->string );		// free the old value string
     
     var->string = CopyString( value );
-    F64 strValue = strtod( var->string, nullptr );
+    float64 strValue = strtod( var->string, nullptr );
     var->value = strValue;
     var->integer = strValue;
     
@@ -802,7 +802,7 @@ convar_t* idCVarSystemLocal::GetSet2( StringEntry var_name, StringEntry value, b
 idCVarSystemLocal::Set
 ============
 */
-void idCVarSystemLocal::Set( StringEntry var_name, StringEntry value )
+void idCVarSystemLocal::Set( pointer var_name, pointer value )
 {
     GetSet2( var_name, value, true );
 }
@@ -812,7 +812,7 @@ void idCVarSystemLocal::Set( StringEntry var_name, StringEntry value )
 idCVarSystemLocal::SetLatched
 ============
 */
-void idCVarSystemLocal::SetLatched( StringEntry var_name, StringEntry value )
+void idCVarSystemLocal::SetLatched( pointer var_name, pointer value )
 {
     GetSet2( var_name, value, false );
 }
@@ -822,13 +822,13 @@ void idCVarSystemLocal::SetLatched( StringEntry var_name, StringEntry value )
 idCVarSystemLocal::SetValue
 ============
 */
-void idCVarSystemLocal::SetValue( StringEntry var_name, F32 value )
+void idCVarSystemLocal::SetValue( pointer var_name, float32 value )
 {
-    UTF8 val[32];
+    valueType val[32];
     
-    if( value == ( S32 )value )
+    if( value == ( sint )value )
     {
-        Com_sprintf( val, sizeof( val ), "%i", ( S32 )value );
+        Com_sprintf( val, sizeof( val ), "%i", ( sint )value );
     }
     else
     {
@@ -843,13 +843,13 @@ void idCVarSystemLocal::SetValue( StringEntry var_name, F32 value )
 idCVarSystemLocal::SetValueSafe
 ============
 */
-void idCVarSystemLocal::SetValueSafe( StringEntry var_name, F32 value )
+void idCVarSystemLocal::SetValueSafe( pointer var_name, float32 value )
 {
-    UTF8    val[32];
+    valueType    val[32];
     
-    if( value == ( S32 )value )
+    if( value == ( sint )value )
     {
-        Com_sprintf( val, sizeof( val ), "%i", ( S32 )value );
+        Com_sprintf( val, sizeof( val ), "%i", ( sint )value );
     }
     else
     {
@@ -864,13 +864,13 @@ void idCVarSystemLocal::SetValueSafe( StringEntry var_name, F32 value )
 idCVarSystemLocal::SetValueLatched
 ============
 */
-void idCVarSystemLocal::SetValueLatched( StringEntry var_name, F32 value )
+void idCVarSystemLocal::SetValueLatched( pointer var_name, float32 value )
 {
-    UTF8 val[32];
+    valueType val[32];
     
-    if( value == ( S32 )value )
+    if( value == ( sint )value )
     {
-        Com_sprintf( val, sizeof( val ), "%i", ( S32 )value );
+        Com_sprintf( val, sizeof( val ), "%i", ( sint )value );
     }
     else
     {
@@ -885,7 +885,7 @@ void idCVarSystemLocal::SetValueLatched( StringEntry var_name, F32 value )
 idCVarSystemLocal::Reset
 ============
 */
-void idCVarSystemLocal::Reset( StringEntry var_name )
+void idCVarSystemLocal::Reset( pointer var_name )
 {
     GetSet2( var_name, nullptr, false );
 }
@@ -924,7 +924,7 @@ Handles variable inspection and changing from the console
 bool idCVarSystemLocal::Command( void )
 {
     convar_t* v;
-    UTF8* args = cmdSystem->Args();
+    valueType* args = cmdSystem->Args();
     
     // check variables
     v = FindVar( cmdSystem->Argv( 0 ) );
@@ -970,8 +970,8 @@ optionally through a list of given values
 */
 void idCVarSystemLocal::Toggle_f( void )
 {
-    S32 i, c;
-    StringEntry varname, curval;
+    sint i, c;
+    pointer varname, curval;
     
     c = cmdSystem->Argc();
     if( c < 2 )
@@ -1016,7 +1016,7 @@ Cycles a cvar for easy single key binding
 */
 void idCVarSystemLocal::Cycle_f( void )
 {
-    S32 start, end, step, oldvalue, value;
+    sint start, end, step, oldvalue, value;
     
     if( cmdSystem->Argc() < 4 || cmdSystem->Argc() > 5 )
     {
@@ -1072,8 +1072,8 @@ weren't declared in C code.
 */
 void idCVarSystemLocal::Set_f( void )
 {
-    S32 c, unsafe = 0;
-    UTF8* value;
+    sint c, unsafe = 0;
+    valueType* value;
     
     c = cmdSystem->Argc();
     if( c < 3 )
@@ -1099,7 +1099,7 @@ void idCVarSystemLocal::Set_f( void )
     
     if( unsafe )
     {
-        UTF8* end = value + strlen( value );
+        valueType* end = value + strlen( value );
         
         // skip spaces
         while( --end > value )
@@ -1247,7 +1247,7 @@ with the archive flag set to true.
 void idCVarSystemLocal::WriteVariables( fileHandle_t f )
 {
     convar_t* var;
-    UTF8 buffer[1024];
+    valueType buffer[1024];
     
     for( var = cvar_vars; var; var = var->next )
     {
@@ -1286,9 +1286,9 @@ idCVarSystemLocal::List_f
 */
 void idCVarSystemLocal::List_f( void )
 {
-    S32 i;
+    sint i;
     convar_t* var;
-    UTF8* match;
+    valueType* match;
     
     if( cmdSystem->Argc() > 1 )
     {
@@ -1453,9 +1453,9 @@ void idCVarSystemLocal::Restart_f( void )
 idCVarSystemLocal::InfoString
 =====================
 */
-UTF8* idCVarSystemLocal::InfoString( S32 bit )
+valueType* idCVarSystemLocal::InfoString( sint bit )
 {
-    static UTF8 info[MAX_INFO_STRING];
+    static valueType info[MAX_INFO_STRING];
     convar_t* var;
     
     info[0] = 0;
@@ -1478,9 +1478,9 @@ idCVarSystemLocal::InfoString_Big
   handles large info strings ( CS_SYSTEMINFO )
 =====================
 */
-UTF8* idCVarSystemLocal::InfoString_Big( S32 bit )
+valueType* idCVarSystemLocal::InfoString_Big( sint bit )
 {
-    static UTF8 info[BIG_INFO_STRING];
+    static valueType info[BIG_INFO_STRING];
     convar_t* var;
     
     info[0] = 0;
@@ -1501,7 +1501,7 @@ UTF8* idCVarSystemLocal::InfoString_Big( S32 bit )
 idCVarSystemLocal::InfoStringBuffer
 =====================
 */
-void idCVarSystemLocal::InfoStringBuffer( S32 bit, UTF8* buff, S32 buffsize )
+void idCVarSystemLocal::InfoStringBuffer( sint bit, valueType* buff, sint buffsize )
 {
     Q_strncpyz( buff, InfoString( bit ), buffsize );
 }
@@ -1511,7 +1511,7 @@ void idCVarSystemLocal::InfoStringBuffer( S32 bit, UTF8* buff, S32 buffsize )
 idCVarSystemLocal::CheckRange
 =====================
 */
-void idCVarSystemLocal::CheckRange( convar_t* var, F32 min, F32 max, bool integral )
+void idCVarSystemLocal::CheckRange( convar_t* var, float32 min, float32 max, bool integral )
 {
     var->validate = true;
     var->min = min;
@@ -1529,7 +1529,7 @@ Cvar_Register
 basically a slightly modified Cvar_Get for the interpreted modules
 =====================
 */
-void idCVarSystemLocal::Register( vmConvar_t* vmCvar, StringEntry varName, StringEntry defaultValue, S32 flags, StringEntry description )
+void idCVarSystemLocal::Register( vmConvar_t* vmCvar, pointer varName, pointer defaultValue, sint flags, pointer description )
 {
     convar_t* cv;
     
@@ -1566,9 +1566,9 @@ void idCVarSystemLocal::Update( vmConvar_t* vmCvar )
     // bk
     assert( vmCvar );
     
-    if( ( U32 )vmCvar->handle >= cvar_numIndexes )
+    if( ( uint )vmCvar->handle >= cvar_numIndexes )
     {
-        Com_Error( ERR_DROP, "idCVarSystemLocal::Update: handle %d out of range", ( U32 )vmCvar->handle );
+        Com_Error( ERR_DROP, "idCVarSystemLocal::Update: handle %d out of range", ( uint )vmCvar->handle );
     }
     
     cv = cvar_indexes + vmCvar->handle;
@@ -1589,11 +1589,11 @@ void idCVarSystemLocal::Update( vmConvar_t* vmCvar )
     // bk001129 - mismatches.
     if( strlen( cv->string ) + 1 > MAX_CVAR_VALUE_STRING )
     {
-        Com_Error( ERR_DROP, "idCVarSystemLocal::Update: src %s length %lu exceeds MAX_CVAR_VALUE_STRING(%lu)", cv->string, ( U64 )strlen( cv->string ), ( U64 )sizeof( vmCvar->string ) );
+        Com_Error( ERR_DROP, "idCVarSystemLocal::Update: src %s length %lu exceeds MAX_CVAR_VALUE_STRING(%lu)", cv->string, ( uint32 )strlen( cv->string ), ( uint32 )sizeof( vmCvar->string ) );
     }
     // bk001212 - Q_strncpyz guarantees zero padding and dest[MAX_CVAR_VALUE_STRING-1]==0
     // bk001129 - paranoia. Never trust the destination string.
-    // bk001129 - beware, sizeof(UTF8*) is always 4 (for cv->string).
+    // bk001129 - beware, sizeof(valueType*) is always 4 (for cv->string).
     //            sizeof(vmCvar->string) always MAX_CVAR_VALUE_STRING
     //Q_strncpyz( vmCvar->string, cv->string, sizeof( vmCvar->string ) ); // id
     Q_strncpyz( vmCvar->string, cv->string, MAX_CVAR_VALUE_STRING );
@@ -1607,12 +1607,12 @@ void idCVarSystemLocal::Update( vmConvar_t* vmCvar )
 idCVarSystemLocal::CompleteCvarName
 ==================
 */
-void idCVarSystemLocal::CompleteCvarName( UTF8* args, S32 argNum )
+void idCVarSystemLocal::CompleteCvarName( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
         // Skip "<cmd> "
-        UTF8* p = Com_SkipTokens( args, 1, " " );
+        valueType* p = Com_SkipTokens( args, 1, " " );
         
         if( p > args )
         {

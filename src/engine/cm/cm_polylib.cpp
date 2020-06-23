@@ -45,7 +45,7 @@
 
 // counters are only bumped when running single threaded,
 // because they are an awful coherence problem
-S32 c_active_windings, c_peak_windings, c_winding_allocs, c_winding_points;
+sint c_active_windings, c_peak_windings, c_winding_allocs, c_winding_points;
 
 /*
 ============
@@ -54,7 +54,7 @@ pw
 */
 void pw( winding_t* w )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < w->numpoints; i++ )
     {
@@ -67,7 +67,7 @@ void pw( winding_t* w )
 AllocWinding
 =============
 */
-winding_t* AllocWinding( S32 points )
+winding_t* AllocWinding( sint points )
 {
     winding_t*      w;
     size_t          s;
@@ -80,7 +80,7 @@ winding_t* AllocWinding( S32 points )
         c_peak_windings = c_active_windings;
     }
     
-    s = sizeof( vec3_t ) * points + sizeof( S32 );
+    s = sizeof( vec3_t ) * points + sizeof( sint );
     w = ( winding_t* )Z_Malloc( s );
     ::memset( w, 0, s );
     return w;
@@ -93,11 +93,11 @@ FreeWinding
 */
 void FreeWinding( winding_t* w )
 {
-    if( *( U32* )w == 0xdeaddead )
+    if( *( uint* )w == 0xdeaddead )
     {
         Com_Error( ERR_FATAL, "FreeWinding: freed a freed winding" );
     }
-    *( U32* )w = 0xdeaddead;
+    *( uint* )w = 0xdeaddead;
     
     c_active_windings--;
     Z_Free( w );
@@ -108,11 +108,11 @@ void FreeWinding( winding_t* w )
 RemoveColinearPoints
 ============
 */
-S32 c_removed;
+sint c_removed;
 
 void RemoveColinearPoints( winding_t* w )
 {
-    S32             i, j, k, nump;
+    sint             i, j, k, nump;
     vec3_t          v1, v2;
     vec3_t          p[MAX_POINTS_ON_WINDING];
     
@@ -165,7 +165,7 @@ WindingArea
 */
 vec_t WindingArea( winding_t* w )
 {
-    S32             i;
+    sint             i;
     vec3_t          d1, d2, cross;
     vec_t           total;
     
@@ -188,7 +188,7 @@ WindingBounds
 void WindingBounds( winding_t* w, vec3_t mins, vec3_t maxs )
 {
     vec_t           v;
-    S32             i, j;
+    sint             i, j;
     
     mins[0] = mins[1] = mins[2] = MAX_MAP_BOUNDS;
     maxs[0] = maxs[1] = maxs[2] = -MAX_MAP_BOUNDS;
@@ -217,8 +217,8 @@ WindingCenter
 */
 void WindingCenter( winding_t* w, vec3_t center )
 {
-    S32             i;
-    F32           scale;
+    sint             i;
+    float32           scale;
     
     VectorCopy( vec3_origin, center );
     for( i = 0; i < w->numpoints; i++ )
@@ -237,11 +237,11 @@ BaseWindingForPlane
 */
 winding_t* BaseWindingForPlane( vec3_t normal, vec_t dist )
 {
-    S32             i, x;
+    sint             i, x;
     vec_t           max, v;
     vec3_t          org, vright, vup;
     winding_t*      w;
-    F64	dot;
+    float64	dot;
     
     // find the major axis
     max = -MAX_MAP_BOUNDS;
@@ -326,7 +326,7 @@ ReverseWinding
 */
 winding_t* ReverseWinding( winding_t* w )
 {
-    S32             i;
+    sint             i;
     winding_t*      c;
     
     c = AllocWinding( w->numpoints );
@@ -347,11 +347,11 @@ ClipWindingEpsilon
 void ClipWindingEpsilon( winding_t* in, vec3_t normal, vec_t dist, vec_t epsilon, winding_t** front, winding_t** back )
 {
     vec_t           dists[MAX_POINTS_ON_WINDING + 4] = { 0 }, *p1, *p2;
-    S32             sides[MAX_POINTS_ON_WINDING + 4] = { 0 }, counts[3], i, j, maxpts;
-    F64    dot;
+    sint             sides[MAX_POINTS_ON_WINDING + 4] = { 0 }, counts[3], i, j, maxpts;
+    float64    dot;
     vec3_t          mid;
     winding_t*      f, *b;
-    F64	d1, d2;
+    float64	d1, d2;
     
     counts[0] = counts[1] = counts[2] = 0;
     ::memset( dists, 0, sizeof( dists ) );
@@ -477,8 +477,8 @@ void ChopWindingInPlace( winding_t** inout, vec3_t normal, vec_t dist, vec_t eps
 {
     winding_t*      in;
     vec_t           dists[MAX_POINTS_ON_WINDING + 4] = { 0 };
-    S32             sides[MAX_POINTS_ON_WINDING + 4] = { 0 }, counts[3], i, j, maxpts;
-    F64 d1, d2, dot;
+    sint             sides[MAX_POINTS_ON_WINDING + 4] = { 0 }, counts[3], i, j, maxpts;
+    float64 d1, d2, dot;
     vec_t*          p1, *p2;
     vec3_t          mid;
     winding_t*      f;
@@ -621,7 +621,7 @@ CheckWinding
 */
 void CheckWinding( winding_t* w )
 {
-    S32             i, j;
+    sint             i, j;
     vec_t*          p1, *p2, d, edgedist, area, facedist;
     vec3_t          dir, edgenormal, facenormal;
     
@@ -692,10 +692,10 @@ void CheckWinding( winding_t* w )
 WindingOnPlaneSide
 ============
 */
-S32 WindingOnPlaneSide( winding_t* w, vec3_t normal, vec_t dist )
+sint WindingOnPlaneSide( winding_t* w, vec3_t normal, vec_t dist )
 {
     bool        front, back;
-    S32             i;
+    sint             i;
     vec_t           d;
     
     front = false;
@@ -745,8 +745,8 @@ Both w and *hull are on the same plane
 #define MAX_HULL_POINTS     128
 void AddWindingToConvexHull( winding_t* w, winding_t** hull, vec3_t normal )
 {
-    S32             i, j, k, numHullPoints, numNew;
-    F32*          p, *copy, d;
+    sint             i, j, k, numHullPoints, numNew;
+    float32*          p, *copy, d;
     vec3_t          dir;
     vec3_t          hullPoints[MAX_HULL_POINTS], newHullPoints[MAX_HULL_POINTS], hullDirs[MAX_HULL_POINTS];
     bool        hullSide[MAX_HULL_POINTS], outside;

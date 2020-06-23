@@ -49,19 +49,22 @@ public:
     
     virtual void GetClientState( uiClientState_t* state );
     virtual void GetGlconfig( vidconfig_t* config );
-    virtual void GUIGetClipboardData( UTF8* buf, S32 buflen );
-    virtual S32 GetConfigString( S32 index, UTF8* buf, S32 size );
+    virtual void GUIGetClipboardData( valueType* buf, sint buflen );
+    virtual sint GetConfigString( sint index, valueType* buf, sint size );
     virtual bool GetNews( bool begin );
-    virtual void KeynumToStringBuf( S32 keynum, UTF8* buf, S32 buflen );
-    virtual void GetBindingBuf( S32 keynum, UTF8* buf, S32 buflen );
-    virtual S32 GetCatcher( void );
-    virtual void SetCatcher( S32 catcher );
-    virtual bool checkKeyExec( S32 key );
+    virtual void KeynumToStringBuf( sint keynum, valueType* buf, sint buflen );
+    virtual void GetBindingBuf( sint keynum, valueType* buf, sint buflen );
+    virtual sint GetCatcher( void );
+    virtual void SetCatcher( sint catcher );
+    virtual bool checkKeyExec( sint key );
     virtual bool GameCommand( void );
     virtual void InitGUI( void );
     virtual void ShutdownGUI( void );
     
     static void CreateExportTable( void );
+    static bool SpawnRenderThread( void ( *function )( void ) );
 };
+
+extern idClientGUISystemLocal clientGUILocal;
 
 #endif // !__CLIENTGUI_LOCAL_H__

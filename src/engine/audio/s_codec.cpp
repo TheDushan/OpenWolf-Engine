@@ -37,11 +37,11 @@ static snd_codec_t* codecs;
 S_FileExtension
 =================
 */
-static UTF8* S_FileExtension( StringEntry fni )
+static valueType* S_FileExtension( pointer fni )
 {
     // we should search from the ending to the last '/'
-    UTF8* fn = const_cast<UTF8*>( fni + ::strlen( fni ) - 1 );
-    UTF8* eptr = nullptr;
+    valueType* fn = const_cast<valueType*>( fni + ::strlen( fni ) - 1 );
+    valueType* eptr = nullptr;
     
     while( *fn != '/' && fn != fni )
     {
@@ -63,9 +63,9 @@ S_FindCodecForFile
 Select an appropriate codec for a file based on its extension
 =================
 */
-static snd_codec_t* S_FindCodecForFile( StringEntry filename )
+static snd_codec_t* S_FindCodecForFile( pointer filename )
 {
-    UTF8* ext = S_FileExtension( filename );
+    valueType* ext = S_FileExtension( filename );
     snd_codec_t* codec = codecs;
     
     if( !ext )
@@ -73,7 +73,7 @@ static snd_codec_t* S_FindCodecForFile( StringEntry filename )
         // No extension - auto-detect
         while( codec )
         {
-            UTF8 fn[MAX_QPATH];
+            valueType fn[MAX_QPATH];
             
             // there is no extension so we do not need to subtract 4 chars
             Q_strncpyz( fn, filename, MAX_QPATH );
@@ -143,10 +143,10 @@ void S_CodecRegister( snd_codec_t* codec )
 S_CodecLoad
 =================
 */
-void* S_CodecLoad( StringEntry filename, snd_info_t* info )
+void* S_CodecLoad( pointer filename, snd_info_t* info )
 {
     snd_codec_t* codec;
-    UTF8 fn[MAX_QPATH];
+    valueType fn[MAX_QPATH];
     
     codec = S_FindCodecForFile( filename );
     if( !codec )
@@ -166,10 +166,10 @@ void* S_CodecLoad( StringEntry filename, snd_info_t* info )
 S_CodecOpenStream
 =================
 */
-snd_stream_t* S_CodecOpenStream( StringEntry filename )
+snd_stream_t* S_CodecOpenStream( pointer filename )
 {
     snd_codec_t* codec;
-    UTF8 fn[MAX_QPATH];
+    valueType fn[MAX_QPATH];
     
     codec = S_FindCodecForFile( filename );
     if( !codec )
@@ -189,7 +189,7 @@ void S_CodecCloseStream( snd_stream_t* stream )
     stream->codec->close( stream );
 }
 
-S32 S_CodecReadStream( snd_stream_t* stream, S32 bytes, void* buffer )
+sint S_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer )
 {
     return stream->codec->read( stream, bytes, buffer );
 }
@@ -202,11 +202,11 @@ S32 S_CodecReadStream( snd_stream_t* stream, S32 bytes, void* buffer )
 S_CodecUtilOpen
 =================
 */
-snd_stream_t* S_CodecUtilOpen( StringEntry filename, snd_codec_t* codec )
+snd_stream_t* S_CodecUtilOpen( pointer filename, snd_codec_t* codec )
 {
     snd_stream_t* stream;
     fileHandle_t hnd;
-    S32 length;
+    sint length;
     
     // Try to open the file
     length = fileSystem->FOpenFileRead( filename, &hnd, true );

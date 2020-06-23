@@ -34,8 +34,8 @@ idClientAVISystemAPI* clientAVISystem = &clientAVILocal;
 
 #define MAX_AVI_BUFFER 2048
 
-static U8 buffer[MAX_AVI_BUFFER];
-static S32 bufIndex;
+static uchar8 buffer[MAX_AVI_BUFFER];
+static sint bufIndex;
 
 /*
 ===============
@@ -60,7 +60,7 @@ idClientAVISystemLocal::~idClientAVISystemLocal( void )
 idClientAVISystemLocal::SafeFS_Write
 ===============
 */
-void idClientAVISystemLocal::SafeFS_Write( const void* buffer, S32 len, fileHandle_t f )
+void idClientAVISystemLocal::SafeFS_Write( const void* buffer, sint len, fileHandle_t f )
 {
     if( fileSystem->Write( buffer, len, f ) < len )
     {
@@ -73,7 +73,7 @@ void idClientAVISystemLocal::SafeFS_Write( const void* buffer, S32 len, fileHand
 idClientAVISystemLocal::WRITE_STRING
 ===============
 */
-void idClientAVISystemLocal::WRITE_STRING( StringEntry s )
+void idClientAVISystemLocal::WRITE_STRING( pointer s )
 {
     ::memcpy( &buffer[bufIndex], s, strlen( s ) );
     bufIndex += strlen( s );
@@ -84,12 +84,12 @@ void idClientAVISystemLocal::WRITE_STRING( StringEntry s )
 idClientAVISystemLocal::WRITE_4BYTES
 ===============
 */
-void idClientAVISystemLocal::WRITE_4BYTES( S32 x )
+void idClientAVISystemLocal::WRITE_4BYTES( sint x )
 {
-    buffer[bufIndex + 0] = ( U8 )( ( x >> 0 ) & 0xFF );
-    buffer[bufIndex + 1] = ( U8 )( ( x >> 8 ) & 0xFF );
-    buffer[bufIndex + 2] = ( U8 )( ( x >> 16 ) & 0xFF );
-    buffer[bufIndex + 3] = ( U8 )( ( x >> 24 ) & 0xFF );
+    buffer[bufIndex + 0] = ( uchar8 )( ( x >> 0 ) & 0xFF );
+    buffer[bufIndex + 1] = ( uchar8 )( ( x >> 8 ) & 0xFF );
+    buffer[bufIndex + 2] = ( uchar8 )( ( x >> 16 ) & 0xFF );
+    buffer[bufIndex + 3] = ( uchar8 )( ( x >> 24 ) & 0xFF );
     bufIndex += 4;
 }
 
@@ -98,10 +98,10 @@ void idClientAVISystemLocal::WRITE_4BYTES( S32 x )
 idClientAVISystemLocal::WRITE_2BYTES
 ===============
 */
-void idClientAVISystemLocal::WRITE_2BYTES( S32 x )
+void idClientAVISystemLocal::WRITE_2BYTES( sint x )
 {
-    buffer[bufIndex + 0] = ( U8 )( ( x >> 0 ) & 0xFF );
-    buffer[bufIndex + 1] = ( U8 )( ( x >> 8 ) & 0xFF );
+    buffer[bufIndex + 0] = ( uchar8 )( ( x >> 0 ) & 0xFF );
+    buffer[bufIndex + 1] = ( uchar8 )( ( x >> 8 ) & 0xFF );
     bufIndex += 2;
 }
 
@@ -110,7 +110,7 @@ void idClientAVISystemLocal::WRITE_2BYTES( S32 x )
 idClientAVISystemLocal::WRITE_1BYTES
 ===============
 */
-void idClientAVISystemLocal::WRITE_1BYTES( S32 x )
+void idClientAVISystemLocal::WRITE_1BYTES( sint x )
 {
     buffer[bufIndex] = x;
     bufIndex += 1;
@@ -121,7 +121,7 @@ void idClientAVISystemLocal::WRITE_1BYTES( S32 x )
 idClientAVISystemLocal::START_CHUNK
 ===============
 */
-void idClientAVISystemLocal::START_CHUNK( StringEntry s )
+void idClientAVISystemLocal::START_CHUNK( pointer s )
 {
     if( afd.chunkStackTop == MAX_RIFF_CHUNKS )
     {
@@ -141,7 +141,7 @@ idClientAVISystemLocal::END_CHUNK
 */
 void idClientAVISystemLocal::END_CHUNK( void )
 {
-    S32 endIndex = bufIndex;
+    sint endIndex = bufIndex;
     
     if( afd.chunkStackTop <= 0 )
     {
@@ -318,7 +318,7 @@ Creates an AVI file and gets it into a state where
 writing the actual data can begin
 ===============
 */
-bool idClientAVISystemLocal::OpenAVIForWriting( StringEntry fileName )
+bool idClientAVISystemLocal::OpenAVIForWriting( pointer fileName )
 {
     if( afd.fileOpen )
     {
@@ -348,7 +348,7 @@ bool idClientAVISystemLocal::OpenAVIForWriting( StringEntry fileName )
     Q_strncpyz( afd.fileName, fileName, MAX_QPATH );
     
     afd.frameRate = cl_aviFrameRate->integer;
-    afd.framePeriod = ( S32 )( 1000000.0f / afd.frameRate );
+    afd.framePeriod = ( sint )( 1000000.0f / afd.frameRate );
     afd.width = cls.glconfig.vidWidth;
     afd.height = cls.glconfig.vidHeight;
     
@@ -365,9 +365,9 @@ bool idClientAVISystemLocal::OpenAVIForWriting( StringEntry fileName )
     // Allocate a bit more space for the capture buffer to account for possible
     // padding at the end of pixel lines, and padding for alignment
 #define MAX_PACK_LEN 16
-    afd.cBuffer = ( U8* )Z_Malloc( ( afd.width * 3 + MAX_PACK_LEN - 1 ) * afd.height + MAX_PACK_LEN - 1 );
-    // raw avi files have pixel lines start on 4-U8 boundaries
-    afd.eBuffer = ( U8* )Z_Malloc( PAD( afd.width * 3, AVI_LINE_PADDING ) * afd.height );
+    afd.cBuffer = ( uchar8* )Z_Malloc( ( afd.width * 3 + MAX_PACK_LEN - 1 ) * afd.height + MAX_PACK_LEN - 1 );
+    // raw avi files have pixel lines start on 4-uchar8 boundaries
+    afd.eBuffer = ( uchar8* )Z_Malloc( PAD( afd.width * 3, AVI_LINE_PADDING ) * afd.height );
     
     afd.a.rate = dma.speed;
     afd.a.format = WAV_FORMAT_PCM;
@@ -377,7 +377,7 @@ bool idClientAVISystemLocal::OpenAVIForWriting( StringEntry fileName )
     
     if( afd.a.rate % afd.frameRate )
     {
-        S32 suggestRate = afd.frameRate;
+        sint suggestRate = afd.frameRate;
         
         while( ( afd.a.rate % suggestRate ) && suggestRate >= 1 )
         {
@@ -431,9 +431,9 @@ bool idClientAVISystemLocal::OpenAVIForWriting( StringEntry fileName )
 idClientAVISystemLocal::CheckFileSize
 ===============
 */
-bool idClientAVISystemLocal::CheckFileSize( S32 bytesToAdd )
+bool idClientAVISystemLocal::CheckFileSize( sint bytesToAdd )
 {
-    U32 newFileSize;
+    uint newFileSize;
     
     newFileSize = afd.fileSize +	        // Current file size
                   bytesToAdd +			    // What we want to add
@@ -461,12 +461,12 @@ bool idClientAVISystemLocal::CheckFileSize( S32 bytesToAdd )
 idClientAVISystemLocal::WriteAVIVideoFrame
 ===============
 */
-void idClientAVISystemLocal::WriteAVIVideoFrame( const U8* imageBuffer, S32 size )
+void idClientAVISystemLocal::WriteAVIVideoFrame( const uchar8* imageBuffer, sint size )
 {
-    S32 chunkOffset = afd.fileSize - afd.moviOffset - 8;
-    S32 chunkSize = 8 + size;
-    S32 paddingSize = PAD( size, 2 ) - size;
-    U8 padding[4] = { 0 };
+    sint chunkOffset = afd.fileSize - afd.moviOffset - 8;
+    sint chunkSize = 8 + size;
+    sint paddingSize = PAD( size, 2 ) - size;
+    uchar8 padding[4] = { 0 };
     
     if( !afd.fileOpen )
     {
@@ -514,10 +514,10 @@ void idClientAVISystemLocal::WriteAVIVideoFrame( const U8* imageBuffer, S32 size
 idClientAVISystemLocal::WriteAVIAudioFrame
 ===============
 */
-void idClientAVISystemLocal::WriteAVIAudioFrame( const U8* pcmBuffer, S32 size )
+void idClientAVISystemLocal::WriteAVIAudioFrame( const uchar8* pcmBuffer, sint size )
 {
-    static U8 pcmCaptureBuffer[PCM_BUFFER_SIZE] = { 0 };
-    static S32 bytesInBuffer = 0;
+    static uchar8 pcmCaptureBuffer[PCM_BUFFER_SIZE] = { 0 };
+    static sint bytesInBuffer = 0;
     
     if( !afd.audio )
     {
@@ -545,12 +545,12 @@ void idClientAVISystemLocal::WriteAVIAudioFrame( const U8* pcmBuffer, S32 size )
     bytesInBuffer += size;
     
     // Only write if we have a frame's worth of audio
-    if( bytesInBuffer >= ( S32 )ceil( ( F32 )afd.a.rate / ( F32 )afd.frameRate ) * afd.a.sampleSize )
+    if( bytesInBuffer >= ( sint )ceil( ( float32 )afd.a.rate / ( float32 )afd.frameRate ) * afd.a.sampleSize )
     {
-        S32 chunkOffset = afd.fileSize - afd.moviOffset - 8;
-        S32 chunkSize = 8 + bytesInBuffer;
-        S32 paddingSize = PAD( bytesInBuffer, 2 ) - bytesInBuffer;
-        U8 padding[4] = { 0 };
+        sint chunkOffset = afd.fileSize - afd.moviOffset - 8;
+        sint chunkSize = 8 + bytesInBuffer;
+        sint paddingSize = PAD( bytesInBuffer, 2 ) - bytesInBuffer;
+        uchar8 padding[4] = { 0 };
         
         bufIndex = 0;
         WRITE_STRING( "01wb" );
@@ -604,9 +604,9 @@ Closes the AVI file and writes an index chunk
 */
 bool idClientAVISystemLocal::CloseAVI( void )
 {
-    S32 indexRemainder;
-    S32 indexSize = afd.numIndices * 16;
-    StringEntry idxFileName = va( "%s" INDEX_FILE_EXTENSION, afd.fileName );
+    sint indexRemainder;
+    sint indexSize = afd.numIndices * 16;
+    pointer idxFileName = va( "%s" INDEX_FILE_EXTENSION, afd.fileName );
     
     // AVI file isn't open
     if( !afd.fileOpen )

@@ -52,7 +52,7 @@ void R_PerformanceCounters( void )
         CL_RefPrintf( PRINT_ALL, "%i/%i/%i shaders/batches/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
                       backEnd.pc.c_shaders, backEnd.pc.c_surfBatches, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes,
                       backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3,
-                      R_SumOfUsedImages() / ( 1000000.0f ), backEnd.pc.c_overDraw / ( F32 )( glConfig.vidWidth * glConfig.vidHeight ) );
+                      R_SumOfUsedImages() / ( 1000000.0f ), backEnd.pc.c_overDraw / ( float32 )( glConfig.vidWidth * glConfig.vidHeight ) );
     }
     else if( r_speeds->integer == 2 )
     {
@@ -105,12 +105,12 @@ R_IssueRenderCommands
 */
 void R_IssueRenderCommands( bool runPerformanceCounters )
 {
-    static S32 c_blockedOnRender, c_blockedOnMain;
+    static sint c_blockedOnRender, c_blockedOnMain;
     renderCommandList_t* cmdList = &backEndData[tr.smpFrame]->commands;
     assert( cmdList );
     
     // add an end-of-list command
-    *( S32* )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
+    *( sint* )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
     
     // clear it out, in case this is a sync and not a buffer flip
     cmdList->used = 0;
@@ -192,7 +192,7 @@ R_GetCommandBufferReserved
 make sure there is enough command space
 ============
 */
-void* R_GetCommandBufferReserved( S32 bytes, S32 reservedBytes )
+void* R_GetCommandBufferReserved( sint bytes, sint reservedBytes )
 {
     renderCommandList_t*	cmdList;
     
@@ -200,9 +200,9 @@ void* R_GetCommandBufferReserved( S32 bytes, S32 reservedBytes )
     bytes = PAD( bytes, sizeof( void* ) );
     
     // always leave room for the end of list command
-    if( cmdList->used + bytes + sizeof( S32 ) + reservedBytes > MAX_RENDER_COMMANDS )
+    if( cmdList->used + bytes + sizeof( sint ) + reservedBytes > MAX_RENDER_COMMANDS )
     {
-        if( bytes > MAX_RENDER_COMMANDS - sizeof( S32 ) )
+        if( bytes > MAX_RENDER_COMMANDS - sizeof( sint ) )
         {
             Com_Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
         }
@@ -222,7 +222,7 @@ R_GetCommandBuffer
 returns nullptr if there is not enough space for important commands
 =============
 */
-void* R_GetCommandBuffer( S32 bytes )
+void* R_GetCommandBuffer( sint bytes )
 {
     return R_GetCommandBufferReserved( bytes, PAD( sizeof( swapBuffersCommand_t ), sizeof( void* ) ) );
 }
@@ -234,7 +234,7 @@ R_AddDrawSurfCmd
 
 =============
 */
-void	R_AddDrawSurfCmd( drawSurf_t* drawSurfs, S32 numDrawSurfs )
+void	R_AddDrawSurfCmd( drawSurf_t* drawSurfs, sint numDrawSurfs )
 {
     drawSurfsCommand_t*	cmd;
     
@@ -259,7 +259,7 @@ R_AddCapShadowmapCmd
 
 =============
 */
-void	R_AddCapShadowmapCmd( S32 map, S32 cubeSide )
+void	R_AddCapShadowmapCmd( sint map, sint cubeSide )
 {
     capShadowmapCommand_t*	cmd;
     
@@ -303,7 +303,7 @@ idRenderSystemLocal::SetColor
 Passing nullptr will set the color to white
 =============
 */
-void idRenderSystemLocal::SetColor( const F32* rgba )
+void idRenderSystemLocal::SetColor( const float32* rgba )
 {
     setColorCommand_t*	cmd;
     
@@ -319,7 +319,7 @@ void idRenderSystemLocal::SetColor( const F32* rgba )
     cmd->commandId = RC_SET_COLOR;
     if( !rgba )
     {
-        static F32 colorWhite[4] = { 1, 1, 1, 1 };
+        static float32 colorWhite[4] = { 1, 1, 1, 1 };
         
         rgba = colorWhite;
     }
@@ -335,11 +335,11 @@ void idRenderSystemLocal::SetColor( const F32* rgba )
 R_ClipRegion
 =============
 */
-static bool R_ClipRegion( F32* x, F32* y, F32* w, F32* h, F32* s1, F32* t1, F32* s2, F32* t2 )
+static bool R_ClipRegion( float32* x, float32* y, float32* w, float32* h, float32* s1, float32* t1, float32* s2, float32* t2 )
 {
-    F32 left, top, right, bottom;
-    F32 _s1, _t1, _s2, _t2;
-    F32 clipLeft, clipTop, clipRight, clipBottom;
+    float32 left, top, right, bottom;
+    float32 _s1, _t1, _s2, _t2;
+    float32 clipLeft, clipTop, clipRight, clipBottom;
     
     if( tr.clipRegion[2] <= tr.clipRegion[0] ||
             tr.clipRegion[3] <= tr.clipRegion[1] )
@@ -372,7 +372,7 @@ static bool R_ClipRegion( F32* x, F32* y, F32* w, F32* h, F32* s1, F32* t1, F32*
     // Clip left edge
     if( left < clipLeft )
     {
-        F32 f = ( clipLeft - left ) / ( right - left );
+        float32 f = ( clipLeft - left ) / ( right - left );
         *s1 = ( f * ( _s2 - _s1 ) ) + _s1;
         *x = clipLeft;
         *w -= ( clipLeft - left );
@@ -381,7 +381,7 @@ static bool R_ClipRegion( F32* x, F32* y, F32* w, F32* h, F32* s1, F32* t1, F32*
     // Clip right edge
     if( right > clipRight )
     {
-        F32 f = ( clipRight - right ) / ( left - right );
+        float32 f = ( clipRight - right ) / ( left - right );
         *s2 = ( f * ( _s1 - _s2 ) ) + _s2;
         *w = clipRight - *x;
     }
@@ -389,7 +389,7 @@ static bool R_ClipRegion( F32* x, F32* y, F32* w, F32* h, F32* s1, F32* t1, F32*
     // Clip top edge
     if( top < clipTop )
     {
-        F32 f = ( clipTop - top ) / ( bottom - top );
+        float32 f = ( clipTop - top ) / ( bottom - top );
         *t1 = ( f * ( _t2 - _t1 ) ) + _t1;
         *y = clipTop;
         *h -= ( clipTop - top );
@@ -398,7 +398,7 @@ static bool R_ClipRegion( F32* x, F32* y, F32* w, F32* h, F32* s1, F32* t1, F32*
     // Clip bottom edge
     if( bottom > clipBottom )
     {
-        F32 f = ( clipBottom - bottom ) / ( top - bottom );
+        float32 f = ( clipBottom - bottom ) / ( top - bottom );
         *t2 = ( f * ( _t1 - _t2 ) ) + _t2;
         *h = clipBottom - *y;
     }
@@ -411,7 +411,7 @@ static bool R_ClipRegion( F32* x, F32* y, F32* w, F32* h, F32* s1, F32* t1, F32*
 idRenderSystemLocal::SetClipRegion
 =============
 */
-void idRenderSystemLocal::SetClipRegion( const F32* region )
+void idRenderSystemLocal::SetClipRegion( const float32* region )
 {
     if( region == nullptr )
     {
@@ -428,7 +428,7 @@ void idRenderSystemLocal::SetClipRegion( const F32* region )
 idRenderSystemLocal::DrawStretchPic
 =============
 */
-void idRenderSystemLocal::DrawStretchPic( F32 x, F32 y, F32 w, F32 h, F32 s1, F32 t1, F32 s2, F32 t2, qhandle_t hShader )
+void idRenderSystemLocal::DrawStretchPic( float32 x, float32 y, float32 w, float32 h, float32 s1, float32 t1, float32 s2, float32 t2, qhandle_t hShader )
 {
     stretchPicCommand_t*	cmd;
     
@@ -463,7 +463,7 @@ void idRenderSystemLocal::DrawStretchPic( F32 x, F32 y, F32 w, F32 h, F32 s1, F3
 #define MODE_GREEN_MAGENTA 4
 #define MODE_MAX	MODE_GREEN_MAGENTA
 
-void R_SetColorMode( GLboolean* rgba, stereoFrame_t stereoFrame, S32 colormode )
+void R_SetColorMode( GLboolean* rgba, stereoFrame_t stereoFrame, sint colormode )
 {
     rgba[0] = rgba[1] = rgba[2] = rgba[3] = GL_TRUE;
     
@@ -586,7 +586,7 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
     // check for errors
     if( !r_ignoreGLErrors->integer )
     {
-        S32	err;
+        sint	err;
         
         R_IssuePendingRenderCommands();
         if( ( err = qglGetError() ) != GL_NO_ERROR )
@@ -602,11 +602,11 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
         
         if( stereoFrame == STEREO_LEFT )
         {
-            cmd->buffer = ( S32 )GL_BACK_LEFT;
+            cmd->buffer = ( sint )GL_BACK_LEFT;
         }
         else if( stereoFrame == STEREO_RIGHT )
         {
-            cmd->buffer = ( S32 )GL_BACK_RIGHT;
+            cmd->buffer = ( sint )GL_BACK_RIGHT;
         }
         else
         {
@@ -696,9 +696,9 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
             }
             
             if( !Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) )
-                cmd->buffer = ( S32 )GL_FRONT;
+                cmd->buffer = ( sint )GL_FRONT;
             else
-                cmd->buffer = ( S32 )GL_BACK;
+                cmd->buffer = ( sint )GL_BACK;
         }
     }
     
@@ -713,7 +713,7 @@ idRenderSystemLocal::EndFrame
 Returns the number of msec spent in the back end
 =============
 */
-void idRenderSystemLocal::EndFrame( S32* frontEndMsec, S32* backEndMsec )
+void idRenderSystemLocal::EndFrame( sint* frontEndMsec, sint* backEndMsec )
 {
     swapBuffersCommand_t*	cmd;
     
@@ -749,7 +749,7 @@ void idRenderSystemLocal::EndFrame( S32* frontEndMsec, S32* backEndMsec )
 idRenderSystemLocal::TakeVideoFrame
 =============
 */
-void idRenderSystemLocal::TakeVideoFrame( S32 width, S32 height, U8* captureBuffer, U8* encodeBuffer, bool motionJpeg )
+void idRenderSystemLocal::TakeVideoFrame( sint width, sint height, uchar8* captureBuffer, uchar8* encodeBuffer, bool motionJpeg )
 {
     videoFrameCommand_t*	cmd;
     

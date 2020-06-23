@@ -29,7 +29,7 @@
 
 #include <framework/precompiled.h>
 
-void R_VaoPackTangent( S16* out, vec4_t v )
+void R_VaoPackTangent( schar16* out, vec4_t v )
 {
     out[0] = v[0] * 32767.0f + ( v[0] > 0.0f ? 0.5f : -0.5f );
     out[1] = v[1] * 32767.0f + ( v[1] > 0.0f ? 0.5f : -0.5f );
@@ -37,7 +37,7 @@ void R_VaoPackTangent( S16* out, vec4_t v )
     out[3] = v[3] * 32767.0f + ( v[3] > 0.0f ? 0.5f : -0.5f );
 }
 
-void R_VaoPackNormal( S16* out, vec3_t v )
+void R_VaoPackNormal( schar16* out, vec3_t v )
 {
     out[0] = v[0] * 32767.0f + ( v[0] > 0.0f ? 0.5f : -0.5f );
     out[1] = v[1] * 32767.0f + ( v[1] > 0.0f ? 0.5f : -0.5f );
@@ -45,7 +45,7 @@ void R_VaoPackNormal( S16* out, vec3_t v )
     out[3] = 0;
 }
 
-void R_VaoPackColor( U16* out, vec4_t c )
+void R_VaoPackColor( uchar16* out, vec4_t c )
 {
     out[0] = c[0] * 65535.0f + 0.5f;
     out[1] = c[1] * 65535.0f + 0.5f;
@@ -53,7 +53,7 @@ void R_VaoPackColor( U16* out, vec4_t c )
     out[3] = c[3] * 65535.0f + 0.5f;
 }
 
-void R_VaoUnpackTangent( vec4_t v, S16* pack )
+void R_VaoUnpackTangent( vec4_t v, schar16* pack )
 {
     v[0] = pack[0] / 32767.0f;
     v[1] = pack[1] / 32767.0f;
@@ -61,7 +61,7 @@ void R_VaoUnpackTangent( vec4_t v, S16* pack )
     v[3] = pack[3] / 32767.0f;
 }
 
-void R_VaoUnpackNormal( vec3_t v, S16* pack )
+void R_VaoUnpackNormal( vec3_t v, schar16* pack )
 {
     v[0] = pack[0] / 32767.0f;
     v[1] = pack[1] / 32767.0f;
@@ -70,12 +70,12 @@ void R_VaoUnpackNormal( vec3_t v, S16* pack )
 
 void Vao_SetVertexPointers( vao_t* vao )
 {
-    S32 attribIndex;
+    sint attribIndex;
     
     // set vertex pointers
     for( attribIndex = 0; attribIndex < ATTR_INDEX_COUNT; attribIndex++ )
     {
-        U32 attribBit = 1 << attribIndex;
+        uint attribBit = 1 << attribIndex;
         vaoAttrib_t* vAtb = &vao->attribs[attribIndex];
         
         if( vAtb->enabled )
@@ -105,10 +105,10 @@ void Vao_SetVertexPointers( vao_t* vao )
 R_CreateVao
 ============
 */
-vao_t* R_CreateVao( StringEntry name, U8* vertexes, S32 vertexesSize, U8* indexes, S32 indexesSize, vaoUsage_t usage )
+vao_t* R_CreateVao( pointer name, uchar8* vertexes, sint vertexesSize, uchar8* indexes, sint indexesSize, vaoUsage_t usage )
 {
     vao_t*          vao;
-    S32				glUsage;
+    sint				glUsage;
     
     switch( usage )
     {
@@ -178,16 +178,16 @@ vao_t* R_CreateVao( StringEntry name, U8* vertexes, S32 vertexesSize, U8* indexe
 R_CreateVao2
 ============
 */
-vao_t* R_CreateVao2( StringEntry name, S32 numVertexes, srfVert_t* verts, S32 numIndexes, U32* indexes )
+vao_t* R_CreateVao2( pointer name, sint numVertexes, srfVert_t* verts, sint numIndexes, uint* indexes )
 {
     vao_t*          vao = nullptr;
-    S32             i;
+    sint             i;
     
-    U8*           data = nullptr;
-    S32             dataSize;
-    S32             dataOfs;
+    uchar8*           data = nullptr;
+    sint             dataSize;
+    sint             dataOfs;
     
-    S32				glUsage = GL_STATIC_DRAW;
+    sint				glUsage = GL_STATIC_DRAW;
     
     if( !numVertexes || !numIndexes )
         return nullptr;
@@ -277,7 +277,7 @@ vao_t* R_CreateVao2( StringEntry name, S32 numVertexes, srfVert_t* verts, S32 nu
     
     // create VBO
     dataSize *= numVertexes;
-    data = ( U8* )Hunk_AllocateTempMemory( dataSize );
+    data = ( uchar8* )Hunk_AllocateTempMemory( dataSize );
     dataOfs = 0;
     
     for( i = 0; i < numVertexes; i++ )
@@ -320,7 +320,7 @@ vao_t* R_CreateVao2( StringEntry name, S32 numVertexes, srfVert_t* verts, S32 nu
     
     
     // create IBO
-    vao->indexesSize = numIndexes * sizeof( U32 );
+    vao->indexesSize = numIndexes * sizeof( uint );
     
     qglGenBuffers( 1, &vao->indexesIBO );
     
@@ -358,7 +358,7 @@ void R_BindVao( vao_t* vao )
     if( r_logFile->integer )
     {
         // don't just call LogComment, or we will get a call to va() every frame!
-        GLimp_LogComment( reinterpret_cast< UTF8* >( va( "--- R_BindVao( %s ) ---\n", vao->name ) ) );
+        GLimp_LogComment( reinterpret_cast< valueType* >( va( "--- R_BindVao( %s ) ---\n", vao->name ) ) );
     }
     
     if( glState.currentVao != vao )
@@ -430,8 +430,8 @@ R_InitVaos
 */
 void R_InitVaos( void )
 {
-    S32             vertexesSize, indexesSize;
-    S32             offset;
+    sint             vertexesSize, indexesSize;
+    sint             offset;
     
     CL_RefPrintf( PRINT_ALL, "------- R_InitVaos -------\n" );
     
@@ -530,7 +530,7 @@ R_ShutdownVaos
 */
 void R_ShutdownVaos( void )
 {
-    S32             i;
+    sint             i;
     vao_t*          vao;
     
     CL_RefPrintf( PRINT_ALL, "------- R_ShutdownVaos -------\n" );
@@ -565,10 +565,10 @@ R_VaoList_f
 */
 void R_VaoList_f( void )
 {
-    S32             i;
+    sint             i;
     vao_t*          vao;
-    S32             vertexesSize = 0;
-    S32             indexesSize = 0;
+    sint             vertexesSize = 0;
+    sint             indexesSize = 0;
     
     CL_RefPrintf( PRINT_ALL, " size          name\n" );
     CL_RefPrintf( PRINT_ALL, "----------------------------------------------------------\n" );
@@ -610,7 +610,7 @@ Adapted from Tess_UpdateVBOs from xreal
 Update the default VAO to replace the client side vertex arrays
 ==============
 */
-void RB_UpdateTessVao( U32 attribBits )
+void RB_UpdateTessVao( uint attribBits )
 {
     GLimp_LogComment( "--- RB_UpdateTessVao ---\n" );
     
@@ -619,8 +619,8 @@ void RB_UpdateTessVao( U32 attribBits )
     // update the default VAO
     if( tess.numVertexes > 0 && tess.numVertexes <= SHADER_MAX_VERTEXES && tess.numIndexes > 0 && tess.numIndexes <= SHADER_MAX_INDEXES )
     {
-        S32 attribIndex;
-        S32 attribUpload;
+        sint attribIndex;
+        sint attribUpload;
         
         R_BindVao( tess.vao );
         
@@ -635,7 +635,7 @@ void RB_UpdateTessVao( U32 attribBits )
         
         for( attribIndex = 0; attribIndex < ATTR_INDEX_COUNT; attribIndex++ )
         {
-            U32 attribBit = 1 << attribIndex;
+            uint attribBit = 1 << attribIndex;
             vaoAttrib_t* vAtb = &tess.vao->attribs[attribIndex];
             
             if( attribUpload & attribBit )
@@ -675,17 +675,17 @@ void RB_UpdateTessVao( U32 attribBits )
 typedef struct bufferCacheEntry_s
 {
     void* data;
-    S32 size;
-    S32 bufferOffset;
+    sint size;
+    sint bufferOffset;
 }
 bufferCacheEntry_t;
 
 typedef struct queuedSurface_s
 {
     srfVert_t* vertexes;
-    S32 numVerts;
-    U32* indexes;
-    S32 numIndexes;
+    sint numVerts;
+    uint* indexes;
+    sint numIndexes;
 }
 queuedSurface_t;
 
@@ -707,19 +707,19 @@ static struct
 {
     vao_t* vao;
     bufferCacheEntry_t indexEntries[VAOCACHE_MAX_BUFFERED_SURFACES];
-    S32 indexChainLengths[VAOCACHE_MAX_BUFFERED_SURFACES];
-    S32 numIndexEntries;
-    S32 vertexOffset;
-    S32 indexOffset;
+    sint indexChainLengths[VAOCACHE_MAX_BUFFERED_SURFACES];
+    sint numIndexEntries;
+    sint vertexOffset;
+    sint indexOffset;
     
     srfVert_t vertexes[VAOCACHE_MAX_QUEUED_VERTEXES];
-    S32 vertexCommitSize;
+    sint vertexCommitSize;
     
-    U32 indexes[VAOCACHE_MAX_QUEUED_INDEXES];
-    S32 indexCommitSize;
+    uint indexes[VAOCACHE_MAX_QUEUED_INDEXES];
+    sint indexCommitSize;
     
     queuedSurface_t surfaceQueue[VAOCACHE_MAX_QUEUED_SURFACES];
-    S32 numSurfacesQueued;
+    sint numSurfacesQueued;
 }
 vc = { 0 };
 
@@ -734,14 +734,14 @@ void VaoCache_Commit( void )
     // FIXME: use faster search
     for( entry1 = vc.indexEntries; entry1 < vc.indexEntries + vc.numIndexEntries; )
     {
-        S32 chainLength = vc.indexChainLengths[entry1 - vc.indexEntries];
+        sint chainLength = vc.indexChainLengths[entry1 - vc.indexEntries];
         
         if( chainLength == vc.numSurfacesQueued )
         {
             bufferCacheEntry_t* entry2 = entry1;
             for( surf = vc.surfaceQueue; surf < end; surf++, entry2++ )
             {
-                if( surf->indexes != entry2->data || ( surf->numIndexes * sizeof( U32 ) ) != entry2->size )
+                if( surf->indexes != entry2->data || ( surf->numIndexes * sizeof( uint ) ) != entry2->size )
                     break;
             }
             
@@ -755,7 +755,7 @@ void VaoCache_Commit( void )
     // if found, use that
     if( entry1 < vc.indexEntries + vc.numIndexEntries )
     {
-        tess.firstIndex = entry1->bufferOffset / sizeof( U32 );
+        tess.firstIndex = entry1->bufferOffset / sizeof( uint );
         //CL_RefPrintf(PRINT_ALL, "firstIndex %d numIndexes %d\n", tess.firstIndex, tess.numIndexes);
         //CL_RefPrintf(PRINT_ALL, "vc.numIndexEntries %d\n", vc.numIndexEntries);
     }
@@ -763,19 +763,19 @@ void VaoCache_Commit( void )
     else
     {
         srfVert_t* dstVertex = vc.vertexes;
-        U32* dstIndex = vc.indexes;
-        S32* indexChainLength = vc.indexChainLengths + vc.numIndexEntries;
+        uint* dstIndex = vc.indexes;
+        sint* indexChainLength = vc.indexChainLengths + vc.numIndexEntries;
         
-        tess.firstIndex = vc.indexOffset / sizeof( U32 );
+        tess.firstIndex = vc.indexOffset / sizeof( uint );
         vc.vertexCommitSize = 0;
         vc.indexCommitSize = 0;
         for( surf = vc.surfaceQueue; surf < end; surf++ )
         {
             srfVert_t* srcVertex = surf->vertexes;
-            U32* srcIndex = surf->indexes;
-            S32 vertexesSize = surf->numVerts * sizeof( srfVert_t );
-            S32 indexesSize = surf->numIndexes * sizeof( U32 );
-            S32 i, indexOffset = ( vc.vertexOffset + vc.vertexCommitSize ) / sizeof( srfVert_t );
+            uint* srcIndex = surf->indexes;
+            sint vertexesSize = surf->numVerts * sizeof( srfVert_t );
+            sint indexesSize = surf->numIndexes * sizeof( uint );
+            sint i, indexOffset = ( vc.vertexOffset + vc.vertexCommitSize ) / sizeof( srfVert_t );
             
             for( i = 0; i < surf->numVerts; i++ )
                 *dstVertex++ = *srcVertex++;
@@ -881,10 +881,10 @@ void VaoCache_BindVao( void )
     R_BindVao( vc.vao );
 }
 
-void VaoCache_CheckAdd( bool* endSurface, bool* recycleVertexBuffer, bool* recycleIndexBuffer, S32 numVerts, S32 numIndexes )
+void VaoCache_CheckAdd( bool* endSurface, bool* recycleVertexBuffer, bool* recycleIndexBuffer, sint numVerts, sint numIndexes )
 {
-    S32 vertexesSize = sizeof( srfVert_t ) * numVerts;
-    S32 indexesSize = sizeof( U32 ) * numIndexes;
+    sint vertexesSize = sizeof( srfVert_t ) * numVerts;
+    sint indexesSize = sizeof( uint ) * numIndexes;
     
     if( vc.vao->vertexesSize < vc.vertexOffset + vc.vertexCommitSize + vertexesSize )
     {
@@ -920,7 +920,7 @@ void VaoCache_CheckAdd( bool* endSurface, bool* recycleVertexBuffer, bool* recyc
         *endSurface = true;
     }
     
-    if( VAOCACHE_MAX_QUEUED_INDEXES * sizeof( U32 ) < vc.indexCommitSize + indexesSize )
+    if( VAOCACHE_MAX_QUEUED_INDEXES * sizeof( uint ) < vc.indexCommitSize + indexesSize )
     {
         //CL_RefPrintf(PRINT_ALL, "out of queued indexes\n");
         *endSurface = true;
@@ -949,10 +949,10 @@ void VaoCache_InitNewSurfaceSet( void )
     vc.numSurfacesQueued = 0;
 }
 
-void VaoCache_AddSurface( srfVert_t* verts, S32 numVerts, U32* indexes, S32 numIndexes )
+void VaoCache_AddSurface( srfVert_t* verts, sint numVerts, uint* indexes, sint numIndexes )
 {
-    S32 vertexesSize = sizeof( srfVert_t ) * numVerts;
-    S32 indexesSize = sizeof( U32 ) * numIndexes;
+    sint vertexesSize = sizeof( srfVert_t ) * numVerts;
+    sint indexesSize = sizeof( uint ) * numIndexes;
     queuedSurface_t* queueEntry = vc.surfaceQueue + vc.numSurfacesQueued;
     queueEntry->vertexes = verts;
     queueEntry->numVerts = numVerts;

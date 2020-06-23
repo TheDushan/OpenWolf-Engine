@@ -31,9 +31,9 @@
 #define __R_EXTRAMATH_H__
 
 typedef vec_t mat4_t[16];
-typedef S32 ivec2_t[2];
-typedef S32 ivec3_t[3];
-typedef S32 ivec4_t[4];
+typedef sint ivec2_t[2];
+typedef sint ivec3_t[3];
+typedef sint ivec4_t[4];
 
 void Mat4Zero( mat4_t out );
 void Mat4Identity( mat4_t out );
@@ -43,7 +43,7 @@ void Mat4Transform( const mat4_t in1, const vec4_t in2, vec4_t out );
 bool Mat4Compare( const mat4_t a, const mat4_t b );
 void Mat4Dump( const mat4_t in );
 void Mat4Translation( vec3_t vec, mat4_t out );
-void Mat4Ortho( F32 left, F32 right, F32 bottom, F32 top, F32 znear, F32 zfar, mat4_t out );
+void Mat4Ortho( float32 left, float32 right, float32 bottom, float32 top, float32 znear, float32 zfar, mat4_t out );
 void Mat4View( vec3_t axes[3], vec3_t origin, mat4_t out );
 void Mat4SimpleInverse( const mat4_t in, mat4_t out );
 
@@ -57,12 +57,12 @@ void Mat4SimpleInverse( const mat4_t in, mat4_t out );
 
 #define VectorCopy5(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3],(b)[4]=(a)[4])
 
-#define OffsetByteToFloat(a)    ((F32)(a) * 1.0f/127.5f - 1.0f)
-#define FloatToOffsetByte(a)    (U8)((a) * 127.5f + 128.0f)
-#define ByteToFloat(a)          ((F32)(a) * 1.0f/255.0f)
-#define FloatToByte(a)          (U8)((a) * 255.0f)
+#define OffsetByteToFloat(a)    ((float32)(a) * 1.0f/127.5f - 1.0f)
+#define FloatToOffsetByte(a)    (uchar8)((a) * 127.5f + 128.0f)
+#define ByteToFloat(a)          ((float32)(a) * 1.0f/255.0f)
+#define FloatToByte(a)          (uchar8)((a) * 255.0f)
 
-static ID_INLINE S32 VectorCompare4( const vec4_t v1, const vec4_t v2 )
+static ID_INLINE sint VectorCompare4( const vec4_t v1, const vec4_t v2 )
 {
     if( v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] || v1[3] != v2[3] )
     {
@@ -71,7 +71,7 @@ static ID_INLINE S32 VectorCompare4( const vec4_t v1, const vec4_t v2 )
     return 1;
 }
 
-static ID_INLINE S32 VectorCompare5( const vec5_t v1, const vec5_t v2 )
+static ID_INLINE sint VectorCompare5( const vec5_t v1, const vec5_t v2 )
 {
     if( v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] || v1[3] != v2[3] || v1[4] != v2[4] )
     {
@@ -80,11 +80,11 @@ static ID_INLINE S32 VectorCompare5( const vec5_t v1, const vec5_t v2 )
     return 1;
 }
 
-void VectorLerp( vec3_t a, vec3_t b, F32 lerp, vec3_t c );
+void VectorLerp( vec3_t a, vec3_t b, float32 lerp, vec3_t c );
 
 
-bool SpheresIntersect( vec3_t origin1, F32 radius1, vec3_t origin2, F32 radius2 );
-void BoundingSphereOfSpheres( vec3_t origin1, F32 radius1, vec3_t origin2, F32 radius2, vec3_t origin3, F32* radius3 );
+bool SpheresIntersect( vec3_t origin1, float32 radius1, vec3_t origin2, float32 radius2 );
+void BoundingSphereOfSpheres( vec3_t origin1, float32 radius1, vec3_t origin2, float32 radius2, vec3_t origin3, float32* radius3 );
 
 #ifndef SGN
 #define SGN(x) (((x) >= 0) ? !!(x) : -1)
@@ -102,10 +102,10 @@ void BoundingSphereOfSpheres( vec3_t origin1, F32 radius1, vec3_t origin2, F32 r
 #define CLAMP(a,b,c) MIN(MAX((a),(b)),(c))
 #endif
 
-S32 NextPowerOfTwo( S32 in );
-U16 FloatToHalf( F32 in );
-F32 HalfToFloat( U16 in );
-U32 ReverseBits( U32 v );
-F32 GSmithCorrelated( F32 roughness, F32 ndotv, F32 ndotl );
+sint NextPowerOfTwo( sint in );
+uchar16 FloatToHalf( float32 in );
+float32 HalfToFloat( uchar16 in );
+uint ReverseBits( uint v );
+float32 GSmithCorrelated( float32 roughness, float32 ndotv, float32 ndotl );
 
 #endif //!__R_EXTRAMATH_H__

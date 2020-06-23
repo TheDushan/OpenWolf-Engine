@@ -33,12 +33,12 @@
 
 typedef struct snd_info_s
 {
-    S32 rate;
-    S32 width;
-    S32 channels;
-    S32 samples;
-    S32 size;
-    S32 dataofs;
+    sint rate;
+    sint width;
+    sint channels;
+    sint samples;
+    sint size;
+    sint dataofs;
 } snd_info_t;
 
 typedef struct snd_codec_s snd_codec_t;
@@ -48,21 +48,21 @@ typedef struct snd_stream_s
     snd_codec_t* codec;
     fileHandle_t file;
     snd_info_t info;
-    S32 length;
-    S32 pos;
+    sint length;
+    sint pos;
     void* ptr;
 } snd_stream_t;
 
 // Codec functions
-typedef void* ( *CODEC_LOAD )( StringEntry filename, snd_info_t* info );
-typedef snd_stream_t* ( *CODEC_OPEN )( StringEntry filename );
-typedef S32( *CODEC_READ )( snd_stream_t* stream, S32 bytes, void* buffer );
+typedef void* ( *CODEC_LOAD )( pointer filename, snd_info_t* info );
+typedef snd_stream_t* ( *CODEC_OPEN )( pointer filename );
+typedef sint( *CODEC_READ )( snd_stream_t* stream, sint bytes, void* buffer );
 typedef void ( *CODEC_CLOSE )( snd_stream_t* stream );
 
 // Codec data structure
 struct snd_codec_s
 {
-    UTF8* ext;
+    valueType* ext;
     CODEC_LOAD load;
     CODEC_OPEN open;
     CODEC_READ read;
@@ -74,27 +74,27 @@ struct snd_codec_s
 void S_CodecInit( void );
 void S_CodecShutdown( void );
 void S_CodecRegister( snd_codec_t* codec );
-void* S_CodecLoad( StringEntry filename, snd_info_t* info );
-snd_stream_t* S_CodecOpenStream( StringEntry filename );
+void* S_CodecLoad( pointer filename, snd_info_t* info );
+snd_stream_t* S_CodecOpenStream( pointer filename );
 void S_CodecCloseStream( snd_stream_t* stream );
-S32 S_CodecReadStream( snd_stream_t* stream, S32 bytes, void* buffer );
+sint S_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer );
 
 // Util functions (used by codecs)
-snd_stream_t* S_CodecUtilOpen( StringEntry filename, snd_codec_t* codec );
+snd_stream_t* S_CodecUtilOpen( pointer filename, snd_codec_t* codec );
 void S_CodecUtilClose( snd_stream_t* stream );
 
 // WAV Codec
 extern snd_codec_t wav_codec;
-void* S_WAV_CodecLoad( StringEntry filename, snd_info_t* info );
-snd_stream_t* S_WAV_CodecOpenStream( StringEntry filename );
+void* S_WAV_CodecLoad( pointer filename, snd_info_t* info );
+snd_stream_t* S_WAV_CodecOpenStream( pointer filename );
 void S_WAV_CodecCloseStream( snd_stream_t* stream );
-S32 S_WAV_CodecReadStream( snd_stream_t* stream, S32 bytes, void* buffer );
+sint S_WAV_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer );
 
 // Ogg Vorbis codec
 extern snd_codec_t ogg_codec;
-void* S_OGG_CodecLoad( StringEntry filename, snd_info_t* info );
-snd_stream_t* S_OGG_CodecOpenStream( StringEntry filename );
+void* S_OGG_CodecLoad( pointer filename, snd_info_t* info );
+snd_stream_t* S_OGG_CodecOpenStream( pointer filename );
 void S_OGG_CodecCloseStream( snd_stream_t* stream );
-S32 S_OGG_CodecReadStream( snd_stream_t* stream, S32 bytes, void* buffer );
+sint S_OGG_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer );
 
 #endif // !__SND_CODEC_H__

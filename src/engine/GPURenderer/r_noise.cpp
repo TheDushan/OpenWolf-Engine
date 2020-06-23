@@ -36,43 +36,43 @@
 #define VAL( a ) s_noise_perm[ ( a ) & ( NOISE_MASK )]
 #define INDEX( x, y, z, t ) VAL( x + VAL( y + VAL( z + VAL( t ) ) ) )
 
-static F32 s_noise_table[NOISE_SIZE];
-static S32 s_noise_perm[NOISE_SIZE];
+static float32 s_noise_table[NOISE_SIZE];
+static sint s_noise_perm[NOISE_SIZE];
 
-static F32 GetNoiseValue( S32 x, S32 y, S32 z, S32 t )
+static float32 GetNoiseValue( sint x, sint y, sint z, sint t )
 {
-    S32 index = INDEX( ( S32 ) x, ( S32 ) y, ( S32 ) z, ( S32 ) t );
+    sint index = INDEX( ( sint ) x, ( sint ) y, ( sint ) z, ( sint ) t );
     
     return s_noise_table[index];
 }
 
 void R_NoiseInit( void )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < NOISE_SIZE; i++ )
     {
-        s_noise_table[i] = ( F32 )( ( ( rand() / ( F32 ) RAND_MAX ) * 2.0 - 1.0 ) );
-        s_noise_perm[i] = ( U8 )( rand() / ( F32 ) RAND_MAX * 255 );
+        s_noise_table[i] = ( float32 )( ( ( rand() / ( float32 ) RAND_MAX ) * 2.0 - 1.0 ) );
+        s_noise_perm[i] = ( uchar8 )( rand() / ( float32 ) RAND_MAX * 255 );
     }
 }
 
-F32 R_NoiseGet4f( F32 x, F32 y, F32 z, F64 t )
+float32 R_NoiseGet4f( float32 x, float32 y, float32 z, float64 t )
 {
-    S32 i;
-    S32 ix, iy, iz, it;
-    F32 fx, fy, fz, ft;
-    F32 front[4];
-    F32 back[4];
-    F32 fvalue, bvalue, value[2], finalvalue;
+    sint i;
+    sint ix, iy, iz, it;
+    float32 fx, fy, fz, ft;
+    float32 front[4];
+    float32 back[4];
+    float32 fvalue, bvalue, value[2], finalvalue;
     
-    ix = ( S32 ) floor( x );
+    ix = ( sint ) floor( x );
     fx = x - ix;
-    iy = ( S32 ) floor( y );
+    iy = ( sint ) floor( y );
     fy = y - iy;
-    iz = ( S32 ) floor( z );
+    iz = ( sint ) floor( z );
     fz = z - iz;
-    it = ( S32 ) floor( t );
+    it = ( sint ) floor( t );
     ft = t - it;
     
     for( i = 0; i < 2; i++ )

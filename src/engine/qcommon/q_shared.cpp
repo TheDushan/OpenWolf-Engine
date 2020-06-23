@@ -49,174 +49,24 @@
 #include <framework/precompiled.h>
 #endif
 
-// os x game bundles have no standard library links, and the defines are not always defined!
-
-#ifdef MACOS_X
-S32 qmax( S32 x, S32 y )
-{
-    return ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) );
-}
-
-S32 qmin( S32 x, S32 y )
-{
-    return ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) );
-}
-#endif
-
-memStream_t* AllocMemStream( U8* buffer, S32 bufSize )
-{
-    memStream_t*		s;
-    
-    if( buffer == nullptr || bufSize <= 0 )
-        return nullptr;
-        
-    s = ( memStream_t* )malloc( sizeof( memStream_t ) );
-    if( s == nullptr )
-        return nullptr;
-        
-    ::memset( s, 0, sizeof( memStream_t ) );
-    
-    s->buffer 	= buffer;
-    s->curPos 	= buffer;
-    s->bufSize	= bufSize;
-    s->flags	= 0;
-    
-    return s;
-}
-
-void FreeMemStream( memStream_t* s )
-{
-    free( s );
-}
-
-S32 MemStreamRead( memStream_t* s, void* buffer, S32 len )
-{
-    S32				ret = 1;
-    
-    if( s == nullptr || buffer == nullptr )
-        return 0;
-        
-    if( s->curPos + len > s->buffer + s->bufSize )
-    {
-        s->flags |= MEMSTREAM_FLAGS_EOF;
-        len = s->buffer + s->bufSize - s->curPos;
-        ret = 0;
-        
-        Com_Error( ERR_FATAL, "MemStreamRead: EOF reached" );
-    }
-    
-    ::memcpy( buffer, s->curPos, len );
-    s->curPos += len;
-    
-    return ret;
-}
-
-S32 MemStreamGetC( memStream_t* s )
-{
-    S32				c = 0;
-    
-    if( s == nullptr )
-        return -1;
-        
-    if( MemStreamRead( s, &c, 1 ) == 0 )
-        return -1;
-        
-    return c;
-}
-
-S32 MemStreamGetLong( memStream_t* s )
-{
-    S32				c = 0;
-    
-    if( s == nullptr )
-        return -1;
-        
-    if( MemStreamRead( s, &c, 4 ) == 0 )
-        return -1;
-        
-    return LittleLong( c );
-}
-
-S32 MemStreamGetShort( memStream_t* s )
-{
-    S32				c = 0;
-    
-    if( s == nullptr )
-        return -1;
-        
-    if( MemStreamRead( s, &c, 2 ) == 0 )
-        return -1;
-        
-    return LittleShort( c );
-}
-
-F32 MemStreamGetFloat( memStream_t* s )
-{
-    floatint_t		c;
-    
-    if( s == nullptr )
-        return -1;
-        
-    if( MemStreamRead( s, &c.i, 4 ) == 0 )
-        return -1;
-        
-    return LittleFloat( c.f );
-}
-
-//=============================================================================
-
-F32 Com_Clamp( F32 min, F32 max, F32 value )
+/*
+============
+Com_Clamp
+============
+*/
+float32 Com_Clamp( float32 min, float32 max, float32 value )
 {
     if( value < min )
     {
         return min;
     }
+    
     if( value > max )
     {
         return max;
     }
-    return value;
-}
-
-
-/*
-COM_FixPath()
-unixifies a pathname
-*/
-
-void COM_FixPath( UTF8* pathname )
-{
-    while( *pathname )
-    {
-        if( *pathname == '\\' )
-        {
-            *pathname = '/';
-        }
-        pathname++;
-    }
-}
-
-
-
-/*
-============
-COM_SkipPath
-============
-*/
-UTF8* COM_SkipPath( UTF8* pathname )
-{
-    UTF8*    last;
     
-    last = pathname;
-    while( *pathname )
-    {
-        if( *pathname == '/' )
-        {
-            last = pathname + 1;
-        }
-        pathname++;
-    }
-    return last;
+    return value;
 }
 
 /*
@@ -224,9 +74,9 @@ UTF8* COM_SkipPath( UTF8* pathname )
 Com_CharIsOneOfCharset
 ==================
 */
-static bool Com_CharIsOneOfCharset( UTF8 c, UTF8* set )
+static bool Com_CharIsOneOfCharset( valueType c, valueType* set )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < strlen( set ); i++ )
     {
@@ -242,9 +92,9 @@ static bool Com_CharIsOneOfCharset( UTF8 c, UTF8* set )
 Com_SkipCharset
 ==================
 */
-UTF8* Com_SkipCharset( UTF8* s, UTF8* sep )
+valueType* Com_SkipCharset( valueType* s, valueType* sep )
 {
-    UTF8*	p = s;
+    valueType*	p = s;
     
     while( p )
     {
@@ -263,10 +113,10 @@ UTF8* Com_SkipCharset( UTF8* s, UTF8* sep )
 Com_SkipTokens
 ==================
 */
-UTF8* Com_SkipTokens( UTF8* s, S32 numTokens, UTF8* sep )
+valueType* Com_SkipTokens( valueType* s, sint numTokens, valueType* sep )
 {
-    S32		sepCount = 0;
-    UTF8*	p = s;
+    sint		sepCount = 0;
+    valueType*	p = s;
     
     while( sepCount < numTokens )
     {
@@ -292,11 +142,11 @@ UTF8* Com_SkipTokens( UTF8* s, S32 numTokens, UTF8* sep )
 COM_GetExtension
 ============
 */
-StringEntry     COM_GetExtension( StringEntry name )
+pointer     COM_GetExtension( pointer name )
 {
-    S32             length, i;
+    sint             length, i;
     
-    length = strlen( name ) - 1;
+    length = ( sint )::strlen( name ) - 1;
     i = length;
     
     while( name[i] != '.' )
@@ -314,7 +164,7 @@ StringEntry     COM_GetExtension( StringEntry name )
 COM_StripExtension
 ============
 */
-void COM_StripExtension( StringEntry in, UTF8* out )
+void COM_StripExtension( pointer in, valueType* out )
 {
     while( *in && *in != '.' )
     {
@@ -329,9 +179,9 @@ COM_StripExtension2
 a safer version
 ============
 */
-void COM_StripExtension2( StringEntry in, UTF8* out, S32 destsize )
+void COM_StripExtension2( pointer in, valueType* out, sint destsize )
 {
-    S32 len = 0;
+    sint len = 0;
     while( len < destsize - 1 && *in && *in != '.' )
     {
         *out++ = *in++;
@@ -340,15 +190,6 @@ void COM_StripExtension2( StringEntry in, UTF8* out, S32 destsize )
     *out = 0;
 }
 
-void COM_StripFilename( UTF8* in, UTF8* out )
-{
-    UTF8* end;
-    Q_strncpyz( out, in, strlen( in ) + 1 );
-    end = COM_SkipPath( out );
-    *end = 0;
-}
-
-
 /*
 ============
 COM_StripExtension3
@@ -356,13 +197,13 @@ COM_StripExtension3
 RB: ioquake3 version
 ============
 */
-void COM_StripExtension3( StringEntry src, UTF8* dest, S32 destsize )
+void COM_StripExtension3( pointer src, valueType* dest, sint destsize )
 {
-    S32             length;
+    sint             length;
     
     Q_strncpyz( dest, src, destsize );
     
-    length = strlen( dest ) - 1;
+    length = ( sint )::strlen( dest ) - 1;
     
     while( length > 0 && dest[length] != '.' )
     {
@@ -384,10 +225,10 @@ void COM_StripExtension3( StringEntry src, UTF8* dest, S32 destsize )
 COM_DefaultExtension
 ==================
 */
-void COM_DefaultExtension( UTF8* path, S32 maxSize, StringEntry extension )
+void COM_DefaultExtension( valueType* path, sint maxSize, pointer extension )
 {
-    UTF8 oldPath[MAX_QPATH];
-    UTF8*    src;
+    valueType oldPath[MAX_QPATH];
+    valueType*    src;
     
 //
 // if path doesn't have a .EXT, append extension
@@ -415,9 +256,9 @@ void COM_DefaultExtension( UTF8* path, S32 maxSize, StringEntry extension )
 Com_HashKey
 ============
 */
-S32 Com_HashKey( UTF8* string, S32 maxlen )
+sint Com_HashKey( valueType* string, sint maxlen )
 {
-    register S32    hash, i;
+    register sint    hash, i;
     
     hash = 0;
     for( i = 0; i < maxlen && string[i] != '\0'; i++ )
@@ -438,9 +279,9 @@ COM_BitCheck
   Allows bit-wise checks on arrays with more than one item (> 32 bits)
 ==================
 */
-bool COM_BitCheck( const S32 array[], S32 bitNum )
+bool COM_BitCheck( const sint array[], sint bitNum )
 {
-    S32 i;
+    sint i;
     
     i = 0;
     while( bitNum > 31 )
@@ -459,9 +300,9 @@ COM_BitSet
   Allows bit-wise SETS on arrays with more than one item (> 32 bits)
 ==================
 */
-void COM_BitSet( S32 array[], S32 bitNum )
+void COM_BitSet( sint array[], sint bitNum )
 {
-    S32 i;
+    sint i;
     
     i = 0;
     while( bitNum > 31 )
@@ -480,9 +321,9 @@ COM_BitClear
   Allows bit-wise CLEAR on arrays with more than one item (> 32 bits)
 ==================
 */
-void COM_BitClear( S32 array[], S32 bitNum )
+void COM_BitClear( sint array[], sint bitNum )
 {
-    S32 i;
+    sint i;
     
     i = 0;
     while( bitNum > 31 )
@@ -503,9 +344,9 @@ void COM_BitClear( S32 array[], S32 bitNum )
 ============================================================================
 */
 
-S16 ShortSwap( S16 l )
+schar16 ShortSwap( schar16 l )
 {
-    U8 b1, b2;
+    uchar8 b1, b2;
     
     b1 = l & 255;
     b2 = ( l >> 8 ) & 255;
@@ -513,34 +354,34 @@ S16 ShortSwap( S16 l )
     return ( b1 << 8 ) + b2;
 }
 
-S16 ShortNoSwap( S16 l )
+schar16 ShortNoSwap( schar16 l )
 {
     return l;
 }
 
-S32    LongSwap( S32 l )
+sint    LongSwap( sint l )
 {
-    U8 b1, b2, b3, b4;
+    uchar8 b1, b2, b3, b4;
     
     b1 = l & 255;
     b2 = ( l >> 8 ) & 255;
     b3 = ( l >> 16 ) & 255;
     b4 = ( l >> 24 ) & 255;
     
-    return ( ( S32 )b1 << 24 ) + ( ( S32 )b2 << 16 ) + ( ( S32 )b3 << 8 ) + b4;
+    return ( ( sint )b1 << 24 ) + ( ( sint )b2 << 16 ) + ( ( sint )b3 << 8 ) + b4;
 }
 
-S32 LongNoSwap( S32 l )
+sint LongNoSwap( sint l )
 {
     return l;
 }
 
-F32 FloatSwap( F32 f )
+float32 FloatSwap( float32 f )
 {
     union
     {
-        F32 f;
-        U8 b[4];
+        float32 f;
+        uchar8 b[4];
     } dat1, dat2;
     
     
@@ -552,7 +393,7 @@ F32 FloatSwap( F32 f )
     return dat2.f;
 }
 
-F32 FloatNoSwap( F32 f )
+float32 FloatNoSwap( float32 f )
 {
     return f;
 }
@@ -566,57 +407,57 @@ PARSING
 */
 
 // multiple character punctuation tokens
-StringEntry     punctuation[] =
+pointer     punctuation[] =
 {
     "+=", "-=", "*=", "/=", "&=", "|=", "++", "--",
     "&&", "||", "<=", ">=", "==", "!=",
     nullptr
 };
 
-static UTF8 com_token[MAX_TOKEN_CHARS];
-static UTF8 com_parsename[MAX_TOKEN_CHARS];
-static S32 com_lines;
+static valueType com_token[MAX_TOKEN_CHARS];
+static valueType com_parsename[MAX_TOKEN_CHARS];
+static sint com_lines;
 
-static S32 backup_lines;
-static UTF8*    backup_text;
+static sint backup_lines;
+static valueType*    backup_text;
 
-void COM_BeginParseSession( StringEntry name )
+void COM_BeginParseSession( pointer name )
 {
     com_lines = 0;
     Com_sprintf( com_parsename, sizeof( com_parsename ), "%s", name );
 }
 
-void COM_BackupParseSession( UTF8** data_p )
+void COM_BackupParseSession( valueType** data_p )
 {
     backup_lines = com_lines;
     backup_text = *data_p;
 }
 
-void COM_RestoreParseSession( UTF8** data_p )
+void COM_RestoreParseSession( valueType** data_p )
 {
     com_lines = backup_lines;
     *data_p = backup_text;
 }
 
-void COM_SetCurrentParseLine( S32 line )
+void COM_SetCurrentParseLine( sint line )
 {
     com_lines = line;
 }
 
-S32 COM_GetCurrentParseLine( void )
+sint COM_GetCurrentParseLine( void )
 {
     return com_lines;
 }
 
-UTF8* COM_Parse( UTF8** data_p )
+valueType* COM_Parse( valueType** data_p )
 {
     return COM_ParseExt( data_p, true );
 }
 
-void COM_ParseError( UTF8* format, ... )
+void COM_ParseError( valueType* format, ... )
 {
     va_list argptr;
-    static UTF8 string[4096];
+    static valueType string[4096];
     
     va_start( argptr, format );
     Q_vsnprintf( string, sizeof( string ), format, argptr );
@@ -625,10 +466,10 @@ void COM_ParseError( UTF8* format, ... )
     Com_Printf( S_COLOR_RED "ERROR: %s, line %d: %s\n", com_parsename, com_lines, string );
 }
 
-void COM_ParseWarning( UTF8* format, ... )
+void COM_ParseWarning( valueType* format, ... )
 {
     va_list argptr;
-    static UTF8 string[4096];
+    static valueType string[4096];
     
     va_start( argptr, format );
     Q_vsnprintf( string, sizeof( string ), format, argptr );
@@ -649,9 +490,9 @@ string will be returned if the next token is
 a newline.
 ==============
 */
-static UTF8* SkipWhitespace( UTF8* data, bool* hasNewLines )
+static valueType* SkipWhitespace( valueType* data, bool* hasNewLines )
 {
-    S32 c;
+    sint c;
     
     while( ( c = *data ) <= ' ' )
     {
@@ -670,10 +511,10 @@ static UTF8* SkipWhitespace( UTF8* data, bool* hasNewLines )
     return data;
 }
 
-S32 COM_Compress( UTF8* data_p )
+sint COM_Compress( valueType* data_p )
 {
-    UTF8* datai, *datao;
-    S32 c, size;
+    valueType* datai, *datao;
+    sint c, size;
     bool ws = false;
     
     size = 0;
@@ -733,11 +574,11 @@ S32 COM_Compress( UTF8* data_p )
     return size;
 }
 
-UTF8* COM_ParseExt( UTF8** data_p, bool allowLineBreaks )
+valueType* COM_ParseExt( valueType** data_p, bool allowLineBreaks )
 {
-    S32 c = 0, len;
+    sint c = 0, len;
     bool hasNewLines = false;
-    UTF8* data;
+    valueType* data;
     
     data = *data_p;
     len = 0;
@@ -827,7 +668,7 @@ UTF8* COM_ParseExt( UTF8** data_p, bool allowLineBreaks )
                     if( !c )
                     {
                         com_token[len] = 0;
-                        *data_p = ( UTF8* ) data;
+                        *data_p = ( valueType* ) data;
                         break;
                     }
                     if( ( c == '\\' && *( data ) == '\"' ) )
@@ -851,7 +692,7 @@ UTF8* COM_ParseExt( UTF8** data_p, bool allowLineBreaks )
             if( c == '\"' || !c )
             {
                 com_token[len] = 0;
-                *data_p = ( UTF8* ) data;
+                *data_p = ( valueType* ) data;
                 return com_token;
             }
             if( len < MAX_TOKEN_CHARS )
@@ -886,24 +727,24 @@ UTF8* COM_ParseExt( UTF8** data_p, bool allowLineBreaks )
     }
     com_token[len] = 0;
     
-    *data_p = ( UTF8* ) data;
+    *data_p = ( valueType* ) data;
     return com_token;
 }
 
 
-UTF8*           COM_Parse2( UTF8** data_p )
+valueType*           COM_Parse2( valueType** data_p )
 {
     return COM_ParseExt2( data_p, true );
 }
 
 
 // *INDENT-OFF*
-UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
+valueType*           COM_ParseExt2( valueType** data_p, bool allowLineBreaks )
 {
-    S32             c = 0, len;
+    sint             c = 0, len;
     bool        hasNewLines = false;
-    UTF8*           data;
-    StringEntry*    punc;
+    valueType*           data;
+    pointer*    punc;
     
     if( !data_p )
     {
@@ -986,7 +827,7 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
             else if( c == '\"' || !c )
             {
                 com_token[len] = 0;
-                *data_p = ( UTF8* )data;
+                *data_p = ( valueType* )data;
                 return com_token;
             }
             else if( *data == '\n' )
@@ -1064,7 +905,7 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
         }
         com_token[len] = 0;
         
-        *data_p = ( UTF8* )data;
+        *data_p = ( valueType* )data;
         return com_token;
     }
     
@@ -1109,17 +950,17 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
         }
         com_token[len] = 0;
         
-        *data_p = ( UTF8* )data;
+        *data_p = ( valueType* )data;
         return com_token;
     }
     
     // check for multi-character punctuation token
     for( punc = punctuation; *punc; punc++ )
     {
-        S32             l;
-        S32             j;
+        sint             l;
+        sint             j;
         
-        l = strlen( *punc );
+        l = ( sint )::strlen( *punc );
         for( j = 0; j < l; j++ )
         {
             if( data[j] != ( *punc )[j] )
@@ -1133,7 +974,7 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
             ::memcpy( com_token, *punc, l );
             com_token[l] = 0;
             data += l;
-            *data_p = ( UTF8* )data;
+            *data_p = ( valueType* )data;
             return com_token;
         }
     }
@@ -1142,7 +983,7 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
     com_token[0] = *data;
     com_token[1] = 0;
     data++;
-    *data_p = ( UTF8* )data;
+    *data_p = ( valueType* )data;
     
     return com_token;
 }
@@ -1154,9 +995,9 @@ UTF8*           COM_ParseExt2( UTF8** data_p, bool allowLineBreaks )
 COM_MatchToken
 ==================
 */
-void COM_MatchToken( UTF8** buf_p, UTF8* match )
+void COM_MatchToken( valueType** buf_p, valueType* match )
 {
-    UTF8*    token;
+    valueType*    token;
     
     token = COM_Parse( buf_p );
     if( strcmp( token, match ) )
@@ -1171,9 +1012,9 @@ SkipBracedSection_Depth
 
 =================
 */
-bool SkipBracedSection_Depth( UTF8** program, S32 depth )
+bool SkipBracedSection_Depth( valueType** program, sint depth )
 {
-    UTF8* token;
+    valueType* token;
     
     do
     {
@@ -1204,10 +1045,10 @@ Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
 */
-bool SkipBracedSection( UTF8** program )
+bool SkipBracedSection( valueType** program )
 {
-    UTF8*            token;
-    S32 depth;
+    valueType*            token;
+    sint depth;
     
     depth = 0;
     do
@@ -1235,10 +1076,10 @@ bool SkipBracedSection( UTF8** program )
 SkipRestOfLine
 =================
 */
-void SkipRestOfLine( UTF8** data )
+void SkipRestOfLine( valueType** data )
 {
-    UTF8*    p;
-    S32 c;
+    valueType*    p;
+    sint c;
     
     p = *data;
     while( ( c = *p++ ) != 0 )
@@ -1258,11 +1099,11 @@ void SkipRestOfLine( UTF8** data )
 COM_Parse2Infos
 ===============
 */
-S32 COM_Parse2Infos( UTF8* buf, S32 max, UTF8 infos[][MAX_INFO_STRING] )
+sint COM_Parse2Infos( valueType* buf, sint max, valueType infos[][MAX_INFO_STRING] )
 {
-    StringEntry  token;
-    S32 count;
-    UTF8 key[MAX_TOKEN_CHARS];
+    pointer  token;
+    sint count;
+    valueType key[MAX_TOKEN_CHARS];
     
     count = 0;
     
@@ -1313,10 +1154,10 @@ S32 COM_Parse2Infos( UTF8* buf, S32 max, UTF8 infos[][MAX_INFO_STRING] )
     return count;
 }
 
-void COM_Parse21DMatrix( UTF8** buf_p, S32 x, F32* m, bool checkBrackets )
+void COM_Parse21DMatrix( valueType** buf_p, sint x, float32* m, bool checkBrackets )
 {
-    UTF8*           token;
-    S32             i;
+    valueType*           token;
+    sint             i;
     
     if( checkBrackets )
     {
@@ -1326,7 +1167,7 @@ void COM_Parse21DMatrix( UTF8** buf_p, S32 x, F32* m, bool checkBrackets )
     for( i = 0; i < x; i++ )
     {
         token = COM_Parse2( buf_p );
-        m[i] = atof( token );
+        m[i] = ( float32 )::atof( token );
     }
     
     if( checkBrackets )
@@ -1335,9 +1176,9 @@ void COM_Parse21DMatrix( UTF8** buf_p, S32 x, F32* m, bool checkBrackets )
     }
 }
 
-void COM_Parse22DMatrix( UTF8** buf_p, S32 y, S32 x, F32* m )
+void COM_Parse22DMatrix( valueType** buf_p, sint y, sint x, float32* m )
 {
-    S32             i;
+    sint             i;
     
     COM_MatchToken( buf_p, "(" );
     
@@ -1349,9 +1190,9 @@ void COM_Parse22DMatrix( UTF8** buf_p, S32 y, S32 x, F32* m )
     COM_MatchToken( buf_p, ")" );
 }
 
-void COM_Parse23DMatrix( UTF8** buf_p, S32 z, S32 y, S32 x, F32* m )
+void COM_Parse23DMatrix( valueType** buf_p, sint z, sint y, sint x, float32* m )
 {
-    S32             i;
+    sint             i;
     
     COM_MatchToken( buf_p, "(" );
     
@@ -1368,7 +1209,7 @@ void COM_Parse23DMatrix( UTF8** buf_p, S32 z, S32 y, S32 x, F32* m )
 Com_HexStrToInt
 ===================
 */
-S32 Com_HexStrToInt( StringEntry str )
+sint Com_HexStrToInt( pointer str )
 {
     if( !str || !str[ 0 ] )
         return -1;
@@ -1376,11 +1217,11 @@ S32 Com_HexStrToInt( StringEntry str )
     // check for hex code
     if( str[ 0 ] == '0' && str[ 1 ] == 'x' )
     {
-        S32 i, n = 0;
+        sint i, n = 0;
         
         for( i = 2; i < strlen( str ); i++ )
         {
-            UTF8 digit;
+            valueType digit;
             
             n *= 16;
             
@@ -1407,24 +1248,24 @@ S32 Com_HexStrToInt( StringEntry str )
 Com_QuoteStr
 ===================
 */
-StringEntry Com_QuoteStr( StringEntry str )
+pointer Com_QuoteStr( pointer str )
 {
-    static UTF8* buf = nullptr;
-    static U64 buflen = 0;
+    static valueType* buf = nullptr;
+    static uint32 buflen = 0;
     
-    U64 length;
-    UTF8* ptr;
+    uint32 length;
+    valueType* ptr;
     
     // quick exit if no quoting is needed
 //	if (!strpbrk (str, "\";"))
 //		return str;
 
-    length = strlen( str );
+    length = ( uint32 )::strlen( str );
     if( buflen < 2 * length + 3 )
     {
         free( buf );
         buflen = 2 * length + 3;
-        buf = ( UTF8* )malloc( buflen );
+        buf = ( valueType* )malloc( buflen );
     }
     ptr = buf;
     *ptr++ = '"';
@@ -1446,13 +1287,13 @@ StringEntry Com_QuoteStr( StringEntry str )
 Com_UnquoteStr
 ===================
 */
-StringEntry Com_UnquoteStr( StringEntry str )
+pointer Com_UnquoteStr( pointer str )
 {
-    static UTF8* buf = nullptr;
+    static valueType* buf = nullptr;
     
-    U64 length;
-    UTF8* ptr;
-    StringEntry end;
+    uint32 length;
+    valueType* ptr;
+    pointer end;
     
     end = str + strlen( str );
     
@@ -1465,9 +1306,9 @@ StringEntry Com_UnquoteStr( StringEntry str )
     // If it doesn't begin with '"', return quickly
     if( *str != '"' )
     {
-        length = end + 1 - str;
+        length = ( uint32 )( end + 1 - str );
         free( buf );
-        buf = ( UTF8* )malloc( length + 1 );
+        buf = ( valueType* )malloc( length + 1 );
         strncpy( buf, str, length );
         buf[length] = 0;
         return buf;
@@ -1478,7 +1319,7 @@ StringEntry Com_UnquoteStr( StringEntry str )
         --end;
         
     free( buf );
-    buf = ( UTF8* )malloc( end + 1 - str );
+    buf = ( valueType* )malloc( end + 1 - str );
     ptr = buf;
     
     // Copy, unquoting as we go
@@ -1503,7 +1344,7 @@ StringEntry Com_UnquoteStr( StringEntry str )
 ============================================================================
 */
 
-S32 Q_isprint( S32 c )
+sint Q_isprint( sint c )
 {
     if( c >= 0x20 && c <= 0x7E )
     {
@@ -1512,7 +1353,7 @@ S32 Q_isprint( S32 c )
     return ( 0 );
 }
 
-S32 Q_islower( S32 c )
+sint Q_islower( sint c )
 {
     if( c >= 'a' && c <= 'z' )
     {
@@ -1521,7 +1362,7 @@ S32 Q_islower( S32 c )
     return ( 0 );
 }
 
-S32 Q_isupper( S32 c )
+sint Q_isupper( sint c )
 {
     if( c >= 'A' && c <= 'Z' )
     {
@@ -1530,7 +1371,7 @@ S32 Q_isupper( S32 c )
     return ( 0 );
 }
 
-S32 Q_isalpha( S32 c )
+sint Q_isalpha( sint c )
 {
     if( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) )
     {
@@ -1539,7 +1380,7 @@ S32 Q_isalpha( S32 c )
     return ( 0 );
 }
 
-S32 Q_isnumeric( S32 c )
+sint Q_isnumeric( sint c )
 {
     if( c >= '0' && c <= '9' )
     {
@@ -1548,7 +1389,7 @@ S32 Q_isnumeric( S32 c )
     return ( 0 );
 }
 
-S32 Q_isalphanumeric( S32 c )
+sint Q_isalphanumeric( sint c )
 {
     if( Q_isalpha( c ) ||
             Q_isnumeric( c ) )
@@ -1558,7 +1399,7 @@ S32 Q_isalphanumeric( S32 c )
     return ( 0 );
 }
 
-S32 Q_isforfilename( S32 c )
+sint Q_isforfilename( sint c )
 {
     if( ( Q_isalphanumeric( c ) || c == '_' ) && c != ' ' )    // space not allowed in filename
     {
@@ -1567,13 +1408,13 @@ S32 Q_isforfilename( S32 c )
     return ( 0 );
 }
 
-UTF8* Q_strrchr( StringEntry string, S32 c )
+valueType* Q_strrchr( pointer string, sint c )
 {
-    UTF8 cc = c;
-    UTF8* s;
-    UTF8* sp = ( UTF8* )0;
+    valueType cc = c;
+    valueType* s;
+    valueType* sp = ( valueType* )0;
     
-    s = ( UTF8* )string;
+    s = ( valueType* )string;
     
     while( *s )
     {
@@ -1595,36 +1436,36 @@ UTF8* Q_strrchr( StringEntry string, S32 c )
 =============
 Q_strtoi/l
 
-Takes a null-terminated string (which represents either a F32 or integer
+Takes a null-terminated string (which represents either a float32 or integer
 conforming to strtod) and an integer to assign to (if successful).
 
 Returns true on success and vice versa.
 Demonstration of behavior of strtod and conversions: http://codepad.org/YQKxV94R
 -============
 */
-bool Q_strtol( StringEntry s, S64* outNum )
+bool Q_strtol( pointer s, sint32* outNum )
 {
-    UTF8* p;
+    valueType* p;
     
     if( *s == '\0' )
     {
         return false;
     }
     
-    *outNum = strtod( s, &p );
+    *outNum = ( sint32 )::strtod( s, &p );
     
     return ( bool )( *p == '\0' );
 }
 
-bool Q_strtoi( StringEntry s, S32* outNum )
+bool Q_strtoi( pointer s, sint* outNum )
 {
-    UTF8* p;
+    valueType* p;
     if( *s == '\0' )
     {
         return false;
     }
     
-    *outNum = strtod( s, &p );
+    *outNum = ( sint )::strtod( s, &p );
     
     return ( bool )( *p == '\0' );
 }
@@ -1638,9 +1479,9 @@ Safe strncpy that ensures a trailing zero
 */
 // Dushan
 #if defined(_DEBUG)
-void Q_strncpyzDebug( UTF8* dest, StringEntry src, U64 destsize, StringEntry file, S32 line )
+void Q_strncpyzDebug( valueType* dest, pointer src, uint32 destsize, pointer file, sint line )
 #else
-void Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize )
+void Q_strncpyz( valueType* dest, pointer src, sint destsize )
 #endif
 {
 #ifdef _DEBUG
@@ -1657,7 +1498,6 @@ void Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize )
         Com_Error( ERR_DROP, "Q_strncpyz: destsize < 1 (%s, %i)", file, line );
     }
 #else
-    
     if( !dest )
     {
         Com_Error( ERR_FATAL, "Q_strncpyz: nullptr dest" );
@@ -1673,31 +1513,27 @@ void Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize )
     }
 #endif
     
-    intptr_t s = ( intptr_t )src;
-    intptr_t d = ( intptr_t )dest;
-    
-    if( ( d > s && d < s + destsize ) || ( s > d && s < d + destsize ) )
+    while( *src && destsize - 1 )
     {
-        S32 len = ( S32 )::strlen( src );
-        
-        if( len > destsize - 1 )
-        {
-            len = destsize - 1;
-        }
-        
-        ::memmove( dest, src, len );
-    }
-    else
-    {
-        ::strncpy( dest, src, destsize - 1 );
+        *dest++ = *src++;
+        destsize--;
     }
     
-    dest[destsize - 1] = 0;
+#if defined(_DEBUG)
+    if( *src )
+    {
+        Com_Printf( "Buffer too small: %s: %i (%s)\n", file, line, src );
+    }
+#else
+    *dest = '\0';
+#endif
+    
+    ::memset( dest, 0, destsize );
 }
 
-S32 Q_stricmpn( StringEntry s1, StringEntry s2, S32 n )
+sint Q_stricmpn( pointer s1, pointer s2, sint n )
 {
-    S32 c1, c2;
+    sint c1, c2;
     
     do
     {
@@ -1730,9 +1566,9 @@ S32 Q_stricmpn( StringEntry s1, StringEntry s2, S32 n )
     return 0;       // strings are equal
 }
 
-S32 Q_strncmp( StringEntry s1, StringEntry s2, S32 n )
+sint Q_strncmp( pointer s1, pointer s2, sint n )
 {
-    S32 c1, c2;
+    sint c1, c2;
     
     do
     {
@@ -1755,15 +1591,15 @@ S32 Q_strncmp( StringEntry s1, StringEntry s2, S32 n )
 }
 
 #ifndef Q3MAP2
-S32 Q_stricmp( StringEntry s1, StringEntry s2 )
+sint Q_stricmp( pointer s1, pointer s2 )
 {
     return ( s1 && s2 ) ? Q_stricmpn( s1, s2, 99999 ) : -1;
 }
 #endif
 
-UTF8* Q_strlwr( UTF8* s1 )
+valueType* Q_strlwr( valueType* s1 )
 {
-    UTF8*   s;
+    valueType*   s;
     
     for( s = s1; *s; ++s )
     {
@@ -1776,9 +1612,9 @@ UTF8* Q_strlwr( UTF8* s1 )
     return s1;
 }
 
-UTF8* Q_strupr( UTF8* s1 )
+valueType* Q_strupr( valueType* s1 )
 {
-    UTF8* cp;
+    valueType* cp;
     
     for( cp = s1 ; *cp ; ++cp )
     {
@@ -1791,13 +1627,12 @@ UTF8* Q_strupr( UTF8* s1 )
     return s1;
 }
 
-
 // never goes past bounds or leaves without a terminating 0
-void Q_strcat( UTF8* dest, S32 size, StringEntry src )
+void Q_strcat( valueType* dest, sint size, pointer src )
 {
-    S32 l1;
+    sint l1;
     
-    l1 = strlen( dest );
+    l1 = ( sint )::strlen( dest );
     if( l1 >= size )
     {
         Com_Error( ERR_FATAL, "Q_strcat: already overflowed" );
@@ -1806,9 +1641,9 @@ void Q_strcat( UTF8* dest, S32 size, StringEntry src )
 }
 
 
-S32 Q_strnicmp( StringEntry string1, StringEntry string2, S32 n )
+sint Q_strnicmp( pointer string1, pointer string2, sint n )
 {
-    S32 c1, c2;
+    sint c1, c2;
     
     if( string1 == nullptr )
     {
@@ -1845,37 +1680,40 @@ S32 Q_strnicmp( StringEntry string1, StringEntry string2, S32 n )
 }
 
 /*
-* Find the first occurrence of find in s.
+=============
+Q_strreplace
+
+Case insensitive version of strstr
+=============
 */
-StringEntry Q_stristr( StringEntry s, StringEntry find )
+pointer Q_stristr( pointer s, pointer find )
 {
-    UTF8 c, sc;
-    U64 len;
-    
-    if( ( c = *find++ ) != 0 )
+    if( !*find )
     {
-        if( c >= 'a' && c <= 'z' )
+        return s;
+    }
+    
+    for( ; *s; ++s )
+    {
+        if( toupper( *s ) == toupper( *find ) )
         {
-            c -= ( 'a' - 'A' );
-        }
-        len = strlen( find );
-        do
-        {
-            do
+            pointer h, n;
+            
+            for( h = s, n = find; *h && *n; ++h, ++n )
             {
-                if( ( sc = *s++ ) == 0 )
-                    return nullptr;
-                if( sc >= 'a' && sc <= 'z' )
+                if( toupper( *h ) != toupper( *n ) )
                 {
-                    sc -= ( 'a' - 'A' );
+                    break;
                 }
             }
-            while( sc != c );
+            
+            if( !*n )
+            {
+                return s;
+            }
         }
-        while( Q_stricmpn( s, find, len ) != 0 );
-        s--;
     }
-    return s;
+    return nullptr;
 }
 
 
@@ -1886,13 +1724,13 @@ Q_strreplace
 replaces content of find by replace in dest
 =============
 */
-bool Q_strreplace( UTF8* dest, S32 destsize, StringEntry find, StringEntry replace )
+bool Q_strreplace( valueType* dest, sint destsize, pointer find, pointer replace )
 {
-    S32             lstart, lfind, lreplace, lend;
-    UTF8*           s;
-    UTF8            backup[32000];	// big, but small enough to fit in PPC stack
+    sint             lstart, lfind, lreplace, lend;
+    valueType*           s;
+    valueType            backup[32000];	// big, but small enough to fit in PPC stack
     
-    lend = strlen( dest );
+    lend = ( sint )::strlen( dest );
     if( lend >= destsize )
     {
         Com_Error( ERR_FATAL, "Q_strreplace: already overflowed" );
@@ -1906,9 +1744,9 @@ bool Q_strreplace( UTF8* dest, S32 destsize, StringEntry find, StringEntry repla
     else
     {
         Q_strncpyz( backup, dest, lend + 1 );
-        lstart = s - dest;
-        lfind = strlen( find );
-        lreplace = strlen( replace );
+        lstart = ( sint )( s - dest );
+        lfind = ( sint )::strlen( find );
+        lreplace = ( sint )::strlen( replace );
         
         strncpy( s, replace, destsize - lstart - 1 );
         strncpy( s + lreplace, backup + lstart + lfind, destsize - lstart - lreplace - 1 );
@@ -1918,10 +1756,10 @@ bool Q_strreplace( UTF8* dest, S32 destsize, StringEntry find, StringEntry repla
 }
 
 
-S32 Q_PrintStrlen( StringEntry string )
+sint Q_PrintStrlen( pointer string )
 {
-    S32 len;
-    StringEntry  p;
+    sint len;
+    pointer  p;
     
     if( !string )
     {
@@ -1949,10 +1787,10 @@ S32 Q_PrintStrlen( StringEntry string )
 }
 
 
-UTF8* Q_CleanStr( UTF8* string )
+valueType* Q_CleanStr( valueType* string )
 {
-    UTF8*   d;
-    UTF8*   s;
+    valueType*   d;
+    valueType*   s;
     
     s = string;
     d = string;
@@ -1982,10 +1820,10 @@ UTF8* Q_CleanStr( UTF8* string )
 }
 
 // strips whitespaces and bad characters
-bool Q_isBadDirChar( UTF8 c )
+bool Q_isBadDirChar( valueType c )
 {
-    UTF8 badchars[] = { ';', '&', '(', ')', '|', '<', '>', '*', '?', '[', ']', '~', '+', '@', '!', '\\', '/', ' ', '\'', '\"', '\0' };
-    S32 i;
+    valueType badchars[] = { ';', '&', '(', ')', '|', '<', '>', '*', '?', '[', ']', '~', '+', '@', '!', '\\', '/', ' ', '\'', '\"', '\0' };
+    sint i;
     
     for( i = 0; badchars[i] != '\0'; i++ )
     {
@@ -1998,10 +1836,10 @@ bool Q_isBadDirChar( UTF8 c )
     return false;
 }
 
-UTF8* Q_CleanDirName( UTF8* dirname )
+valueType* Q_CleanDirName( valueType* dirname )
 {
-    UTF8*   d;
-    UTF8*   s;
+    valueType*   d;
+    valueType*   s;
     
     s = dirname;
     d = dirname;
@@ -2025,9 +1863,9 @@ UTF8* Q_CleanDirName( UTF8* dirname )
     return dirname;
 }
 
-S32 Q_CountChar( StringEntry string, UTF8 tocount )
+sint Q_CountChar( pointer string, valueType tocount )
 {
-    S32 count;
+    sint count;
     
     for( count = 0; *string; string++ )
     {
@@ -2038,27 +1876,39 @@ S32 Q_CountChar( StringEntry string, UTF8 tocount )
     return count;
 }
 
-S32 Com_sprintf( UTF8* dest, S32 size, StringEntry fmt, ... )
+bool Com_sprintf( valueType* dest, size_t size, pointer fmt, ... )
 {
-    S32 len;
     va_list argptr;
     
+    if( !fmt )
+    {
+        return false;
+    }
+    
     va_start( argptr, fmt );
-    len = Q_vsnprintf( dest, size, fmt, argptr );
+    sint len = Q_vsnprintf( dest, size, fmt, argptr );
     va_end( argptr );
     
     // Dushan
     if( len >= size )
     {
-        Com_Printf( "Com_sprintf: Output length %d too short, require %d bytes.\n", size, len + 1 );
+#ifdef DEBUG
+        Com_Printf( "ERROR! %s: destination buffer overflow of len %i, size %i\n"
+                    "Input was: %s", __FUNCTION__, len, size, dest );
+        return false;
+#else
+        Com_Printf( "ERROR! %s: destination buffer overflow of len %i, size %i\n"
+                    "Input was: %s", __FUNCTION__, len, size, dest );
+#endif
     }
     
     if( len == -1 )
     {
         Com_Printf( "Com_sprintf: overflow of %i bytes buffer\n", size );
+        return false;
     }
     
-    return len;
+    return 0 <= len && ( size_t )len < size;
 }
 
 /*
@@ -2072,40 +1922,19 @@ Ridah, modified this into a circular list, to further prevent stepping on
 previous strings
 ============
 */
-UTF8* va( StringEntry format, ... )
+valueType* va( pointer format, ... )
 {
     va_list argptr;
-#define MAX_VA_STRING   32000
-    static UTF8 temp_buffer[MAX_VA_STRING];
-    static UTF8 string[MAX_VA_STRING];      // in case va is called by nested functions
-    static S32 index = 0;
-    UTF8* buf;
-    S32 len;
+    static valueType string[64][1024], *s;
+    static sint stringindex = 0;
     
+    s = string[stringindex];
+    stringindex = ( stringindex + 1 ) & 63;
     va_start( argptr, format );
-#ifdef _WIN32
-    vsprintf_s( temp_buffer, MAX_VA_STRING - 1, format, argptr );
-#else
-    vsnprintf( temp_buffer, MAX_VA_STRING - 1, format, argptr );
-#endif
+    Q_vsnprintf( s, sizeof( string[0] ), format, argptr );
     va_end( argptr );
     
-    if( ( len = strlen( temp_buffer ) ) >= MAX_VA_STRING )
-    {
-        Com_Error( ERR_DROP, "Attempted to overrun string in call to va()\n" );
-    }
-    
-    if( len + index >= MAX_VA_STRING - 1 )
-    {
-        index = 0;
-    }
-    
-    buf = &string[index];
-    memcpy( buf, temp_buffer, len + 1 );
-    
-    index += len + 1;
-    
-    return buf;
+    return s;
 }
 
 /*
@@ -2125,13 +1954,13 @@ key and returns the associated value, or an empty string.
 FIXME: overflow check?
 ===============
 */
-UTF8* Info_ValueForKey( StringEntry s, StringEntry key )
+valueType* Info_ValueForKey( pointer s, pointer key )
 {
-    UTF8 pkey[BIG_INFO_KEY];
-    static UTF8 value[2][BIG_INFO_VALUE];   // use two buffers so compares
+    valueType pkey[BIG_INFO_KEY];
+    static valueType value[2][BIG_INFO_VALUE];   // use two buffers so compares
     // work without stomping on each other
-    static S32 valueindex = 0;
-    UTF8*    o;
+    static sint valueindex = 0;
+    valueType*    o;
     
     if( !s || !key )
     {
@@ -2195,10 +2024,10 @@ Info_NextPair
 Used to itterate through all the key/value pairs in an info string
 ===================
 */
-void Info_NextPair( StringEntry* head, UTF8* key, UTF8* value )
+void Info_NextPair( pointer* head, valueType* key, valueType* value )
 {
-    UTF8*    o;
-    StringEntry  s;
+    valueType*    o;
+    pointer  s;
     
     s = *head;
     
@@ -2233,18 +2062,32 @@ void Info_NextPair( StringEntry* head, UTF8* key, UTF8* value )
     *head = s;
 }
 
+/*
+=============
+Q_bytestrcpy
+=============
+*/
+static void Q_bytestrcpy( valueType* destation, pointer source )
+{
+    while( *source )
+    {
+        *destation++ = *source++;
+    }
+    
+    *destation = 0;
+}
 
 /*
 ===================
 Info_RemoveKey
 ===================
 */
-void Info_RemoveKey( UTF8* s, StringEntry key )
+void Info_RemoveKey( valueType* s, pointer key )
 {
-    UTF8*    start;
-    UTF8 pkey[MAX_INFO_KEY];
-    UTF8 value[MAX_INFO_VALUE];
-    UTF8*    o;
+    valueType*    start;
+    valueType pkey[MAX_INFO_KEY];
+    valueType value[MAX_INFO_VALUE];
+    valueType*    o;
     
     if( strlen( s ) >= MAX_INFO_STRING )
     {
@@ -2288,9 +2131,7 @@ void Info_RemoveKey( UTF8* s, StringEntry key )
         
         if( !Q_stricmp( key, pkey ) )
         {
-            // rain - arguments to strcpy must not overlap
-            //strcpy (start, s);	// remove this part
-            memmove( start, s, strlen( s ) + 1 ); // remove this part
+            Q_bytestrcpy( start, s );
             return;
         }
         
@@ -2307,12 +2148,12 @@ void Info_RemoveKey( UTF8* s, StringEntry key )
 Info_RemoveKey_Big
 ===================
 */
-void Info_RemoveKey_Big( UTF8* s, StringEntry key )
+void Info_RemoveKey_Big( valueType* s, pointer key )
 {
-    UTF8*    start;
-    UTF8 pkey[BIG_INFO_KEY];
-    UTF8 value[BIG_INFO_VALUE];
-    UTF8*    o;
+    valueType*    start;
+    valueType pkey[BIG_INFO_KEY];
+    valueType value[BIG_INFO_VALUE];
+    valueType*    o;
     
     if( strlen( s ) >= BIG_INFO_STRING )
     {
@@ -2356,7 +2197,7 @@ void Info_RemoveKey_Big( UTF8* s, StringEntry key )
         
         if( !Q_stricmp( key, pkey ) )
         {
-            strcpy( start, s );  // remove this part
+            Q_bytestrcpy( start, s );
             return;
         }
         
@@ -2379,7 +2220,7 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-bool Info_Validate( StringEntry s )
+bool Info_Validate( pointer s )
 {
     if( strchr( s, '\"' ) )
     {
@@ -2399,10 +2240,10 @@ Info_SetValueForKey
 Changes or adds a key/value pair
 ==================
 */
-bool Info_SetValueForKey( UTF8* s, StringEntry key, StringEntry value )
+bool Info_SetValueForKey( valueType* s, pointer key, pointer value )
 {
-    UTF8	newi[MAX_INFO_STRING], *v;
-    S32		c, maxsize = MAX_INFO_STRING;
+    valueType	newi[MAX_INFO_STRING], *v;
+    sint		c, maxsize = MAX_INFO_STRING;
     
     if( strlen( s ) >= MAX_INFO_STRING )
     {
@@ -2465,9 +2306,9 @@ Info_SetValueForKey_Big
 Changes or adds a key/value pair
 ==================
 */
-void Info_SetValueForKey_Big( UTF8* s, StringEntry key, StringEntry value )
+void Info_SetValueForKey_Big( valueType* s, pointer key, pointer value )
 {
-    UTF8 newi[BIG_INFO_STRING];
+    valueType newi[BIG_INFO_STRING];
     
     if( strlen( s ) >= BIG_INFO_STRING )
     {
@@ -2514,7 +2355,7 @@ void Info_SetValueForKey_Big( UTF8* s, StringEntry key, StringEntry value )
 Com_ClientListContains
 ============
 */
-bool Com_ClientListContains( const clientList_t* list, S32 clientNum )
+bool Com_ClientListContains( const clientList_t* list, sint clientNum )
 {
     if( clientNum < 0 || clientNum >= MAX_CLIENTS || !list )
         return false;
@@ -2529,9 +2370,9 @@ bool Com_ClientListContains( const clientList_t* list, S32 clientNum )
 Com_ClientListString
 ============
 */
-UTF8* Com_ClientListString( const clientList_t* list )
+valueType* Com_ClientListString( const clientList_t* list )
 {
-    static UTF8 s[ 17 ];
+    static valueType s[ 17 ];
     
     s[ 0 ] = '\0';
     if( !list )
@@ -2545,7 +2386,7 @@ UTF8* Com_ClientListString( const clientList_t* list )
 Com_ClientListParse
 ============
 */
-void Com_ClientListParse( clientList_t* list, StringEntry s )
+void Com_ClientListParse( clientList_t* list, pointer s )
 {
     if( !list )
         return;
@@ -2570,69 +2411,26 @@ void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out )
     out[ 2 ] = m[ 0 ][ 2 ] * p[ 0 ] + m[ 1 ][ 2 ] * p[ 1 ] + m[ 2 ][ 2 ] * p[ 2 ];
 }
 
-//====================================================================
-
-#if defined Q3MAP2 || defined SQL
-void Com_Printf( StringEntry msg, ... )
-{
-    va_list argptr;
-    static UTF8 string[4096];
-    
-    va_start( argptr, msg );
-    Q_vsnprintf( string, sizeof( string ), msg, argptr );
-    va_end( argptr );
-    
-    printf( string );
-}
-
-void Com_Error( S32 level, StringEntry error, ... )
-{
-    va_list argptr;
-    static UTF8 string[4096];
-    
-    va_start( argptr, error );
-    Q_vsnprintf( string, sizeof( string ), error, argptr );
-    va_end( argptr );
-    
-    printf( string );
-    exit( 0 );
-}
-#endif
-
-#if defined(_MSC_VER)
 /*
 =============
 Q_vsnprintf
-Special wrapper function for Microsoft's broken _vsnprintf() function.
-MinGW comes with its own snprintf() which is not broken.
 =============
 */
-
-S32 Q_vsnprintf( UTF8* str, size_t size, StringEntry format, va_list ap )
+sint Q_vsnprintf( valueType* str, size_t size, pointer format, va_list ap )
 {
-    S32 retval;
+    sint retval = _vsnprintf( str, size, format, ap );
     
-    retval = _vsnprintf( str, size, format, ap );
-    
-    if( retval < 0 || retval == size )
+    if( retval < 0 || retval == ( sint )size )
     {
-        // Microsoft doesn't adhere to the C99 standard of vsnprintf,
-        // which states that the return value must be the number of
-        // bytes written if the output string had sufficient length.
-        //
-        // Obviously we cannot determine that value from Microsoft's
-        // implementation, so we have no choice but to return size.
-        
         str[size - 1] = '\0';
-        return size;
+        return ( sint )size;
     }
     
     return retval;
 }
-#endif
 
 #ifndef Q3MAP2
-bool StringContainsWord( StringEntry haystack, StringEntry needle )
+bool StringContainsWord( pointer haystack, pointer needle )
 {
     if( !*needle )
     {
@@ -2645,7 +2443,7 @@ bool StringContainsWord( StringEntry haystack, StringEntry needle )
             /*
             * Matched starting char -- loop through remaining chars.
             */
-            StringEntry h, n;
+            pointer h, n;
             for( h = haystack, n = needle; *h && *n; ++h, ++n )
             {
                 if( toupper( *h ) != toupper( *n ) )
@@ -2671,12 +2469,12 @@ COM_CompareExtension
 string compare the end of the strings and return qtrue if strings match
 ============
 */
-bool COM_CompareExtension( StringEntry in, StringEntry ext )
+bool COM_CompareExtension( pointer in, pointer ext )
 {
-    S32 inlen, extlen;
+    sint inlen, extlen;
     
-    inlen = strlen( in );
-    extlen = strlen( ext );
+    inlen = ( sint )::strlen( in );
+    extlen = ( sint )::strlen( ext );
     
     if( extlen <= inlen )
     {
@@ -2692,28 +2490,28 @@ bool COM_CompareExtension( StringEntry in, StringEntry ext )
 }
 
 // Returns a float min <= x < max (exclusive; will get max - 0.00001; but never max)
-static U32 holdrand = 0x89abcdef;
+static uint holdrand = 0x89abcdef;
 #define QRAND_MAX 32768
-F32 flrand( F32 min, F32 max )
+float32 flrand( float32 min, float32 max )
 {
-    F32	result;
+    float32	result;
     
     holdrand = ( holdrand * 214013L ) + 2531011L;
-    result = ( F32 )( holdrand >> 17 ); // 0 - 32767 range
-    result = ( ( result * ( max - min ) ) / ( F32 )QRAND_MAX ) + min;
+    result = ( float32 )( holdrand >> 17 ); // 0 - 32767 range
+    result = ( ( result * ( max - min ) ) / ( float32 )QRAND_MAX ) + min;
     
     return( result );
 }
 
-F32 Q_flrand( F32 min, F32 max )
+float32 Q_flrand( float32 min, float32 max )
 {
     return flrand( min, max );
 }
 
-bool Q_CleanPlayerName( StringEntry in, UTF8* out, S32 outSize )
+bool Q_CleanPlayerName( pointer in, valueType* out, sint outSize )
 {
-    S32 len, i;
-    S32 numColorChanges;
+    sint len, i;
+    sint numColorChanges;
     
     numColorChanges = 0;
     
@@ -2822,11 +2620,11 @@ bool Q_CleanPlayerName( StringEntry in, UTF8* out, S32 outSize )
     return strcmp( in, out ) != 0;
 }
 
-UTF8* Com_StringContains( UTF8* str1, UTF8* str2, S32 casesensitive )
+valueType* Com_StringContains( valueType* str1, valueType* str2, sint casesensitive )
 {
-    S32 len, i, j;
+    sint len, i, j;
     
-    len = strlen( str1 ) - strlen( str2 );
+    len = ( sint )::strlen( str1 ) - ( sint )::strlen( str2 );
     for( i = 0; i <= len; i++, str1++ )
     {
         for( j = 0; str2[j]; j++ )
@@ -2855,10 +2653,10 @@ UTF8* Com_StringContains( UTF8* str1, UTF8* str2, S32 casesensitive )
     
 }
 
-bool Q_isanumber( StringEntry s )
+bool Q_isanumber( pointer s )
 {
-    UTF8* p;
-    F64 d;
+    valueType* p;
+    float64 d;
     
     if( *s == '\0' )
     {
@@ -2870,15 +2668,15 @@ bool Q_isanumber( StringEntry s )
     return *p == '\0';
 }
 
-bool Q_isintegral( F32 f )
+bool Q_isintegral( float32 f )
 {
-    return ( S32 )f == f;
+    return ( sint )f == f;
 }
 
-S32 COM_CompressBracedSection( UTF8** data_p, UTF8** name, UTF8** text, S32* nameLength, S32* textLength )
+sint COM_CompressBracedSection( valueType** data_p, valueType** name, valueType** text, sint* nameLength, sint* textLength )
 {
-    UTF8* in, * out;
-    S32 depth, c;
+    valueType* in, * out;
+    sint depth, c;
     
     if( !*data_p ) return -1;
     
@@ -2972,7 +2770,7 @@ S32 COM_CompressBracedSection( UTF8** data_p, UTF8** name, UTF8** text, S32* nam
                 {
                     *name = *data_p;
                     if( *( *name ) <= ' ' )( *name )++;
-                    *nameLength = ( S32 )out - ( S32 ) * name;
+                    *nameLength = ( sint )out - ( sint ) * name;
                     if( ( *name )[*nameLength - 1] <= ' ' )( *nameLength )--;
                     *text = out;
                 }
@@ -3006,9 +2804,9 @@ S32 COM_CompressBracedSection( UTF8** data_p, UTF8** name, UTF8** text, S32* nam
     
     if( *text && *( *text ) <= ' ' )( *text )++;			// remove begining white char
     if( out > * data_p && out[-1] <= ' ' ) out--;		// remove ending white char
-    if( *text ) *textLength = ( S32 )out - ( S32 ) * text;	// compressed text length
+    if( *text ) *textLength = ( sint )out - ( sint ) * text;	// compressed text length
     
-    c = ( S32 )out - ( S32 ) * data_p;						// uncompressed chars parsed
+    c = ( sint )out - ( sint ) * data_p;						// uncompressed chars parsed
     
     *data_p = in;
     

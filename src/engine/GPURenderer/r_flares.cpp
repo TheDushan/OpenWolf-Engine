@@ -68,20 +68,20 @@ typedef struct flare_s
 {
     struct		flare_s*	next;		// for active chain
     
-    S32			addedFrame;
+    sint			addedFrame;
     
     bool	inPortal;				// true if in a portal view of the scene
-    S32			frameSceneNum;
+    sint			frameSceneNum;
     void*		surface;
-    S32			fogNum;
+    sint			fogNum;
     
-    S32			fadeTime;
+    sint			fadeTime;
     
     bool	visible;			// state of last test
-    F32		drawIntensity;		// may be non 0 even if !visible due to fading
+    float32		drawIntensity;		// may be non 0 even if !visible due to fading
     
-    S32			windowX, windowY;
-    F32		eyeZ;
+    sint			windowX, windowY;
+    float32		eyeZ;
     
     vec3_t		origin;
     vec3_t		color;
@@ -92,7 +92,7 @@ typedef struct flare_s
 flare_t		r_flareStructs[MAX_FLARES];
 flare_t*		r_activeFlares, *r_inactiveFlares;
 
-S32 flareCoeff;
+sint flareCoeff;
 
 /*
 ==================
@@ -115,7 +115,7 @@ R_ClearFlares
 */
 void R_ClearFlares( void )
 {
-    S32		i;
+    sint		i;
     
     ::memset( r_flareStructs, 0, sizeof( r_flareStructs ) );
     r_activeFlares = nullptr;
@@ -138,12 +138,12 @@ RB_AddFlare
 This is called at surface tesselation time
 ==================
 */
-void RB_AddFlare( void* surface, S32 fogNum, vec3_t point, vec3_t color, vec3_t normal )
+void RB_AddFlare( void* surface, sint fogNum, vec3_t point, vec3_t color, vec3_t normal )
 {
-    S32				i;
+    sint				i;
     flare_t*			f;
     vec3_t			local;
-    F32			d = 1;
+    float32			d = 1;
     vec4_t			eye, clip, normalized, window;
     
     backEnd.pc.c_flareAdds++;
@@ -241,7 +241,7 @@ RB_AddDlightFlares
 void RB_AddDlightFlares( void )
 {
     dlight_t*		l;
-    S32				i, j, k;
+    sint				i, j, k;
     fog_t*			fog = nullptr;
     
     if( !r_flares->integer )
@@ -302,10 +302,10 @@ RB_TestFlare
 */
 void RB_TestFlare( flare_t* f )
 {
-    F32			depth;
+    float32			depth;
     bool		visible;
-    F32			fade;
-    F32			screenZ;
+    float32			fade;
+    float32			screenZ;
     FBO_t*           oldFbo;
     
     backEnd.pc.c_flareTests++;
@@ -364,11 +364,11 @@ RB_RenderFlare
 */
 void RB_RenderFlare( flare_t* f )
 {
-    F32			size;
+    float32			size;
     vec3_t			color;
-    S32				iColor[3];
-    F32 distance, intensity, factor;
-    U8 fogFactors[3] = {255, 255, 255};
+    sint				iColor[3];
+    float32 distance, intensity, factor;
+    uchar8 fogFactors[3] = {255, 255, 255};
     
     backEnd.pc.c_flareRenders++;
     
@@ -402,7 +402,7 @@ void RB_RenderFlare( flare_t* f )
      * The coefficient flareCoeff will determine the falloff speed with increasing distance.
      */
     
-    factor = distance + size * ( F32 )sqrt( ( F32 )flareCoeff );
+    factor = distance + size * ( float32 )sqrt( ( float32 )flareCoeff );
     
     intensity = flareCoeff * size * size / ( factor * factor );
     

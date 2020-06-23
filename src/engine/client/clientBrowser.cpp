@@ -29,7 +29,7 @@
 
 #include <framework/precompiled.h>
 
-S32 serverStatusCount;
+sint serverStatusCount;
 ping_t cl_pinglist[MAX_PINGREQUESTS];
 serverStatus_t cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
 
@@ -81,11 +81,11 @@ idClientBrowserSystemLocal::ServersResponsePacket
 */
 void idClientBrowserSystemLocal::ServersResponsePacket( const netadr_t* from, msg_t* msg, bool extended )
 {
-    S32 i, j, count, total;
+    sint i, j, count, total;
     netadr_t addresses[MAX_SERVERSPERPACKET];
-    S32 numservers;
-    U8* buffptr;
-    U8* buffend;
+    sint numservers;
+    uchar8* buffptr;
+    uchar8* buffend;
     
     Com_Printf( "idClientBrowserSystemLocal::ServersResponsePacket from %s\n", NET_AdrToStringwPort( *from ) );
     
@@ -222,21 +222,21 @@ void idClientBrowserSystemLocal::ServersResponsePacket( const netadr_t* from, ms
 idClientBrowserSystemLocal::SetServerInfo
 ===================
 */
-void idClientBrowserSystemLocal::SetServerInfo( serverInfo_t* server, StringEntry info, S32 ping )
+void idClientBrowserSystemLocal::SetServerInfo( serverInfo_t* server, pointer info, sint ping )
 {
     if( server )
     {
         if( info )
         {
-            S64 vL;
-            UTF8* p;
+            sint32 vL;
+            valueType* p;
             
 #define setserverinfo(field, sfield)	\
 			vL = strtol(Info_ValueForKey(info, field), &p, 10); \
 			if (vL < 0 || vL > INT_MAX || *p != 0) \
 			    server->sfield = 0; \
 			else \
-			    server->sfield = (S32)vL
+			    server->sfield = (sint)vL
             
             Q_strncpyz( server->hostName, Info_ValueForKey( info, "hostname" ), MAX_NAME_LENGTH );
             Q_strncpyz( server->mapName, Info_ValueForKey( info, "mapname" ), MAX_NAME_LENGTH );
@@ -267,9 +267,9 @@ void idClientBrowserSystemLocal::SetServerInfo( serverInfo_t* server, StringEntr
 idClientBrowserSystemLocal::SetServerInfoByAddress
 ===================
 */
-void idClientBrowserSystemLocal::SetServerInfoByAddress( netadr_t from, StringEntry info, S32 ping )
+void idClientBrowserSystemLocal::SetServerInfoByAddress( netadr_t from, pointer info, sint ping )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < MAX_OTHER_SERVERS; i++ )
     {
@@ -304,12 +304,12 @@ idClientBrowserSystemLocal::ServerInfoPacket
 */
 void idClientBrowserSystemLocal::ServerInfoPacket( netadr_t from, msg_t* msg )
 {
-    S32 i, type;
-    UTF8 info[MAX_INFO_STRING];
-    UTF8* str;
-    UTF8* infoString;
-    S32 prot;
-    UTF8* gameName;
+    sint i, type;
+    valueType info[MAX_INFO_STRING];
+    valueType* str;
+    valueType* infoString;
+    sint prot;
+    valueType* gameName;
     
     infoString = MSG_ReadString( msg );
     
@@ -435,7 +435,7 @@ idClientBrowserSystemLocal::GetServerStatus
 */
 serverStatus_t* idClientBrowserSystemLocal::GetServerStatus( netadr_t from )
 {
-    S32 i, oldest, oldestTime;
+    sint i, oldest, oldestTime;
     serverStatus_t* serverStatus;
     
     serverStatus = nullptr;
@@ -483,9 +483,9 @@ serverStatus_t* idClientBrowserSystemLocal::GetServerStatus( netadr_t from )
 idClientBrowserSystemLocal::ServerStatus
 ===================
 */
-S32 idClientBrowserSystemLocal::ServerStatus( UTF8* serverAddress, UTF8* serverStatusString, S32 maxLen )
+sint idClientBrowserSystemLocal::ServerStatus( valueType* serverAddress, valueType* serverStatusString, sint maxLen )
 {
-    S32 i;
+    sint i;
     netadr_t to;
     serverStatus_t* serverStatus;
     
@@ -564,8 +564,8 @@ idClientBrowserSystemLocal::ServerStatusResponse
 */
 void idClientBrowserSystemLocal::ServerStatusResponse( netadr_t from, msg_t* msg )
 {
-    S32 i, l, score, ping, len;
-    UTF8* s, info[MAX_INFO_STRING];
+    sint i, l, score, ping, len;
+    valueType* s, info[MAX_INFO_STRING];
     serverStatus_t* serverStatus;
     
     serverStatus = nullptr;
@@ -695,8 +695,8 @@ idClientBrowserSystemLocal::LocalServers_f
 */
 void idClientBrowserSystemLocal::LocalServers( void )
 {
-    UTF8* message;
-    S32 i, j;
+    valueType* message;
+    sint i, j;
     netadr_t to;
     
     Com_Printf( "Scanning for servers on the local network...\n" );
@@ -745,8 +745,8 @@ idClientBrowserSystemLocal::GlobalServers
 */
 void idClientBrowserSystemLocal::GlobalServers( void )
 {
-    S32 count, i, masterNum;
-    UTF8 command[1024], * masteraddress;
+    sint count, i, masterNum;
+    valueType command[1024], * masteraddress;
     netadr_t to;
     
     if( ( count = cmdSystem->Argc() ) < 3 || ( masterNum = atoi( cmdSystem->Argv( 1 ) ) ) < 0 || masterNum > MAX_MASTER_SERVERS )
@@ -758,11 +758,11 @@ void idClientBrowserSystemLocal::GlobalServers( void )
     // request from all master servers
     if( masterNum == 0 )
     {
-        S32 numAddress = 0;
+        sint numAddress = 0;
         
         for( i = 1; i <= MAX_MASTER_SERVERS; i++ )
         {
-            ::sprintf( command, "sv_master%d", i );
+            Com_sprintf( command, sizeof( command ), "sv_master%d", i );
             masteraddress = cvarSystem->VariableString( command );
             
             if( !*masteraddress )
@@ -783,7 +783,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
         return;
     }
     
-    ::sprintf( command, "sv_master%d", masterNum );
+    Com_sprintf( command, sizeof( command ), "sv_master%d", masterNum );
     masteraddress = cvarSystem->VariableString( command );
     
     if( !*masteraddress )
@@ -814,7 +814,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
     // Use the extended query for IPv6 masters
     if( to.type == NA_IP6 || to.type == NA_MULTICAST6 )
     {
-        S32 v4enabled = cvarSystem->VariableIntegerValue( "net_enabled" ) & NET_ENABLEV4;
+        sint v4enabled = cvarSystem->VariableIntegerValue( "net_enabled" ) & NET_ENABLEV4;
         
         if( v4enabled )
         {
@@ -844,10 +844,10 @@ void idClientBrowserSystemLocal::GlobalServers( void )
 idClientBrowserSystemLocal::GetPing
 ==================
 */
-void idClientBrowserSystemLocal::GetPing( S32 n, UTF8* buf, S32 buflen, S32* pingtime )
+void idClientBrowserSystemLocal::GetPing( sint n, valueType* buf, sint buflen, sint* pingtime )
 {
-    S32 time, maxPing;
-    StringEntry str;
+    sint time, maxPing;
+    pointer str;
     
     if( n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port )
     {
@@ -890,7 +890,7 @@ void idClientBrowserSystemLocal::GetPing( S32 n, UTF8* buf, S32 buflen, S32* pin
 idClientBrowserSystemLocal::GetPingInfo
 ==================
 */
-void idClientBrowserSystemLocal::GetPingInfo( S32 n, UTF8* buf, S32 buflen )
+void idClientBrowserSystemLocal::GetPingInfo( sint n, valueType* buf, sint buflen )
 {
     if( n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port )
     {
@@ -911,7 +911,7 @@ void idClientBrowserSystemLocal::GetPingInfo( S32 n, UTF8* buf, S32 buflen )
 idClientBrowserSystemLocal::ClearPing
 ==================
 */
-void idClientBrowserSystemLocal::ClearPing( S32 n )
+void idClientBrowserSystemLocal::ClearPing( sint n )
 {
     if( n < 0 || n >= MAX_PINGREQUESTS )
     {
@@ -926,9 +926,9 @@ void idClientBrowserSystemLocal::ClearPing( S32 n )
 idClientBrowserSystemLocal::GetPingQueueCount
 ==================
 */
-S32 idClientBrowserSystemLocal::GetPingQueueCount( void )
+sint idClientBrowserSystemLocal::GetPingQueueCount( void )
 {
-    S32 i, count;
+    sint i, count;
     ping_t* pingptr;
     
     count = 0;
@@ -952,7 +952,7 @@ idClientBrowserSystemLocal::GetFreePing
 */
 ping_t* idClientBrowserSystemLocal::GetFreePing( void )
 {
-    S32 i, oldest, time;
+    sint i, oldest, time;
     ping_t* pingptr, *best;
     
     pingptr = cl_pinglist;
@@ -1009,8 +1009,8 @@ idClientBrowserSystemLocal::Ping
 */
 void idClientBrowserSystemLocal::Ping( void )
 {
-    S32 argc;
-    UTF8* server;
+    sint argc;
+    valueType* server;
     netadr_t to;
     ping_t* pingptr;
     netadrtype_t family = NA_UNSPEC;
@@ -1068,10 +1068,10 @@ void idClientBrowserSystemLocal::Ping( void )
 idClientBrowserSystemLocal::UpdateVisiblePings
 ==================
 */
-bool idClientBrowserSystemLocal::UpdateVisiblePings( S32 source )
+bool idClientBrowserSystemLocal::UpdateVisiblePings( sint source )
 {
-    S32 slots, i, pingTime, max;
-    UTF8 buff[MAX_STRING_CHARS];
+    sint slots, i, pingTime, max;
+    valueType buff[MAX_STRING_CHARS];
     bool status = false;
     
     if( source < 0 || source > AS_FAVORITES )
@@ -1110,7 +1110,7 @@ bool idClientBrowserSystemLocal::UpdateVisiblePings( S32 source )
             {
                 if( server[i].ping == -1 )
                 {
-                    S32 j;
+                    sint j;
                     
                     if( slots >= MAX_PINGREQUESTS )
                     {
@@ -1206,8 +1206,8 @@ idClientBrowserSystemLocal::ServerStatus
 */
 void idClientBrowserSystemLocal::ServerStatus( void )
 {
-    S32 argc;
-    UTF8* server;
+    sint argc;
+    valueType* server;
     netadr_t to, * toptr = nullptr;
     serverStatus_t* serverStatus;
     netadrtype_t family = NA_UNSPEC;

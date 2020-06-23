@@ -57,7 +57,7 @@ SetPlaneSignbits
 */
 void SetPlaneSignbits( cplane_t* out )
 {
-    S32 bits, j;
+    sint bits, j;
     
     // for fast box on planeside test
     bits = 0;
@@ -84,10 +84,10 @@ void SetPlaneSignbits( cplane_t* out )
 
 
 clipMap_t       cm;
-S32             c_pointcontents, c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
+sint             c_pointcontents, c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
 
 
-U8*           cmod_base;
+uchar8*           cmod_base;
 
 #ifndef BSPC
 convar_t*         cm_noAreas;
@@ -115,7 +115,7 @@ MAP LOADING
 ===============================================================================
 */
 
-bool StringsContainWord( StringEntry heystack, StringEntry heystack2, UTF8* needle )
+bool StringsContainWord( pointer heystack, pointer heystack2, valueType* needle )
 {
     if( StringContainsWord( heystack, needle ) )
     {
@@ -130,7 +130,7 @@ bool StringsContainWord( StringEntry heystack, StringEntry heystack2, UTF8* need
     return false;
 }
 
-S32 GetMaterialType( StringEntry name )
+sint GetMaterialType( pointer name )
 {
     //CL_RefPrintf(PRINT_WARNING, "Check material type for %s.\n", name);
     
@@ -277,7 +277,7 @@ S32 GetMaterialType( StringEntry name )
     return MATERIAL_TILES;
 }
 
-bool HaveSurfaceType( S32 surfaceFlags )
+bool HaveSurfaceType( sint surfaceFlags )
 {
     switch( surfaceFlags & MATERIAL_MASK )
     {
@@ -329,7 +329,7 @@ CMod_LoadShaders
 void CMod_LoadShaders( lump_t* l )
 {
     dshader_t*      in, *out;
-    S32             i, count;
+    sint             i, count;
     
     in = ( dshader_t* )( cmod_base + l->fileofs );
     if( l->filelen % sizeof( *in ) )
@@ -374,7 +374,7 @@ void CMod_LoadSubmodels( lump_t* l )
 {
     dmodel_t*       in;
     cmodel_t*       out;
-    S32             i, j, count, *indexes;
+    sint             i, j, count, *indexes;
     
     in = ( dmodel_t* )( cmod_base + l->fileofs );
     if( l->filelen % sizeof( *in ) )
@@ -412,7 +412,7 @@ void CMod_LoadSubmodels( lump_t* l )
         
         // make a "leaf" just to hold the model's brushes and surfaces
         out->leaf.numLeafBrushes = LittleLong( in->numBrushes );
-        indexes = ( S32* )Hunk_Alloc( out->leaf.numLeafBrushes * 4, h_high );
+        indexes = ( sint* )Hunk_Alloc( out->leaf.numLeafBrushes * 4, h_high );
         out->leaf.firstLeafBrush = indexes - cm.leafbrushes;
         for( j = 0; j < out->leaf.numLeafBrushes; j++ )
         {
@@ -420,7 +420,7 @@ void CMod_LoadSubmodels( lump_t* l )
         }
         
         out->leaf.numLeafSurfaces = LittleLong( in->numSurfaces );
-        indexes = ( S32* )Hunk_Alloc( out->leaf.numLeafSurfaces * 4, h_high );
+        indexes = ( sint* )Hunk_Alloc( out->leaf.numLeafSurfaces * 4, h_high );
         out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;
         for( j = 0; j < out->leaf.numLeafSurfaces; j++ )
         {
@@ -438,7 +438,7 @@ CMod_LoadNodes
 void CMod_LoadNodes( lump_t* l )
 {
     dnode_t*        in;
-    S32             child, i, j, count;
+    sint             child, i, j, count;
     cNode_t*        out;
     
     in = ( dnode_t* )( cmod_base + l->fileofs );
@@ -496,7 +496,7 @@ void CMod_LoadBrushes( lump_t* l )
 {
     dbrush_t*       in;
     cbrush_t*       out;
-    S32             i, count;
+    sint             i, count;
     
     in = ( dbrush_t* )( cmod_base + l->fileofs );
     if( l->filelen % sizeof( *in ) )
@@ -534,7 +534,7 @@ CMod_LoadLeafs
 */
 void CMod_LoadLeafs( lump_t* l )
 {
-    S32             i, count;
+    sint             i, count;
     cLeaf_t*        out;
     dleaf_t*        in;
     
@@ -574,7 +574,7 @@ void CMod_LoadLeafs( lump_t* l )
     }
     
     cm.areas = ( cArea_t* )Hunk_Alloc( cm.numAreas * sizeof( *cm.areas ), h_high );
-    cm.areaPortals = ( S32* )Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_high );
+    cm.areaPortals = ( sint* )Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_high );
 }
 
 /*
@@ -584,7 +584,7 @@ CMod_LoadPlanes
 */
 void CMod_LoadPlanes( lump_t* l )
 {
-    S32             i, j, count, bits;
+    sint             i, j, count, bits;
     cplane_t*       out;
     dplane_t*       in;
     
@@ -629,9 +629,9 @@ CMod_LoadLeafBrushes
 */
 void CMod_LoadLeafBrushes( lump_t* l )
 {
-    S32 i, *out, *in, count;
+    sint i, *out, *in, count;
     
-    in = ( S32* )( cmod_base + l->fileofs );
+    in = ( sint* )( cmod_base + l->fileofs );
     if( l->filelen % sizeof( *in ) )
     {
         Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
@@ -639,7 +639,7 @@ void CMod_LoadLeafBrushes( lump_t* l )
     count = l->filelen / sizeof( *in );
     
     // ydnar: more than <count> brushes are stored in leafbrushes...
-    cm.leafbrushes = ( S32* )Hunk_Alloc( ( BOX_LEAF_BRUSHES + count ) * sizeof( *cm.leafbrushes ), h_high );
+    cm.leafbrushes = ( sint* )Hunk_Alloc( ( BOX_LEAF_BRUSHES + count ) * sizeof( *cm.leafbrushes ), h_high );
     cm.numLeafBrushes = count;
     
     out = cm.leafbrushes;
@@ -657,16 +657,16 @@ CMod_LoadLeafSurfaces
 */
 void CMod_LoadLeafSurfaces( lump_t* l )
 {
-    S32 i, *out, *in, count;
+    sint i, *out, *in, count;
     
-    in = ( S32* )( cmod_base + l->fileofs );
+    in = ( sint* )( cmod_base + l->fileofs );
     if( l->filelen % sizeof( *in ) )
     {
         Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
     }
     count = l->filelen / sizeof( *in );
     
-    cm.leafsurfaces = ( S32* )Hunk_Alloc( count * sizeof( *cm.leafsurfaces ), h_high );
+    cm.leafsurfaces = ( sint* )Hunk_Alloc( count * sizeof( *cm.leafsurfaces ), h_high );
     cm.numLeafSurfaces = count;
     
     out = cm.leafsurfaces;
@@ -684,7 +684,7 @@ CMod_LoadBrushSides
 */
 void CMod_LoadBrushSides( lump_t* l )
 {
-    S32             i, count, num;
+    sint             i, count, num;
     cbrushside_t*   out;
     dbrushside_t*   in;
     
@@ -741,9 +741,9 @@ static bool CMod_BrushEdgesAreTheSame( const vec3_t p0, const vec3_t p1, const v
 CMod_AddEdgeToBrush
 =================
 */
-static bool CMod_AddEdgeToBrush( const vec3_t p0, const vec3_t p1, cbrushedge_t* edges, S32* numEdges )
+static bool CMod_AddEdgeToBrush( const vec3_t p0, const vec3_t p1, cbrushedge_t* edges, sint* numEdges )
 {
-    S32 i;
+    sint i;
     
     if( !edges || !numEdges )
     {
@@ -772,7 +772,7 @@ CMod_CreateBrushSideWindings
 */
 static void CMod_CreateBrushSideWindings( void )
 {
-    S32             i, j, k, numEdges, edgesAlloc, totalEdgesAlloc = 0, totalEdges = 0;
+    sint             i, j, k, numEdges, edgesAlloc, totalEdgesAlloc = 0, totalEdges = 0;
     winding_t*      w;
     cbrushside_t*   side, *chopSide;
     cplane_t*       plane;
@@ -871,9 +871,9 @@ CMod_LoadEntityString
 */
 void CMod_LoadEntityString( lump_t* l )
 {
-    UTF8* p, *token, keyname[MAX_TOKEN_CHARS], value[MAX_TOKEN_CHARS];
+    valueType* p, *token, keyname[MAX_TOKEN_CHARS], value[MAX_TOKEN_CHARS];
     
-    cm.entityString = ( UTF8* )Hunk_Alloc( l->filelen, h_high );
+    cm.entityString = ( valueType* )Hunk_Alloc( l->filelen, h_high );
     cm.numEntityChars = l->filelen;
     ::memcpy( cm.entityString, cmod_base + l->fileofs, l->filelen );
     
@@ -937,23 +937,23 @@ CMod_LoadVisibility
 #define VIS_HEADER  8
 void CMod_LoadVisibility( lump_t* l )
 {
-    S32             len;
-    U8*           buf;
+    sint             len;
+    uchar8*           buf;
     
     len = l->filelen;
     if( !len )
     {
         cm.clusterBytes = ( cm.numClusters + 31 ) & ~31;
-        cm.visibility = ( U8* )Hunk_Alloc( cm.clusterBytes, h_high );
+        cm.visibility = ( uchar8* )Hunk_Alloc( cm.clusterBytes, h_high );
         ::memset( cm.visibility, 255, cm.clusterBytes );
         return;
     }
     buf = cmod_base + l->fileofs;
     
     cm.vised = true;
-    cm.visibility = ( U8* )Hunk_Alloc( len, h_high );
-    cm.numClusters = LittleLong( ( ( S32* )buf )[0] );
-    cm.clusterBytes = LittleLong( ( ( S32* )buf )[1] );
+    cm.visibility = ( uchar8* )Hunk_Alloc( len, h_high );
+    cm.numClusters = LittleLong( ( ( sint* )buf )[0] );
+    cm.clusterBytes = LittleLong( ( ( sint* )buf )[1] );
     ::memcpy( cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
 }
 
@@ -973,10 +973,10 @@ void CMod_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexesLump )
 {
     drawVert_t*     dv, *dv_p;
     dsurface_t*     in;
-    S32             count, i, j, numVertexes, width, height, shaderNum, numIndexes, *index, *index_p;
+    sint             count, i, j, numVertexes, width, height, shaderNum, numIndexes, *index, *index_p;
     cSurface_t*     surface;
     static vec3_t   vertexes[SHADER_MAX_VERTEXES];
-    static S32      indexes[SHADER_MAX_INDEXES];
+    static sint      indexes[SHADER_MAX_INDEXES];
     
     in = ( dsurface_t* )( cmod_base + surfs->fileofs );
     if( surfs->filelen % sizeof( *in ) )
@@ -992,7 +992,7 @@ void CMod_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexesLump )
         Com_Error( ERR_DROP, "CMod_LoadSurfaces: funny lump size" );
     }
     
-    index = ( S32* )( cmod_base + indexesLump->fileofs );
+    index = ( sint* )( cmod_base + indexesLump->fileofs );
     if( indexesLump->filelen % sizeof( *index ) )
     {
         Com_Error( ERR_DROP, "CMod_LoadSurfaces: funny lump size" );
@@ -1003,7 +1003,7 @@ void CMod_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexesLump )
     {
         if( LittleLong( in->surfaceType ) == MST_PATCH )
         {
-            S32 j = 0, k = 0, rowLimit = in->patchHeight - 1, colLimit = in->patchWidth - 1;
+            sint j = 0, k = 0, rowLimit = in->patchHeight - 1, colLimit = in->patchWidth - 1;
             
             // FIXME: check for non-colliding patches
             cm.surfaces[i] = surface = ( cSurface_t* )Hunk_Alloc( sizeof( *surface ), h_high );
@@ -1093,7 +1093,7 @@ void CMod_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexesLump )
 CM_LumpChecksum
 ==================
 */
-U32 CM_LumpChecksum( lump_t* lump )
+uint CM_LumpChecksum( lump_t* lump )
 {
     return LittleLong( MD4System->BlockChecksum( cmod_base + lump->fileofs, lump->filelen ) );
 }
@@ -1103,9 +1103,9 @@ U32 CM_LumpChecksum( lump_t* lump )
 CM_Checksum
 ==================
 */
-U32 CM_Checksum( dheader_t* header )
+uint CM_Checksum( dheader_t* header )
 {
-    U32 checksums[16];
+    uint checksums[16];
     
     checksums[0] = CM_LumpChecksum( &header->lumps[LUMP_SHADERS] );
     checksums[1] = CM_LumpChecksum( &header->lumps[LUMP_LEAFS] );
@@ -1129,11 +1129,11 @@ idCollisionModelManagerLocal::LoadMap
 Loads in the map and all submodels
 ==================
 */
-void idCollisionModelManagerLocal::LoadMap( StringEntry name, bool clientload, S32* checksum )
+void idCollisionModelManagerLocal::LoadMap( pointer name, bool clientload, sint* checksum )
 {
-    S32* buf, i, length;
+    sint* buf, i, length;
     dheader_t header;
-    static U32 last_checksum;
+    static uint last_checksum;
     
     if( !name || !name[0] )
     {
@@ -1191,7 +1191,7 @@ void idCollisionModelManagerLocal::LoadMap( StringEntry name, bool clientload, S
     header = *( dheader_t* ) buf;
     for( i = 0; i < sizeof( dheader_t ) / 4; i++ )
     {
-        ( ( S32* )&header )[i] = LittleLong( ( ( S32* )&header )[i] );
+        ( ( sint* )&header )[i] = LittleLong( ( ( sint* )&header )[i] );
     }
     
 #if 0
@@ -1200,7 +1200,7 @@ void idCollisionModelManagerLocal::LoadMap( StringEntry name, bool clientload, S
         Com_Error( ERR_DROP, "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i)", name, header.version, BSP_VERSION );
     }
 #endif
-    cmod_base = ( U8* ) buf;
+    cmod_base = ( uchar8* ) buf;
     
     // load into heap
     CMod_LoadShaders( &header.lumps[LUMP_SHADERS] );
@@ -1277,7 +1277,7 @@ cmodel_t* CM_ClipHandleToModel( clipHandle_t handle )
 idCollisionModelManagerLocal::InlineModel
 ==================
 */
-clipHandle_t idCollisionModelManagerLocal::InlineModel( S32 index )
+clipHandle_t idCollisionModelManagerLocal::InlineModel( sint index )
 {
     if( index < 0 || index >= cm.numSubModels )
     {
@@ -1291,7 +1291,7 @@ clipHandle_t idCollisionModelManagerLocal::InlineModel( S32 index )
 idCollisionModelManagerLocal::NumClusters
 ===================
 */
-S32 idCollisionModelManagerLocal::NumClusters( void )
+sint idCollisionModelManagerLocal::NumClusters( void )
 {
     return cm.numClusters;
 }
@@ -1301,7 +1301,7 @@ S32 idCollisionModelManagerLocal::NumClusters( void )
 idCollisionModelManagerLocal::NumInlineModels
 ===================
 */
-S32 idCollisionModelManagerLocal::NumInlineModels( void )
+sint idCollisionModelManagerLocal::NumInlineModels( void )
 {
     return cm.numSubModels;
 }
@@ -1311,7 +1311,7 @@ S32 idCollisionModelManagerLocal::NumInlineModels( void )
 idCollisionModelManagerLocal::EntityString
 ===================
 */
-UTF8* idCollisionModelManagerLocal::EntityString( void )
+valueType* idCollisionModelManagerLocal::EntityString( void )
 {
     return cm.entityString;
 }
@@ -1321,7 +1321,7 @@ UTF8* idCollisionModelManagerLocal::EntityString( void )
 idCollisionModelManagerLocal::LeafCluster
 ===================
 */
-S32 idCollisionModelManagerLocal::LeafCluster( S32 leafnum )
+sint idCollisionModelManagerLocal::LeafCluster( sint leafnum )
 {
     if( leafnum < 0 || leafnum >= cm.numLeafs )
     {
@@ -1335,7 +1335,7 @@ S32 idCollisionModelManagerLocal::LeafCluster( S32 leafnum )
 idCollisionModelManagerLocal::LeafArea
 ===================
 */
-S32 idCollisionModelManagerLocal::LeafArea( S32 leafnum )
+sint idCollisionModelManagerLocal::LeafArea( sint leafnum )
 {
     if( leafnum < 0 || leafnum >= cm.numLeafs )
     {
@@ -1357,7 +1357,7 @@ can just be stored out and get a proper clipping hull structure.
 */
 void CM_InitBoxHull( void )
 {
-    S32             i, side;
+    sint             i, side;
     cplane_t*       p;
     cbrushside_t*   s;
     
@@ -1410,7 +1410,7 @@ BSP trees instead of being compared directly.
 Capsules are handled differently though.
 ===================
 */
-clipHandle_t idCollisionModelManagerLocal::TempBoxModel( const vec3_t mins, const vec3_t maxs, S32 capsule )
+clipHandle_t idCollisionModelManagerLocal::TempBoxModel( const vec3_t mins, const vec3_t maxs, sint capsule )
 {
 
     VectorCopy( mins, box_model.mins );
@@ -1470,7 +1470,7 @@ clipHandle_t idCollisionModelManagerLocal::TempBoxModel( const vec3_t mins, cons
     return BOX_MODEL_HANDLE;
 }
 
-void idCollisionModelManagerLocal::SetTempBoxModelContents( S32 contents )
+void idCollisionModelManagerLocal::SetTempBoxModelContents( sint contents )
 {
     box_brush->contents = contents;
 }
@@ -1494,10 +1494,10 @@ void idCollisionModelManagerLocal::ModelBounds( clipHandle_t model, vec3_t mins,
 idCollisionModelManagerLocal::ModelBounds
 ===================
 */
-S32 idCollisionModelManagerLocal::BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t* p )
+sint idCollisionModelManagerLocal::BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t* p )
 {
-    F32           dist1, dist2;
-    S32             sides;
+    float32           dist1, dist2;
+    sint             sides;
     
     // fast axial cases
     if( p->type < 3 )

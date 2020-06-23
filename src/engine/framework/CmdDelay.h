@@ -51,9 +51,9 @@ typedef enum
 
 typedef struct
 {
-    UTF8 name[MAX_CMD_LINE];
-    UTF8 text[MAX_CMD_LINE];
-    S32 delay;
+    valueType name[MAX_CMD_LINE];
+    valueType text[MAX_CMD_LINE];
+    sint delay;
     cmdDelayType_t 	type;
 } delayedCommands_s;
 

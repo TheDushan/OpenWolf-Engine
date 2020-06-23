@@ -38,15 +38,15 @@
 // public crypto key
 typedef struct publicKeys
 {
-    U8 keyBin[CRYPTOPUBKEYBINSIZE];
-    UTF8 keyHex[CRYPTOPUBKEYHEXSIZE];
+    uchar8 keyBin[CRYPTOPUBKEYBINSIZE];
+    valueType keyHex[CRYPTOPUBKEYHEXSIZE];
 } publicKey_t;
 
 // secret crypto key
 typedef struct secretKeys
 {
-    U8 keyBin[CRYPTOSECKEYBINSIZE];
-    UTF8 keyHex[CRYPTOSECKEYHEXSIZE];
+    uchar8 keyBin[CRYPTOSECKEYBINSIZE];
+    valueType keyHex[CRYPTOSECKEYHEXSIZE];
 } secretKey_t;
 
 // cipher buffers
@@ -66,11 +66,11 @@ class idServerCryptoSystem
 public:
     virtual bool InitCrypto( void ) = 0;
     virtual bool GenerateCryptoKeys( publicKey_t* pk, secretKey_t* sk ) = 0;
-    virtual bool LoadCryptoKeysFromFS( publicKey_t* pk, StringEntry pkFilename, secretKey_t* sk, StringEntry skFilename ) = 0;
-    virtual bool SaveCryptoKeysToFS( publicKey_t* pk, StringEntry pkFilename, secretKey_t* sk, StringEntry skFilename ) = 0;
-    virtual bool EncryptString( publicKey_t* pk, StringEntry inRaw, UTF8* outHex, size_t outHexSize ) = 0;
-    virtual bool DecryptString( publicKey_t* pk, secretKey_t* sk, StringEntry inHex, UTF8* outRaw, size_t outRawSize ) = 0;
-    virtual bool CryptoHash( StringEntry inRaw, UTF8* outHex, size_t outHexSize ) = 0;
+    virtual bool LoadCryptoKeysFromFS( publicKey_t* pk, pointer pkFilename, secretKey_t* sk, pointer skFilename ) = 0;
+    virtual bool SaveCryptoKeysToFS( publicKey_t* pk, pointer pkFilename, secretKey_t* sk, pointer skFilename ) = 0;
+    virtual bool EncryptString( publicKey_t* pk, pointer inRaw, valueType* outHex, size_t outHexSize ) = 0;
+    virtual bool DecryptString( publicKey_t* pk, secretKey_t* sk, pointer inHex, valueType* outRaw, size_t outRawSize ) = 0;
+    virtual bool CryptoHash( pointer inRaw, valueType* outHex, size_t outHexSize ) = 0;
 };
 
 extern idServerCryptoSystem* serverCryptoSystem;

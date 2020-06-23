@@ -44,7 +44,7 @@
 #define HEARTBEAT_GAME  "StellarPray-1"
 #define HEARTBEAT_DEAD  "StellarPrayFlatline-1"
 
-static S32 lastTimeResolve[MAX_MASTER_SERVERS];
+static sint lastTimeResolve[MAX_MASTER_SERVERS];
 
 //
 // idServerGameSystemLocal
@@ -52,19 +52,19 @@ static S32 lastTimeResolve[MAX_MASTER_SERVERS];
 class idServerMainSystemLocal : public idServerMainSystem
 {
 public:
-    virtual void AddServerCommand( client_t* client, StringEntry cmd );
-    virtual void SendServerCommand( client_t* cl, StringEntry fmt, ... );
+    virtual void AddServerCommand( client_t* client, pointer cmd );
+    virtual void SendServerCommand( client_t* cl, pointer fmt, ... );
     virtual void MasterShutdown( void );
     virtual void MasterGameCompleteStatus( void );
-    virtual void MasterGameStat( StringEntry data );
+    virtual void MasterGameStat( pointer data );
     virtual void PacketEvent( netadr_t from, msg_t* msg );
-    virtual void Frame( S32 msec );
-    virtual S32 LoadTag( StringEntry mod_name );
+    virtual void Frame( sint msec );
+    virtual sint LoadTag( pointer mod_name );
 public:
-    static void IntegerOverflowShutDown( UTF8* msg );
-    UTF8* ExpandNewlines( UTF8* in );
-    void MasterHeartbeat( StringEntry hbname );
-    bool VerifyChallenge( UTF8* challenge );
+    static void IntegerOverflowShutDown( valueType* msg );
+    valueType* ExpandNewlines( valueType* in );
+    void MasterHeartbeat( pointer hbname );
+    bool VerifyChallenge( valueType* challenge );
     void Status( netadr_t from );
     void GameCompleteStatus( netadr_t from );
     void Info( netadr_t from );
@@ -77,7 +77,7 @@ public:
     void GetUpdateInfo( netadr_t from );
     void CheckCvars( void );
     
-    static void FlushRedirect( UTF8* outputbuf );
+    static void FlushRedirect( valueType* outputbuf );
 };
 
 extern idServerMainSystemLocal serverMainSystemLocal;

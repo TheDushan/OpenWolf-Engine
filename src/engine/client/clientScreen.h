@@ -31,11 +31,11 @@
 
 typedef struct
 {
-    S32 color;
-    F32 value;
+    sint color;
+    float32 value;
 } graphsamp_t;
 
-static S32 current;
+static sint current;
 static graphsamp_t values[1024];
 
 //
@@ -49,23 +49,23 @@ public:
     
     virtual void UpdateScreen( void );
     
-    static void AdjustFrom640( F32* x, F32* y, F32* w, F32* h );
-    static void FillRect( F32 x, F32 y, F32 width, F32 height, const F32* color );
-    static void DrawChar( S32 x, S32 y, F32 size, S32 ch );
-    static void DrawConsoleFontChar( F32 x, F32 y, S32 ch );
-    static void DrawSmallChar( S32 x, S32 y, S32 ch );
-    static void DrawStringExt( S32 x, S32 y, F32 size, StringEntry string, F32* setColor, bool forceColor, bool noColorEscape );
-    static void DrawBigString( S32 x, S32 y, StringEntry s, F32 alpha, bool noColorEscape );
-    static void DrawSmallStringExt( S32 x, S32 y, StringEntry string, F32* setColor, bool forceColor, bool noColorEscape );
-    static S32 Strlen( StringEntry str );
+    static void AdjustFrom640( float32* x, float32* y, float32* w, float32* h );
+    static void FillRect( float32 x, float32 y, float32 width, float32 height, const float32* color );
+    static void DrawChar( sint x, sint y, float32 size, sint ch );
+    static void DrawConsoleFontChar( float32 x, float32 y, sint ch );
+    static void DrawSmallChar( sint x, sint y, sint ch );
+    static void DrawStringExt( sint x, sint y, float32 size, pointer string, float32* setColor, bool forceColor, bool noColorEscape );
+    static void DrawBigString( sint x, sint y, pointer s, float32 alpha, bool noColorEscape );
+    static void DrawSmallStringExt( sint x, sint y, pointer string, float32* setColor, bool forceColor, bool noColorEscape );
+    static sint Strlen( pointer str );
     static void DrawDemoRecording( void );
-    static void DebugGraph( F32 value, S32 color );
+    static void DebugGraph( float32 value, sint color );
     static void DrawDebugGraph( void );
     static void Init( void );
     static void DrawScreenField( stereoFrame_t stereoFrame );
-    static F32 ConsoleFontCharWidth( S32 ch );
-    static F32 ConsoleFontCharHeight( void );
-    static F32 ConsoleFontStringWidth( StringEntry s, S32 len );
+    static float32 ConsoleFontCharWidth( sint ch );
+    static float32 ConsoleFontCharHeight( void );
+    static float32 ConsoleFontStringWidth( pointer s, sint len );
 };
 
 extern idClientScreenSystemLocal clientScreenLocal;

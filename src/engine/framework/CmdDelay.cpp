@@ -73,7 +73,7 @@ idCmdDelaySystemLocal::Frame
 */
 void idCmdDelaySystemLocal::Frame( void )
 {
-    S32 i;
+    sint i;
     bool RunIt;
     
     for( i = 0; ( i < MAX_DELAYED_COMMANDS ); i++ )

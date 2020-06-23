@@ -29,11 +29,11 @@
 
 #include <framework/precompiled.h>
 
-void RB_ToneMap( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox, S32 autoExposure )
+void RB_ToneMap( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox, sint autoExposure )
 {
     ivec4_t srcBox, dstBox;
     vec4_t color;
-    static S32 lastFrameCount = 0;
+    static sint lastFrameCount = 0;
     
     if( autoExposure )
     {
@@ -41,7 +41,7 @@ void RB_ToneMap( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox, S
         {
             // determine average log luminance
             FBO_t* srcFbo, *dstFbo, *tmp;
-            S32 size = 256;
+            sint size = 256;
             
             lastFrameCount = tr.frameCount;
             
@@ -110,7 +110,7 @@ Blurs a part of one framebuffer to another.
 Framebuffers can be identical.
 =============
 */
-void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, F32 blur )
+void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, float32 blur )
 {
 //	ivec4_t srcBox, dstBox;
     vec4_t color;
@@ -167,14 +167,14 @@ void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, F32 b
         else if( blur > 2.0f )
         {
             // blur 1/16th texture then replace
-            S32 i;
+            sint i;
             
             for( i = 0; i < 2; i++ )
             {
                 vec2_t blurTexScale;
-                F32 subblur;
+                float32 subblur;
                 
-                subblur = ( ( blur - 2.0f ) / 2.0f ) / 3.0f * ( F32 )( i + 1 );
+                subblur = ( ( blur - 2.0f ) / 2.0f ) / 3.0f * ( float32 )( i + 1 );
                 
                 blurTexScale[0] =
                     blurTexScale[1] = subblur;
@@ -196,7 +196,7 @@ void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, F32 b
         else if( blur > 1.0f )
         {
             // blur quarter texture then replace
-            S32 i;
+            sint i;
         
             src = tr.quarterFbo[0];
             dst = tr.quarterFbo[1];
@@ -206,9 +206,9 @@ void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, F32 b
             for( i = 0; i < 2; i++ )
             {
                 vec2_t blurTexScale;
-                F32 subblur;
+                float32 subblur;
         
-                subblur = ( blur - 1.0f ) / 2.0f * ( F32 )( i + 1 );
+                subblur = ( blur - 1.0f ) / 2.0f * ( float32 )( i + 1 );
         
                 blurTexScale[0] =
                     blurTexScale[1] = subblur;
@@ -231,14 +231,14 @@ void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, F32 b
 }
 
 
-static void RB_RadialBlur( FBO_t* srcFbo, FBO_t* dstFbo, S32 passes, F32 stretch, F32 x, F32 y, F32 w, F32 h, F32 xcenter, F32 ycenter, F32 alpha )
+static void RB_RadialBlur( FBO_t* srcFbo, FBO_t* dstFbo, sint passes, float32 stretch, float32 x, float32 y, float32 w, float32 h, float32 xcenter, float32 ycenter, float32 alpha )
 {
     ivec4_t srcBox, dstBox;
-    S32 srcWidth, srcHeight;
+    sint srcWidth, srcHeight;
     vec4_t color;
-    const F32 inc = 1.f / passes;
-    const F32 mul = powf( stretch, inc );
-    F32 scale;
+    const float32 inc = 1.f / passes;
+    const float32 mul = powf( stretch, inc );
+    float32 scale;
     
     alpha *= inc;
     VectorSet4( color, alpha, alpha, alpha, 1.0f );
@@ -255,9 +255,9 @@ static void RB_RadialBlur( FBO_t* srcFbo, FBO_t* dstFbo, S32 passes, F32 stretch
     scale = mul;
     while( passes > 0 )
     {
-        F32 iscale = 1.f / scale;
-        F32 s0 = xcenter * ( 1.f - iscale );
-        F32 t0 = ( 1.0f - ycenter ) * ( 1.f - iscale );
+        float32 iscale = 1.f / scale;
+        float32 s0 = xcenter * ( 1.f - iscale );
+        float32 t0 = ( 1.0f - ycenter ) * ( 1.f - iscale );
         
         srcBox[0] = s0 * srcWidth;
         srcBox[1] = t0 * srcHeight;
@@ -274,7 +274,7 @@ static void RB_RadialBlur( FBO_t* srcFbo, FBO_t* dstFbo, S32 passes, F32 stretch
 
 static bool RB_UpdateSunFlareVis( void )
 {
-    U32 sampleCount = 0;
+    uint sampleCount = 0;
     if( !glRefConfig.occlusionQuery )
         return true;
         
@@ -285,10 +285,10 @@ static bool RB_UpdateSunFlareVis( void )
     /* debug code */
     if( 0 )
     {
-        S32 iter;
+        sint iter;
         for( iter = 0 ; ; ++iter )
         {
-            S32 available = 0;
+            sint available = 0;
             qglGetQueryObjectiv( tr.sunFlareQuery[tr.sunFlareQueryIndex], GL_QUERY_RESULT_AVAILABLE, &available );
             if( available )
                 break;
@@ -304,11 +304,11 @@ static bool RB_UpdateSunFlareVis( void )
 void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox )
 {
     vec4_t color;
-    F32 dot;
-    const F32 cutoff = 0.25f;
+    float32 dot;
+    const float32 cutoff = 0.25f;
     bool colorize = true;
     
-//	F32 w, h, w2, h2;
+//	float32 w, h, w2, h2;
     mat4_t mvp, trans, model;
     vec4_t pos, hpos;
     
@@ -319,7 +319,7 @@ void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox )
     if( !RB_UpdateSunFlareVis() )
         return;
         
-    F32 dist;
+    float32 dist;
     
     dist = backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
     
@@ -339,10 +339,10 @@ void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox )
     
     // initialize quarter buffers
     {
-        F32 mul = 1.f;
+        float32 mul = 1.f;
         ivec4_t rayBox, quarterBox;
-        S32 srcWidth  = srcFbo ? srcFbo->width  : glConfig.vidWidth;
-        S32 srcHeight = srcFbo ? srcFbo->height : glConfig.vidHeight;
+        sint srcWidth  = srcFbo ? srcFbo->width  : glConfig.vidWidth;
+        sint srcHeight = srcFbo ? srcFbo->height : glConfig.vidHeight;
         
         VectorSet4( color, mul, mul, mul, 1 );
         
@@ -370,9 +370,9 @@ void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox )
     
     // radial blur passes, ping-ponging between the two quarter-size buffers
     {
-        const F32 stretch_add = 2.f / 3.f;
-        F32 stretch = 1.f + stretch_add;
-        S32 i;
+        const float32 stretch_add = 2.f / 3.f;
+        float32 stretch = 1.f + stretch_add;
+        sint i;
         for( i = 0; i < 2; ++i )
         {
             RB_RadialBlur( tr.quarterFbo[i & 1], tr.quarterFbo[( ~i ) & 1], 5, stretch, 0.f, 0.f, tr.quarterFbo[0]->width, tr.quarterFbo[0]->height, pos[0], pos[1], 1.125f );
@@ -382,7 +382,7 @@ void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox )
     
     // add result back on top of the main buffer
     {
-        F32 mul = 1.f;
+        float32 mul = 1.f;
         
         VectorSet4( color, mul, mul, mul, 1 );
         
@@ -390,17 +390,17 @@ void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox )
     }
 }
 
-static void RB_BlurAxis( FBO_t* srcFbo, FBO_t* dstFbo, F32 strength, bool horizontal )
+static void RB_BlurAxis( FBO_t* srcFbo, FBO_t* dstFbo, float32 strength, bool horizontal )
 {
-    F32 dx, dy;
-    F32 xmul, ymul;
-    F32 weights[3] =
+    float32 dx, dy;
+    float32 xmul, ymul;
+    float32 weights[3] =
     {
         0.227027027f,
         0.316216216f,
         0.070270270f,
     };
-    F32 offsets[3] =
+    float32 offsets[3] =
     {
         0.f,
         1.3846153846f,
@@ -440,20 +440,20 @@ static void RB_BlurAxis( FBO_t* srcFbo, FBO_t* dstFbo, F32 strength, bool horizo
     }
 }
 
-void RB_HBlur( FBO_t* srcFbo, FBO_t* dstFbo, F32 strength )
+void RB_HBlur( FBO_t* srcFbo, FBO_t* dstFbo, float32 strength )
 {
     RB_BlurAxis( srcFbo, dstFbo, strength, true );
 }
 
-void RB_VBlur( FBO_t* srcFbo, FBO_t* dstFbo, F32 strength )
+void RB_VBlur( FBO_t* srcFbo, FBO_t* dstFbo, float32 strength )
 {
     RB_BlurAxis( srcFbo, dstFbo, strength, false );
 }
 
-void RB_GaussianBlur( F32 blur )
+void RB_GaussianBlur( float32 blur )
 {
-    //F32 mul = 1.f;
-    F32 factor = Com_Clamp( 0.f, 1.f, blur );
+    //float32 mul = 1.f;
+    float32 factor = Com_Clamp( 0.f, 1.f, blur );
     
     if( factor <= 0.f )
         return;
@@ -485,7 +485,7 @@ void RB_GaussianBlur( F32 blur )
     }
 }
 
-void RB_GaussianBlur( FBO_t* srcFbo, FBO_t* intermediateFbo, FBO_t* dstFbo, F32 spread )
+void RB_GaussianBlur( FBO_t* srcFbo, FBO_t* intermediateFbo, FBO_t* dstFbo, float32 spread )
 {
     // Blur X
     vec2_t scale;
@@ -538,10 +538,10 @@ void RB_Anamorphic( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox
             color[2] = pow( 2, r_cameraExposure->value );
     color[3] = 1.0f;
     
-    halfBox[0] = backEnd.viewParms.viewportX      * tr.anamorphicRenderFBOImage[0]->width / ( F32 )glConfig.vidWidth;
-    halfBox[1] = backEnd.viewParms.viewportY      * tr.anamorphicRenderFBOImage[0]->height / ( F32 )glConfig.vidHeight;
-    halfBox[2] = backEnd.viewParms.viewportWidth  * tr.anamorphicRenderFBOImage[0]->width / ( F32 )glConfig.vidWidth;
-    halfBox[3] = backEnd.viewParms.viewportHeight * tr.anamorphicRenderFBOImage[0]->height / ( F32 )glConfig.vidHeight;
+    halfBox[0] = backEnd.viewParms.viewportX      * tr.anamorphicRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
+    halfBox[1] = backEnd.viewParms.viewportY      * tr.anamorphicRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
+    halfBox[2] = backEnd.viewParms.viewportWidth  * tr.anamorphicRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
+    halfBox[3] = backEnd.viewParms.viewportHeight * tr.anamorphicRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
     
     //
     // Darken to VBO...
@@ -572,13 +572,13 @@ void RB_Anamorphic( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox
     // Blur the new darken'ed VBO...
     //
     
-    for( S32 i = 0; i < r_bloomPasses->integer; i++ )
+    for( sint i = 0; i < r_bloomPasses->integer; i++ )
     {
         //
         // Bloom X axis... (to VBO 1)
         //
         
-        //for (S32 width = 1; width < 12 ; width++)
+        //for (sint width = 1; width < 12 ; width++)
         {
             GLSL_BindProgram( &tr.ssgiBlurShader );
             
@@ -709,8 +709,8 @@ void RB_HDR( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -750,8 +750,8 @@ void RB_Anaglyph( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -794,8 +794,8 @@ void RB_TextureClean( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrB
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -842,8 +842,8 @@ void RB_ESharpening( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBo
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -889,8 +889,8 @@ void RB_ESharpening2( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrB
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         
@@ -938,8 +938,8 @@ void RB_DOF( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmin, zmax, zmax / zmin, 0.0 );
         
@@ -1009,8 +1009,8 @@ void RB_TextureDetail( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldr
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, zmin, zmax );
         
@@ -1066,10 +1066,10 @@ void RB_RBM( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
     
     {
         vec4_t viewInfo;
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 ymax = zmax * tan( backEnd.viewParms.fovY * M_PI / 360.0f );
-        F32 xmax = zmax * tan( backEnd.viewParms.fovX * M_PI / 360.0f );
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 ymax = zmax * tan( backEnd.viewParms.fovY * M_PI / 360.0f );
+        float32 xmax = zmax * tan( backEnd.viewParms.fovX * M_PI / 360.0f );
+        float32 zmin = r_znear->value;
         VectorSet4( viewInfo, zmin, zmax, zmax / zmin, 0.0 );
         GLSL_SetUniformVec4( &tr.rbmShader, UNIFORM_VIEWINFO, viewInfo );
     }
@@ -1079,7 +1079,7 @@ void RB_RBM( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
 
 void RB_Contrast( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox )
 {
-    F32 brightness = 2;
+    float32 brightness = 2;
     
     if( !glRefConfig.framebufferObject )
     {
@@ -1137,10 +1137,10 @@ void RB_Bloom( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
             color[2] = pow( 2, r_cameraExposure->value );
     color[3] = 1.0f;
     
-    halfBox[0] = backEnd.viewParms.viewportX      * tr.bloomRenderFBOImage[0]->width / ( F32 )glConfig.vidWidth;
-    halfBox[1] = backEnd.viewParms.viewportY      * tr.bloomRenderFBOImage[0]->height / ( F32 )glConfig.vidHeight;
-    halfBox[2] = backEnd.viewParms.viewportWidth  * tr.bloomRenderFBOImage[0]->width / ( F32 )glConfig.vidWidth;
-    halfBox[3] = backEnd.viewParms.viewportHeight * tr.bloomRenderFBOImage[0]->height / ( F32 )glConfig.vidHeight;
+    halfBox[0] = backEnd.viewParms.viewportX      * tr.bloomRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
+    halfBox[1] = backEnd.viewParms.viewportY      * tr.bloomRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
+    halfBox[2] = backEnd.viewParms.viewportWidth  * tr.bloomRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
+    halfBox[3] = backEnd.viewParms.viewportHeight * tr.bloomRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
     
     //
     // Darken to VBO...
@@ -1171,7 +1171,7 @@ void RB_Bloom( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
     // Blur the new darken'ed VBO...
     //
     
-    for( S32 i = 0; i < r_bloomPasses->integer; i++ )
+    for( sint i = 0; i < r_bloomPasses->integer; i++ )
     {
 #ifdef ___BLOOM_AXIS_UNCOMBINED_SHADER___
         //
@@ -1304,10 +1304,10 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         texHalfScale[0] = texHalfScale[1] = texScale[0] / 8.0;
         texDoubleScale[0] = texDoubleScale[1] = texScale[0] * 8.0;
         
-        halfBox[0] = backEnd.viewParms.viewportX * tr.anamorphicRenderFBOImage[0]->width / ( F32 )glConfig.vidWidth;
-        halfBox[1] = backEnd.viewParms.viewportY * tr.anamorphicRenderFBOImage[0]->height / ( F32 )glConfig.vidHeight;
-        halfBox[2] = backEnd.viewParms.viewportWidth * tr.anamorphicRenderFBOImage[0]->width / ( F32 )glConfig.vidWidth;
-        halfBox[3] = backEnd.viewParms.viewportHeight * tr.anamorphicRenderFBOImage[0]->height / ( F32 )glConfig.vidHeight;
+        halfBox[0] = backEnd.viewParms.viewportX * tr.anamorphicRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
+        halfBox[1] = backEnd.viewParms.viewportY * tr.anamorphicRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
+        halfBox[2] = backEnd.viewParms.viewportWidth * tr.anamorphicRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
+        halfBox[3] = backEnd.viewParms.viewportHeight * tr.anamorphicRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
         
         //
         // Darken to VBO...
@@ -1348,9 +1348,9 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
 //#define __NEW_SATURATION_MAP_METHOD__ // grr slower and crappier...
 
 #ifdef __NEW_SATURATION_MAP_METHOD__
-        F32 SCAN_WIDTH = 16.0;
+        float32 SCAN_WIDTH = 16.0;
         
-        //for (S32 i = 0; i < 2; i++)
+        //for (sint i = 0; i < 2; i++)
         {
             // Initial blur...
             GLSL_BindProgram( &tr.anamorphicBlurShader );
@@ -1399,8 +1399,8 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
             FBO_FastBlit( tr.anamorphicRenderFBO[1], nullptr, tr.anamorphicRenderFBO[0], nullptr, GL_COLOR_BUFFER_BIT, GL_LINEAR );
         }
 #else //!__NEW_SATURATION_MAP_METHOD__
-        //F32 SCAN_WIDTH = 16.0;
-        F32 SCAN_WIDTH = r_ssgiWidth->value;//8.0;
+        //float32 SCAN_WIDTH = 16.0;
+        float32 SCAN_WIDTH = r_ssgiWidth->value;//8.0;
         
         {
             //
@@ -1422,7 +1422,7 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         
                 {
                     vec4_t local0;
-                    //VectorSet4(local0, (F32)width, 0.0, 0.0, 0.0);
+                    //VectorSet4(local0, (float32)width, 0.0, 0.0, 0.0);
                     VectorSet4( local0, 1.0, 0.0, SCAN_WIDTH, 3.0 );
                     GLSL_SetUniformVec4( &tr.ssgiBlurShader, UNIFORM_LOCAL0, local0 );
                 }
@@ -1450,7 +1450,7 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         
                 {
                     vec4_t local0;
-                    //VectorSet4(local0, (F32)width, 0.0, 0.0, 0.0);
+                    //VectorSet4(local0, (float32)width, 0.0, 0.0, 0.0);
                     VectorSet4( local0, 0.0, 1.0, SCAN_WIDTH, 3.0 );
                     GLSL_SetUniformVec4( &tr.ssgiBlurShader, UNIFORM_LOCAL0, local0 );
                 }
@@ -1478,7 +1478,7 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         
                 {
                     vec4_t local0;
-                    //VectorSet4(local0, (F32)width, 0.0, 0.0, 0.0);
+                    //VectorSet4(local0, (float32)width, 0.0, 0.0, 0.0);
                     VectorSet4( local0, 1.0, 1.0, SCAN_WIDTH, 3.0 );
                     GLSL_SetUniformVec4( &tr.ssgiBlurShader, UNIFORM_LOCAL0, local0 );
                 }
@@ -1506,7 +1506,7 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         
                 {
                     vec4_t local0;
-                    //VectorSet4(local0, (F32)width, 0.0, 0.0, 0.0);
+                    //VectorSet4(local0, (float32)width, 0.0, 0.0, 0.0);
                     VectorSet4( local0, -1.0, 1.0, SCAN_WIDTH, 3.0 );
                     GLSL_SetUniformVec4( &tr.ssgiBlurShader, UNIFORM_LOCAL0, local0 );
                 }
@@ -1540,7 +1540,7 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         
                 {
                     vec4_t local0;
-                    //VectorSet4(local0, (F32)width, 0.0, 0.0, 0.0);
+                    //VectorSet4(local0, (float32)width, 0.0, 0.0, 0.0);
                     VectorSet4( local0, 1.0, 0.0, SCAN_WIDTH, 0.0 );
                     GLSL_SetUniformVec4( &tr.ssgiBlurShader, UNIFORM_LOCAL0, local0 );
                 }
@@ -1568,7 +1568,7 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         
                 {
                     vec4_t local0;
-                    //VectorSet4(local0, (F32)width, 0.0, 0.0, 0.0);
+                    //VectorSet4(local0, (float32)width, 0.0, 0.0, 0.0);
                     VectorSet4( local0, 0.0, 1.0, SCAN_WIDTH, 0.0 );
                     GLSL_SetUniformVec4( &tr.ssgiBlurShader, UNIFORM_LOCAL0, local0 );
                 }
@@ -1596,7 +1596,7 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         
                 {
                     vec4_t local0;
-                    //VectorSet4(local0, (F32)width, 0.0, 0.0, 0.0);
+                    //VectorSet4(local0, (float32)width, 0.0, 0.0, 0.0);
                     VectorSet4( local0, 1.0, 1.0, SCAN_WIDTH, 0.0 );
                     GLSL_SetUniformVec4( &tr.ssgiBlurShader, UNIFORM_LOCAL0, local0 );
                 }
@@ -1624,7 +1624,7 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         
                 {
                     vec4_t local0;
-                    //VectorSet4(local0, (F32)width, 0.0, 0.0, 0.0);
+                    //VectorSet4(local0, (float32)width, 0.0, 0.0, 0.0);
                     VectorSet4( local0, -1.0, 1.0, SCAN_WIDTH, 0.0 );
                     GLSL_SetUniformVec4( &tr.ssgiBlurShader, UNIFORM_LOCAL0, local0 );
                 }
@@ -1669,9 +1669,9 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
-        //F32 zmin = backEnd.viewParms.zNear;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
+        //float32 zmin = backEnd.viewParms.zNear;
         
         VectorSet4( viewInfo, zmin, zmax, zmax / zmin, 0.0 );
         
@@ -1750,11 +1750,11 @@ void RB_ScreenSpaceReflections( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, iv
     
     {
         vec4_t viewInfo;
-        //F32 zmax = 2048.0;
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 ymax = zmax * tan( backEnd.viewParms.fovY * M_PI / 360.0f );
-        F32 xmax = zmax * tan( backEnd.viewParms.fovX * M_PI / 360.0f );
-        F32 zmin = r_znear->value;
+        //float32 zmax = 2048.0;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 ymax = zmax * tan( backEnd.viewParms.fovY * M_PI / 360.0f );
+        float32 xmax = zmax * tan( backEnd.viewParms.fovX * M_PI / 360.0f );
+        float32 zmin = r_znear->value;
         VectorSet4( viewInfo, zmin, zmax, zmax / zmin, backEnd.viewParms.fovX );
         GLSL_SetUniformVec4( &tr.ssrShader, UNIFORM_VIEWINFO, viewInfo );
     }
@@ -1798,12 +1798,12 @@ void RB_Underwater( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox
     
     GLSL_SetUniformMat4( &tr.underWaterShader, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection );
     
-    GLSL_SetUniformFloat( &tr.underWaterShader, UNIFORM_TIME, ( F32 )( backEnd.refdef.floatTime * 5.0f )/*tr.refdef.floatTime*/ );
+    GLSL_SetUniformFloat( &tr.underWaterShader, UNIFORM_TIME, ( float32 )( backEnd.refdef.floatTime * 5.0f )/*tr.refdef.floatTime*/ );
     
     {
         vec2_t screensize;
-        screensize[0] = ( F32 )glConfig.vidWidth;
-        screensize[1] = ( F32 )glConfig.vidHeight;
+        screensize[0] = ( float32 )glConfig.vidWidth;
+        screensize[1] = ( float32 )glConfig.vidHeight;
         
         GLSL_SetUniformVec2( &tr.underWaterShader, UNIFORM_DIMENSIONS, screensize );
     }

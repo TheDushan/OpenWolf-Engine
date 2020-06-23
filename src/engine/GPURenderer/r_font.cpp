@@ -84,11 +84,11 @@ FT_Library ftLibrary = nullptr;
 #endif
 
 #define MAX_FONTS 6
-static S32 registeredFontCount = 0;
+static sint registeredFontCount = 0;
 static fontInfo_t registeredFont[MAX_FONTS];
 
 #ifdef BUILD_FREETYPE
-void R_GetGlyphInfo( FT_GlyphSlot glyph, S32* left, S32* right, S32* width, S32* top, S32* bottom, S32* height, S32* pitch )
+void R_GetGlyphInfo( FT_GlyphSlot glyph, sint* left, sint* right, sint* width, sint* top, sint* bottom, sint* height, sint* pitch )
 {
     *left  = _FLOOR( glyph->metrics.horiBearingX );
     *right = _CEIL( glyph->metrics.horiBearingX + glyph->metrics.width );
@@ -104,7 +104,7 @@ void R_GetGlyphInfo( FT_GlyphSlot glyph, S32* left, S32* right, S32* width, S32*
 FT_Bitmap* R_RenderGlyph( FT_GlyphSlot glyph, glyphInfo_t* glyphOut )
 {
     FT_Bitmap*  bit2;
-    S32 left, right, width, top, bottom, height, pitch, size;
+    sint left, right, width, top, bottom, height, pitch, size;
     
     R_GetGlyphInfo( glyph, &left, &right, &width, &top, &bottom, &height, &pitch );
     
@@ -119,7 +119,7 @@ FT_Bitmap* R_RenderGlyph( FT_GlyphSlot glyph, glyphInfo_t* glyphOut )
         bit2->pitch      = pitch;
         bit2->pixel_mode = ft_pixel_mode_grays;
         //bit2->pixel_mode = ft_pixel_mode_mono;
-        bit2->buffer     = ( U8* )CL_RefMalloc( pitch * height );
+        bit2->buffer     = ( uchar8* )CL_RefMalloc( pitch * height );
         bit2->num_grays = 256;
         
         ::memset( bit2->buffer, 0, size );
@@ -142,15 +142,15 @@ FT_Bitmap* R_RenderGlyph( FT_GlyphSlot glyph, glyphInfo_t* glyphOut )
     return nullptr;
 }
 
-void WriteTGA( UTF8* filename, U8* data, S32 width, S32 height )
+void WriteTGA( valueType* filename, uchar8* data, sint width, sint height )
 {
-    U8*			buffer;
-    S32				i, c;
-    S32             row;
-    U8*  flip;
-    U8*  src, *dst;
+    uchar8*			buffer;
+    sint				i, c;
+    sint             row;
+    uchar8*  flip;
+    uchar8*  src, *dst;
     
-    buffer = ( U8* )CL_RefMalloc( width * height * 4 + 18 );
+    buffer = ( uchar8* )CL_RefMalloc( width * height * 4 + 18 );
     ::memset( buffer, 0, 18 );
     buffer[2] = 2;		// uncompressed type
     buffer[12] = width & 255;
@@ -170,7 +170,7 @@ void WriteTGA( UTF8* filename, U8* data, S32 width, S32 height )
     }
     
     // flip upside down
-    flip = ( U8* )CL_RefMalloc( width * 4 );
+    flip = ( uchar8* )CL_RefMalloc( width * 4 );
     for( row = 0; row < height / 2; row++ )
     {
         src = buffer + 18 + row * 4 * width;
@@ -191,12 +191,12 @@ void WriteTGA( UTF8* filename, U8* data, S32 width, S32 height )
     Z_Free( buffer );
 }
 
-static glyphInfo_t* RE_ConstructGlyphInfo( U8* imageOut, S32* xOut, S32* yOut, S32* maxHeight, FT_Face face, const U8 c, bool calcHeight )
+static glyphInfo_t* RE_ConstructGlyphInfo( uchar8* imageOut, sint* xOut, sint* yOut, sint* maxHeight, FT_Face face, const uchar8 c, bool calcHeight )
 {
-    S32 i;
+    sint i;
     static glyphInfo_t glyph;
-    U8* src, *dst;
-    F32 scaled_width, scaled_height;
+    uchar8* src, *dst;
+    float32 scaled_width, scaled_height;
     FT_Bitmap* bitmap = nullptr;
     
     ::memset( &glyph, 0, sizeof( glyphInfo_t ) );
@@ -262,11 +262,11 @@ static glyphInfo_t* RE_ConstructGlyphInfo( U8* imageOut, S32* xOut, S32* yOut, S
         {
             for( i = 0; i < glyph.height; i++ )
             {
-                S32 j;
-                U8* _src = src;
-                U8* _dst = dst;
-                U8 mask = 0x80;
-                U8 val = *_src;
+                sint j;
+                uchar8* _src = src;
+                uchar8* _dst = dst;
+                uchar8 mask = 0x80;
+                uchar8 val = *_src;
                 for( j = 0; j < glyph.pitch; j++ )
                 {
                     if( mask == 0x80 )
@@ -305,10 +305,10 @@ static glyphInfo_t* RE_ConstructGlyphInfo( U8* imageOut, S32* xOut, S32* yOut, S
         
         glyph.imageHeight = scaled_height;
         glyph.imageWidth = scaled_width;
-        glyph.s = ( F32 ) * xOut / 256;
-        glyph.t = ( F32 ) * yOut / 256;
-        glyph.s2 = glyph.s + ( F32 )scaled_width / 256;
-        glyph.t2 = glyph.t + ( F32 )scaled_height / 256;
+        glyph.s = ( float32 ) * xOut / 256;
+        glyph.t = ( float32 ) * yOut / 256;
+        glyph.s2 = glyph.s + ( float32 )scaled_width / 256;
+        glyph.t2 = glyph.t + ( float32 )scaled_height / 256;
         
         *xOut += scaled_width + 1;
         
@@ -320,23 +320,23 @@ static glyphInfo_t* RE_ConstructGlyphInfo( U8* imageOut, S32* xOut, S32* yOut, S
 }
 #endif
 
-static S32 fdOffset;
-static U8*	fdFile;
+static sint fdOffset;
+static uchar8*	fdFile;
 
-S32 readInt( void )
+sint readInt( void )
 {
-    S32 i = fdFile[fdOffset] + ( fdFile[fdOffset + 1] << 8 ) + ( fdFile[fdOffset + 2] << 16 ) + ( fdFile[fdOffset + 3] << 24 );
+    sint i = fdFile[fdOffset] + ( fdFile[fdOffset + 1] << 8 ) + ( fdFile[fdOffset + 2] << 16 ) + ( fdFile[fdOffset + 3] << 24 );
     fdOffset += 4;
     return i;
 }
 
 typedef union
 {
-    U8	fred[4];
-    F32	ffred;
+    uchar8	fred[4];
+    float32	ffred;
 } poor;
 
-F32 readFloat( void )
+float32 readFloat( void )
 {
     poor	me;
 #if defined Q3_BIG_ENDIAN
@@ -354,23 +354,23 @@ F32 readFloat( void )
     return me.ffred;
 }
 
-void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fontInfo_t* font )
+void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontInfo_t* font )
 {
 #ifdef BUILD_FREETYPE
     FT_Face face;
-    S32 j, k, xOut, yOut, lastStart, imageNumber;
-    S32 scaledSize, newSize, maxHeight, left;
-    U8* out, *imageBuff;
+    sint j, k, xOut, yOut, lastStart, imageNumber;
+    sint scaledSize, newSize, maxHeight, left;
+    uchar8* out, *imageBuff;
     glyphInfo_t* glyph;
     image_t* image;
     qhandle_t h;
-    F32 max;
-    F32 dpi = 72;
-    F32 glyphScale;
+    float32 max;
+    float32 dpi = 72;
+    float32 glyphScale;
 #endif
     void* faceData;
-    S32 i, len;
-    UTF8 name[1024];
+    sint i, len;
+    valueType name[1024];
     
     if( !fontName )
     {
@@ -406,7 +406,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
     {
         fileSystem->ReadFile( name, &faceData );
         fdOffset = 0;
-        fdFile = ( U8* )faceData;
+        fdFile = ( uchar8* )faceData;
         for( i = 0; i < GLYPHS_PER_FONT; i++ )
         {
             font->glyphs[i].height		= readInt();
@@ -421,7 +421,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
             font->glyphs[i].s2			= readFloat();
             font->glyphs[i].t2			= readFloat();
             font->glyphs[i].glyph		= readInt();
-            Q_strncpyz( font->glyphs[i].shaderName, ( StringEntry )&fdFile[fdOffset], sizeof( font->glyphs[i].shaderName ) );
+            Q_strncpyz( font->glyphs[i].shaderName, ( pointer )&fdFile[fdOffset], sizeof( font->glyphs[i].shaderName ) );
             fdOffset += sizeof( font->glyphs[i].shaderName );
         }
         font->glyphScale = readFloat();
@@ -473,7 +473,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
     // make a 256x256 image buffer, once it is full, register it, clean it and keep going
     // until all glyphs are rendered
     
-    out = ( U8* )CL_RefMalloc( 256 * 256 );
+    out = ( uchar8* )CL_RefMalloc( 256 * 256 );
     if( out == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "idRenderSystemLocal::RegisterFont: CL_RefMalloc failure during output image creation.\n" );
@@ -485,7 +485,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
     
     for( i = GLYPH_START; i <= GLYPH_END; i++ )
     {
-        RE_ConstructGlyphInfo( out, &xOut, &yOut, &maxHeight, face, ( U8 )i, true );
+        RE_ConstructGlyphInfo( out, &xOut, &yOut, &maxHeight, face, ( uchar8 )i, true );
     }
     
     xOut = 0;
@@ -504,7 +504,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
         }
         else
         {
-            glyph = RE_ConstructGlyphInfo( out, &xOut, &yOut, &maxHeight, face, ( U8 )i, false );
+            glyph = RE_ConstructGlyphInfo( out, &xOut, &yOut, &maxHeight, face, ( uchar8 )i, false );
         }
     
         if( xOut == -1 || yOut == -1 )
@@ -515,7 +515,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
     
             scaledSize = 256 * 256;
             newSize = scaledSize * 4;
-            imageBuff = ( U8* )CL_RefMalloc( newSize );
+            imageBuff = ( uchar8* )CL_RefMalloc( newSize );
             left = 0;
             max = 0;
             for( k = 0; k < ( scaledSize ) ; k++ )
@@ -537,7 +537,7 @@ void idRenderSystemLocal::RegisterFont( StringEntry fontName, S32 pointSize, fon
                 imageBuff[left++] = 255;
                 imageBuff[left++] = 255;
     
-                imageBuff[left++] = ( ( F32 )out[k] * max );
+                imageBuff[left++] = ( ( float32 )out[k] * max );
             }
     
             Com_sprintf( name, sizeof( name ), "fonts/fontImage_%i_%i.tga", imageNumber++, pointSize );

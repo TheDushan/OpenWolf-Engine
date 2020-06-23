@@ -43,7 +43,7 @@
 #include <framework/precompiled.h>
 #endif
 
-S32 c_totalPatchBlocks, c_totalPatchSurfaces, c_totalPatchEdges;
+sint c_totalPatchBlocks, c_totalPatchSurfaces, c_totalPatchEdges;
 
 const cSurfaceCollide_t* debugSurfaceCollide;
 const cFacet_t* debugFacet;
@@ -66,9 +66,9 @@ void CM_ClearLevelPatches( void )
 CM_SignbitsForNormal
 =================
 */
-static S32 CM_SignbitsForNormal( vec3_t normal )
+static sint CM_SignbitsForNormal( vec3_t normal )
 {
-    S32 bits, j;
+    sint bits, j;
     
     bits = 0;
     for( j = 0; j < 3; j++ )
@@ -123,8 +123,8 @@ collision detection purposes
 static bool CM_NeedsSubdivision( vec3_t a, vec3_t b, vec3_t c )
 {
     vec3_t          cmid, lmid, delta;
-    F32           dist;
-    S32             i;
+    float32           dist;
+    sint             i;
     
     // calculate the linear midpoint
     for( i = 0; i < 3; i++ )
@@ -155,7 +155,7 @@ the subdivided sequence will be: a, out1, out2, out3, c
 */
 static void CM_Subdivide( vec3_t a, vec3_t b, vec3_t c, vec3_t out1, vec3_t out2, vec3_t out3 )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < 3; i++ )
     {
@@ -174,7 +174,7 @@ Swaps the rows and columns in place
 */
 static void CM_TransposeGrid( cGrid_t* grid )
 {
-    S32             i, j, l;
+    sint             i, j, l;
     vec3_t          temp;
     bool        tempWrap;
     
@@ -239,8 +239,8 @@ If the left and right columns are exactly equal, set grid->wrapWidth true
 */
 static void CM_SetGridWrapWidth( cGrid_t* grid )
 {
-    S32             i, j;
-    F32           d;
+    sint             i, j;
+    float32           d;
     
     for( i = 0; i < grid->height; i++ )
     {
@@ -278,7 +278,7 @@ from the true curve
 */
 static void CM_SubdivideGridColumns( cGrid_t* grid )
 {
-    S32 i, j, k;
+    sint i, j, k;
     
     for( i = 0; i < grid->width - 2; )
     {
@@ -353,9 +353,9 @@ CM_ComparePoints
 ======================
 */
 #define	POINT_EPSILON	0.1
-static bool CM_ComparePoints( F32* a, F32* b )
+static bool CM_ComparePoints( float32* a, float32* b )
 {
-    F32 d;
+    float32 d;
     
     d = a[0] - b[0];
     if( d < -POINT_EPSILON || d > POINT_EPSILON )
@@ -384,7 +384,7 @@ If there are any identical columns, remove them
 */
 static void CM_RemoveDegenerateColumns( cGrid_t* grid )
 {
-    S32 i, j, k;
+    sint i, j, k;
     
     for( i = 0; i < grid->width - 1; i++ )
     {
@@ -422,7 +422,7 @@ PATCH COLLIDE GENERATION
 ================================================================================
 */
 
-static S32      numPlanes;
+static sint      numPlanes;
 static cPlane_t planes[MAX_PATCH_PLANES];
 
 static cFacet_t facets[MAX_FACETS];
@@ -435,9 +435,9 @@ static cFacet_t facets[MAX_FACETS];
 CM_PlaneEqual
 ==================
 */
-static S32 CM_PlaneEqual( cPlane_t* p, F32 plane[4], S32* flipped )
+static sint CM_PlaneEqual( cPlane_t* p, float32 plane[4], sint* flipped )
 {
-    F32 invplane[4];
+    float32 invplane[4];
     
     if( Q_fabs( p->plane[0] - plane[0] ) < NORMAL_EPSILON && Q_fabs( p->plane[1] - plane[1] ) < NORMAL_EPSILON
             && Q_fabs( p->plane[2] - plane[2] ) < NORMAL_EPSILON && Q_fabs( p->plane[3] - plane[3] ) < DIST_EPSILON )
@@ -466,7 +466,7 @@ CM_SnapVector
 */
 static void CM_SnapVector( vec3_t normal )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < 3; i++ )
     {
@@ -490,9 +490,9 @@ static void CM_SnapVector( vec3_t normal )
 CM_FindPlane2
 ==================
 */
-static S32 CM_FindPlane2( F32 plane[4], S32* flipped )
+static sint CM_FindPlane2( float32 plane[4], sint* flipped )
 {
-    S32 i;
+    sint i;
     
     // see if the points are close enough to an existing plane
     for( i = 0; i < numPlanes; i++ )
@@ -524,10 +524,10 @@ static S32 CM_FindPlane2( F32 plane[4], S32* flipped )
 CM_FindPlane
 ==================
 */
-static S32 CM_FindPlane( F32* p1, F32* p2, F32* p3 )
+static sint CM_FindPlane( float32* p1, float32* p2, float32* p3 )
 {
-    F32           plane[4], d;
-    S32             i;
+    float32           plane[4], d;
+    sint             i;
     
     if( !CM_PlaneFromPoints( plane, p1, p2, p3 ) )
     {
@@ -583,9 +583,9 @@ static S32 CM_FindPlane( F32* p1, F32* p2, F32* p3 )
 CM_PointOnPlaneSide
 ==================
 */
-static S32 CM_PointOnPlaneSide( F32* p, S32 planeNum )
+static sint CM_PointOnPlaneSide( float32* p, sint planeNum )
 {
-    F32* plane, d;
+    float32* plane, d;
     
     if( planeNum == -1 )
     {
@@ -613,9 +613,9 @@ static S32 CM_PointOnPlaneSide( F32* p, S32 planeNum )
 CM_GridPlane
 ==================
 */
-static S32 CM_GridPlane( S32 gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], S32 i, S32 j, S32 tri )
+static sint CM_GridPlane( sint gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], sint i, sint j, sint tri )
 {
-    S32 p;
+    sint p;
     
     p = gridPlanes[i][j][tri];
     if( p != -1 )
@@ -638,11 +638,11 @@ static S32 CM_GridPlane( S32 gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], S32 i,
 CM_EdgePlaneNum
 ==================
 */
-static S32 CM_EdgePlaneNum( cGrid_t* grid, S32 gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], S32 i, S32 j, S32 k )
+static sint CM_EdgePlaneNum( cGrid_t* grid, sint gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], sint i, sint j, sint k )
 {
-    F32*          p1, *p2;
+    float32*          p1, *p2;
     vec3_t          up;
-    S32             p;
+    sint             p;
     
     switch( k )
     {
@@ -722,10 +722,10 @@ static S32 CM_EdgePlaneNum( cGrid_t* grid, S32 gridPlanes[MAX_GRID_SIZE][MAX_GRI
 CM_SetBorderInward
 ===================
 */
-static void CM_SetBorderInward( cFacet_t* facet, cGrid_t* grid, S32 gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], S32 i, S32 j, S32 which )
+static void CM_SetBorderInward( cFacet_t* facet, cGrid_t* grid, sint gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], sint i, sint j, sint which )
 {
-    S32             k, l, numPoints;
-    F32*          points[4];
+    sint             k, l, numPoints;
+    float32*          points[4];
     
     switch( which )
     {
@@ -756,14 +756,14 @@ static void CM_SetBorderInward( cFacet_t* facet, cGrid_t* grid, S32 gridPlanes[M
     
     for( k = 0; k < facet->numBorders; k++ )
     {
-        S32 front, back;
+        sint front, back;
         
         front = 0;
         back = 0;
         
         for( l = 0; l < numPoints; l++ )
         {
-            S32 side;
+            sint side;
             
             side = CM_PointOnPlaneSide( points[l], facet->borderPlanes[k] );
             if( side == SIDE_FRONT )
@@ -815,8 +815,8 @@ If the facet isn't bounded by its borders, we screwed up.
 */
 static bool CM_ValidateFacet( cFacet_t* facet )
 {
-    F32           plane[4];
-    S32             j;
+    float32           plane[4];
+    sint             j;
     winding_t*      w;
     vec3_t          bounds[2];
     
@@ -877,11 +877,11 @@ CM_AddFacetBevels
 */
 static void CM_AddFacetBevels( cFacet_t* facet )
 {
-    S32 i, j, k, l, axis, dir, flipped;
-    F32 plane[4], minBack, newplane[4];
+    sint i, j, k, l, axis, dir, flipped;
+    float32 plane[4], minBack, newplane[4];
     winding_t* w, *w2;
     vec3_t mins, maxs, vec, vec2;
-    F64 d, d1[3], d2[3];
+    float64 d, d1[3], d2[3];
     
     Vector4Copy( planes[facet->surfacePlane].plane, plane );
     
@@ -1121,11 +1121,11 @@ CM_PatchCollideFromGrid
 */
 static void CM_SurfaceCollideFromGrid( cGrid_t* grid, cSurfaceCollide_t* sc )
 {
-    S32 i, j, gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], borders[4];
+    sint i, j, gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], borders[4];
     bool noAdjust[4];
-    F32* p1, *p2, *p3;
+    float32* p1, *p2, *p3;
     cFacet_t* facet;
-    S32 numFacets;
+    sint numFacets;
     //facets = (cFacet_t*)Z_Malloc(MAX_FACETS);
     
     numPlanes = 0;
@@ -1330,11 +1330,11 @@ collision detection with a patch mesh.
 Points is packed as concatenated rows.
 ===================
 */
-cSurfaceCollide_t* CM_GeneratePatchCollide( S32 width, S32 height, vec3_t* points )
+cSurfaceCollide_t* CM_GeneratePatchCollide( sint width, sint height, vec3_t* points )
 {
     cSurfaceCollide_t*  sc;
     cGrid_t             grid;
-    S32                 i, j;
+    sint                 i, j;
     
     if( width <= 2 || height <= 2 || !points )
     {

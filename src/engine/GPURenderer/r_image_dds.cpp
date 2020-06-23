@@ -31,27 +31,27 @@
 
 typedef struct ddsHeader_s
 {
-    U32 headerSize;
-    U32 flags;
-    U32 height;
-    U32 width;
-    U32 pitchOrFirstMipSize;
-    U32 volumeDepth;
-    U32 numMips;
-    U32 reserved1[11];
-    U32 always_0x00000020;
-    U32 pixelFormatFlags;
-    U32 fourCC;
-    U32 rgbBitCount;
-    U32 rBitMask;
-    U32 gBitMask;
-    U32 bBitMask;
-    U32 aBitMask;
-    U32 caps;
-    U32 caps2;
-    U32 caps3;
-    U32 caps4;
-    U32 reserved2;
+    uint headerSize;
+    uint flags;
+    uint height;
+    uint width;
+    uint pitchOrFirstMipSize;
+    uint volumeDepth;
+    uint numMips;
+    uint reserved1[11];
+    uint always_0x00000020;
+    uint pixelFormatFlags;
+    uint fourCC;
+    uint rgbBitCount;
+    uint rBitMask;
+    uint gBitMask;
+    uint bBitMask;
+    uint aBitMask;
+    uint caps;
+    uint caps2;
+    uint caps3;
+    uint caps4;
+    uint reserved2;
 }
 ddsHeader_t;
 
@@ -81,11 +81,11 @@ ddsHeader_t;
 
 typedef struct ddsHeaderDxt10_s
 {
-    U32 dxgiFormat;
-    U32 dimensions;
-    U32 miscFlags;
-    U32 arraySize;
-    U32 miscFlags2;
+    uint dxgiFormat;
+    uint dimensions;
+    uint miscFlags;
+    uint arraySize;
+    uint miscFlags2;
 }
 ddsHeaderDxt10_t;
 
@@ -212,23 +212,23 @@ typedef enum DXGI_FORMAT
     DXGI_FORMAT_FORCE_UINT = 0xffffffffUL
 } DXGI_FORMAT;
 
-#define EncodeFourCC(x) ((((U32)((x)[0]))      ) | \
-                         (((U32)((x)[1])) << 8 ) | \
-                         (((U32)((x)[2])) << 16) | \
-                         (((U32)((x)[3])) << 24) )
+#define EncodeFourCC(x) ((((uint)((x)[0]))      ) | \
+                         (((uint)((x)[1])) << 8 ) | \
+                         (((uint)((x)[2])) << 16) | \
+                         (((uint)((x)[3])) << 24) )
 
 
-void R_LoadDDS( StringEntry filename, U8** pic, S32* width, S32* height, U32* picFormat, S32* numMips )
+void R_LoadDDS( pointer filename, uchar8** pic, sint* width, sint* height, uint* picFormat, sint* numMips )
 {
     union
     {
-        U8* b;
+        uchar8* b;
         void* v;
     } buffer;
-    S32 len;
+    sint len;
     ddsHeader_t* ddsHeader = nullptr;
     ddsHeaderDxt10_t* ddsHeaderDxt10 = nullptr;
-    U8* data;
+    uchar8* data;
     
     if( !picFormat )
     {
@@ -250,7 +250,7 @@ void R_LoadDDS( StringEntry filename, U8** pic, S32* width, S32* height, U32* pi
     //
     // load the file
     //
-    len = fileSystem->ReadFile( const_cast< UTF8* >( filename ), &buffer.v );
+    len = fileSystem->ReadFile( const_cast< valueType* >( filename ), &buffer.v );
     if( !buffer.b || len < 0 )
     {
         return;
@@ -269,7 +269,7 @@ void R_LoadDDS( StringEntry filename, U8** pic, S32* width, S32* height, U32* pi
     //
     // reject files that don't start with "DDS "
     //
-    if( *( ( U32* )( buffer.b ) ) != EncodeFourCC( "DDS " ) )
+    if( *( ( uint* )( buffer.b ) ) != EncodeFourCC( "DDS " ) )
     {
         CL_RefPrintf( PRINT_ALL, "File %s is not a DDS file.\n", filename );
         fileSystem->FreeFile( buffer.v );
@@ -453,24 +453,24 @@ void R_LoadDDS( StringEntry filename, U8** pic, S32* width, S32* height, U32* pi
         }
     }
     
-    *pic = ( U8* )CL_RefMalloc( len );
+    *pic = ( uchar8* )CL_RefMalloc( len );
     ::memcpy( *pic, data, len );
     
     fileSystem->FreeFile( buffer.v );
 }
 
-void R_SaveDDS( StringEntry filename, U8* pic, S32 width, S32 height, S32 depth )
+void R_SaveDDS( pointer filename, uchar8* pic, sint width, sint height, sint depth )
 {
-    U8* data;
+    uchar8* data;
     ddsHeader_t* ddsHeader;
-    S32 picSize, size;
+    sint picSize, size;
     
     if( !depth )
         depth = 1;
         
     picSize = width * height * depth * 4;
     size = 4 + sizeof( *ddsHeader ) + picSize;
-    data = ( U8* )CL_RefMalloc( size );
+    data = ( uchar8* )CL_RefMalloc( size );
     
     data[0] = 'D';
     data[1] = 'D';

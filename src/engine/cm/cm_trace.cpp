@@ -80,7 +80,7 @@ TransposeMatrix
 */
 void TransposeMatrix( /*const */ vec3_t matrix[3], vec3_t transpose[3] )  // FIXME
 {
-    S32 i, j;
+    sint i, j;
     
     for( i = 0; i < 3; i++ )
     {
@@ -121,10 +121,10 @@ void CM_ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vDir, vec3_t
 CM_DistanceFromLineSquared
 ================
 */
-F32 CM_DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2, vec3_t dir )
+float32 CM_DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2, vec3_t dir )
 {
     vec3_t          proj, t;
-    S32             j;
+    sint             j;
     
     CM_ProjectPointOntoVector( p, lp1, dir, proj );
     for( j = 0; j < 3; j++ )
@@ -155,7 +155,7 @@ F32 CM_DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2, vec3_t dir )
 CM_VectorDistanceSquared
 ================
 */
-F32 CM_VectorDistanceSquared( vec3_t p1, vec3_t p2 )
+float32 CM_VectorDistanceSquared( vec3_t p1, vec3_t p2 )
 {
     vec3_t dir;
     
@@ -168,15 +168,15 @@ F32 CM_VectorDistanceSquared( vec3_t p1, vec3_t p2 )
 SquareRootFloat
 ================
 */
-F32 SquareRootFloat( F32 number )
+float32 SquareRootFloat( float32 number )
 {
     union
     {
-        F32           f;
-        S32             i;
+        float32           f;
+        sint             i;
     } t;
-    F32           x, y;
-    const F32     f = 1.5F;
+    float32           x, y;
+    const float32     f = 1.5F;
     
     x = number * 0.5F;
     t.f = number;
@@ -203,9 +203,9 @@ CM_TestBoxInBrush
 */
 static void CM_TestBoxInBrush( traceWork_t* tw, cbrush_t* brush )
 {
-    S32             i;
+    sint             i;
     cplane_t*       plane;
-    F64           dist, d1, t;
+    float64           dist, d1, t;
     cbrushside_t*   side;
     vec3_t          startp;
     
@@ -285,8 +285,8 @@ CM_PositionTestInSurfaceCollide
 */
 static bool CM_PositionTestInSurfaceCollide( traceWork_t* tw, const cSurfaceCollide_t* sc )
 {
-    S32             i, j;
-    F32           offset, t, plane[4];
+    sint             i, j;
+    float32           offset, t, plane[4];
     cPlane_t*       planes;
     cFacet_t*       facet;
     vec3_t          startp;
@@ -394,7 +394,7 @@ CM_TestInLeaf
 */
 void CM_TestInLeaf( traceWork_t* tw, cLeaf_t* leaf )
 {
-    S32             k, brushnum;
+    sint             k, brushnum;
     cbrush_t*       b;
     cSurface_t*     surface;
     
@@ -478,9 +478,9 @@ capsule inside capsule check
 */
 void CM_TestCapsuleInCapsule( traceWork_t* tw, clipHandle_t model )
 {
-    S32             i;
+    sint             i;
     vec3_t          mins, maxs, top, bottom, p1, p2, tmp, offset, symetricSize[2];
-    F32           radius, halfwidth, halfheight, offs, r;
+    float32           radius, halfwidth, halfheight, offs, r;
     
     collisionModelManagerLocal.ModelBounds( model, mins, maxs );
     
@@ -488,7 +488,7 @@ void CM_TestCapsuleInCapsule( traceWork_t* tw, clipHandle_t model )
     VectorSubtract( tw->start, tw->sphere.offset, bottom );
     for( i = 0; i < 3; i++ )
     {
-        offset[i] = ( mins[i] + maxs[i] ) * 0.5;
+        offset[i] = ( mins[i] + maxs[i] ) * 0.5f;
         symetricSize[0][i] = mins[i] - offset[i];
         symetricSize[1][i] = maxs[i] - offset[i];
     }
@@ -554,7 +554,7 @@ void CM_TestBoundingBoxInCapsule( traceWork_t* tw, clipHandle_t model )
     vec3_t          mins, maxs, offset, size[2];
     clipHandle_t    h;
     cmodel_t*       cmod;
-    S32             i;
+    sint             i;
     
     // mins maxs of the capsule
     collisionModelManagerLocal.ModelBounds( model, mins, maxs );
@@ -562,7 +562,7 @@ void CM_TestBoundingBoxInCapsule( traceWork_t* tw, clipHandle_t model )
     // offset for capsule center
     for( i = 0; i < 3; i++ )
     {
-        offset[i] = ( mins[i] + maxs[i] ) * 0.5;
+        offset[i] = ( mins[i] + maxs[i] ) * 0.5f;
         size[0][i] = mins[i] - offset[i];
         size[1][i] = maxs[i] - offset[i];
         tw->start[i] -= offset[i];
@@ -590,7 +590,7 @@ CM_PositionTest
 #define	MAX_POSITION_LEAFS	1024
 void CM_PositionTest( traceWork_t* tw )
 {
-    S32             leafs[MAX_POSITION_LEAFS], i;
+    sint             leafs[MAX_POSITION_LEAFS], i;
     leafList_t      ll;
     
     // identify the leafs we are touching
@@ -646,11 +646,11 @@ CM_TracePointThroughSurfaceCollide
 void CM_TracePointThroughSurfaceCollide( traceWork_t* tw, const cSurfaceCollide_t* sc )
 {
     static bool     frontFacing[SHADER_MAX_TRIANGLES];
-    static F32    intersection[SHADER_MAX_TRIANGLES];
-    F32           intersect, offset, d1, d2;
+    static float32    intersection[SHADER_MAX_TRIANGLES];
+    float32           intersect, offset, d1, d2;
     const cPlane_t* planes;
     const cFacet_t* facet;
-    S32             i, j, k;
+    sint             i, j, k;
 #ifndef BSPC
     static convar_t*  cv;
 #endif
@@ -763,9 +763,9 @@ void CM_TracePointThroughSurfaceCollide( traceWork_t* tw, const cSurfaceCollide_
 CM_CheckFacetPlane
 ====================
 */
-S32 CM_CheckFacetPlane( F32* plane, vec3_t start, vec3_t end, F32* enterFrac, F32* leaveFrac, S32* hit )
+sint CM_CheckFacetPlane( float32* plane, vec3_t start, vec3_t end, float32* enterFrac, float32* leaveFrac, sint* hit )
 {
-    F32 d1, d2, f;
+    float32 d1, d2, f;
     
     *hit = false;
     
@@ -824,8 +824,8 @@ CM_TraceThroughSurfaceCollide
 */
 void CM_TraceThroughSurfaceCollide( traceWork_t* tw, const cSurfaceCollide_t* sc )
 {
-    S32             i, j, hit, hitnum;
-    F32           offset, enterFrac, leaveFrac, t, plane[4] = { 0, 0, 0, 0 }, bestplane[4] = { 0, 0, 0, 0 };
+    sint             i, j, hit, hitnum;
+    float32           offset, enterFrac, leaveFrac, t, plane[4] = { 0, 0, 0, 0 }, bestplane[4] = { 0, 0, 0, 0 };
     cPlane_t*       planes;
     cFacet_t*       facet;
     vec3_t          startp, endp;
@@ -988,7 +988,7 @@ CM_TraceThroughSurface
 */
 void CM_TraceThroughSurface( traceWork_t* tw, cSurface_t* surface )
 {
-    F32 oldFrac;
+    float32 oldFrac;
     
     oldFrac = tw->trace.fraction;
     
@@ -1019,7 +1019,7 @@ CM_CalcTraceBounds
 */
 static void CM_CalcTraceBounds( traceWork_t* tw, bool expand )
 {
-    S32 i;
+    sint i;
     
     if( tw->sphere.use )
     {
@@ -1070,9 +1070,9 @@ static void CM_CalcTraceBounds( traceWork_t* tw, bool expand )
 CM_BoxDistanceFromPlane
 ================
 */
-static F32 CM_BoxDistanceFromPlane( vec3_t center, vec3_t extents, cplane_t* plane )
+static float32 CM_BoxDistanceFromPlane( vec3_t center, vec3_t extents, cplane_t* plane )
 {
-    F32 d1, d2;
+    float32 d1, d2;
     
     d1 = DotProduct( center, plane->normal ) - plane->dist;
     d2 = Q_fabs( extents[0] * plane->normal[0] ) +
@@ -1095,9 +1095,9 @@ static F32 CM_BoxDistanceFromPlane( vec3_t center, vec3_t extents, cplane_t* pla
 CM_BoxDistanceFromPlane
 ================
 */
-static S32 CM_TraceThroughBounds( traceWork_t* tw, vec3_t mins, vec3_t maxs )
+static sint CM_TraceThroughBounds( traceWork_t* tw, vec3_t mins, vec3_t maxs )
 {
-    S32 i;
+    sint i;
     vec3_t center, extents;
     
     for( i = 0; i < 3; i++ )
@@ -1136,9 +1136,9 @@ CM_TraceThroughBrush
 */
 void CM_TraceThroughBrush( traceWork_t* tw, cbrush_t* brush )
 {
-    S32             i;
+    sint             i;
     cplane_t*       plane, *clipplane;
-    F64           dist, enterFrac, leaveFrac, d1, d2, f, t;
+    float64           dist, enterFrac, leaveFrac, d1, d2, f, t;
     bool        getout, startout;
     cbrushside_t*   side, *leadside;
     vec3_t          startp, endp;
@@ -1429,8 +1429,8 @@ CM_ProximityToBrush
 
 static void CM_ProximityToBrush( traceWork_t* tw, cbrush_t* brush )
 {
-    F32           dist, minDist = 1e+10f, s, t, sAtMin = 0.0f, radius = 0.0f, fraction;
-    S32             i;
+    float32           dist, minDist = 1e+10f, s, t, sAtMin = 0.0f, radius = 0.0f, fraction;
+    sint             i;
     cbrushedge_t*   edge;
     traceWork_t     tw2;
     
@@ -1525,10 +1525,10 @@ CM_TraceThroughLeaf
 */
 void CM_TraceThroughLeaf( traceWork_t* tw, cLeaf_t* leaf )
 {
-    S32             k, brushnum;
+    sint             k, brushnum;
     cbrush_t*       brush;
     cSurface_t*     surface;
-    F32 fraction;
+    float32 fraction;
     
     // trace line against all brushes in the leaf
     for( k = 0; k < leaf->numLeafBrushes; k++ )
@@ -1701,9 +1701,9 @@ CM_TraceThroughSphere
 get the first intersection of the ray with the sphere
 ================
 */
-void CM_TraceThroughSphere( traceWork_t* tw, vec3_t origin, F32 radius, vec3_t start, vec3_t end )
+void CM_TraceThroughSphere( traceWork_t* tw, vec3_t origin, float32 radius, vec3_t start, vec3_t end )
 {
-    F32           l1, l2, length, scale, fraction, /*a,*/ b, c, d, sqrtd;
+    float32           l1, l2, length, scale, fraction, /*a,*/ b, c, d, sqrtd;
     vec3_t          v1, dir, intersection;
     
     // if inside the sphere
@@ -1767,7 +1767,7 @@ void CM_TraceThroughSphere( traceWork_t* tw, vec3_t origin, F32 radius, vec3_t s
             l2 = VectorLength( dir );
             if( l2 < radius )
             {
-                S32 bah = 1;
+                sint bah = 1;
             }
 #endif
             scale = 1 / ( radius + RADIUS_EPSILON );
@@ -1794,9 +1794,9 @@ get the first intersection of the ray with the cylinder
 the cylinder extends halfheight above and below the origin
 ================
 */
-void CM_TraceThroughVerticalCylinder( traceWork_t* tw, vec3_t origin, F32 radius, F32 halfheight, vec3_t start, vec3_t end )
+void CM_TraceThroughVerticalCylinder( traceWork_t* tw, vec3_t origin, float32 radius, float32 halfheight, vec3_t start, vec3_t end )
 {
-    F32           length, scale, fraction, l1, l2, /*a,*/ b, c, d, sqrtd;
+    float32           length, scale, fraction, l1, l2, /*a,*/ b, c, d, sqrtd;
     vec3_t          v1, dir, start2d, end2d, org2d, intersection;
     
     // 2d coordinates
@@ -1871,7 +1871,7 @@ void CM_TraceThroughVerticalCylinder( traceWork_t* tw, vec3_t origin, F32 radius
                 l2 = VectorLength( dir );
                 if( l2 <= radius )
                 {
-                    S32 bah = 1;
+                    sint bah = 1;
                 }
 #endif
                 scale = 1 / ( radius + RADIUS_EPSILON );
@@ -1900,9 +1900,9 @@ capsule vs. capsule collision (not rotated)
 */
 void CM_TraceCapsuleThroughCapsule( traceWork_t* tw, clipHandle_t model )
 {
-    S32             i;
+    sint             i;
     vec3_t          mins, maxs, top, bottom, starttop, startbottom, endtop, endbottom, offset, symetricSize[2];
-    F32           radius, halfwidth, halfheight, offs, h;
+    float32           radius, halfwidth, halfheight, offs, h;
     
     collisionModelManagerLocal.ModelBounds( model, mins, maxs );
     // test trace bounds vs. capsule bounds
@@ -1962,7 +1962,7 @@ void CM_TraceBoundingBoxThroughCapsule( traceWork_t* tw, clipHandle_t model )
     vec3_t          mins, maxs, offset, size[2];
     clipHandle_t    h;
     cmodel_t*       cmod;
-    S32             i;
+    sint             i;
     
     // mins maxs of the capsule
     collisionModelManagerLocal.ModelBounds( model, mins, maxs );
@@ -2003,13 +2003,13 @@ trace volumes it is possible to hit something in a later leaf with
 a smaller intercept fraction.
 ==================
 */
-static void CM_TraceThroughTree( traceWork_t* tw, S32 num, F32 p1f, F32 p2f, vec3_t p1, vec3_t p2 )
+static void CM_TraceThroughTree( traceWork_t* tw, sint num, float32 p1f, float32 p2f, vec3_t p1, vec3_t p2 )
 {
-    F32           t1, t2, offset, frac, frac2, idist, midf;
+    float32           t1, t2, offset, frac, frac2, idist, midf;
     cNode_t*        node;
     cplane_t*       plane;
     vec3_t          mid;
-    S32             side;
+    sint             side;
     
     if( tw->trace.fraction <= p1f )
     {
@@ -2129,15 +2129,15 @@ static void CM_TraceThroughTree( traceWork_t* tw, S32 num, F32 p1f, F32 p2f, vec
 CM_Trace
 ==================
 */
-static void CM_Trace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, const vec3_t origin, S32 brushmask, traceType_t type, sphere_t* sphere )
+static void CM_Trace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, const vec3_t origin, sint brushmask, traceType_t type, sphere_t* sphere )
 {
-    S32             i;
+    sint             i;
     traceWork_t     tw;
     vec3_t          offset;
     cmodel_t*       cmod;
     bool            positionTest;
     vec3_t          dir;
-    F32             dist;
+    float32             dist;
     
     cmod = CM_ClipHandleToModel( model );
     
@@ -2393,7 +2393,7 @@ static void CM_Trace( trace_t* results, const vec3_t start, const vec3_t end, co
 idCollisionModelManagerLocal::BoxTrace
 ==================
 */
-void idCollisionModelManagerLocal::BoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, S32 brushmask, traceType_t type )
+void idCollisionModelManagerLocal::BoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, sint brushmask, traceType_t type )
 {
     CM_Trace( results, start, end, mins, maxs, model, vec3_origin, brushmask, type, nullptr );
 }
@@ -2406,7 +2406,7 @@ Handles offseting and rotation of the end points for moving and
 rotating entities
 ==================
 */
-void idCollisionModelManagerLocal::TransformedBoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, S32 brushmask, const vec3_t origin, const vec3_t angles, traceType_t type )
+void idCollisionModelManagerLocal::TransformedBoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, sint brushmask, const vec3_t origin, const vec3_t angles, traceType_t type )
 {
     trace_t         trace;
     vec3_t          start_l, end_l;
@@ -2415,10 +2415,10 @@ void idCollisionModelManagerLocal::TransformedBoxTrace( trace_t* results, const 
     vec3_t          offset;
     vec3_t          symetricSize[2];
     matrix_t        rotation, transform, inverse;
-    S32             i;
-    F32           halfwidth;
-    F32           halfheight;
-    F32           t;
+    sint             i;
+    float32           halfwidth;
+    float32           halfheight;
+    float32           t;
     sphere_t        sphere;
     
     if( !mins )
@@ -2530,10 +2530,10 @@ void idCollisionModelManagerLocal::TransformedBoxTrace( trace_t* results, const 
 idCollisionModelManagerLocal::BiSphereTrace
 ==================
 */
-void idCollisionModelManagerLocal::BiSphereTrace( trace_t* results, const vec3_t start, const vec3_t end, F32 startRad, F32 endRad, clipHandle_t model, S32 mask )
+void idCollisionModelManagerLocal::BiSphereTrace( trace_t* results, const vec3_t start, const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model, sint mask )
 {
-    F32           largestRadius = startRad > endRad ? startRad : endRad;
-    S32             i;
+    float32           largestRadius = startRad > endRad ? startRad : endRad;
+    sint             i;
     traceWork_t     tw;
     cmodel_t*       cmod;
     
@@ -2634,7 +2634,7 @@ Handles offseting and rotation of the end points for moving and
 rotating entities
 ==================
 */
-void idCollisionModelManagerLocal::TransformedBiSphereTrace( trace_t* results, const vec3_t start, const vec3_t end, F32 startRad, F32 endRad, clipHandle_t model, S32 mask, const vec3_t origin )
+void idCollisionModelManagerLocal::TransformedBiSphereTrace( trace_t* results, const vec3_t start, const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model, sint mask, const vec3_t origin )
 {
     trace_t         trace;
     vec3_t          start_l, end_l;
@@ -2667,7 +2667,7 @@ idCollisionModelManagerLocal::DrawDebugSurface
 Called from the renderer
 ==================
 */
-void idCollisionModelManagerLocal::DrawDebugSurface( void ( *drawPoly )( S32 color, S32 numPoints, F32* points ) )
+void idCollisionModelManagerLocal::DrawDebugSurface( void ( *drawPoly )( sint color, sint numPoints, float32* points ) )
 {
 #ifndef BSPC
     static convar_t*           cv, *cv2;
@@ -2675,8 +2675,8 @@ void idCollisionModelManagerLocal::DrawDebugSurface( void ( *drawPoly )( S32 col
     const cSurfaceCollide_t* pc;
     cFacet_t*                facet;
     winding_t*               w;
-    S32                      i, j, k, curplanenum, planenum, curinward, inward;
-    F32                    plane[4];
+    sint                      i, j, k, curplanenum, planenum, curinward, inward;
+    float32                    plane[4];
     
 #ifndef BSPC
     if( !cv2 )

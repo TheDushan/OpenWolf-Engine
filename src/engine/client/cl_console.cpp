@@ -37,7 +37,7 @@
 
 #include <framework/precompiled.h>
 
-S32 g_console_field_width = 78;
+sint g_console_field_width = 78;
 
 #define CONSOLE_COLOR '7'
 #define DEFAULT_CONSOLE_WIDTH   78
@@ -48,27 +48,27 @@ typedef struct
 {
     bool        initialized;
     
-    S16         text[CON_TEXTSIZE];
-    S32         current;	// line where next message will be printed
-    S32         x;			// offset in current line for next print
-    S32         display;	// bottom of console displays this line
+    schar16         text[CON_TEXTSIZE];
+    sint         current;	// line where next message will be printed
+    sint         x;			// offset in current line for next print
+    sint         display;	// bottom of console displays this line
     
-    S32         linewidth;	// characters across screen
-    S32         totallines;	// total lines in console scrollback
+    sint         linewidth;	// characters across screen
+    sint         totallines;	// total lines in console scrollback
     
-    F32         xadjust;	// for wide aspect screens
+    float32         xadjust;	// for wide aspect screens
     
-    F32         displayFrac;	// aproaches finalFrac at scr_conspeed
-    F32         finalFrac;	// 0.0 to 1.0 lines of console to display
-    F32         desiredFrac;	// ydnar: for variable console heights
+    float32         displayFrac;	// aproaches finalFrac at scr_conspeed
+    float32         finalFrac;	// 0.0 to 1.0 lines of console to display
+    float32         desiredFrac;	// ydnar: for variable console heights
     
-    S32         vislines;	// in scanlines
+    sint         vislines;	// in scanlines
     
-    S32         times[NUM_CON_TIMES];	// cls.realtime time the line was generated
+    sint         times[NUM_CON_TIMES];	// cls.realtime time the line was generated
     // for transparent notify lines
     vec4_t      color;
     
-    S32          acLength;	// Arnout: autocomplete buffer length
+    sint          acLength;	// Arnout: autocomplete buffer length
 } console_t;
 
 console_t       con;
@@ -136,7 +136,7 @@ void Con_ToggleConsole_f( void )
     {
         cls.keyCatchers |= KEYCATCH_CONSOLE;
         
-        // S16 console
+        // schar16 console
         if( keys[K_CTRL].down )
         {
             con.desiredFrac = ( 5.0 * SMALLCHAR_HEIGHT ) / cls.glconfig.vidHeight;
@@ -161,7 +161,7 @@ Con_MessageMode_f
 */
 void Con_MessageMode_f( void )
 {
-    S32 i;
+    sint i;
     
     chat_team = false;
     Field_Clear( &chatField );
@@ -183,7 +183,7 @@ Con_MessageMode2_f
 */
 void Con_MessageMode2_f( void )
 {
-    S32 i;
+    sint i;
     
     chat_team = true;
     Field_Clear( &chatField );
@@ -205,7 +205,7 @@ Con_MessageMode3_f
 */
 void Con_MessageMode3_f( void )
 {
-    S32 i;
+    sint i;
     
     chat_team = false;
     chat_buddy = true;
@@ -228,11 +228,11 @@ void Con_OpenConsole_f( void )
     }
 }
 
-StringEntry Con_GetText( S32 console )
+pointer Con_GetText( sint console )
 {
     if( console >= 0 && con.text )
     {
-        return ( UTF8* )con.text;
+        return ( valueType* )con.text;
     }
     else
     {
@@ -258,7 +258,7 @@ Con_Clear_f
 */
 void Con_Clear_f( void )
 {
-    S32             i;
+    sint             i;
     
     for( i = 0; i < CON_TEXTSIZE; i++ )
     {
@@ -268,8 +268,8 @@ void Con_Clear_f( void )
     Con_Bottom();				// go to end
 }
 
-static S32 dump_time;
-static S32 dump_count;
+static sint dump_time;
+static sint dump_count;
 /*
 ================
 Con_Dump_f
@@ -279,15 +279,15 @@ Save the console contents out to a file
 */
 void Con_Dump_f( void )
 {
-    S32             l, x, i;
-    S16*          line;
+    sint             l, x, i;
+    schar16*          line;
     fileHandle_t    f;
-    S32		bufferlen;
-    UTF8*	buffer;
-    UTF8	filename[MAX_QPATH];
-    UTF8*	ss;
-    S32		ilen, isub;
-    UTF8	name[MAX_QPATH];
+    sint		bufferlen;
+    valueType*	buffer;
+    valueType	filename[MAX_QPATH];
+    valueType*	ss;
+    sint		ilen, isub;
+    valueType	name[MAX_QPATH];
     
     if( cmdSystem->Argc() < 1 || cmdSystem->Argc() > 2 || !Q_stricmp( cmdSystem->Argv( 1 ), "?" ) )
     {
@@ -300,7 +300,7 @@ void Con_Dump_f( void )
     if( !strlen( name ) )
     {
         qtime_t	time;
-        UTF8*	count = ( dump_time == cls.realtime / 1000 ) ? va( "(%d)", dump_count++ + 2 ) : "";
+        valueType*	count = ( dump_time == cls.realtime / 1000 ) ? va( "(%d)", dump_count++ + 2 ) : "";
         Com_RealTime( &time );
         
         Com_sprintf( name, sizeof( name ), "condump%04d%02d%02d%02d%02d%02d%s",
@@ -343,12 +343,12 @@ void Con_Dump_f( void )
     }
     
 #ifdef _WIN32
-    bufferlen = con.linewidth + 3 * sizeof( UTF8 );
+    bufferlen = con.linewidth + 3 * sizeof( valueType );
 #else
-    bufferlen = con.linewidth + 2 * sizeof( UTF8 );
+    bufferlen = con.linewidth + 2 * sizeof( valueType );
 #endif
     
-    buffer = static_cast<UTF8*>( Hunk_AllocateTempMemory( bufferlen ) );
+    buffer = static_cast<valueType*>( Hunk_AllocateTempMemory( bufferlen ) );
     
     // write the remaining lines
     buffer[bufferlen - 1] = 0;
@@ -387,11 +387,11 @@ Scroll up to the first console line containing a string
 */
 void Con_Search_f( void )
 {
-    S32		l, i, x;
-    S16*	line;
-    UTF8	buffer[MAXPRINTMSG];
-    S32		direction;
-    S32		c = cmdSystem->Argc();
+    sint		l, i, x;
+    schar16*	line;
+    valueType	buffer[MAXPRINTMSG];
+    sint		direction;
+    sint		c = cmdSystem->Argc();
     
     if( c < 2 )
     {
@@ -446,13 +446,13 @@ Find all console lines containing a string
 */
 void Con_Grep_f( void )
 {
-    S32		l, x, i;
-    S16*	line;
-    UTF8	buffer[1024];
-    UTF8	buffer2[1024];
-    UTF8	printbuf[CON_TEXTSIZE];
-    UTF8*	search;
-    UTF8	lastcolor;
+    sint		l, x, i;
+    schar16*	line;
+    valueType	buffer[1024];
+    valueType	buffer2[1024];
+    valueType	printbuf[CON_TEXTSIZE];
+    valueType*	search;
+    valueType	lastcolor;
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -518,7 +518,7 @@ Con_ClearNotify
 */
 void Con_ClearNotify( void )
 {
-    S32             i;
+    sint             i;
     
     for( i = 0; i < NUM_CON_TIMES; i++ )
     {
@@ -537,8 +537,8 @@ If the line width has changed, reformat the buffer.
 */
 void Con_CheckResize( void )
 {
-    S32 i, j, width, oldwidth, oldtotallines, numlines, numchars;
-    S16	tbuf[CON_TEXTSIZE];
+    sint i, j, width, oldwidth, oldtotallines, numlines, numchars;
+    schar16	tbuf[CON_TEXTSIZE];
     
     if( cls.glconfig.vidWidth )
     {
@@ -579,7 +579,7 @@ void Con_CheckResize( void )
         if( con.linewidth < numchars )
             numchars = con.linewidth;
             
-        ::memcpy( tbuf, con.text, CON_TEXTSIZE * sizeof( S16 ) );
+        ::memcpy( tbuf, con.text, CON_TEXTSIZE * sizeof( schar16 ) );
         for( i = 0; i < CON_TEXTSIZE; i++ )
         {
             con.text[i] = ( ColorIndex( COLOR_WHITE ) << 8 ) | ' ';
@@ -659,7 +659,7 @@ Con_Linefeed
 */
 void Con_Linefeed( bool skipnotify )
 {
-    S32             i;
+    sint             i;
     
     // mark time for transparent overlay
     if( con.current >= 0 )
@@ -697,13 +697,13 @@ If no console is visible, the text will appear at the top of the game window
 #pragma optimize( "g", off )	// SMF - msvc totally screws this function up with optimize on
 #endif
 
-void CL_ConsolePrint( UTF8* txt )
+void CL_ConsolePrint( valueType* txt )
 {
-    S32             y;
-    S32             c, l;
-    S32             color;
+    sint             y;
+    sint             c, l;
+    sint             color;
     bool        skipnotify = false;	// NERVE - SMF
-    S32             prev;		// NERVE - SMF
+    sint             prev;		// NERVE - SMF
     
     // NERVE - SMF - work around for text that shows up in console but not in notify
     if( !Q_strncmp( txt, "[skipnotify]", 12 ) )
@@ -791,7 +791,7 @@ void CL_ConsolePrint( UTF8* txt )
                 y = con.current % con.totallines;
                 // rain - sign extension caused the character to carry over
                 // into the color info for high ascii chars; casting c to unsigned
-                con.text[y * con.linewidth + con.x] = ( color << 8 ) | ( U8 )c;
+                con.text[y * con.linewidth + con.x] = ( color << 8 ) | ( uchar8 )c;
                 con.x++;
                 if( con.x >= con.linewidth )
                 {
@@ -844,8 +844,8 @@ Draw the editline after a ] prompt
 */
 void Con_DrawInput( void )
 {
-    S32		y;
-    UTF8	prompt[ MAX_STRING_CHARS ];
+    sint		y;
+    valueType	prompt[ MAX_STRING_CHARS ];
     vec4_t	color;
     qtime_t realtime;
     
@@ -881,12 +881,12 @@ Draws the last few lines of output transparently over the game top
 */
 void Con_DrawNotify( void )
 {
-    S32             x, v;
-    S16*            text;
-    S32             i;
-    S32             time;
-    S32             skip;
-    S32             currentColor;
+    sint             x, v;
+    schar16*            text;
+    sint             i;
+    sint             time;
+    sint             skip;
+    sint             currentColor;
     
     currentColor = 7;
     renderSystem->SetColor( g_color_table[currentColor] );
@@ -944,7 +944,7 @@ void Con_DrawNotify( void )
     {
         if( chat_team )
         {
-            UTF8            buf[128];
+            valueType            buf[128];
             
             CL_TranslateString( "say_team:", buf );
             idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
@@ -952,7 +952,7 @@ void Con_DrawNotify( void )
         }
         else if( chat_buddy )
         {
-            UTF8            buf[128];
+            valueType            buf[128];
             
             CL_TranslateString( "say_fireteam:", buf );
             idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
@@ -960,7 +960,7 @@ void Con_DrawNotify( void )
         }
         else
         {
-            UTF8            buf[128];
+            valueType            buf[128];
             
             CL_TranslateString( "say:", buf );
             idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
@@ -981,17 +981,17 @@ Con_DrawSolidConsole
 Draws the console with the solid background
 ================
 */
-void Con_DrawSolidConsole( F32 frac )
+void Con_DrawSolidConsole( float32 frac )
 {
-    S32				i, x, y;
-    S32				rows;
-    S16*			text;
-    S32				row;
-    S32				lines;
-    S32				currentColor;
+    sint				i, x, y;
+    sint				rows;
+    schar16*			text;
+    sint				row;
+    sint				lines;
+    sint				currentColor;
     vec4_t			color;
-    F32           totalwidth;
-    F32           currentWidthLocation = 0;
+    float32           totalwidth;
+    float32           currentWidthLocation = 0;
     
     lines = cls.glconfig.vidHeight * frac;
     
@@ -1081,7 +1081,7 @@ void Con_DrawSolidConsole( F32 frac )
     
     for( i = 0 ; i < rows ; i++, y -= idClientScreenSystemLocal::ConsoleFontCharHeight(), row-- )
     {
-        F32 currentWidthLocation = cl_conXOffset->integer;
+        float32 currentWidthLocation = cl_conXOffset->integer;
         
         if( row < 0 )
             break;
@@ -1173,14 +1173,14 @@ void Con_RunConsole( void )
     // scroll towards the destination height
     if( con.finalFrac < con.displayFrac )
     {
-        con.displayFrac -= con_conspeed->value * ( F32 )cls.realFrametime / 1000.0f;
+        con.displayFrac -= con_conspeed->value * ( float32 )cls.realFrametime / 1000.0f;
         if( con.finalFrac > con.displayFrac )
             con.displayFrac = con.finalFrac;
             
     }
     else if( con.finalFrac > con.displayFrac )
     {
-        con.displayFrac += con_conspeed->value * ( F32 )cls.realFrametime / 1000.0f;
+        con.displayFrac += con_conspeed->value * ( float32 )cls.realFrametime / 1000.0f;
         if( con.finalFrac < con.displayFrac )
             con.displayFrac = con.finalFrac;
     }

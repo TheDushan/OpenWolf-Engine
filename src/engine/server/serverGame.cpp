@@ -74,7 +74,7 @@ idServerGameSystemLocal::~idServerGameSystemLocal( void )
 idServerGameSystemLocal::GameError
 ==================
 */
-void idServerGameSystemLocal::GameError( StringEntry string )
+void idServerGameSystemLocal::GameError( pointer string )
 {
     Com_Error( ERR_DROP, "%s", string );
 }
@@ -84,7 +84,7 @@ void idServerGameSystemLocal::GameError( StringEntry string )
 idServerGameSystemLocal::GamePrint
 ==================
 */
-void idServerGameSystemLocal::GamePrint( StringEntry string )
+void idServerGameSystemLocal::GamePrint( pointer string )
 {
     Com_Printf( "%s", string );
 }
@@ -96,11 +96,11 @@ void idServerGameSystemLocal::GamePrint( StringEntry string )
 idServerGameSystemLocal::NumForGentity
 ==================
 */
-S32 idServerGameSystemLocal::NumForGentity( sharedEntity_t* ent )
+sint idServerGameSystemLocal::NumForGentity( sharedEntity_t* ent )
 {
-    S32 num;
+    sint num;
     
-    num = ( ( U8* ) ent - ( U8* ) sv.gentities ) / sv.gentitySize;
+    num = ( ( uchar8* ) ent - ( uchar8* ) sv.gentities ) / sv.gentitySize;
     
     return num;
 }
@@ -110,11 +110,11 @@ S32 idServerGameSystemLocal::NumForGentity( sharedEntity_t* ent )
 idServerGameSystemLocal::GentityNum
 ==================
 */
-sharedEntity_t* idServerGameSystemLocal::GentityNum( S32 num )
+sharedEntity_t* idServerGameSystemLocal::GentityNum( sint num )
 {
     sharedEntity_t* ent;
     
-    ent = ( sharedEntity_t* )( ( U8* ) sv.gentities + sv.gentitySize * ( num ) );
+    ent = ( sharedEntity_t* )( ( uchar8* ) sv.gentities + sv.gentitySize * ( num ) );
     
     return ent;
 }
@@ -124,11 +124,11 @@ sharedEntity_t* idServerGameSystemLocal::GentityNum( S32 num )
 idServerGameSystemLocal::GentityNum
 ==================
 */
-playerState_t* idServerGameSystemLocal::GameClientNum( S32 num )
+playerState_t* idServerGameSystemLocal::GameClientNum( sint num )
 {
     playerState_t*  ps;
     
-    ps = ( playerState_t* )( ( U8* ) sv.gameClients + sv.gameClientSize * ( num ) );
+    ps = ( playerState_t* )( ( uchar8* ) sv.gameClients + sv.gameClientSize * ( num ) );
     
     return ps;
 }
@@ -155,7 +155,7 @@ idServerGameSystemLocal::GEntityForSvEntity
 */
 sharedEntity_t* idServerGameSystemLocal::GEntityForSvEntity( svEntity_t* svEnt )
 {
-    S32 num;
+    sint num;
     
     num = svEnt - sv.svEntities;
     return serverGameSystemLocal.GentityNum( num );
@@ -168,7 +168,7 @@ idServerGameSystemLocal::GameSendServerCommand
 Sends a command string to a client
 ===============
 */
-void idServerGameSystemLocal::GameSendServerCommand( S32 clientNum, StringEntry text )
+void idServerGameSystemLocal::GameSendServerCommand( sint clientNum, pointer text )
 {
     if( clientNum == -1 )
     {
@@ -176,7 +176,7 @@ void idServerGameSystemLocal::GameSendServerCommand( S32 clientNum, StringEntry 
     }
     else if( clientNum == -2 )
     {
-        S32 j;
+        sint j;
         client_t* client;
         
         for( j = 0, client = svs.clients; j < sv_maxclients->integer; j++, client++ )
@@ -191,7 +191,7 @@ void idServerGameSystemLocal::GameSendServerCommand( S32 clientNum, StringEntry 
                 continue;
             }
             
-            serverMainSystem->AddServerCommand( client, ( UTF8* )text );
+            serverMainSystem->AddServerCommand( client, ( valueType* )text );
         }
     }
     else
@@ -212,7 +212,7 @@ idServerGameSystemLocal::GameDropClient
 Disconnects the client with a message
 ===============
 */
-void idServerGameSystemLocal::GameDropClient( S32 clientNum, StringEntry reason, S32 length )
+void idServerGameSystemLocal::GameDropClient( sint clientNum, pointer reason, sint length )
 {
     if( clientNum < 0 || clientNum >= sv_maxclients->integer )
     {
@@ -234,7 +234,7 @@ idServerGameSystemLocal::SetBrushModel
 sets mins and maxs for inline bmodels
 =================
 */
-void idServerGameSystemLocal::SetBrushModel( sharedEntity_t* ent, StringEntry name )
+void idServerGameSystemLocal::SetBrushModel( sharedEntity_t* ent, pointer name )
 {
     clipHandle_t h;
     vec3_t mins, maxs;
@@ -271,8 +271,8 @@ Also checks portalareas so that doors block sight
 */
 bool idServerGameSystemLocal::inPVS( const vec3_t p1, const vec3_t p2 )
 {
-    S32 leafnum, cluster, area1, area2;
-    U8* mask;
+    sint leafnum, cluster, area1, area2;
+    uchar8* mask;
     
     leafnum = collisionModelManager->PointLeafnum( p1 );
     cluster = collisionModelManager->LeafCluster( leafnum );
@@ -305,8 +305,8 @@ Does NOT check portalareas
 */
 bool idServerGameSystemLocal::inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
 {
-    S32 leafnum, cluster, area1, area2;
-    U8* mask;
+    sint leafnum, cluster, area1, area2;
+    uchar8* mask;
     
     leafnum = collisionModelManager->PointLeafnum( p1 );
     cluster = collisionModelManager->LeafCluster( leafnum );
@@ -351,7 +351,7 @@ idServerGameSystemLocal::GameAreaEntities
 */
 bool idServerGameSystemLocal::EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t* gEnt, traceType_t type )
 {
-    const F32* origin, *angles;
+    const float32* origin, *angles;
     clipHandle_t ch;
     trace_t trace;
     
@@ -370,7 +370,7 @@ bool idServerGameSystemLocal::EntityContact( const vec3_t mins, const vec3_t max
 idServerGameSystemLocal::GetServerinfo
 ===============
 */
-void idServerGameSystemLocal::GetServerinfo( UTF8* buffer, S32 bufferSize )
+void idServerGameSystemLocal::GetServerinfo( valueType* buffer, sint bufferSize )
 {
     if( bufferSize < 1 )
     {
@@ -385,7 +385,7 @@ void idServerGameSystemLocal::GetServerinfo( UTF8* buffer, S32 bufferSize )
 idServerGameSystemLocal::LocateGameData
 ===============
 */
-void idServerGameSystemLocal::LocateGameData( sharedEntity_t* gEnts, S32 numGEntities, S32 sizeofGEntity_t, playerState_t* clients, S32 sizeofGameClient )
+void idServerGameSystemLocal::LocateGameData( sharedEntity_t* gEnts, sint numGEntities, sint sizeofGEntity_t, playerState_t* clients, sint sizeofGameClient )
 {
     sv.gentities = gEnts;
     sv.gentitySize = sizeofGEntity_t;
@@ -400,7 +400,7 @@ void idServerGameSystemLocal::LocateGameData( sharedEntity_t* gEnts, S32 numGEnt
 idServerGameSystemLocal::GetUsercmd
 ===============
 */
-void idServerGameSystemLocal::GetUsercmd( S32 clientNum, usercmd_t* cmd )
+void idServerGameSystemLocal::GetUsercmd( sint clientNum, usercmd_t* cmd )
 {
     if( clientNum < 0 || clientNum >= sv_maxclients->integer )
     {
@@ -416,9 +416,9 @@ void idServerGameSystemLocal::GetUsercmd( S32 clientNum, usercmd_t* cmd )
 idServerGameSystemLocal::UpdateSharedConfig
 ===============
 */
-void idServerGameSystemLocal::UpdateSharedConfig( U32 port, StringEntry rconpass )
+void idServerGameSystemLocal::UpdateSharedConfig( uint port, pointer rconpass )
 {
-    UTF8 message[MAX_RCON_MESSAGE];
+    valueType message[MAX_RCON_MESSAGE];
     netadr_t to;
     
     message[0] = -1;
@@ -444,9 +444,9 @@ void idServerGameSystemLocal::UpdateSharedConfig( U32 port, StringEntry rconpass
 idServerGameSystemLocal::GetEntityToken
 ===============
 */
-bool idServerGameSystemLocal::GetEntityToken( UTF8* buffer, S32 bufferSize )
+bool idServerGameSystemLocal::GetEntityToken( valueType* buffer, sint bufferSize )
 {
-    StringEntry s;
+    pointer s;
     
     s = COM_Parse( &sv.entityParsePoint );
     
@@ -467,7 +467,7 @@ bool idServerGameSystemLocal::GetEntityToken( UTF8* buffer, S32 bufferSize )
 idServerGameSystemLocal::DemoWriteCommand
 ====================
 */
-S32 idServerGameSystemLocal::DemoWriteCommand( S32 cmd, StringEntry str )
+sint idServerGameSystemLocal::DemoWriteCommand( sint cmd, pointer str )
 {
     if( sv.demoState == DS_RECORDING )
     {
@@ -554,7 +554,7 @@ Called for both a full init and a restart
 */
 void idServerGameSystemLocal::InitGameModule( bool restart )
 {
-    S32 i;
+    sint i;
     
     // clear physics interaction links
     serverWorldSystemLocal.ClearWorld();
@@ -685,9 +685,9 @@ return false if unable to retrieve tag information for this client
 Dushan - I have no idea if this ever worked in Wolfenstein: Enemy Territory
 ====================
 */
-bool idServerGameSystemLocal::GetTag( S32 clientNum, S32 tagFileNumber, UTF8* tagname, orientation_t* _or )
+bool idServerGameSystemLocal::GetTag( sint clientNum, sint tagFileNumber, valueType* tagname, orientation_t* _or )
 {
-    S32 i;
+    sint i;
     
     if( tagFileNumber > 0 && tagFileNumber <= sv.num_tagheaders )
     {

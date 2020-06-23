@@ -30,19 +30,19 @@
 
 #include <framework/precompiled.h>
 
-S64 myftol( F32 f );
+sint32 myftol( float32 f );
 
 #define C0 0.4829629131445341
 #define C1 0.8365163037378079
 #define C2 0.2241438680420134
 #define C3 -0.1294095225512604
 
-void daub4( F32 b[], U64 n, S32 isign )
+void daub4( float32 b[], uint32 n, sint isign )
 {
-    F32 wksp[4097];
-    F32* a = b - 1; // numerical recipies so a[1] = b[0]
+    float32 wksp[4097];
+    float32* a = b - 1; // numerical recipies so a[1] = b[0]
     
-    U64 nh, nh1, i, j;
+    uint32 nh, nh1, i, j;
     
     if( n < 4 )
     {
@@ -76,10 +76,10 @@ void daub4( F32 b[], U64 n, S32 isign )
     }
 }
 
-void wt1( F32 a[], U64 n, S32 isign )
+void wt1( float32 a[], uint32 n, sint isign )
 {
-    U64 nn;
-    S32 inverseStartLength = n / 4;
+    uint32 nn;
+    sint inverseStartLength = n / 4;
     
     if( n < inverseStartLength )
     {
@@ -97,7 +97,7 @@ void wt1( F32 a[], U64 n, S32 isign )
 }
 
 /* The number of bits required by each value */
-static U8 numBits[] =
+static uchar8 numBits[] =
 {
     0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
     6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
@@ -109,10 +109,10 @@ static U8 numBits[] =
     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 };
 
-U8 MuLawEncode( short s )
+uchar8 MuLawEncode( short s )
 {
-    U64 adjusted;
-    U8 sign, exponent, mantissa;
+    uint32 adjusted;
+    uchar8 sign, exponent, mantissa;
     
     sign = ( s < 0 ) ? 0 : 0x80;
     
@@ -121,7 +121,7 @@ U8 MuLawEncode( short s )
         s = -s;
     }
     
-    adjusted = ( S64 )s << ( 16 - sizeof( S16 ) * 8 );
+    adjusted = ( sint32 )s << ( 16 - sizeof( schar16 ) * 8 );
     adjusted += 128L + 4L;
     
     if( adjusted > 32767 )
@@ -134,10 +134,10 @@ U8 MuLawEncode( short s )
     return ~( sign | ( exponent << 4 ) | mantissa );
 }
 
-S16 MuLawDecode( U8 uLaw )
+schar16 MuLawDecode( uchar8 uLaw )
 {
-    S64 adjusted;
-    U8 exponent, mantissa;
+    sint32 adjusted;
+    uchar8 exponent, mantissa;
     
     uLaw = ~uLaw;
     exponent = ( uLaw >> 4 ) & 0x7;
@@ -147,28 +147,28 @@ S16 MuLawDecode( U8 uLaw )
     return ( uLaw & 0x80 ) ? adjusted : -adjusted;
 }
 
-S16 mulawToShort[256];
+schar16 mulawToShort[256];
 static bool madeTable = false;
 
-static S32 NXStreamCount;
+static sint NXStreamCount;
 
-void NXPutc( U8* stream, UTF8 out )
+void NXPutc( uchar8* stream, valueType out )
 {
     stream[NXStreamCount++] = out;
 }
 
-void encodeWavelet( sfx_t* sfx, S16* packets )
+void encodeWavelet( sfx_t* sfx, schar16* packets )
 {
-    F32 wksp[4097], temp;
-    S32 i, samples, size;
+    float32 wksp[4097], temp;
+    sint i, samples, size;
     sndBuffer* newchunk, *chunk;
-    U8* out;
+    uchar8* out;
     
     if( !madeTable )
     {
         for( i = 0; i < 256; i++ )
         {
-            mulawToShort[i] = ( F32 )MuLawDecode( ( U8 )i );
+            mulawToShort[i] = ( float32 )MuLawDecode( ( uchar8 )i );
         }
         madeTable = true;
     }
@@ -209,7 +209,7 @@ void encodeWavelet( sfx_t* sfx, S16* packets )
         }
         
         wt1( wksp, size, 1 );
-        out = ( U8* )chunk->sndChunk;
+        out = ( uchar8* )chunk->sndChunk;
         
         for( i = 0; i < size; i++ )
         {
@@ -232,15 +232,15 @@ void encodeWavelet( sfx_t* sfx, S16* packets )
     }
 }
 
-void decodeWavelet( sndBuffer* chunk, S16* to )
+void decodeWavelet( sndBuffer* chunk, schar16* to )
 {
-    F32 wksp[4097];
-    S32	i;
-    U8*	out;
+    float32 wksp[4097];
+    sint	i;
+    uchar8*	out;
     
-    S32 size = chunk->size;
+    sint size = chunk->size;
     
-    out = ( U8* )chunk->sndChunk;
+    out = ( uchar8* )chunk->sndChunk;
     
     for( i = 0; i < size; i++ )
     {
@@ -261,17 +261,17 @@ void decodeWavelet( sndBuffer* chunk, S16* to )
 }
 
 
-void encodeMuLaw( sfx_t* sfx, S16* packets )
+void encodeMuLaw( sfx_t* sfx, schar16* packets )
 {
-    S32  i, samples, size, grade, poop;
+    sint  i, samples, size, grade, poop;
     sndBuffer* newchunk, *chunk;
-    U8* out;
+    uchar8* out;
     
     if( !madeTable )
     {
         for( i = 0; i < 256; i++ )
         {
-            mulawToShort[i] = ( F32 )MuLawDecode( ( U8 )i );
+            mulawToShort[i] = ( float32 )MuLawDecode( ( uchar8 )i );
         }
         madeTable = true;
     }
@@ -300,7 +300,7 @@ void encodeMuLaw( sfx_t* sfx, S16* packets )
         }
         
         chunk = newchunk;
-        out = ( U8* )chunk->sndChunk;
+        out = ( uchar8* )chunk->sndChunk;
         
         for( i = 0; i < size; i++ )
         {
@@ -315,7 +315,7 @@ void encodeMuLaw( sfx_t* sfx, S16* packets )
                 poop = -32768;
             }
             
-            out[i] = MuLawEncode( ( S16 )poop );
+            out[i] = MuLawEncode( ( schar16 )poop );
             grade = poop - mulawToShort[out[i]];
             packets++;
         }
@@ -325,14 +325,14 @@ void encodeMuLaw( sfx_t* sfx, S16* packets )
     }
 }
 
-void decodeMuLaw( sndBuffer* chunk, S16* to )
+void decodeMuLaw( sndBuffer* chunk, schar16* to )
 {
-    S32	i;
-    U8* out;
+    sint	i;
+    uchar8* out;
     
-    S32 size = chunk->size;
+    sint size = chunk->size;
     
-    out = ( U8* )chunk->sndChunk;
+    out = ( uchar8* )chunk->sndChunk;
     
     for( i = 0; i < size; i++ )
     {

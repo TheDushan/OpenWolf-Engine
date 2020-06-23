@@ -42,17 +42,17 @@
 CL_Netchan_Encode
 
 	// first 12 bytes of the data are always:
-	S64 serverId;
-	S64 messageAcknowledge;
-	S64 reliableAcknowledge;
+	sint32 serverId;
+	sint32 messageAcknowledge;
+	sint32 reliableAcknowledge;
 
 ==============
 */
 static void CL_Netchan_Encode( msg_t* msg )
 {
-    S32             serverId, messageAcknowledge, reliableAcknowledge;
-    S32             i, index, srdc, sbit, soob;
-    U8            key, *string;
+    sint             serverId, messageAcknowledge, reliableAcknowledge;
+    sint             i, index, srdc, sbit, soob;
+    uchar8            key, *string;
     
     if( msg->cursize <= CL_ENCODE_START )
     {
@@ -75,7 +75,7 @@ static void CL_Netchan_Encode( msg_t* msg )
     msg->bit = sbit;
     msg->readcount = srdc;
     
-    string = ( U8* ) clc.serverCommands[reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 )];
+    string = ( uchar8* ) clc.serverCommands[reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 )];
     index = 0;
     //
     key = clc.challenge ^ serverId ^ messageAcknowledge;
@@ -105,15 +105,15 @@ static void CL_Netchan_Encode( msg_t* msg )
 CL_Netchan_Decode
 
 	// first four bytes of the data are always:
-	S64 reliableAcknowledge;
+	sint32 reliableAcknowledge;
 
 ==============
 */
 static void CL_Netchan_Decode( msg_t* msg )
 {
-    S64            reliableAcknowledge, i, index;
-    U8            key, *string;
-    S32             srdc, sbit;
+    sint32            reliableAcknowledge, i, index;
+    uchar8            key, *string;
+    sint             srdc, sbit;
     bool        soob;
     
     srdc = msg->readcount;
@@ -128,10 +128,10 @@ static void CL_Netchan_Decode( msg_t* msg )
     msg->bit = sbit;
     msg->readcount = srdc;
     
-    string = ( U8* ) clc.reliableCommands[reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 )];
+    string = ( uchar8* ) clc.reliableCommands[reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 )];
     index = 0;
     // xor the client challenge with the netchan sequence number (need something that changes every message)
-    key = ( clc.challenge ^ LittleLong( *( U32* )msg->data ) ) & 0xFF;
+    key = ( clc.challenge ^ LittleLong( *( uint* )msg->data ) ) & 0xFF;
     for( i = msg->readcount + CL_DECODE_START; i < msg->cursize; i++ )
     {
         // modify the key with the last sent and with this message acknowledged client command
@@ -179,8 +179,8 @@ void CL_Netchan_Transmit( netchan_t* chan, msg_t* msg )
     Netchan_Transmit( chan, msg->cursize, msg->data );
 }
 
-extern S32      oldsize;
-S32             newsize = 0;
+extern sint      oldsize;
+sint             newsize = 0;
 
 /*
 =================

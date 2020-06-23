@@ -42,20 +42,20 @@
 
 typedef struct
 {
-    S32		i2;
-    S32		facing;
+    sint		i2;
+    sint		facing;
 } edgeDef_t;
 
 #define	MAX_EDGE_DEFS	32
 
 static	edgeDef_t	edgeDefs[SHADER_MAX_VERTEXES][MAX_EDGE_DEFS];
-static	S32			numEdgeDefs[SHADER_MAX_VERTEXES];
-static	S32			facing[SHADER_MAX_INDEXES / 3];
+static	sint			numEdgeDefs[SHADER_MAX_VERTEXES];
+static	sint			facing[SHADER_MAX_INDEXES / 3];
 static	vec3_t		shadowXyz[SHADER_MAX_VERTEXES];
 
-void R_AddEdgeDef( S32 i1, S32 i2, S32 facing )
+void R_AddEdgeDef( sint i1, sint i2, sint facing )
 {
-    S32		c;
+    sint		c;
     
     c = numEdgeDefs[ i1 ];
     if( c == MAX_EDGE_DEFS )
@@ -70,17 +70,17 @@ void R_AddEdgeDef( S32 i1, S32 i2, S32 facing )
 
 void R_RenderShadowEdges( void )
 {
-    S32		i;
+    sint		i;
     
 #if 0
-    S32		numTris;
+    sint		numTris;
     
     // dumb way -- render every triangle's edges
     numTris = tess.numIndexes / 3;
     
     for( i = 0 ; i < numTris ; i++ )
     {
-        S32		i1, i2, i3;
+        sint		i1, i2, i3;
         
         if( !facing[i] )
         {
@@ -103,11 +103,11 @@ void R_RenderShadowEdges( void )
         qglEnd();
     }
 #else
-    S32		c, c2;
-    S32		j, k;
-    S32		i2;
-    S32		c_edges, c_rejected;
-    S32		hit[2];
+    sint		c, c2;
+    sint		j, k;
+    sint		i2;
+    sint		c_edges, c_rejected;
+    sint		hit[2];
     
     // an edge is NOT a silhouette edge if its face doesn't face the light,
     // or if it has a reverse paired edge that also faces the light.
@@ -174,8 +174,8 @@ triangleFromEdge[ v1 ][ v2 ]
 */
 void RB_ShadowTessEnd( void )
 {
-    S32		i;
-    S32		numTris;
+    sint		i;
+    sint		numTris;
     vec3_t	lightDir;
     GLboolean rgba[4];
     
@@ -198,10 +198,10 @@ void RB_ShadowTessEnd( void )
     numTris = tess.numIndexes / 3;
     for( i = 0 ; i < numTris ; i++ )
     {
-        S32		i1, i2, i3;
+        sint		i1, i2, i3;
         vec3_t	d1, d2, normal;
-        F32*	v1, *v2, *v3;
-        F32	d;
+        float32*	v1, *v2, *v3;
+        float32	d;
         
         i1 = tess.indexes[ i * 3 + 0 ];
         i2 = tess.indexes[ i * 3 + 1 ];
@@ -321,16 +321,16 @@ RB_ProjectionShadowDeform
 */
 void RB_ProjectionShadowDeform( void )
 {
-    F32*	xyz;
-    S32		i;
-    F32	h;
+    float32*	xyz;
+    sint		i;
+    float32	h;
     vec3_t	ground;
     vec3_t	light;
-    F32	groundDist;
-    F32	d;
+    float32	groundDist;
+    float32	d;
     vec3_t	lightDir;
     
-    xyz = ( F32* ) tess.xyz;
+    xyz = ( float32* ) tess.xyz;
     
     ground[0] = backEnd.orientation.axis[0][2];
     ground[1] = backEnd.orientation.axis[1][2];

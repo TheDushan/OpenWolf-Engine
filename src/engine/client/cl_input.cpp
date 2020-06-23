@@ -37,8 +37,8 @@
 
 #include <framework/precompiled.h>
 
-U32 frame_msec;
-S32 old_com_frameTime;
+uint frame_msec;
+sint old_com_frameTime;
 
 /*
 ===============================================================================
@@ -91,8 +91,8 @@ void IN_MLookUp( void )
 
 void IN_KeyDown( kbutton_t* b )
 {
-    S32             k;
-    UTF8*           c;
+    sint             k;
+    valueType*           c;
     
     c = cmdSystem->Argv( 1 );
     if( c[0] )
@@ -138,9 +138,9 @@ void IN_KeyDown( kbutton_t* b )
 
 void IN_KeyUp( kbutton_t* b )
 {
-    S32             k;
-    UTF8*           c;
-    U32        uptime;
+    sint             k;
+    valueType*           c;
+    uint        uptime;
     
     c = cmdSystem->Argv( 1 );
     if( c[0] )
@@ -198,10 +198,10 @@ CL_KeyState
 Returns the fraction of the frame that the key was down
 ===============
 */
-F32 CL_KeyState( kbutton_t* key )
+float32 CL_KeyState( kbutton_t* key )
 {
-    F32           val;
-    S32             msec;
+    float32           val;
+    sint             msec;
     
     msec = key->msec;
     key->msec = 0;
@@ -227,7 +227,7 @@ F32 CL_KeyState( kbutton_t* key )
     }
 #endif
     
-    val = ( F32 )msec / frame_msec;
+    val = ( float32 )msec / frame_msec;
     if( val < 0 )
     {
         val = 0;
@@ -633,15 +633,15 @@ Moves the local angle positions
 */
 void CL_AdjustAngles( void )
 {
-    F32           speed;
+    float32           speed;
     
     if( kb[KB_SPEED].active )
     {
-        speed = ( ( F32 )cls.frametime / 1000.0f ) * cls.frametime * cl_anglespeedkey->value;
+        speed = ( ( float32 )cls.frametime / 1000.0f ) * cls.frametime * cl_anglespeedkey->value;
     }
     else
     {
-        speed = ( F32 )cls.frametime / 1000.0f;
+        speed = ( float32 )cls.frametime / 1000.0f;
     }
     
     if( !kb[KB_STRAFE].active )
@@ -663,8 +663,8 @@ Sets the usercmd_t based on key states
 */
 void CL_KeyMove( usercmd_t* cmd )
 {
-    S32             movespeed;
-    S32             forward, side, up;
+    sint             movespeed;
+    sint             forward, side, up;
     
     //
     // adjust for speed key / running
@@ -731,7 +731,7 @@ void CL_KeyMove( usercmd_t* cmd )
     if( !cl.doubleTap.lastdoubleTap || com_frameTime - cl.doubleTap.lastdoubleTap > cl_doubletapdelay->integer + cls.frametime )
     {
         // frametime for low(-ish) fps situations)
-        S32             i;
+        sint             i;
         bool        key_down;
         
         for( i = 1; i < DT_NUM; i++ )
@@ -770,7 +770,7 @@ void CL_KeyMove( usercmd_t* cmd )
 CL_MouseEvent
 =================
 */
-void CL_MouseEvent( S32 dx, S32 dy, S32 time )
+void CL_MouseEvent( sint dx, sint dy, sint time )
 {
     if( cls.keyCatchers & KEYCATCH_UI )
     {
@@ -812,7 +812,7 @@ CL_JoystickEvent
 Joystick values stay set until changed
 =================
 */
-void CL_JoystickEvent( S32 axis, S32 value, S32 time )
+void CL_JoystickEvent( sint axis, sint value, sint time )
 {
     if( axis < 0 || axis >= MAX_JOYSTICK_AXIS )
     {
@@ -832,8 +832,8 @@ CL_JoystickMove
 */
 void CL_JoystickMove( usercmd_t* cmd )
 {
-    S32             movespeed;
-    F32           anglespeed;
+    sint             movespeed;
+    float32           anglespeed;
     
     if( kb[KB_SPEED].active ^ cl_run->integer )
     {
@@ -847,11 +847,11 @@ void CL_JoystickMove( usercmd_t* cmd )
     
     if( kb[KB_SPEED].active )
     {
-        anglespeed = ( ( F32 )cls.frametime / 1000.0f ) * cls.frametime * cl_anglespeedkey->value;
+        anglespeed = ( ( float32 )cls.frametime / 1000.0f ) * cls.frametime * cl_anglespeedkey->value;
     }
     else
     {
-        anglespeed = ( F32 )cls.frametime / 1000.0f;
+        anglespeed = ( float32 )cls.frametime / 1000.0f;
     }
     
 #ifdef __MACOS__
@@ -860,26 +860,26 @@ void CL_JoystickMove( usercmd_t* cmd )
     if( !kb[KB_STRAFE].active )
     {
         cl.viewangles[YAW] += anglespeed * j_yaw->value * cl.joystickAxis[j_yaw_axis->integer];
-        cmd->rightmove = ClampChar( cmd->rightmove + ( S32 )( j_side->value * cl.joystickAxis[j_side_axis->integer] ) );
+        cmd->rightmove = ClampChar( cmd->rightmove + ( sint )( j_side->value * cl.joystickAxis[j_side_axis->integer] ) );
     }
     else
     {
         cl.viewangles[YAW] += anglespeed * j_side->value * cl.joystickAxis[j_side_axis->integer];
-        cmd->rightmove = ClampChar( cmd->rightmove + ( S32 )( j_yaw->value * cl.joystickAxis[j_yaw_axis->integer] ) );
+        cmd->rightmove = ClampChar( cmd->rightmove + ( sint )( j_yaw->value * cl.joystickAxis[j_yaw_axis->integer] ) );
     }
 #endif
     if( kb[KB_MLOOK].active )
     {
         cl.viewangles[PITCH] += anglespeed * j_forward->value * cl.joystickAxis[j_forward_axis->integer];
-        cmd->forwardmove = ClampChar( cmd->forwardmove + ( S32 )( j_pitch->value * cl.joystickAxis[j_pitch_axis->integer] ) );
+        cmd->forwardmove = ClampChar( cmd->forwardmove + ( sint )( j_pitch->value * cl.joystickAxis[j_pitch_axis->integer] ) );
     }
     else
     {
         cl.viewangles[PITCH] += anglespeed * j_pitch->value * cl.joystickAxis[j_pitch_axis->integer];
-        cmd->forwardmove = ClampChar( cmd->forwardmove + ( S32 )( j_forward->value * cl.joystickAxis[j_forward_axis->integer] ) );
+        cmd->forwardmove = ClampChar( cmd->forwardmove + ( sint )( j_forward->value * cl.joystickAxis[j_forward_axis->integer] ) );
     }
     
-    cmd->upmove = ClampChar( cmd->upmove + ( S32 )( j_up->value * cl.joystickAxis[j_up_axis->integer] ) );
+    cmd->upmove = ClampChar( cmd->upmove + ( sint )( j_up->value * cl.joystickAxis[j_up_axis->integer] ) );
 }
 
 /*
@@ -890,8 +890,8 @@ CL_Xbox360ControllerMove
 
 void CL_Xbox360ControllerMove( usercmd_t* cmd )
 {
-    S32     movespeed;
-    F32   anglespeed;
+    sint     movespeed;
+    float32   anglespeed;
     
     if( kb[KB_SPEED].active ^ cl_run->integer )
     {
@@ -929,7 +929,7 @@ CL_MouseMove
 */
 void CL_MouseMove( usercmd_t* cmd )
 {
-    F32 mx, my;
+    float32 mx, my;
     
     // allow mouse smoothing
     if( m_filter->integer )
@@ -953,10 +953,10 @@ void CL_MouseMove( usercmd_t* cmd )
     {
         if( cl_mouseAccel->value != 0.0f && cl_mouseAccelOffset->value > 0.0f )
         {
-            F32 accelSensitivity;
-            F32 rate;
+            float32 accelSensitivity;
+            float32 rate;
             
-            rate = sqrt( mx * mx + my * my ) / ( F32 ) frame_msec;
+            rate = sqrt( mx * mx + my * my ) / ( float32 ) frame_msec;
             
             accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
             mx *= accelSensitivity;
@@ -967,16 +967,16 @@ void CL_MouseMove( usercmd_t* cmd )
         }
         else
         {
-            F32 rate[2];
-            F32 power[2];
+            float32 rate[2];
+            float32 power[2];
             
             // sensitivity remains pretty much unchanged at low speeds
             // cl_mouseAccel is a power value to how the acceleration is shaped
             // cl_mouseAccelOffset is the rate for which the acceleration will have doubled the non accelerated amplification
             // NOTE: decouple the config cvars for independent acceleration setup along X and Y?
             
-            rate[0] = fabs( mx ) / ( F32 ) frame_msec;
-            rate[1] = fabs( my ) / ( F32 ) frame_msec;
+            rate[0] = fabs( mx ) / ( float32 ) frame_msec;
+            rate[1] = fabs( my ) / ( float32 ) frame_msec;
             power[0] = powf( rate[0] / cl_mouseAccelOffset->value, cl_mouseAccel->value );
             power[1] = powf( rate[1] / cl_mouseAccelOffset->value, cl_mouseAccel->value );
             
@@ -1037,7 +1037,7 @@ CL_CmdButtons
 */
 void CL_CmdButtons( usercmd_t* cmd )
 {
-    S32             i;
+    sint             i;
     
     //
     // figure button bits
@@ -1090,7 +1090,7 @@ CL_FinishMove
 */
 void CL_FinishMove( usercmd_t* cmd )
 {
-    S32             i;
+    sint             i;
     
     // copy the state that the cgame is currently sending
     cmd->weapon = cl.cgameUserCmdValue;
@@ -1118,7 +1118,7 @@ usercmd_t CL_CreateCmd( void )
 {
     usercmd_t       cmd;
     vec3_t          oldAngles;
-    F32           recoilAdd;
+    float32           recoilAdd;
     
     VectorCopy( cl.viewangles, oldAngles );
     
@@ -1197,7 +1197,7 @@ Create a new usercmd_t structure for this frame
 void CL_CreateNewCommands( void )
 {
     usercmd_t*      cmd;
-    S32             cmdNum;
+    sint             cmdNum;
     
     // no need to create usercmds until we have a gamestate
     if( cls.state < CA_PRIMED )
@@ -1243,8 +1243,8 @@ getting more delta compression will reduce total bandwidth.
 */
 bool CL_ReadyToSendPacket( void )
 {
-    S32             oldPacketNum;
-    S32             delta;
+    sint             oldPacketNum;
+    sint             delta;
     
     // don't send anything if playing back a demo
     if( clc.demoplaying || cls.state == CA_CINEMATIC )
@@ -1321,13 +1321,13 @@ During normal gameplay, a client packet will contain something like:
 void CL_WritePacket( void )
 {
     msg_t           buf;
-    U8            data[MAX_MSGLEN];
-    S32             i, j;
+    uchar8            data[MAX_MSGLEN];
+    sint             i, j;
     usercmd_t*      cmd, *oldcmd;
     usercmd_t       nullcmd;
-    S32             packetNum;
-    S32             oldPacketNum;
-    S32             count, key;
+    sint             packetNum;
+    sint             oldPacketNum;
+    sint             count, key;
     
     // don't send anything if playing back a demo
     if( clc.demoplaying || cls.state == CA_CINEMATIC )

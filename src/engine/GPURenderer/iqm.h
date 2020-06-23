@@ -37,28 +37,28 @@
 
 typedef struct iqmheader
 {
-    UTF8 magic[16];
-    U32 version;
-    U32 filesize;
-    U32 flags;
-    U32 num_text, ofs_text;
-    U32 num_meshes, ofs_meshes;
-    U32 num_vertexarrays, num_vertexes, ofs_vertexarrays;
-    U32 num_triangles, ofs_triangles, ofs_adjacency;
-    U32 num_joints, ofs_joints;
-    U32 num_poses, ofs_poses;
-    U32 num_anims, ofs_anims;
-    U32 num_frames, num_framechannels, ofs_frames, ofs_bounds;
-    U32 num_comment, ofs_comment;
-    U32 num_extensions, ofs_extensions;
+    valueType magic[16];
+    uint version;
+    uint filesize;
+    uint flags;
+    uint num_text, ofs_text;
+    uint num_meshes, ofs_meshes;
+    uint num_vertexarrays, num_vertexes, ofs_vertexarrays;
+    uint num_triangles, ofs_triangles, ofs_adjacency;
+    uint num_joints, ofs_joints;
+    uint num_poses, ofs_poses;
+    uint num_anims, ofs_anims;
+    uint num_frames, num_framechannels, ofs_frames, ofs_bounds;
+    uint num_comment, ofs_comment;
+    uint num_extensions, ofs_extensions;
 } iqmHeader_t;
 
 typedef struct iqmmesh
 {
-    U32 name;
-    U32 material;
-    U32 first_vertex, num_vertexes;
-    U32 first_triangle, num_triangles;
+    uint name;
+    uint material;
+    uint first_vertex, num_vertexes;
+    uint first_triangle, num_triangles;
 } iqmMesh_t;
 
 enum
@@ -88,30 +88,30 @@ enum
 
 typedef struct iqmtriangle
 {
-    U32 vertex[3];
+    uint vertex[3];
 } iqmTriangle_t;
 
 typedef struct iqmjoint
 {
-    U32 name;
-    S32 parent;
-    F32 translate[3], rotate[4], scale[3];
+    uint name;
+    sint parent;
+    float32 translate[3], rotate[4], scale[3];
 } iqmJoint_t;
 
 typedef struct iqmpose
 {
-    S32 parent;
-    U32 mask;
-    F32 channeloffset[10];
-    F32 channelscale[10];
+    sint parent;
+    uint mask;
+    float32 channeloffset[10];
+    float32 channelscale[10];
 } iqmPose_t;
 
 typedef struct iqmanim
 {
-    U32 name;
-    U32 first_frame, num_frames;
-    F32 framerate;
-    U32 flags;
+    uint name;
+    uint first_frame, num_frames;
+    float32 framerate;
+    uint flags;
 } iqmAnim_t;
 
 enum
@@ -121,17 +121,17 @@ enum
 
 typedef struct iqmvertexarray
 {
-    U32 type;
-    U32 flags;
-    U32 format;
-    U32 size;
-    U32 offset;
+    uint type;
+    uint flags;
+    uint format;
+    uint size;
+    uint offset;
 } iqmVertexArray_t;
 
 typedef struct iqmbounds
 {
-    F32 bbmin[3], bbmax[3];
-    F32 xyradius, radius;
+    float32 bbmin[3], bbmax[3];
+    float32 xyradius, radius;
 } iqmBounds_t;
 
 #endif

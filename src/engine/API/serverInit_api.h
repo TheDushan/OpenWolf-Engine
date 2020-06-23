@@ -45,15 +45,15 @@ class idServerInitSystem
 {
 public:
     virtual void UpdateConfigStrings( void ) = 0;
-    virtual void SetConfigstringNoUpdate( S32 index, StringEntry val ) = 0;
-    virtual void SetConfigstring( S32 index, StringEntry val ) = 0;
-    virtual void GetConfigstring( S32 index, UTF8* buffer, S32 bufferSize ) = 0;
-    virtual void SetConfigstringRestrictions( S32 index, const clientList_t* clientList ) = 0;
-    virtual void SetUserinfo( S32 index, StringEntry val ) = 0;
-    virtual void GetUserinfo( S32 index, UTF8* buffer, S32 bufferSize ) = 0;
-    virtual void SpawnServer( UTF8* server, bool killBots ) = 0;
+    virtual void SetConfigstringNoUpdate( sint index, pointer val ) = 0;
+    virtual void SetConfigstring( sint index, pointer val ) = 0;
+    virtual void GetConfigstring( sint index, valueType* buffer, sint bufferSize ) = 0;
+    virtual void SetConfigstringRestrictions( sint index, const clientList_t* clientList ) = 0;
+    virtual void SetUserinfo( sint index, pointer val ) = 0;
+    virtual void GetUserinfo( sint index, valueType* buffer, sint bufferSize ) = 0;
+    virtual void SpawnServer( valueType* server, bool killBots ) = 0;
     virtual void Init( void ) = 0;
-    virtual void Shutdown( UTF8* finalmsg ) = 0;
+    virtual void Shutdown( valueType* finalmsg ) = 0;
 };
 
 extern idServerInitSystem* serverInitSystem;

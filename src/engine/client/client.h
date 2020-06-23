@@ -56,26 +56,26 @@
 typedef struct
 {
     bool        valid;							// cleared if delta parsing was invalid
-    S32             snapFlags;						// rate delayed and dropped commands
-    S32             serverTime;						// server time the message is valid for (in msec)
-    S32             messageNum;						// copied from netchan->incoming_sequence
-    S32             deltaNum;						// messageNum the delta is from
-    S32             ping;							// time from when cmdNum-1 was sent to time packet was reeceived
-    U8            areamask[MAX_MAP_AREA_BYTES];	// portalarea visibility bits
-    S32             cmdNum;							// the next cmdNum the server is expecting
+    sint             snapFlags;						// rate delayed and dropped commands
+    sint             serverTime;						// server time the message is valid for (in msec)
+    sint             messageNum;						// copied from netchan->incoming_sequence
+    sint             deltaNum;						// messageNum the delta is from
+    sint             ping;							// time from when cmdNum-1 was sent to time packet was reeceived
+    uchar8            areamask[MAX_MAP_AREA_BYTES];	// portalarea visibility bits
+    sint             cmdNum;							// the next cmdNum the server is expecting
     playerState_t   ps;								// complete information about the current player at this time
-    S32             numEntities;					// all of the entities that need to be presented
-    S32             parseEntitiesNum;				// at the time of this snapshot
-    S32             serverCommandNum;				// execute all commands up to this before
+    sint             numEntities;					// all of the entities that need to be presented
+    sint             parseEntitiesNum;				// at the time of this snapshot
+    sint             serverCommandNum;				// execute all commands up to this before
     // making the snapshot current
 } clSnapshot_t;
 
 // Arnout: for double tapping
 typedef struct
 {
-    S32		pressedTime[DT_NUM];
-    S32		releasedTime[DT_NUM];
-    S32		lastdoubleTap;
+    sint		pressedTime[DT_NUM];
+    sint		releasedTime[DT_NUM];
+    sint		lastdoubleTap;
 } doubleTap_t;
 
 /*
@@ -89,9 +89,9 @@ new gamestate_t, potentially several times during an established connection
 
 typedef struct
 {
-    S32             p_cmdNumber;	// cl.cmdNumber when packet was sent
-    S32             p_serverTime;	// usercmd->serverTime when packet was sent
-    S32             p_realtime;		// cls.realtime when packet was sent
+    sint             p_cmdNumber;	// cl.cmdNumber when packet was sent
+    sint             p_serverTime;	// usercmd->serverTime when packet was sent
+    sint             p_realtime;		// cls.realtime when packet was sent
 } outPacket_t;
 
 // the parseEntities array must be large enough to hold PACKET_BACKUP frames of
@@ -103,41 +103,41 @@ typedef struct
 // And because of that reason we increased that 4 times (old limit was already 2k)
 #define	MAX_PARSE_ENTITIES ( PACKET_BACKUP * MAX_GENTITIES * 2 )
 
-extern S32      g_console_field_width;
+extern sint      g_console_field_width;
 
 typedef struct
 {
-    S32             timeoutcount;												// it requres several frames in a timeout condition
+    sint             timeoutcount;												// it requres several frames in a timeout condition
     
     // to disconnect, preventing debugging breaks from
     // causing immediate disconnects on continue
     clSnapshot_t    snap;														// latest received from server
-    S32             serverTime;													// may be paused during play
-    S32             oldServerTime;												// to prevent time from flowing bakcwards
-    S32             oldFrameServerTime;											// to check tournament restarts
-    S32             serverTimeDelta;											// cl.serverTime = cls.realtime + cl.serverTimeDelta
+    sint             serverTime;													// may be paused during play
+    sint             oldServerTime;												// to prevent time from flowing bakcwards
+    sint             oldFrameServerTime;											// to check tournament restarts
+    sint             serverTimeDelta;											// cl.serverTime = cls.realtime + cl.serverTimeDelta
     // this value changes as net lag varies
     bool        extrapolatedSnapshot;										// set if any cgame frame has been forced to extrapolate
     // cleared when CL_AdjustTimeDelta looks at it
     bool        newSnapshots;												// set on parse of any valid packet
     gameState_t     gameState;													// configstrings
-    UTF8            mapname[MAX_QPATH];											// extracted from CS_SERVERINFO
-    S32             parseEntitiesNum;											// index (not anded off) into cl_parse_entities[]
-    S32             mouseDx[2], mouseDy[2];										// added to by mouse events
-    S32             mouseIndex;
-    S32             joystickAxis[MAX_JOYSTICK_AXIS];							// set by joystick events
+    valueType            mapname[MAX_QPATH];											// extracted from CS_SERVERINFO
+    sint             parseEntitiesNum;											// index (not anded off) into cl_parse_entities[]
+    sint             mouseDx[2], mouseDy[2];										// added to by mouse events
+    sint             mouseIndex;
+    sint             joystickAxis[MAX_JOYSTICK_AXIS];							// set by joystick events
     
     // cgame communicates a few values to the client system
-    S32             cgameUserCmdValue;											// current weapon to add to usercmd_t
-    S32             cgameFlags;													// flags that can be set by the gamecode
-    F32           cgameSensitivity;
-    S32             cgameMpIdentClient;											// NERVE - SMF
+    sint             cgameUserCmdValue;											// current weapon to add to usercmd_t
+    sint             cgameFlags;													// flags that can be set by the gamecode
+    float32           cgameSensitivity;
+    sint             cgameMpIdentClient;											// NERVE - SMF
     vec3_t          cgameClientLerpOrigin;										// DHM - Nerve
     
     // cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
     // properly generated command
     usercmd_t       cmds[CMD_BACKUP];											// each mesage will send several old cmds
-    S32             cmdNumber;													// incremented each frame, because multiple
+    sint             cmdNumber;													// incremented each frame, because multiple
     
     // frames may need to be packed into a single packet
     // Arnout: double tapping
@@ -150,7 +150,7 @@ typedef struct
     // tracked view angles to account for standing on rotating objects,
     // and teleport direction changes
     vec3_t          viewangles;
-    S32             serverId;													// included in each client message so the server
+    sint             serverId;													// included in each client message so the server
     
     // can tell if it is for a prior map_restart
     // big stuff at end of structure so most offsets are 15 bits or less
@@ -161,10 +161,10 @@ typedef struct
     // NERVE - SMF
     // NOTE TTimo - UI uses LIMBOCHAT_WIDTH strings (140),
     // but for the processing in CL_AddToLimboChat we need some safe room
-    UTF8            limboChatMsgs[LIMBOCHAT_HEIGHT][LIMBOCHAT_WIDTH * 3 + 1];
-    S32             limboChatPos;
+    valueType            limboChatMsgs[LIMBOCHAT_HEIGHT][LIMBOCHAT_WIDTH * 3 + 1];
+    sint             limboChatPos;
     bool        corruptedTranslationFile;
-    UTF8            translationVersion[MAX_STRING_TOKENS];
+    valueType            translationVersion[MAX_STRING_TOKENS];
     // -NERVE - SMF
     
     bool        cameraMode;
@@ -187,49 +187,49 @@ demo through a file.
 
 typedef struct
 {
-    S32						clientNum;
-    S32						lastPacketSentTime;											// for retransmits during connection
-    S32						lastPacketTime;												// for timeouts
+    sint						clientNum;
+    sint						lastPacketSentTime;											// for retransmits during connection
+    sint						lastPacketTime;												// for timeouts
     netadr_t				serverAddress;
-    S32						connectTime;												// for connection retransmits
-    S32						connectPacketCount;											// for display on connection dialog
-    UTF8					serverMessage[MAX_STRING_TOKENS];							// for display on connection dialog
-    S32						challenge;													// from the server to use for connecting
-    S32						checksumFeed;												// from the server for checksum calculations
-    S32						onlyVisibleClients;											// DHM - Nerve
+    sint						connectTime;												// for connection retransmits
+    sint						connectPacketCount;											// for display on connection dialog
+    valueType					serverMessage[MAX_STRING_TOKENS];							// for display on connection dialog
+    sint						challenge;													// from the server to use for connecting
+    sint						checksumFeed;												// from the server for checksum calculations
+    sint						onlyVisibleClients;											// DHM - Nerve
     // these are our reliable messages that go to the server
-    S32						reliableSequence;
-    S32						reliableAcknowledge;										// the last one the server has executed
+    sint						reliableSequence;
+    sint						reliableAcknowledge;										// the last one the server has executed
     // TTimo - NOTE: incidentally, reliableCommands[0] is never used (always start at reliableAcknowledge+1)
-    UTF8					reliableCommands[MAX_RELIABLE_COMMANDS][MAX_TOKEN_CHARS];
+    valueType					reliableCommands[MAX_RELIABLE_COMMANDS][MAX_TOKEN_CHARS];
     // server message (unreliable) and command (reliable) sequence
     // numbers are NOT cleared at level changes, but continue to
     // increase as long as the connection is valid
     // message sequence is used by both the network layer and the
     // delta compression layer
-    S32						serverMessageSequence;
+    sint						serverMessageSequence;
     // reliable messages received from server
-    S32						serverCommandSequence;
-    S32						lastExecutedServerCommand;									// last server command grabbed or executed with idClientGameSystemLocal::GetServerCommand
-    UTF8					serverCommands[MAX_RELIABLE_COMMANDS][MAX_TOKEN_CHARS];
+    sint						serverCommandSequence;
+    sint						lastExecutedServerCommand;									// last server command grabbed or executed with idClientGameSystemLocal::GetServerCommand
+    valueType					serverCommands[MAX_RELIABLE_COMMANDS][MAX_TOKEN_CHARS];
     // file transfer from server
     fileHandle_t			download;
-    S32						downloadNumber;
-    S32						downloadBlock;												// block we are waiting for
-    S32						downloadCount;												// how many bytes we got
-    S32						downloadSize;												// how many bytes we got
-    S32						downloadFlags;												// misc download behaviour flags sent by the server
-    UTF8					downloadList[MAX_INFO_STRING];								// list of paks we need to download
+    sint						downloadNumber;
+    sint						downloadBlock;												// block we are waiting for
+    sint						downloadCount;												// how many bytes we got
+    sint						downloadSize;												// how many bytes we got
+    sint						downloadFlags;												// misc download behaviour flags sent by the server
+    valueType					downloadList[MAX_INFO_STRING];								// list of paks we need to download
     
     // www downloading
     bool				bWWWDl;														// we have a www download going
     bool				bWWWDlAborting;												// disable the CL_WWWDownload until server gets us a gamestate (used for aborts)
-    UTF8					redirectedList[MAX_INFO_STRING];							// list of files that we downloaded through a redirect since last FS_ComparePaks
-    UTF8					badChecksumList[MAX_INFO_STRING];							// list of files for which wwwdl redirect is broken (wrong checksum)
-    UTF8					newsString[ MAX_NEWS_STRING ];
+    valueType					redirectedList[MAX_INFO_STRING];							// list of files that we downloaded through a redirect since last FS_ComparePaks
+    valueType					badChecksumList[MAX_INFO_STRING];							// list of files for which wwwdl redirect is broken (wrong checksum)
+    valueType					newsString[ MAX_NEWS_STRING ];
     
     // demo information
-    UTF8					demoName[MAX_QPATH];
+    valueType					demoName[MAX_QPATH];
     bool				demorecording;
     bool				demoplaying;
     bool				demowaiting;												// don't record until a non-delta message is received
@@ -238,11 +238,11 @@ typedef struct
     
     bool				waverecording;
     fileHandle_t			wavefile;
-    S32						wavetime;
+    sint						wavetime;
     
-    S32						timeDemoFrames;	// counter of rendered frames
-    S32						timeDemoStart;	// cls.realtime before first frame
-    S32						timeDemoBaseTime;	// each frame will be at this time + frameNum * 50
+    sint						timeDemoFrames;	// counter of rendered frames
+    sint						timeDemoStart;	// cls.realtime before first frame
+    sint						timeDemoBaseTime;	// each frame will be at this time + frameNum * 50
     
     // big stuff at end of structure so most offsets are 15 bits or less
     netchan_t				netchan;
@@ -262,74 +262,74 @@ no client connection is active at all
 typedef struct
 {
     netadr_t        adr;
-    S32             start;
-    S32             time;
-    UTF8            info[MAX_INFO_STRING];
+    sint             start;
+    sint             time;
+    valueType            info[MAX_INFO_STRING];
 } ping_t;
 
 typedef struct
 {
     netadr_t        adr;
-    UTF8            hostName[MAX_NAME_LENGTH];
-    S32             load;
-    UTF8            mapName[MAX_NAME_LENGTH];
-    UTF8            game[MAX_NAME_LENGTH];
-    S32             netType;
-    S32             gameType;
-    S32             clients;
-    S32             maxClients;
-    S32             minPing;
-    S32             maxPing;
-    S32             ping;
+    valueType            hostName[MAX_NAME_LENGTH];
+    sint             load;
+    valueType            mapName[MAX_NAME_LENGTH];
+    valueType            game[MAX_NAME_LENGTH];
+    sint             netType;
+    sint             gameType;
+    sint             clients;
+    sint             maxClients;
+    sint             minPing;
+    sint             maxPing;
+    sint             ping;
     bool        visible;
-    S32             allowAnonymous;
-    S32             friendlyFire;				// NERVE - SMF
-    S32             maxlives;					// NERVE - SMF
-    S32             needpass;
-    S32             antilag;					// TTimo
-    S32             weaprestrict;
-    S32             balancedteams;
-    UTF8            gameName[MAX_NAME_LENGTH];	// Arnout
+    sint             allowAnonymous;
+    sint             friendlyFire;				// NERVE - SMF
+    sint             maxlives;					// NERVE - SMF
+    sint             needpass;
+    sint             antilag;					// TTimo
+    sint             weaprestrict;
+    sint             balancedteams;
+    valueType            gameName[MAX_NAME_LENGTH];	// Arnout
 } serverInfo_t;
 
 typedef struct
 {
     connstate_t     state;															// connection status
-    S32             keyCatchers;													// bit flags
+    sint             keyCatchers;													// bit flags
     bool            doCachePurge;													// Arnout: empty the renderer cache as soon as possible
-    UTF8            servername[MAX_OSPATH];											// name of server from original connect (used by reconnect)
+    valueType            servername[MAX_OSPATH];											// name of server from original connect (used by reconnect)
     // when the server clears the hunk, all of these must be restarted
     bool            rendererStarted;
     bool            soundStarted;
     bool            soundRegistered;
     bool            uiStarted;
     bool            cgameStarted;
-    S32             framecount;
-    S32             frametime;														// msec since last frame
-    S32             realtime;														// ignores pause
-    S32             realFrametime;													// ignoring pause, so console always works
-    S32             numlocalservers;
+    sint             framecount;
+    sint             frametime;														// msec since last frame
+    sint             realtime;														// ignores pause
+    sint             realFrametime;													// ignoring pause, so console always works
+    sint             numlocalservers;
     serverInfo_t    localServers[MAX_OTHER_SERVERS];
-    S32             numglobalservers;
+    sint             numglobalservers;
     serverInfo_t    globalServers[MAX_GLOBAL_SERVERS];
     // additional global servers
-    S32             numGlobalServerAddresses;
+    sint             numGlobalServerAddresses;
     netadr_t		globalServerAddresses[MAX_GLOBAL_SERVERS];
-    S32             numfavoriteservers;
+    sint             numfavoriteservers;
     serverInfo_t    favoriteServers[MAX_OTHER_SERVERS];
-    S32             pingUpdateSource;												// source currently pinging or updating
-    S32             masterNum;
+    sint             pingUpdateSource;												// source currently pinging or updating
+    sint             masterNum;
     // update server info
     netadr_t        updateServer;
-    UTF8            updateChallenge[MAX_TOKEN_CHARS];
-    UTF8            updateInfoString[MAX_INFO_STRING];
+    valueType            updateChallenge[MAX_TOKEN_CHARS];
+    valueType            updateInfoString[MAX_INFO_STRING];
     netadr_t        authorizeServer;
     // DHM - Nerve :: Auto-update Info
-    UTF8            autoupdateServerNames[MAX_AUTOUPDATE_SERVERS][MAX_QPATH];
+    valueType            autoupdateServerNames[MAX_AUTOUPDATE_SERVERS][MAX_QPATH];
     netadr_t        autoupdateServer;
     bool        autoUpdateServerChecked[MAX_AUTOUPDATE_SERVERS];
-    S32             autoupdatServerFirstIndex;										// to know when we went through all of them
-    S32             autoupdatServerIndex;											// to cycle through them
+    sint             autoupdatServerFirstIndex;										// to know when we went through all of them
+    sint             autoupdatServerIndex;											// to cycle through them
     // rendering info
     vidconfig_t      glconfig;
     qhandle_t       charSetShader;
@@ -342,11 +342,11 @@ typedef struct
     // in the static stuff since this may have to survive server disconnects
     // if new stuff gets added, CL_ClearStaticDownload code needs to be updated for clear up
     bool        bWWWDlDisconnected;												// keep going with the download after server disconnect
-    UTF8            downloadName[MAX_OSPATH];
-    UTF8            downloadTempName[MAX_OSPATH];									// in wwwdl mode, this is OS path (it's a qpath otherwise)
-    UTF8            originalDownloadName[MAX_QPATH];								// if we get a redirect, keep a copy of the original file path
+    valueType            downloadName[MAX_OSPATH];
+    valueType            downloadTempName[MAX_OSPATH];									// in wwwdl mode, this is OS path (it's a qpath otherwise)
+    valueType            originalDownloadName[MAX_QPATH];								// if we get a redirect, keep a copy of the original file path
     bool        downloadRestart;												// if true, we need to do another FS_Restart because we downloaded a pak
-    S32 lastVidRestart;
+    sint lastVidRestart;
 } clientStatic_t;
 
 extern clientStatic_t cls;
@@ -461,7 +461,7 @@ extern convar_t* sv_cheats;
 
 //=================================================
 
-void            Key_GetBindingByString( StringEntry binding, S32* key1, S32* key2 );
+void            Key_GetBindingByString( pointer binding, sint* key1, sint* key2 );
 
 //
 // cl_main
@@ -470,7 +470,7 @@ void            Key_GetBindingByString( StringEntry binding, S32* key1, S32* key
 void            CL_Init( void );
 void            CL_FlushMemory( void );
 void            CL_ShutdownAll( void );
-void            CL_AddReliableCommand( StringEntry cmd );
+void            CL_AddReliableCommand( pointer cmd );
 
 void            CL_StartHunkUsers( void );
 
@@ -488,46 +488,46 @@ void            CL_NextDemo( void );
 void            CL_ReadDemoMessage( void );
 void            CL_StartDemoLoop( void );
 demoState_t     CL_DemoState( void );
-S32             CL_DemoPos( void );
-void            CL_DemoName( UTF8* buffer, S32 size );
+sint             CL_DemoPos( void );
+void            CL_DemoName( valueType* buffer, sint size );
 
 void            CL_WriteWaveFilePacket();
 
 void            CL_InitDownloads( void );
 void            CL_NextDownload( void );
 
-void            CL_GetPing( S32 n, UTF8* buf, S32 buflen, S32* pingtime );
-void            CL_GetPingInfo( S32 n, UTF8* buf, S32 buflen );
-void            CL_ClearPing( S32 n );
-S32             CL_GetPingQueueCount( void );
+void            CL_GetPing( sint n, valueType* buf, sint buflen, sint* pingtime );
+void            CL_GetPingInfo( sint n, valueType* buf, sint buflen );
+void            CL_ClearPing( sint n );
+sint             CL_GetPingQueueCount( void );
 
 void            CL_ShutdownRef( void );
 void            CL_InitRef( void );
 
-S32             CL_ServerStatus( UTF8* serverAddress, UTF8* serverStatusString, S32 maxLen );
+sint             CL_ServerStatus( valueType* serverAddress, valueType* serverStatusString, sint maxLen );
 
-void            CL_AddToLimboChat( StringEntry str );	// NERVE - SMF
-bool        CL_GetLimboString( S32 index, UTF8* buf );	// NERVE - SMF
+void            CL_AddToLimboChat( pointer str );	// NERVE - SMF
+bool        CL_GetLimboString( sint index, valueType* buf );	// NERVE - SMF
 
 // NERVE - SMF - localization
 void            CL_InitTranslation();
-void            CL_SaveTransTable( StringEntry fileName, bool newOnly );
+void            CL_SaveTransTable( pointer fileName, bool newOnly );
 void            CL_ReloadTranslation();
-void            CL_TranslateString( StringEntry string, UTF8* dest_buffer );
-StringEntry     CL_TranslateStringBuf( StringEntry string ) __attribute__( ( format_arg( 1 ) ) ); // TTimo
+void            CL_TranslateString( pointer string, valueType* dest_buffer );
+pointer     CL_TranslateStringBuf( pointer string ) __attribute__( ( format_arg( 1 ) ) ); // TTimo
 // -NERVE - SMF
 
-void            CL_OpenURL( StringEntry url );	// TTimo
-void            CL_Record( StringEntry name );
+void            CL_OpenURL( pointer url );	// TTimo
+void            CL_Record( pointer name );
 
 //
 // cl_input
 //
 typedef struct
 {
-    S32             down[2];	// key nums holding it down
-    U32        downtime;	// msec timestamp
-    U32        msec;		// msec down this frame if both a down and up happened
+    sint             down[2];	// key nums holding it down
+    uint        downtime;	// msec timestamp
+    uint        msec;		// msec down this frame if both a down and up happened
     bool        active;		// current state
     bool        wasPressed;	// set when down, not cleared when up
 } kbutton_t;
@@ -588,14 +588,14 @@ void            IN_Help( void );
 //----(SA) salute
 void            IN_Salute( void );
 //----(SA)
-F32           CL_KeyState( kbutton_t* key );
-S32             Key_StringToKeynum( UTF8* str );
-UTF8*           Key_KeynumToString( S32 keynum );
+float32           CL_KeyState( kbutton_t* key );
+sint             Key_StringToKeynum( valueType* str );
+valueType*           Key_KeynumToString( sint keynum );
 
 //
 // cl_parse.c
 //
-extern S32      cl_connectedToPureServer;
+extern sint      cl_connectedToPureServer;
 void            CL_SystemInfoChanged( void );
 void            CL_ParseServerMessage( msg_t* msg );
 
@@ -607,13 +607,13 @@ void            CL_LocalServers_f( void );
 void            CL_GlobalServers_f( void );
 void            CL_FavoriteServers_f( void );
 void            CL_Ping_f( void );
-bool        CL_UpdateVisiblePings_f( S32 source );
+bool        CL_UpdateVisiblePings_f( sint source );
 void			CL_GenGuid( msg_t* msg );
 
 //
 // console
 //
-void            Con_DrawCharacter( S32 cx, S32 line, S32 num );
+void            Con_DrawCharacter( sint cx, sint line, sint num );
 void            Con_CheckResize( void );
 void            Con_Init( void );
 void            Con_Clear_f( void );
@@ -630,7 +630,7 @@ void            Con_Bottom( void );
 void            Con_Close( void );
 void            CL_LoadConsoleHistory( void );
 void            CL_SaveConsoleHistory( void );
-StringEntry     Con_GetText( S32 console );
+pointer     Con_GetText( sint console );
 
 //
 // cl_cin.c
@@ -640,18 +640,18 @@ void            CL_PlayCinematic_f( void );
 void            SCR_DrawCinematic( void );
 void            SCR_RunCinematic( void );
 void            SCR_StopCinematic( void );
-S32             CIN_PlayCinematic( StringEntry arg0, S32 xpos, S32 ypos, S32 width, S32 height, S32 bits );
-e_status        CIN_StopCinematic( S32 handle );
-e_status        CIN_RunCinematic( S32 handle );
-void            CIN_DrawCinematic( S32 handle );
-void            CIN_SetExtents( S32 handle, S32 x, S32 y, S32 w, S32 h );
-void            CIN_SetLooping( S32 handle, bool loop );
-void            CIN_UploadCinematic( S32 handle );
+sint             CIN_PlayCinematic( pointer arg0, sint xpos, sint ypos, sint width, sint height, sint bits );
+e_status        CIN_StopCinematic( sint handle );
+e_status        CIN_RunCinematic( sint handle );
+void            CIN_DrawCinematic( sint handle );
+void            CIN_SetExtents( sint handle, sint x, sint y, sint w, sint h );
+void            CIN_SetLooping( sint handle, bool loop );
+void            CIN_UploadCinematic( sint handle );
 void            CIN_CloseAllVideos( void );
 
 // yuv->rgb will be used for Theora(ogm)
 void			ROQ_GenYUVTables( void );
-void			Frame_yuv_to_rgb24( const U8* y, const U8* u, const U8* v, S32 width, S32 height, S32 y_stride, S32 uv_stride, S32 yWShift, S32 uvWShift, S32 yHShift, S32 uvHShift, U32* output );
+void			Frame_yuv_to_rgb24( const uchar8* y, const uchar8* u, const uchar8* v, sint width, sint height, sint y_stride, sint uv_stride, sint yWShift, sint uvWShift, sint yHShift, sint uvHShift, uint* output );
 
 //
 // cl_net_chan.c
@@ -663,7 +663,7 @@ bool            CL_Netchan_Process( netchan_t* chan, msg_t* msg );
 //
 // cl_main.c
 //
-void            CL_WriteDemoMessage( msg_t* msg, S32 headerBytes );
+void            CL_WriteDemoMessage( msg_t* msg, sint headerBytes );
 void            CL_RequestMotd( void );
 
 #endif //!__CLIENT_H__

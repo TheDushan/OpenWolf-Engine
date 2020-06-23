@@ -45,10 +45,10 @@
 This file does not reference any globals, and has these entry points:
 
 void CM_ClearLevelPatches( void );
-struct patchCollide_s	*CM_GeneratePatchCollide( S32 width, S32 height, const vec3_t *points );
+struct patchCollide_s	*CM_GeneratePatchCollide( sint width, sint height, const vec3_t *points );
 void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
-void CM_DrawDebugSurface( void (*drawPoly)(S32 color, S32 numPoints, flaot *points) );
+void CM_DrawDebugSurface( void (*drawPoly)(sint color, sint numPoints, flaot *points) );
 
 
 Issues for collision against curved surfaces:
@@ -79,8 +79,8 @@ properly.
 
 typedef struct cPlane_s
 {
-    F32           plane[4];
-    S32             signbits;	// signx + (signy<<1) + (signz<<2), used as lookup during collision
+    float32           plane[4];
+    sint             signbits;	// signx + (signy<<1) + (signz<<2), used as lookup during collision
     struct cPlane_s* hashChain;
 } cPlane_t;
 
@@ -90,30 +90,30 @@ typedef struct cPlane_s
 // a facet is a subdivided element of a patch aproximation or model
 typedef struct
 {
-    S32             surfacePlane;
-    S32             numBorders;
-    S32             borderPlanes[MAX_FACET_BEVELS];
-    S32             borderInward[MAX_FACET_BEVELS];
+    sint             surfacePlane;
+    sint             numBorders;
+    sint             borderPlanes[MAX_FACET_BEVELS];
+    sint             borderInward[MAX_FACET_BEVELS];
     bool        borderNoAdjust[MAX_FACET_BEVELS];
 } cFacet_t;
 
 typedef struct cSurfaceCollide_s
 {
     vec3_t          bounds[2];
-    S32             numPlanes;	// surface planes plus edge planes
+    sint             numPlanes;	// surface planes plus edge planes
     cPlane_t*       planes;
     
-    S32             numFacets;
+    sint             numFacets;
     cFacet_t*       facets;
 } cSurfaceCollide_t;
 
 typedef struct
 {
-    S32             checkcount;	// to avoid repeated testings
-    S32             surfaceFlags;
-    S32             contents;
+    sint             checkcount;	// to avoid repeated testings
+    sint             surfaceFlags;
+    sint             contents;
     cSurfaceCollide_t* sc;
-    S32             type;
+    sint             type;
 } cSurface_t;
 
 #define MAX_FACETS          1024
@@ -123,8 +123,8 @@ typedef struct
 
 typedef struct
 {
-    S32             width;
-    S32             height;
+    sint             width;
+    sint             height;
     bool        wrapWidth;
     bool        wrapHeight;
     vec3_t          points[MAX_GRID_SIZE][MAX_GRID_SIZE];	// [width][height]
@@ -134,7 +134,7 @@ typedef struct
 #define PLANE_TRI_EPSILON   0.1
 #define WRAP_POINT_EPSILON  0.1
 
-cSurfaceCollide_t* CM_GeneratePatchCollide( S32 width, S32 height, vec3_t* points );
-cSurfaceCollide_t* CM_GenerateTriangleSoupCollide( S32 numVertexes, vec3_t* vertexes, S32 numIndexes, S32* indexes );
+cSurfaceCollide_t* CM_GeneratePatchCollide( sint width, sint height, vec3_t* points );
+cSurfaceCollide_t* CM_GenerateTriangleSoupCollide( sint numVertexes, vec3_t* vertexes, sint numIndexes, sint* indexes );
 
 #endif //!__CM_PATCH_H__

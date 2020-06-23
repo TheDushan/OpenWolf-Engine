@@ -100,7 +100,7 @@ bool idServerCryptoSystemLocal::InitCrypto( void )
 idServerCryptoSystemLocal::BinaryToHex
 ===============
 */
-bool idServerCryptoSystemLocal::BinaryToHex( UTF8* outHex, size_t hexMaxLen, const U8* inBin, size_t binSize )
+bool idServerCryptoSystemLocal::BinaryToHex( valueType* outHex, size_t hexMaxLen, const uchar8* inBin, size_t binSize )
 {
     if( sodium_bin2hex( outHex, hexMaxLen, inBin, binSize ) != outHex )
     {
@@ -116,7 +116,7 @@ bool idServerCryptoSystemLocal::BinaryToHex( UTF8* outHex, size_t hexMaxLen, con
 idServerCryptoSystemLocal::HexToBinary
 ===============
 */
-bool idServerCryptoSystemLocal::HexToBinary( U8* outBin, size_t binMaxLen, StringEntry inHex )
+bool idServerCryptoSystemLocal::HexToBinary( uchar8* outBin, size_t binMaxLen, pointer inHex )
 {
     if( sodium_hex2bin( outBin, binMaxLen, inHex, strlen( inHex ), "", nullptr, nullptr ) != 0 )
     {
@@ -154,7 +154,7 @@ bool idServerCryptoSystemLocal::GenerateCryptoKeys( publicKey_t* pk, secretKey_t
 idServerCryptoSystemLocal::LoadKeyFromFile
 ===============
 */
-bool idServerCryptoSystemLocal::LoadKeyFromFile( StringEntry filename, U8* out, size_t outSize )
+bool idServerCryptoSystemLocal::LoadKeyFromFile( pointer filename, uchar8* out, size_t outSize )
 {
     fileHandle_t file;
     long size = fileSystem->FOpenFileRead( filename, &file, true );
@@ -184,7 +184,7 @@ bool idServerCryptoSystemLocal::LoadKeyFromFile( StringEntry filename, U8* out, 
 idServerCryptoSystemLocal::LoadCryptoKeysFromFS
 ===============
 */
-bool idServerCryptoSystemLocal::LoadCryptoKeysFromFS( publicKey_t* pk, StringEntry pkFilename, secretKey_t* sk, StringEntry skFilename )
+bool idServerCryptoSystemLocal::LoadCryptoKeysFromFS( publicKey_t* pk, pointer pkFilename, secretKey_t* sk, pointer skFilename )
 {
     bool success = true;
     
@@ -212,7 +212,7 @@ bool idServerCryptoSystemLocal::LoadCryptoKeysFromFS( publicKey_t* pk, StringEnt
 idServerCryptoSystemLocal::SaveKeyToFile
 ===============
 */
-bool idServerCryptoSystemLocal::SaveKeyToFile( StringEntry filename, const U8* in, size_t inSize )
+bool idServerCryptoSystemLocal::SaveKeyToFile( pointer filename, const uchar8* in, size_t inSize )
 {
     fileHandle_t file = fileSystem->FOpenFileWrite( filename );
     
@@ -234,7 +234,7 @@ bool idServerCryptoSystemLocal::SaveKeyToFile( StringEntry filename, const U8* i
 idServerCryptoSystemLocal::SaveCryptoKeysToFS
 ===============
 */
-bool idServerCryptoSystemLocal::SaveCryptoKeysToFS( publicKey_t* pk, StringEntry pkFilename, secretKey_t* sk, StringEntry skFilename )
+bool idServerCryptoSystemLocal::SaveCryptoKeysToFS( publicKey_t* pk, pointer pkFilename, secretKey_t* sk, pointer skFilename )
 {
     bool success = true;
     
@@ -260,7 +260,7 @@ bool idServerCryptoSystemLocal::SaveCryptoKeysToFS( publicKey_t* pk, StringEntry
 idServerCryptoSystemLocal::EncryptString
 ===============
 */
-bool idServerCryptoSystemLocal::EncryptString( publicKey_t* pk, StringEntry inRaw, UTF8* outHex, size_t outHexSize )
+bool idServerCryptoSystemLocal::EncryptString( publicKey_t* pk, pointer inRaw, valueType* outHex, size_t outHexSize )
 {
     if( strlen( inRaw ) > CRYPTOCIPHERRAWSIZE - 1 )
     {
@@ -274,9 +274,9 @@ bool idServerCryptoSystemLocal::EncryptString( publicKey_t* pk, StringEntry inRa
         return false;
     }
     
-    U8 cipherBin[CRYPTOCIPHERBINSIZE];
+    uchar8 cipherBin[CRYPTOCIPHERBINSIZE];
     
-    if( crypto_box_seal( cipherBin, ( const U8* )inRaw, CRYPTOCIPHERRAWSIZE - 1, pk->keyBin ) != 0 )
+    if( crypto_box_seal( cipherBin, ( const uchar8* )inRaw, CRYPTOCIPHERRAWSIZE - 1, pk->keyBin ) != 0 )
     {
         Com_Printf( "Failed to encrypt string: %s\n", inRaw );
         return false;
@@ -295,7 +295,7 @@ bool idServerCryptoSystemLocal::EncryptString( publicKey_t* pk, StringEntry inRa
 idServerCryptoSystemLocal::DecryptString
 ===============
 */
-bool idServerCryptoSystemLocal::DecryptString( publicKey_t* pk, secretKey_t* sk, StringEntry inHex, UTF8* outRaw, size_t outRawSize )
+bool idServerCryptoSystemLocal::DecryptString( publicKey_t* pk, secretKey_t* sk, pointer inHex, valueType* outRaw, size_t outRawSize )
 {
     if( strlen( inHex ) > CRYPTOCIPHERHEXSIZE - 1 )
     {
@@ -309,14 +309,14 @@ bool idServerCryptoSystemLocal::DecryptString( publicKey_t* pk, secretKey_t* sk,
         return false;
     }
     
-    U8 cipherBin[CRYPTOCIPHERBINSIZE];
+    uchar8 cipherBin[CRYPTOCIPHERBINSIZE];
     
     if( !HexToBinary( cipherBin, sizeof( cipherBin ), inHex ) )
     {
         return false;
     }
     
-    if( crypto_box_seal_open( ( U8* )outRaw, cipherBin, sizeof( cipherBin ), pk->keyBin, sk->keyBin ) != 0 )
+    if( crypto_box_seal_open( ( uchar8* )outRaw, cipherBin, sizeof( cipherBin ), pk->keyBin, sk->keyBin ) != 0 )
     {
         Com_Printf( "Failed to decrypt string: %s\n", inHex );
         return false;
@@ -330,7 +330,7 @@ bool idServerCryptoSystemLocal::DecryptString( publicKey_t* pk, secretKey_t* sk,
 idServerCryptoSystemLocal::CryptoHash
 ===============
 */
-bool idServerCryptoSystemLocal::CryptoHash( StringEntry inRaw, UTF8* outHex, size_t outHexSize )
+bool idServerCryptoSystemLocal::CryptoHash( pointer inRaw, valueType* outHex, size_t outHexSize )
 {
     if( outHexSize < CRYPTOHASHHEXSIZE )
     {
@@ -338,9 +338,9 @@ bool idServerCryptoSystemLocal::CryptoHash( StringEntry inRaw, UTF8* outHex, siz
         return false;
     }
     
-    U8 hashBin[CRYPTOHASHBINSIZE];
+    uchar8 hashBin[CRYPTOHASHBINSIZE];
     
-    if( crypto_generichash( hashBin, sizeof( hashBin ), ( const U8* )inRaw, strlen( inRaw ), nullptr, 0 ) != 0 )
+    if( crypto_generichash( hashBin, sizeof( hashBin ), ( const uchar8* )inRaw, strlen( inRaw ), nullptr, 0 ) != 0 )
     {
         Com_Printf( "Failed to hash string: %s\n", inRaw );
         return false;

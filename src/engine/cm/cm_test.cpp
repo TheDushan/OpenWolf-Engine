@@ -48,9 +48,9 @@
 CM_PointLeafnum_r
 ==================
 */
-S32 CM_PointLeafnum_r( const vec3_t p, S32 num )
+sint CM_PointLeafnum_r( const vec3_t p, sint num )
 {
-    F32           d;
+    float32           d;
     cNode_t*        node;
     cplane_t*       plane;
     
@@ -87,7 +87,7 @@ S32 CM_PointLeafnum_r( const vec3_t p, S32 num )
 idCollisionModelManagerLocal::PointLeafnum
 ==================
 */
-S32 idCollisionModelManagerLocal::PointLeafnum( const vec3_t p )
+sint idCollisionModelManagerLocal::PointLeafnum( const vec3_t p )
 {
     if( !cm.numNodes ) // map not loaded
     {
@@ -103,9 +103,9 @@ LEAF LISTING
 ======================================================================
 */
 
-void CM_StoreLeafs( leafList_t* ll, S32 nodenum )
+void CM_StoreLeafs( leafList_t* ll, sint nodenum )
 {
-    S32 leafNum;
+    sint leafNum;
     
     leafNum = -1 - nodenum;
     
@@ -128,9 +128,9 @@ void CM_StoreLeafs( leafList_t* ll, S32 nodenum )
 CM_StoreBrushes
 ==================
 */
-void CM_StoreBrushes( leafList_t* ll, S32 nodenum )
+void CM_StoreBrushes( leafList_t* ll, sint nodenum )
 {
-    S32             i, k, leafnum, brushnum;
+    sint             i, k, leafnum, brushnum;
     cLeaf_t*        leaf;
     cbrush_t*       b;
     
@@ -185,11 +185,11 @@ CM_BoxLeafnums
 Fills in a list of all the leafs touched
 =============
 */
-void CM_BoxLeafnums_r( leafList_t* ll, S32 nodenum )
+void CM_BoxLeafnums_r( leafList_t* ll, sint nodenum )
 {
     cplane_t*       plane;
     cNode_t*        node;
-    S32             s;
+    sint             s;
     
     while( 1 )
     {
@@ -224,7 +224,7 @@ void CM_BoxLeafnums_r( leafList_t* ll, S32 nodenum )
 idCollisionModelManagerLocal::BoxLeafnums
 ==================
 */
-S32 idCollisionModelManagerLocal::BoxLeafnums( const vec3_t mins, const vec3_t maxs, S32* list, S32 listsize, S32* lastLeaf )
+sint idCollisionModelManagerLocal::BoxLeafnums( const vec3_t mins, const vec3_t maxs, sint* list, sint listsize, sint* lastLeaf )
 {
     leafList_t ll;
     
@@ -250,7 +250,7 @@ S32 idCollisionModelManagerLocal::BoxLeafnums( const vec3_t mins, const vec3_t m
 CM_BoxBrushes
 ==================
 */
-S32 CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t** list, S32 listsize )
+sint CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t** list, sint listsize )
 {
     leafList_t      ll;
     
@@ -260,7 +260,7 @@ S32 CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t** list, S32 li
     VectorCopy( maxs, ll.bounds[1] );
     ll.count = 0;
     ll.maxcount = listsize;
-    ll.list = ( S32* )list;
+    ll.list = ( sint* )list;
     ll.storeLeafs = CM_StoreBrushes;
     ll.lastLeaf = 0;
     ll.overflowed = false;
@@ -279,12 +279,12 @@ S32 CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t** list, S32 li
 idCollisionModelManagerLocal::PointContents
 ==================
 */
-S32 idCollisionModelManagerLocal::PointContents( const vec3_t p, clipHandle_t model )
+sint idCollisionModelManagerLocal::PointContents( const vec3_t p, clipHandle_t model )
 {
-    S32             leafnum, i, k, brushnum, contents;
+    sint             leafnum, i, k, brushnum, contents;
     cLeaf_t*        leaf;
     cbrush_t*       b;
-    F32           d;
+    float32           d;
     cmodel_t*       clipm;
     
     if( !cm.numNodes ) // map not loaded
@@ -350,7 +350,7 @@ Handles offseting and rotation of the end points for moving and
 rotating entities
 ==================
 */
-S32 idCollisionModelManagerLocal::TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles )
+sint idCollisionModelManagerLocal::TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles )
 {
     vec3_t          p_l, temp, forward, right, up;
     
@@ -379,7 +379,7 @@ PVS
 ===============================================================================
 */
 
-U8* idCollisionModelManagerLocal::ClusterPVS( S32 cluster )
+uchar8* idCollisionModelManagerLocal::ClusterPVS( sint cluster )
 {
     if( cluster < 0 || cluster >= cm.numClusters || !cm.vised )
     {
@@ -399,9 +399,9 @@ AREAPORTALS
 ===============================================================================
 */
 
-void CM_FloodArea_r( S32 areaNum, S32 floodnum )
+void CM_FloodArea_r( sint areaNum, sint floodnum )
 {
-    S32             i, *con;
+    sint             i, *con;
     cArea_t*        area;
     
     area = &cm.areas[areaNum];
@@ -434,7 +434,7 @@ CM_FloodAreaConnections
 */
 void CM_FloodAreaConnections( void )
 {
-    S32             i, floodnum;
+    sint             i, floodnum;
     cArea_t*        area;
     
     // all current floods are now invalid
@@ -459,7 +459,7 @@ void CM_FloodAreaConnections( void )
 CM_AdjustAreaPortalState
 ====================
 */
-void idCollisionModelManagerLocal::AdjustAreaPortalState( S32 area1, S32 area2, bool open )
+void idCollisionModelManagerLocal::AdjustAreaPortalState( sint area1, sint area2, bool open )
 {
     if( area1 < 0 || area2 < 0 )
     {
@@ -494,7 +494,7 @@ void idCollisionModelManagerLocal::AdjustAreaPortalState( S32 area1, S32 area2, 
 idCollisionModelManagerLocal::AreasConnected
 ====================
 */
-bool idCollisionModelManagerLocal::AreasConnected( S32 area1, S32 area2 )
+bool idCollisionModelManagerLocal::AreasConnected( sint area1, sint area2 )
 {
 #ifndef BSPC
     if( cm_noAreas->integer )
@@ -535,9 +535,9 @@ viewpoints and get the union of all visible areas.
 This is used to cull non-visible entities from snapshots
 =================
 */
-S32 idCollisionModelManagerLocal::WriteAreaBits( U8* buffer, S32 area )
+sint idCollisionModelManagerLocal::WriteAreaBits( uchar8* buffer, sint area )
 {
-    S32             i, floodnum, bytes;
+    sint             i, floodnum, bytes;
     
     bytes = ( cm.numAreas + 7 ) >> 3;
     

@@ -52,7 +52,7 @@ use the shader system.
 RB_CheckOverflow
 ==============
 */
-void RB_CheckOverflow( S32 verts, S32 indexes )
+void RB_CheckOverflow( sint verts, sint indexes )
 {
     if( tess.numVertexes + verts < SHADER_MAX_VERTEXES
             && tess.numIndexes + indexes < SHADER_MAX_INDEXES )
@@ -94,12 +94,12 @@ void RB_CheckVao( vao_t* vao )
 RB_AddQuadStampExt
 ==============
 */
-void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, F32 color[4], F32 s1, F32 t1, F32 s2, F32 t2 )
+void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, float32 color[4], float32 s1, float32 t1, float32 s2, float32 t2 )
 {
     vec3_t		normal;
-    S16     iNormal[4];
-    U16    iColor[4];
-    S32			ndx;
+    schar16     iNormal[4];
+    uchar16    iColor[4];
+    sint			ndx;
     
     RB_CheckVao( tess.vao );
     
@@ -175,7 +175,7 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, F32 color[4], F3
 RB_AddQuadStamp
 ==============
 */
-void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, F32 color[4] )
+void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, float32 color[4] )
 {
     RB_AddQuadStampExt( origin, left, up, color, 0, 0, 1, 1 );
 }
@@ -255,8 +255,8 @@ RB_SurfaceSprite
 static void RB_SurfaceSprite( void )
 {
     vec3_t		left, up;
-    F32		radius;
-    F32			colors[4];
+    float32		radius;
+    float32			colors[4];
     trRefEntity_t*	ent = backEnd.currentEntity;
     
     // calculate the xyz locations for the four corners
@@ -268,8 +268,8 @@ static void RB_SurfaceSprite( void )
     }
     else
     {
-        F32	s, c;
-        F32	ang;
+        float32	s, c;
+        float32	ang;
         
         ang = M_PI * ent->e.rotation / 180;
         s = sin( ang );
@@ -299,7 +299,7 @@ RB_SurfacePolychain
 */
 static void RB_SurfacePolychain( srfPoly_t* p )
 {
-    S32 i, numv;
+    sint i, numv;
     
     RB_CheckVao( tess.vao );
     
@@ -325,10 +325,10 @@ static void RB_SurfacePolychain( srfPoly_t* p )
         VectorCopy( p->verts[i].xyz, tess.xyz[numv] );
         tess.texCoords[numv][0] = p->verts[i].st[0];
         tess.texCoords[numv][1] = p->verts[i].st[1];
-        tess.color[numv][0] = ( S32 )p->verts[i].modulate[0] * 257;
-        tess.color[numv][1] = ( S32 )p->verts[i].modulate[1] * 257;
-        tess.color[numv][2] = ( S32 )p->verts[i].modulate[2] * 257;
-        tess.color[numv][3] = ( S32 )p->verts[i].modulate[3] * 257;
+        tess.color[numv][0] = ( sint )p->verts[i].modulate[0] * 257;
+        tess.color[numv][1] = ( sint )p->verts[i].modulate[1] * 257;
+        tess.color[numv][2] = ( sint )p->verts[i].modulate[2] * 257;
+        tess.color[numv][3] = ( sint )p->verts[i].modulate[3] * 257;
         
         numv++;
     }
@@ -345,17 +345,17 @@ static void RB_SurfacePolychain( srfPoly_t* p )
     tess.numVertexes = numv;
 }
 
-static void RB_SurfaceVertsAndIndexes( S32 numVerts, srfVert_t* verts, S32 numIndexes, U32* indexes, S32 dlightBits, S32 pshadowBits )
+static void RB_SurfaceVertsAndIndexes( sint numVerts, srfVert_t* verts, sint numIndexes, uint* indexes, sint dlightBits, sint pshadowBits )
 {
-    S32             i;
-    U32*      inIndex;
+    sint             i;
+    uint*      inIndex;
     srfVert_t*      dv;
-    F32*          xyz, *texCoords, *lightCoords;
-    S16*        lightdir;
-    S16*        normal;
-    S16*        tangent;
-    U32*      outIndex;
-    U16*       color;
+    float32*          xyz, *texCoords, *lightCoords;
+    schar16*        lightdir;
+    schar16*        normal;
+    schar16*        tangent;
+    uint*      outIndex;
+    uchar16*       color;
     
     RB_CheckVao( tess.vao );
     
@@ -438,7 +438,7 @@ static void RB_SurfaceVertsAndIndexes( S32 numVerts, srfVert_t* verts, S32 numIn
     tess.numVertexes += numVerts;
 }
 
-static bool RB_SurfaceVaoCached( S32 numVerts, srfVert_t* verts, S32 numIndexes, U32* indexes, S32 dlightBits, S32 pshadowBits )
+static bool RB_SurfaceVaoCached( sint numVerts, srfVert_t* verts, sint numIndexes, uint* indexes, sint dlightBits, sint pshadowBits )
 {
     bool recycleVertexBuffer = false;
     bool recycleIndexBuffer = false;
@@ -517,7 +517,7 @@ static void RB_SurfaceBeam( void )
 #define NUM_BEAM_SEGS 6
     refEntity_t* e;
     shaderProgram_t* sp = &tr.textureColorShader;
-    S32	i;
+    sint	i;
     vec3_t perpvec;
     vec3_t direction, normalized_direction;
     vec3_t	start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
@@ -597,11 +597,11 @@ static void RB_SurfaceBeam( void )
 
 //================================================================================
 
-static void DoRailCore( const vec3_t start, const vec3_t end, const vec3_t up, F32 len, F32 spanWidth )
+static void DoRailCore( const vec3_t start, const vec3_t end, const vec3_t up, float32 len, float32 spanWidth )
 {
-    F32		spanWidth2;
-    S32			vbase;
-    F32		t = len / 256.0f;
+    float32		spanWidth2;
+    sint			vbase;
+    float32		t = len / 256.0f;
     
     RB_CheckVao( tess.vao );
     
@@ -654,14 +654,14 @@ static void DoRailCore( const vec3_t start, const vec3_t end, const vec3_t up, F
     tess.indexes[tess.numIndexes++] = vbase + 3;
 }
 
-static void DoRailDiscs( S32 numSegs, const vec3_t start, const vec3_t dir, const vec3_t right, const vec3_t up )
+static void DoRailDiscs( sint numSegs, const vec3_t start, const vec3_t dir, const vec3_t right, const vec3_t up )
 {
-    S32 i;
+    sint i;
     vec3_t	pos[4];
     vec3_t	v;
-    S32		spanWidth = r_railWidth->integer;
-    F32 c, s;
-    F32		scale;
+    sint		spanWidth = r_railWidth->integer;
+    float32 c, s;
+    float32		scale;
     
     if( numSegs > 1 )
         numSegs--;
@@ -690,7 +690,7 @@ static void DoRailDiscs( S32 numSegs, const vec3_t start, const vec3_t dir, cons
     
     for( i = 0; i < numSegs; i++ )
     {
-        S32 j;
+        sint j;
         
         RB_CHECKOVERFLOW( 4, 6 );
         
@@ -722,8 +722,8 @@ static void DoRailDiscs( S32 numSegs, const vec3_t start, const vec3_t dir, cons
 static void RB_SurfaceRailRings( void )
 {
     refEntity_t* e;
-    S32			numSegs;
-    S32			len;
+    sint			numSegs;
+    sint			len;
     vec3_t		vec;
     vec3_t		right, up;
     vec3_t		start, end;
@@ -754,7 +754,7 @@ static void RB_SurfaceRailRings( void )
 static void RB_SurfaceRailCore( void )
 {
     refEntity_t* e;
-    S32			len;
+    sint			len;
     vec3_t		right;
     vec3_t		vec;
     vec3_t		start, end;
@@ -785,12 +785,12 @@ static void RB_SurfaceRailCore( void )
 static void RB_SurfaceLightningBolt( void )
 {
     refEntity_t* e;
-    S32			len;
+    sint			len;
     vec3_t		right;
     vec3_t		vec;
     vec3_t		start, end;
     vec3_t		v1, v2;
-    S32			i;
+    sint			i;
     
     e = &backEnd.currentEntity->e;
     
@@ -820,12 +820,12 @@ static void RB_SurfaceLightningBolt( void )
 }
 
 
-static void LerpMeshVertexes( mdvSurface_t* surf, F32 backlerp )
+static void LerpMeshVertexes( mdvSurface_t* surf, float32 backlerp )
 {
-    F32* outXyz;
-    S16* outNormal, *outTangent;
+    float32* outXyz;
+    schar16* outNormal, *outTangent;
     mdvVertex_t* newVerts;
-    S32		vertNum;
+    sint		vertNum;
     
     newVerts = surf->verts + backEnd.currentEntity->e.frame * surf->numVerts;
     
@@ -865,14 +865,14 @@ static void LerpMeshVertexes( mdvSurface_t* surf, F32 backlerp )
         {
             VectorLerp( newVerts->xyz,    oldVerts->xyz,    backlerp, outXyz );
             
-            outNormal[0] = ( S16 )( newVerts->normal[0] * ( 1.0f - backlerp ) + oldVerts->normal[0] * backlerp );
-            outNormal[1] = ( S16 )( newVerts->normal[1] * ( 1.0f - backlerp ) + oldVerts->normal[1] * backlerp );
-            outNormal[2] = ( S16 )( newVerts->normal[2] * ( 1.0f - backlerp ) + oldVerts->normal[2] * backlerp );
+            outNormal[0] = ( schar16 )( newVerts->normal[0] * ( 1.0f - backlerp ) + oldVerts->normal[0] * backlerp );
+            outNormal[1] = ( schar16 )( newVerts->normal[1] * ( 1.0f - backlerp ) + oldVerts->normal[1] * backlerp );
+            outNormal[2] = ( schar16 )( newVerts->normal[2] * ( 1.0f - backlerp ) + oldVerts->normal[2] * backlerp );
             outNormal[3] = 0;
             
-            outTangent[0] = ( S16 )( newVerts->tangent[0] * ( 1.0f - backlerp ) + oldVerts->tangent[0] * backlerp );
-            outTangent[1] = ( S16 )( newVerts->tangent[1] * ( 1.0f - backlerp ) + oldVerts->tangent[1] * backlerp );
-            outTangent[2] = ( S16 )( newVerts->tangent[2] * ( 1.0f - backlerp ) + oldVerts->tangent[2] * backlerp );
+            outTangent[0] = ( schar16 )( newVerts->tangent[0] * ( 1.0f - backlerp ) + oldVerts->tangent[0] * backlerp );
+            outTangent[1] = ( schar16 )( newVerts->tangent[1] * ( 1.0f - backlerp ) + oldVerts->tangent[1] * backlerp );
+            outTangent[2] = ( schar16 )( newVerts->tangent[2] * ( 1.0f - backlerp ) + oldVerts->tangent[2] * backlerp );
             outTangent[3] = newVerts->tangent[3];
             
             newVerts++;
@@ -893,11 +893,11 @@ RB_SurfaceMesh
 */
 static void RB_SurfaceMesh( mdvSurface_t* surface )
 {
-    S32				j;
-    F32			backlerp;
+    sint				j;
+    float32			backlerp;
     mdvSt_t*			texCoords;
-    S32				Bob, Doug;
-    S32				numVerts;
+    sint				Bob, Doug;
+    sint				numVerts;
     
     if( backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame )
     {
@@ -955,10 +955,10 @@ static void RB_SurfaceFace( srfBspSurface_t* srf )
 }
 
 
-static F32	LodErrorForVolume( vec3_t local, F32 radius )
+static float32	LodErrorForVolume( vec3_t local, float32 radius )
 {
     vec3_t		world;
-    F32		d;
+    float32		d;
     
     // never let it go negative
     if( r_lodCurveError->value < 0 )
@@ -998,24 +998,24 @@ Just copy the grid of points and triangulate
 */
 static void RB_SurfaceGrid( srfBspSurface_t* srf )
 {
-    S32		i, j;
-    F32*	xyz;
-    F32*	texCoords, *lightCoords;
-    S16* normal;
-    S16* tangent;
-    U16* color;
-    S16* lightdir;
+    sint		i, j;
+    float32*	xyz;
+    float32*	texCoords, *lightCoords;
+    schar16* normal;
+    schar16* tangent;
+    uchar16* color;
+    schar16* lightdir;
     srfVert_t*	dv;
-    S32		rows, irows, vrows;
-    S32		used;
-    S32		widthTable[MAX_GRID_SIZE];
-    S32		heightTable[MAX_GRID_SIZE];
-    F32	lodError;
-    S32		lodWidth, lodHeight;
-    S32		numVertexes;
-    S32		dlightBits;
-    S32     pshadowBits;
-    //S32		*vDlightBits;
+    sint		rows, irows, vrows;
+    sint		used;
+    sint		widthTable[MAX_GRID_SIZE];
+    sint		heightTable[MAX_GRID_SIZE];
+    float32	lodError;
+    sint		lodWidth, lodHeight;
+    sint		numVertexes;
+    sint		dlightBits;
+    sint     pshadowBits;
+    //sint		*vDlightBits;
     
     if( RB_SurfaceVaoCached( srf->numVerts, srf->verts, srf->numIndexes,
                              srf->indexes, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits ) )
@@ -1165,8 +1165,8 @@ static void RB_SurfaceGrid( srfBspSurface_t* srf )
         
         // add the indexes
         {
-            S32		numIndexes;
-            S32		w, h;
+            sint		numIndexes;
+            sint		w, h;
             
             h = rows - 1;
             w = lodWidth - 1;
@@ -1175,7 +1175,7 @@ static void RB_SurfaceGrid( srfBspSurface_t* srf )
             {
                 for( j = 0 ; j < w ; j++ )
                 {
-                    S32		v1, v2, v3, v4;
+                    sint		v1, v2, v3, v4;
                     
                     // vertex order to be reckognized as tristrips
                     v1 = numVertexes + i * lodWidth + j + 1;
@@ -1323,7 +1323,7 @@ void RB_SurfaceVaoMdvMesh( srfVaoMdvMesh_t* surface )
     
     if( surface->mdvModel->numFrames > 1 )
     {
-        S32 frameOffset, attribIndex;
+        sint frameOffset, attribIndex;
         vaoAttrib_t* vAtb;
         
         glState.vertexAnimation = true;

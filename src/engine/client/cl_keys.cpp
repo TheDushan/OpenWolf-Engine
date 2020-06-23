@@ -50,13 +50,13 @@ bool chat_irc;
 
 bool key_overstrikeMode;
 
-S32 anykeydown;
+sint anykeydown;
 qkey_t keys[MAX_KEYS];
 
 typedef struct
 {
-    UTF8*    name;
-    S32 keynum;
+    valueType*    name;
+    sint keynum;
 } keyname_t;
 
 // names not in this list can either be lowercase ascii, or '0xnn' hex sequences
@@ -339,15 +339,15 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-void Field_VariableSizeDraw( field_t* edit, S32 x, S32 y, S32 size, bool showCursor,
-                             bool noColorEscape, F32 alpha )
+void Field_VariableSizeDraw( field_t* edit, sint x, sint y, sint size, bool showCursor,
+                             bool noColorEscape, float32 alpha )
 {
-    S32		len;
-    S32		drawLen;
-    S32		prestep;
-    S32		cursorChar;
-    UTF8	str[MAX_STRING_CHARS];
-    S32		i;
+    sint		len;
+    sint		drawLen;
+    sint		prestep;
+    sint		cursorChar;
+    valueType	str[MAX_STRING_CHARS];
+    sint		i;
     
     drawLen = edit->widthInChars - 1; // - 1 so there is always a space for the cursor
     len = strlen( edit->buffer );
@@ -387,7 +387,7 @@ void Field_VariableSizeDraw( field_t* edit, S32 x, S32 y, S32 size, bool showCur
     // draw it
     if( size == SMALLCHAR_WIDTH )
     {
-        F32	color[4];
+        float32	color[4];
         
         color[0] = color[1] = color[2] = 1.0;
         color[3] = alpha;
@@ -402,7 +402,7 @@ void Field_VariableSizeDraw( field_t* edit, S32 x, S32 y, S32 size, bool showCur
     // draw the cursor
     if( showCursor )
     {
-        if( ( S32 )( cls.realtime >> 8 ) & 1 )
+        if( ( sint )( cls.realtime >> 8 ) & 1 )
         {
             return;		// off blink
         }
@@ -420,7 +420,7 @@ void Field_VariableSizeDraw( field_t* edit, S32 x, S32 y, S32 size, bool showCur
         
         if( size == SMALLCHAR_WIDTH )
         {
-            F32 xlocation = x + idClientScreenSystemLocal::ConsoleFontStringWidth( str + prestep, edit->cursor - prestep ) ;
+            float32 xlocation = x + idClientScreenSystemLocal::ConsoleFontStringWidth( str + prestep, edit->cursor - prestep ) ;
             idClientScreenSystemLocal::DrawConsoleFontChar( xlocation , y, cursorChar );
         }
         else
@@ -433,12 +433,12 @@ void Field_VariableSizeDraw( field_t* edit, S32 x, S32 y, S32 size, bool showCur
     }
 }
 
-void Field_Draw( field_t* edit, S32 x, S32 y, bool showCursor, bool noColorEscape, F32 alpha )
+void Field_Draw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape, float32 alpha )
 {
     Field_VariableSizeDraw( edit, x, y, SMALLCHAR_WIDTH, showCursor, noColorEscape, alpha );
 }
 
-void Field_BigDraw( field_t* edit, S32 x, S32 y, bool showCursor, bool noColorEscape )
+void Field_BigDraw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape )
 {
     Field_VariableSizeDraw( edit, x, y, BIGCHAR_WIDTH, showCursor, noColorEscape, 1.0f );
 }
@@ -450,8 +450,8 @@ Field_Paste
 */
 void Field_Paste( field_t* edit )
 {
-    UTF8*    cbd;
-    S32 pasteLen, i;
+    valueType*    cbd;
+    sint pasteLen, i;
     
     cbd = idsystem->SysGetClipboardData();
     
@@ -480,9 +480,9 @@ in-game talk, and menu fields
 Key events are used for non-printable characters, others are gotten from char events.
 =================
 */
-void Field_KeyDownEvent( field_t* edit, S32 key )
+void Field_KeyDownEvent( field_t* edit, sint key )
 {
-    S32 len;
+    sint len;
     
     // shift-insert is paste
     if( ( ( key == K_INS ) || ( key == K_KP_INS ) ) && keys[K_SHIFT].down )
@@ -559,9 +559,9 @@ void Field_KeyDownEvent( field_t* edit, S32 key )
 Field_CharEvent
 ==================
 */
-void Field_CharEvent( field_t* edit, S32 ch )
+void Field_CharEvent( field_t* edit, sint ch )
 {
-    S32 len;
+    sint len;
     
     if( ch == 'v' - 'a' + 1 )     // ctrl-v is paste
     {
@@ -674,7 +674,7 @@ Console_Key
 Handles history and console scrollback
 ====================
 */
-void Console_Key( S32 key )
+void Console_Key( sint key )
 {
     // ctrl-L clears screen
     if( key == 'l' && keys[K_CTRL].down )
@@ -692,7 +692,7 @@ void Console_Key( S32 key )
                 g_consoleField.buffer[0] != '\\' &&
                 g_consoleField.buffer[0] != '/' )
         {
-            UTF8 temp[MAX_STRING_CHARS];
+            valueType temp[MAX_STRING_CHARS];
             
             Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
             Com_sprintf( g_consoleField.buffer, sizeof( g_consoleField.buffer ), "\\%s", temp );
@@ -772,7 +772,7 @@ void Console_Key( S32 key )
     if( ( key == K_MWHEELDOWN && keys[K_SHIFT].down ) || ( key == K_DOWNARROW ) || ( key == K_KP_DOWNARROW ) ||
             ( ( tolower( key ) == 'n' ) && keys[K_CTRL].down ) )
     {
-        StringEntry history = Hist_Next( g_consoleField.buffer );
+        pointer history = Hist_Next( g_consoleField.buffer );
         if( history )
         {
             Q_strncpyz( g_consoleField.buffer, history, sizeof( g_consoleField.buffer ) );
@@ -857,10 +857,10 @@ Message_Key
 In game talk message
 ================
 */
-void Message_Key( S32 key )
+void Message_Key( sint key )
 {
 
-    UTF8 buffer[MAX_STRING_CHARS];
+    valueType buffer[MAX_STRING_CHARS];
     
     
     if( key == K_ESCAPE )
@@ -920,7 +920,7 @@ void Key_SetOverstrikeMode( bool state )
 Key_IsDown
 ===================
 */
-bool Key_IsDown( S32 keynum )
+bool Key_IsDown( sint keynum )
 {
     if( keynum < 0 || keynum >= MAX_KEYS )
     {
@@ -944,7 +944,7 @@ the K_* names are matched up.
 to be configured even if they don't have defined names.
 ===================
 */
-S32 Key_StringToKeynum( UTF8* str )
+sint Key_StringToKeynum( valueType* str )
 {
     keyname_t*   kn;
     
@@ -960,7 +960,7 @@ S32 Key_StringToKeynum( UTF8* str )
     // check for hex code
     if( strlen( str ) == 4 )
     {
-        S32 n = Com_HexStrToInt( str );
+        sint n = Com_HexStrToInt( str );
         
         if( n >= 0 )
         {
@@ -986,11 +986,11 @@ Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) 
 given keynum.
 ===================
 */
-UTF8* Key_KeynumToString( S32 keynum )
+valueType* Key_KeynumToString( sint keynum )
 {
     keyname_t*   kn;
-    static UTF8 tinystr[5];
-    S32 i, j;
+    static valueType tinystr[5];
+    sint i, j;
     
     if( keynum == -1 )
     {
@@ -1034,10 +1034,10 @@ UTF8* Key_KeynumToString( S32 keynum )
 
 #define BIND_HASH_SIZE 1024
 
-static S64 generateHashValue( StringEntry fname )
+static sint32 generateHashValue( pointer fname )
 {
-    S32 i;
-    S64 hash;
+    sint i;
+    sint32 hash;
     
     if( !fname )
     {
@@ -1048,7 +1048,7 @@ static S64 generateHashValue( StringEntry fname )
     i = 0;
     while( fname[i] != '\0' )
     {
-        hash += ( S64 )( fname[i] ) * ( i + 119 );
+        hash += ( sint32 )( fname[i] ) * ( i + 119 );
         i++;
     }
     hash &= ( BIND_HASH_SIZE - 1 );
@@ -1060,10 +1060,10 @@ static S64 generateHashValue( StringEntry fname )
 Key_SetBinding
 ===================
 */
-void Key_SetBinding( S32 keynum, StringEntry binding )
+void Key_SetBinding( sint keynum, pointer binding )
 {
 
-    UTF8* lcbinding;    // fretn - make a copy of our binding lowercase
+    valueType* lcbinding;    // fretn - make a copy of our binding lowercase
     // so name toggle scripts work again: bind x name BzZIfretn?
     // resulted into bzzifretn?
     
@@ -1096,7 +1096,7 @@ void Key_SetBinding( S32 keynum, StringEntry binding )
 Key_GetBinding
 ===================
 */
-UTF8* Key_GetBinding( S32 keynum )
+valueType* Key_GetBinding( sint keynum )
 {
     if( keynum < 0 || keynum >= MAX_KEYS )
     {
@@ -1107,10 +1107,10 @@ UTF8* Key_GetBinding( S32 keynum )
 }
 
 // binding MUST be lower case
-void Key_GetBindingByString( StringEntry binding, S32* key1, S32* key2 )
+void Key_GetBindingByString( pointer binding, sint* key1, sint* key2 )
 {
-    S32 i;
-    S32 hash = generateHashValue( binding );
+    sint i;
+    sint hash = generateHashValue( binding );
     
     *key1 = -1;
     *key2 = -1;
@@ -1138,9 +1138,9 @@ Key_GetKey
 ===================
 */
 
-S32 Key_GetKey( StringEntry binding )
+sint Key_GetKey( pointer binding )
 {
-    S32 i;
+    sint i;
     
     if( binding )
     {
@@ -1162,7 +1162,7 @@ Key_Unbind_f
 */
 void Key_Unbind_f( void )
 {
-    S32 b;
+    sint b;
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -1187,7 +1187,7 @@ Key_Unbindall_f
 */
 void Key_Unbindall_f( void )
 {
-    S32 i;
+    sint i;
     
     for( i = 0 ; i < MAX_KEYS; i++ )
         if( keys[i].binding )
@@ -1204,7 +1204,7 @@ Key_Bind_f
 */
 void Key_Bind_f( void )
 {
-    S32 c, b;
+    sint c, b;
     
     c = cmdSystem->Argc();
     
@@ -1244,10 +1244,10 @@ Key_EditBind_f
 */
 void Key_EditBind_f( void )
 {
-    UTF8* buf;
+    valueType* buf;
     /*const*/
-    UTF8* key, *binding, *keyq;
-    S32 b;
+    valueType* key, *binding, *keyq;
+    sint b;
     
     b = cmdSystem->Argc();
     if( b != 2 )
@@ -1265,8 +1265,8 @@ void Key_EditBind_f( void )
     
     binding = Key_GetBinding( b );
     
-    keyq = ( UTF8* )Com_QuoteStr( key ); // <- static buffer
-    buf = ( UTF8* )malloc( 8 + strlen( keyq ) + strlen( binding ) );
+    keyq = ( valueType* )Com_QuoteStr( key ); // <- static buffer
+    buf = ( valueType* )malloc( 8 + strlen( keyq ) + strlen( binding ) );
     Com_sprintf( buf, sizeof( buf ), "/bind %s %s", keyq, binding );
     
     Con_OpenConsole_f();
@@ -1284,7 +1284,7 @@ Writes lines containing "bind key value"
 */
 void Key_WriteBindings( fileHandle_t f )
 {
-    S32 i;
+    sint i;
     
     fileSystem->Printf( f, "unbindall\n" );
     
@@ -1308,7 +1308,7 @@ Key_Bindlist_f
 */
 void Key_Bindlist_f( void )
 {
-    S32 i;
+    sint i;
     
     for( i = 0 ; i < MAX_KEYS ; i++ )
     {
@@ -1324,9 +1324,9 @@ void Key_Bindlist_f( void )
 Key_KeynameCompletion
 ============
 */
-void Key_KeynameCompletion( void( *callback )( StringEntry s ) )
+void Key_KeynameCompletion( void( *callback )( pointer s ) )
 {
-    S32		i;
+    sint		i;
     
     for( i = 0; keynames[ i ].name != nullptr; i++ )
         callback( keynames[ i ].name );
@@ -1337,12 +1337,12 @@ void Key_KeynameCompletion( void( *callback )( StringEntry s ) )
 Key_CompleteUnbind
 ====================
 */
-static void Key_CompleteUnbind( UTF8* args, S32 argNum )
+static void Key_CompleteUnbind( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
         // Skip "unbind "
-        UTF8* p = Com_SkipTokens( args, 1, " " );
+        valueType* p = Com_SkipTokens( args, 1, " " );
         
         if( p > args )
             Field_CompleteKeyname( );
@@ -1354,9 +1354,9 @@ static void Key_CompleteUnbind( UTF8* args, S32 argNum )
 Key_CompleteBind
 ====================
 */
-void Key_CompleteBind( UTF8* args, S32 argNum )
+void Key_CompleteBind( valueType* args, sint argNum )
 {
-    UTF8* p;
+    valueType* p;
     
     if( argNum == 2 )
     {
@@ -1376,9 +1376,9 @@ void Key_CompleteBind( UTF8* args, S32 argNum )
     }
 }
 
-static void Key_CompleteEditbind( UTF8* args, S32 argNum )
+static void Key_CompleteEditbind( valueType* args, sint argNum )
 {
-    UTF8* p;
+    valueType* p;
     
     p = Com_SkipTokens( args, 1, " " );
     
@@ -1412,11 +1412,11 @@ void CL_InitKeyCommands( void )
 CL_AddKeyUpCommands
 ===================
 */
-void CL_AddKeyUpCommands( S32 key, UTF8* kb, S32 time )
+void CL_AddKeyUpCommands( sint key, valueType* kb, sint time )
 {
-    S32 i;
-    UTF8 button[1024], *buttonPtr;
-    UTF8	cmd[1024];
+    sint i;
+    valueType button[1024], *buttonPtr;
+    valueType	cmd[1024];
     bool keyevent;
     
     if( !kb )
@@ -1473,10 +1473,10 @@ Called by the system for both key up and key down events
 // fretn
 bool consoleButtonWasPressed = false;
 
-void CL_KeyEvent( S32 key, S32 down, S32 time )
+void CL_KeyEvent( sint key, sint down, sint time )
 {
-    UTF8*    kb;
-    UTF8 cmd[1024];
+    valueType*    kb;
+    valueType cmd[1024];
     bool bypassMenu = false;       // NERVE - SMF
     bool onlybinds = false;
     
@@ -1842,7 +1842,7 @@ CL_CharEvent
 Normal keyboard characters, already shifted / capslocked / etc
 ===================
 */
-void CL_CharEvent( S32 key )
+void CL_CharEvent( sint key )
 {
     // the console key should never be used as a char
     // ydnar: added uk equivalent of shift+`
@@ -1851,7 +1851,7 @@ void CL_CharEvent( S32 key )
     // fretn - this should be fixed in Com_EventLoop
     // but I can't be arsed to leave this as is
     
-    if( key == ( U8 ) '`' || key == ( U8 ) '~' || key == ( U8 ) '¬' )
+    if( key == ( uchar8 ) '`' || key == ( uchar8 ) '~' || key == ( uchar8 ) '¬' )
     {
         return;
     }
@@ -1891,7 +1891,7 @@ Key_ClearStates
 */
 void Key_ClearStates( void )
 {
-    S32 i;
+    sint i;
     
     anykeydown = 0;
     

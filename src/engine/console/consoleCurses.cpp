@@ -63,7 +63,7 @@ idConsoleCursesLocal::SetColor
 Use grey instead of black
 ==================
 */
-void idConsoleCursesLocal::SetColor( WINDOW* win, S32 color )
+void idConsoleCursesLocal::SetColor( WINDOW* win, sint color )
 {
     if( com_ansiColor && !com_ansiColor->integer )
     {
@@ -106,7 +106,7 @@ idConsoleCursesLocal::DrawScrollBar
 */
 void idConsoleCursesLocal::DrawScrollBar( void )
 {
-    S32 scroll;
+    sint scroll;
     
     if( lastline <= LOG_LINES )
     {
@@ -140,10 +140,10 @@ void idConsoleCursesLocal::DrawScrollBar( void )
 idConsoleCursesLocal::ColorPrint
 ==================
 */
-void idConsoleCursesLocal::ColorPrint( WINDOW* win, StringEntry msg, bool stripcodes )
+void idConsoleCursesLocal::ColorPrint( WINDOW* win, pointer msg, bool stripcodes )
 {
-    static UTF8 buffer[MAXPRINTMSG];
-    S32 length = 0;
+    static valueType buffer[MAXPRINTMSG];
+    sint length = 0;
     
     SetColor( win, 7 );
     
@@ -321,7 +321,7 @@ Initialize the console in curses mode, fall back to tty mode on failure
 */
 void idConsoleCursesLocal::Init( void )
 {
-    S32 col;
+    sint col;
     
 #ifndef _WIN32
     // If the process is backgrounded (running non interactively)
@@ -468,11 +468,11 @@ void idConsoleCursesLocal::Init( void )
 idConsoleCursesLocal::Input
 ==================
 */
-UTF8* idConsoleCursesLocal::Input( void )
+valueType* idConsoleCursesLocal::Input( void )
 {
-    S32 chr, num_chars = 0;
-    static UTF8 text[MAX_EDIT_LINE];
-    static S32 lasttime = -1;
+    sint chr, num_chars = 0;
+    static valueType text[MAX_EDIT_LINE];
+    static sint lasttime = -1;
     
     if( !curses_on )
         return Input();
@@ -641,9 +641,9 @@ UTF8* idConsoleCursesLocal::Input( void )
 idConsoleCursesLocal::Print
 ==================
 */
-void idConsoleCursesLocal::Print( StringEntry msg )
+void idConsoleCursesLocal::Print( pointer msg )
 {
-    S32 col;
+    sint col;
     bool scroll = ( lastline > scrollline && lastline <= scrollline + LOG_LINES );
     
     if( !curses_on )

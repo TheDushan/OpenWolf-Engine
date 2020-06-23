@@ -31,8 +31,8 @@
 
 typedef struct serverStatus_s
 {
-    S32 time, startTime;
-    UTF8 string[BIG_INFO_STRING];
+    sint time, startTime;
+    valueType string[BIG_INFO_STRING];
     bool pending;
     bool print;
     bool retrieved;
@@ -55,21 +55,21 @@ public:
     
     static void InitServerInfo( serverInfo_t* server, netadr_t* address );
     static void ServersResponsePacket( const netadr_t* from, msg_t* msg, bool extended );
-    static void SetServerInfo( serverInfo_t* server, StringEntry info, S32 ping );
-    static void SetServerInfoByAddress( netadr_t from, StringEntry info, S32 ping );
+    static void SetServerInfo( serverInfo_t* server, pointer info, sint ping );
+    static void SetServerInfoByAddress( netadr_t from, pointer info, sint ping );
     static void ServerInfoPacket( netadr_t from, msg_t* msg );
     static serverStatus_t* GetServerStatus( netadr_t from );
-    static S32 ServerStatus( UTF8* serverAddress, UTF8* serverStatusString, S32 maxLen );
+    static sint ServerStatus( valueType* serverAddress, valueType* serverStatusString, sint maxLen );
     static void ServerStatusResponse( netadr_t from, msg_t* msg );
     static void LocalServers( void );
     static void GlobalServers( void );
-    static void GetPing( S32 n, UTF8* buf, S32 buflen, S32* pingtime );
-    static void GetPingInfo( S32 n, UTF8* buf, S32 buflen );
-    static void ClearPing( S32 n );
-    static S32 GetPingQueueCount( void );
+    static void GetPing( sint n, valueType* buf, sint buflen, sint* pingtime );
+    static void GetPingInfo( sint n, valueType* buf, sint buflen );
+    static void ClearPing( sint n );
+    static sint GetPingQueueCount( void );
     static ping_t* GetFreePing( void );
     static void Ping( void );
-    static bool UpdateVisiblePings( S32 source );
+    static bool UpdateVisiblePings( sint source );
     static void ServerStatus( void );
     static void ShowIP( void );
 };

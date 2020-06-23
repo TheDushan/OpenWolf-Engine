@@ -37,7 +37,7 @@
 #ifndef __CVARSYSTEM_H__
 #define __CVARSYSTEM_H__
 
-extern S32 cvar_modifiedFlags;
+extern sint cvar_modifiedFlags;
 
 //
 // idFileSystemLocal
@@ -48,25 +48,25 @@ public:
     idCVarSystemLocal( void );
     ~idCVarSystemLocal( void );
     
-    static S64 generateHashValue( StringEntry fname );
-    static bool ValidateString( StringEntry s );
-    static convar_t* FindVar( StringEntry var_name );
-    virtual F32 VariableValue( StringEntry var_name );
-    virtual S32 VariableIntegerValue( StringEntry var_name );
-    virtual UTF8* VariableString( StringEntry var_name );
-    virtual void VariableStringBuffer( StringEntry var_name, UTF8* buffer, S32 bufsize );
-    virtual void LatchedVariableStringBuffer( StringEntry var_name, UTF8* buffer, S32 bufsize );
-    virtual S32 Flags( StringEntry var_name );
-    virtual void CommandCompletion( void( *callback )( StringEntry s ) );
-    virtual UTF8* ClearForeignCharacters( StringEntry value );
-    virtual convar_t* Get( StringEntry var_name, StringEntry var_value, S32 flags, StringEntry description );
-    virtual convar_t* GetSet2( StringEntry var_name, StringEntry value, bool force );
-    virtual void Set( StringEntry var_name, StringEntry value );
-    virtual void SetLatched( StringEntry var_name, StringEntry value );
-    virtual void SetValue( StringEntry var_name, F32 value );
-    virtual void SetValueSafe( StringEntry var_name, F32 value );
-    virtual void SetValueLatched( StringEntry var_name, F32 value );
-    virtual void Reset( StringEntry var_name );
+    static sint32 generateHashValue( pointer fname );
+    static bool ValidateString( pointer s );
+    static convar_t* FindVar( pointer var_name );
+    virtual float32 VariableValue( pointer var_name );
+    virtual sint VariableIntegerValue( pointer var_name );
+    virtual valueType* VariableString( pointer var_name );
+    virtual void VariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize );
+    virtual void LatchedVariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize );
+    virtual sint Flags( pointer var_name );
+    virtual void CommandCompletion( void( *callback )( pointer s ) );
+    virtual valueType* ClearForeignCharacters( pointer value );
+    virtual convar_t* Get( pointer var_name, pointer var_value, sint flags, pointer description );
+    virtual convar_t* GetSet2( pointer var_name, pointer value, bool force );
+    virtual void Set( pointer var_name, pointer value );
+    virtual void SetLatched( pointer var_name, pointer value );
+    virtual void SetValue( pointer var_name, float32 value );
+    virtual void SetValueSafe( pointer var_name, float32 value );
+    virtual void SetValueLatched( pointer var_name, float32 value );
+    virtual void Reset( pointer var_name );
     virtual void SetCheatState( void );
     virtual bool Command( void );
     static void Toggle_f( void );
@@ -79,16 +79,16 @@ public:
     virtual void WriteVariables( fileHandle_t f );
     static void List_f( void );
     static void Restart_f( void );
-    virtual UTF8* InfoString( S32 bit );
-    virtual UTF8* InfoString_Big( S32 bit );
-    virtual void InfoStringBuffer( S32 bit, UTF8* buff, S32 buffsize );
-    virtual void CheckRange( convar_t* var, F32 min, F32 max, bool integral );
-    virtual void Register( vmConvar_t* vmCvar, StringEntry varName, StringEntry defaultValue, S32 flags, StringEntry description );
+    virtual valueType* InfoString( sint bit );
+    virtual valueType* InfoString_Big( sint bit );
+    virtual void InfoStringBuffer( sint bit, valueType* buff, sint buffsize );
+    virtual void CheckRange( convar_t* var, float32 min, float32 max, bool integral );
+    virtual void Register( vmConvar_t* vmCvar, pointer varName, pointer defaultValue, sint flags, pointer description );
     virtual void Update( vmConvar_t* vmCvar );
-    static void CompleteCvarName( UTF8* args, S32 argNum );
+    static void CompleteCvarName( valueType* args, sint argNum );
     virtual void Init( void );
     virtual void Shutdown( void );
-    static const UTF8* Validate( convar_t* var, StringEntry value, bool warn );
+    static const valueType* Validate( convar_t* var, pointer value, bool warn );
 };
 
 extern idCVarSystemLocal cvarSystemLocal;

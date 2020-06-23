@@ -78,7 +78,7 @@ bool R_CheckFBO( const FBO_t* fbo )
 FBO_Create
 ============
 */
-FBO_t*          FBO_Create( StringEntry name, S32 width, S32 height )
+FBO_t*          FBO_Create( pointer name, sint width, sint height )
 {
     FBO_t* fbo = nullptr;
     
@@ -118,9 +118,9 @@ FBO_t*          FBO_Create( StringEntry name, S32 width, S32 height )
 FBO_CreateBuffer
 =================
 */
-void FBO_CreateBuffer( FBO_t* fbo, S32 format, S32 index, S32 multisample )
+void FBO_CreateBuffer( FBO_t* fbo, sint format, sint index, sint multisample )
 {
-    U32* pRenderBuffer;
+    uint* pRenderBuffer;
     GLenum attachment;
     bool absent;
     
@@ -202,7 +202,7 @@ FBO_AttachImage
 void FBO_AttachImage( FBO_t* fbo, image_t* image, GLenum attachment, GLuint cubemapside )
 {
     GLenum target = GL_TEXTURE_2D;
-    S32 index;
+    sint index;
     
     if( image->flags & IMGFLAG_CUBEMAP )
         target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + cubemapside;
@@ -232,7 +232,7 @@ void FBO_Bind( FBO_t* fbo )
     if( r_logFile->integer )
     {
         // don't just call LogComment, or we will get a call to va() every frame!
-        GLimp_LogComment( reinterpret_cast< UTF8* >( va( "--- FBO_Bind( %s ) ---\n", fbo ? fbo->name : "nullptr" ) ) );
+        GLimp_LogComment( reinterpret_cast< valueType* >( va( "--- FBO_Bind( %s ) ---\n", fbo ? fbo->name : "nullptr" ) ) );
     }
     
     GL_BindFramebuffer( GL_FRAMEBUFFER, fbo ? fbo->frameBuffer : 0 );
@@ -246,8 +246,8 @@ idRenderSystemLocal::FBOInit
 */
 void idRenderSystemLocal::FBOInit( void )
 {
-    S32             i;
-    S32             hdrFormat, multisample = 0;
+    sint             i;
+    sint             hdrFormat, multisample = 0;
     
     CL_RefPrintf( PRINT_ALL, "------- idRenderSystemLocal::FBOInit -------\n" );
     
@@ -274,7 +274,7 @@ void idRenderSystemLocal::FBOInit( void )
         multisample = 0;
         
     if( multisample != r_ext_framebuffer_multisample->integer )
-        cvarSystem->SetValue( "r_ext_framebuffer_multisample", ( F32 )multisample );
+        cvarSystem->SetValue( "r_ext_framebuffer_multisample", ( float32 )multisample );
         
     //
     // Generic FBO...
@@ -455,7 +455,7 @@ void idRenderSystemLocal::FBOInit( void )
     }
     
     {
-        for( S32 i = 0; i < ARRAY_LEN( tr.glowImageScaled ); i++ )
+        for( sint i = 0; i < ARRAY_LEN( tr.glowImageScaled ); i++ )
         {
             tr.glowFboScaled[i] = FBO_Create( va( "*glowScaled%d", i ), tr.glowImageScaled[i]->width, tr.glowImageScaled[i]->height );
             FBO_AttachImage( tr.glowFboScaled[i], tr.glowImageScaled[i], GL_COLOR_ATTACHMENT0, 0 );
@@ -483,7 +483,7 @@ idRenderSystemLocal::FBOShutdown
 */
 void idRenderSystemLocal::FBOShutdown( void )
 {
-    S32             i, j;
+    sint             i, j;
     FBO_t*          fbo;
     
     CL_RefPrintf( PRINT_ALL, "------- idRenderSystemLocal::FBOShutdown -------\n" );
@@ -521,7 +521,7 @@ R_FBOList_f
 */
 void R_FBOList_f( void )
 {
-    S32             i;
+    sint             i;
     FBO_t*          fbo;
     
     if( !glRefConfig.framebufferObject )
@@ -543,7 +543,7 @@ void R_FBOList_f( void )
     CL_RefPrintf( PRINT_ALL, " %i FBOs\n", tr.numFBOs );
 }
 
-void FBO_BlitFromTexture( struct image_s* src, vec4_t inSrcTexCorners, vec2_t inSrcTexScale, FBO_t* dst, ivec4_t inDstBox, struct shaderProgram_s* shaderProgram, vec4_t inColor, S32 blend )
+void FBO_BlitFromTexture( struct image_s* src, vec4_t inSrcTexCorners, vec2_t inSrcTexScale, FBO_t* dst, ivec4_t inDstBox, struct shaderProgram_s* shaderProgram, vec4_t inColor, sint blend )
 {
     ivec4_t dstBox;
     vec4_t color;
@@ -552,7 +552,7 @@ void FBO_BlitFromTexture( struct image_s* src, vec4_t inSrcTexCorners, vec2_t in
     vec2_t invTexRes;
     FBO_t* oldFbo = glState.currentFBO;
     mat4_t projection;
-    S32 width, height;
+    sint width, height;
     
     if( !src )
     {
@@ -648,7 +648,7 @@ void FBO_BlitFromTexture( struct image_s* src, vec4_t inSrcTexCorners, vec2_t in
     FBO_Bind( oldFbo );
 }
 
-void FBO_Blit( FBO_t* src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t* dst, ivec4_t dstBox, struct shaderProgram_s* shaderProgram, vec4_t color, S32 blend )
+void FBO_Blit( FBO_t* src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t* dst, ivec4_t dstBox, struct shaderProgram_s* shaderProgram, vec4_t color, sint blend )
 {
     vec4_t srcTexCorners;
     
@@ -660,10 +660,10 @@ void FBO_Blit( FBO_t* src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t* dst, ive
     
     if( inSrcBox )
     {
-        srcTexCorners[0] =  inSrcBox[0]                / ( F32 )src->width;
-        srcTexCorners[1] = ( inSrcBox[1] + inSrcBox[3] ) / ( F32 )src->height;
-        srcTexCorners[2] = ( inSrcBox[0] + inSrcBox[2] ) / ( F32 )src->width;
-        srcTexCorners[3] =  inSrcBox[1]                / ( F32 )src->height;
+        srcTexCorners[0] =  inSrcBox[0]                / ( float32 )src->width;
+        srcTexCorners[1] = ( inSrcBox[1] + inSrcBox[3] ) / ( float32 )src->height;
+        srcTexCorners[2] = ( inSrcBox[0] + inSrcBox[2] ) / ( float32 )src->width;
+        srcTexCorners[3] =  inSrcBox[1]                / ( float32 )src->height;
     }
     else
     {
@@ -673,7 +673,7 @@ void FBO_Blit( FBO_t* src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t* dst, ive
     FBO_BlitFromTexture( src->colorImage[0], srcTexCorners, srcTexScale, dst, dstBox, shaderProgram, color, blend | GLS_DEPTHTEST_DISABLE );
 }
 
-void FBO_FastBlit( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, S32 buffers, S32 filter )
+void FBO_FastBlit( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, sint buffers, sint filter )
 {
     ivec4_t srcBoxFinal, dstBoxFinal;
     GLuint srcFb, dstFb;
@@ -689,8 +689,8 @@ void FBO_FastBlit( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, S32 b
     
     if( !srcBox )
     {
-        S32 width =  src ? src->width  : glConfig.vidWidth;
-        S32 height = src ? src->height : glConfig.vidHeight;
+        sint width =  src ? src->width  : glConfig.vidWidth;
+        sint height = src ? src->height : glConfig.vidHeight;
         
         VectorSet4( srcBoxFinal, 0, 0, width, height );
     }
@@ -701,8 +701,8 @@ void FBO_FastBlit( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, S32 b
     
     if( !dstBox )
     {
-        S32 width  = dst ? dst->width  : glConfig.vidWidth;
-        S32 height = dst ? dst->height : glConfig.vidHeight;
+        sint width  = dst ? dst->width  : glConfig.vidWidth;
+        sint height = dst ? dst->height : glConfig.vidHeight;
         
         VectorSet4( dstBoxFinal, 0, 0, width, height );
     }
@@ -721,7 +721,7 @@ void FBO_FastBlit( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, S32 b
     glState.currentFBO = nullptr;
 }
 
-void FBO_FastBlitIndexed( FBO_t* src, FBO_t* dst, S32 srcReadBuffer, S32 dstDrawBuffer, S32 buffers, S32 filter )
+void FBO_FastBlitIndexed( FBO_t* src, FBO_t* dst, sint srcReadBuffer, sint dstDrawBuffer, sint buffers, sint filter )
 {
     assert( src != nullptr );
     assert( dst != nullptr );

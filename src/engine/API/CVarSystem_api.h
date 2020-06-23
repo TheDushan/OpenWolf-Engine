@@ -78,17 +78,17 @@ typedef enum cvar_flags_s
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct convar_s
 {
-    S32 flags;
-    S32 modificationCount;	// incremented each time the cvar is changed
-    S32 integer;	// atoi( string )
-    F32 value;		// atof( string )
-    F32 min;
-    F32 max;
-    UTF8* name;
-    UTF8* string;
-    UTF8* resetString;	// cvar_restart will reset to this value
-    UTF8* latchedString;	// for CVAR_LATCH vars
-    UTF8* description;
+    sint flags;
+    sint modificationCount;	// incremented each time the cvar is changed
+    sint integer;	// atoi( string )
+    float32 value;		// atof( string )
+    float32 min;
+    float32 max;
+    valueType* name;
+    valueType* string;
+    valueType* resetString;	// cvar_restart will reset to this value
+    valueType* latchedString;	// for CVAR_LATCH vars
+    valueType* description;
     bool modified;	// set each time the cvar is changed
     bool validate;
     bool integral;
@@ -99,16 +99,16 @@ typedef struct convar_s
 
 #define MAX_CVAR_VALUE_STRING   256
 
-typedef S32 cvarHandle_t;
+typedef sint cvarHandle_t;
 
 // the modules that run in the virtual machine can't access the convar_t directly,
 // so they must ask for structured updates
 typedef struct
 {
-    S32 modificationCount;
-    S32 integer;
-    F32 value;
-    UTF8 string[MAX_CVAR_VALUE_STRING];
+    sint modificationCount;
+    sint integer;
+    float32 value;
+    valueType string[MAX_CVAR_VALUE_STRING];
     cvarHandle_t handle;
 } vmConvar_t;
 
@@ -118,30 +118,30 @@ typedef struct
 class idCVarSystem
 {
 public:
-    virtual F32 VariableValue( StringEntry var_name ) = 0;
-    virtual S32 VariableIntegerValue( StringEntry var_name ) = 0;
-    virtual UTF8* VariableString( StringEntry var_name ) = 0;
-    virtual void VariableStringBuffer( StringEntry var_name, UTF8* buffer, S32 bufsize ) = 0;
-    virtual void LatchedVariableStringBuffer( StringEntry var_name, UTF8* buffer, S32 bufsize ) = 0;
-    virtual S32 Flags( StringEntry var_name ) = 0;
-    virtual void CommandCompletion( void( *callback )( StringEntry s ) ) = 0;
-    virtual UTF8* ClearForeignCharacters( StringEntry value ) = 0;
-    virtual convar_t* Get( StringEntry var_name, StringEntry var_value, S32 flags, StringEntry description ) = 0;
-    virtual convar_t* GetSet2( StringEntry var_name, StringEntry value, bool force ) = 0;
-    virtual void Set( StringEntry var_name, StringEntry value ) = 0;
-    virtual void SetLatched( StringEntry var_name, StringEntry value ) = 0;
-    virtual void SetValue( StringEntry var_name, F32 value ) = 0;
-    virtual void SetValueSafe( StringEntry var_name, F32 value ) = 0;
-    virtual void SetValueLatched( StringEntry var_name, F32 value ) = 0;
-    virtual void Reset( StringEntry var_name ) = 0;
+    virtual float32 VariableValue( pointer var_name ) = 0;
+    virtual sint VariableIntegerValue( pointer var_name ) = 0;
+    virtual valueType* VariableString( pointer var_name ) = 0;
+    virtual void VariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize ) = 0;
+    virtual void LatchedVariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize ) = 0;
+    virtual sint Flags( pointer var_name ) = 0;
+    virtual void CommandCompletion( void( *callback )( pointer s ) ) = 0;
+    virtual valueType* ClearForeignCharacters( pointer value ) = 0;
+    virtual convar_t* Get( pointer var_name, pointer var_value, sint flags, pointer description ) = 0;
+    virtual convar_t* GetSet2( pointer var_name, pointer value, bool force ) = 0;
+    virtual void Set( pointer var_name, pointer value ) = 0;
+    virtual void SetLatched( pointer var_name, pointer value ) = 0;
+    virtual void SetValue( pointer var_name, float32 value ) = 0;
+    virtual void SetValueSafe( pointer var_name, float32 value ) = 0;
+    virtual void SetValueLatched( pointer var_name, float32 value ) = 0;
+    virtual void Reset( pointer var_name ) = 0;
     virtual void SetCheatState( void ) = 0;
     virtual bool Command( void ) = 0;
     virtual void WriteVariables( fileHandle_t f ) = 0;
-    virtual UTF8* InfoString( S32 bit ) = 0;
-    virtual UTF8* InfoString_Big( S32 bit ) = 0;
-    virtual void InfoStringBuffer( S32 bit, UTF8* buff, S32 buffsize ) = 0;
-    virtual void CheckRange( convar_t* var, F32 min, F32 max, bool integral ) = 0;
-    virtual void Register( vmConvar_t* vmCvar, StringEntry varName, StringEntry defaultValue, S32 flags, StringEntry description ) = 0;
+    virtual valueType* InfoString( sint bit ) = 0;
+    virtual valueType* InfoString_Big( sint bit ) = 0;
+    virtual void InfoStringBuffer( sint bit, valueType* buff, sint buffsize ) = 0;
+    virtual void CheckRange( convar_t* var, float32 min, float32 max, bool integral ) = 0;
+    virtual void Register( vmConvar_t* vmCvar, pointer varName, pointer defaultValue, sint flags, pointer description ) = 0;
     virtual void Update( vmConvar_t* vmCvar ) = 0;
     virtual void Init( void ) = 0;
     virtual void Shutdown( void ) = 0;

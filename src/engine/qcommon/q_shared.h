@@ -56,46 +56,6 @@
 
 #define DEMOEXT	"dm_"			// standard demo extension
 
-#if defined _WIN32 && !defined __GNUC__
-
-#pragma warning(disable : 4996)
-#pragma warning(disable : 4018) // signed/unsigned mismatch
-#pragma warning(disable : 4032)
-#pragma warning(disable : 4051)
-#pragma warning(disable : 4057) // slightly different base types
-#pragma warning(disable : 4100) // unreferenced formal parameter
-#pragma warning(disable : 4115)
-#pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
-#pragma warning(disable : 4127) // conditional expression is constant
-#pragma warning(disable : 4136)
-#pragma warning(disable	: 4152) // nonstandard extension, function/data pointer conversion in expression
-#pragma warning(disable : 4201)
-#pragma warning(disable : 4214)
-#pragma warning(disable : 4244)
-//#pragma warning(disable	: 4142)		// benign redefinition
-#pragma warning(disable : 4305) // truncation from const double to float
-//#pragma warning(disable : 4310)		// cast truncates constant value
-//#pragma warning(disable :	4505)		// unreferenced local function has been removed
-#pragma warning(disable : 4514)
-#pragma warning(disable : 4702) // unreachable code
-#pragma warning(disable : 4711) // selected for automatic inline expansion
-#pragma warning(disable : 4220) // varargs matches remaining parameters
-#pragma warning(disable : 4706)	// assignment within conditional expression // cs: probably should correct all of these at some point
-#pragma warning(disable : 4005) // macro redefination
-#pragma warning(disable : 4996) // This function or variable may be unsafe. Consider using 'function_s' instead
-#pragma warning(disable : 4075) // initializers put in unrecognized initialization area
-#pragma warning(disable : 4355) // 'this': used in member initializer list
-#pragma warning(disable : 4305) // signed unsigned mismatch
-#pragma warning(disable : 4554) // qualifier applied to reference type; ignored
-#pragma warning(disable : 4800) // forcing bool variable to one or zero, possible performance loss
-#pragma warning(disable : 4090) // 'function' : different 'const' qualifiers
-#pragma warning(disable : 4267) // 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-#pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
-#pragma warning(disable : 4133) // 'function' : incompatible types - from 'unsigned long *' to 'const time_t *'
-#pragma warning(disable : 4127)	// conditional expression is constant
-#pragma warning(disable : 4389) // '==' : signed/unsigned mismatch
-#endif
-
 #if defined( ppc ) || defined( __ppc ) || defined( __ppc__ ) || defined( __POWERPC__ )
 #define idppc 1
 #endif
@@ -134,15 +94,6 @@ template <typename T> __inline T max( T a, T b )
 #define __attribute__( x )
 #endif
 
-#if defined (_MSC_VER)
-// vsnprintf is ISO/IEC 9899:1999
-// abstracting this to make it portable
-S32 Q_vsnprintf( UTF8* str, size_t size, StringEntry format, va_list args );
-#else // not using MSVC
-#define Q_vsnprintf vsnprintf
-#endif
-
-
 //bani
 //======================= GNUC DEFINES ==================================
 #if (defined _MSC_VER)
@@ -156,15 +107,15 @@ S32 Q_vsnprintf( UTF8* str, size_t size, StringEntry format, va_list args );
 
 typedef union
 {
-    F32 f;
-    S32 i;
-    U32 ui;
+    float32 f;
+    sint i;
+    uint ui;
 } floatint_t;
 
-typedef S32 qhandle_t;
-typedef S32 sfxHandle_t;
-typedef S32 fileHandle_t;
-typedef S32 clipHandle_t;
+typedef sint qhandle_t;
+typedef sint sfxHandle_t;
+typedef sint fileHandle_t;
+typedef sint clipHandle_t;
 
 //#define	SND_NORMAL			0x000	// (default) Allow sound to be cut off only by the same sound on this channel
 #define     SND_OKTOCUT         0x001   // Allow sound to be cut off by any following sounds on this channel
@@ -321,12 +272,7 @@ typedef enum
     h_dontcare
 } ha_pref;
 
-#ifdef HUNK_DEBUG
-#define Hunk_Alloc( size, preference )              Hunk_AllocDebug( size, preference, # size, __FILE__, __LINE__ )
-void* Hunk_AllocDebug( size_t size, ha_pref preference, UTF8* label, UTF8* file, S32 line );
-#else
 void* Hunk_Alloc( size_t size, ha_pref preference );
-#endif
 
 #define CIN_system  1
 #define CIN_loop    2
@@ -343,7 +289,7 @@ MATHLIB
 ==============================================================
 */
 
-typedef F32 vec_t;
+typedef float32 vec_t;
 typedef vec_t vec2_t[2];
 
 #if defined(SSEVEC3_T)
@@ -361,9 +307,9 @@ typedef vec_t   matrix3x3_t[9];
 typedef vec_t   matrix_t[16];
 typedef vec_t   quat_t[4];		// | x y z w |
 
-typedef S32     fixed4_t;
-typedef S32     fixed8_t;
-typedef S32     fixed16_t;
+typedef sint     fixed4_t;
+typedef sint     fixed8_t;
+typedef sint     fixed16_t;
 
 
 #ifndef M_PI
@@ -511,9 +457,9 @@ extern quat_t   quatIdentity;
 
 #define nanmask ( 255 << 23 )
 
-#define IS_NAN( x ) ( ( ( *(S32 *)&x ) & nanmask ) == nanmask )
+#define IS_NAN( x ) ( ( ( *(sint *)&x ) & nanmask ) == nanmask )
 
-static ID_INLINE F32 Q_fabs( F32 x )
+static ID_INLINE float32 Q_fabs( float32 x )
 {
     floatint_t      tmp;
     
@@ -522,13 +468,13 @@ static ID_INLINE F32 Q_fabs( F32 x )
     return tmp.f;
 }
 
-U8 ClampByte( S32 i );
-S8 ClampChar( S32 i );
-S16 ClampShort( S32 i );
+uchar8 ClampByte( sint i );
+schar8 ClampChar( sint i );
+schar16 ClampShort( sint i );
 
 // this isn't a real cheap function to call!
-S32 DirToByte( vec3_t dir );
-void ByteToDir( S32 b, vec3_t dir );
+sint DirToByte( vec3_t dir );
+void ByteToDir( sint b, vec3_t dir );
 
 #define DotProduct( x,y )         ( ( x )[0] * ( y )[0] + ( x )[1] * ( y )[1] + ( x )[2] * ( y )[2] )
 #define VectorCopy( a,b )         ( ( b )[0] = ( a )[0],( b )[1] = ( a )[1],( b )[2] = ( a )[2] )
@@ -557,17 +503,14 @@ void ByteToDir( S32 b, vec3_t dir );
   (r)[2]=(s)[2]+(f)*((e)[2]-(s)[2]),\
   (r)[3]=(s)[3]+(f)*((e)[3]-(s)[3]))
 
-#define DotProduct4(x, y)                        ((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2]+(x)[3]*(y)[3])
+#define SnapVector( v ) {v[0] = ( (sint)( v[0] ) ); v[1] = ( (sint)( v[1] ) ); v[2] = ( (sint)( v[2] ) );}
 
-#define SnapVector( v ) {v[0] = ( (S32)( v[0] ) ); v[1] = ( (S32)( v[1] ) ); v[2] = ( (S32)( v[2] ) );}
+uint ColorBytes4( float32 r, float32 g, float32 b, float32 a );
 
-U32 ColorBytes3( F32 r, F32 g, F32 b );
-U32 ColorBytes4( F32 r, F32 g, F32 b, F32 a );
-
-F32 NormalizeColor( const vec3_t in, vec3_t out );
+float32 NormalizeColor( const vec3_t in, vec3_t out );
 void  ClampColor( vec4_t color );
 
-F32 RadiusFromBounds( const vec3_t mins, const vec3_t maxs );
+float32 RadiusFromBounds( const vec3_t mins, const vec3_t maxs );
 void ZeroBounds( vec3_t mins, vec3_t maxs );
 void ClearBounds( vec3_t mins, vec3_t maxs );
 void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
@@ -580,9 +523,9 @@ bool BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, 
 bool BoundsIntersectSphere( const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius );
 bool BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t origin );
 
-S32 VectorCompare( const vec3_t v1, const vec3_t v2 );
+sint VectorCompare( const vec3_t v1, const vec3_t v2 );
 
-static ID_INLINE void VectorLerp( const vec3_t from, const vec3_t to, F32 frac, vec3_t out )
+static ID_INLINE void VectorLerp( const vec3_t from, const vec3_t to, float32 frac, vec3_t out )
 {
     out[0] = from[0] + ( ( to[0] - from[0] ) * frac );
     out[1] = from[1] + ( ( to[1] - from[1] ) * frac );
@@ -594,8 +537,8 @@ static ID_INLINE void VectorLerp( const vec3_t from, const vec3_t to, F32 frac, 
   (r)[1]=(s)[1]+(f)*((e)[1]-(s)[1]),\
   (r)[2]=(s)[2]+(f)*((e)[2]-(s)[2]))
 
-static ID_INLINE S32 VectorCompareEpsilon(
-    const vec3_t v1, const vec3_t v2, F32 epsilon )
+static ID_INLINE sint VectorCompareEpsilon(
+    const vec3_t v1, const vec3_t v2, float32 epsilon )
 {
     vec3_t d;
     
@@ -622,15 +565,15 @@ void VectorInverse( vec3_t v );
 void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out );
 void VectorRotate( vec3_t in, vec3_t matrix[3], vec3_t out );
 
-S32 NearestPowerOfTwo( S32 val );
-S32 Q_log2( S32 val );
-F32 Q_acos( F32 c );
-S32 Q_isnan( F32 x );
-S32     Q_rand( S32* seed );
-F32   Q_random( S32* seed );
-F32   Q_crandom( S32* seed );
+sint NearestPowerOfTwo( sint val );
+sint Q_log2( sint val );
+float32 Q_acos( float32 c );
+sint Q_isnan( float32 x );
+sint     Q_rand( sint* seed );
+float32   Q_random( sint* seed );
+float32   Q_crandom( sint* seed );
 
-#define random()    ( ( rand() & 0x7fff ) / ( (F32)0x7fff ) )
+#define random()    ( ( rand() & 0x7fff ) / ( (float32)0x7fff ) )
 #define crandom()   ( 2.0 * ( random() - 0.5 ) )
 
 void vectoangles( const vec3_t value1, vec3_t angles );
@@ -640,34 +583,34 @@ static ID_INLINE void VectorToAngles( const vec3_t value1, vec3_t angles )
     vectoangles( value1, angles );
 }
 
-F32 vectoyaw( const vec3_t vec );
+float32 vectoyaw( const vec3_t vec );
 void AnglesToAxis( const vec3_t angles, vec3_t axis[3] );
 // TTimo: const vec_t ** would require explicit casts for ANSI C conformance
 // see unix/const-arg.c
 void AxisToAngles( /*const*/ vec3_t axis[3], vec3_t angles );
 //void AxisToAngles ( const vec3_t axis[3], vec3_t angles );
-F32 VectorDistance( vec3_t v1, vec3_t v2 );
-F32 VectorDistanceSquared( vec3_t v1, vec3_t v2 );
+float32 VectorDistance( vec3_t v1, vec3_t v2 );
+float32 VectorDistanceSquared( vec3_t v1, vec3_t v2 );
 
-F32 VectorMinComponent( vec3_t v );
-F32 VectorMaxComponent( vec3_t v );
+float32 VectorMinComponent( vec3_t v );
+float32 VectorMaxComponent( vec3_t v );
 
 void AxisClear( vec3_t axis[3] );
 void AxisCopy( vec3_t in[3], vec3_t out[3] );
 
 void SetPlaneSignbits( struct cplane_s* out );
 
-F32   AngleMod( F32 a );
-F32   LerpAngle( F32 from, F32 to, F32 frac );
-void    LerpPosition( vec3_t start, vec3_t end, F32 frac, vec3_t out );
-F32   AngleSubtract( F32 a1, F32 a2 );
+float32   AngleMod( float32 a );
+float32   LerpAngle( float32 from, float32 to, float32 frac );
+void    LerpPosition( vec3_t start, vec3_t end, float32 frac, vec3_t out );
+float32   AngleSubtract( float32 a1, float32 a2 );
 void    AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 );
 
-F32			AngleNormalize2Pi( F32 angle );
-F32			AngleNormalize360( F32 angle );
-F32			AngleNormalize180( F32 angle );
-F32			AngleDelta( F32 angle1, F32 angle2 );
-F32           AngleBetweenVectors( const vec3_t a, const vec3_t b );
+float32			AngleNormalize2Pi( float32 angle );
+float32			AngleNormalize360( float32 angle );
+float32			AngleNormalize180( float32 angle );
+float32			AngleDelta( float32 angle1, float32 angle2 );
+float32           AngleBetweenVectors( const vec3_t a, const vec3_t b );
 void            AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up );
 
 static ID_INLINE void AnglesToVector( const vec3_t angles, vec3_t out )
@@ -687,20 +630,20 @@ void			PlaneIntersectRay( const vec3_t rayPos, const vec3_t rayDir, const vec4_t
 bool        PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, bool cw );
 bool        PlaneFromPointsOrder( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, bool cw );
 void			ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal );
-void			RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, F32 degrees );
-void			RotatePointAroundVertex( vec3_t pnt, F32 rot_x, F32 rot_y, F32 rot_z, const vec3_t origin );
-void			RotateAroundDirection( vec3_t axis[3], F32 yaw );
+void			RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, float32 degrees );
+void			RotatePointAroundVertex( vec3_t pnt, float32 rot_x, float32 rot_y, float32 rot_z, const vec3_t origin );
+void			RotateAroundDirection( vec3_t axis[3], float32 yaw );
 void			MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up );
 // perpendicular vector could be replaced by this
 
-//S32				PlaneTypeForNormal( vec3_t normal );
+//sint				PlaneTypeForNormal( vec3_t normal );
 
 void			VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out );
 
 // RB: NOTE renamed MatrixMultiply to AxisMultiply because it conflicts with most new matrix functions
 // It is important for mod developers to do this change as well or they risk a memory corruption by using
 // the other MatrixMultiply function.
-void            AxisMultiply( F32 in1[3][3], F32 in2[3][3], F32 out[3][3] );
+void            AxisMultiply( float32 in1[3][3], float32 in2[3][3], float32 out[3][3] );
 void			AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up );
 void			PerpendicularVector( vec3_t dst, const vec3_t src );
 
@@ -708,12 +651,12 @@ void			PerpendicularVector( vec3_t dst, const vec3_t src );
 void			GetPerpendicularViewVector( const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up );
 void			ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
 void			ProjectPointOntoVectorBounded( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
-F32			DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
-F32			DistanceFromVectorSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
+float32			DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
+float32			DistanceFromVectorSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
 // done.
 
-vec_t           DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1, const vec3_t tP0, const vec3_t tP1, F32* s, F32* t );
-vec_t           DistanceBetweenLineSegments( const vec3_t sP0, const vec3_t sP1, const vec3_t tP0, const vec3_t tP1, F32* s, F32* t );
+vec_t           DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1, const vec3_t tP0, const vec3_t tP1, float32* s, float32* t );
+vec_t           DistanceBetweenLineSegments( const vec3_t sP0, const vec3_t sP1, const vec3_t tP0, const vec3_t tP1, float32* s, float32* t );
 
 void            MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll );
 void            MatrixSetupTransformFromRotation( matrix_t m, const matrix_t rot, const vec3_t origin );
@@ -721,37 +664,6 @@ void            MatrixAffineInverse( const matrix_t in, matrix_t out );
 void            MatrixTransformNormal( const matrix_t m, const vec3_t in, vec3_t out );
 void            MatrixTransformNormal2( const matrix_t m, vec3_t inout );
 void            MatrixTransformPoint( const matrix_t m, const vec3_t in, vec3_t out );
-
-enum
-{
-    MEMSTREAM_SEEK_SET,
-    MEMSTREAM_SEEK_CUR,
-    MEMSTREAM_SEEK_END
-};
-
-enum
-{
-    MEMSTREAM_FLAGS_EOF = BIT( 0 ),
-    MEMSTREAM_FLAGS_ERR = BIT( 1 ),
-};
-
-// helper struct for reading binary file formats
-typedef struct memStream_s
-{
-    U8*           buffer;
-    S32				bufSize;
-    U8*           curPos;
-    S32             flags;
-}
-memStream_t;
-
-memStream_t*    AllocMemStream( U8* buffer, S32 bufSize );
-void			FreeMemStream( memStream_t* s );
-S32				MemStreamRead( memStream_t* s, void* buffer, S32 len );
-S32				MemStreamGetC( memStream_t* s );
-S32				MemStreamGetLong( memStream_t* s );
-S32				MemStreamGetShort( memStream_t* s );
-F32			MemStreamGetFloat( memStream_t* s );
 
 //=============================================
 
@@ -765,40 +677,37 @@ F32			MemStreamGetFloat( memStream_t* s );
 
 //=============================================
 
-F32 Com_Clamp( F32 min, F32 max, F32 value );
+float32 Com_Clamp( float32 min, float32 max, float32 value );
 
-UTF8*    COM_SkipPath( UTF8* pathname );
-UTF8*	 Com_SkipTokens( UTF8* s, S32 numTokens, UTF8* sep );
-UTF8*	 Com_SkipCharset( UTF8* s, UTF8* sep );
-void    COM_FixPath( UTF8* pathname );
-StringEntry COM_GetExtension( StringEntry name );
-void    COM_StripExtension( StringEntry in, UTF8* out );
-void    COM_StripExtension2( StringEntry in, UTF8* out, S32 destsize );
-void    COM_StripExtension3( StringEntry src, UTF8* dest, S32 destsize );
-void    COM_StripFilename( UTF8* in, UTF8* out );
-void    COM_DefaultExtension( UTF8* path, S32 maxSize, StringEntry extension );
+valueType*	 Com_SkipTokens( valueType* s, sint numTokens, valueType* sep );
+valueType*	 Com_SkipCharset( valueType* s, valueType* sep );
+pointer COM_GetExtension( pointer name );
+void    COM_StripExtension( pointer in, valueType* out );
+void    COM_StripExtension2( pointer in, valueType* out, sint destsize );
+void    COM_StripExtension3( pointer src, valueType* dest, sint destsize );
+void    COM_DefaultExtension( valueType* path, sint maxSize, pointer extension );
 
-void    COM_BeginParseSession( StringEntry name );
-void    COM_RestoreParseSession( UTF8** data_p );
-void    COM_SetCurrentParseLine( S32 line );
-S32     COM_GetCurrentParseLine( void );
-UTF8*    COM_Parse( UTF8** data_p );
+void    COM_BeginParseSession( pointer name );
+void    COM_RestoreParseSession( valueType** data_p );
+void    COM_SetCurrentParseLine( sint line );
+sint     COM_GetCurrentParseLine( void );
+valueType*    COM_Parse( valueType** data_p );
 
 // RB: added COM_Parse2 for having a Doom 3 style tokenizer.
-UTF8* COM_Parse2( UTF8** data_p );
-UTF8* COM_ParseExt2( UTF8** data_p, bool allowLineBreak );
+valueType* COM_Parse2( valueType** data_p );
+valueType* COM_ParseExt2( valueType** data_p, bool allowLineBreak );
 
-UTF8*    COM_ParseExt( UTF8** data_p, bool allowLineBreak );
-S32     COM_Compress( UTF8* data_p );
-void    COM_ParseError( UTF8* format, ... ) _attribute( ( format( printf, 1, 2 ) ) );
-void    COM_ParseWarning( UTF8* format, ... ) _attribute( ( format( printf, 1, 2 ) ) );
-S32 COM_Parse2Infos( UTF8* buf, S32 max, UTF8 infos[][MAX_INFO_STRING] );
+valueType*    COM_ParseExt( valueType** data_p, bool allowLineBreak );
+sint     COM_Compress( valueType* data_p );
+void    COM_ParseError( valueType* format, ... ) _attribute( ( format( printf, 1, 2 ) ) );
+void    COM_ParseWarning( valueType* format, ... ) _attribute( ( format( printf, 1, 2 ) ) );
+sint COM_Parse2Infos( valueType* buf, sint max, valueType infos[][MAX_INFO_STRING] );
 
-bool COM_BitCheck( const S32 array[], S32 bitNum );
-void COM_BitSet( S32 array[], S32 bitNum );
-void COM_BitClear( S32 array[], S32 bitNum );
+bool COM_BitCheck( const sint array[], sint bitNum );
+void COM_BitSet( sint array[], sint bitNum );
+void COM_BitClear( sint array[], sint bitNum );
 
-S32     Com_HashKey( UTF8* string, S32 maxlen );
+sint     Com_HashKey( valueType* string, sint maxlen );
 
 #define MAX_TOKENLENGTH     1024
 
@@ -813,30 +722,31 @@ S32     Com_HashKey( UTF8* string, S32 maxlen );
 
 typedef struct pc_token_s
 {
-    S32 type;
-    S32 subtype;
-    S32 intvalue;
-    F32 floatvalue;
-    UTF8 string[MAX_TOKENLENGTH];
-    S32 line;
-    S32 linescrossed;
+    sint type;
+    sint subtype;
+    sint intvalue;
+    float32 floatvalue;
+    valueType string[MAX_TOKENLENGTH];
+    sint line;
+    sint linescrossed;
 } pc_token_t;
 
 // data is an in/out parm, returns a parsed out token
 
-void COM_MatchToken( UTF8** buf_p, UTF8* match );
+void COM_MatchToken( valueType** buf_p, valueType* match );
 
-void COM_Parse21DMatrix( UTF8** buf_p, S32 x, F32* m, bool checkBrackets );
-void COM_Parse22DMatrix( UTF8** buf_p, S32 y, S32 x, F32* m );
-void COM_Parse23DMatrix( UTF8** buf_p, S32 z, S32 y, S32 x, F32* m );
+void COM_Parse21DMatrix( valueType** buf_p, sint x, float32* m, bool checkBrackets );
+void COM_Parse22DMatrix( valueType** buf_p, sint y, sint x, float32* m );
+void COM_Parse23DMatrix( valueType** buf_p, sint z, sint y, sint x, float32* m );
 
-UTF8* Com_StringContains( UTF8* str1, UTF8* str2, S32 casesensitive );
+valueType* Com_StringContains( valueType* str1, valueType* str2, sint casesensitive );
 
-bool SkipBracedSection( UTF8** program );
-bool SkipBracedSection_Depth( UTF8** program, S32 depth ); // start at given depth if already
-void SkipRestOfLine( UTF8** data );
+bool SkipBracedSection( valueType** program );
+bool SkipBracedSection_Depth( valueType** program, sint depth ); // start at given depth if already
+void SkipRestOfLine( valueType** data );
 
-S32 Com_sprintf( UTF8* dest, S32 size, StringEntry fmt, ... );
+sint Q_vsnprintf( valueType* str, size_t size, pointer format, va_list args );
+bool Com_sprintf( valueType* dest, size_t size, pointer fmt, ... );
 
 // mode parm for FS_FOpenFile
 typedef enum
@@ -856,35 +766,35 @@ typedef enum
     FS_SEEK_SET
 } fsOrigin_t;
 
-S32 Com_HexStrToInt( StringEntry str );
+sint Com_HexStrToInt( pointer str );
 
-StringEntry Com_QuoteStr( StringEntry str );
-StringEntry Com_UnquoteStr( StringEntry str );
+pointer Com_QuoteStr( pointer str );
+pointer Com_UnquoteStr( pointer str );
 
 //=============================================
 
-S32 Q_isprint( S32 c );
-S32 Q_islower( S32 c );
-S32 Q_isupper( S32 c );
-S32 Q_isalpha( S32 c );
-S32 Q_isnumeric( S32 c );
-S32 Q_isalphanumeric( S32 c );
-S32 Q_isforfilename( S32 c );
+sint Q_isprint( sint c );
+sint Q_islower( sint c );
+sint Q_isupper( sint c );
+sint Q_isalpha( sint c );
+sint Q_isnumeric( sint c );
+sint Q_isalphanumeric( sint c );
+sint Q_isforfilename( sint c );
 
-bool Q_isanumber( StringEntry s );
-bool Q_isintegral( F32 f );
+bool Q_isanumber( pointer s );
+bool Q_isintegral( float32 f );
 
-bool        Q_strtol( StringEntry s, S64* out );
-bool        Q_strtoi( StringEntry s, S32* out );
+bool        Q_strtol( pointer s, sint32* out );
+bool        Q_strtoi( pointer s, sint* out );
 
 // portable case insensitive compare
-S32     Q_stricmp( StringEntry s1, StringEntry s2 );
-S32     Q_strncmp( StringEntry s1, StringEntry s2, S32 n );
-S32     Q_stricmpn( StringEntry s1, StringEntry s2, S32 n );
-UTF8*    Q_strlwr( UTF8* s1 );
-UTF8*    Q_strupr( UTF8* s1 );
-UTF8*    Q_strrchr( StringEntry string, S32 c );
-StringEntry Q_stristr( StringEntry s, StringEntry find );
+sint     Q_stricmp( pointer s1, pointer s2 );
+sint     Q_strncmp( pointer s1, pointer s2, sint n );
+sint     Q_stricmpn( pointer s1, pointer s2, sint n );
+valueType*    Q_strlwr( valueType* s1 );
+valueType*    Q_strupr( valueType* s1 );
+valueType*    Q_strrchr( pointer string, sint c );
+pointer Q_stristr( pointer s, pointer find );
 
 #ifdef _WIN32
 #define Q_putenv _putenv
@@ -896,48 +806,48 @@ StringEntry Q_stristr( StringEntry s, StringEntry find );
 // Dushan
 // NOTE : had problem with loading QVM modules
 #ifndef _DEBUG
-void			Q_strncpyz( UTF8* dest, StringEntry src, S32 destsize );
+void			Q_strncpyz( valueType* dest, pointer src, sint destsize );
 #else
 #define         Q_strncpyz(string1,string2,length) Q_strncpyzDebug( string1, string2, length, __FILE__, __LINE__ )
-void            Q_strncpyzDebug( UTF8* dest, StringEntry src, U64 destsize, StringEntry file, S32 line ) __attribute__( ( nonnull ) );
+void            Q_strncpyzDebug( valueType* dest, pointer src, uint32 destsize, pointer file, sint line ) __attribute__( ( nonnull ) );
 #endif
-void            Q_strcat( UTF8* dest, S32 destsize, StringEntry src );
-S32				Q_strnicmp( StringEntry string1, StringEntry string2, S32 n );
-bool        Q_strreplace( UTF8* dest, S32 destsize, StringEntry find, StringEntry replace );
+void            Q_strcat( valueType* dest, sint destsize, pointer src );
+sint				Q_strnicmp( pointer string1, pointer string2, sint n );
+bool        Q_strreplace( valueType* dest, sint destsize, pointer find, pointer replace );
 
 // strlen that discounts Quake color sequences
-S32 Q_PrintStrlen( StringEntry string );
+sint Q_PrintStrlen( pointer string );
 // removes color sequences from string
-UTF8* Q_CleanStr( UTF8* string );
-// Count the number of UTF8 tocount encountered in string
-S32 Q_CountChar( StringEntry string, UTF8 tocount );
+valueType* Q_CleanStr( valueType* string );
+// Count the number of valueType tocount encountered in string
+sint Q_CountChar( pointer string, valueType tocount );
 // removes whitespaces and other bad directory characters
-UTF8* Q_CleanDirName( UTF8* dirname );
+valueType* Q_CleanDirName( valueType* dirname );
 
 //=============================================
 
-UTF8* va( StringEntry format, ... ) __attribute__( ( format( printf, 1, 2 ) ) );
+valueType* va( pointer format, ... ) __attribute__( ( format( printf, 1, 2 ) ) );
 
 //=============================================
 
 //
 // key / value info strings
 //
-UTF8* Info_ValueForKey( StringEntry s, StringEntry key );
-void Info_RemoveKey( UTF8* s, StringEntry key );
-void Info_RemoveKey_big( UTF8* s, StringEntry key );
-bool Info_SetValueForKey( UTF8* s, StringEntry key, StringEntry value );
-void Info_SetValueForKey_Big( UTF8* s, StringEntry key, StringEntry value );
-bool Info_Validate( StringEntry s );
-void Info_NextPair( StringEntry* s, UTF8* key, UTF8* value );
+valueType* Info_ValueForKey( pointer s, pointer key );
+void Info_RemoveKey( valueType* s, pointer key );
+void Info_RemoveKey_big( valueType* s, pointer key );
+bool Info_SetValueForKey( valueType* s, pointer key, pointer value );
+void Info_SetValueForKey_Big( valueType* s, pointer key, pointer value );
+bool Info_Validate( pointer s );
+void Info_NextPair( pointer* s, valueType* key, valueType* value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-void Com_Error( S32 level, StringEntry error, ... ) _attribute( ( format( printf, 2, 3 ), noreturn ) );
-void Com_FatalError( StringEntry error, ... );
-void Com_DropError( StringEntry error, ... );
-void Com_Warning( StringEntry error, ... );
-void Com_Printf( StringEntry msg, ... ) _attribute( ( format( printf, 1, 2 ) ) );
-void Com_DPrintf( StringEntry msg, ... ) _attribute( ( format( printf, 1, 2 ) ) );
+void Com_Error( sint level, pointer error, ... ) _attribute( ( format( printf, 2, 3 ), noreturn ) );
+void Com_FatalError( pointer error, ... );
+void Com_DropError( pointer error, ... );
+void Com_Warning( pointer error, ... );
+void Com_Printf( pointer msg, ... ) _attribute( ( format( printf, 1, 2 ) ) );
+void Com_DPrintf( pointer msg, ... ) _attribute( ( format( printf, 1, 2 ) ) );
 
 /*
 ==========================================================
@@ -992,7 +902,7 @@ typedef enum
 */
 #define ANIM_BITS       10
 
-#define ANGLE2SHORT( x )  ( (S32)( ( x ) * 65536 / 360 ) & 65535 )
+#define ANGLE2SHORT( x )  ( (sint)( ( x ) * 65536 / 360 ) & 65535 )
 #define SHORT2ANGLE( x )  ( ( x ) * ( 360.0 / 65536 ) )
 
 #define SNAPFLAG_RATE_DELAYED   1
@@ -1056,9 +966,9 @@ typedef enum
 #define MAX_GAMESTATE_CHARS 16000
 typedef struct
 {
-    S32 stringOffsets[MAX_CONFIGSTRINGS];
-    UTF8 stringData[MAX_GAMESTATE_CHARS];
-    S32 dataCount;
+    sint stringOffsets[MAX_CONFIGSTRINGS];
+    valueType stringData[MAX_GAMESTATE_CHARS];
+    sint dataCount;
 } gameState_t;
 
 // xkan, 1/10/2003 - adapted from original SP
@@ -1092,10 +1002,10 @@ typedef enum
 typedef struct cplane_s
 {
     vec3_t normal;
-    F32 dist;
-    U8 type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
-    U8 signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
-    U8 pad[2];
+    float32 dist;
+    uchar8 type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
+    uchar8 signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
+    uchar8 pad[2];
 } cplane_t;
 
 // a trace is returned when a box is swept through the world
@@ -1103,13 +1013,13 @@ typedef struct
 {
     bool allsolid;      // if true, plane is not valid
     bool startsolid;    // if true, the initial point was in a solid area
-    F32 fraction;         // time completed, 1.0 = didn't hit anything
+    float32 fraction;         // time completed, 1.0 = didn't hit anything
     vec3_t endpos;          // final position
     cplane_t plane;         // surface normal at impact, transformed to world space
-    S32 surfaceFlags;           // surface hit
-    S32 contents;           // contents on other side of surface hit
-    S32 entityNum;          // entity the contacted sirface is a part of
-    F32 lateralFraction;  // fraction of collision tangetially to the trace direction
+    sint surfaceFlags;           // surface hit
+    sint contents;           // contents on other side of surface hit
+    sint entityNum;          // entity the contacted sirface is a part of
+    float32 lateralFraction;  // fraction of collision tangetially to the trace direction
 } trace_t;
 
 // playerState_t is the information needed by both the client and server
@@ -1127,107 +1037,107 @@ typedef struct
 // NOTE: all fields in here must be 32 bits (or those within sub-structures)
 typedef struct playerState_s
 {
-    S32 commandTime;            // cmd->serverTime of last executed command
-    S32 pm_type;
-    S32 bobCycle;               // for view bobbing and footstep generation
-    S32 pm_flags;               // ducked, jump_held, etc
-    S32 pm_time;
+    sint commandTime;            // cmd->serverTime of last executed command
+    sint pm_type;
+    sint bobCycle;               // for view bobbing and footstep generation
+    sint pm_flags;               // ducked, jump_held, etc
+    sint pm_time;
     
     vec3_t origin;
     vec3_t velocity;
-    S32 weaponTime;
-    S32 weaponDelay;            // for weapons that don't fire immediately when 'fire' is hit (grenades, venom, ...)
-    S32 grenadeTimeLeft;            // for delayed grenade throwing.  this is set to a #define for grenade
+    sint weaponTime;
+    sint weaponDelay;            // for weapons that don't fire immediately when 'fire' is hit (grenades, venom, ...)
+    sint grenadeTimeLeft;            // for delayed grenade throwing.  this is set to a #define for grenade
     // lifetime when the attack button goes down, then when attack is released
     // this is the amount of time left before the grenade goes off (or if it
     // gets to 0 while in players hand, it explodes)
     
     
-    S32 gravity;
-    F32 leanf;                // amount of 'lean' when player is looking around corner //----(SA)	added
+    sint gravity;
+    float32 leanf;                // amount of 'lean' when player is looking around corner //----(SA)	added
     
-    S32 speed;
-    S32 delta_angles[3];            // add to command angles to get view direction
+    sint speed;
+    sint delta_angles[3];            // add to command angles to get view direction
     // changed by spawns, rotating objects, and teleporters
     
-    S32 groundEntityNum;        // ENTITYNUM_NONE = in air
+    sint groundEntityNum;        // ENTITYNUM_NONE = in air
     
-    S32 legsTimer;              // don't change low priority animations until this runs out
-    S32 legsAnim;               // mask off ANIM_TOGGLEBIT
+    sint legsTimer;              // don't change low priority animations until this runs out
+    sint legsAnim;               // mask off ANIM_TOGGLEBIT
     
-    S32 torsoTimer;             // don't change low priority animations until this runs out
-    S32 torsoAnim;              // mask off ANIM_TOGGLEBIT
+    sint torsoTimer;             // don't change low priority animations until this runs out
+    sint torsoAnim;              // mask off ANIM_TOGGLEBIT
     
-    S32 movementDir;            // a number 0 to 7 that represents the reletive angle
+    sint movementDir;            // a number 0 to 7 that represents the reletive angle
     // of movement to the view angle (axial and diagonals)
     // when at rest, the value will remain unchanged
     // used to twist the legs during strafing
     
     
     
-    S32 eFlags;                 // copied to entityState_t->eFlags
+    sint eFlags;                 // copied to entityState_t->eFlags
     
-    S32 eventSequence;          // pmove generated events
-    S32 events[MAX_EVENTS];
-    S32 eventParms[MAX_EVENTS];
-    S32 oldEventSequence;           // so we can see which events have been added since we last converted to entityState_t
+    sint eventSequence;          // pmove generated events
+    sint events[MAX_EVENTS];
+    sint eventParms[MAX_EVENTS];
+    sint oldEventSequence;           // so we can see which events have been added since we last converted to entityState_t
     
-    S32 externalEvent;          // events set on player from another source
-    S32 externalEventParm;
-    S32 externalEventTime;
+    sint externalEvent;          // events set on player from another source
+    sint externalEventParm;
+    sint externalEventTime;
     
-    S32 clientNum;              // ranges from 0 to MAX_CLIENTS-1
+    sint clientNum;              // ranges from 0 to MAX_CLIENTS-1
     
     // weapon info
-    S32 weapon;                 // copied to entityState_t->weapon
-    S32 weaponstate;
+    sint weapon;                 // copied to entityState_t->weapon
+    sint weaponstate;
     
     // item info
-    S32 item;
+    sint item;
     
     vec3_t viewangles;          // for fixed views
-    S32 viewheight;
+    sint viewheight;
     
     // damage feedback
-    S32 damageEvent;            // when it changes, latch the other parms
-    S32 damageYaw;
-    S32 damagePitch;
-    S32 damageCount;
+    sint damageEvent;            // when it changes, latch the other parms
+    sint damageYaw;
+    sint damagePitch;
+    sint damageCount;
     
-    S32 stats[MAX_STATS];
-    S32 persistant[MAX_PERSISTANT];         // stats that aren't cleared on death
-    S32 powerups[MAX_POWERUPS];         // level.time that the powerup runs out
-    S32 ammo;              // total amount of ammo
-    S32 ammoclip;          // ammo in clip
-    S32 holdable[16];
-    S32 holding;                        // the current item in holdable[] that is selected (held)
-    S32 weapons[MAX_WEAPONS / ( sizeof( S32 ) * 8 )]; // 64 bits for weapons held
+    sint stats[MAX_STATS];
+    sint persistant[MAX_PERSISTANT];         // stats that aren't cleared on death
+    sint powerups[MAX_POWERUPS];         // level.time that the powerup runs out
+    sint ammo;              // total amount of ammo
+    sint ammoclip;          // ammo in clip
+    sint holdable[16];
+    sint holding;                        // the current item in holdable[] that is selected (held)
+    sint weapons[MAX_WEAPONS / ( sizeof( sint ) * 8 )]; // 64 bits for weapons held
     
     // Ridah, allow for individual bounding boxes
     vec3_t mins, maxs;
-    F32 crouchMaxZ;
-    F32 crouchViewHeight, standViewHeight, deadViewHeight;
+    float32 crouchMaxZ;
+    float32 crouchViewHeight, standViewHeight, deadViewHeight;
     // variable movement speed
-    F32 runSpeedScale, sprintSpeedScale, crouchSpeedScale;
+    float32 runSpeedScale, sprintSpeedScale, crouchSpeedScale;
     // done.
     
     // Ridah, view locking for mg42
-    S32 viewlocked;
-    S32 viewlocked_entNum;
+    sint viewlocked;
+    sint viewlocked_entNum;
     
-    F32 friction;
+    float32 friction;
     
-    S32 nextWeapon;
-    S32 teamNum;                        // Arnout: doesn't seem to be communicated over the net
+    sint nextWeapon;
+    sint teamNum;                        // Arnout: doesn't seem to be communicated over the net
     
     // Rafael
-    //S32			gunfx;
+    //sint			gunfx;
     
     // RF, burning effect is required for view blending effect
-    S32 onFireStart;
+    sint onFireStart;
     
-    S32 serverCursorHint;               // what type of cursor hint the server is dictating
-    S32 serverCursorHintVal;            // a value (0-255) associated with the above
+    sint serverCursorHint;               // what type of cursor hint the server is dictating
+    sint serverCursorHintVal;            // a value (0-255) associated with the above
     
     trace_t serverCursorHintTrace;      // not communicated over net, but used to store the current server-side cursorhint trace
     
@@ -1239,53 +1149,53 @@ typedef struct playerState_s
     
     // Arnout: use the pmoveExt_t structure in bg_public.h to store this kind of data now (presistant on client, not network transmitted)
     
-    S32 ping;                   // server to game info for scoreboard
-    S32 pmove_framecount;
-    S32 entityEventSequence;
+    sint ping;                   // server to game info for scoreboard
+    sint pmove_framecount;
+    sint entityEventSequence;
     
-    S32 sprintExertTime;
+    sint sprintExertTime;
     
     // JPW NERVE -- value for all multiplayer classes with regenerating "class weapons" -- ie LT artillery, medic medpack, engineer build points, etc
-    S32 classWeaponTime;                // Arnout : DOES get send over the network
-    S32 jumpTime;                   // used in MP to prevent jump accel
+    sint classWeaponTime;                // Arnout : DOES get send over the network
+    sint jumpTime;                   // used in MP to prevent jump accel
     // jpw
     
-    S32 weapAnim;                   // mask off ANIM_TOGGLEBIT										//----(SA)	added		// Arnout : DOES get send over the network
+    sint weapAnim;                   // mask off ANIM_TOGGLEBIT										//----(SA)	added		// Arnout : DOES get send over the network
     
     bool releasedFire;
     
-    F32 aimSpreadScaleFloat;          // (SA) the server-side aimspreadscale that lets it track finer changes but still only
-    // transmit the 8bit S32 to the client
-    S32 aimSpreadScale;                 // 0 - 255 increases with angular movement		// Arnout : DOES get send over the network
-    S32 lastFireTime;                   // used by server to hold last firing frame briefly when randomly releasing trigger (AI)
+    float32 aimSpreadScaleFloat;          // (SA) the server-side aimspreadscale that lets it track finer changes but still only
+    // transmit the 8bit sint to the client
+    sint aimSpreadScale;                 // 0 - 255 increases with angular movement		// Arnout : DOES get send over the network
+    sint lastFireTime;                   // used by server to hold last firing frame briefly when randomly releasing trigger (AI)
     
-    S32 quickGrenTime;
+    sint quickGrenTime;
     
-    S32 leanStopDebounceTime;
+    sint leanStopDebounceTime;
     
     //----(SA)	added
     
     // seems like heat and aimspread could be tied together somehow, however, they (appear to) change at different rates and
     // I can't currently see how to optimize this to one server->client transmission "weapstatus" value.
-    S32 weapHeat[MAX_WEAPONS];          // some weapons can overheat.  this tracks (server-side) how hot each weapon currently is.
-    S32 curWeapHeat;                    // value for the currently selected weapon (for transmission to client)		// Arnout : DOES get send over the network
-    S32 identifyClient;                 // NERVE - SMF
-    S32 identifyClientHealth;
+    sint weapHeat[MAX_WEAPONS];          // some weapons can overheat.  this tracks (server-side) how hot each weapon currently is.
+    sint curWeapHeat;                    // value for the currently selected weapon (for transmission to client)		// Arnout : DOES get send over the network
+    sint identifyClient;                 // NERVE - SMF
+    sint identifyClientHealth;
     
     aistateEnum_t aiState;          // xkan, 1/10/2003
     
     // Dushan - Tremulous
-    S32	generic1;
-    S32	loopSound;
-    S32	otherEntityNum;
+    sint	generic1;
+    sint	loopSound;
+    sint	otherEntityNum;
     vec3_t grapplePoint;	// location of grapple to pull towards if PMF_GRAPPLE_PULL
-    S32	weaponAnim;			// mask off ANIM_TOGGLEBIT
-    S32	clips;				// clips held
-    S32	tauntTimer;			// don't allow another taunt until this runs out
-    S32	misc[MAX_MISC];		// misc data
-    S32	jumppad_frame;
-    S32	jumppad_ent;	// jumppad entity hit this frame
-    S32 extraFlags;
+    sint	weaponAnim;			// mask off ANIM_TOGGLEBIT
+    sint	clips;				// clips held
+    sint	tauntTimer;			// don't allow another taunt until this runs out
+    sint	misc[MAX_MISC];		// misc data
+    sint	jumppad_frame;
+    sint	jumppad_ent;	// jumppad entity hit this frame
+    sint extraFlags;
 } playerState_t;
 
 
@@ -1332,19 +1242,19 @@ typedef enum
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s
 {
-    S32 serverTime;
-    U8 buttons;
-    U8 wbuttons;
-    U8 weapon;
-    U8 flags;
-    S32 angles[3];
+    sint serverTime;
+    uchar8 buttons;
+    uchar8 wbuttons;
+    uchar8 weapon;
+    uchar8 flags;
+    sint angles[3];
     
-    S8 forwardmove, rightmove, upmove;
-    U8 doubleTap;             // Arnout: only 3 bits used
+    schar8 forwardmove, rightmove, upmove;
+    uchar8 doubleTap;             // Arnout: only 3 bits used
     
     // rain - in ET, this can be any entity, and it's used as an array
     // index, so make sure it's unsigned
-    U8 identClient;           // NERVE - SMF
+    uchar8 identClient;           // NERVE - SMF
 } usercmd_t;
 
 //===================================================================
@@ -1367,8 +1277,8 @@ typedef enum
 typedef struct
 {
     trType_t trType;
-    S32 trTime;
-    S32 trDuration;             // if non 0, trTime + trDuration = stop time
+    sint trTime;
+    sint trDuration;             // if non 0, trTime + trDuration = stop time
     //----(SA)	removed
     vec3_t trBase;
     vec3_t trDelta;             // velocity, etc
@@ -1422,15 +1332,15 @@ typedef enum
 
 typedef struct entityState_s
 {
-    S32		number;         // entity index
+    sint		number;         // entity index
     entityType_t eType;     // entityType_t
-    S32		eFlags;
+    sint		eFlags;
     
     trajectory_t pos;       // for calculating position
     trajectory_t apos;      // for calculating angles
     
-    S32 time;
-    S32 time2;
+    sint time;
+    sint time2;
     
     vec3_t origin;
     vec3_t origin2;
@@ -1438,57 +1348,57 @@ typedef struct entityState_s
     vec3_t angles;
     vec3_t angles2;
     
-    S32 otherEntityNum;     // shotgun sources, etc
-    S32 otherEntityNum2;
+    sint otherEntityNum;     // shotgun sources, etc
+    sint otherEntityNum2;
     
-    S32 groundEntityNum;        // -1 = in air
+    sint groundEntityNum;        // -1 = in air
     
-    S32 constantLight;      // r + (g<<8) + (b<<16) + (intensity<<24)
-    S32 dl_intensity;       // used for coronas
-    S32 loopSound;          // constantly loop this sound
+    sint constantLight;      // r + (g<<8) + (b<<16) + (intensity<<24)
+    sint dl_intensity;       // used for coronas
+    sint loopSound;          // constantly loop this sound
     
-    S32 modelindex;
-    S32 modelindex2;
-    S32 clientNum;          // 0 to (MAX_CLIENTS - 1), for players and corpses
-    S32 frame;
+    sint modelindex;
+    sint modelindex2;
+    sint clientNum;          // 0 to (MAX_CLIENTS - 1), for players and corpses
+    sint frame;
     
-    S32 solid;              // for client side prediction, trap_linkentity sets this properly
+    sint solid;              // for client side prediction, trap_linkentity sets this properly
     
     // old style events, in for compatibility only
-    S32 _event;				// impulse events -- muzzle flashes, footsteps, etc
-    S32 eventParm;
+    sint _event;				// impulse events -- muzzle flashes, footsteps, etc
+    sint eventParm;
     
-    S32 eventSequence;      // pmove generated events
-    S32 events[MAX_EVENTS];
-    S32 eventParms[MAX_EVENTS];
+    sint eventSequence;      // pmove generated events
+    sint events[MAX_EVENTS];
+    sint eventParms[MAX_EVENTS];
     
     // for players
-    S32 powerups;           // bit flags	// Arnout: used to store entState_t for non-player entities (so we know to draw them translucent clientsided)
-    S32 weapon;             // determines weapon and flash model, etc
-    S32 legsAnim;           // mask off ANIM_TOGGLEBIT
-    S32 torsoAnim;          // mask off ANIM_TOGGLEBIT
-    //	S32		weapAnim;		// mask off ANIM_TOGGLEBIT	//----(SA)	removed (weap anims will be client-side only)
+    sint powerups;           // bit flags	// Arnout: used to store entState_t for non-player entities (so we know to draw them translucent clientsided)
+    sint weapon;             // determines weapon and flash model, etc
+    sint legsAnim;           // mask off ANIM_TOGGLEBIT
+    sint torsoAnim;          // mask off ANIM_TOGGLEBIT
+    //	sint		weapAnim;		// mask off ANIM_TOGGLEBIT	//----(SA)	removed (weap anims will be client-side only)
     
-    S32 density;            // for particle effects
+    sint density;            // for particle effects
     
-    S32 dmgFlags;           // to pass along additional information for damage effects for players/ Also used for cursorhints for non-player entities
+    sint dmgFlags;           // to pass along additional information for damage effects for players/ Also used for cursorhints for non-player entities
     
     // Ridah
-    S32 onFireStart, onFireEnd;
+    sint onFireStart, onFireEnd;
     
-    S32 nextWeapon;
-    S32 teamNum;
+    sint nextWeapon;
+    sint teamNum;
     
-    S32 effect1Time, effect2Time, effect3Time;
+    sint effect1Time, effect2Time, effect3Time;
     
     aistateEnum_t aiState;      // xkan, 1/10/2003
-    S32 animMovetype;       // clients can't derive movetype of other clients for anim scripting system
+    sint animMovetype;       // clients can't derive movetype of other clients for anim scripting system
     
     // Dushan - Tremulous
-    S32	misc;			// bit flags
-    S32	generic1;
-    S32	weaponAnim;		// mask off ANIM_TOGGLEBIT
-    S32	extraFlags;
+    sint	misc;			// bit flags
+    sint	generic1;
+    sint	weaponAnim;		// mask off ANIM_TOGGLEBIT
+    sint	extraFlags;
 } entityState_t;
 
 typedef enum
@@ -1507,16 +1417,16 @@ typedef enum
 
 typedef struct lineInfo_t
 {
-    StringEntry text;	// text
-    S32			count;	// number of characters
-    F32		sa;		// offset per white space
-    F32		ox;		// ofset from left bounds
-    F32		width;	// width of line
-    F32		height;	// height of line
+    pointer text;	// text
+    sint			count;	// number of characters
+    float32		sa;		// offset per white space
+    float32		ox;		// ofset from left bounds
+    float32		width;	// width of line
+    float32		height;	// height of line
     
-    F32		startColor[4];
-    F32		endColor[4];
-    F32		defaultColor[4];
+    float32		startColor[4];
+    float32		endColor[4];
+    float32		defaultColor[4];
 } lineInfo_t;
 
 typedef enum
@@ -1546,15 +1456,15 @@ typedef enum
 
 typedef struct qtime_s
 {
-    S32 tm_sec;     /* seconds after the minute - [0,59] */
-    S32 tm_min;     /* minutes after the hour - [0,59] */
-    S32 tm_hour;    /* hours since midnight - [0,23] */
-    S32 tm_mday;    /* day of the month - [1,31] */
-    S32 tm_mon;     /* months since January - [0,11] */
-    S32 tm_year;    /* years since 1900 */
-    S32 tm_wday;    /* days since Sunday - [0,6] */
-    S32 tm_yday;    /* days since January 1 - [0,365] */
-    S32 tm_isdst;   /* daylight savings time flag */
+    sint tm_sec;     /* seconds after the minute - [0,59] */
+    sint tm_min;     /* minutes after the hour - [0,59] */
+    sint tm_hour;    /* hours since midnight - [0,23] */
+    sint tm_mday;    /* day of the month - [1,31] */
+    sint tm_mon;     /* months since January - [0,11] */
+    sint tm_year;    /* years since 1900 */
+    sint tm_wday;    /* days since Sunday - [0,6] */
+    sint tm_yday;    /* days since January 1 - [0,365] */
+    sint tm_isdst;   /* daylight savings time flag */
 } qtime_t;
 
 
@@ -1643,22 +1553,22 @@ typedef enum
 
 typedef struct
 {
-    UTF8      name[ MAX_EMOTICON_NAME_LEN ];
+    valueType      name[ MAX_EMOTICON_NAME_LEN ];
 #ifndef GAMEDLL
-    S32       width;
+    sint       width;
     qhandle_t shader;
 #endif
 } emoticon_t;
 
 typedef struct
 {
-    U32 hi;
-    U32 lo;
+    uint hi;
+    uint lo;
 } clientList_t;
 
-bool Com_ClientListContains( const clientList_t* list, S32 clientNum );
-UTF8* Com_ClientListString( const clientList_t* list );
-void Com_ClientListParse( clientList_t* list, StringEntry s );
+bool Com_ClientListContains( const clientList_t* list, sint clientNum );
+valueType* Com_ClientListString( const clientList_t* list );
+void Com_ClientListParse( clientList_t* list, pointer s );
 
 #define SQR( a ) ( ( a ) * ( a ) )
 
@@ -1692,15 +1602,15 @@ typedef enum
 #define SAY_ACTION_T    4
 #define SAY_ADMINS    5
 
-void Com_MatchToken( StringEntry( *buf_p ), StringEntry match, bool warning = false );
-StringEntry Com_Parse( StringEntry( *data_p ) );
+void Com_MatchToken( pointer( *buf_p ), pointer match, bool warning = false );
+pointer Com_Parse( pointer( *data_p ) );
 void Com_UngetToken( void );
-StringEntry Com_ParseOnLine( StringEntry( *data_p ) );
-StringEntry Com_ParseRestOfLine( StringEntry( *data_p ) );
-F32 Com_ParseFloat( StringEntry( *buf_p ) );
-void Com_Parse1DMatrix( StringEntry( *buf_p ), S32 x, F32* m );
-void Com_Parse2DMatrix( StringEntry( *buf_p ), S32 y, S32 x, F32* m );
-void Com_Parse3DMatrix( StringEntry( *buf_p ), S32 z, S32 y, S32 x, F32* m );
+pointer Com_ParseOnLine( pointer( *data_p ) );
+pointer Com_ParseRestOfLine( pointer( *data_p ) );
+float32 Com_ParseFloat( pointer( *buf_p ) );
+void Com_Parse1DMatrix( pointer( *buf_p ), sint x, float32* m );
+void Com_Parse2DMatrix( pointer( *buf_p ), sint y, sint x, float32* m );
+void Com_Parse3DMatrix( pointer( *buf_p ), sint z, sint y, sint x, float32* m );
 
 // handy stuff when tracking isnan problems
 #ifndef NDEBUG
@@ -1720,15 +1630,15 @@ typedef enum
     DC_SET_STAGE
 } demoCommand_t;
 
-void Com_BeginParseSession( StringEntry filename );
+void Com_BeginParseSession( pointer filename );
 void Com_EndParseSession( void );
 
-bool StringContainsWord( StringEntry haystack, StringEntry needle );
-bool COM_CompareExtension( StringEntry in, StringEntry ext );
+bool StringContainsWord( pointer haystack, pointer needle );
+bool COM_CompareExtension( pointer in, pointer ext );
 #define CL_TARGET_OPENCL_VERSION 120
 #define VALIDSTRING( a ) ( ( a != nullptr ) && ( a[0] != '\0' ) )
-F32 Q_flrand( F32 min, F32 max );
-bool Q_CleanPlayerName( StringEntry in, UTF8* out, S32 outSize );
-S32 COM_CompressBracedSection( UTF8** data_p, UTF8** name, UTF8** text, S32* nameLength, S32* textLength );
+float32 Q_flrand( float32 min, float32 max );
+bool Q_CleanPlayerName( pointer in, valueType* out, sint outSize );
+sint COM_CompressBracedSection( valueType** data_p, valueType** name, valueType** text, sint* nameLength, sint* textLength );
 
 #endif //!__Q_SHARED_H__

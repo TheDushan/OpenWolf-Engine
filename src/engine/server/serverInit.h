@@ -45,29 +45,29 @@ class idServerInitSystemLocal : public idServerInitSystem
 {
 public:
     virtual void UpdateConfigStrings( void );
-    virtual void SetConfigstringNoUpdate( S32 index, StringEntry val );
-    virtual void SetConfigstring( S32 index, StringEntry val );
-    virtual void GetConfigstring( S32 index, UTF8* buffer, S32 bufferSize );
-    virtual void SetConfigstringRestrictions( S32 index, const clientList_t* clientList );
-    virtual void SetUserinfo( S32 index, StringEntry val );
-    virtual void GetUserinfo( S32 index, UTF8* buffer, S32 bufferSize );
-    virtual void SpawnServer( UTF8* server, bool killBots );
+    virtual void SetConfigstringNoUpdate( sint index, pointer val );
+    virtual void SetConfigstring( sint index, pointer val );
+    virtual void GetConfigstring( sint index, valueType* buffer, sint bufferSize );
+    virtual void SetConfigstringRestrictions( sint index, const clientList_t* clientList );
+    virtual void SetUserinfo( sint index, pointer val );
+    virtual void GetUserinfo( sint index, valueType* buffer, sint bufferSize );
+    virtual void SpawnServer( valueType* server, bool killBots );
     virtual void Init( void );
-    virtual void Shutdown( UTF8* finalmsg );
+    virtual void Shutdown( valueType* finalmsg );
     
 public:
     idServerInitSystemLocal();
     ~idServerInitSystemLocal();
     
-    void SendConfigstring( client_t* client, S32 index );
+    void SendConfigstring( client_t* client, sint index );
     void CreateBaseline( void );
-    void BoundMaxClients( S32 minimum );
+    void BoundMaxClients( sint minimum );
     void Startup( void );
     void ChangeMaxClients( void );
-    void SetExpectedHunkUsage( UTF8* mapname );
+    void SetExpectedHunkUsage( valueType* mapname );
     void ClearServer( void );
     void TouchCGameDLL( void );
-    void FinalCommand( UTF8* cmd, bool disconnect );
+    void FinalCommand( valueType* cmd, bool disconnect );
     void ParseVersionMapping( void );
 };
 

@@ -39,9 +39,9 @@
 
 #define MAX_LOG 32768
 
-static UTF8 consoleLog[MAX_LOG];
-static U32 writePos = 0;
-static U32 readPos = 0;
+static valueType consoleLog[MAX_LOG];
+static uint writePos = 0;
+static uint readPos = 0;
 
 //
 // idConsoleLoggingSystemLocal
@@ -52,11 +52,11 @@ public:
     idConsoleLoggingSystemLocal();
     ~idConsoleLoggingSystemLocal();
     
-    virtual U32 LogWrite( StringEntry in );
-    virtual U32 LogRead( UTF8* out, U32 outSize );
+    virtual uint LogWrite( pointer in );
+    virtual uint LogRead( valueType* out, uint outSize );
     
-    static U32 LogSize( void );
-    static U32 LogFree( void );
+    static uint LogSize( void );
+    static uint LogFree( void );
 private:
 };
 

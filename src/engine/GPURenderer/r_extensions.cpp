@@ -32,9 +32,9 @@
 
 void GLimp_InitExtraExtensions()
 {
-    //S32 len;
-    UTF8* extension;
-    const UTF8* result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
+    //sint len;
+    valueType* extension;
+    const valueType* result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
     bool q_gl_version_at_least_3_0;
     bool q_gl_version_at_least_3_2;
     
@@ -48,7 +48,7 @@ void GLimp_InitExtraExtensions()
     
     // Check if we need Intel graphics specific fixes.
     glRefConfig.intelGraphics = false;
-    if( strstr( ( UTF8* )qglGetString( GL_RENDERER ), "Intel" ) )
+    if( strstr( ( valueType* )qglGetString( GL_RENDERER ), "Intel" ) )
         glRefConfig.intelGraphics = true;
         
     // set DSA fallbacks
@@ -176,9 +176,9 @@ void GLimp_InitExtraExtensions()
     // Determine GLSL version
     if( 1 )
     {
-        UTF8 version[256];
+        valueType version[256];
         
-        Q_strncpyz( version, ( UTF8* )qglGetString( GL_SHADING_LANGUAGE_VERSION ), sizeof( version ) );
+        Q_strncpyz( version, ( valueType* )qglGetString( GL_SHADING_LANGUAGE_VERSION ), sizeof( version ) );
         
         sscanf( version, "%d.%d", &glRefConfig.glslMajorVersion, &glRefConfig.glslMinorVersion );
         

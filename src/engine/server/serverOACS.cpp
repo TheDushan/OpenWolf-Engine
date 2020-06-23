@@ -68,13 +68,13 @@ idServerOACSSystemLocal::~idServerOACSSystemLocal( void )
 feature_t sv_interframe[FEATURES_COUNT];
 bool sv_interframeModified[MAX_CLIENTS]; // was the current interframe modified from the previous one?
 playerstable_t sv_playerstable; // extended player identification data (we only need to store one in memory at a time, since we only need it at client connection)
-S32 sv_oacshumanplayers; // oacs implementation of g_humanplayers (but we also count privateclients too!)
+sint sv_oacshumanplayers; // oacs implementation of g_humanplayers (but we also count privateclients too!)
 playerState_t prev_ps[MAX_CLIENTS]; // previous frame's playerstate
 
-UTF8* sv_playerstable_keys = "playerid,playerip,playerguid,connection_timestamp,connection_datetime,playername"; // key names, edit this if you want to add more infos in the playerstable
+valueType* sv_playerstable_keys = "playerid,playerip,playerguid,connection_timestamp,connection_datetime,playername"; // key names, edit this if you want to add more infos in the playerstable
 
 // names of the features, array of string keys to output in the typesfile and datafile
-UTF8* sv_interframe_keys[] =
+valueType* sv_interframe_keys[] =
 {
     "playerid",
     "timestamp",
@@ -120,7 +120,7 @@ UTF8* sv_interframe_keys[] =
 };
 
 // types of the features, will be outputted in the typesfile
-S32 sv_interframe_types[] =
+sint sv_interframe_types[] =
 {
     FEATURE_ID, // playerid
     FEATURE_ID, // timestamp
@@ -281,7 +281,7 @@ idServerOACSSystemLocal::ExtendedRecordDropClient
 When a client connects to the server
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordClientConnect( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordClientConnect( sint client )
 {
     // Proceed only if the player is not a bot
     if( !IsBot( client ) )
@@ -312,7 +312,7 @@ idServerOACSSystemLocal::ExtendedRecordDropClient
 When a client gets disconnected (either willingly or unwillingly)
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordDropClient( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordDropClient( sint client )
 {
     // Drop the client only if he isn't already dropped (so that the reset won't be called multiple times while the client goes into CS_ZOMBIE)
     if( !( ( sv_interframe[FEATURE_PLAYERID].value[client] == featureDefaultValue ) |
@@ -339,8 +339,8 @@ Note: this function only needs to be called once, preferably at engine startup (
 void idServerOACSSystemLocal::ExtendedRecordWriteStruct( void )
 {
     fileHandle_t file;
-    UTF8 outheader[MAX_STRING_CSV];
-    UTF8 out[MAX_STRING_CSV];
+    valueType outheader[MAX_STRING_CSV];
+    valueType out[MAX_STRING_CSV];
     
     Com_DPrintf( "OACS: Saving the oacs types in file %s\n", sv_oacsTypesFile->string );
     
@@ -361,11 +361,11 @@ idServerOACSSystemLocal::ExtendedRecordWriteValues
 Write the values of the current interframe's features in CSV format into a file
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordWriteValues( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordWriteValues( sint client )
 {
     fileHandle_t	file;
-    UTF8 out[MAX_STRING_CSV];
-    S32 i, startclient, endclient;
+    valueType out[MAX_STRING_CSV];
+    sint i, startclient, endclient;
     playerState_t* ps;
     
     if( sv_oacshumanplayers < sv_oacsMinPlayers->integer ) // if we are below the minimum number of human players, we just break here
@@ -392,7 +392,7 @@ void idServerOACSSystemLocal::ExtendedRecordWriteValues( S32 client )
     // If there is no data file or it is empty, we first output the headers (features keys/names)
     if( fileSystem->FileExists( sv_oacsDataFile->string ) == false || ( fileSystem->IsFileEmpty( sv_oacsDataFile->string ) == true ) )
     {
-        UTF8 outheader[MAX_STRING_CSV];
+        valueType outheader[MAX_STRING_CSV];
         
         // Get the CSV string from the features keys
         ExtendedRecordFeaturesToCSV( outheader, MAX_STRING_CSV, sv_interframe, 0, -1 );
@@ -444,10 +444,10 @@ idServerOACSSystemLocal::ExtendedRecordWritePlayersTable
 Write the values of the current players table entry (extended identification informations for one player) in CSV format into a file
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordWritePlayersTable( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordWritePlayersTable( sint client )
 {
     fileHandle_t file;
-    UTF8 out[MAX_STRING_CSV];
+    valueType out[MAX_STRING_CSV];
     
     // avoid saving empty players table entry of not yet fully connected players and bots
     if( IsBot( client ) )
@@ -487,9 +487,9 @@ Note: this is also used to reset the values for one specific client at disconnec
 Add here the initialization settings for your own features
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordInterframeInit( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordInterframeInit( sint client )
 {
-    S32 i, j, startclient, endclient;
+    sint i, j, startclient, endclient;
     
     Com_Printf( "OACS: Initializing the features for client %i\n", client );
     
@@ -540,9 +540,9 @@ Set the initial values for some features, this function will call another one in
 Note: do not use ExtendedRecordSetFeatureValue() here, just access directly sv_interframe (you don't want to commit anything here)
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordInterframeInitValues( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordInterframeInitValues( sint client )
 {
-    S32 feature;
+    sint feature;
     playerState_t* ps;
     
     // Loop through all features and set a default value
@@ -570,7 +570,7 @@ This is a simple switch/case in order to ease modifications, just return the val
 set here the default values you want for a feature if you want it to be different than 0 or NaN
 ===============
 */
-F64 idServerOACSSystemLocal::ExtendedRecordInterframeInitValue( S32 client, S32 feature )
+float64 idServerOACSSystemLocal::ExtendedRecordInterframeInitValue( sint client, sint feature )
 {
     playerState_t* ps;
     ps = serverGameSystem->GameClientNum( client ); // get the player's state
@@ -579,8 +579,8 @@ F64 idServerOACSSystemLocal::ExtendedRecordInterframeInitValue( S32 client, S32 
     {
         case FEATURE_PLAYERID:
             // Set unique player id (we want this id to be completely generated serverside and without any means to tamper it clientside) - we don't care that the id change for the same player when he reconnects, since anyway the id will always link to the player's ip and guid using the playerstable
-            //UTF8 tmp[MAX_STRING_CHARS] = ""; snprintf(tmp, MAX_STRING_CHARS, "%i%lu", rand_range(1, 99999), (unsigned long int)time(nullptr));
-            return atof( va( "%i%lu", rand_range( 1, 99999 ), ( U64 )time( nullptr ) ) ); // FIXME: use a real UUID/GUID here (for the moment we simply use the timestamp in seconds + a random number, this should be enough for now to ensure the uniqueness of all the players) - do NOT use ioquake3 GUID since it can be spoofed (there's no centralized authorization system!)
+            //valueType tmp[MAX_STRING_CHARS] = ""; snprintf(tmp, MAX_STRING_CHARS, "%i%lu", rand_range(1, 99999), (unsigned long int)time(nullptr));
+            return atof( va( "%i%lu", rand_range( 1, 99999 ), ( uint32 )time( nullptr ) ) ); // FIXME: use a real UUID/GUID here (for the moment we simply use the timestamp in seconds + a random number, this should be enough for now to ensure the uniqueness of all the players) - do NOT use ioquake3 GUID since it can be spoofed (there's no centralized authorization system!)
         case FEATURE_SVSTIME:
             // Server time (serverStatic_t time, which is always strictly increasing)
             return svs.time;
@@ -628,9 +628,9 @@ idServerOACSSystemLocal::ExtendedRecordInterframeUpdateValues
 Update features for each server frame
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordInterframeUpdate( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordInterframeUpdate( sint client )
 {
-    S32 i, startclient, endclient;
+    sint i, startclient, endclient;
     
     // If a client id is supplied, we will only reset values for this client
     if( client >= 0 )
@@ -701,9 +701,9 @@ Note2: you should here use SV_ExtendedRecordSetFeatureValue() because you genera
 Note3: the order matters here, so that you can compute a feature only after another feature was computed.
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordInterframeUpdateValues( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordInterframeUpdateValues( sint client )
 {
-    S32 attacker;
+    sint attacker;
     playerState_t* ps;
     ps = serverGameSystem->GameClientNum( client ); // get the player's state
     attacker = ps->persistant[PERS_ATTACKER];
@@ -848,7 +848,7 @@ void idServerOACSSystemLocal::ExtendedRecordInterframeUpdateValues( S32 client )
     // SPEEDRATIO
     if( ps->speed > 0 )
     {
-        ExtendedRecordSetFeatureValue( FEATURE_SPEEDRATIO, ( F64 )( abs( ps->velocity[0] ) +
+        ExtendedRecordSetFeatureValue( FEATURE_SPEEDRATIO, ( float64 )( abs( ps->velocity[0] ) +
                                        abs( ps->velocity[1] ) + abs( ps->velocity[2] ) ) / ps->speed, client );
     }
     else
@@ -893,9 +893,9 @@ WARNING: only put here features that are set on the attacker, never the victim! 
 but bots don't have interframes)
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordInterframeUpdateValuesAttacker( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordInterframeUpdateValuesAttacker( sint client )
 {
-    S32 attacker;
+    sint attacker;
     playerState_t* ps;
     ps = serverGameSystem->GameClientNum( client ); // get the player's state
     attacker = ps->persistant[PERS_ATTACKER];
@@ -916,7 +916,7 @@ useful at prediction to do a post action like kick or ban, or just to report wit
 Edit here if you want to add more identification informations
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordPlayersTableInit( S32 client )
+void idServerOACSSystemLocal::ExtendedRecordPlayersTableInit( sint client )
 {
     client_t* cl;
     
@@ -954,12 +954,12 @@ idServerOACSSystemLocal::IsSpectator
 Loop through an array of feature_t and convert to a CSV row
 ===============
 */
-UTF8* idServerOACSSystemLocal::ExtendedRecordFeaturesToCSV( UTF8* csv_string, S32 max_string_size, feature_t* interframe, S32 savewhat, S32 client )
+valueType* idServerOACSSystemLocal::ExtendedRecordFeaturesToCSV( valueType* csv_string, sint max_string_size, feature_t* interframe, sint savewhat, sint client )
 {
-    S32 i;
+    sint i;
     // will store the current cursor position at the end of the string, so that we can quickly append without doing a strlen()
     // everytime which would be O(n^2) instead of O(n)
-    S32 length = 0;
+    sint length = 0;
     
     for( i = 0; i < FEATURES_COUNT; i++ )
     {
@@ -1004,11 +1004,11 @@ idServerOACSSystemLocal::IsSpectator
 Convert a playerstable_t entry into a CSV string
 ===============
 */
-UTF8* idServerOACSSystemLocal::ExtendedRecordPlayersTableToCSV( UTF8* csv_string, S32 max_string_size, playerstable_t playerstable )
+valueType* idServerOACSSystemLocal::ExtendedRecordPlayersTableToCSV( valueType* csv_string, sint max_string_size, playerstable_t playerstable )
 {
     // willl store the current cursor position at the end of the string, so that we can quickly append without doing a strlen()
     // everytime which would be O(n^2) instead of O(n)
-    S32 length = 0;
+    sint length = 0;
     
     // append playerid
     length += snprintf( csv_string + length, max_string_size, "%.0f", playerstable.playerid );
@@ -1048,7 +1048,7 @@ Note: you should use this function whenever you want to modify the value of a fe
 interframes values whenever needed (else you may lose the data of your interframes!), because the function to commit the features values is only called from here.
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordSetFeatureValue( interframeIndex_t feature, F64 value, S32 client )
+void idServerOACSSystemLocal::ExtendedRecordSetFeatureValue( interframeIndex_t feature, float64 value, sint client )
 {
     // If the value has changed (or the old one is NaN), we do something, else we just keep it like that
     // FIXME: maybe compare the delta (diff) below a certain threshold for floats, eg: if (fabs(a - b) < SOME_DELTA)
@@ -1076,7 +1076,7 @@ idServerOACSSystemLocal::IsSpectator
 Check if a client is a bot
 ===============
 */
-bool idServerOACSSystemLocal::IsBot( S32 client )
+bool idServerOACSSystemLocal::IsBot( sint client )
 {
     sharedEntity_t* entity;
     entity = serverGameSystem->GentityNum( client ); // Get entity (of this player) object
@@ -1099,12 +1099,12 @@ idServerOACSSystemLocal::IsSpectator
 Check if a player is spectating
 ===============
 */
-bool idServerOACSSystemLocal::IsSpectator( S32 client )
+bool idServerOACSSystemLocal::IsSpectator( sint client )
 {
     // WARNING: sv.configstrings[CS_PLAYERS + client] is NOT the same as cl->userinfo, they don't contain the same infos!
     
-    S32 team;
-    UTF8 team_s[MAX_STRING_CHARS];
+    sint team;
+    valueType team_s[MAX_STRING_CHARS];
     client_t* cl;
     cl = &svs.clients[client]; // Get client object
     
@@ -1128,7 +1128,7 @@ idServerOACSSystemLocal::IsWeaponInstantHit
 Check whether a given weapon (from weapon_t enum type) is an instant-hit long range weapon
 ===============
 */
-bool idServerOACSSystemLocal::IsWeaponInstantHit( S32 weapon )
+bool idServerOACSSystemLocal::IsWeaponInstantHit( sint weapon )
 {
     switch( weapon )
     {
@@ -1186,9 +1186,9 @@ idServerOACSSystemLocal::CountPlayers
 Count the number of connected players
 ===============
 */
-S32 idServerOACSSystemLocal::CountPlayers( void )
+sint idServerOACSSystemLocal::CountPlayers( void )
 {
-    S32 i, count;
+    sint i, count;
     
     count = 0;
     for( i = 0; i < sv_maxclients->integer; i++ )
@@ -1218,11 +1218,11 @@ idServerOACSSystemLocal::rand_range
 Return a random number between min and max, with more variability than a simple (rand() % (max-min)) + min
 ===============
 */
-S32 idServerOACSSystemLocal::rand_range( S32 min, S32 max )
+sint idServerOACSSystemLocal::rand_range( sint min, sint max )
 {
-    S32 retval;
+    sint retval;
     
-    retval = ( ( F64 )rand() / ( F64 )RAND_MAX * ( max - min + 1 ) ) + min;
+    retval = ( ( float64 )rand() / ( float64 )RAND_MAX * ( max - min + 1 ) ) + min;
     
     return retval;
 }
@@ -1234,7 +1234,7 @@ idServerOACSSystemLocal::ExtendedRecordSetCheater_f
 Set the cheater label for a client
 ===============
 */
-void idServerOACSSystemLocal::ExtendedRecordSetCheater( S32 client, S32 label )
+void idServerOACSSystemLocal::ExtendedRecordSetCheater( sint client, sint label )
 {
     // Checking for sane values
     if( ( client < 0 ) || ( client > sv_maxclients->integer ) )
@@ -1297,7 +1297,7 @@ Note2: the client can optionally set the value of the label >= 1, this will then
 */
 void idServerOACSSystemLocal::ExtendedRecordSetCheaterFromClient_f( client_t* cl )
 {
-    S32 client;
+    sint client;
     
     // Get the client id
     client = cl - svs.clients;
@@ -1346,7 +1346,7 @@ Note: client needs a password to use this command
 */
 void idServerOACSSystemLocal::ExtendedRecordSetHonestFromClient_f( client_t* cl )
 {
-    S32 client;
+    sint client;
     
     // Get the client id
     client = cl - svs.clients;

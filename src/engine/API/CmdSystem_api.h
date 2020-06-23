@@ -37,7 +37,7 @@
 #ifndef __CMDSYSTEM_API_H__
 #define __CMDSYSTEM_API_H__
 
-typedef void( *completionFunc_t )( UTF8* args, S32 argNum );
+typedef void( *completionFunc_t )( valueType* args, sint argNum );
 typedef void( *xcommand_t )( void );
 //
 // idCVarSystem
@@ -46,29 +46,29 @@ class idCmdSystem
 {
 public:
     virtual void WriteAliases( fileHandle_t f ) = 0;
-    virtual S32 Argc( void ) = 0;
-    virtual UTF8* ArgsFrom( S32 arg ) = 0;
-    virtual UTF8* Argv( S32 arg ) = 0;
-    virtual UTF8* Args( void ) = 0;
-    virtual void TokenizeString( StringEntry text_in ) = 0;
-    virtual void TokenizeStringIgnoreQuotes( StringEntry text_in ) = 0;
-    virtual void AddCommand( StringEntry cmd_name, xcommand_t function, StringEntry cmd_desc ) = 0;
-    virtual void SetCommandCompletionFunc( StringEntry command, completionFunc_t complete ) = 0;
-    virtual void RemoveCommand( StringEntry cmd_name ) = 0;
-    virtual void CommandCompletion( void( *callback )( StringEntry s ) ) = 0;
-    virtual void CompleteArgument( StringEntry command, UTF8* args, S32 argNum ) = 0;
-    virtual void ExecuteString( StringEntry text ) = 0;
+    virtual sint Argc( void ) = 0;
+    virtual valueType* ArgsFrom( sint arg ) = 0;
+    virtual valueType* Argv( sint arg ) = 0;
+    virtual valueType* Args( void ) = 0;
+    virtual void TokenizeString( pointer text_in ) = 0;
+    virtual void TokenizeStringIgnoreQuotes( pointer text_in ) = 0;
+    virtual void AddCommand( pointer cmd_name, xcommand_t function, pointer cmd_desc ) = 0;
+    virtual void SetCommandCompletionFunc( pointer command, completionFunc_t complete ) = 0;
+    virtual void RemoveCommand( pointer cmd_name ) = 0;
+    virtual void CommandCompletion( void( *callback )( pointer s ) ) = 0;
+    virtual void CompleteArgument( pointer command, valueType* args, sint argNum ) = 0;
+    virtual void ExecuteString( pointer text ) = 0;
     virtual void Init( void ) = 0;
     virtual void Shutdown( void ) = 0;
-    virtual UTF8* Cmd( void ) = 0;
-    virtual void AliasCompletion( void( *callback )( StringEntry s ) ) = 0;
-    virtual void DelayCompletion( void( *callback )( StringEntry s ) ) = 0;
+    virtual valueType* Cmd( void ) = 0;
+    virtual void AliasCompletion( void( *callback )( pointer s ) ) = 0;
+    virtual void DelayCompletion( void( *callback )( pointer s ) ) = 0;
     virtual void SaveCmdContext( void ) = 0;
     virtual void RestoreCmdContext( void ) = 0;
-    virtual UTF8* FromNth( S32 count ) = 0;
-    virtual void ArgvBuffer( S32 arg, UTF8* buffer, S32 bufferLength ) = 0;
-    virtual void ArgsBuffer( UTF8* buffer, S32 bufferLength ) = 0;
-    virtual void LiteralArgsBuffer( UTF8* buffer, S32 bufferLength ) = 0;
+    virtual valueType* FromNth( sint count ) = 0;
+    virtual void ArgvBuffer( sint arg, valueType* buffer, sint bufferLength ) = 0;
+    virtual void ArgsBuffer( valueType* buffer, sint bufferLength ) = 0;
+    virtual void LiteralArgsBuffer( valueType* buffer, sint bufferLength ) = 0;
 };
 
 extern idCmdSystem* cmdSystem;

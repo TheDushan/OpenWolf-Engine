@@ -39,10 +39,10 @@
 
 typedef struct
 {
-    F32 blurFactor;
-    F32 sunDir[3];
-    F32 sunCol[3];
-    F32 sunAmbCol[3];
+    float32 blurFactor;
+    float32 sunDir[3];
+    float32 sunCol[3];
+    float32 sunAmbCol[3];
 } refdefex_t;
 
 #endif //!__R_EXTRATYPES_H__

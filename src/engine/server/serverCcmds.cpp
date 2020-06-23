@@ -80,8 +80,8 @@ Returns the player with name from cmdSystem->Argv(1)
 */
 client_t* idServerCcmdsSystemLocal::GetPlayerByName( void )
 {
-    S32 i;
-    UTF8* s, cleanName[64];
+    sint i;
+    valueType* s, cleanName[64];
     client_t* cl;
     
     // make sure server is running
@@ -134,8 +134,8 @@ Restart the server on a different map
 */
 void idServerCcmdsSystemLocal::Map_f( void )
 {
-    S32 savegameTime = -1;
-    UTF8* cmd, *map, smapname[MAX_QPATH], mapname[MAX_QPATH], expanded[MAX_QPATH], *cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+    sint savegameTime = -1;
+    valueType* cmd, *map, smapname[MAX_QPATH], mapname[MAX_QPATH], expanded[MAX_QPATH], *cl_profileStr = cvarSystem->VariableString( "cl_profile" );
     bool killBots, cheat, buildScript;
     
     map = cmdSystem->Argv( 1 );
@@ -166,9 +166,9 @@ void idServerCcmdsSystemLocal::Map_f( void )
         if( strstr( map, ".sav" ) )
         {
             // open the savegame, read the mapname, and copy it to the map string
-            UTF8 savemap[MAX_QPATH], savedir[MAX_QPATH];
-            U8* buffer;
-            S32 size, csize;
+            valueType savemap[MAX_QPATH], savedir[MAX_QPATH];
+            uchar8* buffer;
+            sint size, csize;
             
             if( com_gameInfo.usesProfiles && cl_profileStr[0] )
             {
@@ -225,11 +225,11 @@ void idServerCcmdsSystemLocal::Map_f( void )
             cvarSystem->Set( "savegame_filename", savemap );
             
             // the mapname is at the very start of the savegame file
-            Q_strncpyz( savemap, ( UTF8* )( buffer + sizeof( S32 ) ), sizeof( savemap ) );	// skip the version
+            Q_strncpyz( savemap, ( valueType* )( buffer + sizeof( sint ) ), sizeof( savemap ) );	// skip the version
             Q_strncpyz( smapname, savemap, sizeof( smapname ) );
             map = smapname;
             
-            savegameTime = *( S32* )( buffer + sizeof( S32 ) + MAX_QPATH );
+            savegameTime = *( sint* )( buffer + sizeof( sint ) + MAX_QPATH );
             
             if( savegameTime >= 0 )
             {
@@ -382,7 +382,7 @@ idServerCcmdsSystemLocal::TransitionGameState
 NERVE - SMF
 ================
 */
-bool idServerCcmdsSystemLocal::TransitionGameState( gamestate_t new_gs, gamestate_t old_gs, S32 delay )
+bool idServerCcmdsSystemLocal::TransitionGameState( gamestate_t new_gs, gamestate_t old_gs, sint delay )
 {
     if( !serverGameSystem->GameIsSinglePlayer() && !serverGameSystem->GameIsCoop() )
     {
@@ -433,9 +433,9 @@ This allows fair starts with variable load times.
 */
 void idServerCcmdsSystemLocal::MapRestart_f( void )
 {
-    S32 i, delay = 0;
+    sint i, delay = 0;
     client_t* client;
-    UTF8* denied;
+    valueType* denied;
     bool isBot;
     gamestate_t new_gs, old_gs; // NERVE - SMF
     
@@ -492,7 +492,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
     // check for maxclients change
     if( sv_maxclients->modified )
     {
-        UTF8 mapname[MAX_QPATH];
+        valueType mapname[MAX_QPATH];
         
         Com_Printf( "sv_maxclients variable change -- restarting.\n" );
         // restart the map the slow way
@@ -506,9 +506,9 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
     if( cvarSystem->VariableIntegerValue( "savegame_loading" ) )
     {
         // open the current savegame, and find out what the time is, everything else we can ignore
-        UTF8 savemap[MAX_QPATH], *cl_profileStr = cvarSystem->VariableString( "cl_profile" );
-        U8* buffer;
-        S32 size, savegameTime;
+        valueType savemap[MAX_QPATH], *cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+        uchar8* buffer;
+        sint size, savegameTime;
         
         if( com_gameInfo.usesProfiles )
         {
@@ -530,7 +530,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
         fileSystem->ReadFile( savemap, ( void** )&buffer );
         
         // the mapname is at the very start of the savegame file
-        savegameTime = *( S32* )( buffer + sizeof( S32 ) + MAX_QPATH );
+        savegameTime = *( sint* )( buffer + sizeof( sint ) + MAX_QPATH );
         
         if( savegameTime >= 0 )
         {
@@ -625,7 +625,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
         serverMainSystem->AddServerCommand( client, "map_restart\n" );
         
         // connect the client again, without the firstTime flag
-        denied = static_cast< UTF8* >( sgame->ClientConnect( i, false ) );
+        denied = static_cast< valueType* >( sgame->ClientConnect( i, false ) );
         if( denied )
         {
             // this generally shouldn't happen, because the client
@@ -669,9 +669,9 @@ idServerCcmdsSystemLocal::LoadGame_f
 */
 void idServerCcmdsSystemLocal::LoadGame_f( void )
 {
-    S32 size;
-    UTF8 filename[MAX_QPATH], mapname[MAX_QPATH], savedir[MAX_QPATH], *cl_profileStr = cvarSystem->VariableString( "cl_profile" );
-    U8* buffer;
+    sint size;
+    valueType filename[MAX_QPATH], mapname[MAX_QPATH], savedir[MAX_QPATH], *cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+    uchar8* buffer;
     
     // dont allow command if another loadgame is pending
     if( cvarSystem->VariableIntegerValue( "savegame_loading" ) )
@@ -718,7 +718,7 @@ void idServerCcmdsSystemLocal::LoadGame_f( void )
     // use '/' instead of '\\' for directories
     while( strstr( filename, "\\" ) )
     {
-        *( UTF8* )strstr( filename, "\\" ) = '/';
+        *( valueType* )strstr( filename, "\\" ) = '/';
     }
     
     size = fileSystem->ReadFile( filename, nullptr );
@@ -732,7 +732,7 @@ void idServerCcmdsSystemLocal::LoadGame_f( void )
     fileSystem->ReadFile( filename, ( void** )&buffer );
     
     // read the mapname, if it is the same as the current map, then do a fast load
-    Q_strncpyz( mapname, ( StringEntry )( buffer + sizeof( S32 ) ), sizeof( mapname ) );
+    Q_strncpyz( mapname, ( pointer )( buffer + sizeof( sint ) ), sizeof( mapname ) );
     
     if( com_sv_running->integer && ( com_frameTime != sv.serverId ) )
     {
@@ -777,9 +777,9 @@ void idServerCcmdsSystemLocal::LoadGame_f( void )
 idServerCcmdsSystemLocal::TempBanNetAddress
 ==================
 */
-void idServerCcmdsSystemLocal::TempBanNetAddress( netadr_t address, S32 length )
+void idServerCcmdsSystemLocal::TempBanNetAddress( netadr_t address, sint length )
 {
-    S32 i, oldesttime = 0, oldest = -1;
+    sint i, oldesttime = 0, oldest = -1;
     
     for( i = 0; i < MAX_TEMPBAN_ADDRESSES; i++ )
     {
@@ -811,7 +811,7 @@ idServerCcmdsSystemLocal::TempBanIsBanned
 */
 bool idServerCcmdsSystemLocal::TempBanIsBanned( netadr_t address )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < MAX_TEMPBAN_ADDRESSES; i++ )
     {
@@ -834,11 +834,11 @@ idServerCcmdsSystemLocal::Status_f
 */
 void idServerCcmdsSystemLocal::Status_f( void )
 {
-    S32 i, j, l, ping;
+    sint i, j, l, ping;
     client_t* cl;
     playerState_t* ps;
-    StringEntry s;
-    U8 cpu, avg; //Dushan
+    pointer s;
+    uchar8 cpu, avg; //Dushan
     
     // make sure server is running
     if( !com_sv_running->integer )
@@ -848,17 +848,17 @@ void idServerCcmdsSystemLocal::Status_f( void )
     }
     
     // Dushan
-    cpu = ( svs.stats.latched_active + svs.stats.latched_idle );
+    cpu = ( uchar8 )( svs.stats.latched_active + svs.stats.latched_idle );
     
     if( cpu )
     {
-        cpu = 100 * svs.stats.latched_active / cpu;
+        cpu = ( uchar8 )( 100 * svs.stats.latched_active / cpu );
     }
     
-    avg = 1000 * svs.stats.latched_active / STATFRAMES;
+    avg = ( uchar8 )( 1000 * svs.stats.latched_active / STATFRAMES );
     
-    Com_Printf( "cpu utilization  : %3i%%\n", ( S32 )cpu );
-    Com_Printf( "avg response time: %i ms\n", ( S32 )avg );
+    Com_Printf( "cpu utilization  : %3i%%\n", ( sint )cpu );
+    Com_Printf( "avg response time: %i ms\n", ( sint )avg );
     
     Com_Printf( "map: %s\n", sv_mapname->string );
     
@@ -892,7 +892,7 @@ void idServerCcmdsSystemLocal::Status_f( void )
         }
         
         Com_Printf( "%s", cl->name );
-        l = 16 - strlen( cl->name );
+        l = 16 - ( sint )::strlen( cl->name );
         for( j = 0; j < l; j++ )
         {
             Com_Printf( " " );
@@ -902,7 +902,7 @@ void idServerCcmdsSystemLocal::Status_f( void )
         
         s = NET_AdrToString( cl->netchan.remoteAddress );
         Com_Printf( "%s", s );
-        l = 22 - strlen( s );
+        l = 22 - ( sint )::strlen( s );
         for( j = 0; j < l; j++ )
         {
             Com_Printf( " " );
@@ -924,8 +924,8 @@ idServerCcmdsSystemLocal::ConSay_f
 */
 void idServerCcmdsSystemLocal::ConSay_f( void )
 {
-    UTF8* p;
-    UTF8 text[1024];
+    valueType* p;
+    valueType text[1024];
     
     if( !com_dedicated->integer )
     {
@@ -1076,7 +1076,7 @@ void idServerCcmdsSystemLocal::GameCompleteStatus_f( void )
 idServerCcmdsSystemLocal::CompleteMapName
 ==================
 */
-void idServerCcmdsSystemLocal::CompleteMapName( UTF8* args, S32 argNum )
+void idServerCcmdsSystemLocal::CompleteMapName( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
@@ -1093,7 +1093,7 @@ Redirect console output to a client
 */
 static client_t* redirect_client = nullptr;
 
-void idServerCcmdsSystemLocal::ClientRedirect( UTF8* outputbuf )
+void idServerCcmdsSystemLocal::ClientRedirect( valueType* outputbuf )
 {
     serverMainSystem->SendServerCommand( redirect_client, "%s", outputbuf );
 }
@@ -1101,8 +1101,8 @@ void idServerCcmdsSystemLocal::ClientRedirect( UTF8* outputbuf )
 void idServerCcmdsSystemLocal::StartRedirect_f( void )
 {
 #define SV_OUTPUTBUF_LENGTH (1024 - 16)
-    S32 clientNum;
-    static UTF8 sv_outputbuf[SV_OUTPUTBUF_LENGTH];
+    sint clientNum;
+    static valueType sv_outputbuf[SV_OUTPUTBUF_LENGTH];
     
     clientNum = atoi( cmdSystem->Argv( 1 ) );
     
@@ -1151,10 +1151,12 @@ void idServerCcmdsSystemLocal::Demo_Record_f( void )
     }
     
     if( cmdSystem->Argc() == 2 )
-        sprintf( sv.demoName, "svdemos/%s.svdm_%d", cmdSystem->Argv( 1 ), ETPROTOCOL_VERSION );
+    {
+        Com_sprintf( sv.demoName, sizeof( sv.demoName ), "svdemos/%s.svdm_%d", cmdSystem->Argv( 1 ), ETPROTOCOL_VERSION );
+    }
     else
     {
-        S32	number;
+        sint	number;
         // scan for a free demo name
         for( number = 0; number >= 0; number++ )
         {
@@ -1186,7 +1188,7 @@ SV_Demo_Play_f
 */
 void idServerCcmdsSystemLocal::Demo_Play_f( void )
 {
-    UTF8* arg;
+    valueType* arg;
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -1253,11 +1255,11 @@ void idServerCcmdsSystemLocal::Demo_Stop_f( void )
 SV_CompleteDemoName
 ====================
 */
-void idServerCcmdsSystemLocal::CompleteDemoName( UTF8* args, S32 argNum )
+void idServerCcmdsSystemLocal::CompleteDemoName( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
-        UTF8 demoExt[16];
+        valueType demoExt[16];
         
         Com_sprintf( demoExt, sizeof( demoExt ), ".svdm_%d", ETPROTOCOL_VERSION );
         Field_CompleteFilename( "svdemos", demoExt, true );

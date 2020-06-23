@@ -94,7 +94,7 @@ Writes a delta update of an entityState_t list to the message.
 */
 void idServerSnapshotSystemLocal::EmitPacketEntities( clientSnapshot_t* from, clientSnapshot_t* to, msg_t* msg )
 {
-    S32 oldindex, newindex, oldnum, newnum, from_num_entities;
+    sint oldindex, newindex, oldnum, newnum, from_num_entities;
     entityState_t* oldent, *newent;
     
     // generate the delta update
@@ -172,7 +172,7 @@ idServerSnapshotSystemLocal::WriteSnapshotToClient
 */
 void idServerSnapshotSystemLocal::WriteSnapshotToClient( client_t* client, msg_t* msg )
 {
-    S32 lastframe, i, snapFlags;
+    sint lastframe, i, snapFlags;
     clientSnapshot_t* frame, *oldframe;
     
     // this is the snapshot we are creating
@@ -251,8 +251,8 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient( client_t* client, msg_t
     MSG_WriteData( msg, frame->areabits, frame->areabytes );
     
     {
-        //S32 sz = msg->cursize;
-        //S32 usz = msg->uncompsize;
+        //sint sz = msg->cursize;
+        //sint usz = msg->uncompsize;
         
         // delta encode the playerstate
         if( oldframe )
@@ -290,7 +290,7 @@ idServerSnapshotSystemLocal::UpdateServerCommandsToClient
 */
 void idServerSnapshotSystemLocal::UpdateServerCommandsToClient( client_t* client, msg_t* msg )
 {
-    S32 i;
+    sint i;
     
     // write any unacknowledged serverCommands
     for( i = client->reliableAcknowledge + 1; i <= client->reliableSequence; i++ )
@@ -314,12 +314,12 @@ Build a client snapshot structure
 idServerSnapshotSystemLocal::QsortEntityNumbers
 =======================
 */
-S32 idServerSnapshotSystemLocal::QsortEntityNumbers( const void* a, const void* b )
+sint idServerSnapshotSystemLocal::QsortEntityNumbers( const void* a, const void* b )
 {
-    S32* ea, *eb;
+    sint* ea, *eb;
     
-    ea = ( S32* )a;
-    eb = ( S32* )b;
+    ea = ( sint* )a;
+    eb = ( sint* )b;
     
     if( *ea == *eb )
     {
@@ -373,8 +373,8 @@ idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint
 */
 void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t* frame, snapshotEntityNumbers_t* eNums, bool portal )
 {
-    U8* clientpvs, *bitvector;
-    S32 e, i, l, clientarea, clientcluster, leafnum, c_fullsend;
+    uchar8* clientpvs, *bitvector;
+    sint e, i, l, clientarea, clientcluster, leafnum, c_fullsend;
     sharedEntity_t* ent, *playerEnt;
     svEntity_t* svEnt;
     
@@ -567,7 +567,7 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint( vec3_t origin, cl
         }
         else if( ent->r.svFlags & SVF_VISDUMMY_MULTIPLE )
         {
-            S32 h;
+            sint h;
             sharedEntity_t* ment = 0;
             svEntity_t* master = 0;
             
@@ -651,7 +651,7 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint( vec3_t origin, cl
                 vec3_t dir;
                 
                 VectorSubtract( ent->s.origin, origin, dir );
-                if( VectorLengthSquared( dir ) > ( F32 ) ent->s.generic1 * ent->s.generic1 )
+                if( VectorLengthSquared( dir ) > ( float32 ) ent->s.generic1 * ent->s.generic1 )
                 {
                     continue;
                 }
@@ -679,7 +679,7 @@ For viewing through other player's eyes, clent can be something other than clien
 */
 void idServerSnapshotSystemLocal::BuildClientSnapshot( client_t* client )
 {
-    S32 i, clientNum;
+    sint i, clientNum;
     vec3_t org;
     clientSnapshot_t* frame;
     snapshotEntityNumbers_t entityNumbers;
@@ -764,7 +764,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot( client_t* client )
     // all of them to make it a mask vector, which is what the renderer wants
     for( i = 0; i < MAX_MAP_AREA_BYTES / 4; i++ )
     {
-        ( ( S32* )frame->areabits )[i] = ( ( S32* )frame->areabits )[i] ^ -1;
+        ( ( sint* )frame->areabits )[i] = ( ( sint* )frame->areabits )[i] ^ -1;
     }
     
     // copy the entity states out
@@ -806,9 +806,9 @@ to take to clear, based on the current rate
 TTimo - use sv_maxRate or sv_dl_maxRate depending on regular or downloading client
 ====================
 */
-S32 idServerSnapshotSystemLocal::RateMsec( client_t* client, S32 messageSize )
+sint idServerSnapshotSystemLocal::RateMsec( client_t* client, sint messageSize )
 {
-    S32 rate, rateMsec, maxRate;
+    sint rate, rateMsec, maxRate;
     
     // individual messages will never be larger than fragment size
     if( messageSize > 1500 )
@@ -841,7 +841,7 @@ S32 idServerSnapshotSystemLocal::RateMsec( client_t* client, S32 messageSize )
             rate = maxRate;
         }
     }
-    rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / ( ( S32 )( rate * com_timescale->value ) );
+    rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / ( ( sint )( rate * com_timescale->value ) );
     
     return rateMsec;
 }
@@ -855,7 +855,7 @@ Called by idServerSnapshotSystemLocal::SendClientSnapshot and idServerSnapshotSy
 */
 void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* client )
 {
-    S32 rateMsec;
+    sint rateMsec;
     
     while( client->state && client->netchan.unsentFragments )
     {
@@ -928,7 +928,7 @@ So we send them "idle" packets with the bare minimum required to keep them on th
 */
 void idServerSnapshotSystemLocal::SendClientIdle( client_t* client )
 {
-    U8 msg_buf[MAX_MSGLEN];
+    uchar8 msg_buf[MAX_MSGLEN];
     msg_t msg;
     
     MSG_Init( &msg, msg_buf, sizeof( msg_buf ) );
@@ -978,7 +978,7 @@ Also called by idServerInitSystemLocal::FinalCommand
 */
 void idServerSnapshotSystemLocal::SendClientSnapshot( client_t* client )
 {
-    U8 msg_buf[MAX_MSGLEN];
+    uchar8 msg_buf[MAX_MSGLEN];
     msg_t msg;
     
     //bots dont need snapshots
@@ -1049,7 +1049,7 @@ idServerSnapshotSystemLocal::SendClientMessages
 */
 void idServerSnapshotSystemLocal::SendClientMessages( void )
 {
-    S32 i, numclients = 0;	// NERVE - SMF - net debugging
+    sint i, numclients = 0;	// NERVE - SMF - net debugging
     client_t* c;
     
     sv.bpsTotalBytes = 0; // NERVE - SMF - net debugging
@@ -1110,7 +1110,7 @@ void idServerSnapshotSystemLocal::SendClientMessages( void )
     // NERVE - SMF - net debugging
     if( sv_showAverageBPS->integer && numclients > 0 )
     {
-        F32 ave = 0, uave = 0;
+        float32 ave = 0, uave = 0;
         
         for( i = 0; i < MAX_BPS_WINDOW - 1; i++ )
         {
@@ -1141,19 +1141,19 @@ void idServerSnapshotSystemLocal::SendClientMessages( void )
         
         if( sv.bpsWindowSteps >= MAX_BPS_WINDOW )
         {
-            F32 comp_ratio;
+            float32 comp_ratio;
             
             sv.bpsWindowSteps = 0;
             
-            ave = ( ave / ( F32 )MAX_BPS_WINDOW );
-            uave = ( uave / ( F32 )MAX_BPS_WINDOW );
+            ave = ( ave / ( float32 )MAX_BPS_WINDOW );
+            uave = ( uave / ( float32 )MAX_BPS_WINDOW );
             
             comp_ratio = ( 1 - ave / uave ) * 100.f;
             sv.ucompAve += comp_ratio;
             sv.ucompNum++;
             
             Com_DPrintf( "bpspc(%2.0f) bps(%2.0f) pk(%i) ubps(%2.0f) upk(%i) cr(%2.2f) acr(%2.2f)\n",
-                         ave / ( F32 )numclients, ave, sv.bpsMaxBytes, uave, sv.ubpsMaxBytes, comp_ratio,
+                         ave / ( float32 )numclients, ave, sv.bpsMaxBytes, uave, sv.ubpsMaxBytes, comp_ratio,
                          sv.ucompAve / sv.ucompNum );
         }
     }
@@ -1167,8 +1167,8 @@ idServerSnapshotSystemLocal::CheckClientUserinfoTimer
 */
 void idServerSnapshotSystemLocal::CheckClientUserinfoTimer( void )
 {
-    S32 i;
-    UTF8 bigbuffer[ MAX_INFO_STRING * 2];
+    sint i;
+    valueType bigbuffer[ MAX_INFO_STRING * 2];
     client_t* cl;
     
     for( i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++ )

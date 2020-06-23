@@ -37,7 +37,7 @@
 
 #include <framework/precompiled.h>
 
-static void( *completer )( StringEntry s ) = nullptr;
+static void( *completer )( pointer s ) = nullptr;
 
 idClientGameSystemLocal clientGameLocal;
 idClientGameSystem* clientGameSystem = &clientGameLocal;
@@ -89,7 +89,7 @@ void idClientGameSystemLocal::GetGlconfig( vidconfig_t* glconfig )
 idClientGameSystemLocal::CompleteCallback
 ====================
 */
-S32 idClientGameSystemLocal::CompleteCallback( StringEntry complete )
+sint idClientGameSystemLocal::CompleteCallback( pointer complete )
 {
     if( completer )
     {
@@ -103,7 +103,7 @@ S32 idClientGameSystemLocal::CompleteCallback( StringEntry complete )
 idClientGameSystemLocal::GetUserCmd
 ====================
 */
-bool idClientGameSystemLocal::GetUserCmd( S32 cmdNumber, usercmd_t* ucmd )
+bool idClientGameSystemLocal::GetUserCmd( sint cmdNumber, usercmd_t* ucmd )
 {
     // cmds[cmdNumber] is the last properly generated command
     
@@ -130,7 +130,7 @@ bool idClientGameSystemLocal::GetUserCmd( S32 cmdNumber, usercmd_t* ucmd )
 idClientGameSystemLocal::GetCurrentCmdNumber
 ====================
 */
-S32 idClientGameSystemLocal::GetCurrentCmdNumber( void )
+sint idClientGameSystemLocal::GetCurrentCmdNumber( void )
 {
     return cl.cmdNumber;
 }
@@ -140,7 +140,7 @@ S32 idClientGameSystemLocal::GetCurrentCmdNumber( void )
 idClientGameSystemLocal::GetCurrentSnapshotNumber
 ====================
 */
-void idClientGameSystemLocal::GetCurrentSnapshotNumber( S32* snapshotNumber, S32* serverTime )
+void idClientGameSystemLocal::GetCurrentSnapshotNumber( sint* snapshotNumber, sint* serverTime )
 {
     *snapshotNumber = cl.snap.messageNum;
     *serverTime = cl.snap.serverTime;
@@ -151,9 +151,9 @@ void idClientGameSystemLocal::GetCurrentSnapshotNumber( S32* snapshotNumber, S32
 idClientGameSystemLocal::GetSnapshot
 ====================
 */
-bool idClientGameSystemLocal::GetSnapshot( S32 snapshotNumber, snapshot_t* snapshot )
+bool idClientGameSystemLocal::GetSnapshot( sint snapshotNumber, snapshot_t* snapshot )
 {
-    S32 i, count;
+    sint i, count;
     clSnapshot_t* clSnap;
     
     if( snapshotNumber > cl.snap.messageNum )
@@ -213,7 +213,7 @@ bool idClientGameSystemLocal::GetSnapshot( S32 snapshotNumber, snapshot_t* snaps
 idClientGameSystemLocal::SetUserCmdValue
 ==============
 */
-void idClientGameSystemLocal::SetUserCmdValue( S32 userCmdValue, S32 flags, F32 sensitivityScale, S32 mpIdentClient )
+void idClientGameSystemLocal::SetUserCmdValue( sint userCmdValue, sint flags, float32 sensitivityScale, sint mpIdentClient )
 {
     cl.cgameUserCmdValue = userCmdValue;
     cl.cgameFlags = flags;
@@ -226,7 +226,7 @@ void idClientGameSystemLocal::SetUserCmdValue( S32 userCmdValue, S32 flags, F32 
 idClientGameSystemLocal::SetClientLerpOrigin
 ==================
 */
-void idClientGameSystemLocal::SetClientLerpOrigin( F32 x, F32 y, F32 z )
+void idClientGameSystemLocal::SetClientLerpOrigin( float32 x, float32 y, float32 z )
 {
     cl.cgameClientLerpOrigin[0] = x;
     cl.cgameClientLerpOrigin[1] = y;
@@ -238,7 +238,7 @@ void idClientGameSystemLocal::SetClientLerpOrigin( F32 x, F32 y, F32 z )
 idClientGameSystemLocal::CompleteCgameCommand
 =====================
 */
-void idClientGameSystemLocal::CompleteCgameCommand( UTF8* args, S32 argNum )
+void idClientGameSystemLocal::CompleteCgameCommand( valueType* args, sint argNum )
 {
     Field_CompleteCgame( argNum );
 }
@@ -248,7 +248,7 @@ void idClientGameSystemLocal::CompleteCgameCommand( UTF8* args, S32 argNum )
 idClientGameSystemLocal::CgameCompletion
 =====================
 */
-void idClientGameSystemLocal::CgameCompletion( void( *callback )( StringEntry s ), S32 argNum )
+void idClientGameSystemLocal::CgameCompletion( void( *callback )( pointer s ), sint argNum )
 {
     completer = callback;
     cgame->CompleteCommand( argNum );
@@ -260,7 +260,7 @@ void idClientGameSystemLocal::CgameCompletion( void( *callback )( StringEntry s 
 idClientGameSystemLocal::AddCgameCommand
 ==============
 */
-void idClientGameSystemLocal::AddCgameCommand( StringEntry cmdName, StringEntry cmdDesc )
+void idClientGameSystemLocal::AddCgameCommand( pointer cmdName, pointer cmdDesc )
 {
     cmdSystem->AddCommand( cmdName, nullptr, cmdDesc );
     cmdSystem->SetCommandCompletionFunc( cmdName, CompleteCgameCommand );
@@ -271,7 +271,7 @@ void idClientGameSystemLocal::AddCgameCommand( StringEntry cmdName, StringEntry 
 idClientGameSystemLocal::CgameError
 ==============
 */
-void idClientGameSystemLocal::CgameError( StringEntry string )
+void idClientGameSystemLocal::CgameError( pointer string )
 {
     Com_Error( ERR_DROP, "%s", string );
 }
@@ -281,7 +281,7 @@ void idClientGameSystemLocal::CgameError( StringEntry string )
 idClientGameSystemLocal::CGameCheckKeyExec
 =====================
 */
-bool idClientGameSystemLocal::CGameCheckKeyExec( S32 key )
+bool idClientGameSystemLocal::CGameCheckKeyExec( sint key )
 {
     if( cgvm )
     {
@@ -300,8 +300,8 @@ idClientGameSystemLocal::ConfigstringModified
 */
 void idClientGameSystemLocal::ConfigstringModified( void )
 {
-    S32 i, index, len;
-    UTF8* old, *s, *dup;
+    sint i, index, len;
+    valueType* old, *s, *dup;
     gameState_t oldGs;
     
     index = atoi( cmdSystem->Argv( 1 ) );
@@ -372,7 +372,7 @@ void idClientGameSystemLocal::ConfigstringModified( void )
 idClientGameSystemLocal::UIPopup
 =====================
 */
-void idClientGameSystemLocal::UIPopup( StringEntry uiname )
+void idClientGameSystemLocal::UIPopup( pointer uiname )
 {
     if( uiname == nullptr )
     {
@@ -456,12 +456,12 @@ idClientGameSystemLocal::GetServerCommand
 Set up argc/argv for the given command
 ===================
 */
-bool idClientGameSystemLocal::GetServerCommand( S32 serverCommandNumber )
+bool idClientGameSystemLocal::GetServerCommand( sint serverCommandNumber )
 {
-    S32 argc, i = 0;
-    UTF8* s;
-    UTF8* cmd;
-    static UTF8 bigConfigString[BIG_INFO_STRING];
+    sint argc, i = 0;
+    valueType* s;
+    valueType* cmd;
+    static valueType bigConfigString[BIG_INFO_STRING];
     
     // if we have irretrievably lost a reliable command, drop the connection
     if( serverCommandNumber <= clc.serverCommandSequence - MAX_RELIABLE_COMMANDS )
@@ -595,16 +595,16 @@ idClientGameSystemLocal::SetExpectedHunkUsage
 Sets com_expectedhunkusage, so the client knows how to draw the percentage bar
 ====================
 */
-void idClientGameSystemLocal::SetExpectedHunkUsage( StringEntry mapname )
+void idClientGameSystemLocal::SetExpectedHunkUsage( pointer mapname )
 {
-    S32 handle, len;
-    UTF8* memlistfile = "hunkusage.dat", *buf, *buftrav, *token;
+    sint handle, len;
+    valueType* memlistfile = "hunkusage.dat", *buf, *buftrav, *token;
     
     len = fileSystem->FOpenFileByMode( memlistfile, &handle, FS_READ );
     if( len >= 0 )
     {
         // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
-        buf = ( UTF8* )Z_Malloc( len + 1 );
+        buf = ( valueType* )Z_Malloc( len + 1 );
         ::memset( buf, 0, len + 1 );
         
         fileSystem->Read( ( void* )buf, len, handle );
@@ -614,7 +614,7 @@ void idClientGameSystemLocal::SetExpectedHunkUsage( StringEntry mapname )
         buftrav = buf;
         while( ( token = COM_Parse( &buftrav ) ) != nullptr && token[0] )
         {
-            if( !Q_stricmp( token, ( UTF8* )mapname ) )
+            if( !Q_stricmp( token, ( valueType* )mapname ) )
             {
                 // found a match
                 token = COM_Parse( &buftrav );	// read the size
@@ -641,9 +641,9 @@ idClientGameSystemLocal::LoadMap
 Just adds default parameters that cgame doesn't need to know about
 ====================
 */
-void idClientGameSystemLocal::LoadMap( StringEntry mapname )
+void idClientGameSystemLocal::LoadMap( pointer mapname )
 {
-    S32 checksum;
+    sint checksum;
     
     // DHM - Nerve :: If we are not running the server, then set expected usage here
     if( !com_sv_running->integer )
@@ -687,7 +687,7 @@ void idClientGameSystemLocal::ShutdownCGame( void )
 idClientGameSystemLocal::UIClosePopup
 ====================
 */
-void idClientGameSystemLocal::UIClosePopup( StringEntry uiname )
+void idClientGameSystemLocal::UIClosePopup( pointer uiname )
 {
     uiManager->KeyEvent( K_ESCAPE, true );
 }
@@ -697,7 +697,7 @@ void idClientGameSystemLocal::UIClosePopup( StringEntry uiname )
 idClientGameSystemLocal::KeySetCatcher
 ====================
 */
-void idClientGameSystemLocal::KeySetCatcher( S32 catcher )
+void idClientGameSystemLocal::KeySetCatcher( sint catcher )
 {
     clientGUISystem->SetCatcher( catcher | ( clientGUISystem->GetCatcher() & KEYCATCH_CONSOLE ) );
 }
@@ -772,8 +772,8 @@ things should only account for a small variation (hopefully)
 */
 void idClientGameSystemLocal::UpdateLevelHunkUsage( void )
 {
-    S32 handle, len, memusage;
-    UTF8* memlistfile = "hunkusage.dat", *buf, *outbuf, *buftrav, *outbuftrav, * token, outstr[256];
+    sint handle, len, memusage;
+    valueType* memlistfile = "hunkusage.dat", *buf, *outbuf, *buftrav, *outbuftrav, * token, outstr[256];
     
     memusage = cvarSystem->VariableIntegerValue( "com_hunkused" ) + cvarSystem->VariableIntegerValue( "hunk_soundadjust" );
     
@@ -781,10 +781,10 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage( void )
     if( len >= 0 )
     {
         // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
-        buf = ( UTF8* )Z_Malloc( len + 1 );
+        buf = ( valueType* )Z_Malloc( len + 1 );
         ::memset( buf, 0, len + 1 );
         
-        outbuf = ( UTF8* )Z_Malloc( len + 1 );
+        outbuf = ( valueType* )Z_Malloc( len + 1 );
         ::memset( outbuf, 0, len + 1 );
         
         fileSystem->Read( ( void* )buf, len, handle );
@@ -880,8 +880,8 @@ Should only by called by CL_StartHunkUsers
 */
 void idClientGameSystemLocal::InitCGame( void )
 {
-    S32 t1, t2;
-    StringEntry info, mapname;
+    sint t1, t2;
+    pointer info, mapname;
     
     t1 = idsystem->Milliseconds();
     
@@ -992,7 +992,7 @@ idClientGameSystemLocal::CGameRendering
 */
 void idClientGameSystemLocal::CGameRendering( stereoFrame_t stereo )
 {
-    /*	static S32 x = 0;
+    /*	static sint x = 0;
     	if(!((++x) % 20)) {
     		Com_Printf( "numtraces: %i\n", numtraces / 20 );
     		numtraces = 0;
@@ -1023,7 +1023,7 @@ or bursted delayed packets.
 */
 void idClientGameSystemLocal::AdjustTimeDelta( void )
 {
-    S32 resetTime, newDelta, deltaDelta;
+    sint resetTime, newDelta, deltaDelta;
     
     cl.newSnapshots = false;
     
@@ -1206,7 +1206,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
         // cl_timeNudge is a user adjustable cvar that allows more
         // or less latency to be added in the interest of better
         // smoothness or better responsiveness.
-        S32             tn;
+        sint             tn;
         
         tn = cl_timeNudge->integer;
         if( tn < 0 && ( cl.snap.ps.pm_type == PM_SPECTATOR || cl.snap.ps.pm_flags & PMF_FOLLOW || clc.demoplaying ) )
@@ -1303,7 +1303,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
 idClientGameSystemLocal::GetTag
 ====================
 */
-bool idClientGameSystemLocal::GetTag( S32 clientNum, UTF8* tagname, orientation_t* _or )
+bool idClientGameSystemLocal::GetTag( sint clientNum, valueType* tagname, orientation_t* _or )
 {
     if( !cgvm )
     {

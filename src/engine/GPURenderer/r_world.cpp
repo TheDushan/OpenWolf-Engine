@@ -53,7 +53,7 @@ static bool	R_CullSurface( msurface_t* surf )
     if( surf->cullinfo.type & CULLINFO_PLANE )
     {
         // Only true for SF_FACE, so treat like its own function
-        F32			d;
+        float32			d;
         cullType_t ct;
         
         if( !r_facePlaneCull->integer )
@@ -131,7 +131,7 @@ static bool	R_CullSurface( msurface_t* surf )
     
     if( surf->cullinfo.type & CULLINFO_SPHERE )
     {
-        S32 	sphereCull;
+        sint 	sphereCull;
         
         if( tr.currentEntityNum != REFENTITYNUM_WORLD )
         {
@@ -150,7 +150,7 @@ static bool	R_CullSurface( msurface_t* surf )
     
     if( surf->cullinfo.type & CULLINFO_BOX )
     {
-        S32 boxCull;
+        sint boxCull;
         
         if( tr.currentEntityNum != REFENTITYNUM_WORLD )
         {
@@ -180,10 +180,10 @@ that is touched by one or more dlights, so try to throw out
 more dlights if possible.
 ====================
 */
-static S32 R_DlightSurface( msurface_t* surf, S32 dlightBits )
+static sint R_DlightSurface( msurface_t* surf, sint dlightBits )
 {
-    F32       d;
-    S32         i;
+    float32       d;
+    sint         i;
     dlight_t*    dl;
     
     if( surf->cullinfo.type & CULLINFO_PLANE )
@@ -275,10 +275,10 @@ R_PshadowSurface
 Just like R_DlightSurface, cull any we can
 ====================
 */
-static S32 R_PshadowSurface( msurface_t* surf, S32 pshadowBits )
+static sint R_PshadowSurface( msurface_t* surf, sint pshadowBits )
 {
-    F32       d;
-    S32       i;
+    float32       d;
+    sint       i;
     pshadow_t*    ps;
     
     if( surf->cullinfo.type & CULLINFO_PLANE )
@@ -367,7 +367,7 @@ static S32 R_PshadowSurface( msurface_t* surf, S32 pshadowBits )
 R_AddWorldSurface
 ======================
 */
-static void R_AddWorldSurface( msurface_t* surf, S32 dlightBits, S32 pshadowBits )
+static void R_AddWorldSurface( msurface_t* surf, sint dlightBits, sint pshadowBits )
 {
     // FIXME: bmodel fog?
     
@@ -410,9 +410,9 @@ R_AddBrushModelSurfaces
 void R_AddBrushModelSurfaces( trRefEntity_t* ent )
 {
     bmodel_t*	bmodel;
-    S32			clip;
+    sint			clip;
     model_t*		pModel;
-    S32			i;
+    sint			i;
     
     pModel = R_GetModelByHandle( ent->e.hModel );
     
@@ -429,7 +429,7 @@ void R_AddBrushModelSurfaces( trRefEntity_t* ent )
     
     for( i = 0 ; i < bmodel->numSurfaces ; i++ )
     {
-        S32 surf = bmodel->firstSurface + i;
+        sint surf = bmodel->firstSurface + i;
         
         if( tr.world->surfacesViewCount[surf] != tr.viewCount )
         {
@@ -454,13 +454,13 @@ void R_AddBrushModelSurfaces( trRefEntity_t* ent )
 R_RecursiveWorldNode
 ================
 */
-static void R_RecursiveWorldNode( mnode_t* node, U32 planeBits, U32 dlightBits, U32 pshadowBits )
+static void R_RecursiveWorldNode( mnode_t* node, uint planeBits, uint dlightBits, uint pshadowBits )
 {
 
     do
     {
-        U32 newDlights[2];
-        U32 newPShadows[2];
+        uint newDlights[2];
+        uint newPShadows[2];
         
         // if the node wasn't marked as potentially visible, exit
         // pvs is skipped for depth shadows
@@ -474,7 +474,7 @@ static void R_RecursiveWorldNode( mnode_t* node, U32 planeBits, U32 dlightBits, 
         
         if( !r_nocull->integer )
         {
-            S32		r;
+            sint		r;
             
             if( planeBits & 1 )
             {
@@ -555,12 +555,12 @@ static void R_RecursiveWorldNode( mnode_t* node, U32 planeBits, U32 dlightBits, 
         newDlights[1] = 0;
         if( dlightBits )
         {
-            S32	i;
+            sint	i;
             
             for( i = 0 ; i < tr.refdef.num_dlights ; i++ )
             {
                 dlight_t*	dl;
-                F32		dist;
+                float32		dist;
                 
                 if( dlightBits & ( 1 << i ) )
                 {
@@ -583,12 +583,12 @@ static void R_RecursiveWorldNode( mnode_t* node, U32 planeBits, U32 dlightBits, 
         newPShadows[1] = 0;
         if( pshadowBits )
         {
-            S32	i;
+            sint	i;
             
             for( i = 0 ; i < tr.refdef.num_pshadows ; i++ )
             {
                 pshadow_t*	shadow;
-                F32		dist;
+                float32		dist;
                 
                 if( pshadowBits & ( 1 << i ) )
                 {
@@ -619,8 +619,8 @@ static void R_RecursiveWorldNode( mnode_t* node, U32 planeBits, U32 dlightBits, 
     
     {
         // leaf node, so add mark surfaces
-        S32			c;
-        S32 surf, *view;
+        sint			c;
+        sint surf, *view;
         
         tr.pc.c_leafs++;
         
@@ -667,7 +667,7 @@ R_PointInLeaf
 static mnode_t* R_PointInLeaf( const vec3_t p )
 {
     mnode_t*		node;
-    F32		d;
+    float32		d;
     cplane_t*	plane;
     
     if( !tr.world )
@@ -702,7 +702,7 @@ static mnode_t* R_PointInLeaf( const vec3_t p )
 R_ClusterPVS
 ==============
 */
-static const U8* R_ClusterPVS( S32 cluster )
+static const uchar8* R_ClusterPVS( sint cluster )
 {
     if( !tr.world->vis || cluster < 0 || cluster >= tr.world->numClusters )
     {
@@ -720,7 +720,7 @@ idRenderSystemLocal::inPVS
 bool idRenderSystemLocal::inPVS( const vec3_t p1, const vec3_t p2 )
 {
     mnode_t* leaf;
-    U8*	vis;
+    uchar8*	vis;
     
     leaf = R_PointInLeaf( p1 );
     vis = collisionModelManager->ClusterPVS( leaf->cluster ); // why not R_ClusterPVS ??
@@ -743,10 +743,10 @@ cluster
 */
 static void R_MarkLeaves( void )
 {
-    const U8*	vis;
+    const uchar8*	vis;
     mnode_t*	leaf, *parent;
-    S32		i;
-    S32		cluster;
+    sint		i;
+    sint		cluster;
     
     // lockpvs lets designers walk around to determine the
     // extent of the current pvs
@@ -836,7 +836,7 @@ R_AddWorldSurfaces
 */
 void R_AddWorldSurfaces( void )
 {
-    U32 planeBits, dlightBits, pshadowBits;
+    uint planeBits, dlightBits, pshadowBits;
     
     if( !r_drawworld->integer )
     {
@@ -892,7 +892,7 @@ void R_AddWorldSurfaces( void )
     // now add all the potentially visible surfaces
     // also mask invisible dlights for next frame
     {
-        S32 i;
+        sint i;
         
         tr.refdef.dlightMask = 0;
         

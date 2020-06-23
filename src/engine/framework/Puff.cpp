@@ -93,16 +93,16 @@
 struct state
 {
     /* output state */
-    U8* out;         /* output buffer */
-    U32 outlen;       /* available space at out */
-    U32 outcnt;       /* bytes written to out so far */
+    uchar8* out;         /* output buffer */
+    uint outlen;       /* available space at out */
+    uint outcnt;       /* bytes written to out so far */
     
     /* input state */
-    U8* in;          /* input buffer */
-    U32 inlen;        /* available input at in */
-    U32 incnt;        /* bytes read so far */
-    S32 bitbuf;                 /* bit buffer */
-    S32 bitcnt;                 /* number of bits in bit buffer */
+    uchar8* in;          /* input buffer */
+    uint inlen;        /* available input at in */
+    uint incnt;        /* bytes read so far */
+    sint bitbuf;                 /* bit buffer */
+    sint bitcnt;                 /* number of bits in bit buffer */
     
     /* input limit error return state for bits() and decode() */
     jmp_buf env;
@@ -119,25 +119,25 @@ struct state
  *   buffer, using shift right, and new bytes are appended to the top of the
  *   bit buffer, using shift left.
  */
-local S32 bits( struct state* s, S32 need )
+local sint bits( struct state* s, sint need )
 {
-    S32 val;           /* bit accumulator (can use up to 20 bits) */
+    sint val;           /* bit accumulator (can use up to 20 bits) */
     
     /* load at least need bits into val */
     val = s->bitbuf;
     while( s->bitcnt < need )
     {
         if( s->incnt == s->inlen ) longjmp( s->env, 1 ); /* out of input */
-        val |= ( S32 )( s->in[s->incnt++] ) << s->bitcnt; /* load eight bits */
+        val |= ( sint )( s->in[s->incnt++] ) << s->bitcnt; /* load eight bits */
         s->bitcnt += 8;
     }
     
     /* drop need bits and update buffer, always zero to seven bits left */
-    s->bitbuf = ( S32 )( val >> need );
+    s->bitbuf = ( sint )( val >> need );
     s->bitcnt -= need;
     
     /* return need bits, zeroing the bits above that */
-    return ( S32 )( val & ( ( 1L << need ) - 1 ) );
+    return ( sint )( val & ( ( 1L << need ) - 1 ) );
 }
 
 /*
@@ -157,9 +157,9 @@ local S32 bits( struct state* s, S32 need )
  * - A stored block can have zero length.  This is sometimes used to byte-align
  *   subsets of the compressed data for random access or partial recovery.
  */
-local S32 stored( struct state* s )
+local sint stored( struct state* s )
 {
-    U32 len;       /* length of stored block */
+    uint len;       /* length of stored block */
     
     /* discard leftover bits from current byte (assumes s->bitcnt < 8) */
     s->bitbuf = 0;
@@ -201,8 +201,8 @@ local S32 stored( struct state* s )
  */
 struct huffman
 {
-    S16* count;       /* number of symbols of each length */
-    S16* symbol;      /* canonically ordered symbols */
+    schar16* count;       /* number of symbols of each length */
+    schar16* symbol;      /* canonically ordered symbols */
 };
 
 /*
@@ -228,16 +228,16 @@ struct huffman
  * - Incomplete codes are handled by this decoder, since they are permitted
  *   in the deflate format.  See the format notes for fixed() and dynamic().
  */
-local S32 decode( struct state* s, struct huffman* h )
+local sint decode( struct state* s, struct huffman* h )
 {
-    S32 len;            /* current number of bits in code */
-    S32 code;           /* len bits being decoded */
-    S32 first;          /* first code of length len */
-    S32 count;          /* number of codes of length len */
-    S32 index;          /* index of first code of length len in symbol table */
-    S32 bitbuf;         /* bits from stream */
-    S32 left;           /* bits left in next or left to process */
-    S16* next;        /* next number of codes */
+    sint len;            /* current number of bits in code */
+    sint code;           /* len bits being decoded */
+    sint first;          /* first code of length len */
+    sint count;          /* number of codes of length len */
+    sint index;          /* index of first code of length len in symbol table */
+    sint bitbuf;         /* bits from stream */
+    sint left;           /* bits left in next or left to process */
+    schar16* next;        /* next number of codes */
     
     bitbuf = s->bitbuf;
     left = s->bitcnt;
@@ -304,12 +304,12 @@ local S32 decode( struct state* s, struct huffman* h )
  * - Within a given code length, the symbols are kept in ascending order for
  *   the code bits definition.
  */
-local S32 construct( struct huffman* h, S16* length, S32 n )
+local sint construct( struct huffman* h, schar16* length, sint n )
 {
-    S32 symbol;         /* current symbol when stepping through length[] */
-    S32 len;            /* current length when stepping through h->count[] */
-    S32 left;           /* number of possible codes left of current length */
-    S16 offs[MAXBITS + 1];    /* offsets in symbol table for each length */
+    sint symbol;         /* current symbol when stepping through length[] */
+    sint len;            /* current length when stepping through h->count[] */
+    sint left;           /* number of possible codes left of current length */
+    schar16 offs[MAXBITS + 1];    /* offsets in symbol table for each length */
     
     /* count number of codes of each length */
     for( len = 0; len <= MAXBITS; len++ )
@@ -400,30 +400,30 @@ local S32 construct( struct huffman* h, S16* length, S32 n )
  *   since though their behavior -is- defined for overlapping arrays, it is
  *   defined to do the wrong thing in this case.
  */
-local S32 codes( struct state* s,
-                 struct huffman* lencode,
-                 struct huffman* distcode )
+local sint codes( struct state* s,
+                  struct huffman* lencode,
+                  struct huffman* distcode )
 {
-    S32 symbol;         /* decoded symbol */
-    S32 len;            /* length for copy */
-    U32 dist;          /* distance for copy */
-    static const S16 lens[29] =   /* Size base for length codes 257..285 */
+    sint symbol;         /* decoded symbol */
+    sint len;            /* length for copy */
+    uint dist;          /* distance for copy */
+    static const schar16 lens[29] =   /* Size base for length codes 257..285 */
     {
         3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31,
         35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258
     };
-    static const S16 lext[29] =   /* Extra bits for length codes 257..285 */
+    static const schar16 lext[29] =   /* Extra bits for length codes 257..285 */
     {
         0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
         3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0
     };
-    static const S16 dists[30] =   /* Offset base for distance codes 0..29 */
+    static const schar16 dists[30] =   /* Offset base for distance codes 0..29 */
     {
         1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
         257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145,
         8193, 12289, 16385, 24577
     };
-    static const S16 dext[30] =   /* Extra bits for distance codes 0..29 */
+    static const schar16 dext[30] =   /* Extra bits for distance codes 0..29 */
     {
         0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6,
         7, 7, 8, 8, 9, 9, 10, 10, 11, 11,
@@ -503,19 +503,19 @@ local S32 codes( struct state* s,
  *   length, this can be implemented as an incomplete code.  Then the invalid
  *   codes are detected while decoding.
  */
-local S32 fixed( struct state* s )
+local sint fixed( struct state* s )
 {
-    static S32 virgin = 1;
-    static S16 lencnt[MAXBITS + 1], lensym[FIXLCODES];
-    static S16 distcnt[MAXBITS + 1], distsym[MAXDCODES];
+    static sint virgin = 1;
+    static schar16 lencnt[MAXBITS + 1], lensym[FIXLCODES];
+    static schar16 distcnt[MAXBITS + 1], distsym[MAXDCODES];
     static struct huffman lencode = {lencnt, lensym};
     static struct huffman distcode = {distcnt, distsym};
     
     /* build fixed huffman tables if first call (may not be thread safe) */
     if( virgin )
     {
-        S32 symbol;
-        S16 lengths[FIXLCODES];
+        sint symbol;
+        schar16 lengths[FIXLCODES];
         
         /* literal/length table */
         for( symbol = 0; symbol < 144; symbol++ )
@@ -628,17 +628,17 @@ local S32 fixed( struct state* s )
  * - For reference, a "typical" size for the code description in a dynamic
  *   block is around 80 bytes.
  */
-local S32 dynamic( struct state* s )
+local sint dynamic( struct state* s )
 {
-    S32 nlen, ndist, ncode;             /* number of lengths in descriptor */
-    S32 index;                          /* index of lengths[] */
-    S32 err;                            /* construct() return value */
-    S16 lengths[MAXCODES];            /* descriptor code lengths */
-    S16 lencnt[MAXBITS + 1], lensym[MAXLCODES];       /* lencode memory */
-    S16 distcnt[MAXBITS + 1], distsym[MAXDCODES];     /* distcode memory */
+    sint nlen, ndist, ncode;             /* number of lengths in descriptor */
+    sint index;                          /* index of lengths[] */
+    sint err;                            /* construct() return value */
+    schar16 lengths[MAXCODES];            /* descriptor code lengths */
+    schar16 lencnt[MAXBITS + 1], lensym[MAXLCODES];       /* lencode memory */
+    schar16 distcnt[MAXBITS + 1], distsym[MAXDCODES];     /* distcode memory */
     struct huffman lencode = {lencnt, lensym};          /* length code */
     struct huffman distcode = {distcnt, distsym};       /* distance code */
-    static const S16 order[19] =      /* permutation of code length codes */
+    static const schar16 order[19] =      /* permutation of code length codes */
     {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
     
     /* get number of lengths in each table, check lengths */
@@ -662,8 +662,8 @@ local S32 dynamic( struct state* s )
     index = 0;
     while( index < nlen + ndist )
     {
-        S32 symbol;             /* decoded value */
-        S32 len;                /* last length to repeat */
+        sint symbol;             /* decoded value */
+        sint len;                /* last length to repeat */
         
         symbol = decode( s, &lencode );
         if( symbol < 16 )               /* length in 0..15 */
@@ -745,14 +745,14 @@ local S32 dynamic( struct state* s )
  *   block (if it was a fixed or dynamic block) are undefined and have no
  *   expected values to check.
  */
-S32 puff( U8*  dest,         /* pointer to destination pointer */
-          U32* destlen,        /* amount of output space */
-          U8*  source,         /* pointer to source data pointer */
-          U32* sourcelen )     /* amount of input available */
+sint puff( uchar8*  dest,         /* pointer to destination pointer */
+           uint* destlen,        /* amount of output space */
+           uchar8*  source,         /* pointer to source data pointer */
+           uint* sourcelen )     /* amount of input available */
 {
     struct state s;             /* input/output state */
-    S32 last, type;             /* block information */
-    S32 err;                    /* return value */
+    sint last, type;             /* block information */
+    sint err;                    /* return value */
     
     /* initialize output state */
     s.out = dest;

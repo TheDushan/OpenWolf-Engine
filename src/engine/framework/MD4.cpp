@@ -67,15 +67,15 @@ idMD4SystemLocal::~idMD4SystemLocal( void )
 idMD4SystemLocal::BlockChecksum
 ===============
 */
-U32 idMD4SystemLocal::BlockChecksum( const void* buffer, S32 length )
+uint idMD4SystemLocal::BlockChecksum( const void* buffer, sint length )
 {
-    S32 digest[4];
-    U32 val;
+    sint digest[4];
+    uint val;
     MD4_CTX		ctx;
     
     MD4_Init( &ctx );
-    MD4_Update( &ctx, ( U8* )buffer, length );
-    MD4_Final( ( U8* )digest, &ctx );
+    MD4_Update( &ctx, ( uchar8* )buffer, length );
+    MD4_Final( ( uchar8* )digest, &ctx );
     
     val = digest[0] ^ digest[1] ^ digest[2] ^ digest[3];
     

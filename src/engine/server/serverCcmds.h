@@ -46,7 +46,7 @@ public:
     idServerCcmdsSystemLocal();
     ~idServerCcmdsSystemLocal();
     
-    static void TempBanNetAddress( netadr_t address, S32 length );
+    static void TempBanNetAddress( netadr_t address, sint length );
     static void AddOperatorCommands( void );
     static void Heartbeat_f( void );
     static bool TempBanIsBanned( netadr_t address );
@@ -54,7 +54,7 @@ public:
     static client_t* GetPlayerByName( void );
     static void Map_f( void );
     static bool CheckTransitionGameState( gamestate_t new_gs, gamestate_t old_gs );
-    static bool TransitionGameState( gamestate_t new_gs, gamestate_t old_gs, S32 delay );
+    static bool TransitionGameState( gamestate_t new_gs, gamestate_t old_gs, sint delay );
     static void FieldInfo_f( void );
     static void MapRestart_f( void );
     static void LoadGame_f( void );
@@ -65,13 +65,13 @@ public:
     static void DumpUser_f( void );
     static void KillServer_f( void );
     static void GameCompleteStatus_f( void );
-    static void CompleteMapName( UTF8* args, S32 argNum );
-    static void ClientRedirect( UTF8* outputbuf );
+    static void CompleteMapName( valueType* args, sint argNum );
+    static void ClientRedirect( valueType* outputbuf );
     static void StartRedirect_f( void );
     static void Demo_Record_f( void );
     static void Demo_Play_f( void );
     static void Demo_Stop_f( void );
-    static void CompleteDemoName( UTF8* args, S32 argNum );
+    static void CompleteDemoName( valueType* args, sint argNum );
 };
 
 extern idServerCcmdsSystemLocal serverCcmdsLocal;

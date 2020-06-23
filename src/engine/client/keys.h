@@ -45,9 +45,9 @@
 typedef struct
 {
     bool        down;
-    S32             repeats;	// if > 1, it is autorepeating
-    UTF8*           binding;
-    S32             hash;
+    sint             repeats;	// if > 1, it is autorepeating
+    valueType*           binding;
+    sint             hash;
 } qkey_t;
 
 extern bool key_overstrikeMode;
@@ -55,25 +55,25 @@ extern qkey_t   keys[MAX_KEYS];
 
 // NOTE TTimo the declaration of field_t and Field_Clear is now in qcommon/qcommon.h
 
-void            Field_KeyDownEvent( field_t* edit, S32 key );
-void            Field_CharEvent( field_t* edit, S32 ch );
-void            Field_Draw( field_t* edit, S32 x, S32 y, bool showCursor, bool noColorEscape, F32 alpha );
-void            Field_BigDraw( field_t* edit, S32 x, S32 y, bool showCursor, bool noColorEscape );
+void            Field_KeyDownEvent( field_t* edit, sint key );
+void            Field_CharEvent( field_t* edit, sint ch );
+void            Field_Draw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape, float32 alpha );
+void            Field_BigDraw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape );
 
 extern field_t  g_consoleField;
 extern field_t  chatField;
-extern S32      anykeydown;
+extern sint      anykeydown;
 extern bool chat_team;
 extern bool chat_buddy;
 
 void            Key_WriteBindings( fileHandle_t f );
-void            Key_SetBinding( S32 keynum, StringEntry binding );
-void            Key_GetBindingByString( StringEntry binding, S32* key1, S32* key2 );
-UTF8*           Key_GetBinding( S32 keynum );
-bool			Key_IsDown( S32 keynum );
+void            Key_SetBinding( sint keynum, pointer binding );
+void            Key_GetBindingByString( pointer binding, sint* key1, sint* key2 );
+valueType*           Key_GetBinding( sint keynum );
+bool			Key_IsDown( sint keynum );
 bool			Key_GetOverstrikeMode( void );
 void            Key_SetOverstrikeMode( bool state );
 void            Key_ClearStates( void );
-S32             Key_GetKey( StringEntry binding );
+sint             Key_GetKey( pointer binding );
 
 #endif // !__KEYS_H__

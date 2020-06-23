@@ -48,35 +48,35 @@ class idServerGameSystemLocal : public idServerGameSystem
 public:
     virtual void ShutdownGameProgs( void );
     virtual bool GameCommand( void );
-    virtual void LocateGameData( sharedEntity_t* gEnts, S32 numGEntities, S32 sizeofGEntity_t, playerState_t* clients, S32 sizeofGameClient );
-    virtual void GameDropClient( S32 clientNum, StringEntry reason, S32 length );
-    virtual void GameSendServerCommand( S32 clientNum, StringEntry text );
+    virtual void LocateGameData( sharedEntity_t* gEnts, sint numGEntities, sint sizeofGEntity_t, playerState_t* clients, sint sizeofGameClient );
+    virtual void GameDropClient( sint clientNum, pointer reason, sint length );
+    virtual void GameSendServerCommand( sint clientNum, pointer text );
     virtual bool EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t* gEnt, traceType_t type );
-    virtual void SetBrushModel( sharedEntity_t* ent, StringEntry name );
+    virtual void SetBrushModel( sharedEntity_t* ent, pointer name );
     virtual bool inPVS( const vec3_t p1, const vec3_t p2 );
     virtual bool inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
-    virtual void GetServerinfo( UTF8* buffer, S32 bufferSize );
+    virtual void GetServerinfo( valueType* buffer, sint bufferSize );
     virtual void AdjustAreaPortalState( sharedEntity_t* ent, bool open );
-    virtual void UpdateSharedConfig( U32 port, StringEntry rconpass );
-    virtual void GetUsercmd( S32 clientNum, usercmd_t* cmd );
-    virtual bool GetTag( S32 clientNum, S32 tagFileNumber, UTF8* tagname, orientation_t* _or );
-    virtual bool GetEntityToken( UTF8* buffer, S32 bufferSize );
+    virtual void UpdateSharedConfig( uint port, pointer rconpass );
+    virtual void GetUsercmd( sint clientNum, usercmd_t* cmd );
+    virtual bool GetTag( sint clientNum, sint tagFileNumber, valueType* tagname, orientation_t* _or );
+    virtual bool GetEntityToken( valueType* buffer, sint bufferSize );
     virtual bool GameIsSinglePlayer( void );
-    virtual sharedEntity_t* GentityNum( S32 num );
+    virtual sharedEntity_t* GentityNum( sint num );
     virtual svEntity_t* SvEntityForGentity( sharedEntity_t* gEnt );
     virtual void InitGameProgs( void );
     virtual bool GameIsCoop( void );
     virtual sharedEntity_t* GEntityForSvEntity( svEntity_t* svEnt );
     virtual void RestartGameProgs( void );
-    virtual playerState_t* GameClientNum( S32 num );
-    virtual S32 DemoWriteCommand( S32 cmd, StringEntry str );
+    virtual playerState_t* GameClientNum( sint num );
+    virtual sint DemoWriteCommand( sint cmd, pointer str );
 public:
     idServerGameSystemLocal();
     ~idServerGameSystemLocal();
     
-    static void GameError( StringEntry string );
-    static void GamePrint( StringEntry string );
-    static S32 NumForGentity( sharedEntity_t* ent );
+    static void GameError( pointer string );
+    static void GamePrint( pointer string );
+    static sint NumForGentity( sharedEntity_t* ent );
     static void InitExportTable( void );
     static void InitGameModule( bool restart );
     

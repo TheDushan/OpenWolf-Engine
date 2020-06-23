@@ -60,10 +60,10 @@ static WINDOW* inputwin;
 static WINDOW* scrollwin;
 static WINDOW* clockwin;
 
-static UTF8 logbuf[LOG_BUF_SIZE];
-static UTF8* insert = logbuf;
-static S32 scrollline = 0;
-static S32 lastline = 1;
+static valueType logbuf[LOG_BUF_SIZE];
+static valueType* insert = logbuf;
+static sint scrollline = 0;
+static sint lastline = 1;
 
 // The special characters look good on the win32 console but suck on other consoles
 #ifdef _WIN32
@@ -93,13 +93,13 @@ public:
     virtual void Shutdown( void );
     virtual void Clear_f( void );
     virtual void Init( void );
-    virtual UTF8* Input( void );
-    virtual void Print( StringEntry msg );
+    virtual valueType* Input( void );
+    virtual void Print( pointer msg );
     
-    static void SetColor( WINDOW* win, S32 color );
+    static void SetColor( WINDOW* win, sint color );
     static void UpdateCursor( void );
     static void DrawScrollBar( void );
-    static void ColorPrint( WINDOW* win, StringEntry msg, bool stripcodes );
+    static void ColorPrint( WINDOW* win, pointer msg, bool stripcodes );
     static void UpdateClock( void );
     static void Resize( void );
 };

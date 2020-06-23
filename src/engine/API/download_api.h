@@ -60,7 +60,7 @@ class idDownloadSystem
 public:
     virtual void InitDownload( void ) = 0;
     virtual void Shutdown( void ) = 0;
-    virtual S32 BeginDownload( StringEntry localName, StringEntry remoteName, S32 debug ) = 0;
+    virtual sint BeginDownload( pointer localName, pointer remoteName, sint debug ) = 0;
     virtual dlStatus_t DownloadLoop( void ) = 0;
 };
 

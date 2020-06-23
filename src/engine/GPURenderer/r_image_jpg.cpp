@@ -38,7 +38,7 @@
  * You may also wish to include "jerror.h".
  */
 
- /* Catching errors, as done in libjpeg's example.c */
+/* Catching errors, as done in libjpeg's example.c */
 typedef struct q_jpeg_error_mgr_s
 {
     struct jpeg_error_mgr pub;  /* "public" fields */
@@ -48,7 +48,7 @@ typedef struct q_jpeg_error_mgr_s
 
 static void R_JPGErrorExit( j_common_ptr cinfo )
 {
-    UTF8 buffer[200];
+    valueType buffer[200];
     
     /* cinfo->err really points to a q_jpeg_error_mgr_s struct, so coerce pointer */
     q_jpeg_error_mgr_t* jerr = ( q_jpeg_error_mgr_t* )cinfo->err;
@@ -63,7 +63,7 @@ static void R_JPGErrorExit( j_common_ptr cinfo )
 
 static void R_JPGOutputMessage( j_common_ptr cinfo )
 {
-    UTF8 buffer[200];
+    valueType buffer[200];
     
     /* Create the message */
     ( *cinfo->err->format_message )( cinfo, buffer );
@@ -72,7 +72,7 @@ static void R_JPGOutputMessage( j_common_ptr cinfo )
     CL_RefPrintf( PRINT_ALL, "%s\n", buffer );
 }
 
-void R_LoadJPG( StringEntry filename, U8** pic, S32* width, S32* height )
+void R_LoadJPG( pointer filename, uchar8** pic, sint* width, sint* height )
 {
     /* This struct contains the JPEG decompression parameters and pointers to
      * working space (which is allocated as needed by the JPEG library).
@@ -94,17 +94,17 @@ void R_LoadJPG( StringEntry filename, U8** pic, S32* width, S32* height )
     q_jpeg_error_mgr_t jerr;
     /* More stuff */
     JSAMPARRAY buffer;		/* Output row buffer */
-    U32 row_stride;	/* physical row width in output buffer */
-    U32 pixelcount, memcount;
-    U32 sindex, dindex;
-    U8* out;
-    S32 len;
+    uint row_stride;	/* physical row width in output buffer */
+    uint pixelcount, memcount;
+    uint sindex, dindex;
+    uchar8* out;
+    sint len;
     union
     {
-        U8* b;
+        uchar8* b;
         void* v;
     } fbuffer;
-    U8*  buf;
+    uchar8*  buf;
     
     /* In this example we want to open the input file before doing anything else,
      * so that the setjmp() error recovery below can assume the file is open.
@@ -112,7 +112,7 @@ void R_LoadJPG( StringEntry filename, U8** pic, S32* width, S32* height )
      * requires it in order to read binary files.
      */
     
-    len = fileSystem->ReadFile( const_cast< UTF8* >( filename ), &fbuffer.v );
+    len = fileSystem->ReadFile( const_cast< valueType* >( filename ), &fbuffer.v );
     if( !fbuffer.b || len < 0 )
     {
         return;
@@ -200,7 +200,7 @@ void R_LoadJPG( StringEntry filename, U8** pic, S32* width, S32* height )
     memcount = pixelcount * 4;
     row_stride = cinfo.output_width * cinfo.output_components;
     
-    out = ( U8* )CL_RefMalloc( memcount );
+    out = ( uchar8* )CL_RefMalloc( memcount );
     
     *width = cinfo.output_width;
     *height = cinfo.output_height;
@@ -271,8 +271,8 @@ typedef struct
 {
     struct jpeg_destination_mgr pub; /* public fields */
     
-    U8* outfile;		/* target stream */
-    S32	size;
+    uchar8* outfile;		/* target stream */
+    sint	size;
 } my_destination_mgr;
 
 typedef my_destination_mgr* my_dest_ptr;
@@ -347,7 +347,7 @@ static void term_destination( j_compress_ptr cinfo )
  * for closing it after finishing compression.
  */
 
-static void jpegDest( j_compress_ptr cinfo, U8* outfile, S32 size )
+static void jpegDest( j_compress_ptr cinfo, uchar8* outfile, sint size )
 {
     my_dest_ptr dest;
     
@@ -381,15 +381,15 @@ Expects RGB input data
 =================
 */
 
-U64 RE_SaveJPGToBuffer( U8* buffer, U64 bufSize, S32 quality, S32 image_width, S32 image_height, U8* image_buffer, S32 padding )
+uint32 RE_SaveJPGToBuffer( uchar8* buffer, uint32 bufSize, sint quality, sint image_width, sint image_height, uchar8* image_buffer, sint padding )
 {
-    U64 outcount;
+    uint32 outcount;
     
     struct jpeg_compress_struct cinfo;
     q_jpeg_error_mgr_t jerr;
     JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
     my_dest_ptr dest;
-    S32 row_stride;		/* physical row width in image buffer */
+    sint row_stride;		/* physical row width in image buffer */
     
     /* Step 1: allocate and initialize JPEG compression object */
     cinfo.err = jpeg_std_error( &jerr.pub );
@@ -460,13 +460,13 @@ U64 RE_SaveJPGToBuffer( U8* buffer, U64 bufSize, S32 quality, S32 image_width, S
     return outcount;
 }
 
-void RE_SaveJPG( UTF8* filename, S32 quality, S32 image_width, S32 image_height, U8* image_buffer, S32 padding )
+void RE_SaveJPG( valueType* filename, sint quality, sint image_width, sint image_height, uchar8* image_buffer, sint padding )
 {
-    U8* out = nullptr;
-    U64 bufSize;
+    uchar8* out = nullptr;
+    uint32 bufSize;
     
     bufSize = image_width * image_height * 3;
-    out = ( U8* )Hunk_AllocateTempMemory( bufSize );
+    out = ( uchar8* )Hunk_AllocateTempMemory( bufSize );
     
     bufSize = RE_SaveJPGToBuffer( out, bufSize, quality, image_width, image_height, image_buffer, padding );
     fileSystem->WriteFile( filename, out, bufSize );

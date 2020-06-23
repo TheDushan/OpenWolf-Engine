@@ -72,9 +72,9 @@ Creates and sends the server command necessary to update the CS index for the
 given client
 ===============
 */
-void idServerInitSystemLocal::SendConfigstring( client_t* client, S32 index )
+void idServerInitSystemLocal::SendConfigstring( client_t* client, sint index )
 {
-    S32 maxChunkSize = MAX_STRING_CHARS - 24, len;
+    sint maxChunkSize = MAX_STRING_CHARS - 24, len;
     
     if( sv.configstrings[index].restricted && Com_ClientListContains( &sv.configstrings[index].clientList, client - svs.clients ) )
     {
@@ -87,8 +87,8 @@ void idServerInitSystemLocal::SendConfigstring( client_t* client, S32 index )
     
     if( len >= maxChunkSize )
     {
-        S32	sent = 0, remaining = len;
-        UTF8* cmd, buf[MAX_STRING_CHARS];
+        sint	sent = 0, remaining = len;
+        valueType* cmd, buf[MAX_STRING_CHARS];
         
         while( remaining > 0 )
         {
@@ -127,7 +127,7 @@ idServerInitSystemLocal::UpdateConfigStrings
 */
 void idServerInitSystemLocal::UpdateConfigStrings( void )
 {
-    S32 len, i, index, maxChunkSize = MAX_STRING_CHARS - 24;
+    sint len, i, index, maxChunkSize = MAX_STRING_CHARS - 24;
     client_t* client;
     
     for( index = 0; index < MAX_CONFIGSTRINGS; index++ )
@@ -184,7 +184,7 @@ void idServerInitSystemLocal::UpdateConfigStrings( void )
 idServerInitSystemLocal::SetConfigstringNoUpdate
 ===============
 */
-void idServerInitSystemLocal::SetConfigstringNoUpdate( S32 index, StringEntry val )
+void idServerInitSystemLocal::SetConfigstringNoUpdate( sint index, pointer val )
 {
     if( index < 0 || index >= MAX_CONFIGSTRINGS )
     {
@@ -217,9 +217,9 @@ void idServerInitSystemLocal::SetConfigstringNoUpdate( S32 index, StringEntry va
 idServerInitSystemLocal::SetConfigstring
 ===============
 */
-void idServerInitSystemLocal::SetConfigstring( S32 index, StringEntry val )
+void idServerInitSystemLocal::SetConfigstring( sint index, pointer val )
 {
-    S32 i;
+    sint i;
     client_t* client;
     
     if( index < 0 || index >= MAX_CONFIGSTRINGS )
@@ -274,7 +274,7 @@ void idServerInitSystemLocal::SetConfigstring( S32 index, StringEntry val )
 idServerInitSystemLocal::GetConfigstring
 ===============
 */
-void idServerInitSystemLocal::GetConfigstring( S32 index, UTF8* buffer, S32 bufferSize )
+void idServerInitSystemLocal::GetConfigstring( sint index, valueType* buffer, sint bufferSize )
 {
     if( bufferSize < 1 )
     {
@@ -300,9 +300,9 @@ void idServerInitSystemLocal::GetConfigstring( S32 index, UTF8* buffer, S32 buff
 idServerInitSystemLocal::SetConfigstringRestrictions
 ===============
 */
-void idServerInitSystemLocal::SetConfigstringRestrictions( S32 index, const clientList_t* clientList )
+void idServerInitSystemLocal::SetConfigstringRestrictions( sint index, const clientList_t* clientList )
 {
-    S32	i;
+    sint	i;
     clientList_t oldClientList = sv.configstrings[index].clientList;
     
     sv.configstrings[index].clientList = *clientList;
@@ -326,7 +326,7 @@ void idServerInitSystemLocal::SetConfigstringRestrictions( S32 index, const clie
 idServerInitSystemLocal::SetUserinfo
 ===============
 */
-void idServerInitSystemLocal::SetUserinfo( S32 index, StringEntry val )
+void idServerInitSystemLocal::SetUserinfo( sint index, pointer val )
 {
     if( index < 0 || index >= sv_maxclients->integer )
     {
@@ -347,7 +347,7 @@ void idServerInitSystemLocal::SetUserinfo( S32 index, StringEntry val )
 idServerInitSystemLocal::GetUserinfo
 ===============
 */
-void idServerInitSystemLocal::GetUserinfo( S32 index, UTF8* buffer, S32 bufferSize )
+void idServerInitSystemLocal::GetUserinfo( sint index, valueType* buffer, sint bufferSize )
 {
     if( bufferSize < 1 )
     {
@@ -373,7 +373,7 @@ baseline will be transmitted
 */
 void idServerInitSystemLocal::CreateBaseline( void )
 {
-    S32 entnum;
+    sint entnum;
     sharedEntity_t* svent;
     
     for( entnum = 0; entnum < sv.num_entities; entnum++ )
@@ -397,7 +397,7 @@ void idServerInitSystemLocal::CreateBaseline( void )
 idServerInitSystemLocal::BoundMaxClients
 ===============
 */
-void idServerInitSystemLocal::BoundMaxClients( S32 minimum )
+void idServerInitSystemLocal::BoundMaxClients( sint minimum )
 {
     // get the current maxclients value
     cvarSystem->Get( "sv_maxclients", "20", 0, "Sets the maximum number of clients hosted on the server. " );
@@ -484,7 +484,7 @@ idServerInitSystemLocal::ChangeMaxClients
 */
 void idServerInitSystemLocal::ChangeMaxClients( void )
 {
-    S32 oldMaxClients, i, count;
+    sint oldMaxClients, i, count;
     client_t* oldClients;
     
     // get the highest client number in use
@@ -573,15 +573,15 @@ SV_SetExpectedHunkUsage
 Sets com_expectedhunkusage, so the client knows how to draw the percentage bar
 ====================
 */
-void idServerInitSystemLocal::SetExpectedHunkUsage( UTF8* mapname )
+void idServerInitSystemLocal::SetExpectedHunkUsage( valueType* mapname )
 {
-    S32 handle, len;
-    UTF8* memlistfile = "hunkusage.dat", *buf, *buftrav, *token;
+    sint handle, len;
+    valueType* memlistfile = "hunkusage.dat", *buf, *buftrav, *token;
     
     len = fileSystem->FOpenFileByMode( memlistfile, &handle, FS_READ );
     if( len >= 0 ) // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
     {
-        buf = ( UTF8* )Z_Malloc( len + 1 );
+        buf = ( valueType* )Z_Malloc( len + 1 );
         ::memset( buf, 0, len + 1 );
         
         fileSystem->Read( static_cast<void*>( buf ), len, handle );
@@ -620,7 +620,7 @@ idServerInitSystemLocal::ClearServer
 */
 void idServerInitSystemLocal::ClearServer( void )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < MAX_CONFIGSTRINGS; i++ )
     {
@@ -643,7 +643,7 @@ touch the cgame DLL so that a pure client (with DLL sv_pure support) can load do
 void idServerInitSystemLocal::TouchCGameDLL( void )
 {
     fileHandle_t f;
-    UTF8* filename;
+    valueType* filename;
     
     filename = idsystem->GetDLLName( "cgame" );
     fileSystem->FOpenFileRead_Filtered( filename, &f, false, FS_EXCLUDE_DIR );
@@ -667,10 +667,10 @@ clients along with it.
 This is NOT called for map_restart
 ================
 */
-void idServerInitSystemLocal::SpawnServer( UTF8* server, bool killBots )
+void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
 {
-    S32 i, checksum;
-    StringEntry p;
+    sint i, checksum;
+    pointer p;
     bool isBot;
     
     svs.queryDone = 0;
@@ -785,7 +785,7 @@ void idServerInitSystemLocal::SpawnServer( UTF8* server, bool killBots )
     
     // get a new checksum feed and restart the file system
     srand( idsystem->Milliseconds() );
-    sv.checksumFeed = ( ( ( S32 )rand() << 16 ) ^ rand() ) ^ idsystem->Milliseconds();
+    sv.checksumFeed = ( ( ( sint )rand() << 16 ) ^ rand() ) ^ idsystem->Milliseconds();
     
     // DO_LIGHT_DEDICATED
     // only comment out when you need a new pure checksum string and it's associated random feed
@@ -838,7 +838,7 @@ void idServerInitSystemLocal::SpawnServer( UTF8* server, bool killBots )
         // send the new gamestate to all connected clients
         if( svs.clients[i].state >= CS_CONNECTED )
         {
-            UTF8* denied;
+            valueType* denied;
             
             if( svs.clients[i].netchan.remoteAddress.type == NA_BOT )
             {
@@ -855,7 +855,7 @@ void idServerInitSystemLocal::SpawnServer( UTF8* server, bool killBots )
             }
             
             // connect the client again
-            denied = static_cast<UTF8*>( sgame->ClientConnect( i, false ) ); // firstTime = false
+            denied = static_cast<valueType*>( sgame->ClientConnect( i, false ) ); // firstTime = false
             if( denied )
             {
                 // this generally shouldn't happen, because the client
@@ -964,15 +964,15 @@ Reads versionmap.cfg which sets up a mapping of client version to installer to d
 void idServerInitSystemLocal::ParseVersionMapping( void )
 {
 #if defined (UPDATE_SERVER)
-    S32 handle, len;
-    UTF8* filename = "versionmap.cfg", *buf, *buftrav, *token;
+    sint handle, len;
+    valueType* filename = "versionmap.cfg", *buf, *buftrav, *token;
     
     len = fileSystem->SV_FOpenFileRead( filename, &handle );
     
     // the file exists
     if( len >= 0 )
     {
-        buf = ( UTF8* )Z_Malloc( len + 1 );
+        buf = ( valueType* )Z_Malloc( len + 1 );
         memset( buf, 0, len + 1 );
         
         fileSystem->Read( ( void* )buf, len, handle );
@@ -1052,7 +1052,7 @@ Only called at main exe startup, not for each game
 */
 void idServerInitSystemLocal::Init( void )
 {
-    S32 index;
+    sint index;
     
     serverCcmdsLocal.AddOperatorCommands();
     
@@ -1239,7 +1239,7 @@ void idServerInitSystemLocal::Init( void )
     
     // allocate empty config strings
     {
-        S32 i;
+        sint i;
         
         for( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ )
         {
@@ -1268,9 +1268,9 @@ not just stuck on the outgoing message list, because the server is going
 to totally exit after returning from this function.
 ==================
 */
-void idServerInitSystemLocal::FinalCommand( UTF8* cmd, bool disconnect )
+void idServerInitSystemLocal::FinalCommand( valueType* cmd, bool disconnect )
 {
-    S32 i, j;
+    sint i, j;
     client_t* cl;
     
     // send it twice, ignoring rate
@@ -1309,7 +1309,7 @@ Called when each game quits,
 before idSystemLocal::Quit or idSystemLocal::Error
 ================
 */
-void idServerInitSystemLocal::Shutdown( UTF8* finalmsg )
+void idServerInitSystemLocal::Shutdown( valueType* finalmsg )
 {
     if( !com_sv_running || !com_sv_running->integer )
     {
@@ -1357,7 +1357,7 @@ void idServerInitSystemLocal::Shutdown( UTF8* finalmsg )
     // free server static data
     if( svs.clients )
     {
-        S32 index;
+        sint index;
         
         for( index = 0; index < sv_maxclients->integer; index++ )
         {

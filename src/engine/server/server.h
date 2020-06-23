@@ -52,7 +52,7 @@ typedef enum serverState_s
 
 typedef struct configString_s
 {
-    UTF8*					s;
+    valueType*					s;
     
     bool			restricted; // if true, don't send to clientList
     clientList_t	clientList;
@@ -62,76 +62,76 @@ typedef struct server_s
 {
     serverState_t   state;
     bool            restarting;	// if true, send configstring changes during SS_LOADING
-    S32             serverId;	// changes each server start
-    S32             restartedServerId;	// serverId before a map_restart
-    S32             checksumFeed;	// the feed key that we use to compute the pure checksum strings
+    sint             serverId;	// changes each server start
+    sint             restartedServerId;	// serverId before a map_restart
+    sint             checksumFeed;	// the feed key that we use to compute the pure checksum strings
     // show_bug.cgi?id=475
     // the serverId associated with the current checksumFeed (always <= serverId)
-    S32             checksumFeedServerId;
-    S32             snapshotCounter;	// incremented for each snapshot built
-    S32             timeResidual;	// <= 1000 / sv_frame->value
-    S32             nextFrameTime;	// when time > nextFrameTime, process world
+    sint             checksumFeedServerId;
+    sint             snapshotCounter;	// incremented for each snapshot built
+    sint             timeResidual;	// <= 1000 / sv_frame->value
+    sint             nextFrameTime;	// when time > nextFrameTime, process world
     struct cmodel_s* models[MAX_MODELS];
     configString_t	configstrings[MAX_CONFIGSTRINGS];
     bool            configstringsmodified[MAX_CONFIGSTRINGS];
     svEntity_t      svEntities[MAX_GENTITIES];
     
-    UTF8*           entityParsePoint;	// used during game VM init
+    valueType*           entityParsePoint;	// used during game VM init
     
     // the game virtual machine will update these on init and changes
     
     sharedEntity_t* gentities;
-    S32             gentitySize;
-    S32             num_entities;	// current number, <= MAX_GENTITIES
+    sint             gentitySize;
+    sint             num_entities;	// current number, <= MAX_GENTITIES
     
     // demo recording
     fileHandle_t	demoFile;
     demoState_t		demoState;
-    UTF8			demoName[MAX_QPATH];
+    valueType			demoName[MAX_QPATH];
     
     // previous frame for delta compression
     sharedEntity_t	demoEntities[MAX_GENTITIES];
     playerState_t	demoPlayerStates[MAX_CLIENTS];
     
     playerState_t*  gameClients;
-    S32             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
+    sint             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
     
-    S32             restartTime;
-    S32             time;
+    sint             restartTime;
+    sint             time;
     
     // NERVE - SMF - net debugging
-    S32             bpsWindow[MAX_BPS_WINDOW];
-    S32             bpsWindowSteps;
-    S32             bpsTotalBytes;
-    S32             bpsMaxBytes;
+    sint             bpsWindow[MAX_BPS_WINDOW];
+    sint             bpsWindowSteps;
+    sint             bpsTotalBytes;
+    sint             bpsMaxBytes;
     
-    S32             ubpsWindow[MAX_BPS_WINDOW];
-    S32             ubpsTotalBytes;
-    S32             ubpsMaxBytes;
+    sint             ubpsWindow[MAX_BPS_WINDOW];
+    sint             ubpsTotalBytes;
+    sint             ubpsMaxBytes;
     
-    F32             ucompAve;
-    S32             ucompNum;
+    float32             ucompAve;
+    sint             ucompNum;
     // -NERVE - SMF
     
     md3Tag_t        tags[MAX_SERVER_TAGS];
     tagHeaderExt_t  tagHeadersExt[MAX_TAG_FILES];
     
-    S32             num_tagheaders;
-    S32             num_tags;
+    sint             num_tagheaders;
+    sint             num_tags;
 } server_t;
 
 typedef struct clientSnapshot_s
 {
-    S32             areabytes;
-    U8              areabits[MAX_MAP_AREA_BYTES];	// portalarea visibility bits
+    sint             areabytes;
+    uchar8              areabits[MAX_MAP_AREA_BYTES];	// portalarea visibility bits
     playerState_t   ps;
-    S32             num_entities;
-    S32             first_entity;	// into the circular sv_packet_entities[]
+    sint             num_entities;
+    sint             first_entity;	// into the circular sv_packet_entities[]
     // the entities MUST be in increasing state number
     // order, otherwise the delta compression will fail
-    S32             messageSent;	// time the message was transmitted
-    S32             messageAcked;	// time the message was acked
-    S32             messageSize;	// used to rate drop packets
+    sint             messageSent;	// time the message was transmitted
+    sint             messageAcked;	// time the message was acked
+    sint             messageSize;	// used to rate drop packets
 } clientSnapshot_t;
 
 typedef enum
@@ -146,68 +146,68 @@ typedef enum
 typedef struct netchan_buffer_s
 {
     msg_t           msg;
-    U8              msgBuffer[MAX_MSGLEN];
-    UTF8            lastClientCommandString[MAX_STRING_CHARS];
+    uchar8              msgBuffer[MAX_MSGLEN];
+    valueType            lastClientCommandString[MAX_STRING_CHARS];
     struct netchan_buffer_s* next;
 } netchan_buffer_t;
 
 typedef struct client_s
 {
     clientState_t   state;
-    UTF8            userinfo[MAX_INFO_STRING];	// name, etc
-    UTF8			userinfobuffer[MAX_INFO_STRING]; //used for buffering of user info
-    UTF8			userinfoPostponed[MAX_INFO_STRING];
+    valueType            userinfo[MAX_INFO_STRING];	// name, etc
+    valueType			userinfobuffer[MAX_INFO_STRING]; //used for buffering of user info
+    valueType			userinfoPostponed[MAX_INFO_STRING];
     
-    UTF8            reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
-    S32             reliableSequence;	// last added reliable message, not necesarily sent or acknowledged yet
-    S32             reliableAcknowledge;	// last acknowledged reliable message
-    S32             reliableSent;	// last sent reliable message, not necesarily acknowledged yet
-    S32             messageAcknowledge;
+    valueType            reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
+    sint             reliableSequence;	// last added reliable message, not necesarily sent or acknowledged yet
+    sint             reliableAcknowledge;	// last acknowledged reliable message
+    sint             reliableSent;	// last sent reliable message, not necesarily acknowledged yet
+    sint             messageAcknowledge;
     
-    S32             gamestateMessageNum;	// netchan->outgoingSequence of gamestate
-    S32             challenge;
+    sint             gamestateMessageNum;	// netchan->outgoingSequence of gamestate
+    sint             challenge;
     
     usercmd_t       lastUsercmd;
-    S32             lastMessageNum;	// for delta compression
-    S32             lastClientCommand;	// reliable client message sequence
-    UTF8            lastClientCommandString[MAX_STRING_CHARS];
+    sint             lastMessageNum;	// for delta compression
+    sint             lastClientCommand;	// reliable client message sequence
+    valueType            lastClientCommandString[MAX_STRING_CHARS];
     sharedEntity_t* gentity;	// SV_GentityNum(clientnum)
-    UTF8            name[MAX_NAME_LENGTH];	// extracted from userinfo, high bits masked
+    valueType            name[MAX_NAME_LENGTH];	// extracted from userinfo, high bits masked
     
     // downloading
-    UTF8            downloadName[MAX_QPATH];	// if not empty string, we are downloading
+    valueType            downloadName[MAX_QPATH];	// if not empty string, we are downloading
     fileHandle_t    download;	// file being downloaded
-    S32             downloadSize;	// total bytes (can't use EOF because of paks)
-    S32             downloadCount;	// bytes sent
-    S32             downloadClientBlock;	// last block we sent to the client, awaiting ack
-    S32             downloadCurrentBlock;	// current block number
-    S32             downloadXmitBlock;	// last block we xmited
-    U8*             downloadBlocks[MAX_DOWNLOAD_WINDOW];	// the buffers for the download blocks
-    S32             downloadBlockSize[MAX_DOWNLOAD_WINDOW];
+    sint             downloadSize;	// total bytes (can't use EOF because of paks)
+    sint             downloadCount;	// bytes sent
+    sint             downloadClientBlock;	// last block we sent to the client, awaiting ack
+    sint             downloadCurrentBlock;	// current block number
+    sint             downloadXmitBlock;	// last block we xmited
+    uchar8*             downloadBlocks[MAX_DOWNLOAD_WINDOW];	// the buffers for the download blocks
+    sint             downloadBlockSize[MAX_DOWNLOAD_WINDOW];
     bool            downloadEOF;	// We have sent the EOF block
-    S32             downloadSendTime;	// time we last got an ack from the client
+    sint             downloadSendTime;	// time we last got an ack from the client
     
     // www downloading
     bool            bDlOK;		// passed from cl_wwwDownload CVAR_USERINFO, wether this client supports www dl
-    UTF8            downloadURL[MAX_OSPATH];	// the URL we redirected the client to
+    valueType            downloadURL[MAX_OSPATH];	// the URL we redirected the client to
     bool            bWWWDl;		// we have a www download going
     bool            bWWWing;	// the client is doing an ftp/http download
     bool            bFallback;	// last www download attempt failed, fallback to regular download
     // note: this is one-shot, multiple downloads would cause a www download to be attempted again
     
-    S32             deltaMessage;	// frame last client usercmd message
-    S32             nextReliableTime;	// svs.time when another reliable command will be allowed
-    S32				nextReliableUserTime; // svs.time when another userinfo change will be allowed
-    S32             lastPacketTime;	// svs.time when packet was last received
-    S32             lastConnectTime;	// svs.time when connection started
-    S32             nextSnapshotTime;	// send another snapshot when svs.time >= nextSnapshotTime
+    sint             deltaMessage;	// frame last client usercmd message
+    sint             nextReliableTime;	// svs.time when another reliable command will be allowed
+    sint				nextReliableUserTime; // svs.time when another userinfo change will be allowed
+    sint             lastPacketTime;	// svs.time when packet was last received
+    sint             lastConnectTime;	// svs.time when connection started
+    sint             nextSnapshotTime;	// send another snapshot when svs.time >= nextSnapshotTime
     bool            rateDelayed;	// true if nextSnapshotTime was set based on rate instead of snapshotMsec
-    S32             timeoutCount;	// must timeout a few frames in a row so debugging doesn't break
+    sint             timeoutCount;	// must timeout a few frames in a row so debugging doesn't break
     clientSnapshot_t frames[PACKET_BACKUP];	// updates can be delta'd from here
-    S32             ping;
-    S32             rate;		// bytes / second
-    S32             snapshotMsec;	// requests a snapshot every snapshotMsec unless rate choked
-    S32             pureAuthentic;
+    sint             ping;
+    sint             rate;		// bytes / second
+    sint             snapshotMsec;	// requests a snapshot every snapshotMsec unless rate choked
+    sint             pureAuthentic;
     bool            gotCP;		// TTimo - additional flag to distinguish between a bad pure checksum, and no cp command at all
     netchan_t       netchan;
     // TTimo
@@ -219,11 +219,11 @@ typedef struct client_s
     netchan_buffer_t* netchan_end_queue;
     
     //bani
-    S32             downloadnotify;
+    sint             downloadnotify;
     bool		csUpdated[MAX_CONFIGSTRINGS + 1];
-    S32 lastUserInfoChange;
-    S32 lastUserInfoCount;
-    S32 oldServerTime;
+    sint lastUserInfoChange;
+    sint lastUserInfoCount;
+    sint oldServerTime;
 } client_t;
 
 //=============================================================================
@@ -232,14 +232,14 @@ typedef struct client_s
 #define	STATFRAMES	100
 typedef struct svstats_s
 {
-    F64	active;
-    F64	idle;
-    S32	count;
-    S32	packets;
+    float64	active;
+    float64	idle;
+    sint	count;
+    sint	packets;
     
-    F64	latched_active;
-    F64	latched_idle;
-    S32	latched_packets;
+    float64	latched_active;
+    float64	latched_idle;
+    sint	latched_packets;
 } svstats_t;
 
 // MAX_CHALLENGES is made large to prevent a denial
@@ -257,12 +257,12 @@ typedef struct svstats_s
 typedef struct challenge_s
 {
     netadr_t	adr;
-    S32 challenge;
-    S32 clientChallenge;		// challenge number coming from the client
-    S32 time;		// time the last packet was sent to the autherize server
-    S32 pingTime;	// time the challenge response was sent to client
-    S32 firstTime;	// time the adr was first used, for authorize timeout checks
-    S32 firstPing;	// Used for min and max ping checks
+    sint challenge;
+    sint clientChallenge;		// challenge number coming from the client
+    sint time;		// time the last packet was sent to the autherize server
+    sint pingTime;	// time the challenge response was sent to client
+    sint firstTime;	// time the adr was first used, for authorize timeout checks
+    sint firstPing;	// Used for min and max ping checks
     bool connected;
     bool wasrefused;
 } challenge_t;
@@ -270,14 +270,14 @@ typedef struct challenge_s
 typedef struct
 {
     netadr_t  adr;
-    S32       time;
+    sint       time;
 } receipt_t;
 
 typedef struct
 {
     netadr_t	adr;
-    S32			time;
-    S32			count;
+    sint			time;
+    sint			count;
     bool	    flood;
 } floodBan_t;
 
@@ -288,7 +288,7 @@ typedef struct
 typedef struct tempBan_s
 {
     netadr_t        adr;
-    S32             endtime;
+    sint             endtime;
 } tempBan_t;
 
 #define MAX_INFO_FLOOD_BANS 36
@@ -304,34 +304,34 @@ typedef struct serverStatic_s
 {
     bool        initialized;	// sv_init has completed
     
-    S32             time;		// will be strictly increasing across level changes
+    sint             time;		// will be strictly increasing across level changes
     
-    S32             snapFlagServerBit;	// ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
+    sint             snapFlagServerBit;	// ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
     
     client_t*       clients;	// [sv_maxclients->integer];
-    S32             numSnapshotEntities;	// sv_maxclients->integer*PACKET_BACKUP*MAX_PACKET_ENTITIES
-    S32             nextSnapshotEntities;	// next snapshotEntities to use
+    sint             numSnapshotEntities;	// sv_maxclients->integer*PACKET_BACKUP*MAX_PACKET_ENTITIES
+    sint             nextSnapshotEntities;	// next snapshotEntities to use
     entityState_t*  snapshotEntities;	// [numSnapshotEntities]
-    S32             nextHeartbeatTime;
+    sint             nextHeartbeatTime;
     challenge_t     challenges[MAX_CHALLENGES];	// to prevent invalid IPs from connecting
     receipt_t       infoReceipts[MAX_INFO_RECEIPTS];
     floodBan_t		infoFloodBans[MAX_INFO_FLOOD_BANS];
     netadr_t        redirectAddress;	// for rcon return messages
     tempBan_t       tempBanAddresses[MAX_TEMPBAN_ADDRESSES];
-    S32             sampleTimes[SERVER_PERFORMANCECOUNTER_SAMPLES];
-    S32             currentSampleIndex;
-    S32             totalFrameTime;
-    S32             currentFrameIndex;
-    S32             serverLoad;
+    sint             sampleTimes[SERVER_PERFORMANCECOUNTER_SAMPLES];
+    sint             currentSampleIndex;
+    sint             totalFrameTime;
+    sint             currentFrameIndex;
+    sint             serverLoad;
     // Dushan
     svstats_t		stats;
-    S32				queryDone;
+    sint				queryDone;
     
     struct
     {
         bool enabled;
-        S32 lastTimeDisconnected;
-        F32 sv_fps;
+        sint lastTimeDisconnected;
+        float32 sv_fps;
     } hibernation;
     
     bool            gameStarted;
@@ -341,14 +341,14 @@ typedef struct serverStatic_s
 
 typedef struct
 {
-    UTF8 version[MAX_QPATH];
-    UTF8 platform[MAX_QPATH];
-    UTF8 installer[MAX_QPATH];
+    valueType version[MAX_QPATH];
+    valueType platform[MAX_QPATH];
+    valueType installer[MAX_QPATH];
 } versionMapping_t;
 
 #define MAX_UPDATE_VERSIONS 128
 extern versionMapping_t versionMap[MAX_UPDATE_VERSIONS];
-extern S32 numVersions;
+extern sint numVersions;
 // Maps client version to appropriate installer
 
 #endif
@@ -369,6 +369,7 @@ extern convar_t*  sv_friendlyFire;	// NERVE - SMF
 extern convar_t*  sv_maxlives;	// NERVE - SMF
 extern convar_t*  sv_maxclients;
 extern convar_t* sv_democlients;
+extern convar_t* sv_threads;
 extern convar_t*  sv_needpass;
 
 extern convar_t*  sv_privateClients;

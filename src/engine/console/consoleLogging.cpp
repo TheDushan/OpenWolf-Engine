@@ -69,7 +69,7 @@ idConsoleLoggingSystemLocal::~idConsoleLoggingSystemLocal( void )
 idConsoleLoggingSystemLocal::LogSize
 ==================
 */
-U32 idConsoleLoggingSystemLocal::LogSize( void )
+uint idConsoleLoggingSystemLocal::LogSize( void )
 {
     if( readPos <= writePos )
     {
@@ -86,7 +86,7 @@ U32 idConsoleLoggingSystemLocal::LogSize( void )
 idConsoleLoggingSystemLocal::LogFree
 ==================
 */
-U32 idConsoleLoggingSystemLocal::LogFree( void )
+uint idConsoleLoggingSystemLocal::LogFree( void )
 {
     return MAX_LOG - LogSize( ) - 1;
 }
@@ -96,11 +96,11 @@ U32 idConsoleLoggingSystemLocal::LogFree( void )
 idConsoleLoggingSystemLocal::LogWrite
 ==================
 */
-U32 idConsoleLoggingSystemLocal::LogWrite( StringEntry in )
+uint idConsoleLoggingSystemLocal::LogWrite( pointer in )
 {
-    U32 length = strlen( in );
-    U32 firstChunk;
-    U32 secondChunk;
+    uint length = strlen( in );
+    uint firstChunk;
+    uint secondChunk;
     
     while( LogFree( ) < length && LogSize( ) > 0 )
     {
@@ -143,10 +143,10 @@ U32 idConsoleLoggingSystemLocal::LogWrite( StringEntry in )
 idConsoleLoggingSystemLocal::LogRead
 ==================
 */
-U32 idConsoleLoggingSystemLocal::LogRead( UTF8* out, U32 outSize )
+uint idConsoleLoggingSystemLocal::LogRead( valueType* out, uint outSize )
 {
-    U32 firstChunk;
-    U32 secondChunk;
+    uint firstChunk;
+    uint secondChunk;
     
     if( LogSize() < outSize )
     {

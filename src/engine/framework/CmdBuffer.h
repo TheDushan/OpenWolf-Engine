@@ -48,11 +48,11 @@ public:
     ~idCmdBufferSystemLocal( void );
     
     virtual void Init( void );
-    virtual void AddText( StringEntry text );
-    virtual void ExecuteText( S32 exec_when, StringEntry text );
+    virtual void AddText( pointer text );
+    virtual void ExecuteText( sint exec_when, pointer text );
     virtual void Execute( void );
     
-    void InsertText( StringEntry text );
+    void InsertText( pointer text );
 };
 
 extern idCmdBufferSystemLocal cmdBufferLocal;

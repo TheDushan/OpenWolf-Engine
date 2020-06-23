@@ -38,21 +38,21 @@ TGA files are used for 24/32 bit images
 ========================================================================
 */
 
-void R_LoadTGA( StringEntry name, U8** pic, S32* width, S32* height )
+void R_LoadTGA( pointer name, uchar8** pic, sint* width, sint* height )
 {
-    U32	columns, rows, numPixels;
-    U8*	pixbuf;
-    S32		row, column;
-    U8*	buf_p;
-    U8*	end;
+    uint	columns, rows, numPixels;
+    uchar8*	pixbuf;
+    sint		row, column;
+    uchar8*	buf_p;
+    uchar8*	end;
     union
     {
-        U8* b;
+        uchar8* b;
         void* v;
     } buffer;
     TargaHeader	targa_header;
-    U8*		targa_rgba;
-    S32 length;
+    uchar8*		targa_rgba;
+    sint length;
     
     *pic = nullptr;
     
@@ -64,7 +64,7 @@ void R_LoadTGA( StringEntry name, U8** pic, S32* width, S32* height )
     //
     // load the file
     //
-    length = fileSystem->ReadFile( const_cast< UTF8* >( name ), &buffer.v );
+    length = fileSystem->ReadFile( const_cast< valueType* >( name ), &buffer.v );
     if( !buffer.b || length < 0 )
     {
         return;
@@ -128,7 +128,7 @@ void R_LoadTGA( StringEntry name, U8** pic, S32* width, S32* height )
     }
     
     
-    targa_rgba = ( U8* )CL_RefMalloc( numPixels );
+    targa_rgba = ( uchar8* )CL_RefMalloc( numPixels );
     
     if( targa_header.id_length != 0 )
     {
@@ -151,7 +151,7 @@ void R_LoadTGA( StringEntry name, U8** pic, S32* width, S32* height )
             pixbuf = targa_rgba + row * columns * 4;
             for( column = 0; column < columns; column++ )
             {
-                U8 red, green, blue, alphabyte;
+                uchar8 red, green, blue, alphabyte;
                 switch( targa_header.pixel_size )
                 {
                 
@@ -193,7 +193,7 @@ void R_LoadTGA( StringEntry name, U8** pic, S32* width, S32* height )
     }
     else if( targa_header.image_type == 10 )  // Runlength encoded RGB images
     {
-        U8 red, green, blue, alphabyte, packetHeader, packetSize, j;
+        uchar8 red, green, blue, alphabyte, packetHeader, packetSize, j;
         
         for( row = rows - 1; row >= 0; row-- )
         {
@@ -300,8 +300,8 @@ breakOut:
     // bit 5 set => top-down
     if( targa_header.attributes & 0x20 )
     {
-        U8* flip = ( U8* )malloc( columns * 4 );
-        U8* src, *dst;
+        uchar8* flip = ( uchar8* )malloc( columns * 4 );
+        uchar8* src, *dst;
         
         for( row = 0; row < rows / 2; row++ )
         {

@@ -59,13 +59,13 @@ PNG LOADING
 
 struct PNG_ChunkHeader
 {
-    U32 Length;
-    U32 Type;
+    uint Length;
+    uint Type;
 };
 
 #define PNG_ChunkHeader_Size (8)
 
-typedef U32 PNG_ChunkCRC;
+typedef uint PNG_ChunkCRC;
 
 #define PNG_ChunkCRC_Size (4)
 
@@ -88,13 +88,13 @@ typedef U32 PNG_ChunkCRC;
 
 struct PNG_Chunk_IHDR
 {
-    U32 Width;
-    U32 Height;
-    U8  BitDepth;
-    U8  ColourType;
-    U8  CompressionMethod;
-    U8  FilterMethod;
-    U8  InterlaceMethod;
+    uint Width;
+    uint Height;
+    uchar8  BitDepth;
+    uchar8  ColourType;
+    uchar8  CompressionMethod;
+    uchar8  FilterMethod;
+    uchar8  InterlaceMethod;
 };
 
 #define PNG_Chunk_IHDR_Size (13)
@@ -179,8 +179,8 @@ struct PNG_Chunk_IHDR
 
 struct PNG_ZlibHeader
 {
-    U8 CompressionMethod;
-    U8 Flags;
+    uchar8 CompressionMethod;
+    uchar8 Flags;
 };
 
 #define PNG_ZlibHeader_Size (2)
@@ -201,22 +201,22 @@ struct PNG_ZlibHeader
 
 struct BufferedFile
 {
-    U8* Buffer;
-    S32   Length;
-    U8* Ptr;
-    S32   BytesLeft;
+    uchar8* Buffer;
+    sint   Length;
+    uchar8* Ptr;
+    sint   BytesLeft;
 };
 
 /*
  *  Read a file into a buffer.
  */
 
-static struct BufferedFile* ReadBufferedFile( StringEntry name )
+static struct BufferedFile* ReadBufferedFile( pointer name )
 {
     struct BufferedFile* BF;
     union
     {
-        U8* b;
+        uchar8* b;
         void* v;
     } buffer;
     
@@ -252,7 +252,7 @@ static struct BufferedFile* ReadBufferedFile( StringEntry name )
      *  Read the file.
      */
     
-    BF->Length = fileSystem->ReadFile( const_cast< UTF8* >( name ), &buffer.v );
+    BF->Length = fileSystem->ReadFile( const_cast< valueType* >( name ), &buffer.v );
     BF->Buffer = buffer.b;
     
     /*
@@ -297,7 +297,7 @@ static void CloseBufferedFile( struct BufferedFile* BF )
  *  Get a pointer to the requested bytes.
  */
 
-static void* BufferedFileRead( struct BufferedFile* BF, U32 Length )
+static void* BufferedFileRead( struct BufferedFile* BF, uint Length )
 {
     void* RetVal;
     
@@ -339,9 +339,9 @@ static void* BufferedFileRead( struct BufferedFile* BF, U32 Length )
  *  Rewind the buffer.
  */
 
-static bool BufferedFileRewind( struct BufferedFile* BF, U32 Offset )
+static bool BufferedFileRewind( struct BufferedFile* BF, uint Offset )
 {
-    U32 BytesRead;
+    uint BytesRead;
     
     /*
      *  input verification
@@ -356,7 +356,7 @@ static bool BufferedFileRewind( struct BufferedFile* BF, U32 Offset )
      *  special trick to rewind to the beginning of the buffer
      */
     
-    if( Offset == ( U32 ) - 1 )
+    if( Offset == ( uint ) - 1 )
     {
         BF->Ptr       = BF->Buffer;
         BF->BytesLeft = BF->Length;
@@ -393,7 +393,7 @@ static bool BufferedFileRewind( struct BufferedFile* BF, U32 Offset )
  *  Skip some bytes.
  */
 
-static bool BufferedFileSkip( struct BufferedFile* BF, U32 Offset )
+static bool BufferedFileSkip( struct BufferedFile* BF, uint Offset )
 {
     /*
      *  input verification
@@ -427,12 +427,12 @@ static bool BufferedFileSkip( struct BufferedFile* BF, U32 Offset )
  *  Find a chunk
  */
 
-static bool FindChunk( struct BufferedFile* BF, U32 ChunkType )
+static bool FindChunk( struct BufferedFile* BF, uint ChunkType )
 {
     struct PNG_ChunkHeader* CH;
     
-    U32 Length;
-    U32 Type;
+    uint Length;
+    uint Type;
     
     /*
      *  input verification
@@ -504,27 +504,27 @@ static bool FindChunk( struct BufferedFile* BF, U32 ChunkType )
  *  Decompress all IDATs
  */
 
-static U32 DecompressIDATs( struct BufferedFile* BF, U8** Buffer )
+static uint DecompressIDATs( struct BufferedFile* BF, uchar8** Buffer )
 {
-    U8*  DecompressedData;
-    U32  DecompressedDataLength;
+    uchar8*  DecompressedData;
+    uint  DecompressedDataLength;
     
-    U8*  CompressedData;
-    U8*  CompressedDataPtr;
-    U32  CompressedDataLength;
+    uchar8*  CompressedData;
+    uchar8*  CompressedDataPtr;
+    uint  CompressedDataLength;
     
     struct PNG_ChunkHeader* CH;
     
-    U32 Length;
-    U32 Type;
+    uint Length;
+    uint Type;
     
-    S32 BytesToRewind;
+    sint BytesToRewind;
     
-    S32   puffResult;
-    U8*  puffDest;
-    U32  puffDestLen;
-    U8*  puffSrc;
-    U32  puffSrcLen;
+    sint   puffResult;
+    uchar8*  puffDest;
+    uint  puffDestLen;
+    uchar8*  puffSrc;
+    uint  puffSrcLen;
     
     /*
      *  input verification
@@ -623,7 +623,7 @@ static U32 DecompressIDATs( struct BufferedFile* BF, U8** Buffer )
     
     BufferedFileRewind( BF, BytesToRewind );
     
-    CompressedData = ( U8* )CL_RefMalloc( CompressedDataLength );
+    CompressedData = ( uchar8* )CL_RefMalloc( CompressedDataLength );
     if( !CompressedData )
     {
         return( -1 );
@@ -673,9 +673,9 @@ static U32 DecompressIDATs( struct BufferedFile* BF, U8** Buffer )
         
         if( Length )
         {
-            U8* OrigCompressedData;
+            uchar8* OrigCompressedData;
             
-            OrigCompressedData = ( U8* )BufferedFileRead( BF, Length );
+            OrigCompressedData = ( uchar8* )BufferedFileRead( BF, Length );
             if( !OrigCompressedData )
             {
                 Z_Free( CompressedData );
@@ -725,7 +725,7 @@ static U32 DecompressIDATs( struct BufferedFile* BF, U8** Buffer )
      *  Allocate the buffer for the uncompressed data.
      */
     
-    DecompressedData = ( U8* )CL_RefMalloc( puffDestLen );
+    DecompressedData = ( uchar8* )CL_RefMalloc( puffDestLen );
     if( !DecompressedData )
     {
         Z_Free( CompressedData );
@@ -778,7 +778,7 @@ static U32 DecompressIDATs( struct BufferedFile* BF, U8** Buffer )
  *  the Paeth predictor
  */
 
-static U8 PredictPaeth( U8 a, U8 b, U8 c )
+static uchar8 PredictPaeth( uchar8 a, uchar8 b, uchar8 c )
 {
     /*
      *  a == Left
@@ -786,14 +786,14 @@ static U8 PredictPaeth( U8 a, U8 b, U8 c )
      *  c == UpLeft
      */
     
-    U8 Pr;
-    S32 p;
-    S32 pa, pb, pc;
+    uchar8 Pr;
+    sint p;
+    sint pa, pb, pc;
     
-    p  = ( ( S32 ) a ) + ( ( S32 ) b ) - ( ( S32 ) c );
-    pa = abs( p - ( ( S32 ) a ) );
-    pb = abs( p - ( ( S32 ) b ) );
-    pc = abs( p - ( ( S32 ) c ) );
+    p  = ( ( sint ) a ) + ( ( sint ) b ) - ( ( sint ) c );
+    pa = abs( p - ( ( sint ) a ) );
+    pb = abs( p - ( ( sint ) b ) );
+    pc = abs( p - ( ( sint ) c ) );
     
     if( ( pa <= pb ) && ( pa <= pc ) )
     {
@@ -816,21 +816,21 @@ static U8 PredictPaeth( U8 a, U8 b, U8 c )
  *  Reverse the filters.
  */
 
-static bool UnfilterImage( U8*  DecompressedData,
-                           U32  ImageHeight,
-                           U32  BytesPerScanline,
-                           U32  BytesPerPixel )
+static bool UnfilterImage( uchar8*  DecompressedData,
+                           uint  ImageHeight,
+                           uint  BytesPerScanline,
+                           uint  BytesPerPixel )
 {
-    U8*   DecompPtr;
-    U8   FilterType;
-    U8*  PixelLeft, *PixelUp, *PixelUpLeft;
-    U32  w, h, p;
+    uchar8*   DecompPtr;
+    uchar8   FilterType;
+    uchar8*  PixelLeft, *PixelUp, *PixelUpLeft;
+    uint  w, h, p;
     
     /*
      *  some zeros for the filters
      */
     
-    U8 Zeros[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    uchar8 Zeros[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     
     /*
      *  input verification
@@ -939,7 +939,7 @@ static bool UnfilterImage( U8*  DecompressedData,
                     
                     case PNG_FilterType_Average :
                     {
-                        DecompPtr[p] += ( ( U8 )( ( ( ( U16 ) PixelLeft[p] ) + ( ( U16 ) PixelUp[p] ) ) / 2 ) );
+                        DecompPtr[p] += ( ( uchar8 )( ( ( ( uchar16 ) PixelLeft[p] ) + ( ( uchar16 ) PixelUp[p] ) ) / 2 ) );
                         
                         break;
                     }
@@ -994,11 +994,11 @@ static bool UnfilterImage( U8*  DecompressedData,
  */
 
 static bool ConvertPixel( struct PNG_Chunk_IHDR* IHDR,
-                          U8*                  OutPtr,
-                          U8*               DecompPtr,
+                          uchar8*                  OutPtr,
+                          uchar8*               DecompPtr,
                           bool               HasTransparentColour,
-                          U8*               TransparentColour,
-                          U8*               OutPal )
+                          uchar8*               TransparentColour,
+                          uchar8*               OutPal )
 {
     /*
      *  input verification
@@ -1019,8 +1019,8 @@ static bool ConvertPixel( struct PNG_Chunk_IHDR* IHDR,
                 case PNG_BitDepth_2 :
                 case PNG_BitDepth_4 :
                 {
-                    U8 Step;
-                    U8 GreyValue;
+                    uchar8 Step;
+                    uchar8 GreyValue;
                     
                     Step = 0xFF / ( ( 1 << IHDR->BitDepth ) - 1 );
                     
@@ -1253,19 +1253,19 @@ static bool ConvertPixel( struct PNG_Chunk_IHDR* IHDR,
  */
 
 static bool DecodeImageNonInterlaced( struct PNG_Chunk_IHDR* IHDR,
-                                      U8*                  OutBuffer,
-                                      U8*               DecompressedData,
-                                      U32               DecompressedDataLength,
+                                      uchar8*                  OutBuffer,
+                                      uchar8*               DecompressedData,
+                                      uint               DecompressedDataLength,
                                       bool               HasTransparentColour,
-                                      U8*               TransparentColour,
-                                      U8*               OutPal )
+                                      uchar8*               TransparentColour,
+                                      uchar8*               OutPal )
 {
-    U32 IHDR_Width;
-    U32 IHDR_Height;
-    U32 BytesPerScanline, BytesPerPixel, PixelsPerByte;
-    U32  w, h, p;
-    U8* OutPtr;
-    U8* DecompPtr;
+    uint IHDR_Width;
+    uint IHDR_Height;
+    uint BytesPerScanline, BytesPerPixel, PixelsPerByte;
+    uint  w, h, p;
+    uchar8* OutPtr;
+    uchar8* DecompPtr;
     
     /*
      *  input verification
@@ -1465,7 +1465,7 @@ static bool DecodeImageNonInterlaced( struct PNG_Chunk_IHDR* IHDR,
          *  Count the pixels on the scanline for those multipixel bytes
          */
         
-        U32 CurrPixel;
+        uint CurrPixel;
         
         /*
          *  skip FilterType
@@ -1483,9 +1483,9 @@ static bool DecodeImageNonInterlaced( struct PNG_Chunk_IHDR* IHDR,
         {
             if( PixelsPerByte > 1 )
             {
-                U8  Mask;
-                U32 Shift;
-                U8  SinglePixel;
+                uchar8  Mask;
+                uint Shift;
+                uchar8  SinglePixel;
                 
                 for( p = 0; p < PixelsPerByte; p++ )
                 {
@@ -1530,22 +1530,22 @@ static bool DecodeImageNonInterlaced( struct PNG_Chunk_IHDR* IHDR,
  */
 
 static bool DecodeImageInterlaced( struct PNG_Chunk_IHDR* IHDR,
-                                   U8*                  OutBuffer,
-                                   U8*               DecompressedData,
-                                   U32               DecompressedDataLength,
+                                   uchar8*                  OutBuffer,
+                                   uchar8*               DecompressedData,
+                                   uint               DecompressedDataLength,
                                    bool               HasTransparentColour,
-                                   U8*               TransparentColour,
-                                   U8*               OutPal )
+                                   uchar8*               TransparentColour,
+                                   uchar8*               OutPal )
 {
-    U32 IHDR_Width;
-    U32 IHDR_Height;
-    U32 BytesPerScanline[PNG_Adam7_NumPasses], BytesPerPixel, PixelsPerByte;
-    U32 PassWidth[PNG_Adam7_NumPasses], PassHeight[PNG_Adam7_NumPasses];
-    U32 WSkip[PNG_Adam7_NumPasses], WOffset[PNG_Adam7_NumPasses], HSkip[PNG_Adam7_NumPasses], HOffset[PNG_Adam7_NumPasses];
-    U32 w, h, p, a;
-    U8* OutPtr;
-    U8* DecompPtr;
-    U32 TargetLength;
+    uint IHDR_Width;
+    uint IHDR_Height;
+    uint BytesPerScanline[PNG_Adam7_NumPasses], BytesPerPixel, PixelsPerByte;
+    uint PassWidth[PNG_Adam7_NumPasses], PassHeight[PNG_Adam7_NumPasses];
+    uint WSkip[PNG_Adam7_NumPasses], WOffset[PNG_Adam7_NumPasses], HSkip[PNG_Adam7_NumPasses], HOffset[PNG_Adam7_NumPasses];
+    uint w, h, p, a;
+    uchar8* OutPtr;
+    uchar8* DecompPtr;
+    uint TargetLength;
     
     /*
      *  input verification
@@ -1831,7 +1831,7 @@ static bool DecodeImageInterlaced( struct PNG_Chunk_IHDR* IHDR,
              *  Count the pixels on the scanline for those multipixel bytes
              */
             
-            U32 CurrPixel;
+            uint CurrPixel;
             
             /*
              *  skip FilterType
@@ -1853,9 +1853,9 @@ static bool DecodeImageInterlaced( struct PNG_Chunk_IHDR* IHDR,
             {
                 if( PixelsPerByte > 1 )
                 {
-                    U8  Mask;
-                    U32 Shift;
-                    U8  SinglePixel;
+                    uchar8  Mask;
+                    uint Shift;
+                    uchar8  SinglePixel;
                     
                     for( p = 0; p < PixelsPerByte; p++ )
                     {
@@ -1900,35 +1900,35 @@ static bool DecodeImageInterlaced( struct PNG_Chunk_IHDR* IHDR,
  *  The PNG loader
  */
 
-void R_LoadPNG( StringEntry name, U8** pic, S32* width, S32* height )
+void R_LoadPNG( pointer name, uchar8** pic, sint* width, sint* height )
 {
     struct BufferedFile* ThePNG;
-    U8* OutBuffer;
-    U8* Signature;
+    uchar8* OutBuffer;
+    uchar8* Signature;
     struct PNG_ChunkHeader* CH;
-    U32 ChunkHeaderLength;
-    U32 ChunkHeaderType;
+    uint ChunkHeaderLength;
+    uint ChunkHeaderType;
     struct PNG_Chunk_IHDR* IHDR;
-    U32 IHDR_Width;
-    U32 IHDR_Height;
+    uint IHDR_Width;
+    uint IHDR_Height;
     PNG_ChunkCRC* CRC;
-    U8* InPal;
-    U8* DecompressedData;
-    U32 DecompressedDataLength;
-    U32 i;
+    uchar8* InPal;
+    uchar8* DecompressedData;
+    uint DecompressedDataLength;
+    uint i;
     
     /*
      *  palette with 256 RGBA entries
      */
     
-    U8 OutPal[1024];
+    uchar8 OutPal[1024];
     
     /*
      *  transparent colour from the tRNS chunk
      */
     
     bool HasTransparentColour = false;
-    U8 TransparentColour[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    uchar8 TransparentColour[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     
     /*
      *  input verification
@@ -1969,7 +1969,7 @@ void R_LoadPNG( StringEntry name, U8** pic, S32* width, S32* height )
      *  Read the siganture of the file.
      */
     
-    Signature = ( U8* )BufferedFileRead( ThePNG, PNG_Signature_Size );
+    Signature = ( uchar8* )BufferedFileRead( ThePNG, PNG_Signature_Size );
     if( !Signature )
     {
         CloseBufferedFile( ThePNG );
@@ -2155,7 +2155,7 @@ void R_LoadPNG( StringEntry name, U8** pic, S32* width, S32* height )
          *  Read the raw palette data
          */
         
-        InPal = ( U8* )BufferedFileRead( ThePNG, ChunkHeaderLength );
+        InPal = ( uchar8* )BufferedFileRead( ThePNG, ChunkHeaderLength );
         if( !InPal )
         {
             CloseBufferedFile( ThePNG );
@@ -2210,7 +2210,7 @@ void R_LoadPNG( StringEntry name, U8** pic, S32* width, S32* height )
     
     if( FindChunk( ThePNG, PNG_ChunkType_tRNS ) )
     {
-        U8* Trans;
+        uchar8* Trans;
         
         /*
          *  Read the chunk-header.
@@ -2246,7 +2246,7 @@ void R_LoadPNG( StringEntry name, U8** pic, S32* width, S32* height )
          *  Read the transparency information.
          */
         
-        Trans = ( U8* )BufferedFileRead( ThePNG, ChunkHeaderLength );
+        Trans = ( uchar8* )BufferedFileRead( ThePNG, ChunkHeaderLength );
         if( !Trans )
         {
             CloseBufferedFile( ThePNG );
@@ -2398,7 +2398,7 @@ void R_LoadPNG( StringEntry name, U8** pic, S32* width, S32* height )
      *  Allocate output buffer.
      */
     
-    OutBuffer = ( U8* )CL_RefMalloc( IHDR_Width * IHDR_Height * Q3IMAGE_BYTESPERPIXEL );
+    OutBuffer = ( uchar8* )CL_RefMalloc( IHDR_Width * IHDR_Height * Q3IMAGE_BYTESPERPIXEL );
     if( !OutBuffer )
     {
         Z_Free( DecompressedData );

@@ -43,7 +43,7 @@
 #include <framework/precompiled.h>
 #endif
 
-S32 demo_protocols[] = { 1, 0 };
+sint demo_protocols[] = { 1, 0 };
 
 #define MAX_NUM_ARGVS   50
 
@@ -55,8 +55,8 @@ S32 demo_protocols[] = { 1, 0 };
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
 
-S32             com_argc;
-UTF8*           com_argv[MAX_NUM_ARGVS + 1];
+sint             com_argc;
+valueType*           com_argv[MAX_NUM_ARGVS + 1];
 
 jmp_buf         abortframe;		// an ERR_DROP occured, exit the entire frame
 
@@ -118,32 +118,32 @@ convar_t*         com_hunkused;	// Ridah
 convar_t*         com_protocol;
 
 // com_speeds times
-S32             time_game;
-S32             time_frontend;	// renderer frontend time
-S32             time_backend;	// renderer backend time
+sint             time_game;
+sint             time_frontend;	// renderer frontend time
+sint             time_backend;	// renderer backend time
 
-S32             com_frameTime;
-S32             com_frameMsec;
-S32             com_frameNumber;
-S32             com_expectedhunkusage;
-S32             com_hunkusedvalue;
+sint             com_frameTime;
+sint             com_frameMsec;
+sint             com_frameNumber;
+sint             com_expectedhunkusage;
+sint             com_hunkusedvalue;
 
 bool			com_errorEntered = false;
 bool			com_fullyInitialized = false;
 
-UTF8            com_errorMessage[MAXPRINTMSG];
+valueType            com_errorMessage[MAXPRINTMSG];
 void Com_WriteConfiguration( void );
 void            Com_WriteConfig_f( void );
 void            CIN_CloseAllVideos();
 
 //============================================================================
 
-static UTF8*    rd_buffer;
-static S32      rd_buffersize;
+static valueType*    rd_buffer;
+static sint      rd_buffersize;
 static bool rd_flushing = false;
-static void ( *rd_flush )( UTF8* buffer );
+static void ( *rd_flush )( valueType* buffer );
 
-void Com_BeginRedirect( UTF8* buffer, S32 buffersize, void ( *flush )( UTF8* ) )
+void Com_BeginRedirect( valueType* buffer, sint buffersize, void ( *flush )( valueType* ) )
 {
     if( !buffer || !buffersize || !flush )
     {
@@ -180,10 +180,10 @@ to the apropriate place.
 A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 =============
 */
-void Com_Printf( StringEntry fmt, ... )
+void Com_Printf( pointer fmt, ... )
 {
     va_list	argptr;
-    UTF8 msg[MAXPRINTMSG];
+    valueType msg[MAXPRINTMSG];
     static bool opening_qconsole = false;
     
     va_start( argptr, fmt );
@@ -265,10 +265,10 @@ void Com_Printf( StringEntry fmt, ... )
     }
 }
 
-void Com_FatalError( StringEntry error, ... )
+void Com_FatalError( pointer error, ... )
 {
     va_list argptr;
-    UTF8 msg[8192];
+    valueType msg[8192];
     
     va_start( argptr, error );
     Q_vsnprintf( msg, sizeof( msg ), error, argptr );
@@ -277,10 +277,10 @@ void Com_FatalError( StringEntry error, ... )
     Com_Error( ERR_FATAL, msg );
 }
 
-void Com_DropError( StringEntry error, ... )
+void Com_DropError( pointer error, ... )
 {
     va_list argptr;
-    UTF8 msg[8192];
+    valueType msg[8192];
     
     va_start( argptr, error );
     Q_vsnprintf( msg, sizeof( msg ), error, argptr );
@@ -289,10 +289,10 @@ void Com_DropError( StringEntry error, ... )
     Com_Error( ERR_DROP, msg );
 }
 
-void Com_Warning( StringEntry error, ... )
+void Com_Warning( pointer error, ... )
 {
     va_list argptr;
-    UTF8 msg[8192];
+    valueType msg[8192];
     
     va_start( argptr, error );
     Q_vsnprintf( msg, sizeof( msg ), error, argptr );
@@ -310,10 +310,10 @@ Com_DPrintf
 A Com_Printf that only shows up if the "developer" cvar is set
 ================
 */
-void Com_DPrintf( StringEntry fmt, ... )
+void Com_DPrintf( pointer fmt, ... )
 {
     va_list         argptr;
-    UTF8            msg[MAXPRINTMSG];
+    valueType            msg[MAXPRINTMSG];
     
     if( !com_developer || com_developer->integer != 1 )
     {
@@ -336,12 +336,12 @@ do the apropriate things.
 =============
 */
 // *INDENT-OFF*
-void Com_Error( S32 code, StringEntry fmt, ... )
+void Com_Error( sint code, pointer fmt, ... )
 {
     va_list         argptr;
-    static S32      lastErrorTime;
-    static S32      errorCount;
-    S32             currentTime;
+    static sint      lastErrorTime;
+    static sint      errorCount;
+    sint             currentTime;
     static bool calledSysError = false;
     
     if( com_errorEntered )
@@ -488,8 +488,8 @@ quake3 set test blah + map test
 */
 
 #define MAX_CONSOLE_LINES   32
-S32             com_numConsoleLines;
-UTF8*           com_consoleLines[MAX_CONSOLE_LINES];
+sint             com_numConsoleLines;
+valueType*           com_consoleLines[MAX_CONSOLE_LINES];
 
 /*
 ==================
@@ -498,7 +498,7 @@ Com_ParseCommandLine
 Break it up into multiple console lines
 ==================
 */
-void Com_ParseCommandLine( UTF8* commandLine )
+void Com_ParseCommandLine( valueType* commandLine )
 {
     com_consoleLines[0] = commandLine;
     com_numConsoleLines = 1;
@@ -532,7 +532,7 @@ skip loading of wolfconfig.cfg
 */
 bool Com_SafeMode( void )
 {
-    S32             i;
+    sint             i;
     
     for( i = 0; i < com_numConsoleLines; i++ )
     {
@@ -558,10 +558,10 @@ before the filesystem is started, but all other sets shouls
 be after execing the config and default.
 ===============
 */
-void Com_StartupVariable( StringEntry match )
+void Com_StartupVariable( pointer match )
 {
-    S32             i;
-    UTF8*           s;
+    sint             i;
+    valueType*           s;
     
     for( i = 0; i < com_numConsoleLines; i++ )
     {
@@ -602,7 +602,7 @@ will keep the demoloop from immediately starting
 */
 bool Com_AddStartupCommands( void )
 {
-    S32             i;
+    sint             i;
     bool        added;
     
     added = false;
@@ -629,12 +629,12 @@ bool Com_AddStartupCommands( void )
 
 //============================================================================
 
-void Info_Print( StringEntry s )
+void Info_Print( pointer s )
 {
-    UTF8            key[BIG_INFO_VALUE];
-    UTF8            value[BIG_INFO_VALUE];
-    UTF8*           o;
-    S32             l;
+    valueType            key[BIG_INFO_VALUE];
+    valueType            value[BIG_INFO_VALUE];
+    valueType*           o;
+    sint             l;
     
     if( *s == '\\' )
     {
@@ -683,11 +683,11 @@ void Info_Print( StringEntry s )
 Com_Filter
 ============
 */
-S32 Com_Filter( UTF8* filter, UTF8* name, S32 casesensitive )
+sint Com_Filter( valueType* filter, valueType* name, sint casesensitive )
 {
-    UTF8            buf[MAX_TOKEN_CHARS];
-    UTF8*           ptr;
-    S32             i, found;
+    valueType            buf[MAX_TOKEN_CHARS];
+    valueType*           ptr;
+    sint             i, found;
     
     while( *filter )
     {
@@ -813,11 +813,11 @@ S32 Com_Filter( UTF8* filter, UTF8* name, S32 casesensitive )
 Com_FilterPath
 ============
 */
-S32 Com_FilterPath( UTF8* filter, UTF8* name, S32 casesensitive )
+sint Com_FilterPath( valueType* filter, valueType* name, sint casesensitive )
 {
-    S32             i;
-    UTF8            new_filter[MAX_QPATH];
-    UTF8            new_name[MAX_QPATH];
+    sint             i;
+    valueType            new_filter[MAX_QPATH];
+    valueType            new_name[MAX_QPATH];
     
     for( i = 0; i < MAX_QPATH - 1 && filter[i]; i++ )
     {
@@ -853,7 +853,7 @@ S32 Com_FilterPath( UTF8* filter, UTF8* name, S32 casesensitive )
 Com_RealTime
 ================
 */
-S32 Com_RealTime( qtime_t* qtime )
+sint Com_RealTime( qtime_t* qtime )
 {
     time_t          t;
     struct tm*      tms;
@@ -900,18 +900,18 @@ all big things are allocated on the hunk.
 
 typedef struct zonedebug_s
 {
-    UTF8*           label;
-    UTF8*           file;
-    S32             line;
-    S32             allocSize;
+    valueType*           label;
+    valueType*           file;
+    sint             line;
+    sint             allocSize;
 } zonedebug_t;
 
 typedef struct memblock_s
 {
-    S32             size;		// including the header and possibly tiny fragments
-    S32             tag;		// a tag of 0 is a free block
+    sint             size;		// including the header and possibly tiny fragments
+    sint             tag;		// a tag of 0 is a free block
     struct memblock_s* next, *prev;
-    S32             id;			// should be ZONEID
+    sint             id;			// should be ZONEID
 #ifdef ZONE_DEBUG
     zonedebug_t     d;
 #endif
@@ -919,8 +919,8 @@ typedef struct memblock_s
 
 typedef struct
 {
-    S32             size;		// total bytes malloced, including header
-    S32             used;		// total bytes used
+    sint             size;		// total bytes malloced, including header
+    sint             used;		// total bytes used
     memblock_t      blocklist;	// start / end cap for linked list
     memblock_t*     rover;
 } memzone_t;
@@ -939,13 +939,13 @@ void            Z_CheckHeap( void );
 Z_ClearZone
 ========================
 */
-void Z_ClearZone( memzone_t* zone, S32 size )
+void Z_ClearZone( memzone_t* zone, sint size )
 {
     memblock_t*     block;
     
     // set the entire zone to one free block
     
-    zone->blocklist.next = zone->blocklist.prev = block = ( memblock_t* )( ( U8* ) zone + sizeof( memzone_t ) );
+    zone->blocklist.next = zone->blocklist.prev = block = ( memblock_t* )( ( uchar8* ) zone + sizeof( memzone_t ) );
     zone->blocklist.tag = 1;	// in use block
     zone->blocklist.id = 0;
     zone->blocklist.size = 0;
@@ -974,7 +974,7 @@ void Z_Free( void* ptr )
         Com_Error( ERR_DROP, "Z_Free: nullptr pointer" );
     }
     
-    block = ( memblock_t* )( ( U8* ) ptr - sizeof( memblock_t ) );
+    block = ( memblock_t* )( ( uchar8* ) ptr - sizeof( memblock_t ) );
     if( block->id != ZONEID )
     {
         Com_Error( ERR_FATAL, "Z_Free: freed a pointer without ZONEID" );
@@ -991,7 +991,7 @@ void Z_Free( void* ptr )
     }
     
     // check the memory trash tester
-    if( *( S32* )( ( U8* ) block + block->size - 4 ) != ZONEID )
+    if( *( sint* )( ( uchar8* ) block + block->size - 4 ) != ZONEID )
     {
         Com_Error( ERR_FATAL, "Z_Free: memory block wrote past end" );
     }
@@ -1050,7 +1050,7 @@ Z_FreeTags
 */
 void Z_FreeTags( memtag_t tag )
 {
-    S32             count;
+    sint             count;
     memzone_t*      zone;
     
     if( tag == TAG_SMALL )
@@ -1087,13 +1087,13 @@ Z_TagMalloc
 memblock_t*     debugblock;		// RF, jusy so we can track a block to find out when it's getting trashed
 
 #ifdef ZONE_DEBUG
-void*           Z_TagMallocDebug( size_t size, memtag_t tag, UTF8* label, UTF8* file, S32 line )
+void*           Z_TagMallocDebug( size_t size, memtag_t tag, valueType* label, valueType* file, sint line )
 {
 #else
 void*           Z_TagMalloc( size_t size, memtag_t tag )
 {
 #endif
-    S32             extra, allocSize;
+    sint             extra, allocSize;
     memblock_t*     start, *rover, *_new, *base;
     memzone_t*      zone;
     
@@ -1154,7 +1154,7 @@ void*           Z_TagMalloc( size_t size, memtag_t tag )
     if( extra > MINFRAGMENT )
     {
         // there will be a free fragment after the allocated block
-        _new = ( memblock_t* )( ( U8* ) base + size );
+        _new = ( memblock_t* )( ( uchar8* ) base + size );
         _new->size = extra;
         _new->tag = 0;			// free block
         _new->prev = base;
@@ -1180,9 +1180,9 @@ void*           Z_TagMalloc( size_t size, memtag_t tag )
 #endif
     
     // marker for memory trash testing
-    *( S32* )( ( U8* ) base + base->size - 4 ) = ZONEID;
+    *( sint* )( ( uchar8* ) base + base->size - 4 ) = ZONEID;
     
-    return ( void* )( ( U8* ) base + sizeof( memblock_t ) );
+    return ( void* )( ( uchar8* ) base + sizeof( memblock_t ) );
 }
 
 /*
@@ -1191,7 +1191,7 @@ Z_Malloc
 ========================
 */
 #ifdef ZONE_DEBUG
-void*           Z_MallocDebug( size_t size, UTF8* label, UTF8* file, S32 line )
+void*           Z_MallocDebug( size_t size, valueType* label, valueType* file, sint line )
 {
 #else
 void*           Z_Malloc( size_t size )
@@ -1212,7 +1212,7 @@ void*           Z_Malloc( size_t size )
 }
 
 #ifdef ZONE_DEBUG
-void*           S_MallocDebug( size_t size, UTF8* label, UTF8* file, S32 line )
+void*           S_MallocDebug( size_t size, valueType* label, valueType* file, sint line )
 {
     return Z_TagMallocDebug( size, TAG_SMALL, label, file, line );
 }
@@ -1238,7 +1238,7 @@ void Z_CheckHeap( void )
         {
             break;				// all blocks have been hit
         }
-        if( ( U8* ) block + block->size != ( U8* ) block->next )
+        if( ( uchar8* ) block + block->size != ( uchar8* ) block->next )
         {
             Com_Error( ERR_FATAL, "Z_CheckHeap: block size does not touch the next block\n" );
         }
@@ -1258,15 +1258,15 @@ void Z_CheckHeap( void )
 Z_LogZoneHeap
 ========================
 */
-void Z_LogZoneHeap( memzone_t* zone, UTF8* name )
+void Z_LogZoneHeap( memzone_t* zone, valueType* name )
 {
 #ifdef ZONE_DEBUG
-    UTF8            dump[32], *ptr;
-    S32             i, j;
+    valueType            dump[32], *ptr;
+    sint             i, j;
 #endif
     memblock_t*     block;
-    UTF8            buf[4096];
-    S32             size, allocSize, numBlocks;
+    valueType            buf[4096];
+    sint             size, allocSize, numBlocks;
     
     if( !logfile_ || !fileSystem->Initialized() )
     {
@@ -1280,7 +1280,7 @@ void Z_LogZoneHeap( memzone_t* zone, UTF8* name )
         if( block->tag )
         {
 #ifdef ZONE_DEBUG
-            ptr = ( ( UTF8* )block ) + sizeof( memblock_t );
+            ptr = ( ( valueType* )block ) + sizeof( memblock_t );
             j = 0;
             for( i = 0; i < 20 && i < block->d.allocSize; i++ )
             {
@@ -1320,7 +1320,7 @@ void Z_LogZoneHeap( memzone_t* zone, UTF8* name )
 Z_AvailableZoneMemory
 ========================
 */
-static S32 Z_AvailableZoneMemory( const memzone_t* zone )
+static sint Z_AvailableZoneMemory( const memzone_t* zone )
 {
 #ifdef USE_MULTI_SEGMENT
     return zone->totalSize - zone->totalUsed;
@@ -1334,7 +1334,7 @@ static S32 Z_AvailableZoneMemory( const memzone_t* zone )
 Z_AvailableMemory
 ========================
 */
-S32 Z_AvailableMemory( void )
+sint Z_AvailableMemory( void )
 {
     return Z_AvailableZoneMemory( mainzone );
 }
@@ -1354,7 +1354,7 @@ void Z_LogHeap( void )
 typedef struct memstatic_s
 {
     memblock_t      b;
-    U8            mem[2];
+    uchar8            mem[2];
 } memstatic_t;
 
 // bk001204 - initializer brackets
@@ -1412,22 +1412,22 @@ CopyString
 		memory from a memstatic_t might be returned
 ========================
 */
-UTF8* CopyString( StringEntry in )
+valueType* CopyString( pointer in )
 {
-    UTF8*           out;
+    valueType*           out;
     
     if( !in[0] )
     {
-        return ( ( UTF8* )&emptystring ) + sizeof( memblock_t );
+        return ( ( valueType* )&emptystring ) + sizeof( memblock_t );
     }
     else if( !in[1] )
     {
         if( in[0] >= '0' && in[0] <= '9' )
         {
-            return ( ( UTF8* )&numberstring[in[0] - '0'] ) + sizeof( memblock_t );
+            return ( ( valueType* )&numberstring[in[0] - '0'] ) + sizeof( memblock_t );
         }
     }
-    out = ( UTF8* )S_Malloc( strlen( in ) + 1 );
+    out = ( valueType* )S_Malloc( strlen( in ) + 1 );
     strcpy( out, in );
     return out;
 }
@@ -1471,41 +1471,41 @@ Goals:
 
 typedef struct
 {
-    S32             magic;
+    sint             magic;
     size_t             size;
 } hunkHeader_t;
 
 typedef struct
 {
-    S32             mark;
-    S32             permanent;
-    S32             temp;
-    S32             tempHighwater;
+    sint             mark;
+    sint             permanent;
+    sint             temp;
+    sint             tempHighwater;
 } hunkUsed_t;
 
 typedef struct hunkblock_s
 {
     size_t             size;
-    U8            printed;
+    uchar8            printed;
     struct hunkblock_s* next;
-    UTF8*           label;
-    UTF8*           file;
-    S32             line;
+    valueType*           label;
+    valueType*           file;
+    sint             line;
 } hunkblock_t;
 
 static struct
 {
     hunkblock_t* blocks;
     
-    U8*	mem, *original;
-    U64	memSize;
+    uchar8*	mem, *original;
+    uint32	memSize;
     
-    U64	permTop, permMax;
-    U64	tempTop, tempMax;
+    uint32	permTop, permMax;
+    uint32	tempTop, tempMax;
     
-    U64	maxEver;
+    uint32	maxEver;
     
-    U64	mark;
+    uint32	mark;
 } s_hunk;
 
 static hunkblock_t* hunkblocks;
@@ -1513,11 +1513,11 @@ static hunkblock_t* hunkblocks;
 static hunkUsed_t hunk_low, hunk_high;
 static hunkUsed_t* hunk_permanent, *hunk_temp;
 
-static U8*    s_hunkData = nullptr;
-static S32      s_hunkTotal;
+static uchar8*    s_hunkData = nullptr;
+static sint      s_hunkTotal;
 
-static S32      s_zoneTotal;
-static S32      s_smallZoneTotal;
+static sint      s_zoneTotal;
+static sint      s_smallZoneTotal;
 
 /*
 =================
@@ -1527,10 +1527,10 @@ Com_Meminfo_f
 void Com_Meminfo_f( void )
 {
     memblock_t*	block;
-    S32			zoneBytes, zoneBlocks;
-    S32			smallZoneBytes, smallZoneBlocks;
-    S32			botlibBytes, rendererBytes, otherBytes;
-    S32			cryptoBytes, staticBytes, generalBytes;
+    sint			zoneBytes, zoneBlocks;
+    sint			smallZoneBytes, smallZoneBlocks;
+    sint			botlibBytes, rendererBytes, otherBytes;
+    sint			cryptoBytes, staticBytes, generalBytes;
     
     zoneBytes = 0;
     botlibBytes = 0;
@@ -1579,7 +1579,7 @@ void Com_Meminfo_f( void )
         {
             break;			// all blocks have been hit
         }
-        if( ( U8* )block + block->size != ( U8* )block->next )
+        if( ( uchar8* )block + block->size != ( uchar8* )block->next )
         {
             Com_Printf( "ERROR: block size does not touch the next block\n" );
         }
@@ -1648,9 +1648,9 @@ Touch all known used data to make sure it is paged in
 */
 void Com_TouchMemory( void )
 {
-    S32		start, end;
-    S32		i, j;
-    S32		sum;
+    sint		start, end;
+    sint		i, j;
+    sint		sum;
     memblock_t*	block;
     
     Z_CheckHeap();
@@ -1666,7 +1666,7 @@ void Com_TouchMemory( void )
             j = block->size >> 2;
             for( i = 0 ; i < j ; i += 64 )  				// only need to touch each page
             {
-                sum += ( ( S32* )block )[i];
+                sum += ( ( sint* )block )[i];
             }
         }
         if( block->next == &mainzone->blocklist )
@@ -1694,7 +1694,7 @@ void Com_InitSmallZoneMemory( void )
     smallzone = ( memzone_t* )calloc( s_smallZoneTotal, 1 );
     if( !smallzone )
     {
-        Com_Error( ERR_FATAL, "Small zone data failed to allocate %1.1f megs", ( F32 )s_smallZoneTotal / ( 1024 * 1024 ) );
+        Com_Error( ERR_FATAL, "Small zone data failed to allocate %1.1f megs", ( float32 )s_smallZoneTotal / ( 1024 * 1024 ) );
     }
     Z_ClearZone( smallzone, s_smallZoneTotal );
     
@@ -1736,8 +1736,8 @@ Hunk_Log
 void Hunk_Log( void )
 {
     hunkblock_t*	block;
-    UTF8		buf[4096];
-    S32 size, numBlocks;
+    valueType		buf[4096];
+    sint size, numBlocks;
     
     if( !logfile_ || !fileSystem->Initialized() )
         return;
@@ -1768,8 +1768,8 @@ Hunk_SmallLog
 void Hunk_SmallLog( void )
 {
     hunkblock_t*	block, *block2;
-    UTF8		buf[4096];
-    S32 size, locsize, numBlocks;
+    valueType		buf[4096];
+    sint size, locsize, numBlocks;
     
     if( !logfile_ || !fileSystem->Initialized() )
         return;
@@ -1823,8 +1823,8 @@ Com_InitZoneMemory
 void Com_InitHunkMemory( void )
 {
     convar_t*	cv;
-    S32 nMinAlloc;
-    UTF8* pMsg = nullptr;
+    sint nMinAlloc;
+    valueType* pMsg = nullptr;
     
     ::memset( &s_hunk, 0, sizeof( s_hunk ) );
     
@@ -1863,13 +1863,13 @@ void Com_InitHunkMemory( void )
     }
     
     // bk001205 - was malloc
-    s_hunk.original = ( U8* )calloc( s_hunk.memSize + 31, 1 );
+    s_hunk.original = ( uchar8* )calloc( s_hunk.memSize + 31, 1 );
     if( !s_hunk.original )
     {
         Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunk.memSize / ( 1024 * 1024 ) );
     }
     // cacheline align
-    s_hunk.mem = ( U8* )( ( ( intptr_t )s_hunk.original + 31 ) & ~31 );
+    s_hunk.mem = ( uchar8* )( ( ( intptr_t )s_hunk.original + 31 ) & ~31 );
     
     Hunk_Clear();
     
@@ -1907,7 +1907,7 @@ void Com_ReleaseMemory( void )
 Hunk_MemoryRemaining
 ====================
 */
-S32	Hunk_MemoryRemaining( void )
+sint	Hunk_MemoryRemaining( void )
 {
     return s_hunk.memSize - s_hunk.permTop - s_hunk.tempTop;
 }
@@ -1999,7 +1999,7 @@ Allocate permanent (until the hunk is cleared) memory
 =================
 */
 #ifdef HUNK_DEBUG
-void* Hunk_AllocDebug( size_t size, ha_pref preference, UTF8* label, UTF8* file, S32 line )
+void* Hunk_AllocDebug( size_t size, ha_pref preference, valueType* label, valueType* file, sint line )
 {
 #else
 void* Hunk_Alloc( size_t size, ha_pref preference )
@@ -2050,7 +2050,7 @@ void* Hunk_Alloc( size_t size, ha_pref preference )
         block->line = line;
         block->next = s_hunk.blocks;
         s_hunk.blocks = block;
-        buf = ( ( U8* ) buf ) + sizeof( hunkblock_t );
+        buf = ( ( uchar8* ) buf ) + sizeof( hunkblock_t );
     }
 #endif
     
@@ -2139,7 +2139,7 @@ void Hunk_FreeTempMemory( void* buf )
     
     // this only works if the files are freed in stack order,
     // otherwise the memory will stay around until Hunk_ClearTempMemory
-    if( ( U8* )hdr == s_hunk.mem + s_hunk.memSize - s_hunk.tempTop )
+    if( ( uchar8* )hdr == s_hunk.mem + s_hunk.memSize - s_hunk.tempTop )
     {
         s_hunk.tempTop -= hdr->size;
     }
@@ -2164,28 +2164,28 @@ void Hunk_ClearTempMemory( void )
     }
 }
 
-static U8* s_frameStackLoc = 0;
-static U8* s_frameStackBase = 0;
-static U8* s_frameStackEnd = 0;
+static uchar8* s_frameStackLoc = 0;
+static uchar8* s_frameStackBase = 0;
+static uchar8* s_frameStackEnd = 0;
 
 static void Hunk_FrameInit( void )
 {
-    S32 megs = cvarSystem->Get( "com_hunkFrameMegs", "1", CVAR_LATCH | CVAR_ARCHIVE, "Sets the amount of memory reserved for the game" )->integer;
-    U64 cb;
+    sint megs = cvarSystem->Get( "com_hunkFrameMegs", "1", CVAR_LATCH | CVAR_ARCHIVE, "Sets the amount of memory reserved for the game" )->integer;
+    uint32 cb;
     
     if( megs < 1 )
         megs = 1;
         
     cb = 1024 * 1024 * megs;
     
-    s_frameStackBase = ( U8* )Hunk_Alloc( cb, h_low );
+    s_frameStackBase = ( uchar8* )Hunk_Alloc( cb, h_low );
     s_frameStackEnd = s_frameStackBase + cb;
     
     s_frameStackLoc = s_frameStackBase;
 }
 
 
-void* Hunk_FrameAlloc( U64 cb )
+void* Hunk_FrameAlloc( uint32 cb )
 {
     void* ret;
     
@@ -2219,8 +2219,8 @@ journaled file
 // Dushan, 512
 #define MAX_PUSHED_EVENTS               512
 // bk001129 - init, also static
-static S32      com_pushedEventsHead = 0;
-static S32      com_pushedEventsTail = 0;
+static sint      com_pushedEventsHead = 0;
+static sint      com_pushedEventsTail = 0;
 
 // bk001129 - static
 static sysEvent_t com_pushedEvents[MAX_PUSHED_EVENTS];
@@ -2232,7 +2232,7 @@ Com_InitJournaling
 */
 void Com_InitJournaling( void )
 {
-    S32 i;
+    sint i;
     
     Com_StartupVariable( "journal" );
     com_journal = cvarSystem->Get( "journal", "0", CVAR_INIT, "Use in command line to record 'demo' of everything you do in application. '+set journal 1' to record; 2 for playback. journaldata.dat & journal.dat are the files it creates, they get very large quickly. Files will also store cfgs loaded." );
@@ -2252,7 +2252,7 @@ void Com_InitJournaling( void )
     {
         for( i = 0; i <= 9999 ; i++ )
         {
-            UTF8 f[MAX_OSPATH];
+            valueType f[MAX_OSPATH];
             Com_sprintf( f, sizeof( f ), "journal_%04d.dat", i );
             if( !fileSystem->FileExists( f ) )
                 break;
@@ -2303,9 +2303,9 @@ EVENT LOOP
 #define MASK_QUEUED_EVENTS ( MAX_QUEUED_EVENTS - 1 )
 
 static sysEvent_t  eventQueue[ MAX_QUEUED_EVENTS ];
-static S32         eventHead = 0;
-static S32         eventTail = 0;
-static U8        sys_packetReceived[ MAX_MSGLEN ];
+static sint         eventHead = 0;
+static sint         eventTail = 0;
+static uchar8        sys_packetReceived[ MAX_MSGLEN ];
 
 /*
 ================
@@ -2316,7 +2316,7 @@ Ptr should either be null, or point to a block of data that can
 be freed by the game later.
 ================
 */
-void Com_QueueEvent( S32 time, sysEventType_t type, S32 value, S32 value2, S32 ptrLength, void* ptr )
+void Com_QueueEvent( sint time, sysEventType_t type, sint value, sint value2, sint ptrLength, void* ptr )
 {
     sysEvent_t*  ev;
     
@@ -2357,7 +2357,7 @@ Com_GetSystemEvent
 sysEvent_t Com_GetSystemEvent( void )
 {
     sysEvent_t  ev;
-    UTF8*        s;
+    valueType*        s;
     msg_t       netmsg;
     netadr_t    adr;
     
@@ -2372,11 +2372,11 @@ sysEvent_t Com_GetSystemEvent( void )
     s = idsystem->ConsoleInput();
     if( s )
     {
-        UTF8*  b;
-        S32   len;
+        valueType*  b;
+        sint   len;
         
         len = strlen( s ) + 1;
-        b = ( UTF8* )Z_Malloc( len );
+        b = ( valueType* )Z_Malloc( len );
         Q_strncpyz( b, s, len );
         Com_QueueEvent( 0, SYSE_CONSOLE, 0, 0, len, b );
     }
@@ -2387,7 +2387,7 @@ sysEvent_t Com_GetSystemEvent( void )
     if( Net_GetPacket( &adr, &netmsg ) )
     {
         netadr_t*  buf;
-        S32       len;
+        sint       len;
         
         // copy out to a seperate buffer for qeueing
         len = sizeof( netadr_t ) + netmsg.cursize;
@@ -2419,7 +2419,7 @@ Com_GetRealEvent
 */
 sysEvent_t	Com_GetRealEvent( void )
 {
-    S32			r;
+    sint			r;
     sysEvent_t	ev;
     
     // either get an event from the system or the journal file
@@ -2497,7 +2497,7 @@ Com_PushEvent
 void Com_PushEvent( sysEvent_t* _event )
 {
     sysEvent_t*     ev;
-    static S32      printedWarning = 0;	// bk001129 - init, bk001204 - explicit S32
+    static sint      printedWarning = 0;	// bk001129 - init, bk001204 - explicit sint
     
     ev = &com_pushedEvents[com_pushedEventsHead & ( MAX_PUSHED_EVENTS - 1 )];
     
@@ -2548,7 +2548,7 @@ Com_RunAndTimeServerPacket
 */
 void Com_RunAndTimeServerPacket( netadr_t* evFrom, msg_t* buf )
 {
-    S32             t1, t2, msec;
+    sint             t1, t2, msec;
     
     t1 = 0;
     
@@ -2582,11 +2582,11 @@ Returns last event time
 extern bool consoleButtonWasPressed;
 #endif
 
-S32 Com_EventLoop( void )
+sint Com_EventLoop( void )
 {
     sysEvent_t      ev;
     netadr_t        evFrom;
-    static U8       bufData[MAX_MSGLEN];
+    static uchar8       bufData[MAX_MSGLEN];
     msg_t           buf;
     
     MSG_Init( &buf, bufData, sizeof( bufData ) );
@@ -2651,13 +2651,13 @@ S32 Com_EventLoop( void )
                 break;
             case SYSE_CONSOLE:
                 //cmdBufferSystem->AddText( "\n" );
-                if( ( ( UTF8* )ev.evPtr )[0] == '\\' || ( ( UTF8* )ev.evPtr )[0] == '/' )
+                if( ( ( valueType* )ev.evPtr )[0] == '\\' || ( ( valueType* )ev.evPtr )[0] == '/' )
                 {
-                    cmdBufferSystem->AddText( ( UTF8* )ev.evPtr + 1 );
+                    cmdBufferSystem->AddText( ( valueType* )ev.evPtr + 1 );
                 }
                 else
                 {
-                    cmdBufferSystem->AddText( ( UTF8* )ev.evPtr );
+                    cmdBufferSystem->AddText( ( valueType* )ev.evPtr );
                 }
                 break;
             case SYSE_PACKET:
@@ -2666,7 +2666,7 @@ S32 Com_EventLoop( void )
                 // don't go through here at all.
                 if( com_dropsim->value > 0 )
                 {
-                    static S32      seed;
+                    static sint      seed;
                     
                     if( Q_random( &seed ) < com_dropsim->value )
                     {
@@ -2681,12 +2681,12 @@ S32 Com_EventLoop( void )
                 // the event buffers are only large enough to hold the
                 // exact payload, but channel messages need to be large
                 // enough to hold fragment reassembly
-                if( ( U32 )buf.cursize > buf.maxsize )
+                if( ( uint )buf.cursize > buf.maxsize )
                 {
                     Com_Printf( "Com_EventLoop: oversize packet\n" );
                     continue;
                 }
-                memcpy( buf.data, ( U8* )( ( netadr_t* ) ev.evPtr + 1 ), buf.cursize );
+                memcpy( buf.data, ( uchar8* )( ( netadr_t* ) ev.evPtr + 1 ), buf.cursize );
                 if( com_sv_running->integer )
                 {
                     Com_RunAndTimeServerPacket( &evFrom, &buf );
@@ -2715,7 +2715,7 @@ Com_Milliseconds
 Can be used for profiling, but will be journaled accurately
 ================
 */
-S32 Com_Milliseconds( void )
+sint Com_Milliseconds( void )
 {
     sysEvent_t      ev;
     
@@ -2767,8 +2767,8 @@ error recovery
 */
 static void Com_Freeze_f( void )
 {
-    F32           s;
-    S32             start, now;
+    float32           s;
+    sint             start, now;
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -2798,7 +2798,7 @@ A way to force a bus error for development reasons
 */
 static void Com_Crash_f( void )
 {
-    *( volatile S32* )0 = 0x12345678;
+    *( volatile sint* )0 = 0x12345678;
 }
 
 void Com_SetRecommended()
@@ -2833,8 +2833,8 @@ gameInfo_t      com_gameInfo;
 
 void Com_GetGameInfo()
 {
-    UTF8*           f, *buf;
-    UTF8*           token;
+    valueType*           f, *buf;
+    valueType*           token;
     
     memset( &com_gameInfo, 0, sizeof( com_gameInfo ) );
     
@@ -2926,11 +2926,11 @@ void Com_GetGameInfo()
 // bani - checks if profile.pid is valid
 // return true if it is
 // return false if it isn't(!)
-bool Com_CheckProfile( UTF8* profile_path )
+bool Com_CheckProfile( valueType* profile_path )
 {
     fileHandle_t    f;
-    UTF8            f_data[32];
-    S32             f_pid;
+    valueType            f_data[32];
+    sint             f_pid;
     
     //let user override this
     if( com_ignorecrash->integer )
@@ -2967,15 +2967,15 @@ bool Com_CheckProfile( UTF8* profile_path )
 }
 
 //bani - from files.c
-extern UTF8     fs_gamedir[MAX_OSPATH];
-UTF8            last_fs_gamedir[MAX_OSPATH];
-UTF8            last_profile_path[MAX_OSPATH];
+extern valueType     fs_gamedir[MAX_OSPATH];
+valueType            last_fs_gamedir[MAX_OSPATH];
+valueType            last_profile_path[MAX_OSPATH];
 
 //bani - track profile changes, delete old profile.pid if we change fs_game(dir)
 //hackish, we fiddle with fs_gamedir to make fileSystem->* calls work "right"
-void Com_TrackProfile( UTF8* profile_path )
+void Com_TrackProfile( valueType* profile_path )
 {
-    UTF8            temp_fs_gamedir[MAX_OSPATH];
+    valueType            temp_fs_gamedir[MAX_OSPATH];
     
 //  Com_Printf( "Com_TrackProfile: Tracking profile [%s] [%s]\n", fs_gamedir, profile_path );
     //have we changed fs_game(dir)?
@@ -3004,7 +3004,7 @@ void Com_TrackProfile( UTF8* profile_path )
 // bani - writes pid to profile
 // returns true if successful
 // returns false if not(!!)
-bool Com_WriteProfile( UTF8* profile_path )
+bool Com_WriteProfile( valueType* profile_path )
 {
     fileHandle_t    f;
     
@@ -3035,10 +3035,10 @@ bool Com_WriteProfile( UTF8* profile_path )
 Com_Init
 =================
 */
-void Com_Init( UTF8* commandLine )
+void Com_Init( valueType* commandLine )
 {
-    UTF8*           s;
-    S32             pid;
+    valueType*           s;
+    sint             pid;
     
     // TTimo gcc warning: variable `safeMode' might be clobbered by `longjmp' or `vfork'
     volatile bool safeMode = true;
@@ -3052,7 +3052,7 @@ void Com_Init( UTF8* commandLine )
     
     // Clear queues
     ::memset( &eventQueue[0], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
-    ::memset( &sys_packetReceived[0], 0, MAX_MSGLEN * sizeof( U8 ) );
+    ::memset( &sys_packetReceived[0], 0, MAX_MSGLEN * sizeof( uchar8 ) );
     
     // bk001129 - do this before anything else decides to push events
     Com_InitPushEvent();
@@ -3111,21 +3111,21 @@ void Com_Init( UTF8* commandLine )
     // skip the q3config.cfg if "safe" is on the command line
     if( !Com_SafeMode() )
     {
-        UTF8*           cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+        valueType*           cl_profileStr = cvarSystem->VariableString( "cl_profile" );
         
         safeMode = false;
         if( com_gameInfo.usesProfiles )
         {
             if( !cl_profileStr[0] )
             {
-                UTF8*           defaultProfile = nullptr;
+                valueType*           defaultProfile = nullptr;
                 
                 fileSystem->ReadFile( "profiles/defaultprofile.dat", ( void** )&defaultProfile );
                 
                 if( defaultProfile )
                 {
-                    UTF8*           text_p = defaultProfile;
-                    UTF8*           token = COM_Parse( &text_p );
+                    valueType*           text_p = defaultProfile;
+                    valueType*           token = COM_Parse( &text_p );
                     
                     if( token && *token )
                     {
@@ -3268,10 +3268,10 @@ void Com_Init( UTF8* commandLine )
     if( idsystem->WritePIDFile( ) )
     {
 #ifndef DEDICATED
-        StringEntry message = "The last time " CLIENT_WINDOW_TITLE " ran, "
-                              "it didn't exit properly. This may be due to inappropriate video "
-                              "settings. Would you like to start with \"safe\" video settings?";
-                              
+        pointer message = "The last time " CLIENT_WINDOW_TITLE " ran, "
+                          "it didn't exit properly. This may be due to inappropriate video "
+                          "settings. Would you like to start with \"safe\" video settings?";
+                          
         if( idsystem->Dialog( DT_YES_NO, message, "Abnormal Exit" ) == DR_YES )
         {
             cvarSystem->Set( "com_abnormalExit", "1" );
@@ -3334,7 +3334,7 @@ void Com_Init( UTF8* commandLine )
 
 //==================================================================
 
-void Com_WriteConfigToFile( StringEntry filename )
+void Com_WriteConfigToFile( pointer filename )
 {
     fileHandle_t    f;
     
@@ -3373,7 +3373,7 @@ Writes key bindings and archived cvars to config file if modified
 */
 void Com_WriteConfiguration( void )
 {
-    UTF8*           cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+    valueType*           cl_profileStr = cvarSystem->VariableString( "cl_profile" );
     
     // if we are quiting without fully initializing, make sure
     // we don't write out anything
@@ -3408,7 +3408,7 @@ Write the config file to a specific name
 */
 void Com_WriteConfig_f( void )
 {
-    UTF8            filename[MAX_QPATH];
+    valueType            filename[MAX_QPATH];
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -3427,9 +3427,9 @@ void Com_WriteConfig_f( void )
 Com_ModifyMsec
 ================
 */
-S32 Com_ModifyMsec( S32 msec )
+sint Com_ModifyMsec( sint msec )
 {
-    S32             clampTime;
+    sint             clampTime;
     
     //
     // modify time for debugging values
@@ -3495,15 +3495,15 @@ Com_Frame
 */
 void Com_Frame( void )
 {
-    S32             msec, minMsec;
-    static S32      lastTime;
-    S32             key;
-    S32             timeBeforeFirstEvents;
-    S32             timeBeforeServer;
-    S32             timeBeforeEvents;
-    S32             timeBeforeClient;
-    S32             timeAfter;
-    static S32      watchdogTime = 0;
+    sint             msec, minMsec;
+    static sint      lastTime;
+    sint             key;
+    sint             timeBeforeFirstEvents;
+    sint             timeBeforeServer;
+    sint             timeBeforeEvents;
+    sint             timeBeforeClient;
+    sint             timeAfter;
+    static sint      watchdogTime = 0;
     static bool		watchWarn = false;
     
     if( setjmp( abortframe ) )
@@ -3570,7 +3570,7 @@ void Com_Frame( void )
     msec = minMsec;
     do
     {
-        S32 timeRemaining = minMsec - msec;
+        sint timeRemaining = minMsec - msec;
         
         // The existing idSystemLocal::Sleep implementations aren't really
         // precise enough to be of use beyond 100fps
@@ -3698,7 +3698,7 @@ void Com_Frame( void )
     //
     if( com_speeds->integer )
     {
-        S32             all, sv, sev, cev, cl;
+        sint             all, sv, sev, cev, cl;
         
         all = timeAfter - timeBeforeServer;
         sv = timeBeforeEvents - timeBeforeServer;
@@ -3718,8 +3718,8 @@ void Com_Frame( void )
     if( com_showtrace->integer )
     {
     
-        extern S32 c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
-        extern S32 c_pointcontents;
+        extern sint c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
+        extern sint c_pointcontents;
         
         Com_Printf( "%4i traces  (%ib %ip %it) %4i points\n", c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces, c_pointcontents );
         c_traces = 0;
@@ -3739,7 +3739,7 @@ Com_Shutdown
 */
 void Com_Shutdown( bool badProfile )
 {
-    UTF8* cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+    valueType* cl_profileStr = cvarSystem->VariableString( "cl_profile" );
     
     NET_Shutdown();
     
@@ -3797,7 +3797,7 @@ void Field_Clear( field_t* edit )
 Field_Set
 ==================
 */
-void Field_Set( field_t* edit, StringEntry content )
+void Field_Set( field_t* edit, pointer content )
 {
     memset( edit->buffer, 0, MAX_EDIT_LINE );
     strncpy( edit->buffer, content, MAX_EDIT_LINE );
@@ -3836,22 +3836,22 @@ void Field_WordDelete( field_t* edit )
 }
 
 
-StringEntry completionString;
-static UTF8     shortestMatch[MAX_TOKEN_CHARS];
-static S32      matchCount;
+pointer completionString;
+static valueType     shortestMatch[MAX_TOKEN_CHARS];
+static sint      matchCount;
 
 // field we are working on, passed to Field_CompleteCommand (&g_consoleCommand for instance)
 static field_t* completionField;
-static StringEntry completionPrompt;
+static pointer completionPrompt;
 
 /*
 ===============
 FindMatches
 ===============
 */
-static void FindMatches( StringEntry s )
+static void FindMatches( pointer s )
 {
-    S32             i;
+    sint             i;
     
     if( Q_stricmpn( s, completionString, strlen( completionString ) ) )
     {
@@ -3883,7 +3883,7 @@ static void FindMatches( StringEntry s )
 PrintMatches
 ===============
 */
-static void PrintMatches( StringEntry s )
+static void PrintMatches( pointer s )
 {
     if( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) )
     {
@@ -3896,7 +3896,7 @@ static void PrintMatches( StringEntry s )
 PrintCvarMatches
 ===============
 */
-static void PrintCvarMatches( StringEntry s )
+static void PrintCvarMatches( pointer s )
 {
     if( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) )
     {
@@ -3910,9 +3910,9 @@ static void PrintCvarMatches( StringEntry s )
 Field_FindFirstSeparator
 ===============
 */
-static UTF8* Field_FindFirstSeparator( UTF8* s )
+static valueType* Field_FindFirstSeparator( valueType* s )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < strlen( s ); i++ )
     {
@@ -3930,7 +3930,7 @@ Field_Complete
 */
 static bool Field_Complete( void )
 {
-    S32 completionOffset;
+    sint completionOffset;
     
     if( matchCount == 0 )
         return true;
@@ -3975,7 +3975,7 @@ void Field_CompleteKeyname( void )
 Field_CompleteCgame
 ===============
 */
-void Field_CompleteCgame( S32 argNum )
+void Field_CompleteCgame( sint argNum )
 {
     matchCount = 0;
     shortestMatch[ 0 ] = 0;
@@ -3994,8 +3994,8 @@ void Field_CompleteCgame( S32 argNum )
 Field_CompleteFilename
 ===============
 */
-void Field_CompleteFilename( StringEntry dir,
-                             StringEntry ext, bool stripExt )
+void Field_CompleteFilename( pointer dir,
+                             pointer ext, bool stripExt )
 {
     matchCount = 0;
     shortestMatch[ 0 ] = 0;
@@ -4043,9 +4043,9 @@ void Field_CompleteDelay( void )
 Field_CompleteCommand
 ===============
 */
-void Field_CompleteCommand( UTF8* cmd, bool doCommands, bool doCvars )
+void Field_CompleteCommand( valueType* cmd, bool doCommands, bool doCvars )
 {
-    S32 completionArgument = 0;
+    sint completionArgument = 0;
     
     // Skip leading whitespace and quotes
     cmd = Com_SkipCharset( cmd, " \"" );
@@ -4084,8 +4084,8 @@ void Field_CompleteCommand( UTF8* cmd, bool doCommands, bool doCvars )
     
     if( completionArgument > 1 )
     {
-        StringEntry baseCmd = cmdSystem->Argv( 0 );
-        UTF8* p;
+        pointer baseCmd = cmdSystem->Argv( 0 );
+        valueType* p;
         
 #ifndef DEDICATED
         // This should always be true
@@ -4134,7 +4134,7 @@ Field_AutoComplete
 Perform Tab expansion
 ===============
 */
-void Field_AutoComplete( field_t* field, StringEntry prompt )
+void Field_AutoComplete( field_t* field, pointer prompt )
 {
     completionField = field;
     completionPrompt = prompt;
@@ -4142,7 +4142,7 @@ void Field_AutoComplete( field_t* field, StringEntry prompt )
     Field_CompleteCommand( completionField->buffer, true, true );
 }
 
-void Com_GetHunkInfo( S32* hunkused, S32* hunkexpected )
+void Com_GetHunkInfo( sint* hunkused, sint* hunkexpected )
 {
     *hunkused = com_hunkusedvalue;
     *hunkexpected = com_expectedhunkusage;
@@ -4155,9 +4155,9 @@ Com_RandomBytes
 fills string array with len radom bytes, peferably from the OS randomizer
 ==================
 */
-void Com_RandomBytes( U8* string, S32 len )
+void Com_RandomBytes( uchar8* string, sint len )
 {
-    S32 i;
+    sint i;
     
     if( idsystem->RandomBytes( string, len ) )
     {
@@ -4168,7 +4168,7 @@ void Com_RandomBytes( U8* string, S32 len )
     
     for( i = 0; i < len; i++ )
     {
-        string[i] = ( U8 )( rand() % 255 );
+        string[i] = ( uchar8 )( rand() % 255 );
     }
 }
 
@@ -4178,8 +4178,8 @@ void Com_RandomBytes( U8* string, S32 len )
 #else
 #define CON_HISTORY_FILE "conhistory"
 #endif
-static UTF8 history[CON_HISTORY][MAX_EDIT_LINE];
-static S32 hist_current = -1, hist_next = 0;
+static valueType history[CON_HISTORY][MAX_EDIT_LINE];
+static sint hist_current = -1, hist_next = 0;
 
 /*
 ==================
@@ -4188,10 +4188,10 @@ Hist_Load
 */
 void Hist_Load( void )
 {
-    S32 i;
+    sint i;
     fileHandle_t f;
-    UTF8* buf, *end;
-    UTF8 buffer[sizeof( history )];
+    valueType* buf, *end;
+    valueType buffer[sizeof( history )];
     
     fileSystem->SV_FOpenFileRead( CON_HISTORY_FILE, &f );
     if( !f )
@@ -4242,7 +4242,7 @@ Hist_Save
 */
 static void Hist_Save( void )
 {
-    S32 i;
+    sint i;
     fileHandle_t f;
     
     f = fileSystem->SV_FOpenFileWrite( CON_HISTORY_FILE );
@@ -4255,7 +4255,7 @@ static void Hist_Save( void )
     i = ( hist_next + 1 ) % CON_HISTORY;
     do
     {
-        UTF8* buf;
+        valueType* buf;
         if( !history[i][0] )
         {
             i = ( i + 1 ) % CON_HISTORY;
@@ -4275,9 +4275,9 @@ static void Hist_Save( void )
 Hist_Add
 ==================
 */
-void Hist_Add( StringEntry field )
+void Hist_Add( pointer field )
 {
-    StringEntry prev = history[( hist_next - 1 ) % CON_HISTORY];
+    pointer prev = history[( hist_next - 1 ) % CON_HISTORY];
     
     // don't add "", "\" or "/"
     if( !field[0] || ( ( field[0] == '/' || field[0] == '\\' ) && !field[1] ) )
@@ -4305,7 +4305,7 @@ void Hist_Add( StringEntry field )
 Hist_Prev
 ==================
 */
-StringEntry Hist_Prev( void )
+pointer Hist_Prev( void )
 {
     if( ( hist_current - 1 ) % CON_HISTORY != hist_next % CON_HISTORY && history[( hist_current - 1 ) % CON_HISTORY][0] )
     {
@@ -4320,7 +4320,7 @@ StringEntry Hist_Prev( void )
 Hist_Next
 ==================
 */
-StringEntry Hist_Next( StringEntry field )
+pointer Hist_Next( pointer field )
 {
     if( hist_current % CON_HISTORY != hist_next % CON_HISTORY )
     {

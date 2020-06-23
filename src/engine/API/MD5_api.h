@@ -43,7 +43,7 @@
 class idMD5System
 {
 public:
-    virtual UTF8* MD5File( StringEntry fn, S32 length, StringEntry prefix, S32 prefix_len ) = 0;
+    virtual valueType* MD5File( pointer fn, sint length, pointer prefix, sint prefix_len ) = 0;
 };
 
 extern idMD5System* MD5System;

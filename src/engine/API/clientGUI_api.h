@@ -31,11 +31,11 @@
 
 typedef struct
 {
-    S32 connectPacketCount;
-    S32 clientNum;
-    UTF8 servername[MAX_STRING_CHARS];
-    UTF8 updateInfoString[MAX_STRING_CHARS];
-    UTF8 messageString[MAX_STRING_CHARS];
+    sint connectPacketCount;
+    sint clientNum;
+    valueType servername[MAX_STRING_CHARS];
+    valueType updateInfoString[MAX_STRING_CHARS];
+    valueType messageString[MAX_STRING_CHARS];
     connstate_t connState;
 } uiClientState_t;
 
@@ -47,14 +47,14 @@ class idClientGUISystem
 public:
     virtual void GetClientState( uiClientState_t* state ) = 0;
     virtual void GetGlconfig( vidconfig_t* config ) = 0;
-    virtual void GUIGetClipboardData( UTF8* buf, S32 buflen ) = 0;
-    virtual S32 GetConfigString( S32 index, UTF8* buf, S32 size ) = 0;
+    virtual void GUIGetClipboardData( valueType* buf, sint buflen ) = 0;
+    virtual sint GetConfigString( sint index, valueType* buf, sint size ) = 0;
     virtual bool GetNews( bool begin ) = 0;
-    virtual void KeynumToStringBuf( S32 keynum, UTF8* buf, S32 buflen ) = 0;
-    virtual void GetBindingBuf( S32 keynum, UTF8* buf, S32 buflen ) = 0;
-    virtual S32 GetCatcher( void ) = 0;
-    virtual void SetCatcher( S32 catcher ) = 0;
-    virtual bool checkKeyExec( S32 key ) = 0;
+    virtual void KeynumToStringBuf( sint keynum, valueType* buf, sint buflen ) = 0;
+    virtual void GetBindingBuf( sint keynum, valueType* buf, sint buflen ) = 0;
+    virtual sint GetCatcher( void ) = 0;
+    virtual void SetCatcher( sint catcher ) = 0;
+    virtual bool checkKeyExec( sint key ) = 0;
     virtual bool GameCommand( void ) = 0;
     virtual void InitGUI( void ) = 0;
     virtual void ShutdownGUI( void ) = 0;

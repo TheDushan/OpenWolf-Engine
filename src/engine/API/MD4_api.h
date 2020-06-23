@@ -44,7 +44,7 @@
 class idMD4System
 {
 public:
-    virtual U32 BlockChecksum( const void* buffer, S32 length ) = 0;
+    virtual uint BlockChecksum( const void* buffer, sint length ) = 0;
 };
 
 extern idMD4System* MD4System;

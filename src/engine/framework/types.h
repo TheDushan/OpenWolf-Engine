@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2020 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -19,9 +19,8 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   types.h
-// Version:     v1.00
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft Visual C++ 2019, gcc (Ubuntu 8.3.0-6ubuntu1) 8.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -33,26 +32,36 @@
 //-----------------------------------------Basic Types--------------------------------------------------//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef signed char        S8;      ///< Compiler independent Signed Char
-typedef unsigned char      U8;      ///< Compiler independent Unsigned Char
+typedef signed char        schar8;      ///< Compiler independent Signed Char
+typedef unsigned char      uchar8;      ///< Compiler independent Unsigned Char
 
-typedef signed short       S16;     ///< Compiler independent Signed 16-bit short
-typedef unsigned short     U16;     ///< Compiler independent Unsigned 16-bit short
+typedef signed short       schar16;     ///< Compiler independent Signed 16-bit short
+typedef unsigned short     uchar16;     ///< Compiler independent Unsigned 16-bit short
 
-typedef signed int         S32;     ///< Compiler independent Signed 32-bit integer
-typedef unsigned int       U32;     ///< Compiler independent Unsigned 32-bit integer
+typedef signed int         sint;     ///< Compiler independent Signed 32-bit integer
+typedef unsigned int       uint;     ///< Compiler independent Unsigned 32-bit integer
 
-typedef signed long        S64;     ///< Compiler independent Signed 64-bit integer
-typedef unsigned long      U64;     ///< Compiler independent Unsigned 64-bit integer
+typedef signed long        sint32;     ///< Compiler independent Signed 64-bit integer
+typedef unsigned long      uint32;     ///< Compiler independent Unsigned 64-bit integer
 
-typedef float              F32;     ///< Compiler independent 32-bit float
-typedef double             F64;     ///< Compiler independent 64-bit float
+#ifdef _WIN32
+typedef signed __int64     sint64;
+typedef unsigned __int64   uint64;
+#else
+typedef signed long long   sin64;
+typedef unsigned long long uin64;
+#endif
+
+typedef float              float32;     ///< Compiler independent 32-bit float
+typedef double             float64;     ///< Compiler independent 64-bit float
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //----------------------------------------String Types--------------------------------------------------//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef char           UTF8;        ///< Compiler independent 8  bit Unicode encoded character
-typedef const char*    StringEntry;
+typedef char        valueType;        ///< Compiler independent 8 bit Unicode encoded character
+typedef const char* pointer;
+typedef const char& reference;
+
 
 #endif //__TYPES_H__

@@ -37,7 +37,7 @@
 
 #include <framework/precompiled.h>
 
-UTF8* svc_strings[256] =
+valueType* svc_strings[256] =
 {
     "svc_bad",
     
@@ -52,7 +52,7 @@ UTF8* svc_strings[256] =
     "svc_EOF"
 };
 
-void SHOWNET( msg_t* msg, UTF8* s )
+void SHOWNET( msg_t* msg, valueType* s )
 {
     if( cl_shownet->integer >= 2 )
     {
@@ -70,14 +70,14 @@ MESSAGE PARSING
 */
 #if 1
 
-S32             entLastVisible[MAX_CLIENTS];
+sint             entLastVisible[MAX_CLIENTS];
 
 bool isEntVisible( entityState_t* ent )
 {
     trace_t         tr;
     vec3_t          start, end, temp;
     vec3_t          forward, up, right, right2;
-    F32           view_height;
+    float32           view_height;
     
     VectorCopy( cl.cgameClientLerpOrigin, start );
     start[2] += ( cl.snap.ps.viewheight - 1 );
@@ -202,7 +202,7 @@ Parses deltas from the given base and adds the resulting entity
 to the current frame
 ==================
 */
-void CL_DeltaEntity( msg_t* msg, clSnapshot_t* frame, S32 newnum, entityState_t* old, bool unchanged )
+void CL_DeltaEntity( msg_t* msg, clSnapshot_t* frame, sint newnum, entityState_t* old, bool unchanged )
 {
     entityState_t*  state;
     
@@ -258,9 +258,9 @@ CL_ParsePacketEntities
 */
 void CL_ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* newframe )
 {
-    S32			newnum;
+    sint			newnum;
     entityState_t*	oldstate;
-    S32			oldindex, oldnum;
+    sint			oldindex, oldnum;
     
     newframe->parseEntitiesNum = cl.parseEntitiesNum;
     newframe->numEntities = 0;
@@ -402,12 +402,12 @@ for any reason, no changes to the state will be made at all.
 */
 void CL_ParseSnapshot( msg_t* msg )
 {
-    S32             len;
+    sint             len;
     clSnapshot_t*   old;
     clSnapshot_t    newSnap;
-    S32             deltaNum;
-    S32             oldMessageNum;
-    S32             i, packetNum;
+    sint             deltaNum;
+    sint             oldMessageNum;
+    sint             i, packetNum;
     
     // get the reliable sequence acknowledge number
     // NOTE: now sent with all server to client messages
@@ -459,9 +459,9 @@ void CL_ParseSnapshot( msg_t* msg )
         {
             if( cl_autorecord->integer /*&& cvarSystem->VariableValue( "g_synchronousClients") */ )
             {
-                UTF8            name[256];
-                UTF8            mapname[MAX_QPATH];
-                UTF8*           period;
+                valueType            name[256];
+                valueType            mapname[MAX_QPATH];
+                valueType*           period;
                 qtime_t         time;
                 
                 Com_RealTime( &time );
@@ -596,7 +596,7 @@ void CL_ParseSnapshot( msg_t* msg )
 
 //=====================================================================
 
-S32             cl_connectedToPureServer;
+sint             cl_connectedToPureServer;
 
 /*
 ==================
@@ -610,10 +610,10 @@ gamestate, and possibly during gameplay.
 void            CL_PurgeCache( void );
 void CL_SystemInfoChanged( void )
 {
-    UTF8*           systemInfo;
-    StringEntry     s, t;
-    UTF8            key[BIG_INFO_KEY];
-    UTF8            value[BIG_INFO_VALUE];
+    valueType*           systemInfo;
+    pointer     s, t;
+    valueType            key[BIG_INFO_KEY];
+    valueType            value[BIG_INFO_VALUE];
     
     systemInfo = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SYSTEMINFO];
     // NOTE TTimo:
@@ -686,12 +686,12 @@ CL_ParseGamestate
 */
 void CL_ParseGamestate( msg_t* msg )
 {
-    S32             i;
+    sint             i;
     entityState_t*  es;
-    S32             newnum;
+    sint             newnum;
     entityState_t   nullstate;
-    S32             cmd;
-    UTF8*           s;
+    sint             cmd;
+    valueType*           s;
     
     Con_Close();
     
@@ -716,7 +716,7 @@ void CL_ParseGamestate( msg_t* msg )
         
         if( cmd == svc_configstring )
         {
-            S32             len;
+            sint             len;
             
             i = MSG_ReadShort( msg );
             if( i < 0 || i >= MAX_CONFIGSTRINGS )
@@ -790,9 +790,9 @@ A download message has been received from the server
 */
 void CL_ParseDownload( msg_t* msg )
 {
-    S32             size;
-    U8   data[MAX_MSGLEN];
-    S32             block;
+    sint             size;
+    uchar8   data[MAX_MSGLEN];
+    sint             block;
     
     if( !*cls.downloadTempName )
     {
@@ -954,9 +954,9 @@ when it transitions a snapshot
 */
 void CL_ParseCommandString( msg_t* msg )
 {
-    UTF8*           s;
-    S32             seq;
-    S32             index;
+    valueType*           s;
+    sint             seq;
+    sint             index;
     
     seq = MSG_ReadLong( msg );
     s = MSG_ReadString( msg );
@@ -979,7 +979,7 @@ CL_ParseServerMessage
 */
 void CL_ParseServerMessage( msg_t* msg )
 {
-    S32             cmd;
+    sint             cmd;
     msg_t           msgback;
     
     msgback = *msg;

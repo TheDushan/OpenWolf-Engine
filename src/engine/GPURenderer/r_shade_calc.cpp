@@ -35,9 +35,9 @@
 #endif
 
 
-#define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ static_cast<S64>( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
+#define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ static_cast<sint32>( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
-static F32* TableForFunc( genFunc_t func )
+static float32* TableForFunc( genFunc_t func )
 {
     switch( func )
     {
@@ -67,18 +67,18 @@ static F32* TableForFunc( genFunc_t func )
 **
 ** Evaluates a given waveForm_t, referencing backEnd.refdef.time directly
 */
-static F32 EvalWaveForm( const waveForm_t* wf )
+static float32 EvalWaveForm( const waveForm_t* wf )
 {
-    F32*	table;
+    float32*	table;
     
     table = TableForFunc( wf->func );
     
     return WAVEVALUE( table, wf->base, wf->amplitude, wf->phase, wf->frequency );
 }
 
-static F32 EvalWaveFormClamped( const waveForm_t* wf )
+static float32 EvalWaveFormClamped( const waveForm_t* wf )
 {
-    F32 glow  = EvalWaveForm( wf );
+    float32 glow  = EvalWaveForm( wf );
     
     if( glow < 0 )
     {
@@ -96,9 +96,9 @@ static F32 EvalWaveFormClamped( const waveForm_t* wf )
 /*
 ** RB_CalcStretchTexMatrix
 */
-void RB_CalcStretchTexMatrix( const waveForm_t* wf, F32* matrix )
+void RB_CalcStretchTexMatrix( const waveForm_t* wf, float32* matrix )
 {
-    F32 p;
+    float32 p;
     
     p = 1.0f / EvalWaveForm( wf );
     
@@ -126,12 +126,12 @@ RB_CalcDeformVertexes
 */
 void RB_CalcDeformVertexes( deformStage_t* ds )
 {
-    S32 i;
+    sint i;
     vec3_t	offset;
-    F32	scale;
-    F32*	xyz = ( F32* ) tess.xyz;
-    S16*	normal = tess.normal[0];
-    F32*	table;
+    float32	scale;
+    float32*	xyz = ( float32* ) tess.xyz;
+    schar16*	normal = tess.normal[0];
+    float32*	table;
     
     if( ds->deformationWave.frequency == 0 )
     {
@@ -152,7 +152,7 @@ void RB_CalcDeformVertexes( deformStage_t* ds )
         
         for( i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4 )
         {
-            F32 off = ( xyz[0] + xyz[1] + xyz[2] ) * ds->deformationSpread;
+            float32 off = ( xyz[0] + xyz[1] + xyz[2] ) * ds->deformationSpread;
             
             scale = WAVEVALUE( table, ds->deformationWave.base,
                                ds->deformationWave.amplitude,
@@ -177,10 +177,10 @@ Wiggle the normals for wavy environment mapping
 */
 void RB_CalcDeformNormals( deformStage_t* ds )
 {
-    S32 i;
-    F32	scale;
-    F32*	xyz = ( F32* ) tess.xyz;
-    S16* normal = tess.normal[0];
+    sint i;
+    float32	scale;
+    float32*	xyz = ( float32* ) tess.xyz;
+    schar16* normal = tess.normal[0];
     
     for( i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4 )
     {
@@ -217,22 +217,22 @@ RB_CalcBulgeVertexes
 */
 void RB_CalcBulgeVertexes( deformStage_t* ds )
 {
-    S32 i;
-    const F32* st = ( const F32* ) tess.texCoords[0];
-    F32*		xyz = ( F32* ) tess.xyz;
-    S16*	normal = tess.normal[0];
+    sint i;
+    const float32* st = ( const float32* ) tess.texCoords[0];
+    float32*		xyz = ( float32* ) tess.xyz;
+    schar16*	normal = tess.normal[0];
     
-    F64 now = backEnd.refdef.time * 0.001 * ds->bulgeSpeed;
+    float64 now = backEnd.refdef.time * 0.001 * ds->bulgeSpeed;
     
     for( i = 0; i < tess.numVertexes; i++, xyz += 4, st += 2, normal += 4 )
     {
-        S64	off;
-        F32 scale;
+        sint32	off;
+        float32 scale;
         vec3_t fNormal;
         
         R_VaoUnpackNormal( fNormal, normal );
         
-        off = ( F32 )( FUNCTABLE_SIZE / ( M_PI * 2 ) ) * ( st[0] * ds->bulgeWidth + now );
+        off = ( float32 )( FUNCTABLE_SIZE / ( M_PI * 2 ) ) * ( st[0] * ds->bulgeWidth + now );
         
         scale = tr.sinTable[ off & FUNCTABLE_MASK ] * ds->bulgeHeight;
         
@@ -252,10 +252,10 @@ A deformation that can move an entire surface along a wave path
 */
 void RB_CalcMoveVertexes( deformStage_t* ds )
 {
-    S32			i;
-    F32*		xyz;
-    F32*		table;
-    F32		scale;
+    sint			i;
+    float32*		xyz;
+    float32*		table;
+    float32		scale;
     vec3_t		offset;
     
     table = TableForFunc( ds->deformationWave.func );
@@ -267,7 +267,7 @@ void RB_CalcMoveVertexes( deformStage_t* ds )
                        
     VectorScale( ds->moveVector, scale, offset );
     
-    xyz = ( F32* ) tess.xyz;
+    xyz = ( float32* ) tess.xyz;
     for( i = 0; i < tess.numVertexes; i++, xyz += 4 )
     {
         VectorAdd( xyz, offset, xyz );
@@ -282,14 +282,14 @@ DeformText
 Change a polygon into a bunch of text polygons
 =============
 */
-void DeformText( StringEntry text )
+void DeformText( pointer text )
 {
-    S32		i;
+    sint		i;
     vec3_t	origin, width, height;
-    S32		len;
-    S32		ch;
-    F32	color[4];
-    F32	bottom, top;
+    sint		len;
+    sint		ch;
+    float32	color[4];
+    float32	bottom, top;
     vec3_t	mid;
     vec3_t fNormal;
     
@@ -344,8 +344,8 @@ void DeformText( StringEntry text )
         
         if( ch != ' ' )
         {
-            S32		row, col;
-            F32	frow, fcol, size;
+            sint		row, col;
+            float32	frow, fcol, size;
             
             row = ch >> 4;
             col = ch & 15;
@@ -382,11 +382,11 @@ quads, rebuild them as forward facing sprites
 */
 static void AutospriteDeform( void )
 {
-    S32		i;
-    S32		oldVerts;
-    F32*	xyz;
+    sint		i;
+    sint		oldVerts;
+    float32*	xyz;
     vec3_t	mid, delta;
-    F32	radius;
+    float32	radius;
     vec3_t	left, up;
     vec3_t	leftDir, upDir;
     
@@ -439,7 +439,7 @@ static void AutospriteDeform( void )
         // compensate for scale in the axes if necessary
         if( backEnd.currentEntity->e.nonNormalizedAxes )
         {
-            F32 axisLength;
+            float32 axisLength;
             axisLength = VectorLength( backEnd.currentEntity->e.axis[0] );
             if( !axisLength )
             {
@@ -466,7 +466,7 @@ Autosprite2Deform
 Autosprite2 will pivot a rectangular quad along the center of its long axis
 =====================
 */
-S32 edgeVerts[6][2] =
+sint edgeVerts[6][2] =
 {
     { 0, 1 },
     { 0, 2 },
@@ -478,9 +478,9 @@ S32 edgeVerts[6][2] =
 
 static void Autosprite2Deform( void )
 {
-    S32		i, j, k;
-    S32		indexes;
-    F32*	xyz;
+    sint		i, j, k;
+    sint		indexes;
+    float32*	xyz;
     vec3_t	forward;
     
     if( tess.numVertexes & 3 )
@@ -506,11 +506,11 @@ static void Autosprite2Deform( void )
     // the shader abstraction
     for( i = 0, indexes = 0 ; i < tess.numVertexes ; i += 4, indexes += 6 )
     {
-        F32	lengths[2];
-        S32		nums[2];
+        float32	lengths[2];
+        sint		nums[2];
         vec3_t	mid[2];
         vec3_t	major, minor;
-        F32*	v1, *v2;
+        float32*	v1, *v2;
         
         // find the midpoint
         xyz = tess.xyz[i];
@@ -521,7 +521,7 @@ static void Autosprite2Deform( void )
         
         for( j = 0 ; j < 6 ; j++ )
         {
-            F32	l;
+            float32	l;
             vec3_t	temp;
             
             v1 = xyz + 4 * edgeVerts[j][0];
@@ -564,7 +564,7 @@ static void Autosprite2Deform( void )
         // re-project the points
         for( j = 0 ; j < 2 ; j++ )
         {
-            F32	l;
+            float32	l;
             
             v1 = xyz + 4 * edgeVerts[nums[j]][0];
             v2 = xyz + 4 * edgeVerts[nums[j]][1];
@@ -605,7 +605,7 @@ RB_DeformTessGeometry
 */
 void RB_DeformTessGeometry( void )
 {
-    S32		i;
+    sint		i;
     deformStage_t*	ds;
     
     if( !ShaderRequiresCPUDeforms( tess.shader ) )
@@ -669,9 +669,9 @@ COLORS
 /*
 ** RB_CalcWaveColorSingle
 */
-F32 RB_CalcWaveColorSingle( const waveForm_t* wf )
+float32 RB_CalcWaveColorSingle( const waveForm_t* wf )
 {
-    F32 glow;
+    float32 glow;
     
     if( wf->func == GF_NOISE )
     {
@@ -697,7 +697,7 @@ F32 RB_CalcWaveColorSingle( const waveForm_t* wf )
 /*
 ** RB_CalcWaveAlphaSingle
 */
-F32 RB_CalcWaveAlphaSingle( const waveForm_t* wf )
+float32 RB_CalcWaveAlphaSingle( const waveForm_t* wf )
 {
     return EvalWaveFormClamped( wf );
 }
@@ -705,10 +705,10 @@ F32 RB_CalcWaveAlphaSingle( const waveForm_t* wf )
 /*
 ** RB_CalcModulateColorsByFog
 */
-void RB_CalcModulateColorsByFog( U8* colors )
+void RB_CalcModulateColorsByFog( uchar8* colors )
 {
-    S32		i;
-    F32	texCoords[SHADER_MAX_VERTEXES][2] = {{0.0f}};
+    sint		i;
+    float32	texCoords[SHADER_MAX_VERTEXES][2] = {{0.0f}};
     
     // calculate texcoords so we can derive density
     // this is not wasted, because it would only have
@@ -717,7 +717,7 @@ void RB_CalcModulateColorsByFog( U8* colors )
     
     for( i = 0; i < tess.numVertexes; i++, colors += 4 )
     {
-        F32 f = 1.0 - R_FogFactor( texCoords[i][0], texCoords[i][1] );
+        float32 f = 1.0 - R_FogFactor( texCoords[i][0], texCoords[i][1] );
         colors[0] *= f;
         colors[1] *= f;
         colors[2] *= f;
@@ -742,12 +742,12 @@ projected textures, but I don't trust the drivers and it
 doesn't fit our shader data.
 ========================
 */
-void RB_CalcFogTexCoords( F32* st )
+void RB_CalcFogTexCoords( float32* st )
 {
-    S32			i;
-    F32*		v;
-    F32		s, t;
-    F32		eyeT;
+    sint			i;
+    float32*		v;
+    float32		s, t;
+    float32		eyeT;
     bool	    eyeOutside;
     fog_t*		fog;
     vec3_t		local;
@@ -840,7 +840,7 @@ void RB_CalcFogTexCoords( F32* st )
 /*
 ** RB_CalcTurbulentFactors
 */
-void RB_CalcTurbulentFactors( const waveForm_t* wf, F32* amplitude, F32* now )
+void RB_CalcTurbulentFactors( const waveForm_t* wf, float32* amplitude, float32* now )
 {
     *now = wf->phase + tess.shaderTime * wf->frequency;
     *amplitude = wf->amplitude;
@@ -849,7 +849,7 @@ void RB_CalcTurbulentFactors( const waveForm_t* wf, F32* amplitude, F32* now )
 /*
 ** RB_CalcScaleTexMatrix
 */
-void RB_CalcScaleTexMatrix( const F32 scale[2], F32* matrix )
+void RB_CalcScaleTexMatrix( const float32 scale[2], float32* matrix )
 {
     matrix[0] = scale[0];
     matrix[2] = 0.0f;
@@ -862,11 +862,11 @@ void RB_CalcScaleTexMatrix( const F32 scale[2], F32* matrix )
 /*
 ** RB_CalcScrollTexMatrix
 */
-void RB_CalcScrollTexMatrix( const F32 scrollSpeed[2], F32* matrix )
+void RB_CalcScrollTexMatrix( const float32 scrollSpeed[2], float32* matrix )
 {
-    F64 timeScale = tess.shaderTime;
-    F64 adjustedScrollS = scrollSpeed[0] * timeScale;
-    F64 adjustedScrollT = scrollSpeed[1] * timeScale;
+    float64 timeScale = tess.shaderTime;
+    float64 adjustedScrollS = scrollSpeed[0] * timeScale;
+    float64 adjustedScrollT = scrollSpeed[1] * timeScale;
     
     // clamp so coordinates don't continuously get larger, causing problems
     // with hardware limits
@@ -884,7 +884,7 @@ void RB_CalcScrollTexMatrix( const F32 scrollSpeed[2], F32* matrix )
 /*
 ** RB_CalcTransformTexMatrix
 */
-void RB_CalcTransformTexMatrix( const texModInfo_t* tmi, F32* matrix )
+void RB_CalcTransformTexMatrix( const texModInfo_t* tmi, float32* matrix )
 {
     matrix[0] = tmi->matrix[0][0];
     matrix[2] = tmi->matrix[1][0];
@@ -897,14 +897,14 @@ void RB_CalcTransformTexMatrix( const texModInfo_t* tmi, F32* matrix )
 /*
 ** RB_CalcRotateTexMatrix
 */
-void RB_CalcRotateTexMatrix( F32 degsPerSecond, F32* matrix )
+void RB_CalcRotateTexMatrix( float32 degsPerSecond, float32* matrix )
 {
-    F64 timeScale = tess.shaderTime;
-    F64 degs;
-    F32 sinValue, cosValue;
+    float64 timeScale = tess.shaderTime;
+    float64 degs;
+    float32 sinValue, cosValue;
     
     degs = -degsPerSecond * timeScale;
-    S32 i = degs * ( FUNCTABLE_SIZE / 360.0f );
+    sint i = degs * ( FUNCTABLE_SIZE / 360.0f );
     
     sinValue = tr.sinTable[ i & FUNCTABLE_MASK ];
     cosValue = tr.sinTable[( i + FUNCTABLE_SIZE / 4 ) & FUNCTABLE_MASK ];
@@ -931,7 +931,7 @@ bool ShaderRequiresCPUDeforms( const shader_t* shader )
             case DEFORM_WAVE:
             case DEFORM_BULGE:
                 // need CPU deforms at high level-times to avoid floating point percision loss
-                return ( backEnd.refdef.floatTime != ( F32 )backEnd.refdef.floatTime );
+                return ( backEnd.refdef.floatTime != ( float32 )backEnd.refdef.floatTime );
                 
             default:
                 return true;

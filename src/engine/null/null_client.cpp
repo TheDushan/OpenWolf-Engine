@@ -57,7 +57,7 @@ void CL_Init( void )
     cl_language = cvarSystem->Get( "cl_language", "0", CVAR_ARCHIVE, "Stores the language of user's game. English is 0" );
 }
 
-void CL_MouseEvent( S32 dx, S32 dy, S32 time )
+void CL_MouseEvent( sint dx, sint dy, sint time )
 {
 }
 
@@ -65,7 +65,7 @@ void Key_WriteBindings( fileHandle_t f )
 {
 }
 
-void CL_Frame( S32 msec )
+void CL_Frame( sint msec )
 {
 }
 
@@ -73,7 +73,7 @@ void CL_PacketEvent( netadr_t from, msg_t* msg )
 {
 }
 
-void CL_CharEvent( S32 key )
+void CL_CharEvent( sint key )
 {
 }
 
@@ -85,19 +85,19 @@ void CL_MapLoading( void )
 {
 }
 
-void CL_KeyEvent( S32 key, S32 down, S32 time )
+void CL_KeyEvent( sint key, sint down, sint time )
 {
 }
 
-void CL_ForwardCommandToServer( StringEntry string )
+void CL_ForwardCommandToServer( pointer string )
 {
 }
 
-void CL_ConsolePrint( UTF8* txt )
+void CL_ConsolePrint( valueType* txt )
 {
 }
 
-void CL_JoystickEvent( S32 axis, S32 value, S32 time )
+void CL_JoystickEvent( sint axis, sint value, sint time )
 {
 }
 
@@ -123,7 +123,7 @@ void CL_ShutdownAll( void )
 };
 
 // bk001208 - added new dummy (RC4)
-bool CL_CDKeyValidate( StringEntry key, StringEntry checksum )
+bool CL_CDKeyValidate( pointer key, pointer checksum )
 {
     return true;
 }
@@ -134,7 +134,7 @@ void Key_ClearStates( void )
 }
 
 // Dushan
-StringEntry Con_GetText( S32 console )
+pointer Con_GetText( sint console )
 {
     return nullptr;
 }

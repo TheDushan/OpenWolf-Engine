@@ -57,7 +57,7 @@ idSystemLocal::SigHandler() with those numbers should be safe for generating uni
 shutdown messages.
 ==================
 */
-S32 idSystemLocal::CtrlHandler( U64 sig )
+sint idSystemLocal::CtrlHandler( uint32 sig )
 {
     SigHandler( sig );
     return TRUE;
@@ -79,7 +79,7 @@ void idSystemLocal::SetFloatEnv( void )
 idSystemLocal::DefaultHomePath
 ================
 */
-UTF8* idSystemLocal::DefaultHomePath( UTF8* buffer, S32 size )
+valueType* idSystemLocal::DefaultHomePath( valueType* buffer, sint size )
 {
     if( SHGetSpecialFolderPath( nullptr, buffer, CSIDL_PERSONAL, TRUE ) != NOERROR )
     {
@@ -99,11 +99,11 @@ UTF8* idSystemLocal::DefaultHomePath( UTF8* buffer, S32 size )
 idSystemLocal::TempPath
 ================
 */
-StringEntry idSystemLocal::TempPath( void )
+pointer idSystemLocal::TempPath( void )
 {
     static TCHAR path[ MAX_PATH ];
     DWORD length;
-    UTF8 tmp[ MAX_OSPATH ];
+    valueType tmp[ MAX_OSPATH ];
     
     length = GetTempPath( sizeof( path ), path );
     
@@ -123,9 +123,9 @@ idSystemLocal::Milliseconds
 ================
 */
 
-S32 idSystemLocal::Milliseconds( void )
+sint idSystemLocal::Milliseconds( void )
 {
-    S32 sys_curtime;
+    sint sys_curtime;
     static bool initialized = false;
     
     if( !initialized )
@@ -144,7 +144,7 @@ S32 idSystemLocal::Milliseconds( void )
 idSystemLocal::RandomBytes
 ================
 */
-bool idSystemLocal::RandomBytes( U8* string, S32 len )
+bool idSystemLocal::RandomBytes( uchar8* string, sint len )
 {
     HCRYPTPROV prov;
     
@@ -169,10 +169,10 @@ bool idSystemLocal::RandomBytes( U8* string, S32 len )
 idSystemLocal::GetCurrentUser
 ================
 */
-UTF8* idSystemLocal::GetCurrentUser( void )
+valueType* idSystemLocal::GetCurrentUser( void )
 {
-    static UTF8 s_userName[1024];
-    U64 size = sizeof( s_userName );
+    static valueType s_userName[1024];
+    uint32 size = sizeof( s_userName );
     
     if( !GetUserName( s_userName, ( LPDWORD )&size ) )
     {
@@ -192,9 +192,9 @@ UTF8* idSystemLocal::GetCurrentUser( void )
 idSystemLocal::SysGetClipboardData
 ================
 */
-UTF8* idSystemLocal::SysGetClipboardData( void )
+valueType* idSystemLocal::SysGetClipboardData( void )
 {
-    UTF8* data = nullptr, *cliptext;
+    valueType* data = nullptr, *cliptext;
     
     if( OpenClipboard( nullptr ) != 0 )
     {
@@ -202,9 +202,9 @@ UTF8* idSystemLocal::SysGetClipboardData( void )
         
         if( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 )
         {
-            if( ( cliptext = ( UTF8* )GlobalLock( hClipboardData ) ) != 0 )
+            if( ( cliptext = ( valueType* )GlobalLock( hClipboardData ) ) != 0 )
             {
-                data = ( UTF8* )Z_Malloc( GlobalSize( hClipboardData ) + 1 );
+                data = ( valueType* )Z_Malloc( GlobalSize( hClipboardData ) + 1 );
                 Q_strncpyz( data, cliptext, GlobalSize( hClipboardData ) );
                 GlobalUnlock( hClipboardData );
                 
@@ -234,10 +234,10 @@ bool idSystemLocal::LowPhysicalMemory( void )
 idSystemLocal::Basename
 ==============
 */
-StringEntry idSystemLocal::Basename( UTF8* path )
+pointer idSystemLocal::Basename( valueType* path )
 {
-    static UTF8 base[ MAX_OSPATH ] = { 0 };
-    S32	length;
+    static valueType base[ MAX_OSPATH ] = { 0 };
+    sint	length;
     
     length = strlen( path ) - 1;
     
@@ -270,10 +270,10 @@ StringEntry idSystemLocal::Basename( UTF8* path )
 idSystemLocal::Dirname
 ==============
 */
-StringEntry idSystemLocal::Dirname( UTF8* path )
+pointer idSystemLocal::Dirname( valueType* path )
 {
-    static UTF8 dir[ MAX_OSPATH ] = { 0 };
-    S32 length;
+    static valueType dir[ MAX_OSPATH ] = { 0 };
+    sint length;
     
     Q_strncpyz( dir, path, sizeof( dir ) );
     length = strlen( dir ) - 1;
@@ -293,7 +293,7 @@ StringEntry idSystemLocal::Dirname( UTF8* path )
 idSystemLocal::Mkdir
 ==============
 */
-bool idSystemLocal::Mkdir( StringEntry path )
+bool idSystemLocal::Mkdir( pointer path )
 {
     if( !CreateDirectory( path, nullptr ) )
     {
@@ -311,9 +311,9 @@ bool idSystemLocal::Mkdir( StringEntry path )
 idSystemLocal::Cwd
 ==============
 */
-UTF8* idSystemLocal::Cwd( void )
+valueType* idSystemLocal::Cwd( void )
 {
-    static UTF8 cwd[MAX_OSPATH];
+    static valueType cwd[MAX_OSPATH];
     
     _getcwd( cwd, sizeof( cwd ) - 1 );
     cwd[MAX_OSPATH - 1] = 0;
@@ -327,10 +327,10 @@ UTF8* idSystemLocal::Cwd( void )
 idSystemLocal::ListFilteredFiles
 ==============
 */
-void idSystemLocal::ListFilteredFiles( StringEntry basedir, UTF8* subdirs, UTF8* filter, UTF8** list, S32* numfiles )
+void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valueType* filter, valueType** list, sint* numfiles )
 {
     intptr_t findhandle;
-    UTF8 search[MAX_OSPATH], newsubdirs[MAX_OSPATH], filename[MAX_OSPATH];
+    valueType search[MAX_OSPATH], newsubdirs[MAX_OSPATH], filename[MAX_OSPATH];
     struct		_finddata_t findinfo;
     
     if( *numfiles >= MAX_FOUND_FILES - 1 )
@@ -399,9 +399,9 @@ void idSystemLocal::ListFilteredFiles( StringEntry basedir, UTF8* subdirs, UTF8*
 sidSystemLocal::trgtr
 ==============
 */
-bool idSystemLocal::strgtr( StringEntry s0, StringEntry s1 )
+bool idSystemLocal::strgtr( pointer s0, pointer s1 )
 {
-    S32 l0, l1, i;
+    sint l0, l1, i;
     
     l0 = strlen( s0 );
     l1 = strlen( s1 );
@@ -431,11 +431,11 @@ bool idSystemLocal::strgtr( StringEntry s0, StringEntry s1 )
 idSystemLocal::ListFiles
 ==============
 */
-UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, UTF8* filter, S32* numfiles, bool wantsubs )
+valueType** idSystemLocal::ListFiles( pointer directory, pointer extension, valueType* filter, sint* numfiles, bool wantsubs )
 {
-    UTF8 search[MAX_OSPATH];
-    S32 nfiles, flag, i;
-    UTF8** listCopy, *list[MAX_FOUND_FILES];
+    valueType search[MAX_OSPATH];
+    sint nfiles, flag, i;
+    valueType** listCopy, *list[MAX_FOUND_FILES];
     struct _finddata_t findinfo;
     intptr_t findhandle;
     
@@ -452,7 +452,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
             return nullptr;
         }
         
-        listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+        listCopy = ( valueType** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
         
         for( i = 0 ; i < nfiles ; i++ )
         {
@@ -519,7 +519,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
         return nullptr;
     }
     
-    listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+    listCopy = ( valueType** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
     
     for( i = 0 ; i < nfiles ; i++ )
     {
@@ -536,7 +536,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
         {
             if( strgtr( listCopy[i - 1], listCopy[i] ) )
             {
-                UTF8* temp = listCopy[i];
+                valueType* temp = listCopy[i];
                 
                 listCopy[i] = listCopy[i - 1];
                 listCopy[i - 1] = temp;
@@ -554,9 +554,9 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
 idSystemLocal::FreeFileList
 ==============
 */
-void idSystemLocal::FreeFileList( UTF8** list )
+void idSystemLocal::FreeFileList( valueType** list )
 {
-    S32 i;
+    sint i;
     
     if( !list )
     {
@@ -579,7 +579,7 @@ idSystemLocal::Sleep
 Block execution for msec or until input is received.
 ==============
 */
-void idSystemLocal::Sleep( S32 msec )
+void idSystemLocal::Sleep( sint msec )
 {
     if( msec == 0 )
     {
@@ -611,9 +611,9 @@ void idSystemLocal::Sleep( S32 msec )
 idSystemLocal::OpenUrl
 ==============
 */
-bool idSystemLocal::OpenUrl( StringEntry url )
+bool idSystemLocal::OpenUrl( pointer url )
 {
-    return ( ( S32 )ShellExecute( nullptr, nullptr, url, nullptr, nullptr, SW_SHOWNORMAL ) > 32 ) ? true : false;
+    return ( ( sint )ShellExecute( nullptr, nullptr, url, nullptr, nullptr, SW_SHOWNORMAL ) > 32 ) ? true : false;
 }
 
 /*
@@ -623,12 +623,12 @@ idSystemLocal::ErrorDialog
 Display an error message
 ==============
 */
-void idSystemLocal::ErrorDialog( StringEntry error )
+void idSystemLocal::ErrorDialog( pointer error )
 {
-    StringEntry homepath = cvarSystem->VariableString( "fs_homepath" ), gamedir = cvarSystem->VariableString( "fs_gamedir" ), fileName = "crashlog.txt";
-    UTF8 buffer[ 1024 ], *ospath = fileSystem->BuildOSPath( homepath, gamedir, fileName );
-    U32 size;
-    S32 f = -1;
+    pointer homepath = cvarSystem->VariableString( "fs_homepath" ), gamedir = cvarSystem->VariableString( "fs_gamedir" ), fileName = "crashlog.txt";
+    valueType buffer[ 1024 ], *ospath = fileSystem->BuildOSPath( homepath, gamedir, fileName );
+    uint size;
+    sint f = -1;
     
     systemLocal.Print( va( "%s\n", error ) );
     
@@ -673,7 +673,7 @@ idSystemLocal::Dialog
 Display a win32 dialog box
 ==============
 */
-dialogResult_t idSystemLocal::Dialog( dialogType_t type, StringEntry message, StringEntry title )
+dialogResult_t idSystemLocal::Dialog( dialogType_t type, pointer message, pointer title )
 {
     UINT uType;
     
@@ -775,7 +775,7 @@ void idSystemLocal::resetTime( void )
 void idSystemLocal::PlatformInit( void )
 {
 #ifndef DEDICATED
-    StringEntry SDL_VIDEODRIVER = getenv( "SDL_VIDEODRIVER" );
+    pointer SDL_VIDEODRIVER = getenv( "SDL_VIDEODRIVER" );
 #endif
     
     SetFloatEnv();
@@ -808,7 +808,7 @@ idSystemLocal::SetEnv
 set/unset environment variables (empty value removes it)
 ==============
 */
-void idSystemLocal::SetEnv( StringEntry name, StringEntry value )
+void idSystemLocal::SetEnv( pointer name, pointer value )
 {
     _putenv( va( "%s=%s", name, value ) );
 }
@@ -818,7 +818,7 @@ void idSystemLocal::SetEnv( StringEntry name, StringEntry value )
 idSystemLocal::PID
 ==============
 */
-S32 idSystemLocal::PID( void )
+sint idSystemLocal::PID( void )
 {
     return GetCurrentProcessId( );
 }
@@ -828,17 +828,17 @@ S32 idSystemLocal::PID( void )
 idSystemLocal::PIDIsRunning
 ==============
 */
-bool idSystemLocal::PIDIsRunning( S32 pid )
+bool idSystemLocal::PIDIsRunning( sint pid )
 {
-    U64 processes[ 1024 ], numBytes, numProcesses;
-    S32	i;
+    uint32 processes[ 1024 ], numBytes, numProcesses;
+    sint	i;
     
     if( !EnumProcesses( processes, sizeof( processes ), &numBytes ) )
     {
         return false; // Assume it's not running
     }
     
-    numProcesses = numBytes / sizeof( U64 );
+    numProcesses = numBytes / sizeof( uint32 );
     
     // Search for the pid
     for( i = 0; i < numProcesses; i++ )
@@ -860,7 +860,7 @@ NERVE - SMF
 //Dushan - changed all this to work with update server
 ==================
 */
-void idSystemLocal::StartProcess( UTF8* exeName, bool doexit )
+void idSystemLocal::StartProcess( valueType* exeName, bool doexit )
 {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -897,7 +897,7 @@ idSystemLocal::OpenURL
 NERVE - SMF
 ==================
 */
-void idSystemLocal::OpenURL( StringEntry url, bool doexit )
+void idSystemLocal::OpenURL( pointer url, bool doexit )
 {
     HWND wnd;
     
@@ -955,7 +955,7 @@ bool idSystemLocal::IsNumLockDown( void )
 idSystemLocal::Chmod
 ================
 */
-void idSystemLocal::Chmod( UTF8* file, S32 mode )
+void idSystemLocal::Chmod( valueType* file, sint mode )
 {
 }
 
@@ -964,7 +964,7 @@ void idSystemLocal::Chmod( UTF8* file, S32 mode )
 idSystemLocal::DoStartProcess
 ================
 */
-void idSystemLocal::DoStartProcess( UTF8* cmdline )
+void idSystemLocal::DoStartProcess( valueType* cmdline )
 {
 }
 
@@ -973,7 +973,7 @@ void idSystemLocal::DoStartProcess( UTF8* cmdline )
 idSystemLocal::Fork
 ================
 */
-bool idSystemLocal::Fork( StringEntry path, StringEntry cmdLine )
+bool idSystemLocal::Fork( pointer path, pointer cmdLine )
 {
     return true;
 }
@@ -983,7 +983,7 @@ bool idSystemLocal::Fork( StringEntry path, StringEntry cmdLine )
 idSystemLocal::KdialogCommand
 ================
 */
-S32 idSystemLocal::KdialogCommand( dialogType_t type, StringEntry message, StringEntry title )
+sint idSystemLocal::KdialogCommand( dialogType_t type, pointer message, pointer title )
 {
     return 0;
 }
@@ -993,7 +993,7 @@ S32 idSystemLocal::KdialogCommand( dialogType_t type, StringEntry message, Strin
 idSystemLocal::ZenityCommand
 ================
 */
-S32 idSystemLocal::ZenityCommand( dialogType_t type, StringEntry message, StringEntry title )
+sint idSystemLocal::ZenityCommand( dialogType_t type, pointer message, pointer title )
 {
     return 0;
 }
@@ -1003,7 +1003,7 @@ S32 idSystemLocal::ZenityCommand( dialogType_t type, StringEntry message, String
 idSystemLocal::XmessageCommand
 ================
 */
-S32 idSystemLocal::XmessageCommand( dialogType_t type, StringEntry message, StringEntry title )
+sint idSystemLocal::XmessageCommand( dialogType_t type, pointer message, pointer title )
 {
     return 0;
 }

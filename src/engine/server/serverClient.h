@@ -46,20 +46,20 @@ public:
     idServerClientSystemLocal();
     ~idServerClientSystemLocal();
     
-    virtual void DropClient( client_t* drop, StringEntry reason );
-    virtual void ExecuteClientCommand( client_t* cl, StringEntry s, bool clientOK, bool premaprestart );
+    virtual void DropClient( client_t* drop, pointer reason );
+    virtual void ExecuteClientCommand( client_t* cl, pointer s, bool clientOK, bool premaprestart );
     virtual void ClientEnterWorld( client_t* client, usercmd_t* cmd );
     virtual void CloseDownload( client_t* cl );
     virtual void UserinfoChanged( client_t* cl );
     virtual void FreeClient( client_t* client );
-    virtual void ClientThink( S32 client, usercmd_t* cmd );
+    virtual void ClientThink( sint client, usercmd_t* cmd );
     virtual void WriteDownloadToClient( client_t* cl, msg_t* msg );
     virtual void GetChallenge( netadr_t from );
     virtual void DirectConnect( netadr_t from );
     virtual void ExecuteClientMessage( client_t* cl, msg_t* msg );
     
 public:
-    static bool CheckFunstuffExploit( UTF8* userinfo, UTF8* key );
+    static bool CheckFunstuffExploit( valueType* userinfo, valueType* key );
     static void UpdateUserinfo_f( client_t* cl );
     static void SendClientGameState( client_t* client );
     static void StopDownload_f( client_t* cl );
@@ -82,25 +82,25 @@ private:
     // client command is sent.  The constant below may require further tweaking.  For example,
     // a text of "$location" would have a total computed length of 25, because "$location" has
     // 9 characters, and we increment that by 16 for the '$'.
-    static const S32 STRLEN_INCREMENT_PER_DOLLAR_VAR = 16;
+    static const sint STRLEN_INCREMENT_PER_DOLLAR_VAR = 16;
     
     // Don't allow more than this many dollared-strings (e.g. $location) in a client command
     // such as ut_radio and say.  Keep this value low for safety, in case some things like
     // $location expand to very large strings in some maps.  There is really no reason to have
     // more than 6 dollar vars (such as $weapon or $location) in things you tell other people.
-    static const S32 MAX_DOLLAR_VARS = 6;
+    static const sint MAX_DOLLAR_VARS = 6;
     
     // When a radio text (as in "ut_radio 1 1 text") is sent, weird things start to happen
     // when the text gets to be greater than 118 in length.  When the text is really large the
     // server will crash.  There is an in-between gray zone above 118, but I don't really want
     // to go there.  This is the maximum length of radio text that can be sent, taking into
     // account increments due to presence of '$'.
-    static const S32 MAX_RADIO_STRLEN = 118;
+    static const sint MAX_RADIO_STRLEN = 118;
     
     // Don't allow more than this text length in a command such as say.  I pulled this
     // value out of my ass because I don't really know exactly when problems start to happen.
     // This value takes into account increments due to the presence of '$'.
-    static const S32 MAX_SAY_STRLEN = 256;
+    static const sint MAX_SAY_STRLEN = 256;
 };
 
 extern idServerClientSystemLocal serverClientLocal;

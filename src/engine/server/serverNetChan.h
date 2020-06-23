@@ -51,7 +51,7 @@ public:
     idServerNetChanSystemLocal();
     ~idServerNetChanSystemLocal();
     
-    static void NetchanEncode( client_t* client, msg_t* msg, UTF8* commandString );
+    static void NetchanEncode( client_t* client, msg_t* msg, valueType* commandString );
     static void NetchanDecode( client_t* client, msg_t* msg );
     
 };

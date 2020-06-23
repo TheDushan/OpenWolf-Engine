@@ -31,8 +31,8 @@
 
 struct uniformInfo_t
 {
-    StringEntry name;
-    S32 type;
+    pointer name;
+    sint type;
 };
 
 // These must be in the same order as in uniform_t in r_local.h.
@@ -158,13 +158,13 @@ typedef enum
 }
 glslPrintLog_t;
 
-static void GLSL_PrintLog( U32 programOrShader, glslPrintLog_t type, bool developerOnly )
+static void GLSL_PrintLog( uint programOrShader, glslPrintLog_t type, bool developerOnly )
 {
-    UTF8*           msg;
-    static UTF8     msgPart[1024];
-    S32             maxLength = 0;
-    S32             i;
-    S32             printLevel = developerOnly ? PRINT_DEVELOPER : PRINT_ALL;
+    valueType*           msg;
+    static valueType     msgPart[1024];
+    sint             maxLength = 0;
+    sint             i;
+    sint             printLevel = developerOnly ? PRINT_DEVELOPER : PRINT_ALL;
     
     switch( type )
     {
@@ -193,7 +193,7 @@ static void GLSL_PrintLog( U32 programOrShader, glslPrintLog_t type, bool develo
     if( maxLength < 1023 )
         msg = msgPart;
     else
-        msg = reinterpret_cast< UTF8* >( CL_RefMalloc( maxLength ) );
+        msg = reinterpret_cast< valueType* >( CL_RefMalloc( maxLength ) );
         
     switch( type )
     {
@@ -232,9 +232,9 @@ static void GLSL_PrintLog( U32 programOrShader, glslPrintLog_t type, bool develo
     
 }
 
-static void GLSL_GetShaderHeader( U32 shaderType, StringEntry extra, UTF8* dest, S64 size )
+static void GLSL_GetShaderHeader( uint shaderType, pointer extra, valueType* dest, sint32 size )
 {
-    F32 fbufWidthScale, fbufHeightScale;
+    float32 fbufWidthScale, fbufHeightScale;
     
     dest[0] = '\0';
     
@@ -339,8 +339,8 @@ static void GLSL_GetShaderHeader( U32 shaderType, StringEntry extra, UTF8* dest,
                   GL_ADD,
                   GL_REPLACE ) );
                   
-    fbufWidthScale = 1.0f / ( ( F32 )glConfig.vidWidth );
-    fbufHeightScale = 1.0f / ( ( F32 )glConfig.vidHeight );
+    fbufWidthScale = 1.0f / ( ( float32 )glConfig.vidWidth );
+    fbufHeightScale = 1.0f / ( ( float32 )glConfig.vidHeight );
     Q_strcat( dest, size,
               va( "#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale ) );
               
@@ -350,8 +350,8 @@ static void GLSL_GetShaderHeader( U32 shaderType, StringEntry extra, UTF8* dest,
     if( r_cubeMapping->integer )
     {
         //copy in tr_backend for prefiltering the mipmaps
-        S32 cubeMipSize = r_cubemapSize->integer;
-        S32 numRoughnessMips = 0;
+        sint cubeMipSize = r_cubemapSize->integer;
+        sint numRoughnessMips = 0;
         
         while( cubeMipSize )
         {
@@ -366,7 +366,7 @@ static void GLSL_GetShaderHeader( U32 shaderType, StringEntry extra, UTF8* dest,
     
     if( r_horizonFade->integer )
     {
-        F32 fade = 1 + ( 0.1 * r_horizonFade->integer );
+        float32 fade = 1 + ( 0.1 * r_horizonFade->integer );
         Q_strcat( dest, size, va( "#define HORIZON_FADE float(%f)\n", fade ) );
     }
     
@@ -381,14 +381,14 @@ static void GLSL_GetShaderHeader( U32 shaderType, StringEntry extra, UTF8* dest,
     Q_strcat( dest, size, "#line 0\n" );
 }
 
-static S32 GLSL_CompileGPUShader( U32 program, U32* prevShader, StringEntry buffer, S32 size, U32 shaderType )
+static sint GLSL_CompileGPUShader( uint program, uint* prevShader, pointer buffer, sint size, uint shaderType )
 {
-    S32           compiled;
-    U32          shader;
+    sint           compiled;
+    uint          shader;
     
     shader = qglCreateShader( shaderType );
     
-    qglShaderSource( shader, 1, ( StringEntry* )&buffer, &size );
+    qglShaderSource( shader, 1, ( pointer* )&buffer, &size );
     
     // compile shader
     qglCompileShader( shader );
@@ -417,12 +417,12 @@ static S32 GLSL_CompileGPUShader( U32 program, U32* prevShader, StringEntry buff
     return 1;
 }
 
-static S32 GLSL_LoadGPUShaderText( StringEntry name, U32 shaderType, UTF8* dest, S32 destSize )
+static sint GLSL_LoadGPUShaderText( pointer name, uint shaderType, valueType* dest, sint destSize )
 {
-    UTF8            filename[MAX_QPATH];
+    valueType            filename[MAX_QPATH];
     GLcharARB*      buffer = nullptr;
     const GLcharARB* shaderText = nullptr;
-    S32             size, result;
+    sint             size, result;
     
     if( shaderType == GL_VERTEX_SHADER )
     {
@@ -458,9 +458,9 @@ static S32 GLSL_LoadGPUShaderText( StringEntry name, U32 shaderType, UTF8* dest,
     return result;
 }
 
-static void GLSL_LinkProgram( U32 program )
+static void GLSL_LinkProgram( uint program )
 {
-    S32           linked;
+    sint           linked;
     
     qglLinkProgram( program );
     
@@ -472,9 +472,9 @@ static void GLSL_LinkProgram( U32 program )
     }
 }
 
-static void GLSL_ValidateProgram( U32 program )
+static void GLSL_ValidateProgram( uint program )
 {
-    S32           validated;
+    sint           validated;
     
     qglValidateProgram( program );
     
@@ -486,11 +486,11 @@ static void GLSL_ValidateProgram( U32 program )
     }
 }
 
-static void GLSL_ShowProgramUniforms( U32 program )
+static void GLSL_ShowProgramUniforms( uint program )
 {
-    S32             i, count, size;
-    U32			type;
-    UTF8            uniformName[1000];
+    sint             i, count, size;
+    uint			type;
+    valueType            uniformName[1000];
     
     // query the number of active uniforms
     qglGetProgramiv( program, GL_ACTIVE_UNIFORMS, &count );
@@ -504,7 +504,7 @@ static void GLSL_ShowProgramUniforms( U32 program )
     }
 }
 
-static S32 GLSL_InitGPUShader2( shaderProgram_t* program, StringEntry name, S32 attribs, StringEntry vpCode, StringEntry fpCode )
+static sint GLSL_InitGPUShader2( shaderProgram_t* program, pointer name, sint attribs, pointer vpCode, pointer fpCode )
 {
     CL_RefPrintf( PRINT_DEVELOPER, "------- GPU shader -------\n" );
     
@@ -585,13 +585,13 @@ static S32 GLSL_InitGPUShader2( shaderProgram_t* program, StringEntry name, S32 
     return 1;
 }
 
-static S32 GLSL_InitGPUShader( shaderProgram_t* program, StringEntry name, S32 attribs, bool fragmentShader, StringEntry extra, bool addHeader )
+static sint GLSL_InitGPUShader( shaderProgram_t* program, pointer name, sint attribs, bool fragmentShader, pointer extra, bool addHeader )
 {
-    UTF8 vpCode[170000];
-    UTF8 fpCode[170000];
-    UTF8* postHeader;
-    S32 size;
-    S32 result;
+    valueType vpCode[170000];
+    valueType fpCode[170000];
+    valueType* postHeader;
+    sint size;
+    sint result;
     
     size = sizeof( vpCode );
     if( addHeader )
@@ -637,9 +637,9 @@ static S32 GLSL_InitGPUShader( shaderProgram_t* program, StringEntry name, S32 a
 
 void GLSL_InitUniforms( shaderProgram_t* program )
 {
-    S32 i, size;
+    sint i, size;
     
-    S32* uniforms = program->uniforms;
+    sint* uniforms = program->uniforms;
     
     size = 0;
     for( i = 0; i < UNIFORM_COUNT; i++ )
@@ -654,10 +654,10 @@ void GLSL_InitUniforms( shaderProgram_t* program )
         switch( uniformsInfo[i].type )
         {
             case GLSL_INT:
-                size += sizeof( S32 );
+                size += sizeof( sint );
                 break;
             case GLSL_FLOAT:
-                size += sizeof( F32 );
+                size += sizeof( float32 );
                 break;
             case GLSL_FLOAT5:
                 size += sizeof( vec_t ) * 5;
@@ -682,7 +682,7 @@ void GLSL_InitUniforms( shaderProgram_t* program )
         }
     }
     
-    program->uniformBuffer = reinterpret_cast< UTF8* >( CL_RefMalloc( size ) );
+    program->uniformBuffer = reinterpret_cast< valueType* >( CL_RefMalloc( size ) );
 }
 
 void GLSL_FinishGPUShader( shaderProgram_t* program )
@@ -692,10 +692,10 @@ void GLSL_FinishGPUShader( shaderProgram_t* program )
     GL_CheckErrors();
 }
 
-void GLSL_SetUniformInt( shaderProgram_t* program, S32 uniformNum, S32 value )
+void GLSL_SetUniformInt( shaderProgram_t* program, sint uniformNum, sint value )
 {
-    S32* uniforms = program->uniforms;
-    S32* compare = ( S32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    sint* uniforms = program->uniforms;
+    sint* compare = ( sint* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -716,10 +716,10 @@ void GLSL_SetUniformInt( shaderProgram_t* program, S32 uniformNum, S32 value )
     qglProgramUniform1iEXT( program->program, uniforms[uniformNum], value );
 }
 
-void GLSL_SetUniformFloat( shaderProgram_t* program, S32 uniformNum, F32 value )
+void GLSL_SetUniformFloat( shaderProgram_t* program, sint uniformNum, float32 value )
 {
-    S32* uniforms = program->uniforms;
-    F32* compare = ( F32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    sint* uniforms = program->uniforms;
+    float32* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -740,10 +740,10 @@ void GLSL_SetUniformFloat( shaderProgram_t* program, S32 uniformNum, F32 value )
     qglProgramUniform1fEXT( program->program, uniforms[uniformNum], value );
 }
 
-void GLSL_SetUniformVec2( shaderProgram_t* program, S32 uniformNum, const vec2_t v )
+void GLSL_SetUniformVec2( shaderProgram_t* program, sint uniformNum, const vec2_t v )
 {
-    S32* uniforms = program->uniforms;
-    vec_t* compare = ( F32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    sint* uniforms = program->uniforms;
+    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -765,10 +765,10 @@ void GLSL_SetUniformVec2( shaderProgram_t* program, S32 uniformNum, const vec2_t
     qglProgramUniform2fEXT( program->program, uniforms[uniformNum], v[0], v[1] );
 }
 
-void GLSL_SetUniformVec3( shaderProgram_t* program, S32 uniformNum, const vec3_t v )
+void GLSL_SetUniformVec3( shaderProgram_t* program, sint uniformNum, const vec3_t v )
 {
-    S32* uniforms = program->uniforms;
-    vec_t* compare = ( F32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    sint* uniforms = program->uniforms;
+    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -789,10 +789,10 @@ void GLSL_SetUniformVec3( shaderProgram_t* program, S32 uniformNum, const vec3_t
     qglProgramUniform3fEXT( program->program, uniforms[uniformNum], v[0], v[1], v[2] );
 }
 
-void GLSL_SetUniformVec4( shaderProgram_t* program, S32 uniformNum, const vec4_t v )
+void GLSL_SetUniformVec4( shaderProgram_t* program, sint uniformNum, const vec4_t v )
 {
-    S32* uniforms = program->uniforms;
-    vec_t* compare = ( F32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    sint* uniforms = program->uniforms;
+    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -813,10 +813,10 @@ void GLSL_SetUniformVec4( shaderProgram_t* program, S32 uniformNum, const vec4_t
     qglProgramUniform4fEXT( program->program, uniforms[uniformNum], v[0], v[1], v[2], v[3] );
 }
 
-void GLSL_SetUniformFloat5( shaderProgram_t* program, S32 uniformNum, const vec5_t v )
+void GLSL_SetUniformFloat5( shaderProgram_t* program, sint uniformNum, const vec5_t v )
 {
-    S32* uniforms = program->uniforms;
-    vec_t* compare = ( F32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    sint* uniforms = program->uniforms;
+    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -837,10 +837,10 @@ void GLSL_SetUniformFloat5( shaderProgram_t* program, S32 uniformNum, const vec5
     qglProgramUniform1fvEXT( program->program, uniforms[uniformNum], 5, v );
 }
 
-void GLSL_SetUniformMat4( shaderProgram_t* program, S32 uniformNum, const mat4_t matrix )
+void GLSL_SetUniformMat4( shaderProgram_t* program, sint uniformNum, const mat4_t matrix )
 {
-    S32* uniforms = program->uniforms;
-    vec_t* compare = ( F32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    sint* uniforms = program->uniforms;
+    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -861,10 +861,10 @@ void GLSL_SetUniformMat4( shaderProgram_t* program, S32 uniformNum, const mat4_t
     qglProgramUniformMatrix4fvEXT( program->program, uniforms[uniformNum], 1, GL_FALSE, matrix );
 }
 
-void GLSL_SetUniformMat4BoneMatrix( shaderProgram_t* program, S32 uniformNum, /*const*/ mat4_t* matrix, S32 numMatricies )
+void GLSL_SetUniformMat4BoneMatrix( shaderProgram_t* program, sint uniformNum, /*const*/ mat4_t* matrix, sint numMatricies )
 {
     GLint* uniforms = program->uniforms;
-    vec_t* compare = ( F32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
     {
@@ -923,11 +923,11 @@ void GLSL_DeleteGPUShader( shaderProgram_t* program )
 
 void idRenderSystemLocal::InitGPUShaders( void )
 {
-    S32             startTime, endTime;
-    S32 i;
-    UTF8 extradefines[1024];
-    S32 attribs;
-    S32 numGenShaders = 0, numLightShaders = 0, numEtcShaders = 0;
+    sint             startTime, endTime;
+    sint i;
+    valueType extradefines[1024];
+    sint attribs;
+    sint numGenShaders = 0, numLightShaders = 0, numEtcShaders = 0;
     
     CL_RefPrintf( PRINT_ALL, "------- idRenderSystemLocal::InitGPUShaders -------\n" );
     
@@ -1068,7 +1068,7 @@ void idRenderSystemLocal::InitGPUShaders( void )
     /////////////////////////////////////////////////////////////////////////////
     for( i = 0; i < LIGHTDEF_COUNT; i++ )
     {
-        S32 lightType = i & LIGHTDEF_LIGHTTYPE_MASK;
+        sint lightType = i & LIGHTDEF_LIGHTTYPE_MASK;
         bool fastLight = !( r_normalMapping->integer || r_specularMapping->integer );
         
         // skip impossible combos
@@ -1479,8 +1479,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -1618,8 +1618,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -1694,8 +1694,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -1732,8 +1732,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -1770,8 +1770,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -1808,8 +1808,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -1869,8 +1869,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -1914,8 +1914,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -1986,8 +1986,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         //VectorSet4(viewInfo, zmin, zmax, 0.0, 0.0);
@@ -2071,8 +2071,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         
@@ -2081,8 +2081,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     
     {
         vec2_t screensize;
-        screensize[0] = ( F32 )glConfig.vidWidth;
-        screensize[1] = ( F32 )glConfig.vidHeight;
+        screensize[0] = ( float32 )glConfig.vidWidth;
+        screensize[1] = ( float32 )glConfig.vidHeight;
         
         GLSL_SetUniformVec2( &tr.waterShader, UNIFORM_DIMENSIONS, screensize );
     }
@@ -2108,8 +2108,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     {
         vec4_t viewInfo;
         
-        F32 zmax = backEnd.viewParms.zFar;
-        F32 zmin = r_znear->value;
+        float32 zmax = backEnd.viewParms.zFar;
+        float32 zmin = r_znear->value;
         
         VectorSet4( viewInfo, zmax / zmin, zmax, 0.0, 0.0 );
         
@@ -2118,8 +2118,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     
     {
         vec2_t screensize;
-        screensize[0] = ( F32 )glConfig.vidWidth;
-        screensize[1] = ( F32 )glConfig.vidHeight;
+        screensize[0] = ( float32 )glConfig.vidWidth;
+        screensize[1] = ( float32 )glConfig.vidHeight;
         
         GLSL_SetUniformVec2( &tr.underWaterShader, UNIFORM_DIMENSIONS, screensize );
     }
@@ -2157,7 +2157,7 @@ void idRenderSystemLocal::InitGPUShaders( void )
 
 void idRenderSystemLocal::ShutdownGPUShaders( void )
 {
-    S32 i;
+    sint i;
     
     CL_RefPrintf( PRINT_ALL, "------- idRenderSystemLocal::ShutdownGPUShaders -------\n" );
     
@@ -2231,13 +2231,13 @@ void idRenderSystemLocal::ShutdownGPUShaders( void )
 
 void GLSL_BindProgram( shaderProgram_t* program )
 {
-    U32 programObject = program ? program->program : 0;
-    StringEntry name = program ? program->name : "nullptr";
+    uint programObject = program ? program->program : 0;
+    pointer name = program ? program->name : "nullptr";
     
     if( r_logFile->integer )
     {
         // don't just call LogComment, or we will get a call to va() every frame!
-        GLimp_LogComment( reinterpret_cast< UTF8* >( va( "--- GLSL_BindProgram( %s ) ---\n", name ) ) );
+        GLimp_LogComment( reinterpret_cast< valueType* >( va( "--- GLSL_BindProgram( %s ) ---\n", name ) ) );
     }
     
     if( GL_UseProgram( programObject ) )
@@ -2245,10 +2245,10 @@ void GLSL_BindProgram( shaderProgram_t* program )
 }
 
 
-shaderProgram_t* GLSL_GetGenericShaderProgram( S32 stage )
+shaderProgram_t* GLSL_GetGenericShaderProgram( sint stage )
 {
     shaderStage_t* pStage = tess.xstages[stage];
-    S32 shaderAttribs = 0;
+    sint shaderAttribs = 0;
     
     if( tess.fogNum && pStage->adjustColorsForFog )
     {

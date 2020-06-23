@@ -154,7 +154,7 @@ static bool S_ValidSoundInterface( soundInterface_t* si )
 idSoundSystemLocal::StartSound
 =================
 */
-void idSoundSystemLocal::StartSound( vec3_t origin, S32 entnum, S32 entchannel, sfxHandle_t sfx )
+void idSoundSystemLocal::StartSound( vec3_t origin, sint entnum, sint entchannel, sfxHandle_t sfx )
 {
     if( si.StartSound )
     {
@@ -167,7 +167,7 @@ void idSoundSystemLocal::StartSound( vec3_t origin, S32 entnum, S32 entchannel, 
 idSoundSystemLocal::StartLocalSound
 =================
 */
-void idSoundSystemLocal::StartLocalSound( sfxHandle_t sfx, S32 channelNum )
+void idSoundSystemLocal::StartLocalSound( sfxHandle_t sfx, sint channelNum )
 {
     if( si.StartLocalSound )
     {
@@ -180,7 +180,7 @@ void idSoundSystemLocal::StartLocalSound( sfxHandle_t sfx, S32 channelNum )
 idSoundSystemLocal::StartBackgroundTrack
 =================
 */
-void idSoundSystemLocal::StartBackgroundTrack( StringEntry intro, StringEntry loop )
+void idSoundSystemLocal::StartBackgroundTrack( pointer intro, pointer loop )
 {
     if( si.StartBackgroundTrack )
     {
@@ -206,7 +206,7 @@ void idSoundSystemLocal::StopBackgroundTrack( void )
 idSoundSystemLocal::RawSamples
 =================
 */
-void idSoundSystemLocal::RawSamples( S32 samples, S32 rate, S32 width, S32 channels, const U8* data, F32 volume )
+void idSoundSystemLocal::RawSamples( sint samples, sint rate, sint width, sint channels, const uchar8* data, float32 volume )
 {
     if( si.RawSamples )
     {
@@ -245,7 +245,7 @@ void idSoundSystemLocal::ClearLoopingSounds( bool killall )
 idSoundSystemLocal::AddLoopingSound
 =================
 */
-void idSoundSystemLocal::AddLoopingSound( S32 entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx )
+void idSoundSystemLocal::AddLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx )
 {
     if( si.AddLoopingSound )
     {
@@ -258,7 +258,7 @@ void idSoundSystemLocal::AddLoopingSound( S32 entityNum, const vec3_t origin, co
 idSoundSystemLocal::AddRealLoopingSound
 =================
 */
-void idSoundSystemLocal::AddRealLoopingSound( S32 entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx )
+void idSoundSystemLocal::AddRealLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx )
 {
     if( si.AddRealLoopingSound )
     {
@@ -271,7 +271,7 @@ void idSoundSystemLocal::AddRealLoopingSound( S32 entityNum, const vec3_t origin
 idSoundSystemLocal::StopLoopingSound
 =================
 */
-void idSoundSystemLocal::StopLoopingSound( S32 entityNum )
+void idSoundSystemLocal::StopLoopingSound( sint entityNum )
 {
     if( si.StopLoopingSound )
     {
@@ -284,7 +284,7 @@ void idSoundSystemLocal::StopLoopingSound( S32 entityNum )
 idSoundSystemLocal::Respatialize
 =================
 */
-void idSoundSystemLocal::Respatialize( S32 entityNum, const vec3_t origin, vec3_t axis[3], S32 inwater )
+void idSoundSystemLocal::Respatialize( sint entityNum, const vec3_t origin, vec3_t axis[3], sint inwater )
 {
     if( si.Respatialize )
     {
@@ -297,7 +297,7 @@ void idSoundSystemLocal::Respatialize( S32 entityNum, const vec3_t origin, vec3_
 idSoundSystemLocal::UpdateEntityPosition
 =================
 */
-void idSoundSystemLocal::UpdateEntityPosition( S32 entityNum, const vec3_t origin )
+void idSoundSystemLocal::UpdateEntityPosition( sint entityNum, const vec3_t origin )
 {
     if( si.UpdateEntityPosition )
     {
@@ -349,7 +349,7 @@ void idSoundSystemLocal::BeginRegistration( void )
 idSoundSystemLocal::RegisterSound
 =================
 */
-sfxHandle_t	idSoundSystemLocal::RegisterSound( StringEntry sample, bool compressed )
+sfxHandle_t	idSoundSystemLocal::RegisterSound( pointer sample, bool compressed )
 {
     if( si.RegisterSound )
     {
@@ -407,7 +407,7 @@ S_Play_f
 */
 void S_Play_f( void )
 {
-    S32 i, c;
+    sint i, c;
     sfxHandle_t	h;
     
     if( !si.RegisterSound || !si.StartLocalSound )
@@ -441,7 +441,7 @@ S_Music_f
 */
 void S_Music_f( void )
 {
-    S32 c;
+    sint c;
     
     if( !si.StartBackgroundTrack )
     {

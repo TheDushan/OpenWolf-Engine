@@ -147,41 +147,41 @@
 //punctuation
 typedef struct punctuation_s
 {
-    UTF8* p;                    //punctuation character(s)
-    S32 n;                      //punctuation indication
+    valueType* p;                    //punctuation character(s)
+    sint n;                      //punctuation indication
     struct punctuation_s* next; //next punctuation
 } punctuation_t;
 
 //token
 typedef struct token_s
 {
-    UTF8 string[MAX_TOKEN_CHARS]; //available token
-    S32 type;                     //last read token type
-    S32 subtype;                  //last read token sub type
-    U64 intvalue;   //integer value
-    F64 floatvalue;            //floating point value
-    UTF8* whitespace_p;           //start of white space before token
-    UTF8* endwhitespace_p;        //start of white space before token
-    S32 line;                     //line the token was on
-    S32 linescrossed;             //lines crossed in white space
+    valueType string[MAX_TOKEN_CHARS]; //available token
+    sint type;                     //last read token type
+    sint subtype;                  //last read token sub type
+    uint32 intvalue;   //integer value
+    float64 floatvalue;            //floating point value
+    valueType* whitespace_p;           //start of white space before token
+    valueType* endwhitespace_p;        //start of white space before token
+    sint line;                     //line the token was on
+    sint linescrossed;             //lines crossed in white space
     struct token_s* next;         //next token in chain
 } token_t;
 
 //script file
 typedef struct script_s
 {
-    UTF8 filename[1024];            //file name of the script
-    UTF8* buffer;                   //buffer containing the script
-    UTF8* script_p;                 //current pointer in the script
-    UTF8* end_p;                    //pointer to the end of the script
-    UTF8* lastscript_p;             //script pointer before reading token
-    UTF8* whitespace_p;             //begin of the white space
-    UTF8* endwhitespace_p;
-    S32 length;                     //length of the script in bytes
-    S32 line;                       //current line in script
-    S32 lastline;                   //line before reading token
-    S32 tokenavailable;             //set by UnreadLastToken
-    S32 flags;                      //several script flags
+    valueType filename[1024];            //file name of the script
+    valueType* buffer;                   //buffer containing the script
+    valueType* script_p;                 //current pointer in the script
+    valueType* end_p;                    //pointer to the end of the script
+    valueType* lastscript_p;             //script pointer before reading token
+    valueType* whitespace_p;             //begin of the white space
+    valueType* endwhitespace_p;
+    sint length;                     //length of the script in bytes
+    sint line;                       //current line in script
+    sint lastline;                   //line before reading token
+    sint tokenavailable;             //set by UnreadLastToken
+    sint flags;                      //several script flags
     punctuation_t* punctuations;    //the punctuations used in the script
     punctuation_t** punctuationtable;
     token_t token;                  //available token
@@ -206,10 +206,10 @@ typedef struct script_s
 //macro definitions
 typedef struct define_s
 {
-    UTF8* name;                 //define name
-    S32 flags;                  //define flags
-    S32 builtin;                // > 0 if builtin define
-    S32 numparms;               //number of define parameters
+    valueType* name;                 //define name
+    sint flags;                  //define flags
+    sint builtin;                // > 0 if builtin define
+    sint numparms;               //number of define parameters
     token_t* parms;             //define parameters
     token_t* tokens;            //macro tokens (possibly containing parm tokens)
     struct define_s* next;      //next defined macro in a list
@@ -221,8 +221,8 @@ typedef struct define_s
 //#if, #else, #elif, #ifdef, #ifndef
 typedef struct indent_s
 {
-    S32 type;               //indent type
-    S32 skip;               //true if skipping current indent
+    sint type;               //indent type
+    sint skip;               //true if skipping current indent
     script_t* script;       //script the indent was in
     struct indent_s* next;  //next indent on the indent stack
 } indent_t;
@@ -230,15 +230,15 @@ typedef struct indent_s
 //source file
 typedef struct source_s
 {
-    UTF8 filename[MAX_QPATH];     //file name of the script
-    UTF8 includepath[MAX_QPATH];  //path to include files
+    valueType filename[MAX_QPATH];     //file name of the script
+    valueType includepath[MAX_QPATH];  //path to include files
     punctuation_t* punctuations;  //punctuations to use
     script_t* scriptstack;        //stack with scripts of the source
     token_t* tokens;              //tokens to read first
     define_t* defines;            //list with macro definitions
     define_t** definehash;        //hash chain with defines
     indent_t* indentstack;        //stack with indents
-    S32 skip;                     // > 0 if skipping conditional code
+    sint skip;                     // > 0 if skipping conditional code
     token_t token;                //last read token
 } source_t;
 
@@ -247,17 +247,17 @@ typedef struct source_s
 //directive name with parse function
 typedef struct directive_s
 {
-    UTF8* name;
-    S32( *func )( source_t* source );
+    valueType* name;
+    sint( *func )( source_t* source );
 } directive_t;
 
 #define DEFINEHASHSIZE    1024
 
-static S32 Parse_ReadToken( source_t* source, token_t* token );
+static sint Parse_ReadToken( source_t* source, token_t* token );
 static bool Parse_AddDefineToSourceFromString( source_t* source,
-        UTF8* string );
+        valueType* string );
 
-S32 numtokens;
+sint numtokens;
 
 //list with global defines added to every source loaded
 define_t* globaldefines;
@@ -345,7 +345,7 @@ Parse_CreatePunctuationTable
 */
 static void Parse_CreatePunctuationTable( script_t* script, punctuation_t* punctuations )
 {
-    S32 i;
+    sint i;
     punctuation_t* p, *lastp, *newp;
     
     //get memory for the table
@@ -358,13 +358,13 @@ static void Parse_CreatePunctuationTable( script_t* script, punctuation_t* punct
         newp = &punctuations[i];
         lastp = nullptr;
         //sort the punctuations in this table entry on length (longer punctuations first)
-        for( p = script->punctuationtable[( U32 ) newp->p[0]]; p; p = p->next )
+        for( p = script->punctuationtable[( uint ) newp->p[0]]; p; p = p->next )
         {
             if( strlen( p->p ) < strlen( newp->p ) )
             {
                 newp->next = p;
                 if( lastp ) lastp->next = newp;
-                else script->punctuationtable[( U32 ) newp->p[0]] = newp;
+                else script->punctuationtable[( uint ) newp->p[0]] = newp;
                 break;
             }
             lastp = p;
@@ -373,7 +373,7 @@ static void Parse_CreatePunctuationTable( script_t* script, punctuation_t* punct
         {
             newp->next = nullptr;
             if( lastp ) lastp->next = newp;
-            else script->punctuationtable[( U32 ) newp->p[0]] = newp;
+            else script->punctuationtable[( uint ) newp->p[0]] = newp;
         }
     }
 }
@@ -383,9 +383,9 @@ static void Parse_CreatePunctuationTable( script_t* script, punctuation_t* punct
 Parse_ScriptError
 ===============
 */
-static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_ScriptError( script_t* script, UTF8* str, ... )
+static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_ScriptError( script_t* script, valueType* str, ... )
 {
-    UTF8 text[1024];
+    valueType text[1024];
     va_list ap;
     
     if( script->flags & SCFL_NOERRORS ) return;
@@ -401,9 +401,9 @@ static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_ScriptError(
 Parse_ScriptWarning
 ===============
 */
-static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_ScriptWarning( script_t* script, UTF8* str, ... )
+static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_ScriptWarning( script_t* script, valueType* str, ... )
 {
-    UTF8 text[1024];
+    valueType text[1024];
     va_list ap;
     
     if( script->flags & SCFL_NOWARNINGS ) return;
@@ -432,7 +432,7 @@ static void Parse_SetScriptPunctuations( script_t* script, punctuation_t* p )
 Parse_ReadWhiteSpace
 ===============
 */
-static S32 Parse_ReadWhiteSpace( script_t* script )
+static sint Parse_ReadWhiteSpace( script_t* script )
 {
     while( 1 )
     {
@@ -489,9 +489,9 @@ static S32 Parse_ReadWhiteSpace( script_t* script )
 Parse_ReadEscapeCharacter
 ===============
 */
-static S32 Parse_ReadEscapeCharacter( script_t* script, UTF8* ch )
+static sint Parse_ReadEscapeCharacter( script_t* script, valueType* ch )
 {
-    S32 c, val, i;
+    sint c, val, i;
     
     //step over the leading '\\'
     script->script_p++;
@@ -554,7 +554,7 @@ static S32 Parse_ReadEscapeCharacter( script_t* script, UTF8* ch )
         }
         default: //NOTE: decimal ASCII code, NOT octal
         {
-            if( *script->script_p < '0' || *script->script_p > '9' ) Parse_ScriptError( script, "unknown escape UTF8" );
+            if( *script->script_p < '0' || *script->script_p > '9' ) Parse_ScriptError( script, "unknown escape valueType" );
             for( i = 0, val = 0; ; i++, script->script_p++ )
             {
                 c = *script->script_p;
@@ -589,10 +589,10 @@ Quotes are included with the string.
 Reads two strings with a white space between them as one string.
 ===============
 */
-static S32 Parse_ReadString( script_t* script, token_t* token, S32 quote )
+static sint Parse_ReadString( script_t* script, token_t* token, sint quote )
 {
-    S32 len, tmpline;
-    UTF8* tmpscript_p;
+    sint len, tmpline;
+    valueType* tmpscript_p;
     
     if( quote == '\"' ) token->type = TT_STRING;
     else token->type = TT_LITERAL;
@@ -678,10 +678,10 @@ static S32 Parse_ReadString( script_t* script, token_t* token, S32 quote )
 Parse_ReadName
 ===============
 */
-static S32 Parse_ReadName( script_t* script, token_t* token )
+static sint Parse_ReadName( script_t* script, token_t* token )
 {
-    S32 len = 0;
-    UTF8 c;
+    sint len = 0;
+    valueType c;
     
     token->type = TT_NAME;
     do
@@ -709,9 +709,9 @@ static S32 Parse_ReadName( script_t* script, token_t* token )
 Parse_NumberValue
 ===============
 */
-static void Parse_NumberValue( UTF8* string, S32 subtype, U64* intvalue, F64* floatvalue )
+static void Parse_NumberValue( valueType* string, sint subtype, uint32* intvalue, float64* floatvalue )
 {
-    U64 dotfound = 0;
+    uint32 dotfound = 0;
     
     *intvalue = 0;
     *floatvalue = 0;
@@ -728,12 +728,12 @@ static void Parse_NumberValue( UTF8* string, S32 subtype, U64* intvalue, F64* fl
             }
             if( dotfound )
             {
-                *floatvalue = *floatvalue + ( F64 )( *string - '0' ) / ( F64 ) dotfound;
+                *floatvalue = *floatvalue + ( float64 )( *string - '0' ) / ( float64 ) dotfound;
                 dotfound *= 10;
             }
             else
             {
-                *floatvalue = *floatvalue * 10.0 + ( F64 )( *string - '0' );
+                *floatvalue = *floatvalue * 10.0 + ( float64 )( *string - '0' );
             }
             string++;
         }
@@ -779,13 +779,13 @@ static void Parse_NumberValue( UTF8* string, S32 subtype, U64* intvalue, F64* fl
 Parse_ReadNumber
 ===============
 */
-static S32 Parse_ReadNumber( script_t* script, token_t* token )
+static sint Parse_ReadNumber( script_t* script, token_t* token )
 {
-    S32 len = 0, i;
-    S32 octal, dot;
-    UTF8 c;
-//  U64 intvalue = 0;
-//  F64 floatvalue = 0;
+    sint len = 0, i;
+    sint octal, dot;
+    valueType c;
+//  uint32 intvalue = 0;
+//  float64 floatvalue = 0;
 
     token->type = TT_NUMBER;
     //check for a hexadecimal number
@@ -885,13 +885,13 @@ static S32 Parse_ReadNumber( script_t* script, token_t* token )
 Parse_ReadPunctuation
 ===============
 */
-static S32 Parse_ReadPunctuation( script_t* script, token_t* token )
+static sint Parse_ReadPunctuation( script_t* script, token_t* token )
 {
-    S32 len;
-    UTF8* p;
+    sint len;
+    valueType* p;
     punctuation_t* punc;
     
-    for( punc = script->punctuationtable[( U32 ) * script->script_p]; punc; punc = punc->next )
+    for( punc = script->punctuationtable[( uint ) * script->script_p]; punc; punc = punc->next )
     {
         p = punc->p;
         len = strlen( p );
@@ -918,9 +918,9 @@ static S32 Parse_ReadPunctuation( script_t* script, token_t* token )
 Parse_ReadPrimitive
 ===============
 */
-static S32 Parse_ReadPrimitive( script_t* script, token_t* token )
+static sint Parse_ReadPrimitive( script_t* script, token_t* token )
 {
-    S32 len;
+    sint len;
     
     len = 0;
     while( *script->script_p > ' ' && *script->script_p != ';' )
@@ -950,7 +950,7 @@ static S32 Parse_ReadPrimitive( script_t* script, token_t* token )
 Parse_ReadScriptToken
 ===============
 */
-static S32 Parse_ReadScriptToken( script_t* script, token_t* token )
+static sint Parse_ReadScriptToken( script_t* script, token_t* token )
 {
     //if there is a token available (from UnreadToken)
     if( script->tokenavailable )
@@ -1024,7 +1024,7 @@ static S32 Parse_ReadScriptToken( script_t* script, token_t* token )
 Parse_StripDoubleQuotes
 ===============
 */
-static void Parse_StripDoubleQuotes( UTF8* string )
+static void Parse_StripDoubleQuotes( valueType* string )
 {
     if( *string == '\"' )
     {
@@ -1041,7 +1041,7 @@ static void Parse_StripDoubleQuotes( UTF8* string )
 Parse_EndOfScript
 ===============
 */
-static S32 Parse_EndOfScript( script_t* script )
+static sint Parse_EndOfScript( script_t* script )
 {
     return script->script_p >= script->end_p;
 }
@@ -1051,10 +1051,10 @@ static S32 Parse_EndOfScript( script_t* script )
 Parse_LoadScriptFile
 ===============
 */
-static script_t* Parse_LoadScriptFile( StringEntry filename )
+static script_t* Parse_LoadScriptFile( pointer filename )
 {
     fileHandle_t fp;
-    S32 length;
+    sint length;
     void* buffer;
     script_t* script;
     
@@ -1067,7 +1067,7 @@ static script_t* Parse_LoadScriptFile( StringEntry filename )
     script = ( script_t* ) buffer;
     ::memset( script, 0, sizeof( script_t ) );
     strcpy( script->filename, filename );
-    script->buffer = ( UTF8* ) buffer + sizeof( script_t );
+    script->buffer = ( valueType* ) buffer + sizeof( script_t );
     script->buffer[length] = 0;
     script->length = length;
     //pointer in script buffer
@@ -1096,7 +1096,7 @@ static script_t* Parse_LoadScriptFile( StringEntry filename )
 Parse_LoadScriptMemory
 ===============
 */
-static script_t* Parse_LoadScriptMemory( UTF8* ptr, S32 length, UTF8* name )
+static script_t* Parse_LoadScriptMemory( valueType* ptr, sint length, valueType* name )
 {
     void* buffer;
     script_t* script;
@@ -1107,7 +1107,7 @@ static script_t* Parse_LoadScriptMemory( UTF8* ptr, S32 length, UTF8* name )
     script = ( script_t* ) buffer;
     ::memset( script, 0, sizeof( script_t ) );
     strcpy( script->filename, name );
-    script->buffer = ( UTF8* ) buffer + sizeof( script_t );
+    script->buffer = ( valueType* ) buffer + sizeof( script_t );
     script->buffer[length] = 0;
     script->length = length;
     //pointer in script buffer
@@ -1145,9 +1145,9 @@ static void Parse_FreeScript( script_t* script )
 Parse_SourceError
 ===============
 */
-static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_SourceError( source_t* source, UTF8* str, ... )
+static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_SourceError( source_t* source, valueType* str, ... )
 {
-    UTF8 text[1024];
+    valueType text[1024];
     va_list ap;
     
     va_start( ap, str );
@@ -1161,9 +1161,9 @@ static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_SourceError(
 Parse_SourceWarning
 ===============
 */
-static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_SourceWarning( source_t* source, UTF8* str, ... )
+static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_SourceWarning( source_t* source, valueType* str, ... )
 {
-    UTF8 text[1024];
+    valueType text[1024];
     va_list ap;
     
     va_start( ap, str );
@@ -1177,7 +1177,7 @@ static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_SourceWarnin
 Parse_PushIndent
 ===============
 */
-static void Parse_PushIndent( source_t* source, S32 type, S32 skip )
+static void Parse_PushIndent( source_t* source, sint type, sint skip )
 {
     indent_t* indent;
     
@@ -1195,7 +1195,7 @@ static void Parse_PushIndent( source_t* source, S32 type, S32 skip )
 Parse_PopIndent
 ===============
 */
-static void Parse_PopIndent( source_t* source, S32* type, S32* skip )
+static void Parse_PopIndent( source_t* source, sint* type, sint* skip )
 {
     indent_t* indent;
     
@@ -1280,11 +1280,11 @@ static void Parse_FreeToken( token_t* token )
 Parse_ReadSourceToken
 ===============
 */
-static S32 Parse_ReadSourceToken( source_t* source, token_t* token )
+static sint Parse_ReadSourceToken( source_t* source, token_t* token )
 {
     token_t* t;
     script_t* script;
-    S32 type, skip, lines;
+    sint type, skip, lines;
     
     lines = 0;
     //if there's no token already available
@@ -1332,7 +1332,7 @@ static S32 Parse_ReadSourceToken( source_t* source, token_t* token )
 Parse_UnreadSourceToken
 ===============
 */
-static S32 Parse_UnreadSourceToken( source_t* source, token_t* token )
+static sint Parse_UnreadSourceToken( source_t* source, token_t* token )
 {
     token_t* t;
     
@@ -1347,10 +1347,10 @@ static S32 Parse_UnreadSourceToken( source_t* source, token_t* token )
 Parse_ReadDefineParms
 ===============
 */
-static S32 Parse_ReadDefineParms( source_t* source, define_t* define, token_t** parms, S32 maxparms )
+static sint Parse_ReadDefineParms( source_t* source, define_t* define, token_t** parms, sint maxparms )
 {
     token_t token, *t, *last;
-    S32 i, done, lastcomma, numparms, indent;
+    sint i, done, lastcomma, numparms, indent;
     
     if( !Parse_ReadSourceToken( source, &token ) )
     {
@@ -1446,7 +1446,7 @@ static S32 Parse_ReadDefineParms( source_t* source, define_t* define, token_t** 
 Parse_StringizeTokens
 ===============
 */
-static S32 Parse_StringizeTokens( token_t* tokens, token_t* token )
+static sint Parse_StringizeTokens( token_t* tokens, token_t* token )
 {
     token_t* t;
     
@@ -1468,7 +1468,7 @@ static S32 Parse_StringizeTokens( token_t* tokens, token_t* token )
 Parse_MergeTokens
 ===============
 */
-static S32 Parse_MergeTokens( token_t* t1, token_t* t2 )
+static sint Parse_MergeTokens( token_t* t1, token_t* t2 )
 {
     //merging of a name with a name or number
     if( t1->type == TT_NAME && ( t2->type == TT_NAME || t2->type == TT_NUMBER ) )
@@ -1494,10 +1494,10 @@ static S32 Parse_MergeTokens( token_t* t1, token_t* t2 )
 Parse_NameHash
 ===============
 */
-//UTF8 primes[16] = {1, 3, 5, 7, 11, 13, 17, 19, 23, 27, 29, 31, 37, 41, 43, 47};
-static S32 Parse_NameHash( UTF8* name )
+//valueType primes[16] = {1, 3, 5, 7, 11, 13, 17, 19, 23, 27, 29, 31, 37, 41, 43, 47};
+static sint Parse_NameHash( valueType* name )
 {
-    register S32 hash, i;
+    register sint hash, i;
     
     hash = 0;
     for( i = 0; name[i] != '\0'; i++ )
@@ -1517,7 +1517,7 @@ Parse_AddDefineToHash
 */
 static void Parse_AddDefineToHash( define_t* define, define_t** definehash )
 {
-    S32 hash;
+    sint hash;
     
     hash = Parse_NameHash( define->name );
     define->hashnext = definehash[hash];
@@ -1529,10 +1529,10 @@ static void Parse_AddDefineToHash( define_t* define, define_t** definehash )
 Parse_FindHashedDefine
 ===============
 */
-static define_t* Parse_FindHashedDefine( define_t** definehash, UTF8* name )
+static define_t* Parse_FindHashedDefine( define_t** definehash, valueType* name )
 {
     define_t* d;
-    S32 hash;
+    sint hash;
     
     hash = Parse_NameHash( name );
     for( d = definehash[hash]; d; d = d->hashnext )
@@ -1547,10 +1547,10 @@ static define_t* Parse_FindHashedDefine( define_t** definehash, UTF8* name )
 Parse_FindDefineParm
 ===============
 */
-static S32 Parse_FindDefineParm( define_t* define, UTF8* name )
+static sint Parse_FindDefineParm( define_t* define, valueType* name )
 {
     token_t* p;
-    S32 i;
+    sint i;
     
     i = 0;
     for( p = define->parms; p; p = p->next )
@@ -1591,13 +1591,13 @@ static void Parse_FreeDefine( define_t* define )
 Parse_ExpandBuiltinDefine
 ===============
 */
-static S32 Parse_ExpandBuiltinDefine( source_t* source, token_t* deftoken, define_t* define,
-                                      token_t** firsttoken, token_t** lasttoken )
+static sint Parse_ExpandBuiltinDefine( source_t* source, token_t* deftoken, define_t* define,
+                                       token_t** firsttoken, token_t** lasttoken )
 {
     token_t* token;
     time_t t;
     
-    UTF8* curtime;
+    valueType* curtime;
     
     token = Parse_CopyToken( deftoken );
     switch( define->builtin )
@@ -1667,12 +1667,12 @@ static S32 Parse_ExpandBuiltinDefine( source_t* source, token_t* deftoken, defin
 Parse_ExpandDefine
 ===============
 */
-static S32 Parse_ExpandDefine( source_t* source, token_t* deftoken, define_t* define,
-                               token_t** firsttoken, token_t** lasttoken )
+static sint Parse_ExpandDefine( source_t* source, token_t* deftoken, define_t* define,
+                                token_t** firsttoken, token_t** lasttoken )
 {
     token_t* parms[MAX_DEFINEPARMS], *dt, *pt, *t;
     token_t* t1, *t2, *first, *last, *nextpt, token;
-    S32 parmnum, i;
+    sint parmnum, i;
     
     //if it is a builtin define
     if( define->builtin )
@@ -1795,7 +1795,7 @@ static S32 Parse_ExpandDefine( source_t* source, token_t* deftoken, define_t* de
 Parse_ExpandDefineIntoSource
 ===============
 */
-static S32 Parse_ExpandDefineIntoSource( source_t* source, token_t* deftoken, define_t* define )
+static sint Parse_ExpandDefineIntoSource( source_t* source, token_t* deftoken, define_t* define )
 {
     token_t* firsttoken, *lasttoken;
     
@@ -1815,9 +1815,9 @@ static S32 Parse_ExpandDefineIntoSource( source_t* source, token_t* deftoken, de
 Parse_ConvertPath
 ===============
 */
-static void Parse_ConvertPath( UTF8* path )
+static void Parse_ConvertPath( valueType* path )
 {
-    UTF8* ptr;
+    valueType* ptr;
     
     //remove double path seperators
     for( ptr = path; *ptr; )
@@ -1848,9 +1848,9 @@ reads a token from the current line, continues reading on the next
 line only if a backslash '\' is encountered.
 ===============
 */
-static S32 Parse_ReadLine( source_t* source, token_t* token )
+static sint Parse_ReadLine( source_t* source, token_t* token )
 {
-    S32 crossline;
+    sint crossline;
     
     crossline = 0;
     do
@@ -1875,21 +1875,21 @@ Parse_OperatorPriority
 */
 typedef struct operator_s
 {
-    S32 _operator;
-    S32 priority;
-    S32 parentheses;
+    sint _operator;
+    sint priority;
+    sint parentheses;
     struct operator_s* prev, *next;
 } operator_t;
 
 typedef struct value_s
 {
-    S64 intvalue;
-    F64 floatvalue;
-    S32 parentheses;
+    sint32 intvalue;
+    float64 floatvalue;
+    sint parentheses;
     struct value_s* prev, *next;
 } value_t;
 
-static S32 Parse_OperatorPriority( S32 op )
+static sint Parse_OperatorPriority( sint op )
 {
     switch( op )
     {
@@ -1973,26 +1973,26 @@ static S32 Parse_OperatorPriority( S32 op )
 Parse_EvaluateTokens
 ===============
 */
-static S32 Parse_EvaluateTokens( source_t* source, token_t* tokens, S64* intvalue,
-                                 F64* floatvalue, S32 integer )
+static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* intvalue,
+                                  float64* floatvalue, sint integer )
 {
     operator_t* o, *firstoperator, *lastoperator;
     value_t* v, *firstvalue, *lastvalue, *v1, *v2;
     token_t* t;
-    S32 brace = 0;
-    S32 parentheses = 0;
-    S32 error = 0;
-    S32 lastwasvalue = 0;
-    S32 negativevalue = 0;
-    S32 questmarkintvalue = 0;
-    F64 questmarkfloatvalue = 0;
-    S32 gotquestmarkvalue = false;
-    S32 lastoperatortype = 0;
+    sint brace = 0;
+    sint parentheses = 0;
+    sint error = 0;
+    sint lastwasvalue = 0;
+    sint negativevalue = 0;
+    sint questmarkintvalue = 0;
+    float64 questmarkfloatvalue = 0;
+    sint gotquestmarkvalue = false;
+    sint lastoperatortype = 0;
     //
     operator_t operator_heap[MAX_OPERATORS];
-    S32 numoperators = 0;
+    sint numoperators = 0;
     value_t value_heap[MAX_VALUES];
-    S32 numvalues = 0;
+    sint numvalues = 0;
     
     firstoperator = lastoperator = nullptr;
     firstvalue = lastvalue = nullptr;
@@ -2073,7 +2073,7 @@ static S32 Parse_EvaluateTokens( source_t* source, token_t* tokens, S64* intvalu
                 AllocValue( v );
                 if( negativevalue )
                 {
-                    v->intvalue = - ( S32 ) t->intvalue;
+                    v->intvalue = - ( sint ) t->intvalue;
                     v->floatvalue = - t->floatvalue;
                 }
                 else
@@ -2441,13 +2441,13 @@ static S32 Parse_EvaluateTokens( source_t* source, token_t* tokens, S64* intvalu
 Parse_Evaluate
 ===============
 */
-static S32 Parse_Evaluate( source_t* source, S64* intvalue,
-                           F64* floatvalue, S32 integer )
+static sint Parse_Evaluate( source_t* source, sint32* intvalue,
+                            float64* floatvalue, sint integer )
 {
     token_t token, *firsttoken, *lasttoken;
     token_t* t, *nexttoken;
     define_t* define;
-    S32 defined = false;
+    sint defined = false;
     
     if( intvalue ) *intvalue = 0;
     if( floatvalue ) *floatvalue = 0;
@@ -2527,10 +2527,10 @@ static S32 Parse_Evaluate( source_t* source, S64* intvalue,
 Parse_DollarEvaluate
 ===============
 */
-static S32 Parse_DollarEvaluate( source_t* source, S64* intvalue,
-                                 F64* floatvalue, S32 integer )
+static sint Parse_DollarEvaluate( source_t* source, sint32* intvalue,
+                                  float64* floatvalue, sint integer )
 {
-    S32 indent, defined = false;
+    sint indent, defined = false;
     token_t token, *firsttoken, *lasttoken;
     token_t* t, *nexttoken;
     define_t* define;
@@ -2622,11 +2622,11 @@ static S32 Parse_DollarEvaluate( source_t* source, S64* intvalue,
 Parse_Directive_include
 ===============
 */
-static S32 Parse_Directive_include( source_t* source )
+static sint Parse_Directive_include( source_t* source )
 {
     script_t* script;
     token_t token;
-    UTF8 path[MAX_QPATH];
+    valueType path[MAX_QPATH];
     
     if( source->skip > 0 ) return true;
     //
@@ -2696,7 +2696,7 @@ static S32 Parse_Directive_include( source_t* source )
 Parse_WhiteSpaceBeforeToken
 ===============
 */
-static S32 Parse_WhiteSpaceBeforeToken( token_t* token )
+static sint Parse_WhiteSpaceBeforeToken( token_t* token )
 {
     return token->endwhitespace_p - token->whitespace_p > 0;
 }
@@ -2718,11 +2718,11 @@ static void Parse_ClearTokenWhiteSpace( token_t* token )
 Parse_Directive_undef
 ===============
 */
-static S32 Parse_Directive_undef( source_t* source )
+static sint Parse_Directive_undef( source_t* source )
 {
     token_t token;
     define_t* define, *lastdefine;
-    S32 hash;
+    sint hash;
     
     if( source->skip > 0 ) return true;
     //
@@ -2765,10 +2765,10 @@ static S32 Parse_Directive_undef( source_t* source )
 Parse_Directive_elif
 ===============
 */
-static S32 Parse_Directive_elif( source_t* source )
+static sint Parse_Directive_elif( source_t* source )
 {
-    S64 value;
-    S32 type, skip;
+    sint32 value;
+    sint type, skip;
     
     Parse_PopIndent( source, &type, &skip );
     if( !type || type == INDENT_ELSE )
@@ -2787,10 +2787,10 @@ static S32 Parse_Directive_elif( source_t* source )
 Parse_Directive_if
 ===============
 */
-static S32 Parse_Directive_if( source_t* source )
+static sint Parse_Directive_if( source_t* source )
 {
-    S64 value;
-    S32 skip;
+    sint32 value;
+    sint skip;
     
     if( !Parse_Evaluate( source, &value, nullptr, true ) ) return false;
     skip = ( value == 0 );
@@ -2803,7 +2803,7 @@ static S32 Parse_Directive_if( source_t* source )
 Parse_Directive_line
 ===============
 */
-static S32 Parse_Directive_line( source_t* source )
+static sint Parse_Directive_line( source_t* source )
 {
     Parse_SourceError( source, "#line directive not supported" );
     return false;
@@ -2814,7 +2814,7 @@ static S32 Parse_Directive_line( source_t* source )
 Parse_Directive_error
 ===============
 */
-static S32 Parse_Directive_error( source_t* source )
+static sint Parse_Directive_error( source_t* source )
 {
     token_t token;
     
@@ -2829,7 +2829,7 @@ static S32 Parse_Directive_error( source_t* source )
 Parse_Directive_pragma
 ===============
 */
-static S32 Parse_Directive_pragma( source_t* source )
+static sint Parse_Directive_pragma( source_t* source )
 {
     token_t token;
     
@@ -2862,9 +2862,9 @@ static void Parse_UnreadSignToken( source_t* source )
 Parse_Directive_eval
 ===============
 */
-static S32 Parse_Directive_eval( source_t* source )
+static sint Parse_Directive_eval( source_t* source )
 {
-    S64 value;
+    sint32 value;
     token_t token;
     
     if( !Parse_Evaluate( source, &value, nullptr, true ) ) return false;
@@ -2886,9 +2886,9 @@ static S32 Parse_Directive_eval( source_t* source )
 Parse_Directive_evalfloat
 ===============
 */
-static S32 Parse_Directive_evalfloat( source_t* source )
+static sint Parse_Directive_evalfloat( source_t* source )
 {
-    F64 value;
+    float64 value;
     token_t token;
     
     if( !Parse_Evaluate( source, nullptr, &value, false ) ) return false;
@@ -2909,9 +2909,9 @@ static S32 Parse_Directive_evalfloat( source_t* source )
 Parse_DollarDirective_evalint
 ===============
 */
-static S32 Parse_DollarDirective_evalint( source_t* source )
+static sint Parse_DollarDirective_evalint( source_t* source )
 {
-    S64 value;
+    sint32 value;
     token_t token;
     
     if( !Parse_DollarEvaluate( source, &value, nullptr, true ) ) return false;
@@ -2935,9 +2935,9 @@ static S32 Parse_DollarDirective_evalint( source_t* source )
 Parse_DollarDirective_evalfloat
 ===============
 */
-static S32 Parse_DollarDirective_evalfloat( source_t* source )
+static sint Parse_DollarDirective_evalfloat( source_t* source )
 {
-    F64 value;
+    float64 value;
     token_t token;
     
     if( !Parse_DollarEvaluate( source, nullptr, &value, false ) ) return false;
@@ -2967,10 +2967,10 @@ directive_t DollarDirectives[20] =
     {nullptr, nullptr}
 };
 
-static S32 Parse_ReadDollarDirective( source_t* source )
+static sint Parse_ReadDollarDirective( source_t* source )
 {
     token_t token;
-    S32 i;
+    sint i;
     
     //read the directive name
     if( !Parse_ReadSourceToken( source, &token ) )
@@ -3007,11 +3007,11 @@ static S32 Parse_ReadDollarDirective( source_t* source )
 Parse_Directive_if_def
 ===============
 */
-static S32 Parse_Directive_if_def( source_t* source, S32 type )
+static sint Parse_Directive_if_def( source_t* source, sint type )
 {
     token_t token;
     define_t* d;
-    S32 skip;
+    sint skip;
     
     if( !Parse_ReadLine( source, &token ) )
     {
@@ -3035,7 +3035,7 @@ static S32 Parse_Directive_if_def( source_t* source, S32 type )
 Parse_Directive_ifdef
 ===============
 */
-static S32 Parse_Directive_ifdef( source_t* source )
+static sint Parse_Directive_ifdef( source_t* source )
 {
     return Parse_Directive_if_def( source, INDENT_IFDEF );
 }
@@ -3045,7 +3045,7 @@ static S32 Parse_Directive_ifdef( source_t* source )
 Parse_Directive_ifndef
 ===============
 */
-static S32 Parse_Directive_ifndef( source_t* source )
+static sint Parse_Directive_ifndef( source_t* source )
 {
     return Parse_Directive_if_def( source, INDENT_IFNDEF );
 }
@@ -3055,9 +3055,9 @@ static S32 Parse_Directive_ifndef( source_t* source )
 Parse_Directive_else
 ===============
 */
-static S32 Parse_Directive_else( source_t* source )
+static sint Parse_Directive_else( source_t* source )
 {
-    S32 type, skip;
+    sint type, skip;
     
     Parse_PopIndent( source, &type, &skip );
     if( !type )
@@ -3079,9 +3079,9 @@ static S32 Parse_Directive_else( source_t* source )
 Parse_Directive_endif
 ===============
 */
-static S32 Parse_Directive_endif( source_t* source )
+static sint Parse_Directive_endif( source_t* source )
 {
-    S32 type, skip;
+    sint type, skip;
     
     Parse_PopIndent( source, &type, &skip );
     if( !type )
@@ -3097,7 +3097,7 @@ static S32 Parse_Directive_endif( source_t* source )
 Parse_CheckTokenString
 ===============
 */
-static S32 Parse_CheckTokenString( source_t* source, UTF8* string )
+static sint Parse_CheckTokenString( source_t* source, valueType* string )
 {
     token_t tok;
     
@@ -3114,7 +3114,7 @@ static S32 Parse_CheckTokenString( source_t* source, UTF8* string )
 Parse_Directive_define
 ===============
 */
-static S32 Parse_Directive_define( source_t* source )
+static sint Parse_Directive_define( source_t* source )
 {
     token_t token, *t, *last;
     define_t* define;
@@ -3150,7 +3150,7 @@ static S32 Parse_Directive_define( source_t* source )
     //allocate define
     define = ( define_t* ) Z_Malloc( sizeof( define_t ) + strlen( token.string ) + 1 );
     ::memset( define, 0, sizeof( define_t ) );
-    define->name = ( UTF8* ) define + sizeof( define_t );
+    define->name = ( valueType* ) define + sizeof( define_t );
     strcpy( define->name, token.string );
     //add the define to the source
     Parse_AddDefineToHash( define, source->definehash );
@@ -3263,10 +3263,10 @@ directive_t Directives[20] =
     {nullptr, nullptr}
 };
 
-static S32 Parse_ReadDirective( source_t* source )
+static sint Parse_ReadDirective( source_t* source )
 {
     token_t token;
-    S32 i;
+    sint i;
     
     //read the directive name
     if( !Parse_ReadSourceToken( source, &token ) )
@@ -3319,7 +3319,7 @@ enums, and enumerated names conflict with #define parameters
 static bool Parse_ReadEnumeration( source_t* source )
 {
     token_t newtoken;
-    S32 value;
+    sint value;
     
     if( !Parse_ReadToken( source, &newtoken ) )
         return false;
@@ -3372,7 +3372,7 @@ static bool Parse_ReadEnumeration( source_t* source )
         
         if( newtoken.subtype == P_ASSIGN )
         {
-            S32 neg = 1;
+            sint neg = 1;
             
             if( !Parse_ReadToken( source, &newtoken ) )
                 break;
@@ -3447,7 +3447,7 @@ static bool Parse_ReadEnumeration( source_t* source )
 Parse_ReadToken
 ===============
 */
-static S32 Parse_ReadToken( source_t* source, token_t* token )
+static sint Parse_ReadToken( source_t* source, token_t* token )
 {
     define_t* define;
     
@@ -3526,12 +3526,12 @@ static S32 Parse_ReadToken( source_t* source, token_t* token )
 Parse_DefineFromString
 ===============
 */
-static define_t* Parse_DefineFromString( UTF8* string )
+static define_t* Parse_DefineFromString( valueType* string )
 {
     script_t* script;
     source_t src;
     token_t* t;
-    S32 res, i;
+    sint res, i;
     define_t* def;
     
     script = Parse_LoadScriptMemory( string, strlen( string ), "*extern" );
@@ -3576,7 +3576,7 @@ Parse_AddDefineToSourceFromString
 ===============
 */
 static bool Parse_AddDefineToSourceFromString( source_t* source,
-        UTF8* string )
+        valueType* string )
 {
     Parse_PushScript( source, Parse_LoadScriptMemory( string, strlen( string ),
                       "*extern" ) );
@@ -3590,7 +3590,7 @@ Parse_AddGlobalDefine
 adds or overrides a global define that will be added to all opened sources
 ===============
 */
-S32 Parse_AddGlobalDefine( UTF8* string )
+sint Parse_AddGlobalDefine( valueType* string )
 {
     define_t* define, *prev, *curr;
     
@@ -3634,7 +3634,7 @@ static define_t* Parse_CopyDefine( source_t* source, define_t* define )
     
     newdefine = ( define_t* ) Z_Malloc( sizeof( define_t ) + strlen( define->name ) + 1 );
     //copy the define name
-    newdefine->name = ( UTF8* ) newdefine + sizeof( define_t );
+    newdefine->name = ( valueType* ) newdefine + sizeof( define_t );
     strcpy( newdefine->name, define->name );
     newdefine->flags = define->flags;
     newdefine->builtin = define->builtin;
@@ -3686,7 +3686,7 @@ static void Parse_AddGlobalDefinesToSource( source_t* source )
 Parse_LoadSourceFile
 ===============
 */
-static source_t* Parse_LoadSourceFile( StringEntry filename )
+static source_t* Parse_LoadSourceFile( pointer filename )
 {
     source_t* source;
     script_t* script;
@@ -3723,7 +3723,7 @@ static void Parse_FreeSource( source_t* source )
     token_t* token;
     define_t* define;
     indent_t* indent;
-    S32 i;
+    sint i;
     
     //Parse_PrintDefineHashTable(source->definehash);
     //free all the scripts
@@ -3771,10 +3771,10 @@ source_t* sourceFiles[MAX_SOURCEFILES];
 Parse_LoadSourceHandle
 ===============
 */
-S32 Parse_LoadSourceHandle( StringEntry filename )
+sint Parse_LoadSourceHandle( pointer filename )
 {
     source_t* source;
-    S32 i;
+    sint i;
     
     for( i = 1; i < MAX_SOURCEFILES; i++ )
     {
@@ -3799,7 +3799,7 @@ S32 Parse_LoadSourceHandle( StringEntry filename )
 Parse_FreeSourceHandle
 ===============
 */
-S32 Parse_FreeSourceHandle( S32 handle )
+sint Parse_FreeSourceHandle( sint handle )
 {
     if( handle < 1 || handle >= MAX_SOURCEFILES )
     {
@@ -3821,10 +3821,10 @@ S32 Parse_FreeSourceHandle( S32 handle )
 Parse_ReadTokenHandle
 ===============
 */
-S32 Parse_ReadTokenHandle( S32 handle, pc_token_t* pc_token )
+sint Parse_ReadTokenHandle( sint handle, pc_token_t* pc_token )
 {
     token_t token;
-    S32 ret;
+    sint ret;
     
     if( handle < 1 || handle >= MAX_SOURCEFILES )
     {
@@ -3855,7 +3855,7 @@ S32 Parse_ReadTokenHandle( S32 handle, pc_token_t* pc_token )
 Parse_SourceFileAndLine
 ===============
 */
-S32 Parse_SourceFileAndLine( S32 handle, UTF8* filename, S32* line )
+sint Parse_SourceFileAndLine( sint handle, valueType* filename, sint* line )
 {
     if( handle < 1 || handle >= MAX_SOURCEFILES )
     {

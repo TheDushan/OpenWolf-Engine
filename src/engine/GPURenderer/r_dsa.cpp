@@ -31,20 +31,20 @@
 
 static struct
 {
-    U32 textures[NUM_TEXTURE_BUNDLES];
-    U32 texunit;
+    uint textures[NUM_TEXTURE_BUNDLES];
+    uint texunit;
     
-    U32 program;
+    uint program;
     
-    U32 drawFramebuffer;
-    U32 readFramebuffer;
-    U32 renderbuffer;
+    uint drawFramebuffer;
+    uint readFramebuffer;
+    uint renderbuffer;
 }
 glDsaState;
 
 void GL_BindNullTextures()
 {
-    S32 i;
+    sint i;
     
     if( glRefConfig.directStateAccess )
     {
@@ -68,9 +68,9 @@ void GL_BindNullTextures()
     }
 }
 
-S32 GL_BindMultiTexture( U32 texunit, U32 target, U32 texture )
+sint GL_BindMultiTexture( uint texunit, uint target, uint texture )
 {
-    U32 tmu = texunit - GL_TEXTURE0;
+    uint tmu = texunit - GL_TEXTURE0;
     
     if( glDsaState.textures[tmu] == texture )
         return 0;
@@ -83,7 +83,7 @@ S32 GL_BindMultiTexture( U32 texunit, U32 target, U32 texture )
     return 1;
 }
 
-void GLDSA_BindMultiTextureEXT( U32 texunit, U32 target, U32 texture )
+void GLDSA_BindMultiTextureEXT( uint texunit, uint target, uint texture )
 {
     if( glDsaState.texunit != texunit )
     {
@@ -94,49 +94,49 @@ void GLDSA_BindMultiTextureEXT( U32 texunit, U32 target, U32 texture )
     qglBindTexture( target, texture );
 }
 
-void GLDSA_TextureParameterfEXT( U32 texture, U32 target, U32 pname, F32 param )
+void GLDSA_TextureParameterfEXT( uint texture, uint target, uint pname, float32 param )
 {
     GL_BindMultiTexture( glDsaState.texunit, target, texture );
     qglTexParameterf( target, pname, param );
 }
 
-void GLDSA_TextureParameteriEXT( U32 texture, U32 target, U32 pname, S32 param )
+void GLDSA_TextureParameteriEXT( uint texture, uint target, uint pname, sint param )
 {
     GL_BindMultiTexture( glDsaState.texunit, target, texture );
     qglTexParameteri( target, pname, param );
 }
 
-void GLDSA_TextureImage2DEXT( U32 texture, U32 target, S32 level, S32 internalformat, S32 width, S32 height, S32 border, U32 format, U32 type, const void* pixels )
+void GLDSA_TextureImage2DEXT( uint texture, uint target, sint level, sint internalformat, sint width, sint height, sint border, uint format, uint type, const void* pixels )
 {
     GL_BindMultiTexture( glDsaState.texunit, target, texture );
     qglTexImage2D( target, level, internalformat, width, height, border, format, type, pixels );
 }
 
-void GLDSA_TextureSubImage2DEXT( U32 texture, U32 target, S32 level, S32 xoffset, S32 yoffset, S32 width, S32 height, U32 format, U32 type, const void* pixels )
+void GLDSA_TextureSubImage2DEXT( uint texture, uint target, sint level, sint xoffset, sint yoffset, sint width, sint height, uint format, uint type, const void* pixels )
 {
     GL_BindMultiTexture( glDsaState.texunit, target, texture );
     qglTexSubImage2D( target, level, xoffset, yoffset, width, height, format, type, pixels );
 }
 
-void GLDSA_CopyTextureSubImage2DEXT( U32 texture, U32 target, S32 level, S32 xoffset, S32 yoffset, S32 x, S32 y, S32 width, S32 height )
+void GLDSA_CopyTextureSubImage2DEXT( uint texture, uint target, sint level, sint xoffset, sint yoffset, sint x, sint y, sint width, sint height )
 {
     GL_BindMultiTexture( glDsaState.texunit, target, texture );
     qglCopyTexSubImage2D( target, level, xoffset, yoffset, x, y, width, height );
 }
 
-void  GLDSA_CompressedTextureImage2DEXT( U32 texture, U32 target, S32 level, U32 internalformat, S32 width, S32 height, S32 border, S32 imageSize, const void* data )
+void  GLDSA_CompressedTextureImage2DEXT( uint texture, uint target, sint level, uint internalformat, sint width, sint height, sint border, sint imageSize, const void* data )
 {
     GL_BindMultiTexture( glDsaState.texunit, target, texture );
     qglCompressedTexImage2D( target, level, internalformat, width, height, border, imageSize, data );
 }
 
-void GLDSA_CompressedTextureSubImage2DEXT( U32 texture, U32 target, S32 level, S32 xoffset, S32 yoffset, S32 width, S32 height, U32 format, S32 imageSize, const void* data )
+void GLDSA_CompressedTextureSubImage2DEXT( uint texture, uint target, sint level, sint xoffset, sint yoffset, sint width, sint height, uint format, sint imageSize, const void* data )
 {
     GL_BindMultiTexture( glDsaState.texunit, target, texture );
     qglCompressedTexSubImage2D( target, level, xoffset, yoffset, width, height, format, imageSize, data );
 }
 
-void GLDSA_GenerateTextureMipmapEXT( U32 texture, U32 target )
+void GLDSA_GenerateTextureMipmapEXT( uint texture, uint target )
 {
     GL_BindMultiTexture( glDsaState.texunit, target, texture );
     qglGenerateMipmap( target );
@@ -148,7 +148,7 @@ void GL_BindNullProgram()
     glDsaState.program = 0;
 }
 
-S32 GL_UseProgram( U32 program )
+sint GL_UseProgram( uint program )
 {
     if( glDsaState.program == program )
         return 0;
@@ -158,58 +158,58 @@ S32 GL_UseProgram( U32 program )
     return 1;
 }
 
-void GLDSA_ProgramUniform1iEXT( U32 program, S32 location, S32 v0 )
+void GLDSA_ProgramUniform1iEXT( uint program, sint location, sint v0 )
 {
     GL_UseProgram( program );
     qglUniform1i( location, v0 );
 }
 
-void GLDSA_ProgramUniform1fEXT( U32 program, S32 location, F32 v0 )
+void GLDSA_ProgramUniform1fEXT( uint program, sint location, float32 v0 )
 {
     GL_UseProgram( program );
     qglUniform1f( location, v0 );
 }
 
-void GLDSA_ProgramUniform2fEXT( U32 program, S32 location,
-                                F32 v0, F32 v1 )
+void GLDSA_ProgramUniform2fEXT( uint program, sint location,
+                                float32 v0, float32 v1 )
 {
     GL_UseProgram( program );
     qglUniform2f( location, v0, v1 );
 }
 
-void GLDSA_ProgramUniform2fvEXT( U32 program, S32 location, S32 count, const F32* value )
+void GLDSA_ProgramUniform2fvEXT( uint program, sint location, sint count, const float32* value )
 {
     GL_UseProgram( program );
     qglUniform2fv( program, location, count, value );
 }
 
-void GLDSA_ProgramUniform3fEXT( U32 program, S32 location,
-                                F32 v0, F32 v1, F32 v2 )
+void GLDSA_ProgramUniform3fEXT( uint program, sint location,
+                                float32 v0, float32 v1, float32 v2 )
 {
     GL_UseProgram( program );
     qglUniform3f( location, v0, v1, v2 );
 }
 
-void GLDSA_ProgramUniform4fEXT( U32 program, S32 location,
-                                F32 v0, F32 v1, F32 v2, F32 v3 )
+void GLDSA_ProgramUniform4fEXT( uint program, sint location,
+                                float32 v0, float32 v1, float32 v2, float32 v3 )
 {
     GL_UseProgram( program );
     qglUniform4f( location, v0, v1, v2, v3 );
 }
 
-void GLDSA_ProgramUniform1fvEXT( U32 program, S32 location, S32 count, const F32* value )
+void GLDSA_ProgramUniform1fvEXT( uint program, sint location, sint count, const float32* value )
 {
     GL_UseProgram( program );
     qglUniform1fv( location, count, value );
 }
 
-void GLDSA_ProgramUniform3fEXT( U32 program, S32 location, S32 count, const F32* value )
+void GLDSA_ProgramUniform3fEXT( uint program, sint location, sint count, const float32* value )
 {
     GL_UseProgram( program );
     qglUniform3fv( location, count, value );
 }
 
-void GLDSA_ProgramUniformMatrix4fvEXT( U32 program, S32 location, S32 count, U8 transpose, const F32* value )
+void GLDSA_ProgramUniformMatrix4fvEXT( uint program, sint location, sint count, uchar8 transpose, const float32* value )
 {
     GL_UseProgram( program );
     qglUniformMatrix4fv( location, count, transpose, value );
@@ -223,7 +223,7 @@ void GL_BindNullFramebuffers()
     glDsaState.renderbuffer = 0;
 }
 
-void GL_BindFramebuffer( U32 target, U32 framebuffer )
+void GL_BindFramebuffer( uint target, uint framebuffer )
 {
     switch( target )
     {
@@ -253,7 +253,7 @@ void GL_BindFramebuffer( U32 target, U32 framebuffer )
     }
 }
 
-void GL_BindRenderbuffer( U32 renderbuffer )
+void GL_BindRenderbuffer( uint renderbuffer )
 {
     if( renderbuffer != glDsaState.renderbuffer )
     {
@@ -262,48 +262,48 @@ void GL_BindRenderbuffer( U32 renderbuffer )
     }
 }
 
-void GL_BindFragDataLocation( U32 program, U32 color, StringEntry name )
+void GL_BindFragDataLocation( uint program, uint color, pointer name )
 {
     qglBindFragDataLocation( program, color, name );
 }
 
-void GLDSA_NamedRenderbufferStorageEXT( U32 renderbuffer, U32 internalformat, S32 width, S32 height )
+void GLDSA_NamedRenderbufferStorageEXT( uint renderbuffer, uint internalformat, sint width, sint height )
 {
     GL_BindRenderbuffer( renderbuffer );
     qglRenderbufferStorage( GL_RENDERBUFFER, internalformat, width, height );
 }
 
-void GLDSA_NamedRenderbufferStorageMultisampleEXT( U32 renderbuffer, S32 samples, U32 internalformat, S32 width, S32 height )
+void GLDSA_NamedRenderbufferStorageMultisampleEXT( uint renderbuffer, sint samples, uint internalformat, sint width, sint height )
 {
     GL_BindRenderbuffer( renderbuffer );
     qglRenderbufferStorageMultisample( GL_RENDERBUFFER, samples, internalformat, width, height );
 }
 
-U32 GLDSA_CheckNamedFramebufferStatusEXT( U32 framebuffer, U32 target )
+uint GLDSA_CheckNamedFramebufferStatusEXT( uint framebuffer, uint target )
 {
     GL_BindFramebuffer( target, framebuffer );
     return qglCheckFramebufferStatus( target );
 }
 
-void GLDSA_NamedFramebufferTexture2DEXT( U32 framebuffer, U32 attachment, U32 textarget, U32 texture, S32 level )
+void GLDSA_NamedFramebufferTexture2DEXT( uint framebuffer, uint attachment, uint textarget, uint texture, sint level )
 {
     GL_BindFramebuffer( GL_FRAMEBUFFER, framebuffer );
     qglFramebufferTexture2D( GL_FRAMEBUFFER, attachment, textarget, texture, level );
 }
 
-void GLDSA_NamedFramebufferRenderbufferEXT( U32 framebuffer, U32 attachment, U32 renderbuffertarget, U32 renderbuffer )
+void GLDSA_NamedFramebufferRenderbufferEXT( uint framebuffer, uint attachment, uint renderbuffertarget, uint renderbuffer )
 {
     GL_BindFramebuffer( GL_FRAMEBUFFER, framebuffer );
     qglFramebufferRenderbuffer( GL_FRAMEBUFFER, attachment, renderbuffertarget, renderbuffer );
 }
 
-void GLDSA_CopyTexImage2DEXT( U32 framebuffer, U32 target, S32 level, U32 internalformat, S32 x, S32 y, S32 width, S32 height, S32 border )
+void GLDSA_CopyTexImage2DEXT( uint framebuffer, uint target, sint level, uint internalformat, sint x, sint y, sint width, sint height, sint border )
 {
     GL_BindRenderbuffer( framebuffer );
     qglCopyTexImage2DEXT( target, level, internalformat, x, y, width, height, border );
 }
 
-void GL_PatchParameteri( U32 pname, S32 value )
+void GL_PatchParameteri( uint pname, sint value )
 {
     qglPatchParameteri( pname, value );
 }

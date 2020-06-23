@@ -41,12 +41,12 @@ memory management
 
 static sndBuffer* buffer = nullptr;
 static sndBuffer* freelist = nullptr;
-static S32 inUse = 0;
-static S32 totalInUse = 0;
+static sint inUse = 0;
+static sint totalInUse = 0;
 
-S16* sfxScratchBuffer = nullptr;
+schar16* sfxScratchBuffer = nullptr;
 sfx_t* sfxScratchPointer = nullptr;
-S32	sfxScratchIndex = 0;
+sint	sfxScratchIndex = 0;
 
 void SND_free( sndBuffer* v )
 {
@@ -78,7 +78,7 @@ void SND_setup( void )
 {
     sndBuffer* p, *q;
     convar_t*	cv;
-    S32 scs;
+    sint scs;
     
     cv = cvarSystem->Get( "com_soundMegs", DEF_COMSOUNDMEGS, CVAR_LATCH | CVAR_ARCHIVE, "Sets the amount of memory (MB) to allocate for loaded sound files" );
     
@@ -92,7 +92,7 @@ void SND_setup( void )
     buffer = static_cast<sndBuffer*>( ::malloc( scs * sizeof( sndBuffer ) ) );
     
     // allocate the stack based hunk allocator
-    sfxScratchBuffer = static_cast<S16*>( malloc( SND_CHUNK_SIZE * sizeof( short ) * 4 ) ); //Hunk_Alloc(SND_CHUNK_SIZE * sizeof(short) * 4);
+    sfxScratchBuffer = static_cast<schar16*>( malloc( SND_CHUNK_SIZE * sizeof( short ) * 4 ) ); //Hunk_Alloc(SND_CHUNK_SIZE * sizeof(short) * 4);
     sfxScratchPointer = nullptr;
     
     inUse = scs * sizeof( sndBuffer );
@@ -116,17 +116,17 @@ ResampleSfx
 resample / decimate to the current source rate
 ================
 */
-static S32 ResampleSfx( sfx_t* sfx, S32 channels, S32 inrate, S32 inwidth, S32 samples, U8* data, bool compressed )
+static sint ResampleSfx( sfx_t* sfx, sint channels, sint inrate, sint inwidth, sint samples, uchar8* data, bool compressed )
 {
-    S32 outcount;
-    S32 srcsample;
-    F32 stepscale;
-    S32 i, j;
-    S32 sample, samplefrac, fracstep;
-    S32 part;
+    sint outcount;
+    sint srcsample;
+    float32 stepscale;
+    sint i, j;
+    sint sample, samplefrac, fracstep;
+    sint part;
     sndBuffer*	chunk;
     
-    stepscale = ( F32 )inrate / dma.speed;	// this is usually 0.5, 1, or 2
+    stepscale = ( float32 )inrate / dma.speed;	// this is usually 0.5, 1, or 2
     
     outcount = samples / stepscale;
     
@@ -142,11 +142,11 @@ static S32 ResampleSfx( sfx_t* sfx, S32 channels, S32 inrate, S32 inwidth, S32 s
         {
             if( inwidth == 2 )
             {
-                sample = ( ( ( S16* )data )[srcsample + j] );
+                sample = ( ( ( schar16* )data )[srcsample + j] );
             }
             else
             {
-                sample = ( S32 )( ( U8 )( data[srcsample + j] ) - 128 ) << 8;
+                sample = ( sint )( ( uchar8 )( data[srcsample + j] ) - 128 ) << 8;
             }
             part = ( i * channels + j ) & ( SND_CHUNK_SIZE - 1 );
             if( part == 0 )
@@ -178,15 +178,15 @@ ResampleSfx
 resample / decimate to the current source rate
 ================
 */
-static S32 ResampleSfxRaw( S16* sfx, S32 channels, S32 inrate, S32 inwidth, S32 samples, U8* data )
+static sint ResampleSfxRaw( schar16* sfx, sint channels, sint inrate, sint inwidth, sint samples, uchar8* data )
 {
-    S32 outcount;
-    S32 srcsample;
-    F32 stepscale;
-    S32 i, j;
-    S32 sample, samplefrac, fracstep;
+    sint outcount;
+    sint srcsample;
+    float32 stepscale;
+    sint i, j;
+    sint sample, samplefrac, fracstep;
     
-    stepscale = ( F32 )inrate / dma.speed;	// this is usually 0.5, 1, or 2
+    stepscale = ( float32 )inrate / dma.speed;	// this is usually 0.5, 1, or 2
     
     outcount = samples / stepscale;
     
@@ -201,11 +201,11 @@ static S32 ResampleSfxRaw( S16* sfx, S32 channels, S32 inrate, S32 inwidth, S32 
         {
             if( inwidth == 2 )
             {
-                sample = LittleShort( ( ( S16* )data )[srcsample + j] );
+                sample = LittleShort( ( ( schar16* )data )[srcsample + j] );
             }
             else
             {
-                sample = ( S32 )( ( U8 )( data[srcsample + j] ) - 128 ) << 8;
+                sample = ( sint )( ( uchar8 )( data[srcsample + j] ) - 128 ) << 8;
             }
             sfx[i * channels + j] = sample;
         }
@@ -223,10 +223,10 @@ of a forced fallback of a player specific sound
 */
 bool S_LoadSound( sfx_t* sfx )
 {
-    U8*	data;
-    S16* samples;
+    uchar8*	data;
+    schar16* samples;
     snd_info_t	info;
-//	S32		size;
+//	sint		size;
 
 #ifndef NO_DMAHD
     if( dmaHD_Enabled() )
@@ -242,7 +242,7 @@ bool S_LoadSound( sfx_t* sfx )
     }
     
     // load it in
-    data = static_cast<U8*>( S_CodecLoad( sfx->soundName, &info ) );
+    data = static_cast<uchar8*>( S_CodecLoad( sfx->soundName, &info ) );
     if( !data )
     {
         return false;
@@ -258,7 +258,7 @@ bool S_LoadSound( sfx_t* sfx )
         Com_DPrintf( S_COLOR_YELLOW "WARNING: %s is not a 22kHz wav file\n", sfx->soundName );
     }
     
-    samples = static_cast<S16*>( Hunk_AllocateTempMemory( info.channels * info.samples * sizeof( short ) * 2 ) );
+    samples = static_cast<schar16*>( Hunk_AllocateTempMemory( info.channels * info.samples * sizeof( short ) * 2 ) );
     
     sfx->lastTimeUsed = Com_Milliseconds() + 1;
     

@@ -65,9 +65,9 @@ idHuffmanSystemLocal::~idHuffmanSystemLocal( void )
 
 //bani - optimized version
 //clears data along the way so we dont have to memset() it ahead of time
-void idHuffmanSystemLocal::putBit( S32 bit, U8* fout, S32* offset )
+void idHuffmanSystemLocal::putBit( sint bit, uchar8* fout, sint* offset )
 {
-    S32             x, y;
+    sint             x, y;
     
     bloc = *offset;
     x = bloc >> 3;
@@ -81,21 +81,21 @@ void idHuffmanSystemLocal::putBit( S32 bit, U8* fout, S32* offset )
     *offset = bloc;
 }
 
-S32	idHuffmanSystemLocal::getBloc( void )
+sint	idHuffmanSystemLocal::getBloc( void )
 {
     return bloc;
 }
 
-void idHuffmanSystemLocal::setBloc( S32 _bloc )
+void idHuffmanSystemLocal::setBloc( sint _bloc )
 {
     bloc = _bloc;
 }
 
 //bani - optimized version
 //optimization works on gcc 3.x, but not 2.95 ? most curious.
-S32 idHuffmanSystemLocal::getBit( U8* fin, S32* offset )
+sint idHuffmanSystemLocal::getBit( uchar8* fin, sint* offset )
 {
-    S32             t;
+    sint             t;
     
     bloc = *offset;
     t = fin[bloc >> 3] >> ( bloc & 7 ) & 0x1;
@@ -106,9 +106,9 @@ S32 idHuffmanSystemLocal::getBit( U8* fin, S32* offset )
 
 //bani - optimized version
 //clears data along the way so we dont have to memset() it ahead of time
-void idHuffmanSystemLocal::add_bit( UTF8 bit, U8* fout )
+void idHuffmanSystemLocal::add_bit( valueType bit, uchar8* fout )
 {
-    S32             x, y;
+    sint             x, y;
     
     y = bloc >> 3;
     x = bloc++ & 7;
@@ -121,9 +121,9 @@ void idHuffmanSystemLocal::add_bit( UTF8 bit, U8* fout )
 
 //bani - optimized version
 //optimization works on gcc 3.x, but not 2.95 ? most curious.
-S32 idHuffmanSystemLocal::get_bit( U8* fin )
+sint idHuffmanSystemLocal::get_bit( uchar8* fin )
 {
-    S32             t;
+    sint             t;
     
     t = fin[bloc >> 3] >> ( bloc & 7 ) & 0x1;
     bloc++;
@@ -287,7 +287,7 @@ void idHuffmanSystemLocal::increment( huff_t* huff, node_t* node )
     }
 }
 
-void idHuffmanSystemLocal::addRef( huff_t* huff, U8 ch )
+void idHuffmanSystemLocal::addRef( huff_t* huff, uchar8 ch )
 {
     node_t*         tnode, *tnode2;
     
@@ -382,7 +382,7 @@ void idHuffmanSystemLocal::addRef( huff_t* huff, U8 ch )
 }
 
 /* Get a symbol */
-S32 idHuffmanSystemLocal::Receive( node_t* node, S32* ch, U8* fin )
+sint idHuffmanSystemLocal::Receive( node_t* node, sint* ch, uchar8* fin )
 {
     while( node && node->symbol == INTERNAL_NODE )
     {
@@ -404,7 +404,7 @@ S32 idHuffmanSystemLocal::Receive( node_t* node, S32* ch, U8* fin )
 }
 
 /* Get a symbol */
-void idHuffmanSystemLocal::offsetReceive( node_t* node, S32* ch, U8* fin, S32* offset )
+void idHuffmanSystemLocal::offsetReceive( node_t* node, sint* ch, uchar8* fin, sint* offset )
 {
     bloc = *offset;
     while( node && node->symbol == INTERNAL_NODE )
@@ -429,7 +429,7 @@ void idHuffmanSystemLocal::offsetReceive( node_t* node, S32* ch, U8* fin, S32* o
 }
 
 /* Send the prefix code for this node */
-void idHuffmanSystemLocal::send( node_t* node, node_t* child, U8* fout )
+void idHuffmanSystemLocal::send( node_t* node, node_t* child, uchar8* fout )
 {
     if( node->parent )
     {
@@ -449,9 +449,9 @@ void idHuffmanSystemLocal::send( node_t* node, node_t* child, U8* fout )
 }
 
 /* Send a symbol */
-void idHuffmanSystemLocal::transmit( huff_t* huff, S32 ch, U8* fout )
+void idHuffmanSystemLocal::transmit( huff_t* huff, sint ch, uchar8* fout )
 {
-    S32             i;
+    sint             i;
     
     if( huff->loc[ch] == nullptr )
     {
@@ -459,7 +459,7 @@ void idHuffmanSystemLocal::transmit( huff_t* huff, S32 ch, U8* fout )
         transmit( huff, NYT, fout );
         for( i = 7; i >= 0; i-- )
         {
-            add_bit( ( UTF8 )( ( ch >> i ) & 0x1 ), fout );
+            add_bit( ( valueType )( ( ch >> i ) & 0x1 ), fout );
         }
     }
     else
@@ -468,11 +468,11 @@ void idHuffmanSystemLocal::transmit( huff_t* huff, S32 ch, U8* fout )
     }
 }
 
-void idHuffmanSystemLocal::DynDecompress( msg_t* mbuf, S32 offset )
+void idHuffmanSystemLocal::DynDecompress( msg_t* mbuf, sint offset )
 {
-    S32             ch, cch, i, j, size;
-    U8            seq[65536];
-    U8*           buffer;
+    sint             ch, cch, i, j, size;
+    uchar8            seq[65536];
+    uchar8*           buffer;
     huff_t          huff;
     
     size = mbuf->cursize - offset;
@@ -522,17 +522,17 @@ void idHuffmanSystemLocal::DynDecompress( msg_t* mbuf, S32 offset )
         
         seq[j] = ch;			/* Write symbol */
         
-        addRef( &huff, ( U8 ) ch );	/* Increment node */
+        addRef( &huff, ( uchar8 ) ch );	/* Increment node */
     }
     mbuf->cursize = cch + offset;
     ::memcpy( mbuf->data + offset, seq, cch );
 }
 
-void idHuffmanSystemLocal::DynCompress( msg_t* mbuf, S32 offset )
+void idHuffmanSystemLocal::DynCompress( msg_t* mbuf, sint offset )
 {
-    S32             i, ch, size;
-    U8            seq[65536];
-    U8*           buffer;
+    sint             i, ch, size;
+    uchar8            seq[65536];
+    uchar8*           buffer;
     huff_t          huff;
     
     size = mbuf->cursize - offset;
@@ -561,7 +561,7 @@ void idHuffmanSystemLocal::DynCompress( msg_t* mbuf, S32 offset )
     {
         ch = buffer[i];
         transmit( &huff, ch, seq );	/* Transmit symbol */
-        addRef( &huff, ( U8 ) ch );	/* Do update */
+        addRef( &huff, ( uchar8 ) ch );	/* Do update */
     }
     
     bloc += 8;					// next byte
@@ -570,13 +570,13 @@ void idHuffmanSystemLocal::DynCompress( msg_t* mbuf, S32 offset )
     ::memcpy( mbuf->data + offset, seq, ( bloc >> 3 ) );
 }
 
-S32	idHuffmanSystemLocal::ReadBit( U8* buffer, S32 bitIndex )
+sint	idHuffmanSystemLocal::ReadBit( uchar8* buffer, sint bitIndex )
 {
     return ( buffer[( bitIndex >> 3 )] >> ( bitIndex & 7 ) ) & 0x1;
 }
 
 
-void idHuffmanSystemLocal::WriteBit( S32 bit, U8* buffer, S32 bitIndex )
+void idHuffmanSystemLocal::WriteBit( sint bit, uchar8* buffer, sint bitIndex )
 {
     // is this the first bit of a new byte?
     if( ( bitIndex & 7 ) == 0 )
@@ -587,25 +587,25 @@ void idHuffmanSystemLocal::WriteBit( S32 bit, U8* buffer, S32 bitIndex )
 }
 
 
-S32 idHuffmanSystemLocal::ReadSymbol( S32* symbol, U8* buffer, S32 bitIndex )
+sint idHuffmanSystemLocal::ReadSymbol( sint* symbol, uchar8* buffer, sint bitIndex )
 {
-    const U16 code = ( ( *( const U32* )( buffer + ( bitIndex >> 3 ) ) ) >> ( ( U32 )bitIndex & 7 ) ) & 0x7FF;
-    const U16 entry = huff_decodeTable[code];
+    const uchar16 code = ( ( *( const uint* )( buffer + ( bitIndex >> 3 ) ) ) >> ( ( uint )bitIndex & 7 ) ) & 0x7FF;
+    const uchar16 entry = huff_decodeTable[code];
     
-    *symbol = ( S32 )( entry & 0xFF );
+    *symbol = ( sint )( entry & 0xFF );
     
-    return ( S32 )( entry >> 8 );
+    return ( sint )( entry >> 8 );
 }
 
 
-S32 idHuffmanSystemLocal::WriteSymbol( S32 symbol, U8* buffer, S32 bitIndex )
+sint idHuffmanSystemLocal::WriteSymbol( sint symbol, uchar8* buffer, sint bitIndex )
 {
-    const U16 entry = huff_encodeTable[symbol];
-    const S32 bitCount = ( S32 )( entry & 15 );
-    const S32 code = ( S32 )( ( entry >> 4 ) & 0x7FF );
-    S32 bits = ( S32 )code;
+    const uchar16 entry = huff_encodeTable[symbol];
+    const sint bitCount = ( sint )( entry & 15 );
+    const sint code = ( sint )( ( entry >> 4 ) & 0x7FF );
+    sint bits = ( sint )code;
     
-    for( S32 i = 0; i < bitCount; i++ )
+    for( sint i = 0; i < bitCount; i++ )
     {
         WriteBit( bits & 1, buffer, bitIndex );
         bits >>= 1;

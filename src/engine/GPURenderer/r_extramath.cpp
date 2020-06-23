@@ -159,7 +159,7 @@ void Mat4Translation( vec3_t vec, mat4_t out )
     out[15] = 1.0f;
 }
 
-void Mat4Ortho( F32 left, F32 right, F32 bottom, F32 top, F32 znear, F32 zfar, mat4_t out )
+void Mat4Ortho( float32 left, float32 right, float32 bottom, float32 top, float32 znear, float32 zfar, mat4_t out )
 {
     out[ 0] = 2.0f / ( right - left );
     out[ 4] = 0.0f;
@@ -205,7 +205,7 @@ void Mat4View( vec3_t axes[3], vec3_t origin, mat4_t out )
 void Mat4SimpleInverse( const mat4_t in, mat4_t out )
 {
     vec3_t v;
-    F32 invSqrLen;
+    float32 invSqrLen;
     
     VectorCopy( in + 0, v );
     invSqrLen = 1.0f / DotProduct( v, v );
@@ -237,16 +237,16 @@ void Mat4SimpleInverse( const mat4_t in, mat4_t out )
     out[15] = 1.0f;
 }
 
-void VectorLerp( vec3_t a, vec3_t b, F32 lerp, vec3_t c )
+void VectorLerp( vec3_t a, vec3_t b, float32 lerp, vec3_t c )
 {
     c[0] = a[0] * ( 1.0f - lerp ) + b[0] * lerp;
     c[1] = a[1] * ( 1.0f - lerp ) + b[1] * lerp;
     c[2] = a[2] * ( 1.0f - lerp ) + b[2] * lerp;
 }
 
-bool SpheresIntersect( vec3_t origin1, F32 radius1, vec3_t origin2, F32 radius2 )
+bool SpheresIntersect( vec3_t origin1, float32 radius1, vec3_t origin2, float32 radius2 )
 {
-    F32 radiusSum = radius1 + radius2;
+    float32 radiusSum = radius1 + radius2;
     vec3_t diff;
     
     VectorSubtract( origin1, origin2, diff );
@@ -259,7 +259,7 @@ bool SpheresIntersect( vec3_t origin1, F32 radius1, vec3_t origin2, F32 radius2 
     return false;
 }
 
-void BoundingSphereOfSpheres( vec3_t origin1, F32 radius1, vec3_t origin2, F32 radius2, vec3_t origin3, F32* radius3 )
+void BoundingSphereOfSpheres( vec3_t origin1, float32 radius1, vec3_t origin2, float32 radius2, vec3_t origin3, float32* radius3 )
 {
     vec3_t diff;
     
@@ -270,9 +270,9 @@ void BoundingSphereOfSpheres( vec3_t origin1, F32 radius1, vec3_t origin2, F32 r
     *radius3 = VectorLength( diff ) * 0.5f + MAX( radius1, radius2 );
 }
 
-S32 NextPowerOfTwo( S32 in )
+sint NextPowerOfTwo( sint in )
 {
-    S32 out;
+    sint out;
     
     for( out = 1; out < in; out <<= 1 )
         ;
@@ -282,56 +282,56 @@ S32 NextPowerOfTwo( S32 in )
 
 union f32_u
 {
-    F32 f;
-    U32 ui;
+    float32 f;
+    uint ui;
     struct
     {
-        U32 fraction: 23;
-        U32 exponent: 8;
-        U32 sign: 1;
+        uint fraction: 23;
+        uint exponent: 8;
+        uint sign: 1;
     } pack;
 };
 
 union f16_u
 {
-    U16 ui;
+    uchar16 ui;
     struct
     {
-        U32 fraction: 10;
-        U32 exponent: 5;
-        U32 sign: 1;
+        uint fraction: 10;
+        uint exponent: 5;
+        uint sign: 1;
     } pack;
 };
 
-U16 FloatToHalf( F32 in )
+uchar16 FloatToHalf( float32 in )
 {
     union f32_u f32;
     union f16_u f16;
     
     f32.f = in;
     
-    f16.pack.exponent = CLAMP( ( S32 )( f32.pack.exponent ) - 112, 0, 31 );
+    f16.pack.exponent = CLAMP( ( sint )( f32.pack.exponent ) - 112, 0, 31 );
     f16.pack.fraction = f32.pack.fraction >> 13;
     f16.pack.sign     = f32.pack.sign;
     
     return f16.ui;
 }
 
-F32 HalfToFloat( U16 in )
+float32 HalfToFloat( uchar16 in )
 {
     union f32_u f32;
     union f16_u f16;
     
     f16.ui = in;
     
-    f32.pack.exponent = ( S32 )( f16.pack.exponent ) + 112;
+    f32.pack.exponent = ( sint )( f16.pack.exponent ) + 112;
     f32.pack.fraction = f16.pack.fraction << 13;
     f32.pack.sign = f16.pack.sign;
     
     return f32.f;
 }
 
-U32 ReverseBits( U32 v )
+uint ReverseBits( uint v )
 {
     v = ( ( v >> 1 ) & 0x55555555 ) | ( ( v & 0x55555555 ) << 1 );
     v = ( ( v >> 2 ) & 0x33333333 ) | ( ( v & 0x33333333 ) << 2 );
@@ -341,10 +341,10 @@ U32 ReverseBits( U32 v )
     return v;
 }
 
-F32 GSmithCorrelated( F32 roughness, F32 ndotv, F32 ndotl )
+float32 GSmithCorrelated( float32 roughness, float32 ndotv, float32 ndotl )
 {
-    F32 m2 = roughness * roughness;
-    F32 visV = ndotl * sqrt( ndotv * ( ndotv - ndotv * m2 ) + m2 );
-    F32 visL = ndotv * sqrt( ndotl * ( ndotl - ndotl * m2 ) + m2 );
+    float32 m2 = roughness * roughness;
+    float32 visV = ndotl * sqrt( ndotv * ( ndotv - ndotv * m2 ) + m2 );
+    float32 visL = ndotv * sqrt( ndotl * ( ndotl - ndotl * m2 ) + m2 );
     return 0.5f / ( visV + visL );
 }

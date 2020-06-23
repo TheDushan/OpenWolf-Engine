@@ -35,9 +35,9 @@
 FGetLittleLong
 =================
 */
-static S32 FGetLittleLong( fileHandle_t f )
+static sint FGetLittleLong( fileHandle_t f )
 {
-    S32 v;
+    sint v;
     
     fileSystem->Read( &v, sizeof( v ), f );
     
@@ -49,9 +49,9 @@ static S32 FGetLittleLong( fileHandle_t f )
 FGetLittleShort
 =================
 */
-static S16 FGetLittleShort( fileHandle_t f )
+static schar16 FGetLittleShort( fileHandle_t f )
 {
-    S16	v;
+    schar16	v;
     
     fileSystem->Read( &v, sizeof( v ), f );
     
@@ -63,9 +63,9 @@ static S16 FGetLittleShort( fileHandle_t f )
 S_ReadChunkInfo
 =================
 */
-static S32 S_ReadChunkInfo( fileHandle_t f, UTF8* name )
+static sint S_ReadChunkInfo( fileHandle_t f, valueType* name )
 {
-    S32 len, r;
+    sint len, r;
     
     name[4] = 0;
     
@@ -92,10 +92,10 @@ S_FindRIFFChunk
 Returns the length of the data in the chunk, or -1 if not found
 =================
 */
-static S32 S_FindRIFFChunk( fileHandle_t f, UTF8* chunk )
+static sint S_FindRIFFChunk( fileHandle_t f, valueType* chunk )
 {
-    UTF8 name[5];
-    S32 len;
+    valueType name[5];
+    sint len;
     
     while( ( len = S_ReadChunkInfo( f, name ) ) >= 0 )
     {
@@ -119,9 +119,9 @@ static S32 S_FindRIFFChunk( fileHandle_t f, UTF8* chunk )
 S_ByteSwapRawSamples
 =================
 */
-static void S_ByteSwapRawSamples( S32 samples, S32 width, S32 s_channels, const U8* data )
+static void S_ByteSwapRawSamples( sint samples, sint width, sint s_channels, const uchar8* data )
 {
-    S32 i;
+    sint i;
     
     if( width != 2 )
     {
@@ -140,7 +140,7 @@ static void S_ByteSwapRawSamples( S32 samples, S32 width, S32 s_channels, const 
     
     for( i = 0 ; i < samples ; i++ )
     {
-        ( ( S16* )data )[i] = LittleShort( ( ( S16* )data )[i] );
+        ( ( schar16* )data )[i] = LittleShort( ( ( schar16* )data )[i] );
     }
 }
 
@@ -151,9 +151,9 @@ S_ReadRIFFHeader
 */
 static bool S_ReadRIFFHeader( fileHandle_t file, snd_info_t* info )
 {
-    UTF8 dump[16];
-    S32 bits;
-    S32 fmtlen = 0;
+    valueType dump[16];
+    sint bits;
+    sint fmtlen = 0;
     
     // skip the riff wav header
     fileSystem->Read( dump, 12, file );
@@ -217,7 +217,7 @@ snd_codec_t wav_codec =
 S_WAV_CodecLoad
 =================
 */
-void* S_WAV_CodecLoad( StringEntry filename, snd_info_t* info )
+void* S_WAV_CodecLoad( pointer filename, snd_info_t* info )
 {
     fileHandle_t file;
     void* buffer;
@@ -249,7 +249,7 @@ void* S_WAV_CodecLoad( StringEntry filename, snd_info_t* info )
     
     // Read, byteswap
     fileSystem->Read( buffer, info->size, file );
-    S_ByteSwapRawSamples( info->samples, info->width, info->channels, static_cast< U8* >( buffer ) );
+    S_ByteSwapRawSamples( info->samples, info->width, info->channels, static_cast< uchar8* >( buffer ) );
     
     // Close and return
     fileSystem->FCloseFile( file );
@@ -261,7 +261,7 @@ void* S_WAV_CodecLoad( StringEntry filename, snd_info_t* info )
 S_WAV_CodecOpenStream
 =================
 */
-snd_stream_t* S_WAV_CodecOpenStream( StringEntry filename )
+snd_stream_t* S_WAV_CodecOpenStream( pointer filename )
 {
     snd_stream_t* rv;
     
@@ -297,10 +297,10 @@ void S_WAV_CodecCloseStream( snd_stream_t* stream )
 S_WAV_CodecReadStream
 =================
 */
-S32 S_WAV_CodecReadStream( snd_stream_t* stream, S32 bytes, void* buffer )
+sint S_WAV_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer )
 {
-    S32 remaining = stream->info.size - stream->pos;
-    S32 samples;
+    sint remaining = stream->info.size - stream->pos;
+    sint samples;
     
     if( remaining <= 0 )
     {
@@ -315,7 +315,7 @@ S32 S_WAV_CodecReadStream( snd_stream_t* stream, S32 bytes, void* buffer )
     stream->pos += bytes;
     samples = ( bytes / stream->info.width ) / stream->info.channels;
     fileSystem->Read( buffer, bytes, stream->file );
-    S_ByteSwapRawSamples( samples, stream->info.width, stream->info.channels, static_cast<const U8*>( buffer ) );
+    S_ByteSwapRawSamples( samples, stream->info.width, stream->info.channels, static_cast<const uchar8*>( buffer ) );
     
     return bytes;
 }

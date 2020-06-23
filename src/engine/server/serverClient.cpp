@@ -84,7 +84,7 @@ sent to that ip.
 */
 void idServerClientSystemLocal::GetChallenge( netadr_t from )
 {
-    S32 i, oldest, oldestTime, oldestClientTime, clientChallenge;
+    sint i, oldest, oldestTime, oldestClientTime, clientChallenge;
     challenge_t* challenge;
     bool wasfound = false;
     
@@ -173,12 +173,12 @@ A "connect" OOB command has been received
 */
 void idServerClientSystemLocal::DirectConnect( netadr_t from )
 {
-    UTF8 userinfo[MAX_INFO_STRING], *denied, *ip;
-    S32	i, clientNum, qport, challenge, startIndex, count, oldInfoLen2 = strlen( userinfo ), newInfoLen2;
+    valueType userinfo[MAX_INFO_STRING], *denied, *ip;
+    sint	i, clientNum, qport, challenge, startIndex, count, oldInfoLen2 = ( sint )::strlen( userinfo ), newInfoLen2;
     client_t* cl, *newcl, temp;
     sharedEntity_t* ent;
 #if !defined (UPDATE_SERVER)
-    S32	version;
+    sint	version;
 #endif
     bool reconnect = false;
     
@@ -229,7 +229,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     }
     else
     {
-        ip = ( UTF8* )NET_AdrToString( from );
+        ip = ( valueType* )NET_AdrToString( from );
     }
     
     if( !Info_SetValueForKey( userinfo, "ip", ip ) )
@@ -248,7 +248,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         // bombarded the server with connect packets.  That would result in very bad
         // server hitches.  We need to fix that.
         Info_RemoveKey( userinfo, "handicap" );
-        newInfoLen2 = strlen( userinfo );
+        newInfoLen2 = ( sint )::strlen( userinfo );
         
         if( oldInfoLen2 == newInfoLen2 )
         {
@@ -265,10 +265,10 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     }
     else
     {
-        ip = ( UTF8* )NET_AdrToString( from );
+        ip = ( valueType* )NET_AdrToString( from );
     }
     
-    if( ( strlen( ip ) + strlen( userinfo ) + 4 ) >= MAX_INFO_STRING )
+    if( ( ( sint )::strlen( ip ) + ( sint )::strlen( userinfo ) + 4 ) >= MAX_INFO_STRING )
     {
         NET_OutOfBandPrint( NS_SERVER, from,
                             "print\nUserinfo string length exceeded.  "
@@ -281,7 +281,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     // see if the challenge is valid (local clients don't need to challenge)
     if( !NET_IsLocalAddress( from ) )
     {
-        S32 ping;
+        sint ping;
         challenge_t* challengeptr;
         
         for( i = 0 ; i < MAX_CHALLENGES ; i++ )
@@ -345,7 +345,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     // q3fill protection
     if( !Net_IsLANAddress( from ) )
     {
-        S32 connectingip = 0;
+        sint connectingip = 0;
         
         for( i = 0; i < sv_maxclients->integer; i++ )
         {
@@ -549,9 +549,9 @@ or unwillingly.  This is NOT called if the entire server is quiting
 or crashing -- idServerInitSystemLocal::FinalCommand() will handle that
 =====================
 */
-void idServerClientSystemLocal::DropClient( client_t* drop, StringEntry reason )
+void idServerClientSystemLocal::DropClient( client_t* drop, pointer reason )
 {
-    S32 i;
+    sint i;
     challenge_t* challenge;
     bool isBot = false;
     
@@ -633,7 +633,7 @@ void idServerClientSystemLocal::DropClient( client_t* drop, StringEntry reason )
     // send a heartbeat now so the master will get up to date info
     // if there is already a slot for this ip, reuse it
     
-    S32 players = 0;
+    sint players = 0;
     
     for( i = 0; i < sv_maxclients->integer; i++ )
     {
@@ -675,10 +675,10 @@ the wrong gamestate.
 */
 void idServerClientSystemLocal::SendClientGameState( client_t* client )
 {
-    S32 start;
+    sint start;
     entityState_t* base, nullstate;
     msg_t msg;
-    U8 msgBuffer[MAX_MSGLEN];
+    uchar8 msgBuffer[MAX_MSGLEN];
     
     while( client->state && client->netchan.unsentFragments )
     {
@@ -755,7 +755,7 @@ void idServerClientSystemLocal::SendClientGameState( client_t* client )
     }
     
     // NERVE - SMF - debug info
-    Com_DPrintf( "Sending %i bytes in gamestate to client: %li\n", msg.cursize, ( S64 )( client - svs.clients ) );
+    Com_DPrintf( "Sending %i bytes in gamestate to client: %li\n", msg.cursize, ( sint32 )( client - svs.clients ) );
     
     // deliver this to the client
     serverSnapshotSystem->SendMessageToClient( &msg, client );
@@ -768,7 +768,7 @@ idServerClientSystemLocal::ClientEnterWorld
 */
 void idServerClientSystemLocal::ClientEnterWorld( client_t* client, usercmd_t* cmd )
 {
-    S32 clientNum;
+    sint clientNum;
     sharedEntity_t*	ent;
     
     // OACS: Set up the interframe for this client
@@ -816,7 +816,7 @@ clear/free any download vars
 */
 void idServerClientSystemLocal::CloseDownload( client_t* cl )
 {
-    S32 i;
+    sint i;
     
     // EOF
     if( cl->download )
@@ -849,7 +849,7 @@ void idServerClientSystemLocal::StopDownload_f( client_t* cl )
 {
     if( *cl->downloadName )
     {
-        Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", ( S32 )( cl - svs.clients ), cl->downloadName );
+        Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", ( sint )( cl - svs.clients ), cl->downloadName );
     }
     
     serverClientLocal.CloseDownload( cl );
@@ -885,16 +885,16 @@ the same as cl->downloadClientBlock
 */
 void idServerClientSystemLocal::NextDownload_f( client_t* cl )
 {
-    S32 block = atoi( cmdSystem->Argv( 1 ) );
+    sint block = atoi( cmdSystem->Argv( 1 ) );
     
     if( block == cl->downloadClientBlock )
     {
-        Com_DPrintf( "clientDownload: %d : client acknowledge of block %d\n", ( S32 )( cl - svs.clients ), block );
+        Com_DPrintf( "clientDownload: %d : client acknowledge of block %d\n", ( sint )( cl - svs.clients ), block );
         
         // Find out if we are done.  A zero-length block indicates EOF
         if( cl->downloadBlockSize[cl->downloadClientBlock % MAX_DOWNLOAD_WINDOW] == 0 )
         {
-            Com_Printf( "clientDownload: %d : file \"%s\" completed\n", ( S32 )( cl - svs.clients ), cl->downloadName );
+            Com_Printf( "clientDownload: %d : file \"%s\" completed\n", ( sint )( cl - svs.clients ), cl->downloadName );
             serverClientLocal.CloseDownload( cl );
             return;
         }
@@ -939,7 +939,7 @@ idServerClientSystemLocal::WWWDownload_f
 */
 void idServerClientSystemLocal::WWWDownload_f( client_t* cl )
 {
-    UTF8* subcmd = cmdSystem->Argv( 1 );
+    valueType* subcmd = cmdSystem->Argv( 1 );
     
     // only accept wwwdl commands for clients which we first flagged as wwwdl ourselves
     if( !cl->bWWWDl )
@@ -1060,11 +1060,11 @@ Fill up msg with data
 */
 void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg )
 {
-    S32 curindex, rate, blockspersnap, idPack, download_flag;
-    UTF8 errorMessage[1024];
+    sint curindex, rate, blockspersnap, idPack, download_flag;
+    valueType errorMessage[1024];
 #if defined (UPDATE_SERVER)
-    S32 i;
-    UTF8 testname[MAX_QPATH];
+    sint i;
+    valueType testname[MAX_QPATH];
 #endif
     
     bool bTellRate = false; // verbosity
@@ -1129,7 +1129,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
         if( cl->downloadnotify & DLNOTIFY_BEGIN )
         {
             cl->downloadnotify &= ~DLNOTIFY_BEGIN;
-            Com_Printf( "clientDownload: %d : beginning \"%s\"\n", ( S32 )( cl - svs.clients ), cl->downloadName );
+            Com_Printf( "clientDownload: %d : beginning \"%s\"\n", ( sint )( cl - svs.clients ), cl->downloadName );
         }
         
         idPack = fileSystem->idPak( cl->downloadName, BASEGAME );
@@ -1150,12 +1150,12 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
             }
             else if( idPack )
             {
-                Com_Printf( "clientDownload: %d : \"%s\" cannot download id pk3 files\n", ( S32 )( cl - svs.clients ), cl->downloadName );
+                Com_Printf( "clientDownload: %d : \"%s\" cannot download id pk3 files\n", ( sint )( cl - svs.clients ), cl->downloadName );
                 Com_sprintf( errorMessage, sizeof( errorMessage ), "Cannot autodownload official pk3 file \"%s\"", cl->downloadName );
             }
             else
             {
-                Com_Printf( "clientDownload: %d : \"%s\" download disabled", ( S32 )( cl - svs.clients ), cl->downloadName );
+                Com_Printf( "clientDownload: %d : \"%s\" download disabled", ( sint )( cl - svs.clients ), cl->downloadName );
                 
                 if( sv_pure->integer )
                 {
@@ -1190,7 +1190,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
                 if( !cl->bFallback )
                 {
                     fileHandle_t handle;
-                    S32 downloadSize = fileSystem->SV_FOpenFileRead( cl->downloadName, &handle );
+                    sint downloadSize = fileSystem->SV_FOpenFileRead( cl->downloadName, &handle );
                     
                     if( downloadSize )
                     {
@@ -1259,7 +1259,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
         
         if( cl->downloadSize <= 0 )
         {
-            Com_Printf( "clientDownload: %d : \"%s\" file not found on server\n", ( S32 )( cl - svs.clients ), cl->downloadName );
+            Com_Printf( "clientDownload: %d : \"%s\" file not found on server\n", ( sint )( cl - svs.clients ), cl->downloadName );
             Com_sprintf( errorMessage, sizeof( errorMessage ), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName );
             
             BadDownload( cl, msg );
@@ -1283,7 +1283,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
         
         if( !cl->downloadBlocks[curindex] )
         {
-            cl->downloadBlocks[curindex] = ( U8* )Z_Malloc( MAX_DOWNLOAD_BLKSIZE );
+            cl->downloadBlocks[curindex] = ( uchar8* )Z_Malloc( MAX_DOWNLOAD_BLKSIZE );
         }
         
         cl->downloadBlockSize[curindex] = fileSystem->Read( cl->downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE, cl->download );
@@ -1393,7 +1393,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
             MSG_WriteData( msg, cl->downloadBlocks[curindex], cl->downloadBlockSize[curindex] );
         }
         
-        Com_DPrintf( "clientDownload: %d : writing block %d\n", ( S32 )( cl - svs.clients ), cl->downloadXmitBlock );
+        Com_DPrintf( "clientDownload: %d : writing block %d\n", ( sint )( cl - svs.clients ), cl->downloadXmitBlock );
         
         // Move on to the next block
         // It will get sent with next snap shot.  The rate will keep us in line.
@@ -1430,8 +1430,8 @@ This routine would be a bit simpler with a goto but i abstained
 */
 void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
 {
-    S32 nChkSum1, nChkSum2, nClientPaks, nServerPaks, i, j, nCurArg, nClientChkSum[1024], nServerChkSum[1024];
-    StringEntry pPaks, pArg;
+    sint nChkSum1, nChkSum2, nClientPaks, nServerPaks, i, j, nCurArg, nClientChkSum[1024], nServerChkSum[1024];
+    pointer pPaks, pArg;
     bool bGood = true;
     
     // if we are pure, we "expect" the client to load certain things from
@@ -1639,9 +1639,9 @@ Makes sure each comma-separated token of the specified userinfo key
 is at most 13 characters to protect the game against buffer overflow.
 ==================
 */
-bool idServerClientSystemLocal::CheckFunstuffExploit( UTF8* userinfo, UTF8* key )
+bool idServerClientSystemLocal::CheckFunstuffExploit( valueType* userinfo, valueType* key )
 {
-    UTF8* token = Info_ValueForKey( userinfo, key );
+    valueType* token = Info_ValueForKey( userinfo, key );
     
     if( !token )
     {
@@ -1650,8 +1650,8 @@ bool idServerClientSystemLocal::CheckFunstuffExploit( UTF8* userinfo, UTF8* key 
     
     while( token && *token )
     {
-        S32 len;
-        UTF8* next = strchr( token, ',' );
+        sint len;
+        valueType* next = strchr( token, ',' );
         
         if( next == nullptr )
         {
@@ -1684,17 +1684,17 @@ into a more C friendly form.
 */
 void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
 {
-    UTF8* val;
-    S32 i;
+    valueType* val;
+    sint i;
     
     // In the ugly [commented out] code below, handicap is supposed to be
-    // either missing or a valid S32 between 1 and 100.
+    // either missing or a valid sint between 1 and 100.
     // It's safe therefore to stick with that policy and just remove it.
     // ET never uses handicap anyways.  Unfortunately it's possible
     // to have a key such as handicap appear more than once in the userinfo.
     // So we remove every instance of it.
-    S32 oldInfoLen = strlen( cl->userinfo );
-    S32 newInfoLen;
+    sint oldInfoLen = strlen( cl->userinfo );
+    sint newInfoLen;
     
     while( true )
     {
@@ -1843,7 +1843,7 @@ idServerClientSystemLocal::UpdateUserinfo_f
 #define INFO_CHANGE_MAX_COUNT		3 //only allow 3 changes within the 6 seconds
 void idServerClientSystemLocal::UpdateUserinfo_f( client_t* cl )
 {
-    UTF8* arg = cmdSystem->Argv( 1 ), info[MAX_INFO_STRING];;
+    valueType* arg = cmdSystem->Argv( 1 ), info[MAX_INFO_STRING];;
     
     // Stop random empty /userinfo calls without hurting anything
     if( !arg || !*arg )
@@ -1894,7 +1894,7 @@ void idServerClientSystemLocal::UpdateUserinfo_f( client_t* cl )
 
 typedef struct
 {
-    UTF8* name;
+    valueType* name;
     void ( *func )( client_t* cl );
     bool allowedpostmapchange;
 } ucmd_t;
@@ -1923,12 +1923,12 @@ Also called by bot code
 ==================
 */
 
-void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, StringEntry s, bool clientOK, bool premaprestart )
+void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, bool clientOK, bool premaprestart )
 {
     ucmd_t* u;
     bool bProcessed = false;
-    S32 argsFromOneMaxlen, charCount, dollarCount, i;
-    UTF8* arg;
+    sint argsFromOneMaxlen, charCount, dollarCount, i;
+    valueType* arg;
     bool exploitDetected;
     bool foundCommand = false;
     
@@ -1964,7 +1964,7 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, StringEntry 
             {
                 if( strpbrk( cmdSystem->Argv( 1 ), ";\n\r" ) || strpbrk( cmdSystem->Argv( 2 ), ";\n\r" ) )
                 {
-                    Com_Printf( "Callvote from %s (client #%i, %s): %s\n", cl->name, ( S32 )( cl - svs.clients ),
+                    Com_Printf( "Callvote from %s (client #%i, %s): %s\n", cl->name, ( sint )( cl - svs.clients ),
                                 NET_AdrToString( cl->netchan.remoteAddress ), cmdSystem->Args() );
                     return;
                 }
@@ -2092,8 +2092,8 @@ idServerClientSystemLocal::ClientCommand
 */
 bool idServerClientSystemLocal::ClientCommand( client_t* cl, msg_t* msg, bool premaprestart )
 {
-    S32 seq;
-    StringEntry s;
+    sint seq;
+    pointer s;
     bool clientOk = true, floodprotect = true;
     
     seq = MSG_ReadLong( msg );
@@ -2119,7 +2119,7 @@ bool idServerClientSystemLocal::ClientCommand( client_t* cl, msg_t* msg, bool pr
     //Most mods are already safe, but who knows... This might be useful
     if( !Q_strncmp( "ws", s, 2 ) )
     {
-        S32 idx = 0;
+        sint idx = 0;
         
         if( strlen( s ) > 2 )
         {
@@ -2181,7 +2181,7 @@ idServerClientSystemLocal::ClientThink
 Also called by bot code
 ==================
 */
-void idServerClientSystemLocal::ClientThink( S32 client, usercmd_t* cmd )
+void idServerClientSystemLocal::ClientThink( sint client, usercmd_t* cmd )
 {
     if( client < 0 || sv_maxclients->integer <= client )
     {
@@ -2201,7 +2201,7 @@ void idServerClientSystemLocal::ClientThink( S32 client, usercmd_t* cmd )
     {
         // Update postponed userinfo changes now
         client_t* cl = &svs.clients[client];
-        UTF8 info[MAX_INFO_STRING];
+        valueType info[MAX_INFO_STRING];
         
         Q_strncpyz( cl->userinfo, cl->userinfoPostponed, sizeof( cl->userinfo ) );
         UserinfoChanged( cl );
@@ -2237,7 +2237,7 @@ each of the backup packets.
 */
 void idServerClientSystemLocal::UserMove( client_t* cl, msg_t* msg, bool delta )
 {
-    S32 i, key, cmdCount;
+    sint i, key, cmdCount;
     usercmd_t nullcmd, cmds[MAX_PACKET_USERCMDS], *cmd, *oldcmd;
     
     if( delta )
@@ -2371,7 +2371,7 @@ Parse a client packet
 */
 void idServerClientSystemLocal::ExecuteClientMessage( client_t* cl, msg_t* msg )
 {
-    S32 c, serverId;
+    sint c, serverId;
     
     MSG_Bitstream( msg );
     
@@ -2513,7 +2513,7 @@ void idServerClientSystemLocal::ExecuteClientMessage( client_t* cl, msg_t* msg )
     }
     else if( c != clc_EOF )
     {
-        Com_Printf( "WARNING: bad command byte for client %i\n", ( S32 )( cl - svs.clients ) );
+        Com_Printf( "WARNING: bad command byte for client %i\n", ( sint )( cl - svs.clients ) );
     }
     
     //if ( msg->readcount != msg->cursize )

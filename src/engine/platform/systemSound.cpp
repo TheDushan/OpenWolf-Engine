@@ -46,8 +46,8 @@ convar_t* s_sdlDevSamps;
 convar_t* s_sdlMixSamps;
 
 /* The audio callback. All the magic happens here. */
-static S32 dmapos = 0;
-static S32 dmasize = 0;
+static sint dmapos = 0;
+static sint dmasize = 0;
 
 static bool use_custom_memset = false;
 
@@ -62,18 +62,18 @@ Snd_Memset
 #ifdef Snd_Memset
 #undef Snd_Memset
 #endif
-void Snd_Memset( void* dest, const S32 val, const U64 count )
+void Snd_Memset( void* dest, const sint val, const uint32 count )
 {
-    S32* pDest;
-    S32 i, iterate;
+    sint* pDest;
+    sint i, iterate;
     
     if( !use_custom_memset )
     {
         ::memset( dest, val, count );
         return;
     }
-    iterate = count / sizeof( S32 );
-    pDest = ( S32* )dest;
+    iterate = count / sizeof( sint );
+    pDest = ( sint* )dest;
     for( i = 0; i < iterate; i++ )
     {
         pDest[i] = val;
@@ -87,9 +87,9 @@ void Snd_Memset( void* dest, const S32 val, const U64 count )
 SNDDMA_AudioCallback
 ===============
 */
-static void SNDDMA_AudioCallback( void* userdata, Uint8* stream, S32 len )
+static void SNDDMA_AudioCallback( void* userdata, Uint8* stream, sint len )
 {
-    S32             pos = ( dmapos * ( dma.samplebits / 8 ) );
+    sint             pos = ( dmapos * ( dma.samplebits / 8 ) );
     
     if( pos >= dmasize )
         dmapos = pos = 0;
@@ -101,9 +101,9 @@ static void SNDDMA_AudioCallback( void* userdata, Uint8* stream, S32 len )
     }
     else
     {
-        S32             tobufend = dmasize - pos;	/* bytes to buffer's end. */
-        S32             len1 = len;
-        S32             len2 = 0;
+        sint             tobufend = dmasize - pos;	/* bytes to buffer's end. */
+        sint             len1 = len;
+        sint             len2 = 0;
         
         if( len1 > tobufend )
         {
@@ -126,8 +126,8 @@ static void SNDDMA_AudioCallback( void* userdata, Uint8* stream, S32 len )
 
 static struct
 {
-    U16          enumFormat;
-    StringEntry  stringFormat;
+    uchar16          enumFormat;
+    pointer  stringFormat;
 } formatToStringTable[] =
 {
     {
@@ -162,20 +162,20 @@ static struct
     }
 };
 
-static const U64 formatToStringTableSize = sizeof( formatToStringTable ) / sizeof( formatToStringTable[0] );
+static const uint32 formatToStringTableSize = sizeof( formatToStringTable ) / sizeof( formatToStringTable[0] );
 
 /*
 ===============
 SNDDMA_PrintAudiospec
 ===============
 */
-static void SNDDMA_PrintAudiospec( StringEntry str, const SDL_AudioSpec* spec )
+static void SNDDMA_PrintAudiospec( pointer str, const SDL_AudioSpec* spec )
 {
-    StringEntry fmt = nullptr;
+    pointer fmt = nullptr;
     
     Com_Printf( "%s:\n", str );
     
-    for( U64 i = 0; i < formatToStringTableSize; i++ )
+    for( uint32 i = 0; i < formatToStringTableSize; i++ )
     {
         if( spec->format == formatToStringTable[i].enumFormat )
         {
@@ -189,12 +189,12 @@ static void SNDDMA_PrintAudiospec( StringEntry str, const SDL_AudioSpec* spec )
     }
     else
     {
-        Com_Printf( "  Format:   " S_COLOR_RED "UNKNOWN (%d)\n", ( S32 )spec->format );
+        Com_Printf( "  Format:   " S_COLOR_RED "UNKNOWN (%d)\n", ( sint )spec->format );
     }
     
-    Com_Printf( "  Freq:     %d\n", ( S32 )spec->freq );
-    Com_Printf( "  Samples:  %d\n", ( S32 )spec->samples );
-    Com_Printf( "  Channels: %d\n", ( S32 )spec->channels );
+    Com_Printf( "  Freq:     %d\n", ( sint )spec->freq );
+    Com_Printf( "  Samples:  %d\n", ( sint )spec->samples );
+    Com_Printf( "  Channels: %d\n", ( sint )spec->channels );
 }
 
 /*
@@ -202,7 +202,7 @@ static void SNDDMA_PrintAudiospec( StringEntry str, const SDL_AudioSpec* spec )
 SNDDMA_Init
 ===============
 */
-static S32 SNDDMA_ExpandSampleFrequencyKHzToHz( S32 khz )
+static sint SNDDMA_ExpandSampleFrequencyKHzToHz( sint khz )
 {
     switch( khz )
     {
@@ -221,11 +221,11 @@ static S32 SNDDMA_ExpandSampleFrequencyKHzToHz( S32 khz )
 SNDDMA_Init
 ===============
 */
-bool SNDDMA_Init( S32 sampleFrequencyInKHz )
+bool SNDDMA_Init( sint sampleFrequencyInKHz )
 {
     SDL_AudioSpec desired;
     SDL_AudioSpec obtained;
-    S32 tmp;
+    sint tmp;
     
     if( snd_inited )
         return true;
@@ -256,7 +256,7 @@ bool SNDDMA_Init( S32 sampleFrequencyInKHz )
     ::memset( &desired, '\0', sizeof( desired ) );
     ::memset( &obtained, '\0', sizeof( obtained ) );
     
-    tmp = ( ( S32 )s_sdlBits->value );
+    tmp = ( ( sint )s_sdlBits->value );
     if( ( tmp != 16 ) && ( tmp != 8 ) )
         tmp = 16;
         
@@ -280,7 +280,7 @@ bool SNDDMA_Init( S32 sampleFrequencyInKHz )
             desired.samples = 2048;	// (*shrug*)
     }
     
-    desired.channels = ( S32 )s_sdlChannels->value;
+    desired.channels = ( sint )s_sdlChannels->value;
     desired.callback = SNDDMA_AudioCallback;
     
     dev = SDL_OpenAudioDevice( nullptr, 0, &desired, &obtained, 0 );
@@ -306,7 +306,7 @@ bool SNDDMA_Init( S32 sampleFrequencyInKHz )
         
     if( tmp & ( tmp - 1 ) ) // not a power of two? Seems to confuse something.
     {
-        S32 val = 1;
+        sint val = 1;
         while( val < tmp )
             val <<= 1;
             
@@ -320,7 +320,7 @@ bool SNDDMA_Init( S32 sampleFrequencyInKHz )
     dma.submission_chunk = 1;
     dma.speed = obtained.freq;
     dmasize = ( dma.samples * ( dma.samplebits / 8 ) );
-    dma.buffer = ( U8* )calloc( 1, dmasize );
+    dma.buffer = ( uchar8* )calloc( 1, dmasize );
     
     if( !dma.buffer )
     {
@@ -342,7 +342,7 @@ bool SNDDMA_Init( S32 sampleFrequencyInKHz )
 SNDDMA_GetDMAPos
 ===============
 */
-S32 SNDDMA_GetDMAPos( void )
+sint SNDDMA_GetDMAPos( void )
 {
     return dmapos;
 }

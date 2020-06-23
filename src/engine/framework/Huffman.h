@@ -50,8 +50,8 @@
 
 typedef struct nodetype
 {
-    S32 symbol;
-    S32 weight;
+    sint symbol;
+    sint weight;
     struct nodetype* left, * right, * parent;	/* tree structure */
     struct nodetype* next, * prev;	/* doubly-linked list */
     struct nodetype** head;		/* highest ranked node in block */
@@ -59,8 +59,8 @@ typedef struct nodetype
 
 typedef struct
 {
-    S32 blocNode;
-    S32 blocPtrs;
+    sint blocNode;
+    sint blocPtrs;
     
     node_t* tree;
     node_t* lhead;
@@ -78,8 +78,8 @@ typedef struct
 } huffman_t;
 
 extern huffman_t clientHuffTables;
-extern S32 oldsize;
-static S32 bloc = 0;
+extern sint oldsize;
+static sint bloc = 0;
 
 static const uint16_t huff_decodeTable[2048] =
 {
@@ -242,31 +242,31 @@ public:
     idHuffmanSystemLocal();
     ~idHuffmanSystemLocal();
     
-    static void add_bit( UTF8 bit, U8* fout );
-    static S32 get_bit( U8* fin );
+    static void add_bit( valueType bit, uchar8* fout );
+    static sint get_bit( uchar8* fin );
     static node_t** get_ppnode( huff_t* huff );
     static void free_ppnode( huff_t* huff, node_t** ppnode );
     static void swap( huff_t* huff, node_t* node1, node_t* node2 );
     static void swaplist( node_t* node1, node_t* node2 );
     static void increment( huff_t* huff, node_t* node );
-    static void send( node_t* node, node_t* child, U8* fout );
-    static void putBit( S32 bit, U8* fout, S32* offset );
-    static S32 getBloc( void );
-    static void setBloc( S32 _bloc );
-    static S32 getBit( U8* fin, S32* offset );
-    static void addRef( huff_t* huff, U8 ch );
-    static S32 Receive( node_t* node, S32* ch, U8* fin );
-    static void transmit( huff_t* huff, S32 ch, U8* fout );
-    static void Decompress( msg_t* mbuf, S32 offset );
-    static void DynCompress( msg_t* mbuf, S32 offset );
-    static void offsetReceive( node_t* node, S32* ch, U8* fin, S32* offset );
-    static void offsetTransmit( huff_t* huff, S32 ch, U8* fout, S32* offset );
-    static void DynDecompress( msg_t* mbuf, S32 offset );
-    static void Compress( msg_t* mbuf, S32 offset );
-    static S32 ReadBit( U8* buffer, S32 bitIndex );
-    static void WriteBit( S32 bit, U8* buffer, S32 bitIndex );
-    static S32 ReadSymbol( S32* symbol, U8* buffer, S32 bitIndex );
-    static S32 WriteSymbol( S32 symbol, U8* buffer, S32 bitIndex );
+    static void send( node_t* node, node_t* child, uchar8* fout );
+    static void putBit( sint bit, uchar8* fout, sint* offset );
+    static sint getBloc( void );
+    static void setBloc( sint _bloc );
+    static sint getBit( uchar8* fin, sint* offset );
+    static void addRef( huff_t* huff, uchar8 ch );
+    static sint Receive( node_t* node, sint* ch, uchar8* fin );
+    static void transmit( huff_t* huff, sint ch, uchar8* fout );
+    static void Decompress( msg_t* mbuf, sint offset );
+    static void DynCompress( msg_t* mbuf, sint offset );
+    static void offsetReceive( node_t* node, sint* ch, uchar8* fin, sint* offset );
+    static void offsetTransmit( huff_t* huff, sint ch, uchar8* fout, sint* offset );
+    static void DynDecompress( msg_t* mbuf, sint offset );
+    static void Compress( msg_t* mbuf, sint offset );
+    static sint ReadBit( uchar8* buffer, sint bitIndex );
+    static void WriteBit( sint bit, uchar8* buffer, sint bitIndex );
+    static sint ReadSymbol( sint* symbol, uchar8* buffer, sint bitIndex );
+    static sint WriteSymbol( sint symbol, uchar8* buffer, sint bitIndex );
 };
 
 extern idHuffmanSystemLocal huffmanLocal;

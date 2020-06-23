@@ -50,8 +50,8 @@ them, which prevents having to deal with multiple fragments of a single entity.
 
 typedef struct worldSector_s
 {
-    S32	axis; // -1 = leaf node
-    F32	dist;
+    sint	axis; // -1 = leaf node
+    float32	dist;
     struct worldSector_s* children[2];
     svEntity_t*	entities;
 } worldSector_t;
@@ -60,7 +60,7 @@ typedef struct worldSector_s
 #define AREA_NODES 64
 
 static worldSector_t sv_worldSectors[AREA_NODES];
-static S32 sv_numworldSectors;
+static sint sv_numworldSectors;
 
 #define MAX_TOTAL_ENT_LEAFS 128
 
@@ -75,22 +75,22 @@ bounds.  This does NOT mean that they actually touch in the case of bmodels.
 
 typedef struct
 {
-    const F32* mins;
-    const F32* maxs;
-    S32* list;
-    S32 count, maxcount;
+    const float32* mins;
+    const float32* maxs;
+    sint* list;
+    sint count, maxcount;
 } areaParms_t;
 
 typedef struct
 {
     vec3_t boxmins, boxmaxs; // enclose the test object along entire move
-    const F32* mins;
-    const F32* maxs; // size of the moving object
-    const F32* start;
+    const float32* mins;
+    const float32* maxs; // size of the moving object
+    const float32* start;
     vec3_t end;
     trace_t trace;
-    S32 passEntityNum;
-    S32 contentmask;
+    sint passEntityNum;
+    sint contentmask;
     traceType_t collisionType;
 } moveclip_t;
 
@@ -106,9 +106,9 @@ public:
     // called after the world model has been loaded, before linking any entities
     virtual void UnlinkEntity( sharedEntity_t* gEnt );
     virtual void LinkEntity( sharedEntity_t* gEnt );
-    virtual S32 AreaEntities( const vec3_t mins, const vec3_t maxs, S32* entityList, S32 maxcount );
-    virtual S32 PointContents( const vec3_t p, S32 passEntityNum );
-    virtual void Trace( trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, S32 passEntityNum, S32 contentmask, traceType_t type );
+    virtual sint AreaEntities( const vec3_t mins, const vec3_t maxs, sint* entityList, sint maxcount );
+    virtual sint PointContents( const vec3_t p, sint passEntityNum );
+    virtual void Trace( trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, sint passEntityNum, sint contentmask, traceType_t type );
 public:
     idServerWorldSystemLocal();
     ~idServerWorldSystemLocal();
@@ -120,10 +120,10 @@ public:
     // is not solid
     static clipHandle_t ClipHandleForEntity( const sharedEntity_t* ent );
     static void SectorList_f( void );
-    static worldSector_t* CreateworldSector( S32 depth, vec3_t mins, vec3_t maxs );
+    static worldSector_t* CreateworldSector( sint depth, vec3_t mins, vec3_t maxs );
     static void ClearWorld( void );
     static void AreaEntities_r( worldSector_t* node, areaParms_t* ap );
-    static void ClipToEntity( trace_t* trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, S32 entityNum, S32 contentmask, traceType_t type );
+    static void ClipToEntity( trace_t* trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, sint entityNum, sint contentmask, traceType_t type );
     static void ClipMoveToEntities( moveclip_t* clip );
 };
 

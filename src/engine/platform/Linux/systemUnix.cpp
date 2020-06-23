@@ -50,9 +50,9 @@
 idSystemLocal::DefaultHomePath
 ==================
 */
-UTF8* idSystemLocal::DefaultHomePath( UTF8* buffer, S32 size )
+valueType* idSystemLocal::DefaultHomePath( valueType* buffer, sint size )
 {
-    UTF8* p;
+    valueType* p;
     
     if( !*homePath )
     {
@@ -75,10 +75,10 @@ UTF8* idSystemLocal::DefaultHomePath( UTF8* buffer, S32 size )
 idSystemLocal::TempPath
 ================
 */
-StringEntry idSystemLocal::TempPath( void )
+pointer idSystemLocal::TempPath( void )
 {
 #ifndef MACOS_X
-    StringEntry TMPDIR = getenv( "TMPDIR" );
+    pointer TMPDIR = getenv( "TMPDIR" );
     
     if( TMPDIR == nullptr || TMPDIR[0] == '\0' )
     {
@@ -98,10 +98,10 @@ idSystemLocal::Chmod
 chmod OR on a file
 ==================
 */
-void idSystemLocal::Chmod( UTF8* file, S32 mode )
+void idSystemLocal::Chmod( valueType* file, sint mode )
 {
     struct stat s_buf;
-    S32 perm;
+    sint perm;
     if( stat( file, &s_buf ) != 0 )
     {
         Com_Printf( "stat('%s')  failed: errno %d\n", file, errno );
@@ -122,11 +122,11 @@ idSystemLocal::Milliseconds
 current time in ms, using sys_timeBase as origin
 NOTE: sys_timeBase*1000 + curtime -> ms since the Epoch
 0x7fffffff ms - ~24 days
-although timeval:tv_usec is an S32, I'm not sure wether it is actually used as an unsigned int
+although timeval:tv_usec is an sint, I'm not sure wether it is actually used as an unsigned int
 (which would affect the wrap period)
 ================
 */
-S32 idSystemLocal::Milliseconds( void )
+sint idSystemLocal::Milliseconds( void )
 {
     struct timeval tp;
     
@@ -140,7 +140,7 @@ S32 idSystemLocal::Milliseconds( void )
 idSystemLocal::RandomBytes
 ==================
 */
-bool idSystemLocal::RandomBytes( U8* string, S32 len )
+bool idSystemLocal::RandomBytes( uchar8* string, sint len )
 {
     FILE* fp;
     
@@ -148,7 +148,7 @@ bool idSystemLocal::RandomBytes( U8* string, S32 len )
     if( !fp )
         return false;
         
-    if( !fread( string, sizeof( U8 ), len, fp ) )
+    if( !fread( string, sizeof( uchar8 ), len, fp ) )
     {
         fclose( fp );
         return false;
@@ -163,7 +163,7 @@ bool idSystemLocal::RandomBytes( U8* string, S32 len )
 idSystemLocal::GetCurrentUser
 ==================
 */
-UTF8* idSystemLocal::GetCurrentUser( void )
+valueType* idSystemLocal::GetCurrentUser( void )
 {
     struct passwd* p;
     
@@ -179,7 +179,7 @@ UTF8* idSystemLocal::GetCurrentUser( void )
 idSystemLocal::SysGetClipboardData
 ==================
 */
-UTF8* idSystemLocal::SysGetClipboardData( void )
+valueType* idSystemLocal::SysGetClipboardData( void )
 {
     return nullptr;
 }
@@ -201,7 +201,7 @@ bool idSystemLocal::LowPhysicalMemory( void )
 idSystemLocal::Basename
 ==================
 */
-StringEntry idSystemLocal::Basename( UTF8* path )
+pointer idSystemLocal::Basename( valueType* path )
 {
     return basename( path );
 }
@@ -211,7 +211,7 @@ StringEntry idSystemLocal::Basename( UTF8* path )
 idSystemLocal::Dirname
 ==================
 */
-StringEntry idSystemLocal::Dirname( UTF8* path )
+pointer idSystemLocal::Dirname( valueType* path )
 {
     return dirname( path );
 }
@@ -221,9 +221,9 @@ StringEntry idSystemLocal::Dirname( UTF8* path )
 idSystemLocal::Mkdir
 ==================
 */
-bool idSystemLocal::Mkdir( StringEntry path )
+bool idSystemLocal::Mkdir( pointer path )
 {
-    S32 result = mkdir( path, 0750 );
+    sint result = mkdir( path, 0750 );
     
     if( result != 0 )
         return errno == EEXIST;
@@ -236,19 +236,19 @@ bool idSystemLocal::Mkdir( StringEntry path )
 idSystemLocal::Cwd
 ==================
 */
-UTF8* idSystemLocal::Cwd( void )
+valueType* idSystemLocal::Cwd( void )
 {
 #ifdef MACOS_X
-    UTF8* apppath = DefaultAppPath();
+    valueType* apppath = DefaultAppPath();
     
     if( apppath[0] && apppath[0] != '.' )
     {
         return apppath;
     }
 #endif
-    static UTF8 cwd[MAX_OSPATH];
+    static valueType cwd[MAX_OSPATH];
     
-    UTF8* result = getcwd( cwd, sizeof( cwd ) - 1 );
+    valueType* result = getcwd( cwd, sizeof( cwd ) - 1 );
     if( result != cwd )
         return nullptr;
         
@@ -262,10 +262,10 @@ UTF8* idSystemLocal::Cwd( void )
 idSystemLocal::ListFilteredFiles
 ==================
 */
-void idSystemLocal::ListFilteredFiles( StringEntry basedir, UTF8* subdirs, UTF8* filter, UTF8** list, S32* numfiles )
+void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valueType* filter, valueType** list, sint* numfiles )
 {
-    UTF8          search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
-    UTF8          filename[MAX_OSPATH];
+    valueType          search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
+    valueType          filename[MAX_OSPATH];
     DIR*           fdir;
     struct dirent* d;
     struct stat   st;
@@ -329,18 +329,18 @@ void idSystemLocal::ListFilteredFiles( StringEntry basedir, UTF8* subdirs, UTF8*
 idSystemLocal::ListFiles
 ==================
 */
-UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, UTF8* filter, S32* numfiles, bool wantsubs )
+valueType** idSystemLocal::ListFiles( pointer directory, pointer extension, valueType* filter, sint* numfiles, bool wantsubs )
 {
     struct dirent* d;
     DIR* fdir;
     bool dironly = wantsubs;
-    UTF8 search[MAX_OSPATH];
-    S32 nfiles;
-    UTF8** listCopy;
-    UTF8* list[MAX_FOUND_FILES];
-    S32 i;
+    valueType search[MAX_OSPATH];
+    sint nfiles;
+    valueType** listCopy;
+    valueType* list[MAX_FOUND_FILES];
+    sint i;
     struct stat st;
-    S32 extLen;
+    sint extLen;
     
     if( filter )
     {
@@ -356,7 +356,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
             return nullptr;
         }
         
-        listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+        listCopy = ( valueType** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
         for( i = 0 ; i < nfiles ; i++ )
         {
             listCopy[i] = list[i];
@@ -424,7 +424,7 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
         return nullptr;
     }
     
-    listCopy = ( UTF8** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+    listCopy = ( valueType** )Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
     for( i = 0 ; i < nfiles ; i++ )
     {
         listCopy[i] = list[i];
@@ -439,9 +439,9 @@ UTF8** idSystemLocal::ListFiles( StringEntry directory, StringEntry extension, U
 idSystemLocal::FreeFileList
 ==================
 */
-void idSystemLocal::FreeFileList( UTF8** list )
+void idSystemLocal::FreeFileList( valueType** list )
 {
-    S32 i;
+    sint i;
     
     if( !list )
     {
@@ -463,7 +463,7 @@ idSystemLocal::Sleep
 Block execution for msec or until input is recieved.
 ==================
 */
-void idSystemLocal::Sleep( S32 msec )
+void idSystemLocal::Sleep( sint msec )
 {
     if( msec == 0 )
         return;
@@ -504,15 +504,15 @@ idSystemLocal::ErrorDialog
 Display an error message
 ==============
 */
-void idSystemLocal::ErrorDialog( StringEntry error )
+void idSystemLocal::ErrorDialog( pointer error )
 {
-    UTF8 buffer[ 1024 ];
-    U32 size;
-    S32 f = -1;
-    StringEntry homepath = cvarSystem->VariableString( "fs_homepath" );
-    StringEntry gamedir = cvarSystem->VariableString( "fs_gamedir" );
-    StringEntry fileName = "crashlog.txt";
-    UTF8* ospath = fileSystem->BuildOSPath( homepath, gamedir, fileName );
+    valueType buffer[ 1024 ];
+    uint size;
+    sint f = -1;
+    pointer homepath = cvarSystem->VariableString( "fs_homepath" );
+    pointer gamedir = cvarSystem->VariableString( "fs_gamedir" );
+    pointer fileName = "crashlog.txt";
+    valueType* ospath = fileSystem->BuildOSPath( homepath, gamedir, fileName );
     
     systemLocal.Print( va( "%s\n", error ) );
     
@@ -556,10 +556,10 @@ void idSystemLocal::ErrorDialog( StringEntry error )
 idSystemLocal::ZenityCommand
 ==============
 */
-S32 idSystemLocal::ZenityCommand( dialogType_t type, StringEntry message, StringEntry title )
+sint idSystemLocal::ZenityCommand( dialogType_t type, pointer message, pointer title )
 {
-    StringEntry options = "";
-    UTF8       command[ 1024 ];
+    pointer options = "";
+    valueType       command[ 1024 ];
     
     switch( type )
     {
@@ -592,10 +592,10 @@ S32 idSystemLocal::ZenityCommand( dialogType_t type, StringEntry message, String
 idSystemLocal::KdialogCommand
 ==============
 */
-S32 idSystemLocal::KdialogCommand( dialogType_t type, StringEntry message, StringEntry title )
+sint idSystemLocal::KdialogCommand( dialogType_t type, pointer message, pointer title )
 {
-    StringEntry options = "";
-    UTF8       command[ 1024 ];
+    pointer options = "";
+    valueType       command[ 1024 ];
     
     switch( type )
     {
@@ -628,10 +628,10 @@ S32 idSystemLocal::KdialogCommand( dialogType_t type, StringEntry message, Strin
 idSystemLocal::XmessageCommand
 ==============
 */
-S32 idSystemLocal::XmessageCommand( dialogType_t type, StringEntry message, StringEntry title )
+sint idSystemLocal::XmessageCommand( dialogType_t type, pointer message, pointer title )
 {
-    StringEntry options = "";
-    UTF8       command[ 1024 ];
+    pointer options = "";
+    valueType       command[ 1024 ];
     
     switch( type )
     {
@@ -659,7 +659,7 @@ idSystemLocal::Dialog
 Display a *nix dialog box
 ==============
 */
-dialogResult_t idSystemLocal::Dialog( dialogType_t type, StringEntry message, StringEntry title )
+dialogResult_t idSystemLocal::Dialog( dialogType_t type, pointer message, pointer title )
 {
     typedef enum
     {
@@ -669,9 +669,9 @@ dialogResult_t idSystemLocal::Dialog( dialogType_t type, StringEntry message, St
         XMESSAGE,
         NUM_DIALOG_PROGRAMS
     } dialogCommandType_t;
-    typedef S32( *dialogCommandBuilder_t )( dialogType_t, StringEntry, StringEntry );
+    typedef sint( *dialogCommandBuilder_t )( dialogType_t, pointer, pointer );
     
-    StringEntry              session = getenv( "DESKTOP_SESSION" );
+    pointer              session = getenv( "DESKTOP_SESSION" );
     bool                tried[ NUM_DIALOG_PROGRAMS ] = { false };
     dialogCommandBuilder_t  commands[ NUM_DIALOG_PROGRAMS ] = { nullptr };
     dialogCommandType_t     preferredCommandType = NONE;
@@ -688,8 +688,8 @@ dialogResult_t idSystemLocal::Dialog( dialogType_t type, StringEntry message, St
         
     while( 1 )
     {
-        S32 i;
-        S32 exitCode;
+        sint i;
+        sint exitCode;
         
         for( i = NONE + 1; i < NUM_DIALOG_PROGRAMS; i++ )
         {
@@ -756,7 +756,7 @@ UGLY HACK:
   The clean solution would be idSystemLocal::StartProcess and idSystemLocal::StartProcess_Args..
 ==================
 */
-void idSystemLocal::DoStartProcess( UTF8* cmdline )
+void idSystemLocal::DoStartProcess( valueType* cmdline )
 {
     switch( fork() )
     {
@@ -787,7 +787,7 @@ otherwise, push it for execution at exit
 NOTE: might even want to add a small delay?
 ==================
 */
-void idSystemLocal::StartProcess( UTF8* cmdline, bool doexit )
+void idSystemLocal::StartProcess( valueType* cmdline, bool doexit )
 {
     if( doexit )
     {
@@ -807,12 +807,12 @@ void idSystemLocal::StartProcess( UTF8* cmdline, bool doexit )
 idSystemLocal::OpenURL
 =================
 */
-void idSystemLocal::OpenURL( StringEntry url, bool doexit )
+void idSystemLocal::OpenURL( pointer url, bool doexit )
 {
-    UTF8* basepath, *homepath, *pwdpath;
-    UTF8 fname[20];
-    UTF8 fn[MAX_OSPATH];
-    UTF8 cmdline[MAX_CMD];
+    valueType* basepath, *homepath, *pwdpath;
+    valueType fname[20];
+    valueType fn[MAX_OSPATH];
+    valueType cmdline[MAX_CMD];
     
     static bool doexit_spamguard = false;
     
@@ -871,11 +871,11 @@ void idSystemLocal::OpenURL( StringEntry url, bool doexit )
 }
 
 // Dushan
-bool idSystemLocal::OpenUrl( StringEntry url )
+bool idSystemLocal::OpenUrl( pointer url )
 {
-    UTF8* browser = getenv( "BROWSER" );
-    UTF8* kde_session = getenv( "KDE_FULL_SESSION" );
-    UTF8* gnome_session = getenv( "GNOME_DESKTOP_SESSION_ID" );
+    valueType* browser = getenv( "BROWSER" );
+    valueType* kde_session = getenv( "KDE_FULL_SESSION" );
+    valueType* gnome_session = getenv( "GNOME_DESKTOP_SESSION_ID" );
     //Try to use xdg-open, if not, try default, then kde, gnome
     if( browser )
     {
@@ -900,9 +900,9 @@ bool idSystemLocal::OpenUrl( StringEntry url )
     return true;
 }
 
-bool idSystemLocal::Fork( StringEntry path, StringEntry cmdLine )
+bool idSystemLocal::Fork( pointer path, pointer cmdLine )
 {
-    S32 pid;
+    sint pid;
     
     pid = fork();
     if( pid == 0 )
@@ -964,7 +964,7 @@ Unix specific initialisation
 */
 void idSystemLocal::PlatformInit( void )
 {
-    StringEntry term = getenv( "TERM" );
+    pointer term = getenv( "TERM" );
     
     signal( SIGHUP, SigHandler );
     signal( SIGQUIT, SigHandler );
@@ -984,7 +984,7 @@ set/unset environment variables (empty value removes it)
 ==============
 */
 
-void idSystemLocal::SetEnv( StringEntry name, StringEntry value )
+void idSystemLocal::SetEnv( pointer name, pointer value )
 {
     if( value && *value )
         setenv( name, value, 1 );
@@ -997,7 +997,7 @@ void idSystemLocal::SetEnv( StringEntry name, StringEntry value )
 idSystemLocal::PID
 ==============
 */
-S32 idSystemLocal::PID( void )
+sint idSystemLocal::PID( void )
 {
     return getpid( );
 }
@@ -1007,7 +1007,7 @@ S32 idSystemLocal::PID( void )
 idSystemLocal::PIDIsRunning
 ==============
 */
-bool idSystemLocal::PIDIsRunning( S32 pid )
+bool idSystemLocal::PIDIsRunning( sint pid )
 {
     return kill( pid, 0 ) == 0;
 }
@@ -1033,9 +1033,9 @@ Discovers if passed dir is suffixed with the directory structure of a Mac OS X
 the result is returned. If not, dir is returned untouched.
 =================
 */
-UTF8* idSystemLocal::StripAppBundle( UTF8* dir )
+valueType* idSystemLocal::StripAppBundle( valueType* dir )
 {
-    static UTF8 cwd[MAX_OSPATH];
+    static valueType cwd[MAX_OSPATH];
     
     Q_strncpyz( cwd, dir, sizeof( cwd ) );
     if( strcmp( Basename( cwd ), "MacOS" ) )

@@ -41,9 +41,9 @@
 CM_SignbitsForNormal
 =================
 */
-static S32 CM_SignbitsForNormal( vec3_t normal )
+static sint CM_SignbitsForNormal( vec3_t normal )
 {
-    S32 bits, j;
+    sint bits, j;
     
     bits = 0;
     for( j = 0; j < 3; j++ )
@@ -90,10 +90,10 @@ PATCH COLLIDE GENERATION
 #define	PLANE_HASHES	1024
 static cPlane_t* planeHashTable[PLANE_HASHES];
 
-static S32      numPlanes;
+static sint      numPlanes;
 static cPlane_t planes[SHADER_MAX_TRIANGLES];
 
-static S32      numFacets;
+static sint      numFacets;
 static cFacet_t facets[SHADER_MAX_TRIANGLES];
 
 #define	NORMAL_EPSILON		0.0001
@@ -105,9 +105,9 @@ static cFacet_t facets[SHADER_MAX_TRIANGLES];
 CM_PlaneEqual
 ==================
 */
-static S32 CM_PlaneEqual( cPlane_t* p, F32 plane[4], S32* flipped )
+static sint CM_PlaneEqual( cPlane_t* p, float32 plane[4], sint* flipped )
 {
-    F32           invplane[4];
+    float32           invplane[4];
     
     if( fabs( p->plane[0] - plane[0] ) < NORMAL_EPSILON && fabs( p->plane[1] - plane[1] ) < NORMAL_EPSILON && fabs( p->plane[2] - plane[2] ) < NORMAL_EPSILON && fabs( p->plane[3] - plane[3] ) < DIST_EPSILON )
     {
@@ -132,11 +132,11 @@ static S32 CM_PlaneEqual( cPlane_t* p, F32 plane[4], S32* flipped )
 return a hash value for a plane
 ================
 */
-static S64 CM_GenerateHashValue( vec4_t plane )
+static sint32 CM_GenerateHashValue( vec4_t plane )
 {
-    S64 hash;
+    sint32 hash;
     
-    hash = ( S32 )fabs( plane[3] ) / 8;
+    hash = ( sint )fabs( plane[3] ) / 8;
     hash &= ( PLANE_HASHES - 1 );
     
     return hash;
@@ -149,7 +149,7 @@ CM_AddPlaneToHash
 */
 static void CM_AddPlaneToHash( cPlane_t* p )
 {
-    S64 hash;
+    sint32 hash;
     
     hash = CM_GenerateHashValue( p->plane );
     
@@ -166,7 +166,7 @@ CM_SnapVector
 */
 static void CM_SnapVector( vec3_t normal )
 {
-    S32 i;
+    sint i;
     
     for( i = 0; i < 3; i++ )
     {
@@ -191,7 +191,7 @@ static void CM_SnapVector( vec3_t normal )
 CM_CreateNewFloatPlane
 ================
 */
-static S32 CM_CreateNewFloatPlane( vec4_t plane )
+static sint CM_CreateNewFloatPlane( vec4_t plane )
 {
 #ifndef USE_HASHING
 
@@ -234,10 +234,10 @@ static S32 CM_CreateNewFloatPlane( vec4_t plane )
 CM_FindPlane2
 ==================
 */
-static S32 CM_FindPlane2( F32 plane[4], S32* flipped )
+static sint CM_FindPlane2( float32 plane[4], sint* flipped )
 {
 #ifndef USE_HASHING
-    S32 i;
+    sint i;
     
     // see if the points are close enough to an existing plane
     for( i = 0; i < numPlanes; i++ )
@@ -249,7 +249,7 @@ static S32 CM_FindPlane2( F32 plane[4], S32* flipped )
     *flipped = false;
     return CM_CreateNewFloatPlane( plane );
 #else
-    S32             i, hash, h;
+    sint             i, hash, h;
     cPlane_t*       p;
     
     hash = CM_GenerateHashValue( plane );
@@ -278,10 +278,10 @@ static S32 CM_FindPlane2( F32 plane[4], S32* flipped )
 CM_FindPlane
 ==================
 */
-static S32 CM_FindPlane( const F32* p1, const F32* p2, const F32* p3 )
+static sint CM_FindPlane( const float32* p1, const float32* p2, const float32* p3 )
 {
-    F32           plane[4];
-    S32             i;
+    float32           plane[4];
+    sint             i;
     
     if( !CM_PlaneFromPoints( plane, p1, p2, p3 ) )
     {
@@ -297,9 +297,9 @@ static S32 CM_FindPlane( const F32* p1, const F32* p2, const F32* p3 )
 CM_PointOnPlaneSide
 ==================
 */
-static S32 CM_PointOnPlaneSide( F32* p, S32 planeNum )
+static sint CM_PointOnPlaneSide( float32* p, sint planeNum )
 {
-    F32* plane, d;
+    float32* plane, d;
     
     if( planeNum == -1 )
     {
@@ -327,7 +327,7 @@ static S32 CM_PointOnPlaneSide( F32* p, S32 planeNum )
 CM_GenerateBoundaryForPoints
 ==================
 */
-static S32 CM_GenerateBoundaryForPoints( const vec4_t triPlane, const vec3_t p1, const vec3_t p2 )
+static sint CM_GenerateBoundaryForPoints( const vec4_t triPlane, const vec3_t p1, const vec3_t p2 )
 {
     vec3_t          up;
     
@@ -341,10 +341,10 @@ static S32 CM_GenerateBoundaryForPoints( const vec4_t triPlane, const vec3_t p1,
 CM_SetBorderInward
 ===================
 */
-static void CM_SetBorderInward( cFacet_t* facet, cTriangleSoup_t* triSoup, S32 i, S32 which )
+static void CM_SetBorderInward( cFacet_t* facet, cTriangleSoup_t* triSoup, sint i, sint which )
 {
-    S32             k, l, numPoints;
-    F32*          points[4];
+    sint             k, l, numPoints;
+    float32*          points[4];
     
     switch( which )
     {
@@ -368,14 +368,14 @@ static void CM_SetBorderInward( cFacet_t* facet, cTriangleSoup_t* triSoup, S32 i
     
     for( k = 0; k < facet->numBorders; k++ )
     {
-        S32 front, back;
+        sint front, back;
         
         front = 0;
         back = 0;
         
         for( l = 0; l < numPoints; l++ )
         {
-            S32 side;
+            sint side;
             
             side = CM_PointOnPlaneSide( points[l], facet->borderPlanes[k] );
             if( side == SIDE_FRONT )
@@ -419,8 +419,8 @@ If the facet isn't bounded by its borders, we screwed up.
 */
 static bool CM_ValidateFacet( cFacet_t* facet )
 {
-    F32           plane[4];
-    S32             j;
+    float32           plane[4];
+    sint             j;
     winding_t*      w;
     vec3_t          bounds[2];
     
@@ -487,8 +487,8 @@ CM_AddFacetBevels
 */
 static void CM_AddFacetBevels( cFacet_t* facet )
 {
-    S32             i, j, k, l, axis, dir, order, flipped;
-    F32           plane[4], d, newplane[4];
+    sint             i, j, k, l, axis, dir, order, flipped;
+    float32           plane[4], d, newplane[4];
     winding_t*      w, *w2;
     vec3_t          mins, maxs, vec, vec2;
     
@@ -734,7 +734,7 @@ CM_GenerateFacetFor4Points
 #define	PLANAR_EPSILON	0.1
 bool CM_GenerateFacetFor4Points( cFacet_t* facet, const vec3_t p1, const vec3_t p2, const vec3_t p3, const vec3_t p4 )
 {
-    F32           dist;
+    float32           dist;
     vec4_t          plane;
     
     // if we can't generate a valid plane for the points, ignore the facet
@@ -775,8 +775,8 @@ CM_SurfaceCollideFromTriangleSoup
 */
 static void CM_SurfaceCollideFromTriangleSoup( cTriangleSoup_t* triSoup, cSurfaceCollide_t* sc )
 {
-    S32             i, i1, i2, i3;
-    F32*          p1, *p2, *p3;
+    sint             i, i1, i2, i3;
+    float32*          p1, *p2, *p3;
     
     cFacet_t*       facet;
     
@@ -879,11 +879,11 @@ Points is packed as concatenated rows.
 ===================
 */
 
-cSurfaceCollide_t* CM_GenerateTriangleSoupCollide( S32 numVertexes, vec3_t* vertexes, S32 numIndexes, S32* indexes )
+cSurfaceCollide_t* CM_GenerateTriangleSoupCollide( sint numVertexes, vec3_t* vertexes, sint numIndexes, sint* indexes )
 {
     cSurfaceCollide_t* sc;
     static             cTriangleSoup_t triSoup;
-    S32                i, j;
+    sint                i, j;
     
     if( numVertexes <= 2 || !vertexes || numIndexes <= 2 || !indexes )
     {

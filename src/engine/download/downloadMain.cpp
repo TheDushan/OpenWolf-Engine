@@ -76,7 +76,7 @@ idDownloadSystemLocal:FWriteFile
 Write to file
 ===============
 */
-U64 idDownloadSystemLocal::FWriteFile( void* ptr, U64 size, U64 nmemb, void* stream )
+uint32 idDownloadSystemLocal::FWriteFile( void* ptr, uint32 size, uint32 nmemb, void* stream )
 {
     FILE* file = ( FILE* ) stream;
     
@@ -90,13 +90,13 @@ idDownloadSystemLocal::Progress
 Print progress
 ===============
 */
-S32 idDownloadSystemLocal::Progress( void* clientp, F64 dltotal, F64 dlnow, F64 ultotal, F64 ulnow )
+sint idDownloadSystemLocal::Progress( void* clientp, float64 dltotal, float64 dlnow, float64 ultotal, float64 ulnow )
 {
     // zinx
     // cl_downloadSize and cl_downloadTime are set by the Q3 protocol...
     // and it would probably be expensive to verify them here.
     
-    cvarSystem->SetValue( "cl_downloadCount", ( F32 )dlnow );
+    cvarSystem->SetValue( "cl_downloadCount", ( float32 )dlnow );
     return 0;
 }
 
@@ -153,10 +153,10 @@ inspired from http://www.w3.org/Library/Examples/LoadToFile.c
 setup the download, return once we have a connection
 ===============
 */
-S32 idDownloadSystemLocal::BeginDownload( StringEntry localName, StringEntry remoteName, S32 debug )
+sint idDownloadSystemLocal::BeginDownload( pointer localName, pointer remoteName, sint debug )
 {
 #ifndef DEDICATED
-    UTF8 referer[MAX_STRING_CHARS + 5 /*"ET://" */ ];
+    valueType referer[MAX_STRING_CHARS + 5 /*"ET://" */ ];
     
     if( dl_request )
     {
@@ -215,8 +215,8 @@ dlStatus_t idDownloadSystemLocal::DownloadLoop( void )
 #ifndef DEDICATED
     CURLMcode status;
     CURLMsg* msg;
-    S32 dls = 0;
-    StringEntry err = nullptr;
+    sint dls = 0;
+    pointer err = nullptr;
     
     if( !dl_request )
     {

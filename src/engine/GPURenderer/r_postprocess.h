@@ -30,12 +30,12 @@
 #ifndef __R_POSTPROCESS_H__
 #define __R_POSTPROCESS_H__
 
-void RB_ToneMap( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox, S32 autoExposure );
-void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, F32 blur );
+void RB_ToneMap( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox, sint autoExposure );
+void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, float32 blur );
 void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox );
-void RB_GaussianBlur( FBO_t* srcFbo, FBO_t* intermediateFbo, FBO_t* dstFbo, F32 spread );
-void RB_HBlur( FBO_t* srcFbo, FBO_t* dstFbo, F32 strength );
-void RB_VBlur( FBO_t* srcFbo, FBO_t* dstFbo, F32 strength );
+void RB_GaussianBlur( FBO_t* srcFbo, FBO_t* intermediateFbo, FBO_t* dstFbo, float32 spread );
+void RB_HBlur( FBO_t* srcFbo, FBO_t* dstFbo, float32 strength );
+void RB_VBlur( FBO_t* srcFbo, FBO_t* dstFbo, float32 strength );
 void RB_TextureDetail( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
 void RB_RBM( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
 void RB_Contrast( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox );

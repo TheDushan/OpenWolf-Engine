@@ -73,9 +73,9 @@ idClientScreenSystemLocal::AdjustFrom640
 Adjusted for resolution and screen aspect ratio
 ================
 */
-void idClientScreenSystemLocal::AdjustFrom640( F32* x, F32* y, F32* w, F32* h )
+void idClientScreenSystemLocal::AdjustFrom640( float32* x, float32* y, float32* w, float32* h )
 {
-    F32 xscale, yscale;
+    float32 xscale, yscale;
     
 #if 0
     // adjust for wide screens
@@ -117,7 +117,7 @@ idClientScreenSystemLocal::FillRect
 Coordinates are 640*480 virtual values
 =================
 */
-void idClientScreenSystemLocal::FillRect( F32 x, F32 y, F32 width, F32 height, const F32* color )
+void idClientScreenSystemLocal::FillRect( float32 x, float32 y, float32 width, float32 height, const float32* color )
 {
     renderSystem->SetColor( color );
     
@@ -134,10 +134,10 @@ idClientScreenSystemLocal::DrawConsoleFontChar
 chars are drawn at 640*480 virtual screen size
 ==================
 */
-void idClientScreenSystemLocal::DrawChar( S32 x, S32 y, F32 size, S32 ch )
+void idClientScreenSystemLocal::DrawChar( sint x, sint y, float32 size, sint ch )
 {
-    S32 row, col;
-    F32 frow, fcol, ax, ay, aw, ah;
+    sint row, col;
+    float32 frow, fcol, ax, ay, aw, ah;
     
     ch &= 255;
     
@@ -151,8 +151,8 @@ void idClientScreenSystemLocal::DrawChar( S32 x, S32 y, F32 size, S32 ch )
         return;
     }
     
-    ax = ( F32 )x;
-    ay = ( F32 )y;
+    ax = ( float32 )x;
+    ay = ( float32 )y;
     aw = size;
     ah = size;
     
@@ -173,21 +173,21 @@ void idClientScreenSystemLocal::DrawChar( S32 x, S32 y, F32 size, S32 ch )
 idClientScreenSystemLocal::DrawConsoleFontChar
 ==================
 */
-void idClientScreenSystemLocal::DrawConsoleFontChar( F32 x, F32 y, S32 ch )
+void idClientScreenSystemLocal::DrawConsoleFontChar( float32 x, float32 y, sint ch )
 {
     fontInfo_t* font = &cls.consoleFont;
     glyphInfo_t* glyph = &font->glyphs[ch];
-    F32 yadj = ( F32 )glyph->top;
-    F32 xadj = ( ConsoleFontCharWidth( ch ) - glyph->xSkip ) / 2.0f;
+    float32 yadj = ( float32 )glyph->top;
+    float32 xadj = ( ConsoleFontCharWidth( ch ) - glyph->xSkip ) / 2.0f;
     
     if( cls.useLegacyConsoleFont )
     {
-        DrawSmallChar( ( S32 ) x, ( S32 ) y, ch );
+        DrawSmallChar( ( sint ) x, ( sint ) y, ch );
         return;
     }
     
     if( ch == ' ' ) return;
-    renderSystem->DrawStretchPic( x + xadj, y - yadj, ( F32 )glyph->imageWidth, ( F32 )glyph->imageHeight, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph );
+    renderSystem->DrawStretchPic( x + xadj, y - yadj, ( float32 )glyph->imageWidth, ( float32 )glyph->imageHeight, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph );
 }
 
 /*
@@ -197,10 +197,10 @@ idClientScreenSystemLocal::DrawSmallChar
 small chars are drawn at native screen resolution
 ==================
 */
-void idClientScreenSystemLocal::DrawSmallChar( S32 x, S32 y, S32 ch )
+void idClientScreenSystemLocal::DrawSmallChar( sint x, sint y, sint ch )
 {
-    S32 row, col;
-    F32 frow, fcol, size;
+    sint row, col;
+    float32 frow, fcol, size;
     
     ch &= 255;
     
@@ -221,7 +221,7 @@ void idClientScreenSystemLocal::DrawSmallChar( S32 x, S32 y, S32 ch )
     fcol = col * 0.0625f;
     size = 0.0625f;
     
-    renderSystem->DrawStretchPic( ( F32 )x, ( F32 )y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, fcol, frow, fcol + size, frow + size, cls.charSetShader );
+    renderSystem->DrawStretchPic( ( float32 )x, ( float32 )y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, fcol, frow, fcol + size, frow + size, cls.charSetShader );
 }
 
 /*
@@ -234,11 +234,11 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void idClientScreenSystemLocal::DrawStringExt( S32 x, S32 y, F32 size, StringEntry string, F32* setColor, bool forceColor, bool noColorEscape )
+void idClientScreenSystemLocal::DrawStringExt( sint x, sint y, float32 size, pointer string, float32* setColor, bool forceColor, bool noColorEscape )
 {
-    S32 xx;
+    sint xx;
     vec4_t color;
-    StringEntry s;
+    pointer s;
     
     // draw the drop shadow
     color[0] = color[1] = color[2] = 0;
@@ -256,7 +256,7 @@ void idClientScreenSystemLocal::DrawStringExt( S32 x, S32 y, F32 size, StringEnt
         
         DrawChar( xx + 2, y + 2, size, *s );
         
-        xx += ( S32 )size;
+        xx += ( sint )size;
         s++;
     }
     
@@ -295,7 +295,7 @@ void idClientScreenSystemLocal::DrawStringExt( S32 x, S32 y, F32 size, StringEnt
         
         idClientScreenSystemLocal::DrawChar( xx, y, size, *s );
         
-        xx += ( S32 )size;
+        xx += ( sint )size;
         s++;
     }
     
@@ -307,9 +307,9 @@ void idClientScreenSystemLocal::DrawStringExt( S32 x, S32 y, F32 size, StringEnt
 idClientScreenSystemLocal::DrawBigString
 ==================
 */
-void idClientScreenSystemLocal::DrawBigString( S32 x, S32 y, StringEntry s, F32 alpha, bool noColorEscape )
+void idClientScreenSystemLocal::DrawBigString( sint x, sint y, pointer s, float32 alpha, bool noColorEscape )
 {
-    F32 color[4];
+    float32 color[4];
     
     color[0] = color[1] = color[2] = 1.0;
     color[3] = alpha;
@@ -327,15 +327,15 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void idClientScreenSystemLocal::DrawSmallStringExt( S32 x, S32 y, StringEntry string, F32* setColor, bool forceColor, bool noColorEscape )
+void idClientScreenSystemLocal::DrawSmallStringExt( sint x, sint y, pointer string, float32* setColor, bool forceColor, bool noColorEscape )
 {
-    F32 xx;
+    float32 xx;
     vec4_t color;
-    StringEntry s;
+    pointer s;
     
     // draw the colored text
     s = string;
-    xx = ( F32 )x;
+    xx = ( float32 )x;
     renderSystem->SetColor( setColor );
     while( *s )
     {
@@ -363,7 +363,7 @@ void idClientScreenSystemLocal::DrawSmallStringExt( S32 x, S32 y, StringEntry st
             }
         }
         
-        DrawConsoleFontChar( xx, ( F32 )y, *s );
+        DrawConsoleFontChar( xx, ( float32 )y, *s );
         
         xx += ConsoleFontCharWidth( *s );
         s++;
@@ -379,10 +379,10 @@ idClientScreenSystemLocal::Strlen
 skips color escape codes
 ==================
 */
-S32 idClientScreenSystemLocal::Strlen( StringEntry str )
+sint idClientScreenSystemLocal::Strlen( pointer str )
 {
-    S32 count = 0;
-    StringEntry s = str;
+    sint count = 0;
+    pointer s = str;
     
     while( *s )
     {
@@ -420,7 +420,7 @@ void idClientScreenSystemLocal::DrawDemoRecording( void )
 idClientScreenSystemLocal::DebugGraph
 ==============
 */
-void idClientScreenSystemLocal::DebugGraph( F32 value, S32 color )
+void idClientScreenSystemLocal::DebugGraph( float32 value, sint color )
 {
     values[current & 1023].value = value;
     values[current & 1023].color = color;
@@ -434,8 +434,8 @@ idClientScreenSystemLocal::DrawDebugGraph
 */
 void idClientScreenSystemLocal::DrawDebugGraph( void )
 {
-    S32 a, x, y, w, i, h, color;
-    F32 v;
+    sint a, x, y, w, i, h, color;
+    float32 v;
     
     // draw the graph
     w = cls.glconfig.vidWidth;
@@ -443,7 +443,7 @@ void idClientScreenSystemLocal::DrawDebugGraph( void )
     y = cls.glconfig.vidHeight;
     
     renderSystem->SetColor( g_color_table[0] );
-    renderSystem->DrawStretchPic( ( F32 )x, ( F32 )( y - cl_graphheight->integer ), ( F32 )w, cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
+    renderSystem->DrawStretchPic( ( float32 )x, ( float32 )( y - cl_graphheight->integer ), ( float32 )w, cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
     renderSystem->SetColor( NULL );
     
     for( a = 0; a < w; a++ )
@@ -455,12 +455,12 @@ void idClientScreenSystemLocal::DrawDebugGraph( void )
         
         if( v < 0 )
         {
-            v += cl_graphheight->integer * ( 1 + ( S32 )( -v / cl_graphheight->integer ) );
+            v += cl_graphheight->integer * ( 1 + ( sint )( -v / cl_graphheight->integer ) );
         }
         
-        h = ( S32 )v % cl_graphheight->integer;
+        h = ( sint )v % cl_graphheight->integer;
         
-        renderSystem->DrawStretchPic( x + ( F32 )( w - 1 - a ), ( F32 )( y - h ), 1, ( F32 )h, 0, 0, 0, 0, cls.whiteShader );
+        renderSystem->DrawStretchPic( x + ( float32 )( w - 1 - a ), ( float32 )( y - h ), 1, ( float32 )h, 0, 0, 0, 0, cls.whiteShader );
     }
 }
 
@@ -503,7 +503,7 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
         if( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 )
         {
             renderSystem->SetColor( g_color_table[0] );
-            renderSystem->DrawStretchPic( 0, 0, ( F32 )cls.glconfig.vidWidth, ( F32 )cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
+            renderSystem->DrawStretchPic( 0, 0, ( float32 )cls.glconfig.vidWidth, ( float32 )cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
             renderSystem->SetColor( NULL );
         }
     }
@@ -588,7 +588,7 @@ text to the screen.
 */
 void idClientScreenSystemLocal::UpdateScreen( void )
 {
-    static S32 recursive = 0;
+    static sint recursive = 0;
     
     if( !screenInitialized )
     {
@@ -631,11 +631,11 @@ void idClientScreenSystemLocal::UpdateScreen( void )
 idClientScreenSystemLocal::ConsoleFontCharWidth
 ==================
 */
-F32 idClientScreenSystemLocal::ConsoleFontCharWidth( S32 ch )
+float32 idClientScreenSystemLocal::ConsoleFontCharWidth( sint ch )
 {
     fontInfo_t* font = &cls.consoleFont;
     glyphInfo_t* glyph = &font->glyphs[ch];
-    F32 width = glyph->xSkip + cl_consoleFontKerning->value;
+    float32 width = glyph->xSkip + cl_consoleFontKerning->value;
     
     if( cls.useLegacyConsoleFont )
     {
@@ -650,10 +650,10 @@ F32 idClientScreenSystemLocal::ConsoleFontCharWidth( S32 ch )
 idClientScreenSystemLocal::ConsoleFontCharHeight
 ==================
 */
-F32 idClientScreenSystemLocal::ConsoleFontCharHeight( void )
+float32 idClientScreenSystemLocal::ConsoleFontCharHeight( void )
 {
-    S32 ch = 'I' & 0xff;
-    F32 vpadding = 0.3f * cl_consoleFontSize->value;
+    sint ch = 'I' & 0xff;
+    float32 vpadding = 0.3f * cl_consoleFontSize->value;
     fontInfo_t* font = &cls.consoleFont;
     glyphInfo_t* glyph = &font->glyphs[ch];
     
@@ -670,20 +670,20 @@ F32 idClientScreenSystemLocal::ConsoleFontCharHeight( void )
 idClientScreenSystemLocal::ConsoleFontStringWidth
 ==================
 */
-F32 idClientScreenSystemLocal::ConsoleFontStringWidth( StringEntry s, S32 len )
+float32 idClientScreenSystemLocal::ConsoleFontStringWidth( pointer s, sint len )
 {
-    S32 i;
-    F32 width = 0;
+    sint i;
+    float32 width = 0;
     fontInfo_t* font = &cls.consoleFont;
     
     if( cls.useLegacyConsoleFont )
     {
-        return ( F32 )( len * SMALLCHAR_WIDTH );
+        return ( float32 )( len * SMALLCHAR_WIDTH );
     }
     
     for( i = 0; i < len; i++ )
     {
-        S32 ch = s[i] & 0xff;
+        sint ch = s[i] & 0xff;
         glyphInfo_t* glyph = &font->glyphs[ch];
         width += glyph->xSkip + cl_consoleFontKerning->value;
     }

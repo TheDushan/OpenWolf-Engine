@@ -43,23 +43,23 @@
 #include <framework/precompiled.h>
 #endif
 
-S32             pcount[256];
-S32             wastedbits = 0;
+sint             pcount[256];
+sint             wastedbits = 0;
 
-static S32      oldsize = 0;
+static sint      oldsize = 0;
 
-// static S32 overflows = 0;
+// static sint overflows = 0;
 
 /*
 ==============================================================================
 
 			MESSAGE IO FUNCTIONS
 
-Handles U8 ordering and avoids alignment errors
+Handles uchar8 ordering and avoids alignment errors
 ==============================================================================
 */
 
-void MSG_Init( msg_t* buf, U8* data, S32 length )
+void MSG_Init( msg_t* buf, uchar8* data, sint length )
 {
     ::memset( buf, 0, sizeof( *buf ) );
 //bani - optimization
@@ -68,7 +68,7 @@ void MSG_Init( msg_t* buf, U8* data, S32 length )
     buf->maxsize = length;
 }
 
-void MSG_InitOOB( msg_t* buf, U8* data, S32 length )
+void MSG_InitOOB( msg_t* buf, uchar8* data, sint length )
 {
     ::memset( buf, 0, sizeof( *buf ) );
 //bani - optimization
@@ -93,7 +93,7 @@ void MSG_Bitstream( msg_t* buf )
 
 void MSG_Uncompressed( msg_t* buf )
 {
-    // align to U8-boundary
+    // align to uchar8-boundary
     buf->bit = ( buf->bit + 7 ) & ~7;
     buf->oob = true;
 }
@@ -114,12 +114,12 @@ void MSG_BeginReadingOOB( msg_t* msg )
 
 void MSG_BeginReadingUncompressed( msg_t* buf )
 {
-    // align to U8-boundary
+    // align to uchar8-boundary
     buf->bit = ( buf->bit + 7 ) & ~7;
     buf->oob = true;
 }
 
-void MSG_Copy( msg_t* buf, U8* data, S32 length, msg_t* src )
+void MSG_Copy( msg_t* buf, uchar8* data, sint length, msg_t* src )
 {
     if( length < src->cursize )
     {
@@ -138,12 +138,12 @@ bit functions
 =============================================================================
 */
 
-S32	overflows;
+sint	overflows;
 
 // negative bit values include signs
-void MSG_WriteBits( msg_t* msg, S32 value, S32 bits )
+void MSG_WriteBits( msg_t* msg, sint value, sint bits )
 {
-    S32 i, bitIndex;
+    sint i, bitIndex;
     
     oldsize += bits;
     
@@ -175,7 +175,7 @@ void MSG_WriteBits( msg_t* msg, S32 value, S32 bits )
         }
         else
         {
-            S32             r;
+            sint             r;
             
             r = 1 << ( bits - 1 );
             if( value > r - 1 || value < -r )
@@ -199,7 +199,7 @@ void MSG_WriteBits( msg_t* msg, S32 value, S32 bits )
         }
         else if( bits == 16 )
         {
-            U16* sp = ( U16* )&msg->data[msg->cursize];
+            uchar16* sp = ( uchar16* )&msg->data[msg->cursize];
             
             *sp = LittleShort( value );
             msg->cursize += 2;
@@ -207,7 +207,7 @@ void MSG_WriteBits( msg_t* msg, S32 value, S32 bits )
         }
         else if( bits == 32 )
         {
-            U32*   ip = ( U32* )&msg->data[msg->cursize];
+            uint*   ip = ( uint* )&msg->data[msg->cursize];
             
             *ip = LittleLong( value );
             msg->cursize += 4;
@@ -224,7 +224,7 @@ void MSG_WriteBits( msg_t* msg, S32 value, S32 bits )
         value &= ( 0xffffffff >> ( 32 - bits ) );
         if( bits & 7 )
         {
-            S32             nbits;
+            sint             nbits;
             
             nbits = bits & 7;
             bitIndex = msg->bit;
@@ -251,9 +251,9 @@ void MSG_WriteBits( msg_t* msg, S32 value, S32 bits )
     }
 }
 
-S32 MSG_ReadBits( msg_t* msg, S32 bits )
+sint MSG_ReadBits( msg_t* msg, sint bits )
 {
-    S32 i, nbits, bitIndex, value, get;
+    sint i, nbits, bitIndex, value, get;
     bool sgn;
     
     value = 0;
@@ -278,7 +278,7 @@ S32 MSG_ReadBits( msg_t* msg, S32 bits )
         }
         else if( bits == 16 )
         {
-            U16* sp = ( U16* )&msg->data[msg->readcount];
+            uchar16* sp = ( uchar16* )&msg->data[msg->readcount];
             
             value = LittleShort( *sp );
             msg->readcount += 2;
@@ -286,7 +286,7 @@ S32 MSG_ReadBits( msg_t* msg, S32 bits )
         }
         else if( bits == 32 )
         {
-            U32*   ip = ( U32* )&msg->data[msg->readcount];
+            uint*   ip = ( uint* )&msg->data[msg->readcount];
             
             value = LittleLong( *ip );
             msg->readcount += 4;
@@ -343,7 +343,7 @@ S32 MSG_ReadBits( msg_t* msg, S32 bits )
 // writing functions
 //
 
-void MSG_WriteChar( msg_t* sb, S32 c )
+void MSG_WriteChar( msg_t* sb, sint c )
 {
 #ifdef PARANOID
     if( c < -128 || c > 127 )
@@ -355,7 +355,7 @@ void MSG_WriteChar( msg_t* sb, S32 c )
     MSG_WriteBits( sb, c, 8 );
 }
 
-void MSG_WriteByte( msg_t* sb, S32 c )
+void MSG_WriteByte( msg_t* sb, sint c )
 {
 #ifdef PARANOID
     if( c < 0 || c > 255 )
@@ -367,20 +367,20 @@ void MSG_WriteByte( msg_t* sb, S32 c )
     MSG_WriteBits( sb, c, 8 );
 }
 
-void MSG_WriteData( msg_t* buf, const void* data, S32 length )
+void MSG_WriteData( msg_t* buf, const void* data, sint length )
 {
-    S32             i;
+    sint             i;
     
     for( i = 0; i < length; i++ )
     {
-        MSG_WriteByte( buf, ( ( U8* ) data )[i] );
+        MSG_WriteByte( buf, ( ( uchar8* ) data )[i] );
     }
 }
 
-void MSG_WriteShort( msg_t* sb, S32 c )
+void MSG_WriteShort( msg_t* sb, sint c )
 {
 #ifdef PARANOID
-    if( c < ( ( S16 )0x8000 ) || c > ( S16 )0x7fff )
+    if( c < ( ( schar16 )0x8000 ) || c > ( schar16 )0x7fff )
     {
         Com_Error( ERR_FATAL, "MSG_WriteShort: range error" );
     }
@@ -389,24 +389,24 @@ void MSG_WriteShort( msg_t* sb, S32 c )
     MSG_WriteBits( sb, c, 16 );
 }
 
-void MSG_WriteLong( msg_t* sb, S32 c )
+void MSG_WriteLong( msg_t* sb, sint c )
 {
     MSG_WriteBits( sb, c, 32 );
 }
 
-void MSG_WriteFloat( msg_t* sb, F32 f )
+void MSG_WriteFloat( msg_t* sb, float32 f )
 {
     union
     {
-        F32           f;
-        S32             l;
+        float32           f;
+        sint             l;
     } dat;
     
     dat.f = f;
     MSG_WriteBits( sb, dat.l, 32 );
 }
 
-void MSG_WriteString( msg_t* sb, StringEntry s )
+void MSG_WriteString( msg_t* sb, pointer s )
 {
     if( !s )
     {
@@ -414,8 +414,8 @@ void MSG_WriteString( msg_t* sb, StringEntry s )
     }
     else
     {
-        S32             l, i;
-        UTF8            string[MAX_STRING_CHARS];
+        sint             l, i;
+        valueType            string[MAX_STRING_CHARS];
         
         l = strlen( s );
         if( l >= MAX_STRING_CHARS )
@@ -429,7 +429,7 @@ void MSG_WriteString( msg_t* sb, StringEntry s )
         // get rid of 0xff chars, because old clients don't like them
         for( i = 0; i < l; i++ )
         {
-            if( ( ( U8* ) string )[i] > 127 )
+            if( ( ( uchar8* ) string )[i] > 127 )
             {
                 string[i] = '.';
             }
@@ -439,7 +439,7 @@ void MSG_WriteString( msg_t* sb, StringEntry s )
     }
 }
 
-void MSG_WriteBigString( msg_t* sb, StringEntry s )
+void MSG_WriteBigString( msg_t* sb, pointer s )
 {
     if( !s )
     {
@@ -447,8 +447,8 @@ void MSG_WriteBigString( msg_t* sb, StringEntry s )
     }
     else
     {
-        S32             l, i;
-        UTF8            string[BIG_INFO_STRING];
+        sint             l, i;
+        valueType            string[BIG_INFO_STRING];
         
         l = strlen( s );
         if( l >= BIG_INFO_STRING )
@@ -462,7 +462,7 @@ void MSG_WriteBigString( msg_t* sb, StringEntry s )
         // get rid of 0xff chars, because old clients don't like them
         for( i = 0; i < l; i++ )
         {
-            if( ( ( U8* ) string )[i] > 127 )
+            if( ( ( uchar8* ) string )[i] > 127 )
             {
                 string[i] = '.';
             }
@@ -472,12 +472,12 @@ void MSG_WriteBigString( msg_t* sb, StringEntry s )
     }
 }
 
-void MSG_WriteAngle( msg_t* sb, F32 f )
+void MSG_WriteAngle( msg_t* sb, float32 f )
 {
-    MSG_WriteByte( sb, ( S32 )( f * 256 / 360 ) & 255 );
+    MSG_WriteByte( sb, ( sint )( f * 256 / 360 ) & 255 );
 }
 
-void MSG_WriteAngle16( msg_t* sb, F32 f )
+void MSG_WriteAngle16( msg_t* sb, float32 f )
 {
     MSG_WriteShort( sb, ANGLE2SHORT( f ) );
 }
@@ -490,11 +490,11 @@ void MSG_WriteAngle16( msg_t* sb, F32 f )
 //
 
 // returns -1 if no more characters are available
-S32 MSG_ReadChar( msg_t* msg )
+sint MSG_ReadChar( msg_t* msg )
 {
-    S32             c;
+    sint             c;
     
-    c = ( S8 )MSG_ReadBits( msg, 8 );
+    c = ( schar8 )MSG_ReadBits( msg, 8 );
     if( msg->readcount > msg->cursize )
     {
         c = -1;
@@ -503,23 +503,23 @@ S32 MSG_ReadChar( msg_t* msg )
     return c;
 }
 
-S32 MSG_LookaheadByte( msg_t* msg )
+sint MSG_LookaheadByte( msg_t* msg )
 {
-    const S32 bloc = idHuffmanSystemLocal::getBloc();
-    const S32 readcount = msg->readcount;
-    const S32 bit = msg->bit;
-    S32 c = MSG_ReadByte( msg );
+    const sint bloc = idHuffmanSystemLocal::getBloc();
+    const sint readcount = msg->readcount;
+    const sint bit = msg->bit;
+    sint c = MSG_ReadByte( msg );
     idHuffmanSystemLocal::setBloc( bloc );
     msg->readcount = readcount;
     msg->bit = bit;
     return c;
 }
 
-S32 MSG_ReadByte( msg_t* msg )
+sint MSG_ReadByte( msg_t* msg )
 {
-    S32             c;
+    sint             c;
     
-    c = ( U8 )MSG_ReadBits( msg, 8 );
+    c = ( uchar8 )MSG_ReadBits( msg, 8 );
     if( msg->readcount > msg->cursize )
     {
         c = -1;
@@ -527,11 +527,11 @@ S32 MSG_ReadByte( msg_t* msg )
     return c;
 }
 
-S32 MSG_ReadShort( msg_t* msg )
+sint MSG_ReadShort( msg_t* msg )
 {
-    S32             c;
+    sint             c;
     
-    c = ( S16 )MSG_ReadBits( msg, 16 );
+    c = ( schar16 )MSG_ReadBits( msg, 16 );
     if( msg->readcount > msg->cursize )
     {
         c = -1;
@@ -540,9 +540,9 @@ S32 MSG_ReadShort( msg_t* msg )
     return c;
 }
 
-S32 MSG_ReadLong( msg_t* msg )
+sint MSG_ReadLong( msg_t* msg )
 {
-    S32             c;
+    sint             c;
     
     c = MSG_ReadBits( msg, 32 );
     if( msg->readcount > msg->cursize )
@@ -553,13 +553,13 @@ S32 MSG_ReadLong( msg_t* msg )
     return c;
 }
 
-F32 MSG_ReadFloat( msg_t* msg )
+float32 MSG_ReadFloat( msg_t* msg )
 {
     union
     {
-        U8            b[4];
-        F32           f;
-        S32             l;
+        uchar8            b[4];
+        float32           f;
+        sint             l;
     } dat;
     
     dat.l = MSG_ReadBits( msg, 32 );
@@ -571,10 +571,10 @@ F32 MSG_ReadFloat( msg_t* msg )
     return dat.f;
 }
 
-UTF8*           MSG_ReadString( msg_t* msg )
+valueType*           MSG_ReadString( msg_t* msg )
 {
-    static UTF8     string[MAX_STRING_CHARS];
-    S32             l, c;
+    static valueType     string[MAX_STRING_CHARS];
+    sint             l, c;
     
     l = 0;
     do
@@ -610,10 +610,10 @@ UTF8*           MSG_ReadString( msg_t* msg )
     return string;
 }
 
-UTF8*           MSG_ReadBigString( msg_t* msg )
+valueType*           MSG_ReadBigString( msg_t* msg )
 {
-    static UTF8     string[BIG_INFO_STRING];
-    S32             l, c;
+    static valueType     string[BIG_INFO_STRING];
+    sint             l, c;
     
     l = 0;
     do
@@ -644,10 +644,10 @@ UTF8*           MSG_ReadBigString( msg_t* msg )
     return string;
 }
 
-UTF8*           MSG_ReadStringLine( msg_t* msg )
+valueType*           MSG_ReadStringLine( msg_t* msg )
 {
-    static UTF8     string[MAX_STRING_CHARS];
-    S32             l, c;
+    static valueType     string[MAX_STRING_CHARS];
+    sint             l, c;
     
     l = 0;
     do
@@ -677,26 +677,26 @@ UTF8*           MSG_ReadStringLine( msg_t* msg )
     return string;
 }
 
-F32 MSG_ReadAngle16( msg_t* msg )
+float32 MSG_ReadAngle16( msg_t* msg )
 {
     return SHORT2ANGLE( MSG_ReadShort( msg ) );
 }
 
-void MSG_ReadData( msg_t* msg, void* data, S32 len )
+void MSG_ReadData( msg_t* msg, void* data, sint len )
 {
-    S32             i;
+    sint             i;
     
     for( i = 0; i < len; i++ )
     {
-        ( ( U8* ) data )[i] = MSG_ReadByte( msg );
+        ( ( uchar8* ) data )[i] = MSG_ReadByte( msg );
     }
 }
 
 // a string hasher which gives the same hash value even if the
 // string is later modified via the legacy MSG read/write code
-S32 MSG_HashKey( StringEntry string, S32 maxlen )
+sint MSG_HashKey( pointer string, sint maxlen )
 {
-    S32 hash, i;
+    sint hash, i;
     
     hash = 0;
     for( i = 0; i < maxlen && string[i] != '\0'; i++ )
@@ -723,7 +723,7 @@ extern convar_t*  cl_shownet;
 
 #define LOG( x ) if ( cl_shownet && cl_shownet->integer == 4 ) { Com_Printf( "%s ", x ); };
 
-void MSG_WriteDelta( msg_t* msg, S32 oldV, S32 newV, S32 bits )
+void MSG_WriteDelta( msg_t* msg, sint oldV, sint newV, sint bits )
 {
     if( oldV == newV )
     {
@@ -734,7 +734,7 @@ void MSG_WriteDelta( msg_t* msg, S32 oldV, S32 newV, S32 bits )
     MSG_WriteBits( msg, newV, bits );
 }
 
-S32 MSG_ReadDelta( msg_t* msg, S32 oldV, S32 bits )
+sint MSG_ReadDelta( msg_t* msg, sint oldV, sint bits )
 {
     if( MSG_ReadBits( msg, 1 ) )
     {
@@ -743,7 +743,7 @@ S32 MSG_ReadDelta( msg_t* msg, S32 oldV, S32 bits )
     return oldV;
 }
 
-void MSG_WriteDeltaFloat( msg_t* msg, F32 oldV, F32 newV )
+void MSG_WriteDeltaFloat( msg_t* msg, float32 oldV, float32 newV )
 {
     if( oldV == newV )
     {
@@ -751,16 +751,16 @@ void MSG_WriteDeltaFloat( msg_t* msg, F32 oldV, F32 newV )
         return;
     }
     MSG_WriteBits( msg, 1, 1 );
-    MSG_WriteBits( msg, *( S32* )&newV, 32 );
+    MSG_WriteBits( msg, *( sint* )&newV, 32 );
 }
 
-F32 MSG_ReadDeltaFloat( msg_t* msg, F32 oldV )
+float32 MSG_ReadDeltaFloat( msg_t* msg, float32 oldV )
 {
     if( MSG_ReadBits( msg, 1 ) )
     {
-        F32           newV;
+        float32           newV;
         
-        *( S32* )&newV = MSG_ReadBits( msg, 32 );
+        *( sint* )&newV = MSG_ReadBits( msg, 32 );
         return newV;
     }
     return oldV;
@@ -774,7 +774,7 @@ delta functions with keys
 =============================================================================
 */
 
-U32 kbitmask[32] =
+uint kbitmask[32] =
 {
     0x00000001, 0x00000003, 0x00000007, 0x0000000F,
     0x0000001F, 0x0000003F, 0x0000007F, 0x000000FF,
@@ -786,7 +786,7 @@ U32 kbitmask[32] =
     0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF, 0xFFFFFFFF,
 };
 
-void MSG_WriteDeltaKey( msg_t* msg, S32 key, S32 oldV, S32 newV, S32 bits )
+void MSG_WriteDeltaKey( msg_t* msg, sint key, sint oldV, sint newV, sint bits )
 {
     if( oldV == newV )
     {
@@ -797,7 +797,7 @@ void MSG_WriteDeltaKey( msg_t* msg, S32 key, S32 oldV, S32 newV, S32 bits )
     MSG_WriteBits( msg, newV ^ key, bits );
 }
 
-S32 MSG_ReadDeltaKey( msg_t* msg, S32 key, S32 oldV, S32 bits )
+sint MSG_ReadDeltaKey( msg_t* msg, sint key, sint oldV, sint bits )
 {
     if( MSG_ReadBits( msg, 1 ) )
     {
@@ -806,7 +806,7 @@ S32 MSG_ReadDeltaKey( msg_t* msg, S32 key, S32 oldV, S32 bits )
     return oldV;
 }
 
-void MSG_WriteDeltaKeyFloat( msg_t* msg, S32 key, F32 oldV, F32 newV )
+void MSG_WriteDeltaKeyFloat( msg_t* msg, sint key, float32 oldV, float32 newV )
 {
     if( oldV == newV )
     {
@@ -814,16 +814,16 @@ void MSG_WriteDeltaKeyFloat( msg_t* msg, S32 key, F32 oldV, F32 newV )
         return;
     }
     MSG_WriteBits( msg, 1, 1 );
-    MSG_WriteBits( msg, ( *( S32* )&newV ) ^ key, 32 );
+    MSG_WriteBits( msg, ( *( sint* )&newV ) ^ key, 32 );
 }
 
-F32 MSG_ReadDeltaKeyFloat( msg_t* msg, S32 key, F32 oldV )
+float32 MSG_ReadDeltaKeyFloat( msg_t* msg, sint key, float32 oldV )
 {
     if( MSG_ReadBits( msg, 1 ) )
     {
-        F32 newV;
+        float32 newV;
         
-        *( S32* )&newV = MSG_ReadBits( msg, 32 ) ^ key;
+        *( sint* )&newV = MSG_ReadBits( msg, 32 ) ^ key;
         return newV;
     }
     return oldV;
@@ -914,7 +914,7 @@ void MSG_ReadDeltaUsercmd( msg_t* msg, usercmd_t* from, usercmd_t* to )
 MSG_WriteDeltaUsercmd
 =====================
 */
-void MSG_WriteDeltaUsercmdKey( msg_t* msg, S32 key, usercmd_t* from, usercmd_t* to )
+void MSG_WriteDeltaUsercmdKey( msg_t* msg, sint key, usercmd_t* from, usercmd_t* to )
 {
     if( to->serverTime - from->serverTime < 256 )
     {
@@ -964,7 +964,7 @@ void MSG_WriteDeltaUsercmdKey( msg_t* msg, S32 key, usercmd_t* from, usercmd_t* 
 MSG_ReadDeltaUsercmd
 =====================
 */
-void MSG_ReadDeltaUsercmdKey( msg_t* msg, S32 key, usercmd_t* from, usercmd_t* to )
+void MSG_ReadDeltaUsercmdKey( msg_t* msg, sint key, usercmd_t* from, usercmd_t* to )
 {
     if( MSG_ReadBits( msg, 1 ) )
     {
@@ -1025,7 +1025,7 @@ Prints out a table from the current statistics for copying to code
 */
 void MSG_ReportChangeVectors_f( void )
 {
-    S32             i;
+    sint             i;
     
     for( i = 0; i < 256; i++ )
     {
@@ -1038,14 +1038,14 @@ void MSG_ReportChangeVectors_f( void )
 
 typedef struct
 {
-    StringEntry     name;
-    S32             offset;
-    S32             bits;		// 0 = F32
-    S32             used;
+    pointer     name;
+    sint             offset;
+    sint             bits;		// 0 = float32
+    sint             used;
 } netField_t;
 
 // using the stringizing operator to save typing...
-#define	NETF(x) #x,(S32)(intptr_t)&((entityState_t*)0)->x
+#define	NETF(x) #x,(sint)(intptr_t)&((entityState_t*)0)->x
 
 netField_t entityStateFields[] =
 {
@@ -1128,12 +1128,12 @@ netField_t entityStateFields[] =
 };
 
 
-static S32 qsort_entitystatefields( const void* a, const void* b )
+static sint qsort_entitystatefields( const void* a, const void* b )
 {
-    S32             aa, bb;
+    sint             aa, bb;
     
-    aa = *( ( S32* )a );
-    bb = *( ( S32* )b );
+    aa = *( ( sint* )a );
+    bb = *( ( sint* )b );
     
     if( entityStateFields[aa].used > entityStateFields[bb].used )
     {
@@ -1148,16 +1148,16 @@ static S32 qsort_entitystatefields( const void* a, const void* b )
 
 void MSG_PrioritiseEntitystateFields( void )
 {
-    S32             fieldorders[sizeof( entityStateFields ) / sizeof( entityStateFields[0] )];
-    S32             numfields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
-    S32             i;
+    sint             fieldorders[sizeof( entityStateFields ) / sizeof( entityStateFields[0] )];
+    sint             numfields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
+    sint             i;
     
     for( i = 0; i < numfields; i++ )
     {
         fieldorders[i] = i;
     }
     
-    qsort( fieldorders, numfields, sizeof( S32 ), qsort_entitystatefields );
+    qsort( fieldorders, numfields, sizeof( sint ), qsort_entitystatefields );
     
     Com_Printf( "Entitystate fields in order of priority\n" );
     Com_Printf( "netField_t entityStateFields[] = {\n" );
@@ -1168,8 +1168,8 @@ void MSG_PrioritiseEntitystateFields( void )
     Com_Printf( "};\n" );
 }
 
-// if (S32)f == f and (S32)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
-// the F32 will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
+// if (sint)f == f and (sint)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
+// the float32 will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
 #define FLOAT_INT_BITS  13
 #define FLOAT_INT_BIAS  ( 1 << ( FLOAT_INT_BITS - 1 ) )
 
@@ -1186,12 +1186,12 @@ identical, under the assumption that the in-order delta code will catch it.
 */
 void MSG_WriteDeltaEntity( msg_t* msg, struct entityState_s* from, struct entityState_s* to, bool force )
 {
-    S32             i, lc;
-    S32             numFields;
+    sint             i, lc;
+    sint             numFields;
     netField_t*     field;
-    S32             trunc;
-    F32           fullFloat;
-    S32*            fromF, *toF;
+    sint             trunc;
+    float32           fullFloat;
+    sint*            fromF, *toF;
     
     numFields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
     
@@ -1226,8 +1226,8 @@ void MSG_WriteDeltaEntity( msg_t* msg, struct entityState_s* from, struct entity
     // build the change vector as bytes so it is endien independent
     for( i = 0, field = entityStateFields; i < numFields; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* ) from + field->offset );
-        toF = ( S32* )( ( U8* ) to + field->offset );
+        fromF = ( sint* )( ( uchar8* ) from + field->offset );
+        toF = ( sint* )( ( uchar8* ) to + field->offset );
         if( *fromF != *toF )
         {
             lc = i + 1;
@@ -1262,8 +1262,8 @@ void MSG_WriteDeltaEntity( msg_t* msg, struct entityState_s* from, struct entity
 
     for( i = 0, field = entityStateFields; i < lc; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* ) from + field->offset );
-        toF = ( S32* )( ( U8* ) to + field->offset );
+        fromF = ( sint* )( ( uchar8* ) from + field->offset );
+        toF = ( sint* )( ( uchar8* ) to + field->offset );
         
         if( *fromF == *toF )
         {
@@ -1278,9 +1278,9 @@ void MSG_WriteDeltaEntity( msg_t* msg, struct entityState_s* from, struct entity
         
         if( field->bits == 0 )
         {
-            // F32
-            fullFloat = *( F32* )toF;
-            trunc = ( S32 )fullFloat;
+            // float32
+            fullFloat = *( float32* )toF;
+            trunc = ( sint )fullFloat;
             
             if( fullFloat == 0.0f )
             {
@@ -1305,7 +1305,7 @@ void MSG_WriteDeltaEntity( msg_t* msg, struct entityState_s* from, struct entity
                     MSG_WriteBits( msg, 1, 1 );
                     MSG_WriteBits( msg, *toF, 32 );
 //                  if ( print ) {
-//                      Com_Printf( "%s:%f ", field->name, *(F32 *)toF );
+//                      Com_Printf( "%s:%f ", field->name, *(float32 *)toF );
 //                  }
                 }
             }
@@ -1358,15 +1358,15 @@ Can go from either a baseline or a previous packet_entity
 */
 extern convar_t*  cl_shownet;
 
-void MSG_ReadDeltaEntity( msg_t* msg, entityState_t* from, entityState_t* to, S32 number )
+void MSG_ReadDeltaEntity( msg_t* msg, entityState_t* from, entityState_t* to, sint number )
 {
-    S32             i, lc;
-    S32             numFields;
+    sint             i, lc;
+    sint             numFields;
     netField_t*     field;
-    S32*            fromF, *toF;
-    S32             print;
-    S32             trunc;
-    S32             startBit, endBit;
+    sint*            fromF, *toF;
+    sint             print;
+    sint             trunc;
+    sint             startBit, endBit;
     
     if( number < 0 || number >= MAX_GENTITIES )
     {
@@ -1426,8 +1426,8 @@ void MSG_ReadDeltaEntity( msg_t* msg, entityState_t* from, entityState_t* to, S3
     
     for( i = 0, field = entityStateFields; i < lc; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* ) from + field->offset );
-        toF = ( S32* )( ( U8* ) to + field->offset );
+        fromF = ( sint* )( ( uchar8* ) from + field->offset );
+        toF = ( sint* )( ( uchar8* ) to + field->offset );
         
         if( !MSG_ReadBits( msg, 1 ) )
         {
@@ -1438,20 +1438,20 @@ void MSG_ReadDeltaEntity( msg_t* msg, entityState_t* from, entityState_t* to, S3
         {
             if( field->bits == 0 )
             {
-                // F32
+                // float32
                 if( MSG_ReadBits( msg, 1 ) == 0 )
                 {
-                    *( F32* )toF = 0.0f;
+                    *( float32* )toF = 0.0f;
                 }
                 else
                 {
                     if( MSG_ReadBits( msg, 1 ) == 0 )
                     {
-                        // integral F32
+                        // integral float32
                         trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
                         // bias to allow equal parts positive and negative
                         trunc -= FLOAT_INT_BIAS;
-                        *( F32* )toF = trunc;
+                        *( float32* )toF = trunc;
                         if( print )
                         {
                             Com_Printf( "%s:%i ", field->name, trunc );
@@ -1463,7 +1463,7 @@ void MSG_ReadDeltaEntity( msg_t* msg, entityState_t* from, entityState_t* to, S3
                         *toF = MSG_ReadBits( msg, 32 );
                         if( print )
                         {
-                            Com_Printf( "%s:%f ", field->name, *( F32* )toF );
+                            Com_Printf( "%s:%f ", field->name, *( float32* )toF );
                         }
                     }
                 }
@@ -1489,8 +1489,8 @@ void MSG_ReadDeltaEntity( msg_t* msg, entityState_t* from, entityState_t* to, S3
     }
     for( i = lc, field = &entityStateFields[lc]; i < numFields; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* ) from + field->offset );
-        toF = ( S32* )( ( U8* ) to + field->offset );
+        fromF = ( sint* )( ( uchar8* ) from + field->offset );
+        toF = ( sint* )( ( uchar8* ) to + field->offset );
         // no change
         *toF = *fromF;
     }
@@ -1519,7 +1519,7 @@ player_state_t communication
 */
 
 // using the stringizing operator to save typing...
-#define	PSF(x) #x,(S32)(intptr_t)&((playerState_t*)0)->x
+#define	PSF(x) #x,(sint)(intptr_t)&((playerState_t*)0)->x
 
 netField_t      playerStateFields[] =
 {
@@ -1693,12 +1693,12 @@ netField_t      playerStateFields[] =
     {PSF( loopSound ), 16}
 };
 
-static S32 qsort_playerstatefields( const void* a, const void* b )
+static sint qsort_playerstatefields( const void* a, const void* b )
 {
-    S32             aa, bb;
+    sint             aa, bb;
     
-    aa = *( ( S32* )a );
-    bb = *( ( S32* )b );
+    aa = *( ( sint* )a );
+    bb = *( ( sint* )b );
     
     if( playerStateFields[aa].used > playerStateFields[bb].used )
     {
@@ -1713,16 +1713,16 @@ static S32 qsort_playerstatefields( const void* a, const void* b )
 
 void MSG_PrioritisePlayerStateFields( void )
 {
-    S32             fieldorders[sizeof( playerStateFields ) / sizeof( playerStateFields[0] )];
-    S32             numfields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
-    S32             i;
+    sint             fieldorders[sizeof( playerStateFields ) / sizeof( playerStateFields[0] )];
+    sint             numfields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
+    sint             i;
     
     for( i = 0; i < numfields; i++ )
     {
         fieldorders[i] = i;
     }
     
-    qsort( fieldorders, numfields, sizeof( S32 ), qsort_playerstatefields );
+    qsort( fieldorders, numfields, sizeof( sint ), qsort_playerstatefields );
     
     Com_Printf( "Playerstate fields in order of priority\n" );
     Com_Printf( "netField_t playerStateFields[] = {\n" );
@@ -1742,7 +1742,7 @@ enitityShared_t communication
 */
 
 // using the stringizing operator to save typing...
-#define ESF( x ) # x,(S32)(intptr_t)&( (entityShared_t*)0 )->x
+#define ESF( x ) # x,(sint)(intptr_t)&( (entityShared_t*)0 )->x
 
 netField_t	entitySharedFields[] =
 {
@@ -1780,14 +1780,14 @@ netField_t	entitySharedFields[] =
 MSG_WriteDeltaSharedEntity
 ==================
 */
-void MSG_WriteDeltaSharedEntity( msg_t* msg, void* from, void* to, bool force, S32 number )
+void MSG_WriteDeltaSharedEntity( msg_t* msg, void* from, void* to, bool force, sint number )
 {
-    S32 i, lc;
-    S32 numFields;
+    sint i, lc;
+    sint numFields;
     netField_t* field;
-    S32 trunc;
-    F32 fullFloat;
-    S32* fromF, *toF;
+    sint trunc;
+    float32 fullFloat;
+    sint* fromF, *toF;
     
     numFields = sizeof( entitySharedFields ) / sizeof( entitySharedFields[0] );
     
@@ -1800,8 +1800,8 @@ void MSG_WriteDeltaSharedEntity( msg_t* msg, void* from, void* to, bool force, S
     // build the change vector as bytes so it is endien independent
     for( i = 0, field = entitySharedFields; i < numFields; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* )from + field->offset );
-        toF = ( S32* )( ( U8* )to + field->offset );
+        fromF = ( sint* )( ( uchar8* )from + field->offset );
+        toF = ( sint* )( ( uchar8* )to + field->offset );
         if( *fromF != *toF )
         {
             lc = i + 1;
@@ -1830,8 +1830,8 @@ void MSG_WriteDeltaSharedEntity( msg_t* msg, void* from, void* to, bool force, S
     
     for( i = 0, field = entitySharedFields; i < lc; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* )from + field->offset );
-        toF = ( S32* )( ( U8* )to + field->offset );
+        fromF = ( sint* )( ( uchar8* )from + field->offset );
+        toF = ( sint* )( ( uchar8* )to + field->offset );
         
         if( *fromF == *toF )
         {
@@ -1844,8 +1844,8 @@ void MSG_WriteDeltaSharedEntity( msg_t* msg, void* from, void* to, bool force, S
         if( field->bits == 0 )
         {
             // float
-            fullFloat = *( F32* )toF;
-            trunc = ( S32 )fullFloat;
+            fullFloat = *( float32* )toF;
+            trunc = ( sint )fullFloat;
             
             if( fullFloat == 0.0f )
             {
@@ -1891,13 +1891,13 @@ void MSG_WriteDeltaSharedEntity( msg_t* msg, void* from, void* to, bool force, S
 MSG_ReadDeltaSharedEntity
 ==================
 */
-void MSG_ReadDeltaSharedEntity( msg_t* msg, void* from, void* to, S32 number )
+void MSG_ReadDeltaSharedEntity( msg_t* msg, void* from, void* to, sint number )
 {
-    S32 i, lc;
-    S32 numFields;
+    sint i, lc;
+    sint numFields;
     netField_t*	field;
-    S32* fromF, *toF;
-    S32 trunc;
+    sint* fromF, *toF;
+    sint trunc;
     
     // check for no delta
     if( MSG_ReadBits( msg, 1 ) == 0 )
@@ -1911,8 +1911,8 @@ void MSG_ReadDeltaSharedEntity( msg_t* msg, void* from, void* to, S32 number )
     
     for( i = 0, field = entitySharedFields; i < lc; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* )from + field->offset );
-        toF = ( S32* )( ( U8* )to + field->offset );
+        fromF = ( sint* )( ( uchar8* )from + field->offset );
+        toF = ( sint* )( ( uchar8* )to + field->offset );
         
         if( !MSG_ReadBits( msg, 1 ) )
         {
@@ -1926,7 +1926,7 @@ void MSG_ReadDeltaSharedEntity( msg_t* msg, void* from, void* to, S32 number )
                 // float
                 if( MSG_ReadBits( msg, 1 ) == 0 )
                 {
-                    *( F32* )toF = 0.0f;
+                    *( float32* )toF = 0.0f;
                 }
                 else
                 {
@@ -1936,7 +1936,7 @@ void MSG_ReadDeltaSharedEntity( msg_t* msg, void* from, void* to, S32 number )
                         trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
                         // bias to allow equal parts positive and negative
                         trunc -= FLOAT_INT_BIAS;
-                        *( F32* )toF = trunc;
+                        *( float32* )toF = trunc;
                     }
                     else
                     {
@@ -1962,8 +1962,8 @@ void MSG_ReadDeltaSharedEntity( msg_t* msg, void* from, void* to, S32 number )
     }
     for( i = lc, field = &entitySharedFields[lc]; i < numFields; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* )from + field->offset );
-        toF = ( S32* )( ( U8* )to + field->offset );
+        fromF = ( sint* )( ( uchar8* )from + field->offset );
+        toF = ( sint* )( ( uchar8* )to + field->offset );
         // no change
         *toF = *fromF;
     }
@@ -1977,25 +1977,25 @@ MSG_WriteDeltaPlayerstate
 */
 void MSG_WriteDeltaPlayerstate( msg_t* msg, struct playerState_s* from, struct playerState_s* to )
 {
-    S32             i, j, lc;
+    sint             i, j, lc;
     playerState_t   dummy;
-    S32             statsbits;
-    S32             persistantbits;
-    S32             ammobits[4];	//----(SA)  modified
-    S32             clipbits;	//----(SA)  added
-    S32             powerupbits;
-    S32             holdablebits;
-    S32             numFields;
+    sint             statsbits;
+    sint             persistantbits;
+    sint             ammobits[4];	//----(SA)  modified
+    sint             clipbits;	//----(SA)  added
+    sint             powerupbits;
+    sint             holdablebits;
+    sint             numFields;
     
 //bani - appears to have been debugging left in
-//  S32             c;
+//  sint             c;
     netField_t*     field;
-    S32*            fromF, *toF;
-    F32           fullFloat;
-    S32             trunc;
-    S32             startBit, endBit;
-    S32             print;
-    S32				miscbits;
+    sint*            fromF, *toF;
+    float32           fullFloat;
+    sint             trunc;
+    sint             startBit, endBit;
+    sint             print;
+    sint				miscbits;
     
     if( !from )
     {
@@ -2032,8 +2032,8 @@ void MSG_WriteDeltaPlayerstate( msg_t* msg, struct playerState_s* from, struct p
     lc = 0;
     for( i = 0, field = playerStateFields; i < numFields; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* ) from + field->offset );
-        toF = ( S32* )( ( U8* ) to + field->offset );
+        fromF = ( sint* )( ( uchar8* ) from + field->offset );
+        toF = ( sint* )( ( uchar8* ) to + field->offset );
         if( *fromF != *toF )
         {
             lc = i + 1;
@@ -2048,8 +2048,8 @@ void MSG_WriteDeltaPlayerstate( msg_t* msg, struct playerState_s* from, struct p
     
     for( i = 0, field = playerStateFields; i < lc; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* ) from + field->offset );
-        toF = ( S32* )( ( U8* ) to + field->offset );
+        fromF = ( sint* )( ( uchar8* ) from + field->offset );
+        toF = ( sint* )( ( uchar8* ) to + field->offset );
         
         if( *fromF == *toF )
         {
@@ -2064,9 +2064,9 @@ void MSG_WriteDeltaPlayerstate( msg_t* msg, struct playerState_s* from, struct p
 
         if( field->bits == 0 )
         {
-            // F32
-            fullFloat = *( F32* )toF;
-            trunc = ( S32 )fullFloat;
+            // float32
+            fullFloat = *( float32* )toF;
+            trunc = ( sint )fullFloat;
             
             if( trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 && trunc + FLOAT_INT_BIAS < ( 1 << FLOAT_INT_BITS ) )
             {
@@ -2083,7 +2083,7 @@ void MSG_WriteDeltaPlayerstate( msg_t* msg, struct playerState_s* from, struct p
                 MSG_WriteBits( msg, 1, 1 );
                 MSG_WriteBits( msg, *toF, 32 );
 //              if ( print ) {
-//                  Com_Printf( "%s:%f ", field->name, *(F32 *)toF );
+//                  Com_Printf( "%s:%f ", field->name, *(float32 *)toF );
 //              }
             }
         }
@@ -2242,8 +2242,8 @@ void MSG_WriteDeltaPlayerstate( msg_t* msg, struct playerState_s* from, struct p
 //      Send a single bit to signify whether or not the ammo/clip info changed.
 //      If it did, send individual segments specifying offset values for each item.
     {
-        S32             ammo_ofs;
-        S32             clip_ofs;
+        sint             ammo_ofs;
+        sint             clip_ofs;
         
         ammobits = 0;
         
@@ -2441,14 +2441,14 @@ MSG_ReadDeltaPlayerstate
 */
 void MSG_ReadDeltaPlayerstate( msg_t* msg, playerState_t* from, playerState_t* to )
 {
-    S32             i, j, lc;
-    S32             bits;
+    sint             i, j, lc;
+    sint             bits;
     netField_t*     field;
-    S32             numFields;
-    S32             startBit, endBit;
-    S32             print;
-    S32*            fromF, *toF;
-    S32             trunc;
+    sint             numFields;
+    sint             startBit, endBit;
+    sint             print;
+    sint*            fromF, *toF;
+    sint             trunc;
     playerState_t   dummy;
     
     if( !from )
@@ -2489,8 +2489,8 @@ void MSG_ReadDeltaPlayerstate( msg_t* msg, playerState_t* from, playerState_t* t
     
     for( i = 0, field = playerStateFields; i < lc; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* ) from + field->offset );
-        toF = ( S32* )( ( U8* ) to + field->offset );
+        fromF = ( sint* )( ( uchar8* ) from + field->offset );
+        toF = ( sint* )( ( uchar8* ) to + field->offset );
         
         if( !MSG_ReadBits( msg, 1 ) )
         {
@@ -2501,14 +2501,14 @@ void MSG_ReadDeltaPlayerstate( msg_t* msg, playerState_t* from, playerState_t* t
         {
             if( field->bits == 0 )
             {
-                // F32
+                // float32
                 if( MSG_ReadBits( msg, 1 ) == 0 )
                 {
-                    // integral F32
+                    // integral float32
                     trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
                     // bias to allow equal parts positive and negative
                     trunc -= FLOAT_INT_BIAS;
-                    *( F32* )toF = trunc;
+                    *( float32* )toF = trunc;
                     if( print )
                     {
                         Com_Printf( "%s:%i ", field->name, trunc );
@@ -2520,7 +2520,7 @@ void MSG_ReadDeltaPlayerstate( msg_t* msg, playerState_t* from, playerState_t* t
                     *toF = MSG_ReadBits( msg, 32 );
                     if( print )
                     {
-                        Com_Printf( "%s:%f ", field->name, *( F32* )toF );
+                        Com_Printf( "%s:%f ", field->name, *( float32* )toF );
                     }
                 }
             }
@@ -2537,8 +2537,8 @@ void MSG_ReadDeltaPlayerstate( msg_t* msg, playerState_t* from, playerState_t* t
     }
     for( i = lc, field = &playerStateFields[lc]; i < numFields; i++, field++ )
     {
-        fromF = ( S32* )( ( U8* ) from + field->offset );
-        toF = ( S32* )( ( U8* ) to + field->offset );
+        fromF = ( sint* )( ( uchar8* ) from + field->offset );
+        toF = ( sint* )( ( uchar8* ) to + field->offset );
         // no change
         *toF = *fromF;
     }

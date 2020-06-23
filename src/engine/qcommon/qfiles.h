@@ -57,11 +57,11 @@ TGA files are used for 24/32 bit images
 
 typedef struct _TargaHeader
 {
-    U8   id_length, colormap_type, image_type;
-    U16  colormap_index, colormap_length;
-    U8   colormap_size;
-    U16  x_origin, y_origin, width, height;
-    U8   pixel_size, attributes;
+    uchar8   id_length, colormap_type, image_type;
+    uchar16  colormap_index, colormap_length;
+    uchar8   colormap_size;
+    uchar16  x_origin, y_origin, width, height;
+    uchar8   pixel_size, attributes;
 } TargaHeader;
 
 
@@ -93,13 +93,13 @@ typedef struct md3Frame_s
 {
     vec3_t          bounds[2];
     vec3_t          localOrigin;
-    F32           radius;
-    UTF8            name[16];
+    float32           radius;
+    valueType            name[16];
 } md3Frame_t;
 
 typedef struct md3Tag_s
 {
-    UTF8            name[64];	// tag name
+    valueType            name[64];	// tag name
     vec3_t          origin;
     vec3_t          axis[3];
 } md3Tag_t;
@@ -116,68 +116,68 @@ typedef struct md3Tag_s
 */
 typedef struct
 {
-    S32             ident;		//
+    sint             ident;		//
     
-    UTF8            name[64];	// polyset name
+    valueType            name[64];	// polyset name
     
-    S32             flags;
-    S32             numFrames;	// all surfaces in a model should have the same
+    sint             flags;
+    sint             numFrames;	// all surfaces in a model should have the same
     
-    S32             numShaders;	// all surfaces in a model should have the same
-    S32             numVerts;
+    sint             numShaders;	// all surfaces in a model should have the same
+    sint             numVerts;
     
-    S32             numTriangles;
-    S32             ofsTriangles;
+    sint             numTriangles;
+    sint             ofsTriangles;
     
-    S32             ofsShaders;	// offset from start of md3Surface_t
-    S32             ofsSt;		// texture coords are common for all frames
-    S32             ofsXyzNormals;	// numVerts * numFrames
+    sint             ofsShaders;	// offset from start of md3Surface_t
+    sint             ofsSt;		// texture coords are common for all frames
+    sint             ofsXyzNormals;	// numVerts * numFrames
     
-    S32             ofsEnd;		// next surface follows
+    sint             ofsEnd;		// next surface follows
 } md3Surface_t;
 
 typedef struct
 {
-    UTF8            name[64];
-    S32             shaderIndex;	// for in-game use
+    valueType            name[64];
+    sint             shaderIndex;	// for in-game use
 } md3Shader_t;
 
 typedef struct
 {
-    S32             indexes[3];
+    sint             indexes[3];
 } md3Triangle_t;
 
 typedef struct
 {
-    F32           st[2];
+    float32           st[2];
 } md3St_t;
 
 typedef struct
 {
-    S16           xyz[3];
-    S16           normal;
+    schar16           xyz[3];
+    schar16           normal;
 } md3XyzNormal_t;
 
 typedef struct
 {
-    S32             ident;
-    S32             version;
+    sint             ident;
+    sint             version;
     
-    UTF8            name[64];	// model name
+    valueType            name[64];	// model name
     
-    S32             flags;
+    sint             flags;
     
-    S32             numFrames;
-    S32             numTags;
-    S32             numSurfaces;
+    sint             numFrames;
+    sint             numTags;
+    sint             numSurfaces;
     
-    S32             numSkins;
+    sint             numSkins;
     
-    S32             ofsFrames;	// offset for first frame
-    S32             ofsTags;	// numFrames * numTags
-    S32             ofsSurfaces;	// first surface, others follow
+    sint             ofsFrames;	// offset for first frame
+    sint             ofsTags;	// numFrames * numTags
+    sint             ofsSurfaces;	// first surface, others follow
     
-    S32             ofsEnd;		// end of file
+    sint             ofsEnd;		// end of file
 } md3Header_t;
 
 /*
@@ -193,19 +193,19 @@ typedef struct
 
 typedef struct
 {
-    S32             ident;
-    S32             version;
+    sint             ident;
+    sint             version;
     
-    S32             numTags;
+    sint             numTags;
     
-    S32             ofsEnd;
+    sint             ofsEnd;
 } tagHeader_t;
 
 typedef struct
 {
-    UTF8            filename[64];
-    S32             start;
-    S32             count;
+    valueType            filename[64];
+    sint             start;
+    sint             count;
 } tagHeaderExt_t;
 
 // Ridah, mesh compression
@@ -226,21 +226,21 @@ MDC file format
 
 typedef struct
 {
-    U32    ofsVec;		// offset direction from the last base frame
-//  U16  ofsVec;
+    uint    ofsVec;		// offset direction from the last base frame
+//  uchar16  ofsVec;
 } mdcXyzCompressed_t;
 
 typedef struct
 {
-    UTF8            name[64];	// tag name
+    valueType            name[64];	// tag name
 } mdcTagName_t;
 
 #define MDC_TAG_ANGLE_SCALE ( 360.0 / 32700.0 )
 
 typedef struct
 {
-    S16           xyz[3];
-    S16           angles[3];
+    schar16           xyz[3];
+    schar16           angles[3];
 } mdcTag_t;
 
 /*
@@ -253,57 +253,57 @@ typedef struct
 ** st				sizeof( md3St_t ) * numVerts
 ** XyzNormals		sizeof( md3XyzNormal_t ) * numVerts * numBaseFrames
 ** XyzCompressed	sizeof( mdcXyzCompressed ) * numVerts * numCompFrames
-** frameBaseFrames	sizeof( S16 ) * numFrames
-** frameCompFrames	sizeof( S16 ) * numFrames (-1 if frame is a baseFrame)
+** frameBaseFrames	sizeof( schar16 ) * numFrames
+** frameCompFrames	sizeof( schar16 ) * numFrames (-1 if frame is a baseFrame)
 */
 typedef struct
 {
-    S32             ident;		//
+    sint             ident;		//
     
-    UTF8            name[64];	// polyset name
+    valueType            name[64];	// polyset name
     
-    S32             flags;
-    S32             numCompFrames;	// all surfaces in a model should have the same
-    S32             numBaseFrames;	// ditto
+    sint             flags;
+    sint             numCompFrames;	// all surfaces in a model should have the same
+    sint             numBaseFrames;	// ditto
     
-    S32             numShaders;	// all surfaces in a model should have the same
-    S32             numVerts;
+    sint             numShaders;	// all surfaces in a model should have the same
+    sint             numVerts;
     
-    S32             numTriangles;
-    S32             ofsTriangles;
+    sint             numTriangles;
+    sint             ofsTriangles;
     
-    S32             ofsShaders;	// offset from start of md3Surface_t
-    S32             ofsSt;		// texture coords are common for all frames
-    S32             ofsXyzNormals;	// numVerts * numBaseFrames
-    S32             ofsXyzCompressed;	// numVerts * numCompFrames
+    sint             ofsShaders;	// offset from start of md3Surface_t
+    sint             ofsSt;		// texture coords are common for all frames
+    sint             ofsXyzNormals;	// numVerts * numBaseFrames
+    sint             ofsXyzCompressed;	// numVerts * numCompFrames
     
-    S32             ofsFrameBaseFrames;	// numFrames
-    S32             ofsFrameCompFrames;	// numFrames
+    sint             ofsFrameBaseFrames;	// numFrames
+    sint             ofsFrameCompFrames;	// numFrames
     
-    S32             ofsEnd;		// next surface follows
+    sint             ofsEnd;		// next surface follows
 } mdcSurface_t;
 
 typedef struct
 {
-    S32             ident;
-    S32             version;
+    sint             ident;
+    sint             version;
     
-    UTF8            name[64];	// model name
+    valueType            name[64];	// model name
     
-    S32             flags;
+    sint             flags;
     
-    S32             numFrames;
-    S32             numTags;
-    S32             numSurfaces;
+    sint             numFrames;
+    sint             numTags;
+    sint             numSurfaces;
     
-    S32             numSkins;
+    sint             numSkins;
     
-    S32             ofsFrames;	// offset for first frame, stores the bounds and localOrigin
-    S32             ofsTagNames;	// numTags
-    S32             ofsTags;	// numFrames * numTags
-    S32             ofsSurfaces;	// first surface, others follow
+    sint             ofsFrames;	// offset for first frame, stores the bounds and localOrigin
+    sint             ofsTagNames;	// numTags
+    sint             ofsTags;	// numFrames * numTags
+    sint             ofsSurfaces;	// first surface, others follow
     
-    S32             ofsEnd;		// end of file
+    sint             ofsEnd;		// end of file
 } mdcHeader_t;
 
 // done.
@@ -328,8 +328,8 @@ MDS file format (Wolfenstein Skeletal Format)
 
 typedef struct
 {
-    S32             boneIndex;	// these are indexes into the boneReferences,
-    F32           boneWeight;	// not the global per-frame bone list
+    sint             boneIndex;	// these are indexes into the boneReferences,
+    float32           boneWeight;	// not the global per-frame bone list
     vec3_t          offset;
 } mdsWeight_t;
 
@@ -337,60 +337,60 @@ typedef struct
 {
     vec3_t          normal;
     vec2_t          texCoords;
-    S32             numWeights;
-    S32             fixedParent;	// stay equi-distant from this parent
-    F32           fixedDist;
+    sint             numWeights;
+    sint             fixedParent;	// stay equi-distant from this parent
+    float32           fixedDist;
     mdsWeight_t     weights[1];	// variable sized
 } mdsVertex_t;
 
 typedef struct
 {
-    S32             indexes[3];
+    sint             indexes[3];
 } mdsTriangle_t;
 
 typedef struct
 {
-    S32             ident;
+    sint             ident;
     
-    UTF8            name[64];	// polyset name
-    UTF8            shader[64];
-    S32             shaderIndex;	// for in-game use
+    valueType            name[64];	// polyset name
+    valueType            shader[64];
+    sint             shaderIndex;	// for in-game use
     
-    S32             minLod;
+    sint             minLod;
     
-    S32             ofsHeader;	// this will be a negative number
+    sint             ofsHeader;	// this will be a negative number
     
-    S32             numVerts;
-    S32             ofsVerts;
+    sint             numVerts;
+    sint             ofsVerts;
     
-    S32             numTriangles;
-    S32             ofsTriangles;
+    sint             numTriangles;
+    sint             ofsTriangles;
     
-    S32             ofsCollapseMap;	// numVerts * S32
+    sint             ofsCollapseMap;	// numVerts * sint
     
     // Bone references are a set of ints representing all the bones
     // present in any vertex weights for this surface.  This is
     // needed because a model may have surfaces that need to be
     // drawn at different sort times, and we don't want to have
     // to re-interpolate all the bones for each surface.
-    S32             numBoneReferences;
-    S32             ofsBoneReferences;
+    sint             numBoneReferences;
+    sint             ofsBoneReferences;
     
-    S32             ofsEnd;		// next surface follows
+    sint             ofsEnd;		// next surface follows
 } mdsSurface_t;
 
 typedef struct
 {
-    //F32     angles[3];
-    //F32     ofsAngles[2];
-    S16           angles[4];	// to be converted to axis at run-time (this is also better for lerping)
-    S16           ofsAngles[2];	// PITCH/YAW, head in this direction from parent to go to the offset position
+    //float32     angles[3];
+    //float32     ofsAngles[2];
+    schar16           angles[4];	// to be converted to axis at run-time (this is also better for lerping)
+    schar16           ofsAngles[2];	// PITCH/YAW, head in this direction from parent to go to the offset position
 } mdsBoneFrameCompressed_t;
 
 // NOTE: this only used at run-time
 typedef struct
 {
-    F32           matrix[3][3];	// 3x3 rotation
+    float32           matrix[3][3];	// 3x3 rotation
     vec3_t          translation;	// translation vector
 } mdsBoneFrame_t;
 
@@ -398,61 +398,61 @@ typedef struct
 {
     vec3_t          bounds[2];	// bounds of all surfaces of all LOD's for this frame
     vec3_t          localOrigin;	// midpoint of bounds, used for sphere cull
-    F32           radius;		// dist from localOrigin to corner
+    float32           radius;		// dist from localOrigin to corner
     vec3_t          parentOffset;	// one bone is an ascendant of all other bones, it starts the hierachy at this position
     mdsBoneFrameCompressed_t bones[1];	// [numBones]
 } mdsFrame_t;
 
 typedef struct
 {
-    S32             numSurfaces;
-    S32             ofsSurfaces;	// first surface, others follow
-    S32             ofsEnd;		// next lod follows
+    sint             numSurfaces;
+    sint             ofsSurfaces;	// first surface, others follow
+    sint             ofsEnd;		// next lod follows
 } mdsLOD_t;
 
 typedef struct
 {
-    UTF8            name[64];	// name of tag
-    F32           torsoWeight;
-    S32             boneIndex;	// our index in the bones
+    valueType            name[64];	// name of tag
+    float32           torsoWeight;
+    sint             boneIndex;	// our index in the bones
 } mdsTag_t;
 
 #define BONEFLAG_TAG        1	// this bone is actually a tag
 
 typedef struct
 {
-    UTF8            name[64];	// name of bone
-    S32             parent;		// not sure if this is required, no harm throwing it in
-    F32           torsoWeight;	// scale torso rotation about torsoParent by this
-    F32           parentDist;
-    S32             flags;
+    valueType            name[64];	// name of bone
+    sint             parent;		// not sure if this is required, no harm throwing it in
+    float32           torsoWeight;	// scale torso rotation about torsoParent by this
+    float32           parentDist;
+    sint             flags;
 } mdsBoneInfo_t;
 
 typedef struct
 {
-    S32             ident;
-    S32             version;
+    sint             ident;
+    sint             version;
     
-    UTF8            name[64];	// model name
+    valueType            name[64];	// model name
     
-    F32           lodScale;
-    F32           lodBias;
+    float32           lodScale;
+    float32           lodBias;
     
     // frames and bones are shared by all levels of detail
-    S32             numFrames;
-    S32             numBones;
-    S32             ofsFrames;	// md4Frame_t[numFrames]
-    S32             ofsBones;	// mdsBoneInfo_t[numBones]
-    S32             torsoParent;	// index of bone that is the parent of the torso
+    sint             numFrames;
+    sint             numBones;
+    sint             ofsFrames;	// md4Frame_t[numFrames]
+    sint             ofsBones;	// mdsBoneInfo_t[numBones]
+    sint             torsoParent;	// index of bone that is the parent of the torso
     
-    S32             numSurfaces;
-    S32             ofsSurfaces;
+    sint             numSurfaces;
+    sint             ofsSurfaces;
     
     // tag data
-    S32             numTags;
-    S32             ofsTags;	// mdsTag_t[numTags]
+    sint             numTags;
+    sint             ofsTags;	// mdsTag_t[numTags]
     
-    S32             ofsEnd;		// end of file
+    sint             ofsEnd;		// end of file
 } mdsHeader_t;
 
 /*
@@ -478,8 +478,8 @@ version history:
 
 typedef struct
 {
-    S32             boneIndex;	// these are indexes into the boneReferences,
-    F32           boneWeight;	// not the global per-frame bone list
+    sint             boneIndex;	// these are indexes into the boneReferences,
+    float32           boneWeight;	// not the global per-frame bone list
     vec3_t          offset;
 } mdmWeight_t;
 
@@ -487,116 +487,116 @@ typedef struct
 {
     vec3_t          normal;
     vec2_t          texCoords;
-    S32             numWeights;
+    sint             numWeights;
     mdmWeight_t     weights[1];	// variable sized
 } mdmVertex_t;
 
 typedef struct
 {
-    S32             indexes[3];
+    sint             indexes[3];
 } mdmTriangle_t;
 
 typedef struct
 {
-    S32             ident;
+    sint             ident;
     
-    UTF8            name[64];	// polyset name
-    UTF8            shader[64];
-    S32             shaderIndex;	// for in-game use
+    valueType            name[64];	// polyset name
+    valueType            shader[64];
+    sint             shaderIndex;	// for in-game use
     
-    S32             minLod;
+    sint             minLod;
     
-    S32             ofsHeader;	// this will be a negative number
+    sint             ofsHeader;	// this will be a negative number
     
-    S32             numVerts;
-    S32             ofsVerts;
+    sint             numVerts;
+    sint             ofsVerts;
     
-    S32             numTriangles;
-    S32             ofsTriangles;
+    sint             numTriangles;
+    sint             ofsTriangles;
     
-    S32             ofsCollapseMap;	// numVerts * S32
+    sint             ofsCollapseMap;	// numVerts * sint
     
     // Bone references are a set of ints representing all the bones
     // present in any vertex weights for this surface.  This is
     // needed because a model may have surfaces that need to be
     // drawn at different sort times, and we don't want to have
     // to re-interpolate all the bones for each surface.
-    S32             numBoneReferences;
-    S32             ofsBoneReferences;
+    sint             numBoneReferences;
+    sint             ofsBoneReferences;
     
-    S32             ofsEnd;		// next surface follows
+    sint             ofsEnd;		// next surface follows
 } mdmSurface_t;
 
 /*typedef struct {
 	vec3_t		bounds[2];			// bounds of all surfaces of all LOD's for this frame
 	vec3_t		localOrigin;		// midpoint of bounds, used for sphere cull
-	F32		radius;				// dist from localOrigin to corner
+	float32		radius;				// dist from localOrigin to corner
 	vec3_t		parentOffset;		// one bone is an ascendant of all other bones, it starts the hierachy at this position
 } mdmFrame_t;*/
 
 typedef struct
 {
-    S32             numSurfaces;
-    S32             ofsSurfaces;	// first surface, others follow
-    S32             ofsEnd;		// next lod follows
+    sint             numSurfaces;
+    sint             ofsSurfaces;	// first surface, others follow
+    sint             ofsEnd;		// next lod follows
 } mdmLOD_t;
 
 /*typedef struct {
-	UTF8		name[64];	// name of tag
-	F32		torsoWeight;
-	S32			boneIndex;			// our index in the bones
+	valueType		name[64];	// name of tag
+	float32		torsoWeight;
+	sint			boneIndex;			// our index in the bones
 
-	S32			numBoneReferences;
-	S32			ofsBoneReferences;
+	sint			numBoneReferences;
+	sint			ofsBoneReferences;
 
-	S32			ofsEnd;				// next tag follows
+	sint			ofsEnd;				// next tag follows
 } mdmTag_t;*/
 
 // Tags always only have one parent bone
 typedef struct
 {
-    UTF8            name[64];	// name of tag
+    valueType            name[64];	// name of tag
     vec3_t          axis[3];
     
-    S32             boneIndex;
+    sint             boneIndex;
     vec3_t          offset;
     
-    S32             numBoneReferences;
-    S32             ofsBoneReferences;
+    sint             numBoneReferences;
+    sint             ofsBoneReferences;
     
-    S32             ofsEnd;		// next tag follows
+    sint             ofsEnd;		// next tag follows
 } mdmTag_t;
 
 typedef struct
 {
-    S32             ident;
-    S32             version;
+    sint             ident;
+    sint             version;
     
-    UTF8            name[64];	// model name
-    /*	UTF8		bonesfile[64];	// bone file
+    valueType            name[64];	// model name
+    /*	valueType		bonesfile[64];	// bone file
     
     #ifdef UTILS
-    	S32			skel;
+    	sint			skel;
     #else
     	// dummy in file, set on load to link to MDX
     	qhandle_t	skel;
     #endif // UTILS
     */
-    F32           lodScale;
-    F32           lodBias;
+    float32           lodScale;
+    float32           lodBias;
     
     // frames and bones are shared by all levels of detail
-    /*	S32			numFrames;
-    	S32			ofsFrames;			// mdmFrame_t[numFrames]
+    /*	sint			numFrames;
+    	sint			ofsFrames;			// mdmFrame_t[numFrames]
     */
-    S32             numSurfaces;
-    S32             ofsSurfaces;
+    sint             numSurfaces;
+    sint             ofsSurfaces;
     
     // tag data
-    S32             numTags;
-    S32             ofsTags;
+    sint             numTags;
+    sint             ofsTags;
     
-    S32             ofsEnd;		// end of file
+    sint             ofsEnd;		// end of file
 } mdmHeader_t;
 
 /*
@@ -619,50 +619,50 @@ typedef struct
 {
     vec3_t          bounds[2];	// bounds of this frame
     vec3_t          localOrigin;	// midpoint of bounds, used for sphere cull
-    F32           radius;		// dist from localOrigin to corner
+    float32           radius;		// dist from localOrigin to corner
     vec3_t          parentOffset;	// one bone is an ascendant of all other bones, it starts the hierachy at this position
 } mdxFrame_t;
 
 typedef struct
 {
-    //F32     angles[3];
-    //F32     ofsAngles[2];
-    S16           angles[4];	// to be converted to axis at run-time (this is also better for lerping)
-    S16           ofsAngles[2];	// PITCH/YAW, head in this direction from parent to go to the offset position
+    //float32     angles[3];
+    //float32     ofsAngles[2];
+    schar16           angles[4];	// to be converted to axis at run-time (this is also better for lerping)
+    schar16           ofsAngles[2];	// PITCH/YAW, head in this direction from parent to go to the offset position
 } mdxBoneFrameCompressed_t;
 
 // NOTE: this only used at run-time
 // FIXME: do we really need this?
 typedef struct
 {
-    F32           matrix[3][3];	// 3x3 rotation
+    float32           matrix[3][3];	// 3x3 rotation
     vec3_t          translation;	// translation vector
 } mdxBoneFrame_t;
 
 typedef struct
 {
-    UTF8            name[64];	// name of bone
-    S32             parent;		// not sure if this is required, no harm throwing it in
-    F32           torsoWeight;	// scale torso rotation about torsoParent by this
-    F32           parentDist;
-    S32             flags;
+    valueType            name[64];	// name of bone
+    sint             parent;		// not sure if this is required, no harm throwing it in
+    float32           torsoWeight;	// scale torso rotation about torsoParent by this
+    float32           parentDist;
+    sint             flags;
 } mdxBoneInfo_t;
 
 typedef struct
 {
-    S32             ident;
-    S32             version;
+    sint             ident;
+    sint             version;
     
-    UTF8            name[64];	// model name
+    valueType            name[64];	// model name
     
     // bones are shared by all levels of detail
-    S32             numFrames;
-    S32             numBones;
-    S32             ofsFrames;	// (mdxFrame_t + mdxBoneFrameCompressed_t[numBones]) * numframes
-    S32             ofsBones;	// mdxBoneInfo_t[numBones]
-    S32             torsoParent;	// index of bone that is the parent of the torso
+    sint             numFrames;
+    sint             numBones;
+    sint             ofsFrames;	// (mdxFrame_t + mdxBoneFrameCompressed_t[numBones]) * numframes
+    sint             ofsBones;	// mdxBoneInfo_t[numBones]
+    sint             torsoParent;	// index of bone that is the parent of the torso
     
-    S32             ofsEnd;		// end of file
+    sint             ofsEnd;		// end of file
 } mdxHeader_t;
 
 /*
@@ -725,7 +725,7 @@ typedef struct
 
 typedef struct
 {
-    S32             fileofs, filelen;
+    sint             fileofs, filelen;
 } lump_t;
 
 #define	LUMP_ENTITIES		0
@@ -749,92 +749,92 @@ typedef struct
 
 typedef struct
 {
-    S32             ident;
-    S32             version;
+    sint             ident;
+    sint             version;
     
     lump_t          lumps[HEADER_LUMPS];
 } dheader_t;
 
 typedef struct
 {
-    F32           mins[3], maxs[3];
-    S32             firstSurface, numSurfaces;
-    S32             firstBrush, numBrushes;
+    float32           mins[3], maxs[3];
+    sint             firstSurface, numSurfaces;
+    sint             firstBrush, numBrushes;
 } dmodel_t;
 
 // planes x^1 is allways the opposite of plane x
 
 typedef struct
 {
-    F32           normal[3];
-    F32           dist;
+    float32           normal[3];
+    float32           dist;
 } dplane_t;
 
 typedef struct
 {
-    S32             planeNum;
-    S32             children[2];	// negative numbers are -(leafs+1), not nodes
-    S32             mins[3];	// for frustom culling
-    S32             maxs[3];
+    sint             planeNum;
+    sint             children[2];	// negative numbers are -(leafs+1), not nodes
+    sint             mins[3];	// for frustom culling
+    sint             maxs[3];
 } dnode_t;
 
 typedef struct
 {
-    S32             cluster;	// -1 = opaque cluster (do I still store these?)
-    S32             area;
+    sint             cluster;	// -1 = opaque cluster (do I still store these?)
+    sint             area;
     
-    S32             mins[3];	// for frustum culling
-    S32             maxs[3];
+    sint             mins[3];	// for frustum culling
+    sint             maxs[3];
     
-    S32             firstLeafSurface;
-    S32             numLeafSurfaces;
+    sint             firstLeafSurface;
+    sint             numLeafSurfaces;
     
-    S32             firstLeafBrush;
-    S32             numLeafBrushes;
+    sint             firstLeafBrush;
+    sint             numLeafBrushes;
 } dleaf_t;
 
 typedef struct
 {
-    S32             planeNum;	// positive plane side faces out of the leaf
-    S32             shaderNum;
+    sint             planeNum;	// positive plane side faces out of the leaf
+    sint             shaderNum;
 } dbrushside_t;
 
 typedef struct
 {
-    UTF8            shader[64];
-    S32             surfaceFlags;
-    S32             contentFlags;
+    valueType            shader[64];
+    sint             surfaceFlags;
+    sint             contentFlags;
 } dshader_t;
 
 typedef struct
 {
-    S32             firstSide;
-    S32             numSides;
-    S32             shaderNum;	// the shader that determines the contents flags
+    sint             firstSide;
+    sint             numSides;
+    sint             shaderNum;	// the shader that determines the contents flags
 } dbrush_t;
 
 typedef struct
 {
-    UTF8            shader[64];
-    S32             brushNum;
-    S32             visibleSide;	// the brush side that ray tests need to clip against (-1 == none)
+    valueType            shader[64];
+    sint             brushNum;
+    sint             visibleSide;	// the brush side that ray tests need to clip against (-1 == none)
 } dfog_t;
 
 // light grid
 typedef struct
 {
-    U8            ambient[3];
-    U8            directed[3];
-    U8            latLong[2];
+    uchar8            ambient[3];
+    uchar8            directed[3];
+    uchar8            latLong[2];
 } dgridPoint_t;
 
 typedef struct
 {
     vec3_t xyz;
-    F32 st[2];
-    F32 lightmap[2];
+    float32 st[2];
+    float32 lightmap[2];
     vec3_t normal;
-    U8 color[4];
+    uchar8 color[4];
 } drawVert_t;
 
 #define drawVert_t_cleared(x) drawVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
@@ -853,31 +853,31 @@ typedef enum
 
 typedef struct
 {
-    S32             shaderNum;
-    S32             fogNum;
-    S32             surfaceType;
+    sint             shaderNum;
+    sint             fogNum;
+    sint             surfaceType;
     
-    S32             firstVert;
-    S32             numVerts;	// ydnar: num verts + foliage origins (for cleaner lighting code in q3map)
+    sint             firstVert;
+    sint             numVerts;	// ydnar: num verts + foliage origins (for cleaner lighting code in q3map)
     
-    S32             firstIndex;
-    S32             numIndexes;
+    sint             firstIndex;
+    sint             numIndexes;
     
-    S32             lightmapNum;
-    S32             lightmapX, lightmapY;
-    S32             lightmapWidth, lightmapHeight;
+    sint             lightmapNum;
+    sint             lightmapX, lightmapY;
+    sint             lightmapWidth, lightmapHeight;
     
     vec3_t          lightmapOrigin;
     vec3_t          lightmapVecs[3];	// for patches, [0] and [1] are lodbounds
     
-    S32             patchWidth;	// ydnar: num foliage instances
-    S32             patchHeight;	// ydnar: num foliage mesh verts
+    sint             patchWidth;	// ydnar: num foliage instances
+    sint             patchHeight;	// ydnar: num foliage mesh verts
 } dsurface_t;
 
 //----(SA) added so I didn't change the dsurface_t struct (and thereby the bsp format) for something that doesn't need to be stored in the bsp
 typedef struct
 {
-    UTF8*           lighttarg;
+    valueType*           lighttarg;
 } drsurfaceInternal_t;
 
 //----(SA) end
@@ -911,8 +911,8 @@ MDR file format
 
 typedef struct
 {
-    S32			boneIndex;	// these are indexes into the boneReferences,
-    F32		   boneWeight;		// not the global per-frame bone list
+    sint			boneIndex;	// these are indexes into the boneReferences,
+    float32		   boneWeight;		// not the global per-frame bone list
     vec3_t		offset;
 } mdrWeight_t;
 
@@ -920,102 +920,102 @@ typedef struct
 {
     vec3_t		normal;
     vec2_t		texCoords;
-    S32			numWeights;
+    sint			numWeights;
     mdrWeight_t	weights[1];		// variable sized
 } mdrVertex_t;
 
 typedef struct
 {
-    S32			indexes[3];
+    sint			indexes[3];
 } mdrTriangle_t;
 
 typedef struct
 {
-    S32			ident;
+    sint			ident;
     
-    UTF8		name[MAX_QPATH];	// polyset name
-    UTF8		shader[MAX_QPATH];
-    S32			shaderIndex;	// for in-game use
+    valueType		name[MAX_QPATH];	// polyset name
+    valueType		shader[MAX_QPATH];
+    sint			shaderIndex;	// for in-game use
     
-    S32			ofsHeader;	// this will be a negative number
+    sint			ofsHeader;	// this will be a negative number
     
-    S32			numVerts;
-    S32			ofsVerts;
+    sint			numVerts;
+    sint			ofsVerts;
     
-    S32			numTriangles;
-    S32			ofsTriangles;
+    sint			numTriangles;
+    sint			ofsTriangles;
     
     // Bone references are a set of ints representing all the bones
     // present in any vertex weights for this surface.  This is
     // needed because a model may have surfaces that need to be
     // drawn at different sort times, and we don't want to have
     // to re-interpolate all the bones for each surface.
-    S32			numBoneReferences;
-    S32			ofsBoneReferences;
+    sint			numBoneReferences;
+    sint			ofsBoneReferences;
     
-    S32			ofsEnd;		// next surface follows
+    sint			ofsEnd;		// next surface follows
 } mdrSurface_t;
 
 typedef struct
 {
-    F32		matrix[3][4];
+    float32		matrix[3][4];
 } mdrBone_t;
 
 typedef struct
 {
     vec3_t		bounds[2];		// bounds of all surfaces of all LOD's for this frame
     vec3_t		localOrigin;		// midpoint of bounds, used for sphere cull
-    F32		radius;			// dist from localOrigin to corner
-    UTF8		name[16];
+    float32		radius;			// dist from localOrigin to corner
+    valueType		name[16];
     mdrBone_t	bones[1];		// [numBones]
 } mdrFrame_t;
 
 typedef struct
 {
-    U8 Comp[24]; // MC_COMP_BYTES is in MatComp.h, but don't want to couple
+    uchar8 Comp[24]; // MC_COMP_BYTES is in MatComp.h, but don't want to couple
 } mdrCompBone_t;
 
 typedef struct
 {
     vec3_t          bounds[2];		// bounds of all surfaces of all LOD's for this frame
     vec3_t          localOrigin;		// midpoint of bounds, used for sphere cull
-    F32           radius;			// dist from localOrigin to corner
+    float32           radius;			// dist from localOrigin to corner
     mdrCompBone_t   bones[1];		// [numBones]
 } mdrCompFrame_t;
 
 typedef struct
 {
-    S32			numSurfaces;
-    S32			ofsSurfaces;		// first surface, others follow
-    S32			ofsEnd;				// next lod follows
+    sint			numSurfaces;
+    sint			ofsSurfaces;		// first surface, others follow
+    sint			ofsEnd;				// next lod follows
 } mdrLOD_t;
 
 typedef struct
 {
-    S32                     boneIndex;
-    UTF8            name[32];
+    sint                     boneIndex;
+    valueType            name[32];
 } mdrTag_t;
 
 typedef struct
 {
-    S32			ident;
-    S32			version;
+    sint			ident;
+    sint			version;
     
-    UTF8		name[MAX_QPATH];	// model name
+    valueType		name[MAX_QPATH];	// model name
     
     // frames and bones are shared by all levels of detail
-    S32			numFrames;
-    S32			numBones;
-    S32			ofsFrames;			// mdrFrame_t[numFrames]
+    sint			numFrames;
+    sint			numBones;
+    sint			ofsFrames;			// mdrFrame_t[numFrames]
     
     // each level of detail has completely separate sets of surfaces
-    S32			numLODs;
-    S32			ofsLODs;
+    sint			numLODs;
+    sint			ofsLODs;
     
-    S32                     numTags;
-    S32                     ofsTags;
+    sint                     numTags;
+    sint                     ofsTags;
     
-    S32			ofsEnd;				// end of file
+    sint			ofsEnd;				// end of file
 } mdrHeader_t;
 
 #endif

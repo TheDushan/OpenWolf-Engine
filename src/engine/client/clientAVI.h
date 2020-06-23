@@ -36,31 +36,31 @@
 
 typedef struct audioFormat_s
 {
-    S32 rate;
-    S32 format;
-    S32 channels;
-    S32 bits;
-    S32 sampleSize;
-    S32 totalBytes;
+    sint rate;
+    sint format;
+    sint channels;
+    sint bits;
+    sint sampleSize;
+    sint totalBytes;
 } audioFormat_t;
 
 typedef struct aviFileData_s
 {
-    S32 fileSize;
-    S32 moviOffset;
-    S32 moviSize;
-    S32 numIndices;
-    S32 frameRate;
-    S32 framePeriod;
-    S32 width, height;
-    S32 numVideoFrames;
-    S32 maxRecordSize;
-    S32 numAudioFrames;
-    S32 chunkStack[MAX_RIFF_CHUNKS];
-    S32 chunkStackTop;
-    UTF8 fileName[MAX_QPATH];
-    U8* cBuffer;
-    U8* eBuffer;
+    sint fileSize;
+    sint moviOffset;
+    sint moviSize;
+    sint numIndices;
+    sint frameRate;
+    sint framePeriod;
+    sint width, height;
+    sint numVideoFrames;
+    sint maxRecordSize;
+    sint numAudioFrames;
+    sint chunkStack[MAX_RIFF_CHUNKS];
+    sint chunkStackTop;
+    valueType fileName[MAX_QPATH];
+    uchar8* cBuffer;
+    uchar8* eBuffer;
     bool fileOpen;
     bool motionJpeg;
     bool audio;
@@ -80,22 +80,22 @@ public:
     idClientAVISystemLocal();
     ~idClientAVISystemLocal();
     
-    virtual void WriteAVIVideoFrame( const U8* imageBuffer, S32 size );
-    virtual void WriteAVIAudioFrame( const U8* pcmBuffer, S32 size );
+    virtual void WriteAVIVideoFrame( const uchar8* imageBuffer, sint size );
+    virtual void WriteAVIAudioFrame( const uchar8* pcmBuffer, sint size );
     virtual void TakeVideoFrame( void );
     virtual bool CloseAVI( void );
     virtual bool VideoRecording( void );
-    virtual bool OpenAVIForWriting( StringEntry fileName );
+    virtual bool OpenAVIForWriting( pointer fileName );
     
-    static void SafeFS_Write( const void* buffer, S32 len, fileHandle_t f );
-    static void WRITE_STRING( StringEntry s );
-    static void WRITE_2BYTES( S32 x );
-    static void WRITE_4BYTES( S32 x );
-    static void WRITE_1BYTES( S32 x );
-    static void START_CHUNK( StringEntry s );
+    static void SafeFS_Write( const void* buffer, sint len, fileHandle_t f );
+    static void WRITE_STRING( pointer s );
+    static void WRITE_2BYTES( sint x );
+    static void WRITE_4BYTES( sint x );
+    static void WRITE_1BYTES( sint x );
+    static void START_CHUNK( pointer s );
     static void END_CHUNK( void );
     static void WriteAVIHeader( void );
-    static bool CheckFileSize( S32 bytesToAdd );
+    static bool CheckFileSize( sint bytesToAdd );
 };
 
 extern idClientAVISystemLocal clientAVILocal;

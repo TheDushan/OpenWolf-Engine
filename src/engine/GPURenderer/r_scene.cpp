@@ -30,18 +30,18 @@
 
 #include <framework/precompiled.h>
 
-S32			r_firstSceneDrawSurf;
+sint			r_firstSceneDrawSurf;
 
-S32			r_numdlights;
-S32			r_firstSceneDlight;
+sint			r_numdlights;
+sint			r_firstSceneDlight;
 
-S32			r_numentities;
-S32			r_firstSceneEntity;
+sint			r_numentities;
+sint			r_firstSceneEntity;
 
-S32			r_numpolys;
-S32			r_firstScenePoly;
+sint			r_numpolys;
+sint			r_firstScenePoly;
 
-S32			r_numpolyverts;
+sint			r_numpolyverts;
 
 
 /*
@@ -109,10 +109,10 @@ Adds all the scene's polys into this view's drawsurf list
 */
 void R_AddPolygonSurfaces( void )
 {
-    S32			i;
+    sint			i;
     shader_t*	sh;
     srfPoly_t*	poly;
-    S32		fogMask;
+    sint		fogMask;
     
     tr.currentEntityNum = REFENTITYNUM_WORLD;
     tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
@@ -130,11 +130,11 @@ void R_AddPolygonSurfaces( void )
 idRenderSystemLocal::AddPolyToScene
 =====================
 */
-void idRenderSystemLocal::AddPolyToScene( qhandle_t hShader, S32 numVerts, const polyVert_t* verts, S32 numPolys )
+void idRenderSystemLocal::AddPolyToScene( qhandle_t hShader, sint numVerts, const polyVert_t* verts, sint numPolys )
 {
     srfPoly_t*	poly;
-    S32			i, j;
-    S32			fogIndex;
+    sint			i, j;
+    sint			fogIndex;
     fog_t*		fog;
     vec3_t		bounds[2];
     
@@ -278,7 +278,7 @@ void idRenderSystemLocal::AddRefEntityToScene( const refEntity_t* ent )
 RE_AddDynamicLightToScene
 =====================
 */
-void RE_AddDynamicLightToScene( const vec3_t org, F32 intensity, F32 r, F32 g, F32 b, S32 additive )
+void RE_AddDynamicLightToScene( const vec3_t org, float32 intensity, float32 r, float32 g, float32 b, sint additive )
 {
     dlight_t*	dl;
     
@@ -313,7 +313,7 @@ void RE_AddDynamicLightToScene( const vec3_t org, F32 intensity, F32 r, F32 g, F
 idRenderSystemLocal::AddLightToScene
 =====================
 */
-void idRenderSystemLocal::AddLightToScene( const vec3_t org, F32 intensity, F32 r, F32 g, F32 b )
+void idRenderSystemLocal::AddLightToScene( const vec3_t org, float32 intensity, float32 r, float32 g, float32 b )
 {
     RE_AddDynamicLightToScene( org, intensity, r, g, b, false );
 }
@@ -323,7 +323,7 @@ void idRenderSystemLocal::AddLightToScene( const vec3_t org, F32 intensity, F32 
 idRenderSystemLocal::AddAdditiveLightToScene
 =====================
 */
-void idRenderSystemLocal::AddAdditiveLightToScene( const vec3_t org, F32 intensity, F32 r, F32 g, F32 b )
+void idRenderSystemLocal::AddAdditiveLightToScene( const vec3_t org, float32 intensity, float32 r, float32 g, float32 b )
 {
     RE_AddDynamicLightToScene( org, intensity, r, g, b, true );
 }
@@ -353,15 +353,15 @@ void RE_BeginScene( const refdef_t* fd )
     tr.refdef.areamaskModified = false;
     if( !( tr.refdef.rdflags & RDF_NOWORLDMODEL ) )
     {
-        S32		areaDiff;
-        S32		i;
+        sint		areaDiff;
+        sint		i;
         
         // compare the area bits
         areaDiff = 0;
         for( i = 0 ; i < MAX_MAP_AREA_BYTES / 4 ; i++ )
         {
-            areaDiff |= ( ( S32* )tr.refdef.areamask )[i] ^ ( ( S32* )fd->areamask )[i];
-            ( ( S32* )tr.refdef.areamask )[i] = ( ( S32* )fd->areamask )[i];
+            areaDiff |= ( ( sint* )tr.refdef.areamask )[i] ^ ( ( sint* )fd->areamask )[i];
+            ( ( sint* )tr.refdef.areamask )[i] = ( ( sint* )fd->areamask )[i];
         }
         
         if( areaDiff )
@@ -383,7 +383,7 @@ void RE_BeginScene( const refdef_t* fd )
     }
     else
     {
-        F32 scale = ( 1 << r_mapOverBrightBits->integer ) / 255.0f;
+        float32 scale = ( 1 << r_mapOverBrightBits->integer ) / 255.0f;
         
         if( r_forceSun->integer )
             VectorScale( tr.sunLight, scale * r_forceSunLightScale->value, tr.refdef.sunCol );
@@ -510,7 +510,7 @@ to handle mirrors,
 void idRenderSystemLocal::RenderScene( const refdef_t* fd )
 {
     viewParms_t		parms;
-    S32				startTime;
+    sint				startTime;
     
     if( !tr.registered )
     {
@@ -577,7 +577,7 @@ void idRenderSystemLocal::RenderScene( const refdef_t* fd )
     // this is where dynamic cubemaps would be rendered
     if( 0 ) //( glRefConfig.framebufferObject && !( fd->rdflags & RDF_NOWORLDMODEL ))
     {
-        S32 i, j;
+        sint i, j;
         
         for( i = 0; i < tr.numCubemaps; i++ )
         {

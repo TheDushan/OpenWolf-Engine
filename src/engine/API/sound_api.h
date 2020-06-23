@@ -47,36 +47,36 @@ public:
     virtual void Init( void ) = 0;
     virtual void Shutdown( void ) = 0;
     // if origin is nullptr, the sound will be dynamically sourced from the entity
-    virtual void StartSound( vec3_t origin, S32 entnum, S32 entchannel, sfxHandle_t sfx ) = 0;
-    virtual void StartLocalSound( sfxHandle_t sfx, S32 channelNum ) = 0;
-    virtual void StartBackgroundTrack( StringEntry intro, StringEntry loop ) = 0;
+    virtual void StartSound( vec3_t origin, sint entnum, sint entchannel, sfxHandle_t sfx ) = 0;
+    virtual void StartLocalSound( sfxHandle_t sfx, sint channelNum ) = 0;
+    virtual void StartBackgroundTrack( pointer intro, pointer loop ) = 0;
     virtual void StopBackgroundTrack( void ) = 0;
     // cinematics and voice-over-network will send raw samples
     // 1.0 volume will be direct output of source samples
-    virtual void RawSamples( S32 samples, S32 rate, S32 width, S32 channels, const U8* data, F32 volume ) = 0;
+    virtual void RawSamples( sint samples, sint rate, sint width, sint channels, const uchar8* data, float32 volume ) = 0;
     // stop all sounds and the background track
     virtual void StopAllSounds( void ) = 0;
     // all continuous looping sounds must be added before calling S_Update
     virtual void ClearLoopingSounds( bool killall ) = 0;
-    virtual void AddLoopingSound( S32 entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) = 0;
-    virtual void AddRealLoopingSound( S32 entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) = 0;
-    virtual void StopLoopingSound( S32 entityNum ) = 0;
+    virtual void AddLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) = 0;
+    virtual void AddRealLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) = 0;
+    virtual void StopLoopingSound( sint entityNum ) = 0;
     // recompute the reletive volumes for all running sounds
     // reletive to the given entityNum / orientation
-    virtual void Respatialize( S32 entityNum, const vec3_t origin, vec3_t axis[3], S32 inwater ) = 0;
+    virtual void Respatialize( sint entityNum, const vec3_t origin, vec3_t axis[3], sint inwater ) = 0;
     // let the sound system know where an entity currently is
-    virtual void UpdateEntityPosition( S32 entityNum, const vec3_t origin ) = 0;
+    virtual void UpdateEntityPosition( sint entityNum, const vec3_t origin ) = 0;
     virtual void Update( void ) = 0;
     virtual void DisableSounds( void ) = 0;
     virtual void BeginRegistration( void ) = 0;
     // RegisterSound will allways return a valid sample, even if it
     // has to create a placeholder.  This prevents continuous filesystem
     // checks for missing files
-    virtual sfxHandle_t RegisterSound( StringEntry sample, bool compressed ) = 0;
+    virtual sfxHandle_t RegisterSound( pointer sample, bool compressed ) = 0;
     virtual void DisplayFreeMemory( void ) = 0;
     virtual void ClearSoundBuffer( void ) = 0;
-    virtual S32 SoundDuration( sfxHandle_t handle ) = 0;
-    virtual S32 GetSoundLength( sfxHandle_t sfxHandle ) = 0;
+    virtual sint SoundDuration( sfxHandle_t handle ) = 0;
+    virtual sint GetSoundLength( sfxHandle_t sfxHandle ) = 0;
     virtual void Reload( void ) = 0;
 };
 

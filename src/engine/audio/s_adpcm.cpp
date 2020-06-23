@@ -35,13 +35,13 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 /* Intel ADPCM step variation table */
-static S32 indexTable[16] =
+static sint indexTable[16] =
 {
     -1, -1, -1, -1, 2, 4, 6, 8,
     -1, -1, -1, -1, 2, 4, 6, 8,
 };
 
-static S32 stepsizeTable[89] =
+static sint stepsizeTable[89] =
 {
     7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
     19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
@@ -55,22 +55,22 @@ static S32 stepsizeTable[89] =
 };
 
 
-void S_AdpcmEncode( S16 indata[], UTF8 outdata[], S32 len, struct adpcm_state* state )
+void S_AdpcmEncode( schar16 indata[], valueType outdata[], sint len, struct adpcm_state* state )
 {
-    S16* inp; /* Input buffer pointer */
-    S8* outp; /* output buffer pointer */
-    S32 val; /* Current input sample value */
-    S32 sign; /* Current adpcm sign bit */
-    S32 delta; /* Current adpcm output value */
-    S32 diff; /* Difference between val and sample */
-    S32 step; /* Stepsize */
-    S32 valpred; /* Predicted output value */
-    S32 vpdiff; /* Current change to valpred */
-    S32 index; /* Current step change index */
-    S32 outputbuffer; /* place to keep previous 4-bit value */
-    S32 bufferstep; /* toggle between outputbuffer/output */
+    schar16* inp; /* Input buffer pointer */
+    schar8* outp; /* output buffer pointer */
+    sint val; /* Current input sample value */
+    sint sign; /* Current adpcm sign bit */
+    sint delta; /* Current adpcm output value */
+    sint diff; /* Difference between val and sample */
+    sint step; /* Stepsize */
+    sint valpred; /* Predicted output value */
+    sint vpdiff; /* Current change to valpred */
+    sint index; /* Current step change index */
+    sint outputbuffer; /* place to keep previous 4-bit value */
+    sint bufferstep; /* toggle between outputbuffer/output */
     
-    outp = reinterpret_cast<S8*>( outdata );
+    outp = reinterpret_cast<schar8*>( outdata );
     inp = indata;
     
     valpred = state->sample;
@@ -185,21 +185,21 @@ void S_AdpcmEncode( S16 indata[], UTF8 outdata[], S32 len, struct adpcm_state* s
 }
 
 
-void S_AdpcmDecode( const UTF8 indata[], S16* outdata, S32 len, struct adpcm_state* state )
+void S_AdpcmDecode( const valueType indata[], schar16* outdata, sint len, struct adpcm_state* state )
 {
-    S8* inp; /* Input buffer pointer */
-    S32 outp; /* output buffer pointer */
-    S32 sign; /* Current adpcm sign bit */
-    S32 delta; /* Current adpcm output value */
-    S32 step; /* Stepsize */
-    S32 valpred; /* Predicted value */
-    S32 vpdiff; /* Current change to valpred */
-    S32 index; /* Current step change index */
-    S32 inputbuffer; /* place to keep next 4-bit value */
-    S32 bufferstep; /* toggle between inputbuffer/input */
+    schar8* inp; /* Input buffer pointer */
+    sint outp; /* output buffer pointer */
+    sint sign; /* Current adpcm sign bit */
+    sint delta; /* Current adpcm output value */
+    sint step; /* Stepsize */
+    sint valpred; /* Predicted value */
+    sint vpdiff; /* Current change to valpred */
+    sint index; /* Current step change index */
+    sint inputbuffer; /* place to keep next 4-bit value */
+    sint bufferstep; /* toggle between inputbuffer/input */
     
     outp = 0;
-    inp = ( S8* )indata;
+    inp = ( schar8* )indata;
     
     valpred = state->sample;
     index = state->index;
@@ -299,16 +299,16 @@ S_AdpcmMemoryNeeded
 Returns the amount of memory (in bytes) needed to store the samples in out internal adpcm format
 ====================
 */
-S32 S_AdpcmMemoryNeeded( const wavinfo_t* info )
+sint S_AdpcmMemoryNeeded( const wavinfo_t* info )
 {
-    F32	scale;
-    S32	scaledSampleCount;
-    S32	sampleMemory;
-    S32	blockCount;
-    S32	headerMemory;
+    float32	scale;
+    sint	scaledSampleCount;
+    sint	sampleMemory;
+    sint	blockCount;
+    sint	headerMemory;
     
     // determine scale to convert from input sampling rate to desired sampling rate
-    scale = ( F32 )info->rate / dma.speed;
+    scale = ( float32 )info->rate / dma.speed;
     
     // calc number of samples at playback sampling rate
     scaledSampleCount = info->samples / scale;
@@ -336,19 +336,19 @@ S32 S_AdpcmMemoryNeeded( const wavinfo_t* info )
 S_AdpcmGetSamples
 ====================
 */
-void S_AdpcmGetSamples( sndBuffer* chunk, S16* to )
+void S_AdpcmGetSamples( sndBuffer* chunk, schar16* to )
 {
     adpcm_state_t state;
-    S8*	out;
+    schar8*	out;
     
     // get the starting state from the block header
     state.index = chunk->adpcm.index;
     state.sample = chunk->adpcm.sample;
     
-    out = reinterpret_cast<S8*>( chunk->sndChunk );
+    out = reinterpret_cast<schar8*>( chunk->sndChunk );
     
     // get samples
-    S_AdpcmDecode( ( UTF8* ) out, to, SND_CHUNK_SIZE_BYTE * 2, &state );
+    S_AdpcmDecode( ( valueType* ) out, to, SND_CHUNK_SIZE_BYTE * 2, &state );
 }
 
 
@@ -357,14 +357,14 @@ void S_AdpcmGetSamples( sndBuffer* chunk, S16* to )
 S_AdpcmEncodeSound
 ====================
 */
-void S_AdpcmEncodeSound( sfx_t* sfx, S16* samples )
+void S_AdpcmEncodeSound( sfx_t* sfx, schar16* samples )
 {
     adpcm_state_t state;
-    S32 inOffset;
-    S32 count;
-    S32 n;
+    sint inOffset;
+    sint count;
+    sint n;
     sndBuffer* newchunk, *chunk;
-    S8* out;
+    schar8* out;
     
     inOffset = 0;
     count = sfx->soundLength;
@@ -396,10 +396,10 @@ void S_AdpcmEncodeSound( sfx_t* sfx, S16* samples )
         chunk->adpcm.index  = state.index;
         chunk->adpcm.sample = state.sample;
         
-        out = ( S8* )chunk->sndChunk;
+        out = ( schar8* )chunk->sndChunk;
         
         // encode the samples
-        S_AdpcmEncode( samples + inOffset, ( UTF8* ) out, n, &state );
+        S_AdpcmEncode( samples + inOffset, ( valueType* ) out, n, &state );
         
         inOffset += n;
         count -= n;

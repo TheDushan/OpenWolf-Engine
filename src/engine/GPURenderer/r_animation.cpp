@@ -50,17 +50,17 @@ R_MDRCullModel
 =============
 */
 
-static S32 R_MDRCullModel( mdrHeader_t* header, trRefEntity_t* ent )
+static sint R_MDRCullModel( mdrHeader_t* header, trRefEntity_t* ent )
 {
     vec3_t		bounds[2];
     mdrFrame_t*	oldFrame, *newFrame;
-    S32			i, frameSize;
+    sint			i, frameSize;
     
     frameSize = ( size_t )( &( ( mdrFrame_t* )0 )->bones[ header->numBones ] );
     
     // compute frame pointers
-    newFrame = ( mdrFrame_t* )( ( U8* ) header + header->ofsFrames + frameSize * ent->e.frame );
-    oldFrame = ( mdrFrame_t* )( ( U8* ) header + header->ofsFrames + frameSize * ent->e.oldframe );
+    newFrame = ( mdrFrame_t* )( ( uchar8* ) header + header->ofsFrames + frameSize * ent->e.frame );
+    oldFrame = ( mdrFrame_t* )( ( uchar8* ) header + header->ofsFrames + frameSize * ent->e.oldframe );
     
     // cull bounding sphere ONLY if this is not an upscaled entity
     if( !ent->e.nonNormalizedAxes )
@@ -87,7 +87,7 @@ static S32 R_MDRCullModel( mdrHeader_t* header, trRefEntity_t* ent )
         }
         else
         {
-            S32 sphereCull, sphereCullB;
+            sint sphereCull, sphereCullB;
             
             sphereCull  = R_CullLocalPointAndRadius( newFrame->localOrigin, newFrame->radius );
             if( newFrame == oldFrame )
@@ -148,13 +148,13 @@ R_MDRComputeFogNum
 =================
 */
 
-S32 R_MDRComputeFogNum( mdrHeader_t* header, trRefEntity_t* ent )
+sint R_MDRComputeFogNum( mdrHeader_t* header, trRefEntity_t* ent )
 {
-    S32				i, j;
+    sint				i, j;
     fog_t*			fog;
     mdrFrame_t*		mdrFrame;
     vec3_t			localOrigin;
-    S32 frameSize;
+    sint frameSize;
     
     if( tr.refdef.rdflags & RDF_NOWORLDMODEL )
     {
@@ -164,7 +164,7 @@ S32 R_MDRComputeFogNum( mdrHeader_t* header, trRefEntity_t* ent )
     frameSize = ( size_t )( &( ( mdrFrame_t* )0 )->bones[ header->numBones ] );
     
     // FIXME: non-normalized axis issues
-    mdrFrame = ( mdrFrame_t* )( ( U8* ) header + header->ofsFrames + frameSize * ent->e.frame );
+    mdrFrame = ( mdrFrame_t* )( ( uchar8* ) header + header->ofsFrames + frameSize * ent->e.frame );
     VectorAdd( ent->e.origin, mdrFrame->localOrigin, localOrigin );
     for( i = 1 ; i < tr.world->numfogs ; i++ )
     {
@@ -205,11 +205,11 @@ void R_MDRAddAnimSurfaces( trRefEntity_t* ent )
     mdrLOD_t*		lod;
     shader_t*		shader;
     skin_t*		skin;
-    S32				i, j;
-    S32				lodnum = 0;
-    S32				fogNum = 0;
-    S32				cull;
-    S32             cubemapIndex;
+    sint				i, j;
+    sint				lodnum = 0;
+    sint				fogNum = 0;
+    sint				cull;
+    sint             cubemapIndex;
     bool	personalModel;
     
     header = ( mdrHeader_t* ) tr.currentModel->modelData;
@@ -258,10 +258,10 @@ void R_MDRAddAnimSurfaces( trRefEntity_t* ent )
     if( header->numLODs <= lodnum )
         lodnum = header->numLODs - 1;
         
-    lod = ( mdrLOD_t* )( ( U8* )header + header->ofsLODs );
+    lod = ( mdrLOD_t* )( ( uchar8* )header + header->ofsLODs );
     for( i = 0; i < lodnum; i++ )
     {
-        lod = ( mdrLOD_t* )( ( U8* ) lod + lod->ofsEnd );
+        lod = ( mdrLOD_t* )( ( uchar8* ) lod + lod->ofsEnd );
     }
     
     // set up lighting
@@ -275,7 +275,7 @@ void R_MDRAddAnimSurfaces( trRefEntity_t* ent )
     
     cubemapIndex = R_CubemapForPoint( ent->e.origin );
     
-    surface = ( mdrSurface_t* )( ( U8* )lod + lod->ofsSurfaces );
+    surface = ( mdrSurface_t* )( ( uchar8* )lod + lod->ofsSurfaces );
     
     for( i = 0 ; i < lod->numSurfaces ; i++ )
     {
@@ -325,7 +325,7 @@ void R_MDRAddAnimSurfaces( trRefEntity_t* ent )
         if( !personalModel )
             R_AddDrawSurf( ( surfaceType_t* )surface, shader, fogNum, false, false, cubemapIndex );
             
-        surface = ( mdrSurface_t* )( ( U8* )surface + surface->ofsEnd );
+        surface = ( mdrSurface_t* )( ( uchar8* )surface + surface->ofsEnd );
     }
 }
 
@@ -336,19 +336,19 @@ RB_MDRSurfaceAnim
 */
 void RB_MDRSurfaceAnim( mdrSurface_t* surface )
 {
-    S32				i, j, k;
-    F32			frontlerp, backlerp;
-    S32*				triangles;
-    S32				indexes;
-    S32				baseIndex, baseVertex;
-    S32				numVerts;
+    sint				i, j, k;
+    float32			frontlerp, backlerp;
+    sint*				triangles;
+    sint				indexes;
+    sint				baseIndex, baseVertex;
+    sint				numVerts;
     mdrVertex_t*		v;
     mdrHeader_t*		header;
     mdrFrame_t*		frame;
     mdrFrame_t*		oldFrame;
     mdrBone_t		bones[MDR_MAX_BONES], *bonePtr, *bone;
     
-    S32			frameSize;
+    sint			frameSize;
     
     // don't lerp if lerping off, or this is the only frame, or the last frame...
     //
@@ -363,18 +363,18 @@ void RB_MDRSurfaceAnim( mdrSurface_t* surface )
         frontlerp	= 1.0f - backlerp;
     }
     
-    header = ( mdrHeader_t* )( ( U8* )surface + surface->ofsHeader );
+    header = ( mdrHeader_t* )( ( uchar8* )surface + surface->ofsHeader );
     
     frameSize = ( size_t )( &( ( mdrFrame_t* )0 )->bones[ header->numBones ] );
     
-    frame = ( mdrFrame_t* )( ( U8* )header + header->ofsFrames +
+    frame = ( mdrFrame_t* )( ( uchar8* )header + header->ofsFrames +
                              backEnd.currentEntity->e.frame * frameSize );
-    oldFrame = ( mdrFrame_t* )( ( U8* )header + header->ofsFrames +
+    oldFrame = ( mdrFrame_t* )( ( uchar8* )header + header->ofsFrames +
                                 backEnd.currentEntity->e.oldframe * frameSize );
                                 
     RB_CHECKOVERFLOW( surface->numVerts, surface->numTriangles * 3 );
     
-    triangles	= ( S32* )( ( U8* )surface + surface->ofsTriangles );
+    triangles	= ( sint* )( ( uchar8* )surface + surface->ofsTriangles );
     indexes		= surface->numTriangles * 3;
     baseIndex	= tess.numIndexes;
     baseVertex	= tess.numVertexes;
@@ -400,7 +400,7 @@ void RB_MDRSurfaceAnim( mdrSurface_t* surface )
         
         for( i = 0 ; i < header->numBones * 12 ; i++ )
         {
-            ( ( F32* )bonePtr )[i] = frontlerp * ( ( F32* )frame->bones )[i] + backlerp * ( ( F32* )oldFrame->bones )[i];
+            ( ( float32* )bonePtr )[i] = frontlerp * ( ( float32* )frame->bones )[i] + backlerp * ( ( float32* )oldFrame->bones )[i];
         }
     }
     
@@ -408,7 +408,7 @@ void RB_MDRSurfaceAnim( mdrSurface_t* surface )
     // deform the vertexes by the lerped bones
     //
     numVerts = surface->numVerts;
-    v = ( mdrVertex_t* )( ( U8* )surface + surface->ofsVerts );
+    v = ( mdrVertex_t* )( ( uchar8* )surface + surface->ofsVerts );
     for( j = 0; j < numVerts; j++ )
     {
         vec3_t	tempVert, tempNormal;
@@ -451,7 +451,7 @@ void RB_MDRSurfaceAnim( mdrSurface_t* surface )
 #define MC_MASK_Z ((1<<(MC_BITS_Z))-1)
 #define MC_MASK_VECT ((1<<(MC_BITS_VECT))-1)
 
-#define MC_SCALE_VECT (1.0f/(F32)((1<<(MC_BITS_VECT-1))-2))
+#define MC_SCALE_VECT (1.0f/(float32)((1<<(MC_BITS_VECT-1))-2))
 
 #define MC_POS_X (0)
 #define MC_SHIFT_X (0)
@@ -489,57 +489,57 @@ void RB_MDRSurfaceAnim( mdrSurface_t* surface )
 #define MC_POS_V33 ((((MC_BITS_X+MC_BITS_Y+MC_BITS_Z+MC_BITS_VECT*8))/8))
 #define MC_SHIFT_V33 ((((MC_BITS_X+MC_BITS_Y+MC_BITS_Z+MC_BITS_VECT*8)%8)))
 
-void MC_UnCompress( F32 mat[3][4], const U8* comp )
+void MC_UnCompress( float32 mat[3][4], const uchar8* comp )
 {
-    S32 val;
+    sint val;
     
-    val = ( S32 )( ( U16* )( comp ) )[0];
+    val = ( sint )( ( uchar16* )( comp ) )[0];
     val -= 1 << ( MC_BITS_X - 1 );
-    mat[0][3] = ( ( F32 )( val ) ) * MC_SCALE_X;
+    mat[0][3] = ( ( float32 )( val ) ) * MC_SCALE_X;
     
-    val = ( S32 )( ( U16* )( comp ) )[1];
+    val = ( sint )( ( uchar16* )( comp ) )[1];
     val -= 1 << ( MC_BITS_Y - 1 );
-    mat[1][3] = ( ( F32 )( val ) ) * MC_SCALE_Y;
+    mat[1][3] = ( ( float32 )( val ) ) * MC_SCALE_Y;
     
-    val = ( S32 )( ( U16* )( comp ) )[2];
+    val = ( sint )( ( uchar16* )( comp ) )[2];
     val -= 1 << ( MC_BITS_Z - 1 );
-    mat[2][3] = ( ( F32 )( val ) ) * MC_SCALE_Z;
+    mat[2][3] = ( ( float32 )( val ) ) * MC_SCALE_Z;
     
-    val = ( S32 )( ( U16* )( comp ) )[3];
+    val = ( sint )( ( uchar16* )( comp ) )[3];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[0][0] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[0][0] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
     
-    val = ( S32 )( ( U16* )( comp ) )[4];
+    val = ( sint )( ( uchar16* )( comp ) )[4];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[0][1] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[0][1] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
     
-    val = ( S32 )( ( U16* )( comp ) )[5];
+    val = ( sint )( ( uchar16* )( comp ) )[5];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[0][2] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[0][2] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
     
     
-    val = ( S32 )( ( U16* )( comp ) )[6];
+    val = ( sint )( ( uchar16* )( comp ) )[6];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[1][0] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[1][0] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
     
-    val = ( S32 )( ( U16* )( comp ) )[7];
+    val = ( sint )( ( uchar16* )( comp ) )[7];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[1][1] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[1][1] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
     
-    val = ( S32 )( ( U16* )( comp ) )[8];
+    val = ( sint )( ( uchar16* )( comp ) )[8];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[1][2] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[1][2] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
     
     
-    val = ( S32 )( ( U16* )( comp ) )[9];
+    val = ( sint )( ( uchar16* )( comp ) )[9];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[2][0] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[2][0] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
     
-    val = ( S32 )( ( U16* )( comp ) )[10];
+    val = ( sint )( ( uchar16* )( comp ) )[10];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[2][1] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[2][1] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
     
-    val = ( S32 )( ( U16* )( comp ) )[11];
+    val = ( sint )( ( uchar16* )( comp ) )[11];
     val -= 1 << ( MC_BITS_VECT - 1 );
-    mat[2][2] = ( ( F32 )( val ) ) * MC_SCALE_VECT;
+    mat[2][2] = ( ( float32 )( val ) ) * MC_SCALE_VECT;
 }

@@ -117,21 +117,21 @@ typedef enum
 // Structure of one feature
 typedef struct feature_s
 {
-    UTF8* key;
+    valueType* key;
     featureType_t type;
     bool modifier; // if true, change the modify flag (means that this feature modifies meaningfully the content of this interframe, and thus write a new separate interframe). Else if false, it will concatenate consequent interframes into only one but increments FEATURE_FRAMEREPEAT (this avoids storing multiple same frames taking up a lot of storage space uselessly).
-    F64 value[MAX_CLIENTS]; // one value for each player (the key and type do not change, they are the same for every player. This saves some memory space.)
+    float64 value[MAX_CLIENTS]; // one value for each player (the key and type do not change, they are the same for every player. This saves some memory space.)
 } feature_t;
 
 // Structure of one player entry in the players' table
 typedef struct playerstable_s
 {
-    F64 playerid;
-    UTF8 ip[NET_ADDRSTRMAXLEN];
-    UTF8* guid;
-    F64 timestamp;
-    UTF8 datetime[MAX_STRING_CSV];
-    UTF8* nickname;
+    float64 playerid;
+    valueType ip[NET_ADDRSTRMAXLEN];
+    valueType* guid;
+    float64 timestamp;
+    valueType datetime[MAX_STRING_CSV];
+    valueType* nickname;
 } playerstable_t;
 
 // Declare the sv.interframe global variable, which will contain the array of all features
@@ -161,27 +161,27 @@ public:
     static void ExtendedRecordInit( void );
     static void ExtendedRecordUpdate( void );
     static void ExtendedRecordShutdown( void );
-    static void ExtendedRecordClientConnect( S32 client );
-    static void ExtendedRecordDropClient( S32 client );
+    static void ExtendedRecordClientConnect( sint client );
+    static void ExtendedRecordDropClient( sint client );
     static void ExtendedRecordWriteStruct( void );
-    static void ExtendedRecordWriteValues( S32 client );
-    static void ExtendedRecordWritePlayersTable( S32 client );
-    static void ExtendedRecordInterframeInit( S32 client );
-    static void ExtendedRecordInterframeInitValues( S32 client );
-    static F64 ExtendedRecordInterframeInitValue( S32 client, S32 feature );
-    static void ExtendedRecordInterframeUpdate( S32 client );
-    static void ExtendedRecordInterframeUpdateValues( S32 client );
-    static void ExtendedRecordInterframeUpdateValuesAttacker( S32 client );
-    static void ExtendedRecordPlayersTableInit( S32 client );
-    static UTF8* ExtendedRecordFeaturesToCSV( UTF8* csv_string, S32 max_string_size, feature_t* interframe, S32 savewhat, S32 client );
-    static UTF8* ExtendedRecordPlayersTableToCSV( UTF8* csv_string, S32 max_string_size, playerstable_t playerstable );
-    static void ExtendedRecordSetFeatureValue( interframeIndex_t feature, F64 value, S32 client );
-    static bool IsBot( S32 client );
-    static bool IsSpectator( S32 client );
-    static bool IsWeaponInstantHit( S32 weapon );
-    static S32 CountPlayers( void );
-    static S32 rand_range( S32 min, S32 max );
-    static void ExtendedRecordSetCheater( S32 client, S32 label );
+    static void ExtendedRecordWriteValues( sint client );
+    static void ExtendedRecordWritePlayersTable( sint client );
+    static void ExtendedRecordInterframeInit( sint client );
+    static void ExtendedRecordInterframeInitValues( sint client );
+    static float64 ExtendedRecordInterframeInitValue( sint client, sint feature );
+    static void ExtendedRecordInterframeUpdate( sint client );
+    static void ExtendedRecordInterframeUpdateValues( sint client );
+    static void ExtendedRecordInterframeUpdateValuesAttacker( sint client );
+    static void ExtendedRecordPlayersTableInit( sint client );
+    static valueType* ExtendedRecordFeaturesToCSV( valueType* csv_string, sint max_string_size, feature_t* interframe, sint savewhat, sint client );
+    static valueType* ExtendedRecordPlayersTableToCSV( valueType* csv_string, sint max_string_size, playerstable_t playerstable );
+    static void ExtendedRecordSetFeatureValue( interframeIndex_t feature, float64 value, sint client );
+    static bool IsBot( sint client );
+    static bool IsSpectator( sint client );
+    static bool IsWeaponInstantHit( sint weapon );
+    static sint CountPlayers( void );
+    static sint rand_range( sint min, sint max );
+    static void ExtendedRecordSetCheater( sint client, sint label );
     static void ExtendedRecordSetCheaterFromClient_f( client_t* cl );
     static void ExtendedRecordSetHonestFromClient_f( client_t* cl );
     static void ExtendedRecordSetCheater_f( void );

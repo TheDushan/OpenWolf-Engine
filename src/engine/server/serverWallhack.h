@@ -40,8 +40,8 @@
 static vec3_t pred_ppos, pred_opos;
 static trajectory_t traject;
 static vec3_t old_origin[MAX_CLIENTS];
-static S32 origin_changed[MAX_CLIENTS];
-static F32 delta_sign[8][3] =
+static sint origin_changed[MAX_CLIENTS];
+static float32 delta_sign[8][3] =
 {
     { 1,  1,  1  },
     { 1,  1,  1  },
@@ -55,8 +55,8 @@ static F32 delta_sign[8][3] =
 
 static vec3_t delta[8];
 
-static S32 bbox_horz;
-static S32 bbox_vert;
+static sint bbox_horz;
+static sint bbox_vert;
 
 //======================================================================
 // local functions
@@ -91,21 +91,21 @@ public:
     idServerWallhackSystemLocal();
     ~idServerWallhackSystemLocal();
     
-    static S32 zero_vector( vec3_t v );
+    static sint zero_vector( vec3_t v );
     static void predict_clip_velocity( vec3_t in, vec3_t normal, vec3_t out );
-    static S32 predict_slide_move( sharedEntity_t* ent, F32 frametime, trajectory_t* tr, vec3_t result );
-    static void predict_move( sharedEntity_t* ent, F32 frametime, trajectory_t* tr, vec3_t result );
+    static sint predict_slide_move( sharedEntity_t* ent, float32 frametime, trajectory_t* tr, vec3_t result );
+    static void predict_move( sharedEntity_t* ent, float32 frametime, trajectory_t* tr, vec3_t result );
     static void calc_viewpoint( playerState_t* ps, vec3_t org, vec3_t vp );
-    static S32 player_in_fov( vec3_t viewangle, vec3_t ppos, vec3_t opos );
+    static sint player_in_fov( vec3_t viewangle, vec3_t ppos, vec3_t opos );
     static void copy_trajectory( trajectory_t* src, trajectory_t* dst );
-    static S32 is_visible( vec3_t start, vec3_t end );
+    static sint is_visible( vec3_t start, vec3_t end );
     static void init_horz_delta( void );
     static void init_vert_delta( void );
     static void InitWallhack( void );
-    static S32 CanSee( S32 player, S32 other );
-    static void RandomizePos( S32 player, S32 other );
-    static void RestorePos( S32 cli );
-    static S32 PositionChanged( S32 cli );
+    static sint CanSee( sint player, sint other );
+    static void RandomizePos( sint player, sint other );
+    static void RestorePos( sint cli );
+    static sint PositionChanged( sint cli );
 };
 
 extern idServerWallhackSystemLocal serverWallhackLocal;

@@ -35,12 +35,12 @@
 class idClientAVISystemAPI
 {
 public:
-    virtual void WriteAVIVideoFrame( const U8* imageBuffer, S32 size ) = 0;
-    virtual void WriteAVIAudioFrame( const U8* pcmBuffer, S32 size ) = 0;
+    virtual void WriteAVIVideoFrame( const uchar8* imageBuffer, sint size ) = 0;
+    virtual void WriteAVIAudioFrame( const uchar8* pcmBuffer, sint size ) = 0;
     virtual void TakeVideoFrame( void ) = 0;
     virtual bool CloseAVI( void ) = 0;
     virtual bool VideoRecording( void ) = 0;
-    virtual bool OpenAVIForWriting( StringEntry fileName ) = 0;
+    virtual bool OpenAVIForWriting( pointer fileName ) = 0;
 };
 
 extern idClientAVISystemAPI* clientAVISystem;

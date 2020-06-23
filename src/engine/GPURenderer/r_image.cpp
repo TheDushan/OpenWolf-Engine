@@ -30,19 +30,19 @@
 
 #include <framework/precompiled.h>
 
-static U8 s_intensitytable[256];
-static U8 s_gammatable[256];
+static uchar8 s_intensitytable[256];
+static uchar8 s_gammatable[256];
 
-S32 gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
-S32	gl_filter_max = GL_LINEAR;
+sint gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
+sint	gl_filter_max = GL_LINEAR;
 
 #define FILE_HASH_SIZE		1024
 static	image_t*		hashTable[FILE_HASH_SIZE];
 
 struct textureMode_t
 {
-    StringEntry name;
-    S32	minimize, maximize;
+    pointer name;
+    sint	minimize, maximize;
 };
 
 textureMode_t modes[] =
@@ -60,11 +60,11 @@ textureMode_t modes[] =
 return a hash value for the filename
 ================
 */
-static S64 generateHashValue( StringEntry fname )
+static sint32 generateHashValue( pointer fname )
 {
-    S32		i;
-    S64	hash;
-    UTF8	letter;
+    sint		i;
+    sint32	hash;
+    valueType	letter;
     
     hash = 0;
     i = 0;
@@ -73,7 +73,7 @@ static S64 generateHashValue( StringEntry fname )
         letter = tolower( fname[i] );
         if( letter == '.' ) break;				// don't include extension
         if( letter == '\\' ) letter = '/';		// damn path names
-        hash += ( S64 )( letter ) * ( i + 119 );
+        hash += ( sint32 )( letter ) * ( i + 119 );
         i++;
     }
     hash &= ( FILE_HASH_SIZE - 1 );
@@ -85,9 +85,9 @@ static S64 generateHashValue( StringEntry fname )
 GL_TextureMode
 ===============
 */
-void GL_TextureMode( StringEntry string )
+void GL_TextureMode( pointer string )
 {
-    S32		i;
+    sint		i;
     image_t*	glt;
     
     for( i = 0 ; i < 6 ; i++ )
@@ -133,10 +133,10 @@ void GL_TextureMode( StringEntry string )
 R_SumOfUsedImages
 ===============
 */
-S32 R_SumOfUsedImages( void )
+sint R_SumOfUsedImages( void )
 {
-    S32	total;
-    S32 i;
+    sint	total;
+    sint i;
     
     total = 0;
     for( i = 0; i < tr.numImages; i++ )
@@ -157,18 +157,18 @@ R_ImageList_f
 */
 void R_ImageList_f( void )
 {
-    S32 i;
-    S32 estTotalSize = 0;
+    sint i;
+    sint estTotalSize = 0;
     
     CL_RefPrintf( PRINT_ALL, "\n      -w-- -h-- -type-- -size- --name-------\n" );
     
     for( i = 0 ; i < tr.numImages ; i++ )
     {
         image_t* image = tr.images[i];
-        StringEntry format = "????   ";
-        StringEntry sizeSuffix;
-        S32 estSize;
-        S32 displaySize;
+        pointer format = "????   ";
+        pointer sizeSuffix;
+        sint estSize;
+        sint displaySize;
         
         estSize = image->uploadHeight * image->uploadWidth;
         
@@ -341,13 +341,13 @@ If a larger shrinking is needed, use the mipmap function
 before or after.
 ================
 */
-static void ResampleTexture( U8* in, S32 inwidth, S32 inheight, U8* out, S32 outwidth, S32 outheight )
+static void ResampleTexture( uchar8* in, sint inwidth, sint inheight, uchar8* out, sint outwidth, sint outheight )
 {
-    S32		i, j;
-    U8*	inrow, *inrow2;
-    S32		frac, fracstep;
-    S32		p1[2048], p2[2048];
-    U8*	pix1, *pix2, *pix3, *pix4;
+    sint		i, j;
+    uchar8*	inrow, *inrow2;
+    sint		frac, fracstep;
+    sint		p1[2048], p2[2048];
+    uchar8*	pix1, *pix2, *pix3, *pix4;
     
     if( outwidth > 2048 )
         Com_Error( ERR_DROP, "ResampleTexture: max width" );
@@ -369,8 +369,8 @@ static void ResampleTexture( U8* in, S32 inwidth, S32 inheight, U8* out, S32 out
     
     for( i = 0 ; i < outheight ; i++ )
     {
-        inrow = in + 4 * inwidth * ( S32 )( ( i + 0.25 ) * inheight / outheight );
-        inrow2 = in + 4 * inwidth * ( S32 )( ( i + 0.75 ) * inheight / outheight );
+        inrow = in + 4 * inwidth * ( sint )( ( i + 0.25 ) * inheight / outheight );
+        inrow2 = in + 4 * inwidth * ( sint )( ( i + 0.75 ) * inheight / outheight );
         for( j = 0 ; j < outwidth ; j++ )
         {
             pix1 = inrow + p1[j];
@@ -385,18 +385,18 @@ static void ResampleTexture( U8* in, S32 inwidth, S32 inheight, U8* out, S32 out
     }
 }
 
-static void RGBAtoYCoCgA( const U8* in, U8* out, S32 width, S32 height )
+static void RGBAtoYCoCgA( const uchar8* in, uchar8* out, sint width, sint height )
 {
-    S32 x, y;
+    sint x, y;
     
     for( y = 0; y < height; y++ )
     {
-        const U8* inbyte  = in  + y * width * 4;
-        U8*       outbyte = out + y * width * 4;
+        const uchar8* inbyte  = in  + y * width * 4;
+        uchar8*       outbyte = out + y * width * 4;
         
         for( x = 0; x < width; x++ )
         {
-            U8 r, g, b, a, rb2;
+            uchar8 r, g, b, a, rb2;
             
             r = *inbyte++;
             g = *inbyte++;
@@ -412,18 +412,18 @@ static void RGBAtoYCoCgA( const U8* in, U8* out, S32 width, S32 height )
     }
 }
 
-static void YCoCgAtoRGBA( const U8* in, U8* out, S32 width, S32 height )
+static void YCoCgAtoRGBA( const uchar8* in, uchar8* out, sint width, sint height )
 {
-    S32 x, y;
+    sint x, y;
     
     for( y = 0; y < height; y++ )
     {
-        const U8* inbyte  = in  + y * width * 4;
-        U8*       outbyte = out + y * width * 4;
+        const uchar8* inbyte  = in  + y * width * 4;
+        uchar8*       outbyte = out + y * width * 4;
         
         for( x = 0; x < width; x++ )
         {
-            U8 _Y, Co, Cg, a;
+            uchar8 _Y, Co, Cg, a;
             
             _Y = *inbyte++;
             Co = *inbyte++;
@@ -440,21 +440,21 @@ static void YCoCgAtoRGBA( const U8* in, U8* out, S32 width, S32 height )
 
 
 // uses a sobel filter to change a texture to a normal map
-static void RGBAtoNormal( const U8* in, U8* out, S32 width, S32 height, bool clampToEdge )
+static void RGBAtoNormal( const uchar8* in, uchar8* out, sint width, sint height, bool clampToEdge )
 {
-    S32 x, y, max;
+    sint x, y, max;
     
     // convert to heightmap, storing in alpha
     // same as converting to Y in YCoCg
     max = 1;
     for( y = 0; y < height; y++ )
     {
-        const U8* inbyte  = in  + y * width * 4;
-        U8*       outbyte = out + y * width * 4 + 3;
+        const uchar8* inbyte  = in  + y * width * 4;
+        uchar8*       outbyte = out + y * width * 4 + 3;
         
         for( x = 0; x < width; x++ )
         {
-            U8 result = ( inbyte[0] >> 2 ) + ( inbyte[1] >> 1 ) + ( inbyte[2] >> 2 );
+            uchar8 result = ( inbyte[0] >> 2 ) + ( inbyte[1] >> 1 ) + ( inbyte[2] >> 2 );
             result = result * result / 255; // Make linear
             *outbyte = result;
             max = MAX( max, *outbyte );
@@ -468,7 +468,7 @@ static void RGBAtoNormal( const U8* in, U8* out, S32 width, S32 height, bool cla
     {
         for( y = 0; y < height; y++ )
         {
-            U8* outbyte = out + y * width * 4 + 3;
+            uchar8* outbyte = out + y * width * 4 + 3;
             
             for( x = 0; x < width; x++ )
             {
@@ -483,7 +483,7 @@ static void RGBAtoNormal( const U8* in, U8* out, S32 width, S32 height, bool cla
     // then normalize
     for( y = 0; y < height; y++ )
     {
-        U8* outbyte = out + y * width * 4;
+        uchar8* outbyte = out + y * width * 4;
         
         for( x = 0; x < width; x++ )
         {
@@ -491,14 +491,14 @@ static void RGBAtoNormal( const U8* in, U8* out, S32 width, S32 height, bool cla
             // 3 4 5
             // 6 7 8
             
-            U8 s[9];
-            S32 x2, y2, i;
+            uchar8 s[9];
+            sint x2, y2, i;
             vec3_t normal;
             
             i = 0;
             for( y2 = -1; y2 <= 1; y2++ )
             {
-                S32 src_y = y + y2;
+                sint src_y = y + y2;
                 
                 if( clampToEdge )
                 {
@@ -512,7 +512,7 @@ static void RGBAtoNormal( const U8* in, U8* out, S32 width, S32 height, bool cla
                 
                 for( x2 = -1; x2 <= 1; x2++ )
                 {
-                    S32 src_x = x + x2;
+                    sint src_x = x + x2;
                     
                     if( clampToEdge )
                     {
@@ -550,17 +550,17 @@ static void RGBAtoNormal( const U8* in, U8* out, S32 width, S32 height, bool cla
     }
 }
 
-#define COPYSAMPLE(a,b) *(U32 *)(a) = *(U32 *)(b)
+#define COPYSAMPLE(a,b) *(uint *)(a) = *(uint *)(b)
 
 // based on Fast Curve Based Interpolation
 // from Fast Artifacts-Free Image Interpolation (http://www.andreagiachetti.it/icbi/)
 // assumes data has a 2 pixel thick border of clamped or wrapped data
 // expects data to be a grid with even (0, 0), (2, 0), (0, 2), (2, 2) etc pixels filled
 // only performs FCBI on specified component
-static void DoFCBI( U8* in, U8* out, S32 width, S32 height, S32 component )
+static void DoFCBI( uchar8* in, uchar8* out, sint width, sint height, sint component )
 {
-    S32 x, y;
-    U8* outbyte, *inbyte;
+    sint x, y;
+    uchar8* outbyte, *inbyte;
     
     // copy in to out
     for( y = 2; y < height - 2; y += 2 )
@@ -615,8 +615,8 @@ static void DoFCBI( U8* in, U8* out, S32 width, S32 height, S32 component )
         //
         // only b, f, j, and l need to be sampled on next iteration
         
-        U8 sa, sb, sc, sd, se, sf, sg, sh, si, sj, sk, sl;
-        U8* line1, *line2, *line3, *line4;
+        uchar8 sa, sb, sc, sd, se, sf, sg, sh, si, sj, sk, sl;
+        uchar8* line1, *line2, *line3, *line4;
         
         x = 3;
         
@@ -658,7 +658,7 @@ static void DoFCBI( U8* in, U8* out, S32 width, S32 height, S32 component )
         
         for( ; x < width - 3; x += 2 )
         {
-            S32 NWd, NEd, NWp, NEp;
+            sint NWd, NEd, NWp, NEp;
             
             // original
             //                       SAMPLE2(sa, x-1, y-3); SAMPLE2(sb, x+1, y-3);
@@ -701,7 +701,7 @@ static void DoFCBI( U8* in, U8* out, S32 width, S32 height, S32 component )
             }
             else
             {
-                S32 NWdd, NEdd;
+                sint NWdd, NEdd;
                 
                 //NEdd = abs(sg + sd + sb - 3 * (se + sh) + sk + si + sf);
                 //NWdd = abs(sa + se + sj - 3 * (sd + si) + sc + sh + sl);
@@ -780,8 +780,8 @@ static void DoFCBI( U8* in, U8* out, S32 width, S32 height, S32 component )
         //
         // only b, e, g, j, and l need to be sampled on next iteration
         
-        U8 sa, sb, sc, sd, se, sf, sg, sh, si, sj, sk, sl;
-        U8* line1, *line2, *line3, *line4, *line5;
+        uchar8 sa, sb, sc, sd, se, sf, sg, sh, si, sj, sk, sl;
+        uchar8* line1, *line2, *line3, *line4, *line5;
         
         //x = (y + 1) % 2;
         x = ( y + 1 ) % 2 + 2;
@@ -824,7 +824,7 @@ static void DoFCBI( U8* in, U8* out, S32 width, S32 height, S32 component )
         
         for( ; x < width - 3; x += 2 )
         {
-            S32 hd, vd, hp, vp;
+            sint hd, vd, hp, vp;
             
             //            SAMPLE2(sa, x-1, y-2); SAMPLE2(sb, x+1, y-2);
             //SAMPLE2(sc, x-2, y-1); SAMPLE2(sd, x,   y-1); SAMPLE2(se, x+2, y-1);
@@ -870,7 +870,7 @@ static void DoFCBI( U8* in, U8* out, S32 width, S32 height, S32 component )
             }
             else
             {
-                S32 hdd, vdd;
+                sint hdd, vdd;
                 
                 //hdd = abs(sc[i] + sd[i] + se[i] - 3 * (sf[i] + sg[i]) + sh[i] + si[i] + sj[i]);
                 //vdd = abs(sa[i] + sf[i] + sk[i] - 3 * (sd[i] + si[i]) + sb[i] + sg[i] + sl[i]);
@@ -903,10 +903,10 @@ static void DoFCBI( U8* in, U8* out, S32 width, S32 height, S32 component )
 }
 
 // Similar to FCBI, but throws out the second order derivatives for speed
-static void DoFCBIQuick( U8* in, U8* out, S32 width, S32 height, S32 component )
+static void DoFCBIQuick( uchar8* in, uchar8* out, sint width, sint height, sint component )
 {
-    S32 x, y;
-    U8* outbyte, *inbyte;
+    sint x, y;
+    uchar8* outbyte, *inbyte;
     
     // copy in to out
     for( y = 2; y < height - 2; y += 2 )
@@ -924,8 +924,8 @@ static void DoFCBIQuick( U8* in, U8* out, S32 width, S32 height, S32 component )
     
     for( y = 3; y < height - 4; y += 2 )
     {
-        U8 sd, se, sh, si;
-        U8* line2, *line3;
+        uchar8 sd, se, sh, si;
+        uchar8* line2, *line3;
         
         x = 3;
         
@@ -941,7 +941,7 @@ static void DoFCBIQuick( U8* in, U8* out, S32 width, S32 height, S32 component )
         
         for( ; x < width - 4; x += 2 )
         {
-            S32 NWd, NEd, NWp, NEp;
+            sint NWd, NEd, NWp, NEp;
             
             se = *line2;
             line2 += 8;
@@ -981,8 +981,8 @@ static void DoFCBIQuick( U8* in, U8* out, S32 width, S32 height, S32 component )
     
     for( y = 2; y < height - 3; y++ )
     {
-        U8 sd, sf, sg, si;
-        U8* line2, *line3, *line4;
+        uchar8 sd, sf, sg, si;
+        uchar8* line2, *line3, *line4;
         
         x = ( y + 1 ) % 2 + 2;
         
@@ -997,7 +997,7 @@ static void DoFCBIQuick( U8* in, U8* out, S32 width, S32 height, S32 component )
         
         for( ; x < width - 3; x += 2 )
         {
-            S32 hd, vd, hp, vp;
+            sint hd, vd, hp, vp;
             
             sd = *line2;
             line2 += 8;
@@ -1025,10 +1025,10 @@ static void DoFCBIQuick( U8* in, U8* out, S32 width, S32 height, S32 component )
 
 // Similar to DoFCBIQuick, but just takes the average instead of checking derivatives
 // as well, this operates on all four components
-static void DoLinear( U8* in, U8* out, S32 width, S32 height )
+static void DoLinear( uchar8* in, uchar8* out, sint width, sint height )
 {
-    S32 x, y, i;
-    U8* outbyte, *inbyte;
+    sint x, y, i;
+    uchar8* outbyte, *inbyte;
     
     // copy in to out
     for( y = 2; y < height - 2; y += 2 )
@@ -1048,8 +1048,8 @@ static void DoLinear( U8* in, U8* out, S32 width, S32 height )
     
     for( y = 1; y < height - 1; y += 2 )
     {
-        U8 sd[4] = {0}, se[4] = {0}, sh[4] = {0}, si[4] = {0};
-        U8* line2, *line3;
+        uchar8 sd[4] = {0}, se[4] = {0}, sh[4] = {0}, si[4] = {0};
+        uchar8* line2, *line3;
         
         x = 1;
         
@@ -1100,8 +1100,8 @@ static void DoLinear( U8* in, U8* out, S32 width, S32 height )
     
     for( y = 1; y < height - 1; y++ )
     {
-        U8 sd[4], sf[4], sg[4], si[4];
-        U8* line2, *line3, *line4;
+        uchar8 sd[4], sf[4], sg[4], si[4];
+        uchar8* line2, *line3, *line4;
         
         x = y % 2 + 1;
         
@@ -1136,14 +1136,14 @@ static void DoLinear( U8* in, U8* out, S32 width, S32 height )
 }
 
 
-static void ExpandHalfTextureToGrid( U8* data, S32 width, S32 height )
+static void ExpandHalfTextureToGrid( uchar8* data, sint width, sint height )
 {
-    S32 x, y;
+    sint x, y;
     
     for( y = height / 2; y > 0; y-- )
     {
-        U8* outbyte = data + ( ( y * 2 - 1 ) * ( width )     - 2 ) * 4;
-        U8* inbyte  = data + ( y           * ( width / 2 ) - 1 ) * 4;
+        uchar8* outbyte = data + ( ( y * 2 - 1 ) * ( width )     - 2 ) * 4;
+        uchar8* inbyte  = data + ( y           * ( width / 2 ) - 1 ) * 4;
         
         for( x = width / 2; x > 0; x-- )
         {
@@ -1155,19 +1155,19 @@ static void ExpandHalfTextureToGrid( U8* data, S32 width, S32 height )
     }
 }
 
-static void FillInNormalizedZ( const U8* in, U8* out, S32 width, S32 height )
+static void FillInNormalizedZ( const uchar8* in, uchar8* out, sint width, sint height )
 {
-    S32 x, y;
+    sint x, y;
     
     for( y = 0; y < height; y++ )
     {
-        const U8* inbyte  = in  + y * width * 4;
-        U8*       outbyte = out + y * width * 4;
+        const uchar8* inbyte  = in  + y * width * 4;
+        uchar8*       outbyte = out + y * width * 4;
         
         for( x = 0; x < width; x++ )
         {
-            U8 nx, ny, nz, h;
-            F32 fnx, fny, fll, fnz;
+            uchar8 nx, ny, nz, h;
+            float32 fnx, fny, fll, fnz;
             
             nx = *inbyte++;
             ny = *inbyte++;
@@ -1178,7 +1178,7 @@ static void FillInNormalizedZ( const U8* in, U8* out, S32 width, S32 height )
             fny = OffsetByteToFloat( ny );
             fll = 1.0f - fnx * fnx - fny * fny;
             if( fll >= 0.0f )
-                fnz = ( F32 )sqrt( fll );
+                fnz = ( float32 )sqrt( fll );
             else
                 fnz = 0.0f;
                 
@@ -1199,13 +1199,13 @@ static void FillInNormalizedZ( const U8* in, U8* out, S32 width, S32 height )
 #define WORKBLOCK_REALSIZE (WORKBLOCK_SIZE + WORKBLOCK_BORDER * 2)
 
 // assumes that data has already been expanded into a 2x2 grid
-static void FCBIByBlock( U8* data, S32 width, S32 height, bool clampToEdge, bool normalized )
+static void FCBIByBlock( uchar8* data, sint width, sint height, bool clampToEdge, bool normalized )
 {
-    U8 workdata[WORKBLOCK_REALSIZE * WORKBLOCK_REALSIZE * 4];
-    U8 outdata[WORKBLOCK_REALSIZE * WORKBLOCK_REALSIZE * 4];
-    U8* inbyte, *outbyte;
-    S32 x, y;
-    S32 srcx, srcy;
+    uchar8 workdata[WORKBLOCK_REALSIZE * WORKBLOCK_REALSIZE * 4];
+    uchar8 outdata[WORKBLOCK_REALSIZE * WORKBLOCK_REALSIZE * 4];
+    uchar8* inbyte, *outbyte;
+    sint x, y;
+    sint srcx, srcy;
     
     ExpandHalfTextureToGrid( data, width, height );
     
@@ -1213,8 +1213,8 @@ static void FCBIByBlock( U8* data, S32 width, S32 height, bool clampToEdge, bool
     {
         for( x = 0; x < width; x += WORKBLOCK_SIZE )
         {
-            S32 x2, y2;
-            S32 workwidth, workheight, fullworkwidth, fullworkheight;
+            sint x2, y2;
+            sint workwidth, workheight, fullworkwidth, fullworkheight;
             
             workwidth =  MIN( WORKBLOCK_SIZE, width  - x );
             workheight = MIN( WORKBLOCK_SIZE, height - y );
@@ -1320,7 +1320,7 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-void R_LightScaleTexture( U8* in, S32 inwidth, S32 inheight, bool only_gamma )
+void R_LightScaleTexture( uchar8* in, sint inwidth, sint inheight, bool only_gamma )
 {
     if( only_gamma )
     {
@@ -1328,8 +1328,8 @@ void R_LightScaleTexture( U8* in, S32 inwidth, S32 inheight, bool only_gamma )
     }
     else
     {
-        S32	i, c;
-        U8*	p;
+        sint	i, c;
+        uchar8*	p;
         
         p = in;
         
@@ -1352,14 +1352,14 @@ Operates in place, quartering the size of the texture
 Colors are gamma correct
 ================
 */
-static void R_MipMapsRGB( U8* in, S32 inWidth, S32 inHeight )
+static void R_MipMapsRGB( uchar8* in, sint inWidth, sint inHeight )
 {
-    S32 x, y, c, stride;
-    const U8* in2;
-    F32 total;
-    static F32 downmipSrgbLookup[256];
-    static S32 downmipSrgbLookupSet = 0;
-    U8* out = in;
+    sint x, y, c, stride;
+    const uchar8* in2;
+    float32 total;
+    static float32 downmipSrgbLookup[256];
+    static sint downmipSrgbLookupSet = 0;
+    uchar8* out = in;
     
     if( !downmipSrgbLookupSet )
     {
@@ -1379,7 +1379,7 @@ static void R_MipMapsRGB( U8* in, S32 inWidth, S32 inHeight )
             {
                 total  = ( downmipSrgbLookup[*( in )] + downmipSrgbLookup[*( in + 4 )] ) * 2.0f;
                 
-                *out++ = ( U8 )( powf( total, 1.0f / 2.2f ) * 255.0f );
+                *out++ = ( uchar8 )( powf( total, 1.0f / 2.2f ) * 255.0f );
             }
             *out++ = ( *( in ) + * ( in + 4 ) ) >> 1;
             in += 5;
@@ -1402,7 +1402,7 @@ static void R_MipMapsRGB( U8* in, S32 inWidth, S32 inHeight )
                 total = downmipSrgbLookup[*( in )]  + downmipSrgbLookup[*( in + 4 )]
                         + downmipSrgbLookup[*( in2 )] + downmipSrgbLookup[*( in2 + 4 )];
                         
-                *out++ = ( U8 )( powf( total, 1.0f / 2.2f ) * 255.0f );
+                *out++ = ( uchar8 )( powf( total, 1.0f / 2.2f ) * 255.0f );
             }
             
             *out++ = ( *( in ) + * ( in + 4 ) + * ( in2 ) + * ( in2 + 4 ) ) >> 2;
@@ -1412,12 +1412,12 @@ static void R_MipMapsRGB( U8* in, S32 inWidth, S32 inHeight )
 }
 
 
-static void R_MipMapNormalHeight( const U8* in, U8* out, S32 width, S32 height, bool swizzle )
+static void R_MipMapNormalHeight( const uchar8* in, uchar8* out, sint width, sint height, bool swizzle )
 {
-    S32		i, j;
-    S32		row;
-    S32 sx = swizzle ? 3 : 0;
-    S32 sa = swizzle ? 0 : 3;
+    sint		i, j;
+    sint		row;
+    sint sx = swizzle ? 3 : 0;
+    sint sa = swizzle ? 0 : 3;
     
     if( width == 1 && height == 1 )
     {
@@ -1473,11 +1473,11 @@ R_BlendOverTexture
 Apply a color blend over a set of pixels
 ==================
 */
-static void R_BlendOverTexture( U8* data, S32 pixelCount, U8 blend[4] )
+static void R_BlendOverTexture( uchar8* data, sint pixelCount, uchar8 blend[4] )
 {
-    S32		i;
-    S32		inverseAlpha;
-    S32		premult[3];
+    sint		i;
+    sint		inverseAlpha;
+    sint		premult[3];
     
     inverseAlpha = 255 - blend[3];
     premult[0] = blend[0] * blend[3];
@@ -1492,7 +1492,7 @@ static void R_BlendOverTexture( U8* data, S32 pixelCount, U8 blend[4] )
     }
 }
 
-U8	mipBlendColors[16][4] =
+uchar8	mipBlendColors[16][4] =
 {
     {0, 0, 0, 0},
     {255, 0, 0, 128},
@@ -1512,10 +1512,10 @@ U8	mipBlendColors[16][4] =
     {0, 0, 255, 128},
 };
 
-static void RawImage_SwizzleRA( U8* data, S32 width, S32 height )
+static void RawImage_SwizzleRA( uchar8* data, sint width, sint height )
 {
-    S32 i;
-    U8* ptr = data, swap;
+    sint i;
+    uchar8* ptr = data, swap;
     
     for( i = 0; i < width * height; i++, ptr += 4 )
     {
@@ -1533,12 +1533,12 @@ RawImage_ScaleToPower2
 
 ===============
 */
-static bool RawImage_ScaleToPower2( U8** data, S32* inout_width, S32* inout_height, imgType_t type, S32/*imgFlags_t*/ flags, U8** resampledBuffer )
+static bool RawImage_ScaleToPower2( uchar8** data, sint* inout_width, sint* inout_height, imgType_t type, sint/*imgFlags_t*/ flags, uchar8** resampledBuffer )
 {
-    S32 width =         *inout_width;
-    S32 height =        *inout_height;
-    S32 scaled_width;
-    S32 scaled_height;
+    sint width =         *inout_width;
+    sint height =        *inout_height;
+    sint scaled_width;
+    sint scaled_height;
     bool picmip = flags & IMGFLAG_PICMIP;
     bool mipmap = flags & IMGFLAG_MIPMAP;
     bool clampToEdge = flags & IMGFLAG_CLAMPTOEDGE;
@@ -1566,8 +1566,8 @@ static bool RawImage_ScaleToPower2( U8** data, S32* inout_width, S32* inout_heig
     if( picmip && data && resampledBuffer && r_imageUpsample->integer &&
             scaled_width < r_imageUpsampleMaxSize->integer && scaled_height < r_imageUpsampleMaxSize->integer )
     {
-        S32 finalwidth, finalheight;
-        //S32 startTime, endTime;
+        sint finalwidth, finalheight;
+        //sint startTime, endTime;
         
         //startTime = CL_ScaledMilliseconds();
         
@@ -1588,7 +1588,7 @@ static bool RawImage_ScaleToPower2( U8** data, S32* inout_width, S32* inout_heig
             finalheight >>= 1;
         }
         
-        *resampledBuffer = ( U8* )Hunk_AllocateTempMemory( finalwidth * finalheight * 4 );
+        *resampledBuffer = ( uchar8* )Hunk_AllocateTempMemory( finalwidth * finalheight * 4 );
         
         if( scaled_width != width || scaled_height != height )
             ResampleTexture( *data, width, height, *resampledBuffer, scaled_width, scaled_height );
@@ -1621,7 +1621,7 @@ static bool RawImage_ScaleToPower2( U8** data, S32* inout_width, S32* inout_heig
     {
         if( data && resampledBuffer )
         {
-            *resampledBuffer = ( U8* )Hunk_AllocateTempMemory( scaled_width * scaled_height * 4 );
+            *resampledBuffer = ( uchar8* )Hunk_AllocateTempMemory( scaled_width * scaled_height * 4 );
             ResampleTexture( *data, width, height, *resampledBuffer, scaled_width, scaled_height );
             *data = *resampledBuffer;
         }
@@ -1683,9 +1683,9 @@ static bool RawImage_ScaleToPower2( U8** data, S32* inout_width, S32* inout_heig
 }
 
 
-static bool RawImage_HasAlpha( const U8* scan, S32 numPixels )
+static bool RawImage_HasAlpha( const uchar8* scan, sint numPixels )
 {
-    S32 i;
+    sint i;
     
     if( !scan )
         return true;
@@ -1701,10 +1701,10 @@ static bool RawImage_HasAlpha( const U8* scan, S32 numPixels )
     return false;
 }
 
-static U32 RawImage_GetFormat( const U8* data, S32 numPixels, U32 picFormat, bool lightMap, imgType_t type, S32/*imgFlags_t*/ flags )
+static uint RawImage_GetFormat( const uchar8* data, sint numPixels, uint picFormat, bool lightMap, imgType_t type, sint/*imgFlags_t*/ flags )
 {
-    S32 samples = 3;
-    U32 internalFormat = GL_RGB;
+    sint samples = 3;
+    uint internalFormat = GL_RGB;
     bool forceNoCompression = ( flags & IMGFLAG_NO_COMPRESSION );
     bool normalmap = ( type == IMGTYPE_NORMAL || type == IMGTYPE_NORMALHEIGHT );
     
@@ -1858,10 +1858,10 @@ static U32 RawImage_GetFormat( const U8* data, S32 numPixels, U32 picFormat, boo
     return internalFormat;
 }
 
-static void CompressMonoBlock( U8 outdata[8], const U8 indata[16] )
+static void CompressMonoBlock( uchar8 outdata[8], const uchar8 indata[16] )
 {
-    S32 hi, lo, diff, bias, outbyte, shift, i;
-    U8* p = outdata;
+    sint hi, lo, diff, bias, outbyte, shift, i;
+    uchar8* p = outdata;
     
     hi = lo = indata[0];
     for( i = 1; i < 16; i++ )
@@ -1889,8 +1889,8 @@ static void CompressMonoBlock( U8 outdata[8], const U8 indata[16] )
     outbyte = shift = 0;
     for( i = 0; i < 16; i++ )
     {
-        const U8 fixIndex[8] = { 1, 7, 6, 5, 4, 3, 2, 0 };
-        U8 index = fixIndex[( indata[i] * 7 + bias ) / diff];
+        const uchar8 fixIndex[8] = { 1, 7, 6, 5, 4, 3, 2, 0 };
+        uchar8 index = fixIndex[( indata[i] * 7 + bias ) / diff];
         
         outbyte |= index << shift;
         shift += 3;
@@ -1903,30 +1903,30 @@ static void CompressMonoBlock( U8 outdata[8], const U8 indata[16] )
     }
 }
 
-static void RawImage_UploadToRgtc2Texture( U32 texture, S32 miplevel, S32 x, S32 y, S32 width, S32 height, U8* data )
+static void RawImage_UploadToRgtc2Texture( uint texture, sint miplevel, sint x, sint y, sint width, sint height, uchar8* data )
 {
-    S32 wBlocks, hBlocks, iy, ix, size;
-    U8* compressedData, *p = nullptr;
+    sint wBlocks, hBlocks, iy, ix, size;
+    uchar8* compressedData, *p = nullptr;
     
     wBlocks = ( width + 3 ) / 4;
     hBlocks = ( height + 3 ) / 4;
     size = wBlocks * hBlocks * 16;
     
-    p = compressedData = ( U8* )Hunk_AllocateTempMemory( size );
+    p = compressedData = ( uchar8* )Hunk_AllocateTempMemory( size );
     for( iy = 0; iy < height; iy += 4 )
     {
-        S32 oh = MIN( 4, height - iy );
+        sint oh = MIN( 4, height - iy );
         
         for( ix = 0; ix < width; ix += 4 )
         {
-            U8 workingData[16];
-            S32 component;
+            uchar8 workingData[16];
+            sint component;
             
-            S32 ow = MIN( 4, width - ix );
+            sint ow = MIN( 4, width - ix );
             
             for( component = 0; component < 2; component++ )
             {
-                S32 ox, oy;
+                sint ox, oy;
                 
                 for( oy = 0; oy < oh; oy++ )
                     for( ox = 0; ox < ow; ox++ )
@@ -1949,10 +1949,10 @@ static void RawImage_UploadToRgtc2Texture( U32 texture, S32 miplevel, S32 x, S32
     Hunk_FreeTempMemory( compressedData );
 }
 
-static S32 CalculateMipSize( S32 width, S32 height, U32 picFormat )
+static sint CalculateMipSize( sint width, sint height, uint picFormat )
 {
-    S32 numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
-    S32 numPixels = width * height;
+    sint numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
+    sint numPixels = width * height;
     
     switch( picFormat )
     {
@@ -1992,7 +1992,7 @@ static S32 CalculateMipSize( S32 width, S32 height, U32 picFormat )
 }
 
 
-static U32 PixelDataFormatFromInternalFormat( U32 internalFormat )
+static uint PixelDataFormatFromInternalFormat( uint internalFormat )
 {
     switch( internalFormat )
     {
@@ -2007,11 +2007,11 @@ static U32 PixelDataFormatFromInternalFormat( U32 internalFormat )
     }
 }
 
-static void RawImage_UploadTexture( U32 texture, U8* data, S32 x, S32 y, S32 width, S32 height, U32 target, U32 picFormat,
-                                    S32 numMips, U32 internalFormat, imgType_t type, S32/*imgFlags_t*/ flags, bool subtexture )
+static void RawImage_UploadTexture( uint texture, uchar8* data, sint x, sint y, sint width, sint height, uint target, uint picFormat,
+                                    sint numMips, uint internalFormat, imgType_t type, sint/*imgFlags_t*/ flags, bool subtexture )
 {
-    U32 dataFormat, dataType;
-    S32 size, miplevel;
+    uint dataFormat, dataType;
+    sint size, miplevel;
     bool rgtc = internalFormat == GL_COMPRESSED_RG_RGTC2;
     bool rgba8 = picFormat == GL_RGBA8 || picFormat == GL_SRGB8_ALPHA8_EXT;
     bool rgba = rgba8 || picFormat == GL_RGBA16;
@@ -2034,7 +2034,7 @@ static void RawImage_UploadTexture( U32 texture, U8* data, S32 x, S32 y, S32 wid
         else
         {
             if( rgba8 && miplevel != 0 && r_colorMipLevels->integer )
-                R_BlendOverTexture( ( U8* )data, width * height, mipBlendColors[miplevel] );
+                R_BlendOverTexture( ( uchar8* )data, width * height, mipBlendColors[miplevel] );
                 
             if( rgba8 && rgtc )
                 RawImage_UploadToRgtc2Texture( texture, miplevel, x, y, width, height, data );
@@ -2080,14 +2080,14 @@ Upload32
 
 ===============
 */
-static void Upload32( U8* data, S32 x, S32 y, S32 width, S32 height, U32 picFormat, S32 numMips, image_t* image, bool scaled )
+static void Upload32( uchar8* data, sint x, sint y, sint width, sint height, uint picFormat, sint numMips, image_t* image, bool scaled )
 {
-    S32 i, c;
-    U8*	scan;
+    sint i, c;
+    uchar8*	scan;
     
     imgType_t type = image->type;
-    S32/*imgFlags_t*/ flags = image->flags;
-    U32 internalFormat = image->internalFormat;
+    sint/*imgFlags_t*/ flags = image->flags;
+    uint internalFormat = image->internalFormat;
     bool rgba8 = picFormat == GL_RGBA8 || picFormat == GL_SRGB8_ALPHA8_EXT;
     bool mipmap = !!( flags & IMGFLAG_MIPMAP ) && ( rgba8 || numMips > 1 );
     bool cubemap = !!( flags & IMGFLAG_CUBEMAP );
@@ -2104,7 +2104,7 @@ static void Upload32( U8* data, S32 x, S32 y, S32 width, S32 height, U32 picForm
             {
                 for( i = 0; i < c; i++ )
                 {
-                    U8 luma = LUMA( scan[i * 4], scan[i * 4 + 1], scan[i * 4 + 2] );
+                    uchar8 luma = LUMA( scan[i * 4], scan[i * 4 + 1], scan[i * 4 + 2] );
                     scan[i * 4] = luma;
                     scan[i * 4 + 1] = luma;
                     scan[i * 4 + 2] = luma;
@@ -2114,7 +2114,7 @@ static void Upload32( U8* data, S32 x, S32 y, S32 width, S32 height, U32 picForm
             {
                 for( i = 0; i < c; i++ )
                 {
-                    F32 luma = LUMA( scan[i * 4], scan[i * 4 + 1], scan[i * 4 + 2] );
+                    float32 luma = LUMA( scan[i * 4], scan[i * 4 + 1], scan[i * 4 + 2] );
                     scan[i * 4] = LERP( scan[i * 4], luma, r_greyscale->value );
                     scan[i * 4 + 1] = LERP( scan[i * 4 + 1], luma, r_greyscale->value );
                     scan[i * 4 + 2] = LERP( scan[i * 4 + 2], luma, r_greyscale->value );
@@ -2134,7 +2134,7 @@ static void Upload32( U8* data, S32 x, S32 y, S32 width, S32 height, U32 picForm
     {
         for( i = 0; i < 6; i++ )
         {
-            S32 w2 = width, h2 = height;
+            sint w2 = width, h2 = height;
             RawImage_UploadTexture( image->texnum, data, x, y, width, height, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, picFormat, numMips, internalFormat, type, flags, false );
             for( c = numMips; c; c-- )
             {
@@ -2160,24 +2160,24 @@ R_CreateImage2
 This is the only way any image_t are created
 ================
 */
-image_t* R_CreateImage2( StringEntry name, U8* pic, S32 width, S32 height, U32 picFormat, S32 numMips, imgType_t type, S32/*imgFlags_t*/ flags, S32 internalFormat )
+image_t* R_CreateImage2( pointer name, uchar8* pic, sint width, sint height, uint picFormat, sint numMips, imgType_t type, sint/*imgFlags_t*/ flags, sint internalFormat )
 {
-    U8* resampledBuffer = nullptr;
+    uchar8* resampledBuffer = nullptr;
     image_t* image = nullptr;
     bool isLightmap = false, scaled = false;
-    S64 hash;
-    S32 glWrapClampMode, mipWidth, mipHeight, miplevel;
+    sint32 hash;
+    sint glWrapClampMode, mipWidth, mipHeight, miplevel;
     bool rgba8 = picFormat == GL_RGBA8 || picFormat == GL_SRGB8_ALPHA8_EXT;
     bool mipmap = !!( flags & IMGFLAG_MIPMAP );
     bool cubemap = !!( flags & IMGFLAG_CUBEMAP );
     bool picmip = !!( flags & IMGFLAG_PICMIP );
     bool lastMip;
-    U32 textureTarget = cubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
-    U32 dataFormat;
+    uint textureTarget = cubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+    uint dataFormat;
     
     if( strlen( name ) >= MAX_QPATH )
     {
-        Com_Error( ERR_DROP, "R_CreateImage: \"%s\" is too S64", name );
+        Com_Error( ERR_DROP, "R_CreateImage: \"%s\" is too sint32", name );
     }
     if( !strncmp( name, "*lightmap", 9 ) )
     {
@@ -2232,7 +2232,7 @@ image_t* R_CreateImage2( StringEntry name, U8* pic, S32 width, S32 height, U32 p
         {
             for( miplevel = r_picmip->integer; miplevel > 0 && numMips > 1; miplevel--, numMips-- )
             {
-                S32 size = CalculateMipSize( width, height, picFormat );
+                sint size = CalculateMipSize( width, height, picFormat );
                 width = MAX( 1, width >> 1 );
                 height = MAX( 1, height >> 1 );
                 pic += size;
@@ -2243,7 +2243,7 @@ image_t* R_CreateImage2( StringEntry name, U8* pic, S32 width, S32 height, U32 p
     image->uploadWidth = width;
     image->uploadHeight = height;
     
-    S32 format = GL_BGRA;
+    sint format = GL_BGRA;
     if( internalFormat == GL_DEPTH_COMPONENT24 )
     {
         format = GL_DEPTH_COMPONENT;
@@ -2259,7 +2259,7 @@ image_t* R_CreateImage2( StringEntry name, U8* pic, S32 width, S32 height, U32 p
         lastMip = !mipmap || ( mipWidth == 1 && mipHeight == 1 );
         if( cubemap )
         {
-            S32 i;
+            sint i;
             
             for( i = 0; i < 6; i++ )
                 qglTextureImage2DEXT( image->texnum, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, miplevel, internalFormat, mipWidth, mipHeight, 0, dataFormat, GL_UNSIGNED_BYTE, nullptr );
@@ -2291,7 +2291,7 @@ image_t* R_CreateImage2( StringEntry name, U8* pic, S32 width, S32 height, U32 p
         
     if( glConfig.textureFilterAnisotropic && !cubemap )
         qglTextureParameteriEXT( image->texnum, textureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT,
-                                 mipmap ? ( S32 )Com_Clamp( 1, glConfig.maxAnisotropy, r_ext_max_anisotropy->integer ) : 1 );
+                                 mipmap ? ( sint )Com_Clamp( 1, glConfig.maxAnisotropy, r_ext_max_anisotropy->integer ) : 1 );
                                  
     switch( internalFormat )
     {
@@ -2328,13 +2328,13 @@ R_CreateImage
 Wrapper for R_CreateImage2(), for the old parameters.
 ================
 */
-image_t* R_CreateImage( StringEntry name, U8* pic, S32 width, S32 height, imgType_t type, S32/*imgFlags_t*/ flags, S32 internalFormat )
+image_t* R_CreateImage( pointer name, uchar8* pic, sint width, sint height, imgType_t type, sint/*imgFlags_t*/ flags, sint internalFormat )
 {
     return R_CreateImage2( name, pic, width, height, GL_RGBA8, 0, type, flags, internalFormat );
 }
 
 
-void R_UpdateSubImage( image_t* image, U8* pic, S32 x, S32 y, S32 width, S32 height, U32 picFormat )
+void R_UpdateSubImage( image_t* image, uchar8* pic, sint x, sint y, sint width, sint height, uint picFormat )
 {
     Upload32( pic, x, y, width, height, picFormat, 0, image, false );
 }
@@ -2342,12 +2342,12 @@ void R_UpdateSubImage( image_t* image, U8* pic, S32 x, S32 y, S32 width, S32 hei
 //===================================================================
 
 // Prototype for dds loader function which isn't common to both renderers
-void R_LoadDDS( StringEntry filename, U8** pic, S32* width, S32* height, U32* picFormat, S32* numMips );
+void R_LoadDDS( pointer filename, uchar8** pic, sint* width, sint* height, uint* picFormat, sint* numMips );
 
 typedef struct
 {
-    StringEntry ext;
-    void ( *ImageLoader )( StringEntry, U8**, S32*, S32* );
+    pointer ext;
+    void ( *ImageLoader )( pointer, uchar8**, sint*, sint* );
 } imageExtToLoaderMap_t;
 
 // Note that the ordering indicates the order of preference used
@@ -2360,7 +2360,7 @@ static imageExtToLoaderMap_t imageLoaders[ ] =
     { "jpeg", R_LoadJPG }
 };
 
-static S32 numImageLoaders = ARRAY_LEN( imageLoaders );
+static sint numImageLoaders = ARRAY_LEN( imageLoaders );
 
 /*
 =================
@@ -2370,14 +2370,14 @@ Loads any of the supported image types into a cannonical
 32 bit format.
 =================
 */
-void R_LoadImage( StringEntry name, U8** pic, S32* width, S32* height, U32* picFormat, S32* numMips )
+void R_LoadImage( pointer name, uchar8** pic, sint* width, sint* height, uint* picFormat, sint* numMips )
 {
     bool orgNameFailed = false;
-    S32 orgLoader = -1;
-    S32 i;
-    UTF8 localName[ MAX_QPATH ];
-    StringEntry ext;
-    StringEntry altName;
+    sint orgLoader = -1;
+    sint i;
+    valueType localName[ MAX_QPATH ];
+    pointer ext;
+    pointer altName;
     
     *pic = nullptr;
     *width = 0;
@@ -2392,7 +2392,7 @@ void R_LoadImage( StringEntry name, U8** pic, S32* width, S32* height, U32* picF
     // If compressed textures are enabled, try loading a DDS first, it'll load fastest
     if( r_ext_compressed_textures->integer )
     {
-        UTF8 ddsName[MAX_QPATH];
+        valueType ddsName[MAX_QPATH];
         
         COM_StripExtension3( name, ddsName, MAX_QPATH );
         Q_strcat( ddsName, MAX_QPATH, ".dds" );
@@ -2470,15 +2470,15 @@ Finds or loads the given image.
 Returns nullptr if it fails, not a default image.
 ==============
 */
-image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ flags )
+image_t*	R_FindImageFile( pointer name, imgType_t type, sint/*imgFlags_t*/ flags )
 {
     image_t*	image;
-    S32		width, height;
-    U8*	pic;
-    U32  picFormat;
-    S32 picNumMips;
-    S64	hash;
-    S32/*imgFlags_t*/ checkFlagsTrue, checkFlagsFalse;
+    sint		width, height;
+    uchar8*	pic;
+    uint  picFormat;
+    sint picNumMips;
+    sint32	hash;
+    sint/*imgFlags_t*/ checkFlagsTrue, checkFlagsFalse;
     
     if( !name )
     {
@@ -2520,10 +2520,10 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
     if( r_normalMapping->integer && ( picFormat == GL_RGBA8 ) && ( type == IMGTYPE_COLORALPHA ) &&
             ( ( flags & checkFlagsTrue ) == checkFlagsTrue ) && !( flags & checkFlagsFalse ) )
     {
-        UTF8 normalName[MAX_QPATH];
+        valueType normalName[MAX_QPATH];
         image_t* normalImage;
-        S32 normalWidth, normalHeight;
-        S32/*imgFlags_t*/ normalFlags;
+        sint normalWidth, normalHeight;
+        sint/*imgFlags_t*/ normalFlags;
         
         normalFlags = ( flags & ~IMGFLAG_GENNORMALMAP ) | IMGFLAG_NOLIGHTSCALE;
         
@@ -2536,12 +2536,12 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
         // if not, generate it
         if( normalImage == nullptr )
         {
-            U8* normalPic;
-            S32 x, y;
+            uchar8* normalPic;
+            sint x, y;
             
             normalWidth = width;
             normalHeight = height;
-            normalPic = ( U8* )CL_RefMalloc( width * height * 4 );
+            normalPic = ( uchar8* )CL_RefMalloc( width * height * 4 );
             RGBAtoNormal( pic, normalPic, width, height, flags & IMGFLAG_CLAMPTOEDGE );
             
 #if 1
@@ -2549,11 +2549,11 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
             RGBAtoYCoCgA( pic, pic, width, height );
             for( y = 0; y < height; y++ )
             {
-                U8* picbyte  = pic       + y * width * 4;
-                U8* normbyte = normalPic + y * width * 4;
+                uchar8* picbyte  = pic       + y * width * 4;
+                uchar8* normbyte = normalPic + y * width * 4;
                 for( x = 0; x < width; x++ )
                 {
-                    S32 div = MAX( normbyte[2] - 127, 16 );
+                    sint div = MAX( normbyte[2] - 127, 16 );
                     picbyte[0] = CLAMP( picbyte[0] * 128 / div, 0, 255 );
                     picbyte  += 4;
                     normbyte += 4;
@@ -2563,22 +2563,22 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
 #else
             // Blur original image's luma to work with the normal map
             {
-                U8* blurPic;
+                uchar8* blurPic;
             
                 RGBAtoYCoCgA( pic, pic, width, height );
                 blurPic = CL_RefMalloc( width * height );
             
                 for( y = 1; y < height - 1; y++ )
                 {
-                    U8* picbyte  = pic     + y * width * 4;
-                    U8* blurbyte = blurPic + y * width;
+                    uchar8* picbyte  = pic     + y * width * 4;
+                    uchar8* blurbyte = blurPic + y * width;
             
                     picbyte += 4;
                     blurbyte += 1;
             
                     for( x = 1; x < width - 1; x++ )
                     {
-                        S32 result;
+                        sint result;
             
                         result = *( picbyte - ( width + 1 ) * 4 ) + *( picbyte - width * 4 ) + *( picbyte - ( width - 1 ) * 4 ) +
                                  *( picbyte -          1  * 4 ) + *( picbyte ) + *( picbyte +          1  * 4 ) +
@@ -2596,8 +2596,8 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
             
                 for( y = 1; y < height - 1; y++ )
                 {
-                    U8* picbyte  = pic     + y * width * 4;
-                    U8* blurbyte = blurPic + y * width;
+                    uchar8* picbyte  = pic     + y * width * 4;
+                    uchar8* blurbyte = blurPic + y * width;
             
                     picbyte += 4;
                     blurbyte += 1;
@@ -2624,8 +2624,8 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
     // force mipmaps off if image is compressed but doesn't have enough mips
     if( ( flags & IMGFLAG_MIPMAP ) && picFormat != GL_RGBA8 && picFormat != GL_SRGB8_ALPHA8_EXT )
     {
-        S32 wh = MAX( width, height );
-        S32 neededMips = 0;
+        sint wh = MAX( width, height );
+        sint neededMips = 0;
         while( wh )
         {
             neededMips++;
@@ -2635,7 +2635,7 @@ image_t*	R_FindImageFile( StringEntry name, imgType_t type, S32/*imgFlags_t*/ fl
             flags &= ~IMGFLAG_MIPMAP;
     }
     
-    image = R_CreateImage2( const_cast< UTF8* >( name ), pic, width, height, picFormat, picNumMips, type, flags, 0 );
+    image = R_CreateImage2( const_cast< valueType* >( name ), pic, width, height, picFormat, picNumMips, type, flags, 0 );
     Z_Free( pic );
     return image;
 }
@@ -2649,16 +2649,16 @@ R_CreateDlightImage
 #define	DLIGHT_SIZE	16
 static void R_CreateDlightImage( void )
 {
-    S32		x, y;
-    U8	data[DLIGHT_SIZE][DLIGHT_SIZE][4];
-    S32		b;
+    sint		x, y;
+    uchar8	data[DLIGHT_SIZE][DLIGHT_SIZE][4];
+    sint		b;
     
     // make a centered inverse-square falloff blob for dynamic lighting
     for( x = 0 ; x < DLIGHT_SIZE ; x++ )
     {
         for( y = 0 ; y < DLIGHT_SIZE ; y++ )
         {
-            F32	d;
+            float32	d;
             
             d = ( DLIGHT_SIZE / 2 - 0.5f - x ) * ( DLIGHT_SIZE / 2 - 0.5f - x ) +
                 ( DLIGHT_SIZE / 2 - 0.5f - y ) * ( DLIGHT_SIZE / 2 - 0.5f - y );
@@ -2677,7 +2677,7 @@ static void R_CreateDlightImage( void )
             data[y][x][3] = 255;
         }
     }
-    tr.dlightImage = R_CreateImage( "*dlight", ( U8* )data, DLIGHT_SIZE, DLIGHT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
+    tr.dlightImage = R_CreateImage( "*dlight", ( uchar8* )data, DLIGHT_SIZE, DLIGHT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
 }
 
 
@@ -2688,15 +2688,15 @@ R_InitFogTable
 */
 void R_InitFogTable( void )
 {
-    S32		i;
-    F32	d;
-    F32	exp;
+    sint		i;
+    float32	d;
+    float32	exp;
     
     exp = 0.5;
     
     for( i = 0 ; i < FOG_TABLE_SIZE ; i++ )
     {
-        d = pow( ( F32 )i / ( FOG_TABLE_SIZE - 1 ), exp );
+        d = pow( ( float32 )i / ( FOG_TABLE_SIZE - 1 ), exp );
         
         tr.fogTable[i] = d;
     }
@@ -2711,9 +2711,9 @@ This is called for each texel of the fog texture on startup
 and for each vertex of transparent shaders in fog dynamically
 ================
 */
-F32	R_FogFactor( F32 s, F32 t )
+float32	R_FogFactor( float32 s, float32 t )
 {
-    F32	d;
+    float32	d;
     
     s -= 1.0 / 512;
     if( s < 0 )
@@ -2737,7 +2737,7 @@ F32	R_FogFactor( F32 s, F32 t )
         s = 1.0;
     }
     
-    d = tr.fogTable[( S32 )( s * ( FOG_TABLE_SIZE - 1 ) ) ];
+    d = tr.fogTable[( sint )( s * ( FOG_TABLE_SIZE - 1 ) ) ];
     
     return d;
 }
@@ -2751,11 +2751,11 @@ R_CreateFogImage
 #define	FOG_T	32
 static void R_CreateFogImage( void )
 {
-    S32		x, y;
-    U8*	data = nullptr;
-    F32	d;
+    sint		x, y;
+    uchar8*	data = nullptr;
+    float32	d;
     
-    data = ( U8* )Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
+    data = ( uchar8* )Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
     
     // S is distance, T is depth
     for( x = 0 ; x < FOG_S ; x++ )
@@ -2770,7 +2770,7 @@ static void R_CreateFogImage( void )
             data[( y * FOG_S + x ) * 4 + 3] = 255 * d;
         }
     }
-    tr.fogImage = R_CreateImage( "*fog", ( U8* )data, FOG_S, FOG_T, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
+    tr.fogImage = R_CreateImage( "*fog", ( uchar8* )data, FOG_S, FOG_T, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
     Hunk_FreeTempMemory( data );
 }
 
@@ -2787,58 +2787,58 @@ static void R_CreateEnvBrdfLUT( void )
     if( !r_cubeMapping->integer )
         return;
         
-    S32		x, y;
+    sint		x, y;
     uint16_t	data[LUT_WIDTH][LUT_HEIGHT][4];
-    S32		b;
+    sint		b;
     
-    F32 const MATH_PI = 3.14159f;
-    U32 const sampleNum = 1024;
+    float32 const MATH_PI = 3.14159f;
+    uint const sampleNum = 1024;
     
-    for( U32 y = 0; y < LUT_HEIGHT; ++y )
+    for( uint y = 0; y < LUT_HEIGHT; ++y )
     {
-        F32 const ndotv = ( y + 0.5f ) / LUT_HEIGHT;
+        float32 const ndotv = ( y + 0.5f ) / LUT_HEIGHT;
         
-        for( U32 x = 0; x < LUT_WIDTH; ++x )
+        for( uint x = 0; x < LUT_WIDTH; ++x )
         {
-            F32 const gloss = ( x + 0.5f ) / LUT_WIDTH;
-            F32 const roughness = powf( 1.0f - gloss, 2.0f );
+            float32 const gloss = ( x + 0.5f ) / LUT_WIDTH;
+            float32 const roughness = powf( 1.0f - gloss, 2.0f );
             
-            F32 const vx = sqrtf( 1.0f - ndotv * ndotv );
-            F32 const vy = 0.0f;
-            F32 const vz = ndotv;
+            float32 const vx = sqrtf( 1.0f - ndotv * ndotv );
+            float32 const vy = 0.0f;
+            float32 const vz = ndotv;
             
-            F32 scale = 0.0f;
-            F32 bias = 0.0f;
+            float32 scale = 0.0f;
+            float32 bias = 0.0f;
             
-            for( U32 i = 0; i < sampleNum; ++i )
+            for( uint i = 0; i < sampleNum; ++i )
             {
-                F32 const e1 = ( F32 )i / sampleNum;
-                F32 const e2 = ( F32 )( ( F64 )ReverseBits( i ) / ( F64 )0x100000000LL );
+                float32 const e1 = ( float32 )i / sampleNum;
+                float32 const e2 = ( float32 )( ( float64 )ReverseBits( i ) / ( float64 )0x100000000LL );
                 
-                F32 const phi = 2.0f * MATH_PI * e1;
-                F32 const cosPhi = cosf( phi );
-                F32 const sinPhi = sinf( phi );
-                F32 const cosTheta = sqrtf( ( 1.0f - e2 ) / ( 1.0f + ( roughness * roughness - 1.0f ) * e2 ) );
-                F32 const sinTheta = sqrtf( 1.0f - cosTheta * cosTheta );
+                float32 const phi = 2.0f * MATH_PI * e1;
+                float32 const cosPhi = cosf( phi );
+                float32 const sinPhi = sinf( phi );
+                float32 const cosTheta = sqrtf( ( 1.0f - e2 ) / ( 1.0f + ( roughness * roughness - 1.0f ) * e2 ) );
+                float32 const sinTheta = sqrtf( 1.0f - cosTheta * cosTheta );
                 
-                F32 const hx = sinTheta * cosf( phi );
-                F32 const hy = sinTheta * sinf( phi );
-                F32 const hz = cosTheta;
+                float32 const hx = sinTheta * cosf( phi );
+                float32 const hy = sinTheta * sinf( phi );
+                float32 const hz = cosTheta;
                 
-                F32 const vdh = vx * hx + vy * hy + vz * hz;
-                F32 const lx = 2.0f * vdh * hx - vx;
-                F32 const ly = 2.0f * vdh * hy - vy;
-                F32 const lz = 2.0f * vdh * hz - vz;
+                float32 const vdh = vx * hx + vy * hy + vz * hz;
+                float32 const lx = 2.0f * vdh * hx - vx;
+                float32 const ly = 2.0f * vdh * hy - vy;
+                float32 const lz = 2.0f * vdh * hz - vz;
                 
-                F32 const ndotl = MAX( lz, 0.0f );
-                F32 const ndoth = MAX( hz, 0.0f );
-                F32 const vdoth = MAX( vdh, 0.0f );
+                float32 const ndotl = MAX( lz, 0.0f );
+                float32 const ndoth = MAX( hz, 0.0f );
+                float32 const vdoth = MAX( vdh, 0.0f );
                 
                 if( ndotl > 0.0f )
                 {
-                    F32 const gsmith = GSmithCorrelated( roughness, ndotv, ndotl );
-                    F32 const ndotlVisPDF = ndotl * gsmith * ( 4.0f * vdoth / ndoth );
-                    F32 const fc = powf( 1.0f - vdoth, 5.0f );
+                    float32 const gsmith = GSmithCorrelated( roughness, ndotv, ndotl );
+                    float32 const ndotlVisPDF = ndotl * gsmith * ( 4.0f * vdoth / ndoth );
+                    float32 const fc = powf( 1.0f - vdoth, 5.0f );
                     
                     scale += ndotlVisPDF * ( 1.0f - fc );
                     bias += ndotlVisPDF * fc;
@@ -2854,11 +2854,11 @@ static void R_CreateEnvBrdfLUT( void )
         }
     }
     
-    tr.envBrdfImage = R_CreateImage( "*envBrdfLUT", ( U8* )data, 128, 128, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA16F );
+    tr.envBrdfImage = R_CreateImage( "*envBrdfLUT", ( uchar8* )data, 128, 128, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA16F );
     return;
 }
 
-static S32 Hex( UTF8 c )
+static sint Hex( valueType c )
 {
     if( c >= '0' && c <= '9' )
     {
@@ -2885,19 +2885,19 @@ Create solid color texture from following input formats (hex):
 ==================
 */
 #define	DEFAULT_SIZE 16
-static bool R_BuildDefaultImage( StringEntry format )
+static bool R_BuildDefaultImage( pointer format )
 {
-    U8 data[DEFAULT_SIZE][DEFAULT_SIZE][4];
-    U8 color[4];
-    S32 i, len, hex[6];
-    S32 x, y;
+    uchar8 data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+    uchar8 color[4];
+    sint i, len, hex[6];
+    sint x, y;
     
     if( *format++ != '#' )
     {
         return false;
     }
     
-    len = ( S32 )strlen( format );
+    len = ( sint )strlen( format );
     if( len <= 0 || len > 6 )
     {
         return false;
@@ -2941,7 +2941,7 @@ static bool R_BuildDefaultImage( StringEntry format )
         }
     }
     
-    tr.defaultImage = R_CreateImage( "*default", ( U8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
+    tr.defaultImage = R_CreateImage( "*default", ( uchar8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
     
     return true;
 }
@@ -2954,8 +2954,8 @@ R_CreateDefaultImage
 #define	DEFAULT_SIZE	128
 static void R_CreateDefaultImage( void )
 {
-    S32 x, flags = IMGFLAG_MIPMAP | IMGFLAG_PICMIP;
-    U8 data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+    sint x, flags = IMGFLAG_MIPMAP | IMGFLAG_PICMIP;
+    uchar8 data[DEFAULT_SIZE][DEFAULT_SIZE][4];
     
     if( r_defaultImage->string[0] )
     {
@@ -2996,7 +2996,7 @@ static void R_CreateDefaultImage( void )
                     data[x][DEFAULT_SIZE - 1][3] = 255;
     }
     
-    tr.defaultImage = R_CreateImage( "*default", ( U8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
+    tr.defaultImage = R_CreateImage( "*default", ( uchar8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
 }
 
 
@@ -3007,14 +3007,14 @@ R_CreateBuiltinImages
 */
 void R_CreateBuiltinImages( void )
 {
-    S32		x, y;
-    U8	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+    sint		x, y;
+    uchar8	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
     
     R_CreateDefaultImage();
     
     // we use a solid white image instead of disabling texturing
     ::memset( data, 255, sizeof( data ) );
-    tr.whiteImage = R_CreateImage( "*white", ( U8* )data, 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0 );
+    tr.whiteImage = R_CreateImage( "*white", ( uchar8* )data, 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0 );
     
     if( r_dlightMode->integer >= 2 )
     {
@@ -3037,13 +3037,13 @@ void R_CreateBuiltinImages( void )
         }
     }
     
-    tr.identityLightImage = R_CreateImage( "*identityLight", ( U8* )data, 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0 );
+    tr.identityLightImage = R_CreateImage( "*identityLight", ( uchar8* )data, 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0 );
     
     
     for( x = 0; x < 32; x++ )
     {
         // scratchimage is usually used for cinematic drawing
-        tr.scratchImage[x] = R_CreateImage( "*scratch", ( U8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_PICMIP | IMGFLAG_CLAMPTOEDGE, 0 );
+        tr.scratchImage[x] = R_CreateImage( "*scratch", ( uchar8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_PICMIP | IMGFLAG_CLAMPTOEDGE, 0 );
     }
     
     R_CreateDlightImage();
@@ -3052,7 +3052,7 @@ void R_CreateBuiltinImages( void )
     
     if( glRefConfig.framebufferObject )
     {
-        S32 width, height, hdrFormat, rgbFormat;
+        sint width, height, hdrFormat, rgbFormat;
         
         width = glConfig.vidWidth;
         height = glConfig.vidHeight;
@@ -3100,13 +3100,13 @@ void R_CreateBuiltinImages( void )
         tr.anamorphicRenderFBOImage[2] = R_CreateImage( "_anamorphic2", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         
         {
-            U8* p;
+            uchar8* p;
             
             data[0][0][0] = 0;
             data[0][0][1] = 0.45f * 255;
             data[0][0][2] = 255;
             data[0][0][3] = 255;
-            p = ( U8* )data;
+            p = ( uchar8* )data;
             
             tr.calcLevelsImage =   R_CreateImage( "*calcLevels",    p, 1, 1, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
             tr.targetLevelsImage = R_CreateImage( "*targetLevels",  p, 1, 1, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
@@ -3166,7 +3166,7 @@ R_SetColorMappings
 */
 void R_SetColorMappings( void )
 {
-    S32		i, j;
+    sint		i, j;
     
     // setup the overbright lighting
     tr.overbrightBits = r_overBrightBits->integer;
@@ -3238,7 +3238,7 @@ R_DeleteTextures
 */
 void R_DeleteTextures( void )
 {
-    S32		i;
+    sint		i;
     
     for( i = 0; i < tr.numImages ; i++ )
     {
@@ -3267,11 +3267,11 @@ This is unfortunate, but the skin files aren't
 compatable with our normal parsing rules.
 ==================
 */
-static StringEntry CommaParse( UTF8** data_p )
+static pointer CommaParse( valueType** data_p )
 {
-    S32 c = 0, len;
-    UTF8* data;
-    static	UTF8 com_token[MAX_TOKEN_CHARS];
+    sint c = 0, len;
+    valueType* data;
+    static	valueType com_token[MAX_TOKEN_CHARS];
     
     data = *data_p;
     len = 0;
@@ -3342,7 +3342,7 @@ static StringEntry CommaParse( UTF8** data_p )
             if( c == '\"' || !c )
             {
                 com_token[len] = 0;
-                *data_p = const_cast< UTF8* >( data );
+                *data_p = const_cast< valueType* >( data );
                 return com_token;
             }
             if( len < MAX_TOKEN_CHARS - 1 )
@@ -3368,7 +3368,7 @@ static StringEntry CommaParse( UTF8** data_p )
     
     com_token[len] = 0;
     
-    *data_p = const_cast< UTF8* >( data );
+    *data_p = const_cast< valueType* >( data );
     return com_token;
 }
 
@@ -3378,7 +3378,7 @@ static StringEntry CommaParse( UTF8** data_p )
 idRenderSystemLocal::RegisterSkin
 ===============
 */
-qhandle_t idRenderSystemLocal::RegisterSkin( StringEntry name )
+qhandle_t idRenderSystemLocal::RegisterSkin( pointer name )
 {
     skinSurface_t parseSurfaces[MAX_SKIN_SURFACES];
     qhandle_t	hSkin;
@@ -3386,12 +3386,12 @@ qhandle_t idRenderSystemLocal::RegisterSkin( StringEntry name )
     skinSurface_t*	surf;
     union
     {
-        UTF8* c;
+        valueType* c;
         void* v;
     } text;
-    UTF8*		text_p;
-    StringEntry	token;
-    UTF8		surfName[MAX_QPATH];
+    valueType*		text_p;
+    pointer	token;
+    valueType		surfName[MAX_QPATH];
     
     if( !name || !name[0] )
     {
@@ -3450,7 +3450,7 @@ qhandle_t idRenderSystemLocal::RegisterSkin( StringEntry name )
         return 0;
     }
     
-    S32 totalSurfaces = 0;
+    sint totalSurfaces = 0;
     text_p = text.c;
     while( text_p && *text_p )
     {
@@ -3551,7 +3551,7 @@ R_SkinList_f
 */
 void	R_SkinList_f( void )
 {
-    S32			i, j;
+    sint			i, j;
     skin_t*		skin;
     
     CL_RefPrintf( PRINT_ALL, "------------------\n" );

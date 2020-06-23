@@ -45,15 +45,15 @@ Out must have space for two more vertexes than in
 #define	SIDE_BACK	1
 #define	SIDE_ON		2
 
-static void R_ChopPolyBehindPlane( S32 numInPoints, vec3_t inPoints[MAX_VERTS_ON_POLY], S32* numOutPoints, vec3_t outPoints[MAX_VERTS_ON_POLY], vec3_t normal, vec_t dist, vec_t epsilon )
+static void R_ChopPolyBehindPlane( sint numInPoints, vec3_t inPoints[MAX_VERTS_ON_POLY], sint* numOutPoints, vec3_t outPoints[MAX_VERTS_ON_POLY], vec3_t normal, vec_t dist, vec_t epsilon )
 {
-    F32		dists[MAX_VERTS_ON_POLY + 4] = { 0 };
-    S32			sides[MAX_VERTS_ON_POLY + 4] = { 0 };
-    S32			counts[3];
-    F32		dot;
-    S32			i, j;
-    F32*		p1, *p2, *clip;
-    F32		d;
+    float32		dists[MAX_VERTS_ON_POLY + 4] = { 0 };
+    sint			sides[MAX_VERTS_ON_POLY + 4] = { 0 };
+    sint			counts[3];
+    float32		dot;
+    sint			i, j;
+    float32*		p1, *p2, *clip;
+    float32		d;
     
     // don't clip if it might overflow
     if( numInPoints >= MAX_VERTS_ON_POLY - 2 )
@@ -154,11 +154,11 @@ R_BoxSurfaces_r
 
 =================
 */
-void R_BoxSurfaces_r( mnode_t* node, vec3_t mins, vec3_t maxs, surfaceType_t** list, S32 listsize, S32* listlength, vec3_t dir )
+void R_BoxSurfaces_r( mnode_t* node, vec3_t mins, vec3_t maxs, surfaceType_t** list, sint listsize, sint* listlength, vec3_t dir )
 {
-    S32			s, c;
+    sint			s, c;
     msurface_t*	surf;
-    S32* mark;
+    sint* mark;
     
     // do the tail recursion in a loop
     while( node->contents == -1 )
@@ -184,7 +184,7 @@ void R_BoxSurfaces_r( mnode_t* node, vec3_t mins, vec3_t maxs, surfaceType_t** l
     c = node->nummarksurfaces;
     while( c-- )
     {
-        S32* surfViewCount;
+        sint* surfViewCount;
         //
         if( *listlength >= listsize ) break;
         //
@@ -232,9 +232,9 @@ R_AddMarkFragments
 
 =================
 */
-static void R_AddMarkFragments( S32 numClipPoints, vec3_t clipPoints[2][MAX_VERTS_ON_POLY], S32 numPlanes, vec3_t* normals, F32* dists, S32 maxPoints, vec3_t pointBuffer, S32 maxFragments, markFragment_t* fragmentBuffer, S32* returnedPoints, S32* returnedFragments, vec3_t mins, vec3_t maxs )
+static void R_AddMarkFragments( sint numClipPoints, vec3_t clipPoints[2][MAX_VERTS_ON_POLY], sint numPlanes, vec3_t* normals, float32* dists, sint maxPoints, vec3_t pointBuffer, sint maxFragments, markFragment_t* fragmentBuffer, sint* returnedPoints, sint* returnedFragments, vec3_t mins, vec3_t maxs )
 {
-    S32 pingPong, i;
+    sint pingPong, i;
     markFragment_t*	mf;
     
     // chop the surface by all the bounding planes of the to be projected polygon
@@ -266,7 +266,7 @@ static void R_AddMarkFragments( S32 numClipPoints, vec3_t clipPoints[2][MAX_VERT
     /*
     // all the clip points should be within the bounding box
     for ( i = 0 ; i < numClipPoints ; i++ ) {
-    	S32 j;
+    	sint j;
     	for ( j = 0 ; j < 3 ; j++ ) {
     		if (clipPoints[pingPong][i][j] < mins[j] - 0.5) break;
     		if (clipPoints[pingPong][i][j] > maxs[j] + 0.5) break;
@@ -290,21 +290,21 @@ static void R_AddMarkFragments( S32 numClipPoints, vec3_t clipPoints[2][MAX_VERT
 idRenderSystemLocal::MarkFragments
 =================
 */
-S32 idRenderSystemLocal::MarkFragments( S32 numPoints, const vec3_t* points, const vec3_t projection, S32 maxPoints, vec3_t pointBuffer, S32 maxFragments, markFragment_t* fragmentBuffer )
+sint idRenderSystemLocal::MarkFragments( sint numPoints, const vec3_t* points, const vec3_t projection, sint maxPoints, vec3_t pointBuffer, sint maxFragments, markFragment_t* fragmentBuffer )
 {
-    S32				numsurfaces, numPlanes;
-    S32				i, j, k, m, n;
+    sint				numsurfaces, numPlanes;
+    sint				i, j, k, m, n;
     surfaceType_t*	surfaces[64];
     vec3_t			mins, maxs;
-    S32				returnedFragments;
-    S32				returnedPoints;
+    sint				returnedFragments;
+    sint				returnedPoints;
     vec3_t			normals[MAX_VERTS_ON_POLY + 2];
-    F32			dists[MAX_VERTS_ON_POLY + 2];
+    float32			dists[MAX_VERTS_ON_POLY + 2];
     vec3_t			clipPoints[2][MAX_VERTS_ON_POLY];
-    S32				numClipPoints;
-    F32*			v;
+    sint				numClipPoints;
+    float32*			v;
     srfBspSurface_t*	cv;
-    U32*		tri;
+    uint*		tri;
     srfVert_t*		dv;
     vec3_t			normal;
     vec3_t			projectionDir;

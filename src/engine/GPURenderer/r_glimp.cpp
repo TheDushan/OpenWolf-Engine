@@ -29,8 +29,8 @@
 
 #include <framework/precompiled.h>
 
-S32 qglMajorVersion, qglMinorVersion;
-S32 qglesMajorVersion, qglesMinorVersion;
+sint qglMajorVersion, qglMinorVersion;
+sint qglesMajorVersion, qglesMinorVersion;
 
 typedef enum
 {
@@ -50,10 +50,10 @@ convar_t* r_allowResize; // make window resizable
 convar_t* r_centerWindow;
 convar_t* r_sdlDriver;
 
-void ( APIENTRYP qglActiveTextureARB )( U32 texture );
-void ( APIENTRYP qglClientActiveTextureARB )( U32 texture );
-void ( APIENTRYP qglMultiTexCoord2fARB )( U32 target, F32 s, F32 t );
-void ( APIENTRYP qglLockArraysEXT )( S32 first, S32 count );
+void ( APIENTRYP qglActiveTextureARB )( uint texture );
+void ( APIENTRYP qglClientActiveTextureARB )( uint texture );
+void ( APIENTRYP qglMultiTexCoord2fARB )( uint target, float32 s, float32 t );
+void ( APIENTRYP qglLockArraysEXT )( sint first, sint count );
 void ( APIENTRYP qglUnlockArraysEXT )( void );
 
 #define GLE(ret, name, ...) name##proc * qgl##name;
@@ -92,7 +92,7 @@ void GLimp_Minimize( void )
 GLimp_LogComment
 ===============
 */
-void GLimp_LogComment( StringEntry comment )
+void GLimp_LogComment( pointer comment )
 {
 }
 
@@ -101,18 +101,18 @@ void GLimp_LogComment( StringEntry comment )
 GLimp_CompareModes
 ===============
 */
-static S32 GLimp_CompareModes( const void* a, const void* b )
+static sint GLimp_CompareModes( const void* a, const void* b )
 {
-    const F32 ASPECT_EPSILON = 0.001f;
+    const float32 ASPECT_EPSILON = 0.001f;
     SDL_Rect* modeA = ( SDL_Rect* )a;
     SDL_Rect* modeB = ( SDL_Rect* )b;
-    F32 aspectA = ( F32 )modeA->w / ( F32 )modeA->h;
-    F32 aspectB = ( F32 )modeB->w / ( F32 )modeB->h;
-    S32 areaA = modeA->w * modeA->h;
-    S32 areaB = modeB->w * modeB->h;
-    F32 aspectDiffA = fabs( aspectA - displayAspect );
-    F32 aspectDiffB = fabs( aspectB - displayAspect );
-    F32 aspectDiffsDiff = aspectDiffA - aspectDiffB;
+    float32 aspectA = ( float32 )modeA->w / ( float32 )modeA->h;
+    float32 aspectB = ( float32 )modeB->w / ( float32 )modeB->h;
+    sint areaA = modeA->w * modeA->h;
+    sint areaB = modeB->w * modeB->h;
+    float32 aspectDiffA = fabs( aspectA - displayAspect );
+    float32 aspectDiffB = fabs( aspectB - displayAspect );
+    float32 aspectDiffsDiff = aspectDiffA - aspectDiffB;
     
     if( aspectDiffsDiff > ASPECT_EPSILON )
     {
@@ -136,14 +136,14 @@ GLimp_DetectAvailableModes
 */
 static void GLimp_DetectAvailableModes( void )
 {
-    S32 i, j;
-    UTF8 buf[ MAX_STRING_CHARS ] = { 0 };
-    S32 numSDLModes;
+    sint i, j;
+    valueType buf[ MAX_STRING_CHARS ] = { 0 };
+    sint numSDLModes;
     SDL_Rect* modes;
-    S32 numModes = 0;
+    sint numModes = 0;
     
     SDL_DisplayMode windowMode;
-    S32 display = SDL_GetWindowDisplayIndex( SDL_window );
+    sint display = SDL_GetWindowDisplayIndex( SDL_window );
     if( display < 0 )
     {
         CL_RefPrintf( PRINT_WARNING, "Couldn't get window display index, no resolutions detected: %s\n", SDL_GetError() );
@@ -201,9 +201,9 @@ static void GLimp_DetectAvailableModes( void )
         
     for( i = 0; i < numModes; i++ )
     {
-        StringEntry newModeString = va( "%ux%u ", modes[ i ].w, modes[ i ].h );
+        pointer newModeString = va( "%ux%u ", modes[ i ].w, modes[ i ].h );
         
-        if( strlen( newModeString ) < ( S32 )sizeof( buf ) - strlen( buf ) )
+        if( strlen( newModeString ) < ( sint )sizeof( buf ) - strlen( buf ) )
         {
             Q_strcat( buf, sizeof( buf ), newModeString );
         }
@@ -232,7 +232,7 @@ Get addresses for OpenGL functions.
 static bool GLimp_GetProcAddresses( bool fixedFunction )
 {
     bool success = true;
-    StringEntry version;
+    pointer version;
     
 #ifdef __SDL_NOGETPROCADDR__
 #define GLE( ret, name, ... ) qgl##name = gl#name;
@@ -245,14 +245,14 @@ static bool GLimp_GetProcAddresses( bool fixedFunction )
 #endif
     
     // OpenGL 1.0 and OpenGL ES 1.0
-    GLE( const U8*, GetString, U32 name )
+    GLE( const uchar8*, GetString, uint name )
     
     if( !qglGetString )
     {
         Com_Error( ERR_FATAL, "glGetString is nullptr" );
     }
     
-    version = ( StringEntry )qglGetString( GL_VERSION );
+    version = ( pointer )qglGetString( GL_VERSION );
     
     if( !version )
     {
@@ -261,7 +261,7 @@ static bool GLimp_GetProcAddresses( bool fixedFunction )
     
     if( Q_stricmpn( "OpenGL ES", version, 9 ) == 0 )
     {
-        UTF8 profile[6]; // ES, ES-CM, or ES-CL
+        valueType profile[6]; // ES, ES-CM, or ES-CL
         
         sscanf( version, "OpenGL %5s %d.%d", profile, &qglesMajorVersion, &qglesMinorVersion );
         // common lite profile (no floating point) is not supported
@@ -392,18 +392,18 @@ static void GLimp_ClearProcAddresses( void )
 GLimp_SetMode
 ===============
 */
-static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFunction )
+static sint GLimp_SetMode( sint mode, bool fullscreen, bool noborder, bool fixedFunction )
 {
-    StringEntry glstring;
-    S32 perChannelColorBits;
-    S32 colorBits, depthBits, stencilBits;
-    S32 samples;
-    S32 i = 0;
+    pointer glstring;
+    sint perChannelColorBits;
+    sint colorBits, depthBits, stencilBits;
+    sint samples;
+    sint i = 0;
     SDL_Surface* icon = nullptr;
-    U32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
+    uint flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
     SDL_DisplayMode desktopMode;
-    S32 display = 0;
-    S32 x = SDL_WINDOWPOS_UNDEFINED, y = SDL_WINDOWPOS_UNDEFINED;
+    sint display = 0;
+    sint x = SDL_WINDOWPOS_UNDEFINED, y = SDL_WINDOWPOS_UNDEFINED;
     
     CL_RefPrintf( PRINT_ALL, "Initializing OpenGL display\n" );
     
@@ -424,7 +424,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
     
     if( display >= 0 && SDL_GetDesktopDisplayMode( display, &desktopMode ) == 0 )
     {
-        displayAspect = ( F32 )desktopMode.w / ( F32 )desktopMode.h;
+        displayAspect = ( float32 )desktopMode.w / ( float32 )desktopMode.h;
         
         CL_RefPrintf( PRINT_ALL, "Display aspect: %.3f\n", displayAspect );
     }
@@ -452,7 +452,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
             CL_RefPrintf( PRINT_ALL, "Cannot determine display resolution, assuming 640x480\n" );
         }
         
-        glConfig.windowAspect = ( F32 )glConfig.vidWidth / ( F32 )glConfig.vidHeight;
+        glConfig.windowAspect = ( float32 )glConfig.vidWidth / ( float32 )glConfig.vidHeight;
     }
     else if( !R_GetModeInfo( &glConfig.vidWidth, &glConfig.vidHeight, &glConfig.windowAspect, mode ) )
     {
@@ -519,8 +519,8 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
     
     for( i = 0; i < 16; i++ )
     {
-        S32 testColorBits, testDepthBits, testStencilBits;
-        S32 realColorBits[3];
+        sint testColorBits, testDepthBits, testStencilBits;
+        sint realColorBits[3];
         
         // 0 - default
         // 1 - minus colorBits
@@ -695,13 +695,13 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
             }
             else
             {
-                StringEntry renderer;
+                pointer renderer;
                 
                 CL_RefPrintf( PRINT_ALL, "SDL_GL_CreateContext succeeded.\n" );
                 
                 if( GLimp_GetProcAddresses( fixedFunction ) )
                 {
-                    renderer = ( StringEntry )qglGetString( GL_RENDERER );
+                    renderer = ( pointer )qglGetString( GL_RENDERER );
                 }
                 else
                 {
@@ -790,7 +790,7 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
     
     GLimp_DetectAvailableModes();
     
-    glstring = ( UTF8* )qglGetString( GL_RENDERER );
+    glstring = ( valueType* )qglGetString( GL_RENDERER );
     CL_RefPrintf( PRINT_ALL, "GL_RENDERER: %s\n", glstring );
     
     return RSERR_OK;
@@ -801,11 +801,11 @@ static S32 GLimp_SetMode( S32 mode, bool fullscreen, bool noborder, bool fixedFu
 GLimp_StartDriverAndSetMode
 ===============
 */
-static bool GLimp_StartDriverAndSetMode( S32 mode, bool fullscreen, bool noborder, bool gl3Core )
+static bool GLimp_StartDriverAndSetMode( sint mode, bool fullscreen, bool noborder, bool gl3Core )
 {
     rserr_t err;
     SDL_DisplayMode modeSDL;
-    S32 num_displays, dpy;
+    sint num_displays, dpy;
     
     if( fullscreen && cvarSystem->VariableIntegerValue( "in_nograb" ) )
     {
@@ -817,7 +817,7 @@ static bool GLimp_StartDriverAndSetMode( S32 mode, bool fullscreen, bool noborde
     
     if( !SDL_WasInit( SDL_INIT_VIDEO ) )
     {
-        StringEntry driverName;
+        pointer driverName;
         
         if( SDL_Init( SDL_INIT_VIDEO ) != 0 )
         {
@@ -836,10 +836,10 @@ static bool GLimp_StartDriverAndSetMode( S32 mode, bool fullscreen, bool noborde
     
     for( dpy = 0; dpy < num_displays; dpy++ )
     {
-        const S32 num_modes = SDL_GetNumDisplayModes( dpy );
+        const sint num_modes = SDL_GetNumDisplayModes( dpy );
         SDL_Rect rect = { 0, 0, 0, 0 };
-        F32 ddpi, hdpi, vdpi;
-        S32 m;
+        float32 ddpi, hdpi, vdpi;
+        sint m;
         
         SDL_GetDisplayBounds( dpy, &rect );
         CL_RefPrintf( PRINT_DEVELOPER, "%d: \"%s\" (%dx%d, (%d, %d)), %d modes.\n", dpy, SDL_GetDisplayName( dpy ), rect.w, rect.h, rect.x, rect.y, num_modes );
@@ -879,7 +879,7 @@ static bool GLimp_StartDriverAndSetMode( S32 mode, bool fullscreen, bool noborde
             }
             else
             {
-                UTF8 prefix[64];
+                valueType prefix[64];
                 snprintf( prefix, sizeof( prefix ), " MODE %d", m );
                 CL_RefPrintf( PRINT_DEVELOPER, prefix, &modeSDL );
             }
@@ -921,9 +921,9 @@ static bool GLimp_StartDriverAndSetMode( S32 mode, bool fullscreen, bool noborde
 GLimp_HaveExtension
 ===============
 */
-static bool GLimp_HaveExtension( StringEntry ext )
+static bool GLimp_HaveExtension( pointer ext )
 {
-    StringEntry ptr = Q_stristr( glConfig.extensions_string, ext );
+    pointer ptr = Q_stristr( glConfig.extensions_string, ext );
     
     if( ptr == nullptr )
     {
@@ -1024,9 +1024,9 @@ void GLimp_InitExtensions( void )
             
             if( qglActiveTextureARB )
             {
-                S32 glint = 16; //Dushan
+                sint glint = 16; //Dushan
                 qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &glint );
-                glConfig.numTextureUnits = ( S32 )glint;
+                glConfig.numTextureUnits = ( sint )glint;
                 
                 if( glConfig.numTextureUnits > 1 )
                 {
@@ -1058,7 +1058,7 @@ void GLimp_InitExtensions( void )
         if( r_ext_compiled_vertex_array->value )
         {
             CL_RefPrintf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
-            qglLockArraysEXT = ( void ( APIENTRY* )( S32, S32 ) ) SDL_GL_GetProcAddress( "glLockArraysEXT" );
+            qglLockArraysEXT = ( void ( APIENTRY* )( sint, sint ) ) SDL_GL_GetProcAddress( "glLockArraysEXT" );
             qglUnlockArraysEXT = ( void ( APIENTRY* )( void ) ) SDL_GL_GetProcAddress( "glUnlockArraysEXT" );
             if( !qglLockArraysEXT || !qglUnlockArraysEXT )
             {
@@ -1080,7 +1080,7 @@ void GLimp_InitExtensions( void )
     {
         if( r_ext_texture_filter_anisotropic->integer )
         {
-            qglGetIntegerv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, ( S32* )&glConfig.maxAnisotropy );
+            qglGetIntegerv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, ( sint* )&glConfig.maxAnisotropy );
             if( glConfig.maxAnisotropy <= 0 )
             {
                 CL_RefPrintf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not properly supported!\n" );
@@ -1107,7 +1107,7 @@ void GLimp_InitExtensions( void )
 
 void GLimp_Splash( void )
 {
-    U8 splashData[144000]; // width * height * bytes_per_pixel
+    uchar8 splashData[144000]; // width * height * bytes_per_pixel
     SDL_Surface* splashImage = nullptr;
     
     // decode splash image
@@ -1213,24 +1213,24 @@ success:
     glConfig.deviceSupportsGamma = !r_ignorehwgamma->integer && SDL_SetWindowBrightness( SDL_window, 1.0f ) >= 0;
     
     // get our config strings
-    Q_strncpyz( glConfig.vendor_string, ( UTF8* ) qglGetString( GL_VENDOR ), sizeof( glConfig.vendor_string ) );
-    Q_strncpyz( glConfig.renderer_string, ( UTF8* ) qglGetString( GL_RENDERER ), sizeof( glConfig.renderer_string ) );
+    Q_strncpyz( glConfig.vendor_string, ( valueType* ) qglGetString( GL_VENDOR ), sizeof( glConfig.vendor_string ) );
+    Q_strncpyz( glConfig.renderer_string, ( valueType* ) qglGetString( GL_RENDERER ), sizeof( glConfig.renderer_string ) );
     if( *glConfig.renderer_string && glConfig.renderer_string[strlen( glConfig.renderer_string ) - 1] == '\n' )
         glConfig.renderer_string[strlen( glConfig.renderer_string ) - 1] = 0;
-    Q_strncpyz( glConfig.version_string, ( UTF8* ) qglGetString( GL_VERSION ), sizeof( glConfig.version_string ) );
+    Q_strncpyz( glConfig.version_string, ( valueType* ) qglGetString( GL_VERSION ), sizeof( glConfig.version_string ) );
     
     // manually create extension list if using OpenGL 4
     if( qglGetStringi )
     {
-        S32 i, numExtensions, extensionLength, listLength;
-        StringEntry extension;
+        sint i, numExtensions, extensionLength, listLength;
+        pointer extension;
         
         qglGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
         listLength = 0;
         
         for( i = 0; i < numExtensions; i++ )
         {
-            extension = ( UTF8* ) qglGetStringi( GL_EXTENSIONS, i );
+            extension = ( valueType* ) qglGetStringi( GL_EXTENSIONS, i );
             extensionLength = strlen( extension );
             
             if( ( listLength + extensionLength + 1 ) >= sizeof( glConfig.extensions_string ) )
@@ -1248,7 +1248,7 @@ success:
     }
     else
     {
-        Q_strncpyz( glConfig.extensions_string, ( UTF8* ) qglGetString( GL_EXTENSIONS ), sizeof( glConfig.extensions_string ) );
+        Q_strncpyz( glConfig.extensions_string, ( valueType* ) qglGetString( GL_EXTENSIONS ), sizeof( glConfig.extensions_string ) );
     }
     
     // initialize extensions
@@ -1355,7 +1355,7 @@ static void GLimp_SetCurrentContext( bool enable )
 GLimp_RenderThreadWrapper
 ===============
 */
-static S32 GLimp_RenderThreadWrapper( void* arg )
+static sint GLimp_RenderThreadWrapper( void* arg )
 {
     Com_Printf( "Render thread starting\n" );
     

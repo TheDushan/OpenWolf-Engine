@@ -42,34 +42,34 @@
 #define MAX_CMD_LINE 1024
 
 typedef void( *xcommand_t )( void );
-typedef void( *completionFunc_t )( UTF8* args, S32 argNum );
+typedef void( *completionFunc_t )( valueType* args, sint argNum );
 
 typedef struct
 {
-    S32 maxsize;
-    S32 cursize;
-    U8* data;
+    sint maxsize;
+    sint cursize;
+    uchar8* data;
 } cmd_t;
 
-extern S32 cmd_wait;
+extern sint cmd_wait;
 extern cmd_t cmd_text;
-extern U8 cmd_text_buf[MAX_CMD_BUFFER];
+extern uchar8 cmd_text_buf[MAX_CMD_BUFFER];
 
 typedef struct cmd_function_s
 {
     struct cmd_function_s* next;
-    UTF8* name;
+    valueType* name;
     xcommand_t function;
     completionFunc_t complete;
-    UTF8* desc;
+    valueType* desc;
 } cmd_function_t;
 
 typedef struct cmdContext_s
 {
-    S32	argc;
-    UTF8* argv[MAX_STRING_TOKENS];	// points into cmd.tokenized
-    UTF8 tokenized[BIG_INFO_STRING + MAX_STRING_TOKENS];	// will have 0 bytes inserted
-    UTF8 cmd[BIG_INFO_STRING]; // the original command we received (no token processing)
+    sint	argc;
+    valueType* argv[MAX_STRING_TOKENS];	// points into cmd.tokenized
+    valueType tokenized[BIG_INFO_STRING + MAX_STRING_TOKENS];	// will have 0 bytes inserted
+    valueType cmd[BIG_INFO_STRING]; // the original command we received (no token processing)
 } cmdContext_t;
 
 extern cmdContext_t cmd;
@@ -84,16 +84,16 @@ Helper functions for Cmd_If_f & Cmd_ModCase
 ===============
 */
 #ifdef DEDICATED
-static const UTF8 modifierList[] = "not supported in the dedicated server";
+static const valueType modifierList[] = "not supported in the dedicated server";
 #else
-static const UTF8 modifierList[] = "shift, ctrl, alt, command/cmd, mode, super; ! negates; e.g. shift,!alt";
+static const valueType modifierList[] = "shift, ctrl, alt, command/cmd, mode, super; ! negates; e.g. shift,!alt";
 #endif
 static const struct
 {
-    UTF8 name[8];
-    U16 count;
-    U16 bit;
-    U32 index;
+    valueType name[8];
+    uchar16 count;
+    uchar16 bit;
+    uint index;
 } modifierKeys[] =
 {
     { "shift",   5,  1, K_SHIFT },
@@ -111,15 +111,15 @@ static const struct
 
 typedef struct
 {
-    U16 down, up;
-    S32 bits;
+    uchar16 down, up;
+    sint bits;
 } modifierMask_t;
 
 typedef struct cmd_alias_s
 {
     struct cmd_alias_s*	next;
-    UTF8*				name;
-    UTF8*				exec;
+    valueType*				name;
+    valueType*				exec;
 } cmd_alias_t;
 
 static cmd_alias_t*	cmd_aliases = nullptr;
@@ -134,48 +134,48 @@ public:
     ~idCmdSystemLocal();
     
     virtual void WriteAliases( fileHandle_t f );
-    virtual S32 Argc( void );
-    virtual UTF8* ArgsFrom( S32 arg );
-    virtual UTF8* Argv( S32 arg );
-    virtual UTF8* Args( void );
-    virtual void TokenizeString( StringEntry text_in );
-    virtual void TokenizeStringIgnoreQuotes( StringEntry text_in );
-    virtual void AddCommand( StringEntry cmd_name, xcommand_t function, StringEntry cmd_desc );
-    virtual void SetCommandCompletionFunc( StringEntry command, completionFunc_t complete );
-    virtual void RemoveCommand( StringEntry cmd_name );
-    virtual void CommandCompletion( void( *callback )( StringEntry s ) );
-    virtual void CompleteArgument( StringEntry command, UTF8* args, S32 argNum );
-    virtual void ExecuteString( StringEntry text );
+    virtual sint Argc( void );
+    virtual valueType* ArgsFrom( sint arg );
+    virtual valueType* Argv( sint arg );
+    virtual valueType* Args( void );
+    virtual void TokenizeString( pointer text_in );
+    virtual void TokenizeStringIgnoreQuotes( pointer text_in );
+    virtual void AddCommand( pointer cmd_name, xcommand_t function, pointer cmd_desc );
+    virtual void SetCommandCompletionFunc( pointer command, completionFunc_t complete );
+    virtual void RemoveCommand( pointer cmd_name );
+    virtual void CommandCompletion( void( *callback )( pointer s ) );
+    virtual void CompleteArgument( pointer command, valueType* args, sint argNum );
+    virtual void ExecuteString( pointer text );
     virtual void Init( void );
     virtual void Shutdown( void );
-    virtual UTF8* Cmd( void );
-    virtual void AliasCompletion( void( *callback )( StringEntry s ) );
-    virtual void DelayCompletion( void( *callback )( StringEntry s ) );
+    virtual valueType* Cmd( void );
+    virtual void AliasCompletion( void( *callback )( pointer s ) );
+    virtual void DelayCompletion( void( *callback )( pointer s ) );
     virtual void SaveCmdContext( void );
     virtual void RestoreCmdContext( void );
-    virtual UTF8* FromNth( S32 count );
-    virtual void ArgvBuffer( S32 arg, UTF8* buffer, S32 bufferLength );
-    virtual void ArgsBuffer( UTF8* buffer, S32 bufferLength );
-    virtual void LiteralArgsBuffer( UTF8* buffer, S32 bufferLength );
+    virtual valueType* FromNth( sint count );
+    virtual void ArgvBuffer( sint arg, valueType* buffer, sint bufferLength );
+    virtual void ArgsBuffer( valueType* buffer, sint bufferLength );
+    virtual void LiteralArgsBuffer( valueType* buffer, sint bufferLength );
     
-    cmd_function_t* FindCommand( StringEntry cmdName );
+    cmd_function_t* FindCommand( pointer cmdName );
     static void RunAlias( void );
     static void Alias( void );
-    UTF8* EscapeString( StringEntry in );
-    void TokenizeStringParseCvar( StringEntry text_in );
+    valueType* EscapeString( pointer in );
+    void TokenizeStringParseCvar( pointer text_in );
     static void List( void );
-    static void CompleteCfgName( UTF8* args, S32 argNum );
-    static void CompleteAliasName( UTF8* args, S32 argNum );
-    static void CompleteConcat( UTF8* args, S32 argNum );
-    static void CompleteIf( UTF8* args, S32 argNum );
-    static void CompleteDelay( UTF8* args, S32 argNum );
-    static void CompleteUnDelay( UTF8* args, S32 argNum );
+    static void CompleteCfgName( valueType* args, sint argNum );
+    static void CompleteAliasName( valueType* args, sint argNum );
+    static void CompleteConcat( valueType* args, sint argNum );
+    static void CompleteIf( valueType* args, sint argNum );
+    static void CompleteDelay( valueType* args, sint argNum );
+    static void CompleteUnDelay( valueType* args, sint argNum );
     static void Wait( void );
     static void Exec_f( void );
     static void Vstr( void );
-    static void ExecFile( UTF8* f );
-    static modifierMask_t getModifierMask( StringEntry mods );
-    static S32 checkKeysDown( modifierMask_t mask );
+    static void ExecFile( valueType* f );
+    static modifierMask_t getModifierMask( pointer mods );
+    static sint checkKeysDown( modifierMask_t mask );
     static void ModCase( void );
     static void If( void );
     static void Math( void );
@@ -190,7 +190,7 @@ public:
     static void AliasList( void );
     static void ClearAliases( void );
     static void UnAlias( void );
-    static void TokenizeString2( StringEntry text_in, bool ignoreQuotes, bool parseCvar );
+    static void TokenizeString2( pointer text_in, bool ignoreQuotes, bool parseCvar );
 };
 
 extern idCmdSystemLocal cmdSystemLocal;

@@ -57,8 +57,8 @@ idClientLANSystemLocal::LoadCachedServers
 */
 void idClientLANSystemLocal::LoadCachedServers( void )
 {
-    S32 size;
-    UTF8 filename[MAX_QPATH];
+    sint size;
+    valueType filename[MAX_QPATH];
     fileHandle_t fileIn;
     
     cls.numglobalservers = cls.numfavoriteservers = 0;
@@ -69,9 +69,9 @@ void idClientLANSystemLocal::LoadCachedServers( void )
     // Arnout: moved to mod/profiles dir
     if( fileSystem->SV_FOpenFileRead( filename, &fileIn ) )
     {
-        fileSystem->Read( &cls.numglobalservers, sizeof( S32 ), fileIn );
-        fileSystem->Read( &cls.numfavoriteservers, sizeof( S32 ), fileIn );
-        fileSystem->Read( &size, sizeof( S32 ), fileIn );
+        fileSystem->Read( &cls.numglobalservers, sizeof( sint ), fileIn );
+        fileSystem->Read( &cls.numfavoriteservers, sizeof( sint ), fileIn );
+        fileSystem->Read( &size, sizeof( sint ), fileIn );
         
         if( size == sizeof( cls.globalServers ) + sizeof( cls.favoriteServers ) )
         {
@@ -95,8 +95,8 @@ idClientLANSystemLocal::SaveServersToCache
 */
 void idClientLANSystemLocal::SaveServersToCache( void )
 {
-    S32 size;
-    UTF8 filename[MAX_QPATH];
+    sint size;
+    valueType filename[MAX_QPATH];
     fileHandle_t fileOut;
     
     Q_strncpyz( filename, "servercache.dat", sizeof( filename ) );
@@ -104,10 +104,10 @@ void idClientLANSystemLocal::SaveServersToCache( void )
     // Arnout: moved to mod/profiles dir
     fileOut = fileSystem->SV_FOpenFileWrite( filename );
     //fileOut = fileSystem->FOpenFileWrite( filename );
-    fileSystem->Write( &cls.numglobalservers, sizeof( S32 ), fileOut );
-    fileSystem->Write( &cls.numfavoriteservers, sizeof( S32 ), fileOut );
+    fileSystem->Write( &cls.numglobalservers, sizeof( sint ), fileOut );
+    fileSystem->Write( &cls.numfavoriteservers, sizeof( sint ), fileOut );
     size = sizeof( cls.globalServers ) + sizeof( cls.favoriteServers );
-    fileSystem->Write( &size, sizeof( S32 ), fileOut );
+    fileSystem->Write( &size, sizeof( sint ), fileOut );
     fileSystem->Write( &cls.globalServers, sizeof( cls.globalServers ), fileOut );
     fileSystem->Write( &cls.favoriteServers, sizeof( cls.favoriteServers ), fileOut );
     fileSystem->FCloseFile( fileOut );
@@ -119,9 +119,9 @@ void idClientLANSystemLocal::SaveServersToCache( void )
 idClientLANSystemLocal::ResetPings
 ====================
 */
-void idClientLANSystemLocal::ResetPings( S32 source )
+void idClientLANSystemLocal::ResetPings( sint source )
 {
-    S32 count, i;
+    sint count, i;
     serverInfo_t* servers = nullptr;
     
     count = 0;
@@ -158,9 +158,9 @@ void idClientLANSystemLocal::ResetPings( S32 source )
 idClientLANSystemLocal::AddServer
 ====================
 */
-S32 idClientLANSystemLocal::AddServer( S32 source, StringEntry name, StringEntry address )
+sint idClientLANSystemLocal::AddServer( sint source, pointer name, pointer address )
 {
-    S32 max, * count, i;
+    sint max, * count, i;
     netadr_t adr;
     serverInfo_t* servers = nullptr;
     max = MAX_OTHER_SERVERS;
@@ -217,9 +217,9 @@ S32 idClientLANSystemLocal::AddServer( S32 source, StringEntry name, StringEntry
 idClientLANSystemLocal::RemoveServer
 ====================
 */
-void idClientLANSystemLocal::RemoveServer( S32 source, StringEntry addr )
+void idClientLANSystemLocal::RemoveServer( sint source, pointer addr )
 {
-    S32* count, i;
+    sint* count, i;
     serverInfo_t* servers = nullptr;
     
     count = 0;
@@ -252,7 +252,7 @@ void idClientLANSystemLocal::RemoveServer( S32 source, StringEntry addr )
         {
             if( NET_CompareAdr( comp, servers[i].adr ) )
             {
-                S32 j = i;
+                sint j = i;
                 
                 while( j < *count - 1 )
                 {
@@ -273,7 +273,7 @@ void idClientLANSystemLocal::RemoveServer( S32 source, StringEntry addr )
 idClientLANSystemLocal::GetServerCount
 ====================
 */
-S32 idClientLANSystemLocal::GetServerCount( S32 source )
+sint idClientLANSystemLocal::GetServerCount( sint source )
 {
     switch( source )
     {
@@ -297,7 +297,7 @@ S32 idClientLANSystemLocal::GetServerCount( S32 source )
 idClientLANSystemLocal::GetLocalServerAddressString
 ====================
 */
-void idClientLANSystemLocal::GetServerAddressString( S32 source, S32 n, UTF8* buf, S32 buflen )
+void idClientLANSystemLocal::GetServerAddressString( sint source, sint n, valueType* buf, sint buflen )
 {
     switch( source )
     {
@@ -334,9 +334,9 @@ void idClientLANSystemLocal::GetServerAddressString( S32 source, S32 n, UTF8* bu
 idClientLANSystemLocal::GetServerInfo
 ====================
 */
-void idClientLANSystemLocal::GetServerInfo( S32 source, S32 n, UTF8* buf, S32 buflen )
+void idClientLANSystemLocal::GetServerInfo( sint source, sint n, valueType* buf, sint buflen )
 {
-    UTF8 info[MAX_STRING_CHARS];
+    valueType info[MAX_STRING_CHARS];
     serverInfo_t* server = nullptr;
     
     info[0] = '\0';
@@ -405,7 +405,7 @@ void idClientLANSystemLocal::GetServerInfo( S32 source, S32 n, UTF8* buf, S32 bu
 idClientLANSystemLocal::GetServerPing
 ====================
 */
-S32 idClientLANSystemLocal::GetServerPing( S32 source, S32 n )
+sint idClientLANSystemLocal::GetServerPing( sint source, sint n )
 {
     serverInfo_t* server = nullptr;
     
@@ -446,7 +446,7 @@ S32 idClientLANSystemLocal::GetServerPing( S32 source, S32 n )
 idClientLANSystemLocal::GetServerPtr
 ====================
 */
-serverInfo_t* idClientLANSystemLocal::GetServerPtr( S32 source, S32 n )
+serverInfo_t* idClientLANSystemLocal::GetServerPtr( sint source, sint n )
 {
     switch( source )
     {
@@ -480,10 +480,10 @@ serverInfo_t* idClientLANSystemLocal::GetServerPtr( S32 source, S32 n )
 idClientLANSystemLocal::CompareServers
 ====================
 */
-S32 idClientLANSystemLocal::CompareServers( S32 source, S32 sortKey, S32 sortDir, S32 s1, S32 s2 )
+sint idClientLANSystemLocal::CompareServers( sint source, sint sortKey, sint sortDir, sint s1, sint s2 )
 {
-    S32 res, clients1, clients2;
-    UTF8 name1[MAX_NAME_LENGTH], name2[MAX_NAME_LENGTH];
+    sint res, clients1, clients2;
+    valueType name1[MAX_NAME_LENGTH], name2[MAX_NAME_LENGTH];
     serverInfo_t* server1, * server2;
     
     server1 = GetServerPtr( source, s1 );
@@ -596,7 +596,7 @@ S32 idClientLANSystemLocal::CompareServers( S32 source, S32 sortKey, S32 sortDir
 idClientLANSystemLocal::GetPingQueueCount
 ====================
 */
-S32 idClientLANSystemLocal::GetPingQueueCount( void )
+sint idClientLANSystemLocal::GetPingQueueCount( void )
 {
     return ( idClientBrowserSystemLocal::GetPingQueueCount() );
 }
@@ -606,7 +606,7 @@ S32 idClientLANSystemLocal::GetPingQueueCount( void )
 idClientLANSystemLocal::ClearPing
 ====================
 */
-void idClientLANSystemLocal::ClearPing( S32 n )
+void idClientLANSystemLocal::ClearPing( sint n )
 {
     idClientBrowserSystemLocal::ClearPing( n );
 }
@@ -616,7 +616,7 @@ void idClientLANSystemLocal::ClearPing( S32 n )
 idClientLANSystemLocal::GetPing
 ====================
 */
-void idClientLANSystemLocal::GetPing( S32 n, UTF8* buf, S32 buflen, S32* pingtime )
+void idClientLANSystemLocal::GetPing( sint n, valueType* buf, sint buflen, sint* pingtime )
 {
     idClientBrowserSystemLocal::GetPing( n, buf, buflen, pingtime );
 }
@@ -626,7 +626,7 @@ void idClientLANSystemLocal::GetPing( S32 n, UTF8* buf, S32 buflen, S32* pingtim
 idClientLANSystemLocal::GetPingInfo
 ====================
 */
-void idClientLANSystemLocal::GetPingInfo( S32 n, UTF8* buf, S32 buflen )
+void idClientLANSystemLocal::GetPingInfo( sint n, valueType* buf, sint buflen )
 {
     idClientBrowserSystemLocal::GetPingInfo( n, buf, buflen );
 }
@@ -636,11 +636,11 @@ void idClientLANSystemLocal::GetPingInfo( S32 n, UTF8* buf, S32 buflen )
 idClientLANSystemLocal::MarkServerVisible
 ====================
 */
-void idClientLANSystemLocal::MarkServerVisible( S32 source, S32 n, bool visible )
+void idClientLANSystemLocal::MarkServerVisible( sint source, sint n, bool visible )
 {
     if( n == -1 )
     {
-        S32 count = MAX_OTHER_SERVERS;
+        sint count = MAX_OTHER_SERVERS;
         serverInfo_t* server = nullptr;
         
         switch( source )
@@ -701,7 +701,7 @@ void idClientLANSystemLocal::MarkServerVisible( S32 source, S32 n, bool visible 
 idClientLANSystemLocal::ServerIsVisible
 =======================
 */
-S32 idClientLANSystemLocal::ServerIsVisible( S32 source, S32 n )
+sint idClientLANSystemLocal::ServerIsVisible( sint source, sint n )
 {
     switch( source )
     {
@@ -735,7 +735,7 @@ S32 idClientLANSystemLocal::ServerIsVisible( S32 source, S32 n )
 idClientLANSystemLocal::UpdateVisiblePings
 =======================
 */
-bool idClientLANSystemLocal::UpdateVisiblePings( S32 source )
+bool idClientLANSystemLocal::UpdateVisiblePings( sint source )
 {
     return idClientBrowserSystemLocal::UpdateVisiblePings( source );
 }
@@ -745,7 +745,7 @@ bool idClientLANSystemLocal::UpdateVisiblePings( S32 source )
 idClientLANSystemLocal::GetServerStatus
 ====================
 */
-S32 idClientLANSystemLocal::GetServerStatus( UTF8* serverAddress, UTF8* serverStatus, S32 maxLen )
+sint idClientLANSystemLocal::GetServerStatus( valueType* serverAddress, valueType* serverStatus, sint maxLen )
 {
     return idClientBrowserSystemLocal::ServerStatus( serverAddress, serverStatus, maxLen );
 }
@@ -755,9 +755,9 @@ S32 idClientLANSystemLocal::GetServerStatus( UTF8* serverAddress, UTF8* serverSt
 idClientLANSystemLocal::ServerIsInFavoriteList
 =======================
 */
-bool idClientLANSystemLocal::ServerIsInFavoriteList( S32 source, S32 n )
+bool idClientLANSystemLocal::ServerIsInFavoriteList( sint source, sint n )
 {
-    S32 i;
+    sint i;
     serverInfo_t* server = nullptr;
     
     switch( source )
