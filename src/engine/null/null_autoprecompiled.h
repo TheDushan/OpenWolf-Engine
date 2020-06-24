@@ -130,6 +130,8 @@
 
 #include <cm/cm_local.h>
 
+#include <API/Parse_api.h>
+#include <framework/Parse.h>
 #include <API/download_api.h>
 #include <download/downloadLocal.h>
 #include <API/clientLAN_api.h>

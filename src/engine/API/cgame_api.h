@@ -64,12 +64,6 @@ struct cgameImports_t
     bool( *Key_IsDown )( sint keynum );
     sint( *Key_GetCatcher )( void );
     sint( *Key_GetKey )( pointer binding );
-    sint( *PC_AddGlobalDefine )( valueType* define );
-    sint( *PC_LoadSource )( pointer filename );
-    sint( *PC_FreeSource )( sint handle );
-    sint( *PC_ReadToken )( sint handle, pc_token_t* pc_token );
-    sint( *PC_SourceFileAndLine )( sint handle, valueType* filename, sint* line );
-    void ( *PC_UnreadLastToken )( sint handle );
     sint( *RealTime )( qtime_t* qtime );
     
     // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to nullptr, alteredstates to false (do not alter gamestate)
@@ -115,6 +109,7 @@ struct cgameImports_t
 #ifndef DEDICATED
     idClientGUISystem* idGUISystem;
     idClientScreenSystem* clientScreenSystem;
+    idParseSystem* parseSystem;
 #endif
 };
 

@@ -183,10 +183,6 @@ struct guiImports_t
     void( *Error )( sint level, pointer fmt, ... );
     void( *CheckAutoUpdate )( void );
     void( *GetAutoUpdate )( void );
-    sint( *Parse_LoadSourceHandle )( pointer filename );
-    sint( *Parse_FreeSourceHandle )( sint handle );
-    sint( *Parse_ReadTokenHandle )( sint handle, pc_token_t* pc_token );
-    sint( *Parse_SourceFileAndLine )( sint handle, valueType* filename, sint* line );
     
     void( *SetBinding )( sint keynum, pointer binding );
     void ( *GetBindingByString )( pointer binding, sint* key1, sint* key2 );
@@ -218,6 +214,7 @@ struct guiImports_t
     idClientLANSystem* idLANSystem;
     idClientGUISystem* idGUISystem;
     idClientScreenSystem* clientScreenSystem;
+    idParseSystem* parseSystem;
 #endif
 };
 

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
 // Copyright(C) 2000 - 2009 Darklegion Development
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2020 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -29,8 +29,6 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   parse.cpp
-// Version:     v1.00
-// Created:
 // Compilers:   Visual Studio 2019, gcc 7.3.0
 // Description:
 // -------------------------------------------------------------------------------------
@@ -44,405 +42,188 @@
 #include <framework/precompiled.h>
 #endif
 
-//script flags
-#define SCFL_NOERRORS             0x0001
-#define SCFL_NOWARNINGS           0x0002
-#define SCFL_NOSTRINGWHITESPACES  0x0004
-#define SCFL_NOSTRINGESCAPECHARS  0x0008
-#define SCFL_PRIMITIVE            0x0010
-#define SCFL_NOBINARYNUMBERS      0x0020
-#define SCFL_NONUMBERVALUES       0x0040
-
-//token types
-#define TT_STRING           1     // string
-#define TT_LITERAL          2     // literal
-#define TT_NUMBER           3     // number
-#define TT_NAME             4     // name
-#define TT_PUNCTUATION      5     // punctuation
-
-//string sub type
-//---------------
-//    the length of the string
-//literal sub type
-//----------------
-//    the ASCII code of the literal
-//number sub type
-//---------------
-#define TT_DECIMAL          0x0008  // decimal number
-#define TT_HEX              0x0100  // hexadecimal number
-#define TT_OCTAL            0x0200  // octal number
-#define TT_BINARY           0x0400  // binary number
-#define TT_FLOAT            0x0800  // floating point number
-#define TT_INTEGER          0x1000  // integer number
-#define TT_LONG             0x2000  // long number
-#define TT_UNSIGNED         0x4000  // unsigned number
-//punctuation sub type
-//--------------------
-#define P_RSHIFT_ASSIGN       1
-#define P_LSHIFT_ASSIGN       2
-#define P_PARMS               3
-#define P_PRECOMPMERGE        4
-
-#define P_LOGIC_AND           5
-#define P_LOGIC_OR            6
-#define P_LOGIC_GEQ           7
-#define P_LOGIC_LEQ           8
-#define P_LOGIC_EQ            9
-#define P_LOGIC_UNEQ          10
-
-#define P_MUL_ASSIGN          11
-#define P_DIV_ASSIGN          12
-#define P_MOD_ASSIGN          13
-#define P_ADD_ASSIGN          14
-#define P_SUB_ASSIGN          15
-#define P_INC                 16
-#define P_DEC                 17
-
-#define P_BIN_AND_ASSIGN      18
-#define P_BIN_OR_ASSIGN       19
-#define P_BIN_XOR_ASSIGN      20
-#define P_RSHIFT              21
-#define P_LSHIFT              22
-
-#define P_POINTERREF          23
-#define P_CPP1                24
-#define P_CPP2                25
-#define P_MUL                 26
-#define P_DIV                 27
-#define P_MOD                 28
-#define P_ADD                 29
-#define P_SUB                 30
-#define P_ASSIGN              31
-
-#define P_BIN_AND             32
-#define P_BIN_OR              33
-#define P_BIN_XOR             34
-#define P_BIN_NOT             35
-
-#define P_LOGIC_NOT           36
-#define P_LOGIC_GREATER       37
-#define P_LOGIC_LESS          38
-
-#define P_REF                 39
-#define P_COMMA               40
-#define P_SEMICOLON           41
-#define P_COLON               42
-#define P_QUESTIONMARK        43
-
-#define P_PARENTHESESOPEN     44
-#define P_PARENTHESESCLOSE    45
-#define P_BRACEOPEN           46
-#define P_BRACECLOSE          47
-#define P_SQBRACKETOPEN       48
-#define P_SQBRACKETCLOSE      49
-#define P_BACKSLASH           50
-
-#define P_PRECOMP             51
-#define P_DOLLAR              52
-
-//name sub type
-//-------------
-//    the length of the name
-
-//punctuation
-typedef struct punctuation_s
-{
-    valueType* p;                    //punctuation character(s)
-    sint n;                      //punctuation indication
-    struct punctuation_s* next; //next punctuation
-} punctuation_t;
-
-//token
-typedef struct token_s
-{
-    valueType string[MAX_TOKEN_CHARS]; //available token
-    sint type;                     //last read token type
-    sint subtype;                  //last read token sub type
-    uint32 intvalue;   //integer value
-    float64 floatvalue;            //floating point value
-    valueType* whitespace_p;           //start of white space before token
-    valueType* endwhitespace_p;        //start of white space before token
-    sint line;                     //line the token was on
-    sint linescrossed;             //lines crossed in white space
-    struct token_s* next;         //next token in chain
-} token_t;
-
-//script file
-typedef struct script_s
-{
-    valueType filename[1024];            //file name of the script
-    valueType* buffer;                   //buffer containing the script
-    valueType* script_p;                 //current pointer in the script
-    valueType* end_p;                    //pointer to the end of the script
-    valueType* lastscript_p;             //script pointer before reading token
-    valueType* whitespace_p;             //begin of the white space
-    valueType* endwhitespace_p;
-    sint length;                     //length of the script in bytes
-    sint line;                       //current line in script
-    sint lastline;                   //line before reading token
-    sint tokenavailable;             //set by UnreadLastToken
-    sint flags;                      //several script flags
-    punctuation_t* punctuations;    //the punctuations used in the script
-    punctuation_t** punctuationtable;
-    token_t token;                  //available token
-    struct script_s* next;          //next script in a chain
-} script_t;
-
-
-#define DEFINE_FIXED      0x0001
-
-#define BUILTIN_LINE      1
-#define BUILTIN_FILE      2
-#define BUILTIN_DATE      3
-#define BUILTIN_TIME      4
-#define BUILTIN_STDC      5
-
-#define INDENT_IF         0x0001
-#define INDENT_ELSE       0x0002
-#define INDENT_ELIF       0x0004
-#define INDENT_IFDEF      0x0008
-#define INDENT_IFNDEF     0x0010
-
-//macro definitions
-typedef struct define_s
-{
-    valueType* name;                 //define name
-    sint flags;                  //define flags
-    sint builtin;                // > 0 if builtin define
-    sint numparms;               //number of define parameters
-    token_t* parms;             //define parameters
-    token_t* tokens;            //macro tokens (possibly containing parm tokens)
-    struct define_s* next;      //next defined macro in a list
-    struct define_s* hashnext;  //next define in the hash chain
-} define_t;
-
-//indents
-//used for conditional compilation directives:
-//#if, #else, #elif, #ifdef, #ifndef
-typedef struct indent_s
-{
-    sint type;               //indent type
-    sint skip;               //true if skipping current indent
-    script_t* script;       //script the indent was in
-    struct indent_s* next;  //next indent on the indent stack
-} indent_t;
-
-//source file
-typedef struct source_s
-{
-    valueType filename[MAX_QPATH];     //file name of the script
-    valueType includepath[MAX_QPATH];  //path to include files
-    punctuation_t* punctuations;  //punctuations to use
-    script_t* scriptstack;        //stack with scripts of the source
-    token_t* tokens;              //tokens to read first
-    define_t* defines;            //list with macro definitions
-    define_t** definehash;        //hash chain with defines
-    indent_t* indentstack;        //stack with indents
-    sint skip;                     // > 0 if skipping conditional code
-    token_t token;                //last read token
-} source_t;
-
-#define MAX_DEFINEPARMS     128
-
-//directive name with parse function
-typedef struct directive_s
-{
-    valueType* name;
-    sint( *func )( source_t* source );
-} directive_t;
-
-#define DEFINEHASHSIZE    1024
-
-static sint Parse_ReadToken( source_t* source, token_t* token );
-static bool Parse_AddDefineToSourceFromString( source_t* source,
-        valueType* string );
-
 sint numtokens;
 
 //list with global defines added to every source loaded
 define_t* globaldefines;
+source_t* sourceFiles[MAX_SOURCEFILES];
 
-//longer punctuations first
-punctuation_t Default_Punctuations[] =
-{
-    //binary operators
-    {">>=", P_RSHIFT_ASSIGN, nullptr},
-    {"<<=", P_LSHIFT_ASSIGN, nullptr},
-    //
-    {"...", P_PARMS, nullptr},
-    //define merge operator
-    {"##", P_PRECOMPMERGE, nullptr},
-    //logic operators
-    {"&&", P_LOGIC_AND, nullptr},
-    {"||", P_LOGIC_OR, nullptr},
-    {">=", P_LOGIC_GEQ, nullptr},
-    {"<=", P_LOGIC_LEQ, nullptr},
-    {"==", P_LOGIC_EQ, nullptr},
-    {"!=", P_LOGIC_UNEQ, nullptr},
-    //arithmatic operators
-    {"*=", P_MUL_ASSIGN, nullptr},
-    {"/=", P_DIV_ASSIGN, nullptr},
-    {"%=", P_MOD_ASSIGN, nullptr},
-    {"+=", P_ADD_ASSIGN, nullptr},
-    {"-=", P_SUB_ASSIGN, nullptr},
-    {"++", P_INC, nullptr},
-    {"--", P_DEC, nullptr},
-    //binary operators
-    {"&=", P_BIN_AND_ASSIGN, nullptr},
-    {"|=", P_BIN_OR_ASSIGN, nullptr},
-    {"^=", P_BIN_XOR_ASSIGN, nullptr},
-    {">>", P_RSHIFT, nullptr},
-    {"<<", P_LSHIFT, nullptr},
-    //reference operators
-    {"->", P_POINTERREF, nullptr},
-    //C++
-    {"::", P_CPP1, nullptr},
-    {".*", P_CPP2, nullptr},
-    //arithmatic operators
-    {"*", P_MUL, nullptr},
-    {"/", P_DIV, nullptr},
-    {"%", P_MOD, nullptr},
-    {"+", P_ADD, nullptr},
-    {"-", P_SUB, nullptr},
-    {"=", P_ASSIGN, nullptr},
-    //binary operators
-    {"&", P_BIN_AND, nullptr},
-    {"|", P_BIN_OR, nullptr},
-    {"^", P_BIN_XOR, nullptr},
-    {"~", P_BIN_NOT, nullptr},
-    //logic operators
-    {"!", P_LOGIC_NOT, nullptr},
-    {">", P_LOGIC_GREATER, nullptr},
-    {"<", P_LOGIC_LESS, nullptr},
-    //reference operator
-    {".", P_REF, nullptr},
-    //seperators
-    {",", P_COMMA, nullptr},
-    {";", P_SEMICOLON, nullptr},
-    //label indication
-    {":", P_COLON, nullptr},
-    //if statement
-    {"?", P_QUESTIONMARK, nullptr},
-    //embracements
-    {"(", P_PARENTHESESOPEN, nullptr},
-    {")", P_PARENTHESESCLOSE, nullptr},
-    {"{", P_BRACEOPEN, nullptr},
-    {"}", P_BRACECLOSE, nullptr},
-    {"[", P_SQBRACKETOPEN, nullptr},
-    {"]", P_SQBRACKETCLOSE, nullptr},
-    //
-    {"\\", P_BACKSLASH, nullptr},
-    //precompiler operator
-    {"#", P_PRECOMP, nullptr},
-    {"$", P_DOLLAR, nullptr},
-    {nullptr, 0}
-};
+idParseSystemLocal parseLocal;
+idParseSystem* ParseSystem = &parseLocal;
 
 /*
 ===============
-Parse_CreatePunctuationTable
+idParseSystemLocal::idParseSystemLocal
 ===============
 */
-static void Parse_CreatePunctuationTable( script_t* script, punctuation_t* punctuations )
+idParseSystemLocal::idParseSystemLocal( void )
+{
+}
+
+/*
+===============
+idParseSystemLocal::~idParseSystemLocal
+===============
+*/
+idParseSystemLocal::~idParseSystemLocal( void )
+{
+}
+
+/*
+===============
+idParseSystemLocal::CreatePunctuationTable
+===============
+*/
+void idParseSystemLocal::CreatePunctuationTable( script_t* script, punctuation_t* punctuations )
 {
     sint i;
     punctuation_t* p, *lastp, *newp;
     
     //get memory for the table
-    if( !script->punctuationtable ) script->punctuationtable = ( punctuation_t** )
-                Z_Malloc( 256 * sizeof( punctuation_t* ) );
+    if( !script->punctuationtable )
+    {
+        script->punctuationtable = ( punctuation_t** )Z_Malloc( 256 * sizeof( punctuation_t* ) );
+    }
+    
     ::memset( script->punctuationtable, 0, 256 * sizeof( punctuation_t* ) );
+    
     //add the punctuations in the list to the punctuation table
     for( i = 0; punctuations[i].p; i++ )
     {
         newp = &punctuations[i];
         lastp = nullptr;
+        
         //sort the punctuations in this table entry on length (longer punctuations first)
         for( p = script->punctuationtable[( uint ) newp->p[0]]; p; p = p->next )
         {
-            if( strlen( p->p ) < strlen( newp->p ) )
+            if( ::strlen( p->p ) < ::strlen( newp->p ) )
             {
                 newp->next = p;
-                if( lastp ) lastp->next = newp;
-                else script->punctuationtable[( uint ) newp->p[0]] = newp;
+                
+                if( lastp )
+                {
+                    lastp->next = newp;
+                }
+                else
+                {
+                    script->punctuationtable[( uint )newp->p[0]] = newp;
+                }
                 break;
             }
+            
             lastp = p;
         }
+        
         if( !p )
         {
             newp->next = nullptr;
-            if( lastp ) lastp->next = newp;
-            else script->punctuationtable[( uint ) newp->p[0]] = newp;
+            
+            if( lastp )
+            {
+                lastp->next = newp;
+            }
+            else
+            {
+                script->punctuationtable[( uint )newp->p[0]] = newp;
+            }
         }
     }
 }
 
 /*
 ===============
-Parse_ScriptError
+idParseSystemLocal::ScriptError
 ===============
 */
-static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_ScriptError( script_t* script, valueType* str, ... )
+void idParseSystemLocal::ScriptError( script_t* script, valueType* str, ... )
 {
-    valueType text[1024];
-    va_list ap;
+    va_list argptr;
+    valueType text[8192];
     
-    if( script->flags & SCFL_NOERRORS ) return;
+    if( script->flags & SCFL_NOERRORS )
+    {
+        return;
+    }
     
-    va_start( ap, str );
-    vsprintf( text, str, ap );
-    va_end( ap );
+    va_start( argptr, str );
+    Q_vsnprintf( text, sizeof( text ), str, argptr );
+    va_end( argptr );
+    
     Com_Printf( "file %s, line %d: %s\n", script->filename, script->line, text );
 }
 
 /*
 ===============
-Parse_ScriptWarning
+idParseSystemLocal::ScriptWarning
 ===============
 */
-static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_ScriptWarning( script_t* script, valueType* str, ... )
+void idParseSystemLocal::ScriptWarning( script_t* script, valueType* str, ... )
 {
-    valueType text[1024];
-    va_list ap;
+    va_list argptr;
+    valueType text[8192];
     
-    if( script->flags & SCFL_NOWARNINGS ) return;
+    if( script->flags & SCFL_NOWARNINGS )
+    {
+        return;
+    }
     
-    va_start( ap, str );
-    vsprintf( text, str, ap );
-    va_end( ap );
+    va_start( argptr, str );
+    Q_vsnprintf( text, sizeof( text ), str, argptr );
+    va_end( argptr );
+    
     Com_Printf( "file %s, line %d: %s\n", script->filename, script->line, text );
 }
 
 /*
 ===============
-Parse_SetScriptPunctuations
+idParseSystemLocal::SetScriptPunctuations
 ===============
 */
-static void Parse_SetScriptPunctuations( script_t* script, punctuation_t* p )
+void idParseSystemLocal::SetScriptPunctuations( script_t* script, punctuation_t* p )
 {
-    if( p ) Parse_CreatePunctuationTable( script, p );
-    else  Parse_CreatePunctuationTable( script, Default_Punctuations );
-    if( p ) script->punctuations = p;
-    else script->punctuations = Default_Punctuations;
+    if( p )
+    {
+        CreatePunctuationTable( script, p );
+    }
+    else
+    {
+        CreatePunctuationTable( script, Default_Punctuations );
+    }
+    
+    if( p )
+    {
+        script->punctuations = p;
+    }
+    else
+    {
+        script->punctuations = Default_Punctuations;
+    }
 }
 
 /*
 ===============
-Parse_ReadWhiteSpace
+idParseSystemLocal::ReadWhiteSpace
 ===============
 */
-static sint Parse_ReadWhiteSpace( script_t* script )
+sint idParseSystemLocal::ReadWhiteSpace( script_t* script )
 {
     while( 1 )
     {
         //skip white space
         while( *script->script_p <= ' ' )
         {
-            if( !*script->script_p ) return 0;
-            if( *script->script_p == '\n' ) script->line++;
+            if( !*script->script_p )
+            {
+                return 0;
+            }
+            
+            if( *script->script_p == '\n' )
+            {
+                script->line++;
+            }
             script->script_p++;
         }
+        
         //skip comments
         if( *script->script_p == '/' )
         {
@@ -453,12 +234,22 @@ static sint Parse_ReadWhiteSpace( script_t* script )
                 do
                 {
                     script->script_p++;
-                    if( !*script->script_p ) return 0;
+                    
+                    if( !*script->script_p )
+                    {
+                        return 0;
+                    }
                 }
                 while( *script->script_p != '\n' );
+                
                 script->line++;
                 script->script_p++;
-                if( !*script->script_p ) return 0;
+                
+                if( !*script->script_p )
+                {
+                    return 0;
+                }
+                
                 continue;
             }
             //comments /* */
@@ -468,14 +259,30 @@ static sint Parse_ReadWhiteSpace( script_t* script )
                 do
                 {
                     script->script_p++;
-                    if( !*script->script_p ) return 0;
-                    if( *script->script_p == '\n' ) script->line++;
+                    if( !*script->script_p )
+                    {
+                        return 0;
+                    }
+                    if( *script->script_p == '\n' )
+                    {
+                        script->line++;
+                    }
                 }
                 while( !( *script->script_p == '*' && *( script->script_p + 1 ) == '/' ) );
+                
                 script->script_p++;
-                if( !*script->script_p ) return 0;
+                
+                if( !*script->script_p )
+                {
+                    return 0;
+                }
+                
                 script->script_p++;
-                if( !*script->script_p ) return 0;
+                
+                if( !*script->script_p )
+                {
+                    return 0;
+                }
                 continue;
             }
         }
@@ -486,15 +293,16 @@ static sint Parse_ReadWhiteSpace( script_t* script )
 
 /*
 ===============
-Parse_ReadEscapeCharacter
+idParseSystemLocal::ReadEscapeCharacter
 ===============
 */
-static sint Parse_ReadEscapeCharacter( script_t* script, valueType* ch )
+sint idParseSystemLocal::ReadEscapeCharacter( script_t* script, valueType* ch )
 {
     sint c, val, i;
     
     //step over the leading '\\'
     script->script_p++;
+    
     //determine the escape character
     switch( *script->script_p )
     {
@@ -537,16 +345,32 @@ static sint Parse_ReadEscapeCharacter( script_t* script, valueType* ch )
             for( i = 0, val = 0; ; i++, script->script_p++ )
             {
                 c = *script->script_p;
-                if( c >= '0' && c <= '9' ) c = c - '0';
-                else if( c >= 'A' && c <= 'Z' ) c = c - 'A' + 10;
-                else if( c >= 'a' && c <= 'z' ) c = c - 'a' + 10;
-                else break;
+                
+                if( c >= '0' && c <= '9' )
+                {
+                    c = c - '0';
+                }
+                else if( c >= 'A' && c <= 'Z' )
+                {
+                    c = c - 'A' + 10;
+                }
+                else if( c >= 'a' && c <= 'z' )
+                {
+                    c = c - 'a' + 10;
+                }
+                else
+                {
+                    break;
+                }
+                
                 val = ( val << 4 ) + c;
             }
+            
             script->script_p--;
+            
             if( val > 0xFF )
             {
-                Parse_ScriptWarning( script, "too large value in escape character" );
+                ScriptWarning( script, "too large value in escape character" );
                 val = 0xFF;
             }
             c = val;
@@ -554,70 +378,99 @@ static sint Parse_ReadEscapeCharacter( script_t* script, valueType* ch )
         }
         default: //NOTE: decimal ASCII code, NOT octal
         {
-            if( *script->script_p < '0' || *script->script_p > '9' ) Parse_ScriptError( script, "unknown escape valueType" );
+            if( *script->script_p < '0' || *script->script_p > '9' )
+            {
+                ScriptError( script, "unknown escape valueType" );
+            }
+            
             for( i = 0, val = 0; ; i++, script->script_p++ )
             {
                 c = *script->script_p;
-                if( c >= '0' && c <= '9' ) c = c - '0';
-                else break;
+                
+                if( c >= '0' && c <= '9' )
+                {
+                    c = c - '0';
+                }
+                else
+                {
+                    break;
+                }
+                
                 val = val * 10 + c;
             }
+            
             script->script_p--;
+            
             if( val > 0xFF )
             {
-                Parse_ScriptWarning( script, "too large value in escape character" );
+                ScriptWarning( script, "too large value in escape character" );
                 val = 0xFF;
             }
+            
             c = val;
+            
             break;
         }
     }
+    
     //step over the escape character or the last digit of the number
     script->script_p++;
+    
     //store the escape character
     *ch = c;
+    
     //succesfully read escape character
     return 1;
 }
 
 /*
 ===============
-Parse_ReadString
+idParseSystemLocal::ReadString
 
 Reads C-like string. Escape characters are interpretted.
 Quotes are included with the string.
 Reads two strings with a white space between them as one string.
 ===============
 */
-static sint Parse_ReadString( script_t* script, token_t* token, sint quote )
+sint idParseSystemLocal::ReadString( script_t* script, token_t* token, sint quote )
 {
     sint len, tmpline;
     valueType* tmpscript_p;
     
-    if( quote == '\"' ) token->type = TT_STRING;
-    else token->type = TT_LITERAL;
+    if( quote == '\"' )
+    {
+        token->type = TT_STRING;
+    }
+    else
+    {
+        token->type = TT_LITERAL;
+    }
     
     len = 0;
+    
     //leading quote
     token->string[len++] = *script->script_p++;
+    
     //
     while( 1 )
     {
         //minus 2 because trailing double quote and zero have to be appended
         if( len >= MAX_TOKEN_CHARS - 2 )
         {
-            Parse_ScriptError( script, "string longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
+            ScriptError( script, "string longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
             return 0;
         }
+        
         //if there is an escape character and
         //if escape characters inside a string are allowed
         if( *script->script_p == '\\' && !( script->flags & SCFL_NOSTRINGESCAPECHARS ) )
         {
-            if( !Parse_ReadEscapeCharacter( script, &token->string[len] ) )
+            if( !ReadEscapeCharacter( script, &token->string[len] ) )
             {
                 token->string[len] = 0;
                 return 0;
             }
+            
             len++;
         }
         //if a trailing quote
@@ -625,18 +478,25 @@ static sint Parse_ReadString( script_t* script, token_t* token, sint quote )
         {
             //step over the double quote
             script->script_p++;
+            
             //if white spaces in a string are not allowed
-            if( script->flags & SCFL_NOSTRINGWHITESPACES ) break;
+            if( script->flags & SCFL_NOSTRINGWHITESPACES )
+            {
+                break;
+            }
+            
             //
             tmpscript_p = script->script_p;
             tmpline = script->line;
+            
             //read unusefull stuff between possible two following strings
-            if( !Parse_ReadWhiteSpace( script ) )
+            if( !ReadWhiteSpace( script ) )
             {
                 script->script_p = tmpscript_p;
                 script->line = tmpline;
                 break;
             }
+            
             //if there's no leading double qoute
             if( *script->script_p != quote )
             {
@@ -644,6 +504,7 @@ static sint Parse_ReadString( script_t* script, token_t* token, sint quote )
                 script->line = tmpline;
                 break;
             }
+            
             //step over the new leading double quote
             script->script_p++;
         }
@@ -652,33 +513,37 @@ static sint Parse_ReadString( script_t* script, token_t* token, sint quote )
             if( *script->script_p == '\0' )
             {
                 token->string[len] = 0;
-                Parse_ScriptError( script, "missing trailing quote" );
+                ScriptError( script, "missing trailing quote" );
                 return 0;
             }
             if( *script->script_p == '\n' )
             {
                 token->string[len] = 0;
-                Parse_ScriptError( script, "newline inside string %s", token->string );
+                ScriptError( script, "newline inside string %s", token->string );
                 return 0;
             }
             token->string[len++] = *script->script_p++;
         }
     }
+    
     //trailing quote
     token->string[len++] = quote;
+    
     //end string with a zero
     token->string[len] = '\0';
+    
     //the sub type is the length of the string
     token->subtype = len;
+    
     return 1;
 }
 
 /*
 ===============
-Parse_ReadName
+idParseSystemLocal::ReadName
 ===============
 */
-static sint Parse_ReadName( script_t* script, token_t* token )
+sint idParseSystemLocal::ReadName( script_t* script, token_t* token )
 {
     sint len = 0;
     valueType c;
@@ -687,34 +552,37 @@ static sint Parse_ReadName( script_t* script, token_t* token )
     do
     {
         token->string[len++] = *script->script_p++;
+        
         if( len >= MAX_TOKEN_CHARS )
         {
-            Parse_ScriptError( script, "name longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
+            ScriptError( script, "name longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
             return 0;
         }
+        
         c = *script->script_p;
     }
-    while( ( c >= 'a' && c <= 'z' ) ||
-            ( c >= 'A' && c <= 'Z' ) ||
-            ( c >= '0' && c <= '9' ) ||
-            c == '_' );
+    while( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' ) || c == '_' );
+    
     token->string[len] = '\0';
+    
     //the sub type is the length of the name
     token->subtype = len;
+    
     return 1;
 }
 
 /*
 ===============
-Parse_NumberValue
+idParseSystemLocal::NumberValue
 ===============
 */
-static void Parse_NumberValue( valueType* string, sint subtype, uint32* intvalue, float64* floatvalue )
+void idParseSystemLocal::NumberValue( valueType* string, sint subtype, uint32* intvalue, float64* floatvalue )
 {
     uint32 dotfound = 0;
     
     *intvalue = 0;
     *floatvalue = 0;
+    
     //floating point number
     if( subtype & TT_FLOAT )
     {
@@ -722,10 +590,16 @@ static void Parse_NumberValue( valueType* string, sint subtype, uint32* intvalue
         {
             if( *string == '.' )
             {
-                if( dotfound ) return;
+                if( dotfound )
+                {
+                    return;
+                }
+                
                 dotfound = 10;
+                
                 string++;
             }
+            
             if( dotfound )
             {
                 *floatvalue = *floatvalue + ( float64 )( *string - '0' ) / ( float64 ) dotfound;
@@ -735,98 +609,116 @@ static void Parse_NumberValue( valueType* string, sint subtype, uint32* intvalue
             {
                 *floatvalue = *floatvalue * 10.0 + ( float64 )( *string - '0' );
             }
+            
             string++;
         }
+        
         *intvalue = ( unsigned long ) * floatvalue;
     }
     else if( subtype & TT_DECIMAL )
     {
         while( *string ) *intvalue = *intvalue * 10 + ( *string++ - '0' );
+        
         *floatvalue = *intvalue;
     }
     else if( subtype & TT_HEX )
     {
         //step over the leading 0x or 0X
         string += 2;
+        
         while( *string )
         {
             *intvalue <<= 4;
-            if( *string >= 'a' && *string <= 'f' ) *intvalue += *string - 'a' + 10;
-            else if( *string >= 'A' && *string <= 'F' ) *intvalue += *string - 'A' + 10;
-            else *intvalue += *string - '0';
+            
+            if( *string >= 'a' && *string <= 'f' )
+            {
+                *intvalue += *string - 'a' + 10;
+            }
+            else if( *string >= 'A' && *string <= 'F' )
+            {
+                *intvalue += *string - 'A' + 10;
+            }
+            else
+            {
+                *intvalue += *string - '0';
+            }
             string++;
         }
+        
         *floatvalue = *intvalue;
     }
     else if( subtype & TT_OCTAL )
     {
         //step over the first zero
         string += 1;
+        
         while( *string ) *intvalue = ( *intvalue << 3 ) + ( *string++ - '0' );
+        
         *floatvalue = *intvalue;
     }
     else if( subtype & TT_BINARY )
     {
         //step over the leading 0b or 0B
         string += 2;
+        
         while( *string ) *intvalue = ( *intvalue << 1 ) + ( *string++ - '0' );
+        
         *floatvalue = *intvalue;
     }
 }
 
 /*
 ===============
-Parse_ReadNumber
+idParseSystemLocal::ReadNumber
 ===============
 */
-static sint Parse_ReadNumber( script_t* script, token_t* token )
+sint idParseSystemLocal::ReadNumber( script_t* script, token_t* token )
 {
     sint len = 0, i;
     sint octal, dot;
     valueType c;
-//  uint32 intvalue = 0;
-//  float64 floatvalue = 0;
-
+    
     token->type = TT_NUMBER;
+    
     //check for a hexadecimal number
-    if( *script->script_p == '0' &&
-            ( *( script->script_p + 1 ) == 'x' ||
-              *( script->script_p + 1 ) == 'X' ) )
+    if( *script->script_p == '0' && ( *( script->script_p + 1 ) == 'x' || *( script->script_p + 1 ) == 'X' ) )
     {
         token->string[len++] = *script->script_p++;
         token->string[len++] = *script->script_p++;
+        
         c = *script->script_p;
+        
         //hexadecimal
-        while( ( c >= '0' && c <= '9' ) ||
-                ( c >= 'a' && c <= 'f' ) ||
-                ( c >= 'A' && c <= 'A' ) )
+        while( ( c >= '0' && c <= '9' ) || ( c >= 'a' && c <= 'f' ) || ( c >= 'A' && c <= 'A' ) )
         {
             token->string[len++] = *script->script_p++;
+            
             if( len >= MAX_TOKEN_CHARS )
             {
-                Parse_ScriptError( script, "hexadecimal number longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
+                ScriptError( script, "hexadecimal number longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
                 return 0;
             }
+            
+            
             c = *script->script_p;
         }
         token->subtype |= TT_HEX;
     }
 #ifdef BINARYNUMBERS
     //check for a binary number
-    else if( *script->script_p == '0' &&
-             ( *( script->script_p + 1 ) == 'b' ||
-               *( script->script_p + 1 ) == 'B' ) )
+    else if( *script->script_p == '0' && ( *( script->script_p + 1 ) == 'b' || *( script->script_p + 1 ) == 'B' ) )
     {
         token->string[len++] = *script->script_p++;
         token->string[len++] = *script->script_p++;
         c = *script->script_p;
+        
         //binary
         while( c == '0' || c == '1' )
         {
             token->string[len++] = *script->script_p++;
             if( len >= MAX_TOKEN_CHARS )
             {
-                Parse_ScriptError( script, "binary number longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
+                ScriptError( script, "binary number longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
                 return 0;
             }
             c = *script->script_p;
@@ -834,58 +726,93 @@ static sint Parse_ReadNumber( script_t* script, token_t* token )
         token->subtype |= TT_BINARY;
     }
 #endif //BINARYNUMBERS
-    else //decimal or octal integer or floating point number
+    //decimal or octal integer or floating point number
+    else
     {
         octal = false;
         dot = false;
-        if( *script->script_p == '0' ) octal = true;
+        
+        if( *script->script_p == '0' )
+        {
+            octal = true;
+        }
+        
         while( 1 )
         {
             c = *script->script_p;
-            if( c == '.' ) dot = true;
-            else if( c == '8' || c == '9' ) octal = false;
-            else if( c < '0' || c > '9' ) break;
+            if( c == '.' )
+            {
+                dot = true;
+            }
+            else if( c == '8' || c == '9' )
+            {
+                octal = false;
+            }
+            else if( c < '0' || c > '9' )
+            {
+                break;
+            }
+            
             token->string[len++] = *script->script_p++;
+            
             if( len >= MAX_TOKEN_CHARS - 1 )
             {
-                Parse_ScriptError( script, "number longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
+                ScriptError( script, "number longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
                 return 0;
             }
         }
-        if( octal ) token->subtype |= TT_OCTAL;
-        else token->subtype |= TT_DECIMAL;
-        if( dot ) token->subtype |= TT_FLOAT;
+        
+        if( octal )
+        {
+            token->subtype |= TT_OCTAL;
+        }
+        else
+        {
+            token->subtype |= TT_DECIMAL;
+        }
+        
+        if( dot )
+        {
+            token->subtype |= TT_FLOAT;
+        }
     }
+    
     for( i = 0; i < 2; i++ )
     {
         c = *script->script_p;
+        
         //check for a LONG number
-        if( ( c == 'l' || c == 'L' )
-                && !( token->subtype & TT_LONG ) )
+        if( ( c == 'l' || c == 'L' ) && !( token->subtype & TT_LONG ) )
         {
             script->script_p++;
             token->subtype |= TT_LONG;
         }
         //check for an UNSIGNED number
-        else if( ( c == 'u' || c == 'U' )
-                 && !( token->subtype & ( TT_UNSIGNED | TT_FLOAT ) ) )
+        else if( ( c == 'u' || c == 'U' ) && !( token->subtype & ( TT_UNSIGNED | TT_FLOAT ) ) )
         {
             script->script_p++;
             token->subtype |= TT_UNSIGNED;
         }
     }
+    
     token->string[len] = '\0';
-    Parse_NumberValue( token->string, token->subtype, &token->intvalue, &token->floatvalue );
-    if( !( token->subtype & TT_FLOAT ) ) token->subtype |= TT_INTEGER;
+    
+    NumberValue( token->string, token->subtype, &token->intvalue, &token->floatvalue );
+    
+    if( !( token->subtype & TT_FLOAT ) )
+    {
+        token->subtype |= TT_INTEGER;
+    }
+    
     return 1;
 }
 
 /*
 ===============
-Parse_ReadPunctuation
+idParseSystemLocal::ReadPunctuation
 ===============
 */
-static sint Parse_ReadPunctuation( script_t* script, token_t* token )
+sint idParseSystemLocal::ReadPunctuation( script_t* script, token_t* token )
 {
     sint len;
     valueType* p;
@@ -894,31 +821,34 @@ static sint Parse_ReadPunctuation( script_t* script, token_t* token )
     for( punc = script->punctuationtable[( uint ) * script->script_p]; punc; punc = punc->next )
     {
         p = punc->p;
-        len = strlen( p );
+        len = ( sint )::strlen( p );
+        
         //if the script contains at least as much characters as the punctuation
         if( script->script_p + len <= script->end_p )
         {
             //if the script contains the punctuation
-            if( !strncmp( script->script_p, p, len ) )
+            if( !::strncmp( script->script_p, p, len ) )
             {
-                strncpy( token->string, p, MAX_TOKEN_CHARS );
+                ::strncpy( token->string, p, MAX_TOKEN_CHARS );
                 script->script_p += len;
                 token->type = TT_PUNCTUATION;
+                
                 //sub type is the number of the punctuation
                 token->subtype = punc->n;
                 return 1;
             }
         }
     }
+    
     return 0;
 }
 
 /*
 ===============
-Parse_ReadPrimitive
+idParseSystemLocal::ReadPrimitive
 ===============
 */
-static sint Parse_ReadPrimitive( script_t* script, token_t* token )
+sint idParseSystemLocal::ReadPrimitive( script_t* script, token_t* token )
 {
     sint len;
     
@@ -927,30 +857,35 @@ static sint Parse_ReadPrimitive( script_t* script, token_t* token )
     {
         if( len >= MAX_TOKEN_CHARS )
         {
-            Parse_ScriptError( script, "primitive token longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
+            ScriptError( script, "primitive token longer than MAX_TOKEN_CHARS = %d", MAX_TOKEN_CHARS );
             return 0;
         }
+        
         token->string[len++] = *script->script_p++;
     }
+    
     if( len >= MAX_TOKEN_CHARS )
     {
         // The last len++ made len==MAX_TOKEN_CHARS, which will overflow.
         // Bring it back down and ensure we null terminate.
         len = MAX_TOKEN_CHARS - 1;
     }
+    
     token->string[len] = 0;
+    
     //copy the token into the script structure
     ::memcpy( &script->token, token, sizeof( token_t ) );
+    
     //primitive reading successfull
     return 1;
 }
 
 /*
 ===============
-Parse_ReadScriptToken
+idParseSystemLocal::ReadScriptToken
 ===============
 */
-static sint Parse_ReadScriptToken( script_t* script, token_t* token )
+sint idParseSystemLocal::ReadScriptToken( script_t* script, token_t* token )
 {
     //if there is a token available (from UnreadToken)
     if( script->tokenavailable )
@@ -959,130 +894,163 @@ static sint Parse_ReadScriptToken( script_t* script, token_t* token )
         ::memcpy( token, &script->token, sizeof( token_t ) );
         return 1;
     }
+    
     //save script pointer
     script->lastscript_p = script->script_p;
+    
     //save line counter
     script->lastline = script->line;
+    
     //clear the token stuff
     ::memset( token, 0, sizeof( token_t ) );
+    
     //start of the white space
     script->whitespace_p = script->script_p;
     token->whitespace_p = script->script_p;
+    
     //read unusefull stuff
-    if( !Parse_ReadWhiteSpace( script ) ) return 0;
+    if( !ReadWhiteSpace( script ) )
+    {
+        return 0;
+    }
     
     script->endwhitespace_p = script->script_p;
     token->endwhitespace_p = script->script_p;
+    
     //line the token is on
     token->line = script->line;
+    
     //number of lines crossed before token
     token->linescrossed = script->line - script->lastline;
+    
     //if there is a leading double quote
     if( *script->script_p == '\"' )
     {
-        if( !Parse_ReadString( script, token, '\"' ) ) return 0;
+        if( !ReadString( script, token, '\"' ) )
+        {
+            return 0;
+        }
     }
     //if an literal
     else if( *script->script_p == '\'' )
     {
-        //if (!Parse_ReadLiteral(script, token)) return 0;
-        if( !Parse_ReadString( script, token, '\'' ) ) return 0;
+        if( !ReadString( script, token, '\'' ) )
+        {
+            return 0;
+        }
     }
     //if there is a number
-    else if( ( *script->script_p >= '0' && *script->script_p <= '9' ) ||
-             ( *script->script_p == '.' &&
-               ( *( script->script_p + 1 ) >= '0' && *( script->script_p + 1 ) <= '9' ) ) )
+    else if( ( *script->script_p >= '0' && *script->script_p <= '9' ) || ( *script->script_p == '.' &&
+             ( *( script->script_p + 1 ) >= '0' && *( script->script_p + 1 ) <= '9' ) ) )
     {
-        if( !Parse_ReadNumber( script, token ) ) return 0;
+        if( !ReadNumber( script, token ) )
+        {
+            return 0;
+        }
     }
     //if this is a primitive script
     else if( script->flags & SCFL_PRIMITIVE )
     {
-        return Parse_ReadPrimitive( script, token );
+        return ReadPrimitive( script, token );
     }
     //if there is a name
-    else if( ( *script->script_p >= 'a' && *script->script_p <= 'z' ) ||
-             ( *script->script_p >= 'A' && *script->script_p <= 'Z' ) ||
-             *script->script_p == '_' )
+    else if( ( *script->script_p >= 'a' && *script->script_p <= 'z' ) || ( *script->script_p >= 'A' && *script->script_p <= 'Z' )
+             || *script->script_p == '_' )
     {
-        if( !Parse_ReadName( script, token ) ) return 0;
+        if( !ReadName( script, token ) )
+        {
+            return 0;
+        }
     }
     //check for punctuations
-    else if( !Parse_ReadPunctuation( script, token ) )
+    else if( !ReadPunctuation( script, token ) )
     {
-        Parse_ScriptError( script, "can't read token" );
+        ScriptError( script, "can't read token" );
         return 0;
     }
+    
     //copy the token into the script structure
     ::memcpy( &script->token, token, sizeof( token_t ) );
+    
     //succesfully read a token
     return 1;
 }
 
 /*
 ===============
-Parse_StripDoubleQuotes
+idParseSystemLocal::StripDoubleQuotes
 ===============
 */
-static void Parse_StripDoubleQuotes( valueType* string )
+void idParseSystemLocal::StripDoubleQuotes( valueType* string )
 {
     if( *string == '\"' )
     {
-        memmove( string, string + 1, strlen( string ) + 1 );
+        ::memmove( string, string + 1, ::strlen( string ) + 1 );
     }
-    if( string[strlen( string ) - 1] == '\"' )
+    
+    if( string[::strlen( string ) - 1] == '\"' )
     {
-        string[strlen( string ) - 1] = '\0';
+        string[::strlen( string ) - 1] = '\0';
     }
 }
 
 /*
 ===============
-Parse_EndOfScript
+idParseSystemLocal::EndOfScript
 ===============
 */
-static sint Parse_EndOfScript( script_t* script )
+sint idParseSystemLocal::EndOfScript( script_t* script )
 {
     return script->script_p >= script->end_p;
 }
 
 /*
 ===============
-Parse_LoadScriptFile
+idParseSystemLocal::LoadScriptFile
 ===============
 */
-static script_t* Parse_LoadScriptFile( pointer filename )
+script_t* idParseSystemLocal::LoadScriptFile( pointer filename )
 {
-    fileHandle_t fp;
     sint length;
     void* buffer;
+    fileHandle_t fp;
     script_t* script;
     
     length = fileSystem->FOpenFileRead( filename, &fp, false );
-    if( !fp ) return nullptr;
+    if( !fp )
+    {
+        return nullptr;
+    }
     
     buffer = Z_Malloc( sizeof( script_t ) + length + 1 );
     ::memset( buffer, 0, sizeof( script_t ) + length + 1 );
     
     script = ( script_t* ) buffer;
     ::memset( script, 0, sizeof( script_t ) );
-    strcpy( script->filename, filename );
+    ::strcpy( script->filename, filename );
     script->buffer = ( valueType* ) buffer + sizeof( script_t );
     script->buffer[length] = 0;
     script->length = length;
+    
     //pointer in script buffer
     script->script_p = script->buffer;
+    
     //pointer in script buffer before reading token
     script->lastscript_p = script->buffer;
+    
     //pointer to end of script buffer
     script->end_p = &script->buffer[length];
+    
     //set if there's a token available in script->token
     script->tokenavailable = 0;
+    
     //
     script->line = 1;
     script->lastline = 1;
+    
     //
-    Parse_SetScriptPunctuations( script, nullptr );
+    SetScriptPunctuations( script, nullptr );
+    
     //
     fileSystem->Read( script->buffer, length, fp );
     fileSystem->FCloseFile( fp );
@@ -1093,10 +1061,10 @@ static script_t* Parse_LoadScriptFile( pointer filename )
 
 /*
 ===============
-Parse_LoadScriptMemory
+idParseSystemLocal::LoadScriptMemory
 ===============
 */
-static script_t* Parse_LoadScriptMemory( valueType* ptr, sint length, valueType* name )
+script_t* idParseSystemLocal::LoadScriptMemory( valueType* ptr, sint length, valueType* name )
 {
     void* buffer;
     script_t* script;
@@ -1106,82 +1074,96 @@ static script_t* Parse_LoadScriptMemory( valueType* ptr, sint length, valueType*
     
     script = ( script_t* ) buffer;
     ::memset( script, 0, sizeof( script_t ) );
-    strcpy( script->filename, name );
+    ::strcpy( script->filename, name );
     script->buffer = ( valueType* ) buffer + sizeof( script_t );
     script->buffer[length] = 0;
     script->length = length;
+    
     //pointer in script buffer
     script->script_p = script->buffer;
+    
     //pointer in script buffer before reading token
     script->lastscript_p = script->buffer;
+    
     //pointer to end of script buffer
     script->end_p = &script->buffer[length];
+    
     //set if there's a token available in script->token
     script->tokenavailable = 0;
+    
     //
     script->line = 1;
     script->lastline = 1;
+    
     //
-    Parse_SetScriptPunctuations( script, nullptr );
+    SetScriptPunctuations( script, nullptr );
+    
     //
     ::memcpy( script->buffer, ptr, length );
+    
     //
     return script;
 }
 
 /*
 ===============
-Parse_FreeScript
+idParseSystemLocal::FreeScript
 ===============
 */
-static void Parse_FreeScript( script_t* script )
+void idParseSystemLocal::FreeScript( script_t* script )
 {
-    if( script->punctuationtable ) Z_Free( script->punctuationtable );
+    if( script->punctuationtable )
+    {
+        Z_Free( script->punctuationtable );
+    }
+    
     Z_Free( script );
 }
 
 /*
 ===============
-Parse_SourceError
+idParseSystemLocal::SourceError
 ===============
 */
-static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_SourceError( source_t* source, valueType* str, ... )
+void idParseSystemLocal::SourceError( source_t* source, valueType* str, ... )
 {
-    valueType text[1024];
-    va_list ap;
+    va_list argptr;
+    valueType text[8192];
     
-    va_start( ap, str );
-    vsprintf( text, str, ap );
-    va_end( ap );
+    va_start( argptr, str );
+    Q_vsnprintf( text, sizeof( text ), str, argptr );
+    va_end( argptr );
+    
     Com_Printf( "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
 }
 
 /*
 ===============
-Parse_SourceWarning
+idParseSystemLocal::SourceWarning
 ===============
 */
-static __attribute__( ( format( printf, 2, 3 ) ) ) void QDECL Parse_SourceWarning( source_t* source, valueType* str, ... )
+void idParseSystemLocal::SourceWarning( source_t* source, valueType* str, ... )
 {
-    valueType text[1024];
-    va_list ap;
+    va_list argptr;
+    valueType text[8192];
     
-    va_start( ap, str );
-    vsprintf( text, str, ap );
-    va_end( ap );
+    va_start( argptr, str );
+    Q_vsnprintf( text, sizeof( text ), str, argptr );
+    va_end( argptr );
+    
     Com_Printf( "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
 }
 
 /*
 ===============
-Parse_PushIndent
+idParseSystemLocal::PushIndent
 ===============
 */
-static void Parse_PushIndent( source_t* source, sint type, sint skip )
+void idParseSystemLocal::PushIndent( source_t* source, sint type, sint skip )
 {
     indent_t* indent;
     
-    indent = ( indent_t* ) Z_Malloc( sizeof( indent_t ) );
+    indent = ( indent_t* )Z_Malloc( sizeof( indent_t ) );
     indent->type = type;
     indent->script = source->scriptstack;
     indent->skip = ( skip != 0 );
@@ -1192,10 +1174,10 @@ static void Parse_PushIndent( source_t* source, sint type, sint skip )
 
 /*
 ===============
-Parse_PopIndent
+idParseSystemLocal::PopIndent
 ===============
 */
-static void Parse_PopIndent( source_t* source, sint* type, sint* skip )
+void idParseSystemLocal::PopIndent( source_t* source, sint* type, sint* skip )
 {
     indent_t* indent;
     
@@ -1203,10 +1185,16 @@ static void Parse_PopIndent( source_t* source, sint* type, sint* skip )
     *skip = 0;
     
     indent = source->indentstack;
-    if( !indent ) return;
+    if( !indent )
+    {
+        return;
+    }
     
     //must be an indent from the current script
-    if( source->indentstack->script != source->scriptstack ) return;
+    if( source->indentstack->script != source->scriptstack )
+    {
+        return;
+    }
     
     *type = indent->type;
     *skip = indent->skip;
@@ -1217,10 +1205,10 @@ static void Parse_PopIndent( source_t* source, sint* type, sint* skip )
 
 /*
 ===============
-Parse_PushScript
+idParseSystemLocal::PushScript
 ===============
 */
-static void Parse_PushScript( source_t* source, script_t* script )
+void idParseSystemLocal::PushScript( source_t* source, script_t* script )
 {
     script_t* s;
     
@@ -1228,10 +1216,11 @@ static void Parse_PushScript( source_t* source, script_t* script )
     {
         if( !Q_stricmp( s->filename, script->filename ) )
         {
-            Parse_SourceError( source, "%s recursively included", script->filename );
+            SourceError( source, "%s recursively included", script->filename );
             return;
         }
     }
+    
     //push the script on the script stack
     script->next = source->scriptstack;
     source->scriptstack = script;
@@ -1239,59 +1228,57 @@ static void Parse_PushScript( source_t* source, script_t* script )
 
 /*
 ===============
-Parse_CopyToken
+idParseSystemLocal::CopyToken
 ===============
 */
-static token_t* Parse_CopyToken( token_t* token )
+token_t* idParseSystemLocal::CopyToken( token_t* token )
 {
     token_t* t;
     
-//  t = (token_t *) malloc(sizeof(token_t));
-    t = ( token_t* ) Z_Malloc( sizeof( token_t ) );
-//  t = freetokens;
+    t = ( token_t* )Z_Malloc( sizeof( token_t ) );
+    
     if( !t )
     {
         Com_Error( ERR_FATAL, "out of token space\n" );
         return nullptr;
     }
-//  freetokens = freetokens->next;
+    
     ::memcpy( t, token, sizeof( token_t ) );
     t->next = nullptr;
     numtokens++;
+    
     return t;
 }
 
 /*
 ===============
-Parse_FreeToken
+idParseSystemLocal::FreeToken
 ===============
 */
-static void Parse_FreeToken( token_t* token )
+void idParseSystemLocal::FreeToken( token_t* token )
 {
-    //free(token);
     Z_Free( token );
-//  token->next = freetokens;
-//  freetokens = token;
     numtokens--;
 }
 
 /*
 ===============
-Parse_ReadSourceToken
+idParseSystemLocal::ReadSourceToken
 ===============
 */
-static sint Parse_ReadSourceToken( source_t* source, token_t* token )
+sint idParseSystemLocal::ReadSourceToken( source_t* source, token_t* token )
 {
     token_t* t;
     script_t* script;
     sint type, skip, lines;
     
     lines = 0;
+    
     //if there's no token already available
     while( !source->tokens )
     {
         //if there's a token to read from the script
-        if( Parse_ReadScriptToken( source->scriptstack, token ) )
+        if( ReadScriptToken( source->scriptstack, token ) )
         {
             token->linescrossed += lines;
             return true;
@@ -1301,42 +1288,48 @@ static sint Parse_ReadSourceToken( source_t* source, token_t* token )
         lines += source->scriptstack->line - source->scriptstack->lastline;
         
         //if at the end of the script
-        if( Parse_EndOfScript( source->scriptstack ) )
+        if( EndOfScript( source->scriptstack ) )
         {
             //remove all indents of the script
-            while( source->indentstack &&
-                    source->indentstack->script == source->scriptstack )
+            while( source->indentstack && source->indentstack->script == source->scriptstack )
             {
-                Parse_SourceWarning( source, "missing #endif" );
-                Parse_PopIndent( source, &type, &skip );
+                SourceWarning( source, "missing #endif" );
+                PopIndent( source, &type, &skip );
             }
         }
         //if this was the initial script
-        if( !source->scriptstack->next ) return false;
+        if( !source->scriptstack->next )
+        {
+            return false;
+        }
+        
         //remove the script and return to the last one
         script = source->scriptstack;
         source->scriptstack = source->scriptstack->next;
-        Parse_FreeScript( script );
+        FreeScript( script );
     }
+    
     //copy the already available token
     ::memcpy( token, source->tokens, sizeof( token_t ) );
+    
     //free the read token
     t = source->tokens;
     source->tokens = source->tokens->next;
-    Parse_FreeToken( t );
+    FreeToken( t );
+    
     return true;
 }
 
 /*
 ===============
-Parse_UnreadSourceToken
+idParseSystemLocal::UnreadSourceToken
 ===============
 */
-static sint Parse_UnreadSourceToken( source_t* source, token_t* token )
+sint idParseSystemLocal::UnreadSourceToken( source_t* source, token_t* token )
 {
     token_t* t;
     
-    t = Parse_CopyToken( token );
+    t = CopyToken( token );
     t->next = source->tokens;
     source->tokens = t;
     return true;
@@ -1344,95 +1337,121 @@ static sint Parse_UnreadSourceToken( source_t* source, token_t* token )
 
 /*
 ===============
-Parse_ReadDefineParms
+idParseSystemLocal::ReadDefineParms
 ===============
 */
-static sint Parse_ReadDefineParms( source_t* source, define_t* define, token_t** parms, sint maxparms )
+sint idParseSystemLocal::ReadDefineParms( source_t* source, define_t* define, token_t** parms, sint maxparms )
 {
     token_t token, *t, *last;
     sint i, done, lastcomma, numparms, indent;
     
-    if( !Parse_ReadSourceToken( source, &token ) )
+    if( !ReadSourceToken( source, &token ) )
     {
-        Parse_SourceError( source, "define %s missing parms", define->name );
+        SourceError( source, "define %s missing parms", define->name );
         return false;
     }
+    
     //
     if( define->numparms > maxparms )
     {
-        Parse_SourceError( source, "define with more than %d parameters", maxparms );
+        SourceError( source, "define with more than %d parameters", maxparms );
         return false;
     }
+    
     //
-    for( i = 0; i < define->numparms; i++ ) parms[i] = nullptr;
-    //if no leading "("
-    if( strcmp( token.string, "(" ) )
+    for( i = 0; i < define->numparms; i++ )
     {
-        Parse_UnreadSourceToken( source, &token );
-        Parse_SourceError( source, "define %s missing parms", define->name );
+        parms[i] = nullptr;
+    }
+    
+    //if no leading "("
+    if( ::strcmp( token.string, "(" ) )
+    {
+        UnreadSourceToken( source, &token );
+        SourceError( source, "define %s missing parms", define->name );
         return false;
     }
+    
     //read the define parameters
     for( done = 0, numparms = 0, indent = 0; !done; )
     {
         if( numparms >= maxparms )
         {
-            Parse_SourceError( source, "define %s with too many parms", define->name );
+            SourceError( source, "define %s with too many parms", define->name );
             return false;
         }
+        
         if( numparms >= define->numparms )
         {
-            Parse_SourceWarning( source, "define %s has too many parms", define->name );
+            SourceWarning( source, "define %s has too many parms", define->name );
             return false;
         }
+        
         parms[numparms] = nullptr;
         lastcomma = 1;
         last = nullptr;
+        
         while( !done )
         {
             //
-            if( !Parse_ReadSourceToken( source, &token ) )
+            if( !ReadSourceToken( source, &token ) )
             {
-                Parse_SourceError( source, "define %s incomplete", define->name );
+                SourceError( source, "define %s incomplete", define->name );
                 return false;
             }
+            
             //
-            if( !strcmp( token.string, "," ) )
+            if( !::strcmp( token.string, "," ) )
             {
                 if( indent <= 0 )
                 {
-                    if( lastcomma ) Parse_SourceWarning( source, "too many comma's" );
+                    if( lastcomma )
+                    {
+                        SourceWarning( source, "too many comma's" );
+                    }
+                    
                     lastcomma = 1;
                     break;
                 }
             }
             lastcomma = 0;
+            
             //
-            if( !strcmp( token.string, "(" ) )
+            if( !::strcmp( token.string, "(" ) )
             {
                 indent++;
                 continue;
             }
-            else if( !strcmp( token.string, ")" ) )
+            else if( !::strcmp( token.string, ")" ) )
             {
                 if( --indent <= 0 )
                 {
                     if( !parms[define->numparms - 1] )
                     {
-                        Parse_SourceWarning( source, "too few define parms" );
+                        SourceWarning( source, "too few define parms" );
                     }
+                    
                     done = 1;
                     break;
                 }
             }
+            
             //
             if( numparms < define->numparms )
             {
                 //
-                t = Parse_CopyToken( &token );
+                t = CopyToken( &token );
                 t->next = nullptr;
-                if( last ) last->next = t;
-                else parms[numparms] = t;
+                
+                if( last )
+                {
+                    last->next = t;
+                }
+                else
+                {
+                    parms[numparms] = t;
+                }
+                
                 last = t;
             }
         }
@@ -1443,10 +1462,10 @@ static sint Parse_ReadDefineParms( source_t* source, define_t* define, token_t**
 
 /*
 ===============
-Parse_StringizeTokens
+idParseSystemLocal::StringizeTokens
 ===============
 */
-static sint Parse_StringizeTokens( token_t* tokens, token_t* token )
+sint idParseSystemLocal::StringizeTokens( token_t* tokens, token_t* token )
 {
     token_t* t;
     
@@ -1454,119 +1473,138 @@ static sint Parse_StringizeTokens( token_t* tokens, token_t* token )
     token->whitespace_p = nullptr;
     token->endwhitespace_p = nullptr;
     token->string[0] = '\0';
-    strcat( token->string, "\"" );
+    ::strcat( token->string, "\"" );
+    
     for( t = tokens; t; t = t->next )
     {
-        strncat( token->string, t->string, MAX_TOKEN_CHARS - strlen( token->string ) );
+        ::strncat( token->string, t->string, MAX_TOKEN_CHARS - ::strlen( token->string ) );
     }
-    strncat( token->string, "\"", MAX_TOKEN_CHARS - strlen( token->string ) );
+    
+    ::strncat( token->string, "\"", MAX_TOKEN_CHARS - ::strlen( token->string ) );
+    
     return true;
 }
 
 /*
 ===============
-Parse_MergeTokens
+idParseSystemLocal::MergeTokens
 ===============
 */
-static sint Parse_MergeTokens( token_t* t1, token_t* t2 )
+sint idParseSystemLocal::MergeTokens( token_t* t1, token_t* t2 )
 {
     //merging of a name with a name or number
     if( t1->type == TT_NAME && ( t2->type == TT_NAME || t2->type == TT_NUMBER ) )
     {
-        strcat( t1->string, t2->string );
+        ::strcat( t1->string, t2->string );
         return true;
     }
+    
     //merging of two strings
     if( t1->type == TT_STRING && t2->type == TT_STRING )
     {
         //remove trailing double quote
-        t1->string[strlen( t1->string ) - 1] = '\0';
+        t1->string[::strlen( t1->string ) - 1] = '\0';
+        
         //concat without leading double quote
         strcat( t1->string, &t2->string[1] );
+        
         return true;
     }
+    
     //FIXME: merging of two number of the same sub type
     return false;
 }
 
 /*
 ===============
-Parse_NameHash
+idParseSystemLocal::NameHash
+
+//valueType primes[16] = {1, 3, 5, 7, 11, 13, 17, 19, 23, 27, 29, 31, 37, 41, 43, 47};
 ===============
 */
-//valueType primes[16] = {1, 3, 5, 7, 11, 13, 17, 19, 23, 27, 29, 31, 37, 41, 43, 47};
-static sint Parse_NameHash( valueType* name )
+sint idParseSystemLocal::NameHash( valueType* name )
 {
-    register sint hash, i;
+    sint hash, i;
     
     hash = 0;
+    
     for( i = 0; name[i] != '\0'; i++ )
     {
         hash += name[i] * ( 119 + i );
-        //hash += (name[i] << 7) + i;
-        //hash += (name[i] << (i&15));
     }
+    
     hash = ( hash ^ ( hash >> 10 ) ^ ( hash >> 20 ) ) & ( DEFINEHASHSIZE - 1 );
+    
     return hash;
 }
 
 /*
 ===============
-Parse_AddDefineToHash
+idParseSystemLocal::AddDefineToHash
 ===============
 */
-static void Parse_AddDefineToHash( define_t* define, define_t** definehash )
+void idParseSystemLocal::AddDefineToHash( define_t* define, define_t** definehash )
 {
     sint hash;
     
-    hash = Parse_NameHash( define->name );
+    hash = NameHash( define->name );
     define->hashnext = definehash[hash];
     definehash[hash] = define;
 }
 
 /*
 ===============
-Parse_FindHashedDefine
+idParseSystemLocal::FindHashedDefine
 ===============
 */
-static define_t* Parse_FindHashedDefine( define_t** definehash, valueType* name )
+define_t* idParseSystemLocal::FindHashedDefine( define_t** definehash, valueType* name )
 {
-    define_t* d;
     sint hash;
+    define_t* d;
     
-    hash = Parse_NameHash( name );
+    hash = NameHash( name );
+    
     for( d = definehash[hash]; d; d = d->hashnext )
     {
-        if( !strcmp( d->name, name ) ) return d;
+        if( !::strcmp( d->name, name ) )
+        {
+            return d;
+        }
     }
+    
     return nullptr;
 }
 
 /*
 ===============
-Parse_FindDefineParm
+idParseSystemLocal::FindDefineParm
 ===============
 */
-static sint Parse_FindDefineParm( define_t* define, valueType* name )
+sint idParseSystemLocal::FindDefineParm( define_t* define, valueType* name )
 {
-    token_t* p;
     sint i;
+    token_t* p;
     
     i = 0;
+    
     for( p = define->parms; p; p = p->next )
     {
-        if( !strcmp( p->string, name ) ) return i;
+        if( !::strcmp( p->string, name ) )
+        {
+            return i;
+        }
         i++;
     }
+    
     return -1;
 }
 
 /*
 ===============
-Parse_FreeDefine
+idParseSystemLocal::FreeDefine
 ===============
 */
-static void Parse_FreeDefine( define_t* define )
+void idParseSystemLocal::FreeDefine( define_t* define )
 {
     token_t* t, *next;
     
@@ -1574,37 +1612,38 @@ static void Parse_FreeDefine( define_t* define )
     for( t = define->parms; t; t = next )
     {
         next = t->next;
-        Parse_FreeToken( t );
+        FreeToken( t );
     }
+    
     //free the define tokens
     for( t = define->tokens; t; t = next )
     {
         next = t->next;
-        Parse_FreeToken( t );
+        FreeToken( t );
     }
+    
     //free the define
     Z_Free( define );
 }
 
 /*
 ===============
-Parse_ExpandBuiltinDefine
+idParseSystemLocal::ExpandBuiltinDefine
 ===============
 */
-static sint Parse_ExpandBuiltinDefine( source_t* source, token_t* deftoken, define_t* define,
-                                       token_t** firsttoken, token_t** lasttoken )
+sint idParseSystemLocal::ExpandBuiltinDefine( source_t* source, token_t* deftoken, define_t* define, token_t** firsttoken, token_t** lasttoken )
 {
     token_t* token;
     time_t t;
     
     valueType* curtime;
     
-    token = Parse_CopyToken( deftoken );
+    token = CopyToken( deftoken );
     switch( define->builtin )
     {
         case BUILTIN_LINE:
         {
-            sprintf( token->string, "%d", deftoken->line );
+            ::sprintf( token->string, "%d", deftoken->line );
             token->intvalue = deftoken->line;
             token->floatvalue = deftoken->line;
             token->type = TT_NUMBER;
@@ -1615,38 +1654,38 @@ static sint Parse_ExpandBuiltinDefine( source_t* source, token_t* deftoken, defi
         }
         case BUILTIN_FILE:
         {
-            strcpy( token->string, source->scriptstack->filename );
+            ::strcpy( token->string, source->scriptstack->filename );
             token->type = TT_NAME;
-            token->subtype = strlen( token->string );
+            token->subtype = ( sint )::strlen( token->string );
             *firsttoken = token;
             *lasttoken = token;
             break;
         }
         case BUILTIN_DATE:
         {
-            t = time( nullptr );
-            curtime = ctime( &t );
-            strcpy( token->string, "\"" );
-            strncat( token->string, curtime + 4, 7 );
-            strncat( token->string + 7, curtime + 20, 4 );
-            strcat( token->string, "\"" );
-            free( curtime );
+            t = ::time( nullptr );
+            curtime = ::ctime( &t );
+            ::strcpy( token->string, "\"" );
+            ::strncat( token->string, curtime + 4, 7 );
+            ::strncat( token->string + 7, curtime + 20, 4 );
+            ::strcat( token->string, "\"" );
+            ::free( curtime );
             token->type = TT_NAME;
-            token->subtype = strlen( token->string );
+            token->subtype = ( sint )::strlen( token->string );
             *firsttoken = token;
             *lasttoken = token;
             break;
         }
         case BUILTIN_TIME:
         {
-            t = time( nullptr );
-            curtime = ctime( &t );
-            strcpy( token->string, "\"" );
-            strncat( token->string, curtime + 11, 8 );
-            strcat( token->string, "\"" );
-            free( curtime );
+            t = ::time( nullptr );
+            curtime = ::ctime( &t );
+            ::strcpy( token->string, "\"" );
+            ::strncat( token->string, curtime + 11, 8 );
+            ::strcat( token->string, "\"" );
+            ::free( curtime );
             token->type = TT_NAME;
-            token->subtype = strlen( token->string );
+            token->subtype = ( sint )::strlen( token->string );
             *firsttoken = token;
             *lasttoken = token;
             break;
@@ -1664,48 +1703,59 @@ static sint Parse_ExpandBuiltinDefine( source_t* source, token_t* deftoken, defi
 
 /*
 ===============
-Parse_ExpandDefine
+idParseSystemLocal::ExpandDefine
 ===============
 */
-static sint Parse_ExpandDefine( source_t* source, token_t* deftoken, define_t* define,
-                                token_t** firsttoken, token_t** lasttoken )
+sint idParseSystemLocal::ExpandDefine( source_t* source, token_t* deftoken, define_t* define, token_t** firsttoken, token_t** lasttoken )
 {
+    sint parmnum, i;
     token_t* parms[MAX_DEFINEPARMS], *dt, *pt, *t;
     token_t* t1, *t2, *first, *last, *nextpt, token;
-    sint parmnum, i;
     
     //if it is a builtin define
     if( define->builtin )
     {
-        return Parse_ExpandBuiltinDefine( source, deftoken, define, firsttoken, lasttoken );
+        return ExpandBuiltinDefine( source, deftoken, define, firsttoken, lasttoken );
     }
+    
     //if the define has parameters
     if( define->numparms )
     {
-        if( !Parse_ReadDefineParms( source, define, parms, MAX_DEFINEPARMS ) ) return false;
+        if( !ReadDefineParms( source, define, parms, MAX_DEFINEPARMS ) ) return false;
     }
+    
     //empty list at first
     first = nullptr;
     last = nullptr;
+    
     //create a list with tokens of the expanded define
     for( dt = define->tokens; dt; dt = dt->next )
     {
         parmnum = -1;
+        
         //if the token is a name, it could be a define parameter
         if( dt->type == TT_NAME )
         {
-            parmnum = Parse_FindDefineParm( define, dt->string );
+            parmnum = FindDefineParm( define, dt->string );
         }
+        
         //if it is a define parameter
         if( parmnum >= 0 )
         {
             for( pt = parms[parmnum]; pt; pt = pt->next )
             {
-                t = Parse_CopyToken( pt );
+                t = CopyToken( pt );
+                
                 //add the token to the list
                 t->next = nullptr;
-                if( last ) last->next = t;
-                else first = t;
+                if( last )
+                {
+                    last->next = t;
+                }
+                else
+                {
+                    first = t;
+                }
                 last = t;
             }
         }
@@ -1715,35 +1765,52 @@ static sint Parse_ExpandDefine( source_t* source, token_t* deftoken, define_t* d
             if( dt->string[0] == '#' && dt->string[1] == '\0' )
             {
                 //the stringizing operator must be followed by a define parameter
-                if( dt->next ) parmnum = Parse_FindDefineParm( define, dt->next->string );
-                else parmnum = -1;
+                if( dt->next )
+                {
+                    parmnum = FindDefineParm( define, dt->next->string );
+                }
+                else
+                {
+                    parmnum = -1;
+                }
+                
                 //
                 if( parmnum >= 0 )
                 {
                     //step over the stringizing operator
                     dt = dt->next;
+                    
                     //stringize the define parameter tokens
-                    if( !Parse_StringizeTokens( parms[parmnum], &token ) )
+                    if( !StringizeTokens( parms[parmnum], &token ) )
                     {
-                        Parse_SourceError( source, "can't stringize tokens" );
+                        SourceError( source, "can't stringize tokens" );
                         return false;
                     }
-                    t = Parse_CopyToken( &token );
+                    t = CopyToken( &token );
                 }
                 else
                 {
-                    Parse_SourceWarning( source, "stringizing operator without define parameter" );
+                    SourceWarning( source, "stringizing operator without define parameter" );
                     continue;
                 }
             }
             else
             {
-                t = Parse_CopyToken( dt );
+                t = CopyToken( dt );
             }
+            
             //add the token to the list
             t->next = nullptr;
-            if( last ) last->next = t;
-            else first = t;
+            
+            if( last )
+            {
+                last->next = t;
+            }
+            else
+            {
+                first = t;
+            }
+            
             last = t;
         }
     }
@@ -1757,49 +1824,63 @@ static sint Parse_ExpandDefine( source_t* source, token_t* deftoken, define_t* d
             {
                 t1 = t;
                 t2 = t->next->next;
+                
                 if( t2 )
                 {
-                    if( !Parse_MergeTokens( t1, t2 ) )
+                    if( !MergeTokens( t1, t2 ) )
                     {
-                        Parse_SourceError( source, "can't merge %s with %s", t1->string, t2->string );
+                        SourceError( source, "can't merge %s with %s", t1->string, t2->string );
                         return false;
                     }
-                    Parse_FreeToken( t1->next );
+                    
+                    FreeToken( t1->next );
+                    
                     t1->next = t2->next;
-                    if( t2 == last ) last = t1;
-                    Parse_FreeToken( t2 );
+                    if( t2 == last )
+                    {
+                        last = t1;
+                    }
+                    
+                    FreeToken( t2 );
                     continue;
                 }
             }
         }
+        
         t = t->next;
     }
+    
     //store the first and last token of the list
     *firsttoken = first;
     *lasttoken = last;
+    
     //free all the parameter tokens
     for( i = 0; i < define->numparms; i++ )
     {
         for( pt = parms[i]; pt; pt = nextpt )
         {
             nextpt = pt->next;
-            Parse_FreeToken( pt );
+            FreeToken( pt );
         }
     }
+    
     //
     return true;
 }
 
 /*
 ===============
-Parse_ExpandDefineIntoSource
+idParseSystemLocal::ExpandDefineIntoSource
 ===============
 */
-static sint Parse_ExpandDefineIntoSource( source_t* source, token_t* deftoken, define_t* define )
+sint idParseSystemLocal::ExpandDefineIntoSource( source_t* source, token_t* deftoken, define_t* define )
 {
     token_t* firsttoken, *lasttoken;
     
-    if( !Parse_ExpandDefine( source, deftoken, define, &firsttoken, &lasttoken ) ) return false;
+    if( !ExpandDefine( source, deftoken, define, &firsttoken, &lasttoken ) )
+    {
+        return false;
+    }
     
     if( firsttoken && lasttoken )
     {
@@ -1807,89 +1888,82 @@ static sint Parse_ExpandDefineIntoSource( source_t* source, token_t* deftoken, d
         source->tokens = firsttoken;
         return true;
     }
+    
     return false;
 }
 
 /*
 ===============
-Parse_ConvertPath
+idParseSystemLocal::ConvertPath
 ===============
 */
-static void Parse_ConvertPath( valueType* path )
+void idParseSystemLocal::ConvertPath( valueType* path )
 {
     valueType* ptr;
     
     //remove double path seperators
     for( ptr = path; *ptr; )
     {
-        if( ( *ptr == '\\' || *ptr == '/' ) &&
-                ( *( ptr + 1 ) == '\\' || *( ptr + 1 ) == '/' ) )
+        if( ( *ptr == '\\' || *ptr == '/' ) && ( *( ptr + 1 ) == '\\' || *( ptr + 1 ) == '/' ) )
         {
-            memmove( ptr, ptr + 1, strlen( ptr ) );
+            ::memmove( ptr, ptr + 1, ::strlen( ptr ) );
         }
         else
         {
             ptr++;
         }
     }
+    
     //set OS dependent path seperators
     for( ptr = path; *ptr; )
     {
-        if( *ptr == '/' || *ptr == '\\' ) *ptr = PATH_SEP;
+        if( *ptr == '/' || *ptr == '\\' )
+        {
+            *ptr = PATH_SEP;
+        }
         ptr++;
     }
 }
 
 /*
 ===============
-Parse_ReadLine
+idParseSystemLocal::ReadLine
 
 reads a token from the current line, continues reading on the next
 line only if a backslash '\' is encountered.
 ===============
 */
-static sint Parse_ReadLine( source_t* source, token_t* token )
+sint idParseSystemLocal::ReadLine( source_t* source, token_t* token )
 {
     sint crossline;
     
     crossline = 0;
     do
     {
-        if( !Parse_ReadSourceToken( source, token ) ) return false;
+        if( !ReadSourceToken( source, token ) )
+        {
+            return false;
+        }
         
         if( token->linescrossed > crossline )
         {
-            Parse_UnreadSourceToken( source, token );
+            UnreadSourceToken( source, token );
             return false;
         }
+        
         crossline = 1;
     }
-    while( !strcmp( token->string, "\\" ) );
+    while( !::strcmp( token->string, "\\" ) );
+    
     return true;
 }
 
 /*
 ===============
-Parse_OperatorPriority
+idParseSystemLocal::OperatorPriority
 ===============
 */
-typedef struct operator_s
-{
-    sint _operator;
-    sint priority;
-    sint parentheses;
-    struct operator_s* prev, *next;
-} operator_t;
-
-typedef struct value_s
-{
-    sint32 intvalue;
-    float64 floatvalue;
-    sint parentheses;
-    struct value_s* prev, *next;
-} value_t;
-
-static sint Parse_OperatorPriority( sint op )
+sint idParseSystemLocal::OperatorPriority( sint op )
 {
     switch( op )
     {
@@ -1946,35 +2020,12 @@ static sint Parse_OperatorPriority( sint op )
     return false;
 }
 
-#define MAX_VALUES    64
-#define MAX_OPERATORS 64
-#define AllocValue(val)                 \
-  if (numvalues >= MAX_VALUES) {            \
-    Parse_SourceError(source, "out of value space\n");    \
-    error = 1;                    \
-    break;                      \
-  }                         \
-  else                        \
-    val = &value_heap[numvalues++];
-#define FreeValue(val)
-//
-#define AllocOperator(op)               \
-  if (numoperators >= MAX_OPERATORS) {        \
-    Parse_SourceError(source, "out of operator space\n"); \
-    error = 1;                    \
-    break;                      \
-  }                         \
-  else                        \
-    op = &operator_heap[numoperators++];
-#define FreeOperator(op)
-
 /*
 ===============
-Parse_EvaluateTokens
+idParseSystemLocal::EvaluateTokens
 ===============
 */
-static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* intvalue,
-                                  float64* floatvalue, sint integer )
+sint idParseSystemLocal::EvaluateTokens( source_t* source, token_t* tokens, sint32* intvalue, float64* floatvalue, sint integer )
 {
     operator_t* o, *firstoperator, *lastoperator;
     value_t* v, *firstvalue, *lastvalue, *v1, *v2;
@@ -1996,8 +2047,17 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
     
     firstoperator = lastoperator = nullptr;
     firstvalue = lastvalue = nullptr;
-    if( intvalue ) *intvalue = 0;
-    if( floatvalue ) *floatvalue = 0;
+    
+    if( intvalue )
+    {
+        *intvalue = 0;
+    }
+    
+    if( floatvalue )
+    {
+        *floatvalue = 0;
+    }
+    
     for( t = tokens; t; t = t->next )
     {
         switch( t->type )
@@ -2006,31 +2066,36 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
             {
                 if( lastwasvalue || negativevalue )
                 {
-                    Parse_SourceError( source, "syntax error in #if/#elif" );
+                    SourceError( source, "syntax error in #if/#elif" );
                     error = 1;
                     break;
                 }
-                if( strcmp( t->string, "defined" ) )
+                
+                if( ::strcmp( t->string, "defined" ) )
                 {
-                    Parse_SourceError( source, "undefined name %s in #if/#elif", t->string );
+                    SourceError( source, "undefined name %s in #if/#elif", t->string );
                     error = 1;
                     break;
                 }
+                
                 t = t->next;
-                if( !strcmp( t->string, "(" ) )
+                
+                if( !::strcmp( t->string, "(" ) )
                 {
                     brace = true;
                     t = t->next;
                 }
+                
                 if( !t || t->type != TT_NAME )
                 {
-                    Parse_SourceError( source, "defined without name in #if/#elif" );
+                    SourceError( source, "defined without name in #if/#elif" );
                     error = 1;
                     break;
                 }
-                //v = (value_t *) Z_Malloc(sizeof(value_t));
+                
                 AllocValue( v );
-                if( Parse_FindHashedDefine( source->definehash, t->string ) )
+                
+                if( FindHashedDefine( source->definehash, t->string ) )
                 {
                     v->intvalue = 1;
                     v->floatvalue = 1;
@@ -2040,23 +2105,36 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
                     v->intvalue = 0;
                     v->floatvalue = 0;
                 }
+                
                 v->parentheses = parentheses;
                 v->next = nullptr;
                 v->prev = lastvalue;
-                if( lastvalue ) lastvalue->next = v;
-                else firstvalue = v;
+                
+                if( lastvalue )
+                {
+                    lastvalue->next = v;
+                }
+                else
+                {
+                    firstvalue = v;
+                }
+                
                 lastvalue = v;
+                
                 if( brace )
                 {
                     t = t->next;
-                    if( !t || strcmp( t->string, ")" ) )
+                    
+                    if( !t || ::strcmp( t->string, ")" ) )
                     {
-                        Parse_SourceError( source, "defined without ) in #if/#elif" );
+                        SourceError( source, "defined without ) in #if/#elif" );
                         error = 1;
                         break;
                     }
                 }
+                
                 brace = false;
+                
                 // defined() creates a value
                 lastwasvalue = 1;
                 break;
@@ -2065,12 +2143,13 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
             {
                 if( lastwasvalue )
                 {
-                    Parse_SourceError( source, "syntax error in #if/#elif" );
+                    SourceError( source, "syntax error in #if/#elif" );
                     error = 1;
                     break;
                 }
-                //v = (value_t *) Z_Malloc(sizeof(value_t));
+                
                 AllocValue( v );
+                
                 if( negativevalue )
                 {
                     v->intvalue = - ( sint ) t->intvalue;
@@ -2081,14 +2160,25 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
                     v->intvalue = t->intvalue;
                     v->floatvalue = t->floatvalue;
                 }
+                
                 v->parentheses = parentheses;
                 v->next = nullptr;
                 v->prev = lastvalue;
-                if( lastvalue ) lastvalue->next = v;
-                else firstvalue = v;
+                
+                if( lastvalue )
+                {
+                    lastvalue->next = v;
+                }
+                else
+                {
+                    firstvalue = v;
+                }
+                
                 lastvalue = v;
+                
                 //last token was a value
                 lastwasvalue = 1;
+                
                 //
                 negativevalue = 0;
                 break;
@@ -2097,10 +2187,11 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
             {
                 if( negativevalue )
                 {
-                    Parse_SourceError( source, "misplaced minus sign in #if/#elif" );
+                    SourceError( source, "misplaced minus sign in #if/#elif" );
                     error = 1;
                     break;
                 }
+                
                 if( t->subtype == P_PARENTHESESOPEN )
                 {
                     parentheses++;
@@ -2109,22 +2200,22 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
                 else if( t->subtype == P_PARENTHESESCLOSE )
                 {
                     parentheses--;
+                    
                     if( parentheses < 0 )
                     {
-                        Parse_SourceError( source, "too many ) in #if/#elsif" );
+                        SourceError( source, "too many ) in #if/#elsif" );
                         error = 1;
                     }
                     break;
                 }
+                
                 //check for invalid operators on floating point values
                 if( !integer )
                 {
-                    if( t->subtype == P_BIN_NOT || t->subtype == P_MOD ||
-                            t->subtype == P_RSHIFT || t->subtype == P_LSHIFT ||
-                            t->subtype == P_BIN_AND || t->subtype == P_BIN_OR ||
-                            t->subtype == P_BIN_XOR )
+                    if( t->subtype == P_BIN_NOT || t->subtype == P_MOD || t->subtype == P_RSHIFT || t->subtype == P_LSHIFT ||
+                            t->subtype == P_BIN_AND || t->subtype == P_BIN_OR || t->subtype == P_BIN_XOR )
                     {
-                        Parse_SourceError( source, "illigal operator %s on floating point operands\n", t->string );
+                        SourceError( source, "illigal operator %s on floating point operands\n", t->string );
                         error = 1;
                         break;
                     }
@@ -2136,7 +2227,7 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
                     {
                         if( lastwasvalue )
                         {
-                            Parse_SourceError( source, "! or ~ after value in #if/#elif" );
+                            SourceError( source, "! or ~ after value in #if/#elif" );
                             error = 1;
                             break;
                         }
@@ -2145,7 +2236,7 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
                     case P_INC:
                     case P_DEC:
                     {
-                        Parse_SourceError( source, "++ or -- used in #if/#elif" );
+                        SourceError( source, "++ or -- used in #if/#elif" );
                         break;
                     }
                     case P_SUB:
@@ -2184,7 +2275,7 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
                     {
                         if( !lastwasvalue )
                         {
-                            Parse_SourceError( source, "operator %s after operator in #if/#elif", t->string );
+                            SourceError( source, "operator %s after operator in #if/#elif", t->string );
                             error = 1;
                             break;
                         }
@@ -2192,22 +2283,30 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
                     }
                     default:
                     {
-                        Parse_SourceError( source, "invalid operator %s in #if/#elif", t->string );
+                        SourceError( source, "invalid operator %s in #if/#elif", t->string );
                         error = 1;
                         break;
                     }
                 }
                 if( !error && !negativevalue )
                 {
-                    //o = (operator_t *) Z_Malloc(sizeof(operator_t));
                     AllocOperator( o );
+                    
                     o->_operator = t->subtype;
-                    o->priority = Parse_OperatorPriority( t->subtype );
+                    o->priority = OperatorPriority( t->subtype );
                     o->parentheses = parentheses;
                     o->next = nullptr;
                     o->prev = lastoperator;
-                    if( lastoperator ) lastoperator->next = o;
-                    else firstoperator = o;
+                    
+                    if( lastoperator )
+                    {
+                        lastoperator->next = o;
+                    }
+                    else
+                    {
+                        firstoperator = o;
+                    }
+                    
                     lastoperator = o;
                     lastwasvalue = 0;
                 }
@@ -2215,30 +2314,36 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
             }
             default:
             {
-                Parse_SourceError( source, "unknown %s in #if/#elif", t->string );
+                SourceError( source, "unknown %s in #if/#elif", t->string );
                 error = 1;
                 break;
             }
         }
-        if( error ) break;
+        
+        if( error )
+        {
+            break;
+        }
     }
     if( !error )
     {
         if( !lastwasvalue )
         {
-            Parse_SourceError( source, "trailing operator in #if/#elif" );
+            SourceError( source, "trailing operator in #if/#elif" );
             error = 1;
         }
         else if( parentheses )
         {
-            Parse_SourceError( source, "too many ( in #if/#elif" );
+            SourceError( source, "too many ( in #if/#elif" );
             error = 1;
         }
     }
+    
     //
     gotquestmarkvalue = false;
     questmarkintvalue = 0;
     questmarkfloatvalue = 0;
+    
     //while there are operators
     while( !error && firstoperator )
     {
@@ -2247,7 +2352,11 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
         {
             //if the current operator is nested deeper in parentheses
             //than the next operator
-            if( o->parentheses > o->next->parentheses ) break;
+            if( o->parentheses > o->next->parentheses )
+            {
+                break;
+            }
+            
             //if the current and next operator are nested equally deep in parentheses
             if( o->parentheses == o->next->parentheses )
             {
@@ -2255,20 +2364,30 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
                 //than the priority of the next operator
                 if( o->priority >= o->next->priority ) break;
             }
+            
             //if the arity of the operator isn't equal to 1
-            if( o->_operator != P_LOGIC_NOT
-                    && o->_operator != P_BIN_NOT ) v = v->next;
+            if( o->_operator != P_LOGIC_NOT && o->_operator != P_BIN_NOT )
+            {
+                v = v->next;
+            }
+            
             //if there's no value or no next value
             if( !v )
             {
-                Parse_SourceError( source, "mising values in #if/#elif" );
+                SourceError( source, "mising values in #if/#elif" );
                 error = 1;
                 break;
             }
         }
-        if( error ) break;
+        
+        if( error )
+        {
+            break;
+        }
+        
         v1 = v;
         v2 = v->next;
+        
         switch( o->_operator )
         {
             case P_LOGIC_NOT:
@@ -2285,7 +2404,7 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
             case P_DIV:
                 if( !v2->intvalue || !v2->floatvalue )
                 {
-                    Parse_SourceError( source, "divide by zero in #if/#elif\n" );
+                    SourceError( source, "divide by zero in #if/#elif\n" );
                     error = 1;
                     break;
                 }
@@ -2295,7 +2414,7 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
             case P_MOD:
                 if( !v2->intvalue )
                 {
-                    Parse_SourceError( source, "divide by zero in #if/#elif\n" );
+                    SourceError( source, "divide by zero in #if/#elif\n" );
                     error = 1;
                     break;
                 }
@@ -2360,17 +2479,24 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
             {
                 if( !gotquestmarkvalue )
                 {
-                    Parse_SourceError( source, ": without ? in #if/#elif" );
+                    SourceError( source, ": without ? in #if/#elif" );
                     error = 1;
                     break;
                 }
+                
                 if( integer )
                 {
-                    if( !questmarkintvalue ) v1->intvalue = v2->intvalue;
+                    if( !questmarkintvalue )
+                    {
+                        v1->intvalue = v2->intvalue;
+                    }
                 }
                 else
                 {
-                    if( !questmarkfloatvalue ) v1->floatvalue = v2->floatvalue;
+                    if( !questmarkfloatvalue )
+                    {
+                        v1->floatvalue = v2->floatvalue;
+                    }
                 }
                 gotquestmarkvalue = false;
                 break;
@@ -2379,84 +2505,149 @@ static sint Parse_EvaluateTokens( source_t* source, token_t* tokens, sint32* int
             {
                 if( gotquestmarkvalue )
                 {
-                    Parse_SourceError( source, "? after ? in #if/#elif" );
+                    SourceError( source, "? after ? in #if/#elif" );
                     error = 1;
                     break;
                 }
+                
                 questmarkintvalue = v1->intvalue;
                 questmarkfloatvalue = v1->floatvalue;
                 gotquestmarkvalue = true;
                 break;
             }
         }
-        if( error ) break;
+        
+        if( error )
+        {
+            break;
+        }
+        
         lastoperatortype = o->_operator;
+        
         //if not an operator with arity 1
-        if( o->_operator != P_LOGIC_NOT
-                && o->_operator != P_BIN_NOT )
+        if( o->_operator != P_LOGIC_NOT && o->_operator != P_BIN_NOT )
         {
             //remove the second value if not question mark operator
-            if( o->_operator != P_QUESTIONMARK ) v = v->next;
+            if( o->_operator != P_QUESTIONMARK )
+            {
+                v = v->next;
+            }
+            
             //
-            if( v->prev ) v->prev->next = v->next;
-            else firstvalue = v->next;
-            if( v->next ) v->next->prev = v->prev;
-            else lastvalue = v->prev;
-            //Z_Free(v);
+            if( v->prev )
+            {
+                v->prev->next = v->next;
+            }
+            else
+            {
+                firstvalue = v->next;
+            }
+            
+            if( v->next )
+            {
+                v->next->prev = v->prev;
+            }
+            else
+            {
+                lastvalue = v->prev;
+            }
+            
             FreeValue( v );
         }
         //remove the operator
-        if( o->prev ) o->prev->next = o->next;
-        else firstoperator = o->next;
-        if( o->next ) o->next->prev = o->prev;
-        else lastoperator = o->prev;
-        //Z_Free(o);
+        if( o->prev )
+        {
+            o->prev->next = o->next;
+        }
+        else
+        {
+            firstoperator = o->next;
+        }
+        
+        if( o->next )
+        {
+            o->next->prev = o->prev;
+        }
+        else
+        {
+            lastoperator = o->prev;
+        }
+        
         FreeOperator( o );
     }
+    
     if( firstvalue )
     {
-        if( intvalue ) *intvalue = firstvalue->intvalue;
-        if( floatvalue ) *floatvalue = firstvalue->floatvalue;
+        if( intvalue )
+        {
+            *intvalue = firstvalue->intvalue;
+        }
+        
+        if( floatvalue )
+        {
+            *floatvalue = firstvalue->floatvalue;
+        }
     }
+    
     for( o = firstoperator; o; o = lastoperator )
     {
         lastoperator = o->next;
-        //Z_Free(o);
         FreeOperator( o );
     }
+    
     for( v = firstvalue; v; v = lastvalue )
     {
         lastvalue = v->next;
-        //Z_Free(v);
         FreeValue( v );
     }
-    if( !error ) return true;
-    if( intvalue ) *intvalue = 0;
-    if( floatvalue ) *floatvalue = 0;
+    
+    if( !error )
+    {
+        return true;
+    }
+    
+    if( intvalue )
+    {
+        *intvalue = 0;
+    }
+    
+    if( floatvalue )
+    {
+        *floatvalue = 0;
+    }
+    
     return false;
 }
 
 /*
 ===============
-Parse_Evaluate
+idParseSystemLocal::Evaluate
 ===============
 */
-static sint Parse_Evaluate( source_t* source, sint32* intvalue,
-                            float64* floatvalue, sint integer )
+sint idParseSystemLocal::Evaluate( source_t* source, sint32* intvalue, float64* floatvalue, sint integer )
 {
+    sint defined = false;
     token_t token, *firsttoken, *lasttoken;
     token_t* t, *nexttoken;
     define_t* define;
-    sint defined = false;
     
-    if( intvalue ) *intvalue = 0;
-    if( floatvalue ) *floatvalue = 0;
-    //
-    if( !Parse_ReadLine( source, &token ) )
+    if( intvalue )
     {
-        Parse_SourceError( source, "no value after #if/#elif" );
+        *intvalue = 0;
+    }
+    
+    if( floatvalue )
+    {
+        *floatvalue = 0;
+    }
+    
+    //
+    if( !ReadLine( source, &token ) )
+    {
+        SourceError( source, "no value after #if/#elif" );
         return false;
     }
+    
     firsttoken = nullptr;
     lasttoken = nullptr;
     do
@@ -2467,87 +2658,132 @@ static sint Parse_Evaluate( source_t* source, sint32* intvalue,
             if( defined )
             {
                 defined = false;
-                t = Parse_CopyToken( &token );
+                
+                t = CopyToken( &token );
                 t->next = nullptr;
-                if( lasttoken ) lasttoken->next = t;
-                else firsttoken = t;
+                
+                if( lasttoken )
+                {
+                    lasttoken->next = t;
+                }
+                else
+                {
+                    firsttoken = t;
+                }
+                
                 lasttoken = t;
             }
-            else if( !strcmp( token.string, "defined" ) )
+            else if( !::strcmp( token.string, "defined" ) )
             {
                 defined = true;
-                t = Parse_CopyToken( &token );
+                t = CopyToken( &token );
                 t->next = nullptr;
-                if( lasttoken ) lasttoken->next = t;
-                else firsttoken = t;
+                
+                if( lasttoken )
+                {
+                    lasttoken->next = t;
+                }
+                else
+                {
+                    firsttoken = t;
+                }
+                
                 lasttoken = t;
             }
             else
             {
                 //then it must be a define
-                define = Parse_FindHashedDefine( source->definehash, token.string );
+                define = FindHashedDefine( source->definehash, token.string );
                 if( !define )
                 {
-                    Parse_SourceError( source, "can't evaluate %s, not defined", token.string );
+                    SourceError( source, "can't evaluate %s, not defined", token.string );
                     return false;
                 }
-                if( !Parse_ExpandDefineIntoSource( source, &token, define ) ) return false;
+                
+                if( !ExpandDefineIntoSource( source, &token, define ) )
+                {
+                    return false;
+                }
             }
         }
         //if the token is a number or a punctuation
         else if( token.type == TT_NUMBER || token.type == TT_PUNCTUATION )
         {
-            t = Parse_CopyToken( &token );
+            t = CopyToken( &token );
             t->next = nullptr;
-            if( lasttoken ) lasttoken->next = t;
-            else firsttoken = t;
+            
+            if( lasttoken )
+            {
+                lasttoken->next = t;
+            }
+            else
+            {
+                firsttoken = t;
+            }
+            
             lasttoken = t;
         }
-        else //can't evaluate the token
+        //can't evaluate the token
+        else
         {
-            Parse_SourceError( source, "can't evaluate %s", token.string );
+            SourceError( source, "can't evaluate %s", token.string );
             return false;
         }
     }
-    while( Parse_ReadLine( source, &token ) );
+    while( ReadLine( source, &token ) );
+    
     //
-    if( !Parse_EvaluateTokens( source, firsttoken, intvalue, floatvalue, integer ) ) return false;
+    if( !EvaluateTokens( source, firsttoken, intvalue, floatvalue, integer ) )
+    {
+        return false;
+    }
+    
     //
     for( t = firsttoken; t; t = nexttoken )
     {
         nexttoken = t->next;
-        Parse_FreeToken( t );
+        FreeToken( t );
     }
+    
     //
     return true;
 }
 
 /*
 ===============
-Parse_DollarEvaluate
+idParseSystemLocal::DollarEvaluate
 ===============
 */
-static sint Parse_DollarEvaluate( source_t* source, sint32* intvalue,
-                                  float64* floatvalue, sint integer )
+sint idParseSystemLocal::DollarEvaluate( source_t* source, sint32* intvalue, float64* floatvalue, sint integer )
 {
     sint indent, defined = false;
     token_t token, *firsttoken, *lasttoken;
     token_t* t, *nexttoken;
     define_t* define;
     
-    if( intvalue ) *intvalue = 0;
-    if( floatvalue ) *floatvalue = 0;
+    if( intvalue )
+    {
+        *intvalue = 0;
+    }
+    
+    if( floatvalue )
+    {
+        *floatvalue = 0;
+    }
+    
     //
-    if( !Parse_ReadSourceToken( source, &token ) )
+    if( !ReadSourceToken( source, &token ) )
     {
-        Parse_SourceError( source, "no leading ( after $evalint/$evalfloat" );
+        SourceError( source, "no leading ( after $evalint/$evalfloat" );
         return false;
     }
-    if( !Parse_ReadSourceToken( source, &token ) )
+    
+    if( !ReadSourceToken( source, &token ) )
     {
-        Parse_SourceError( source, "nothing to evaluate" );
+        SourceError( source, "nothing to evaluate" );
         return false;
     }
+    
     indent = 1;
     firsttoken = nullptr;
     lasttoken = nullptr;
@@ -2559,154 +2795,220 @@ static sint Parse_DollarEvaluate( source_t* source, sint32* intvalue,
             if( defined )
             {
                 defined = false;
-                t = Parse_CopyToken( &token );
+                t = CopyToken( &token );
                 t->next = nullptr;
-                if( lasttoken ) lasttoken->next = t;
-                else firsttoken = t;
+                
+                if( lasttoken )
+                {
+                    lasttoken->next = t;
+                }
+                else
+                {
+                    firsttoken = t;
+                }
+                
                 lasttoken = t;
             }
-            else if( !strcmp( token.string, "defined" ) )
+            else if( !::strcmp( token.string, "defined" ) )
             {
                 defined = true;
-                t = Parse_CopyToken( &token );
+                
+                t = CopyToken( &token );
                 t->next = nullptr;
-                if( lasttoken ) lasttoken->next = t;
-                else firsttoken = t;
+                
+                if( lasttoken )
+                {
+                    lasttoken->next = t;
+                }
+                else
+                {
+                    firsttoken = t;
+                }
+                
                 lasttoken = t;
             }
             else
             {
                 //then it must be a define
-                define = Parse_FindHashedDefine( source->definehash, token.string );
+                define = FindHashedDefine( source->definehash, token.string );
+                
                 if( !define )
                 {
-                    Parse_SourceError( source, "can't evaluate %s, not defined", token.string );
+                    SourceError( source, "can't evaluate %s, not defined", token.string );
                     return false;
                 }
-                if( !Parse_ExpandDefineIntoSource( source, &token, define ) ) return false;
+                
+                if( !ExpandDefineIntoSource( source, &token, define ) )
+                {
+                    return false;
+                }
             }
         }
         //if the token is a number or a punctuation
         else if( token.type == TT_NUMBER || token.type == TT_PUNCTUATION )
         {
-            if( *token.string == '(' ) indent++;
-            else if( *token.string == ')' ) indent--;
-            if( indent <= 0 ) break;
-            t = Parse_CopyToken( &token );
+            if( *token.string == '(' )
+            {
+                indent++;
+            }
+            else if( *token.string == ')' )
+            {
+                indent--;
+            }
+            
+            if( indent <= 0 )
+            {
+                break;
+            }
+            
+            t = CopyToken( &token );
             t->next = nullptr;
-            if( lasttoken ) lasttoken->next = t;
-            else firsttoken = t;
+            
+            if( lasttoken )
+            {
+                lasttoken->next = t;
+            }
+            else
+            {
+                firsttoken = t;
+            }
+            
             lasttoken = t;
         }
-        else //can't evaluate the token
+        //can't evaluate the token
+        else
         {
-            Parse_SourceError( source, "can't evaluate %s", token.string );
+            SourceError( source, "can't evaluate %s", token.string );
             return false;
         }
     }
-    while( Parse_ReadSourceToken( source, &token ) );
+    while( ReadSourceToken( source, &token ) );
+    
     //
-    if( !Parse_EvaluateTokens( source, firsttoken, intvalue, floatvalue, integer ) ) return false;
+    if( !EvaluateTokens( source, firsttoken, intvalue, floatvalue, integer ) )
+    {
+        return false;
+    }
+    
     //
     for( t = firsttoken; t; t = nexttoken )
     {
         nexttoken = t->next;
-        Parse_FreeToken( t );
+        FreeToken( t );
     }
+    
     //
     return true;
 }
 
 /*
 ===============
-Parse_Directive_include
+idParseSystemLocal::Directive_include
 ===============
 */
-static sint Parse_Directive_include( source_t* source )
+sint idParseSystemLocal::Directive_include( source_t* source )
 {
+    valueType path[MAX_QPATH];
     script_t* script;
     token_t token;
-    valueType path[MAX_QPATH];
     
-    if( source->skip > 0 ) return true;
-    //
-    if( !Parse_ReadSourceToken( source, &token ) )
+    if( source->skip > 0 )
     {
-        Parse_SourceError( source, "#include without file name" );
+        return true;
+    }
+    
+    //
+    if( !ReadSourceToken( source, &token ) )
+    {
+        SourceError( source, "#include without file name" );
         return false;
     }
+    
     if( token.linescrossed > 0 )
     {
-        Parse_SourceError( source, "#include without file name" );
+        SourceError( source, "#include without file name" );
         return false;
     }
+    
     if( token.type == TT_STRING )
     {
-        Parse_StripDoubleQuotes( token.string );
-        Parse_ConvertPath( token.string );
-        script = Parse_LoadScriptFile( token.string );
+        StripDoubleQuotes( token.string );
+        ConvertPath( token.string );
+        
+        script = LoadScriptFile( token.string );
         if( !script )
         {
-            strcpy( path, source->includepath );
-            strcat( path, token.string );
-            script = Parse_LoadScriptFile( path );
+            ::strcpy( path, source->includepath );
+            ::strcat( path, token.string );
+            script = LoadScriptFile( path );
         }
     }
     else if( token.type == TT_PUNCTUATION && *token.string == '<' )
     {
-        strcpy( path, source->includepath );
-        while( Parse_ReadSourceToken( source, &token ) )
+        ::strcpy( path, source->includepath );
+        
+        while( ReadSourceToken( source, &token ) )
         {
             if( token.linescrossed > 0 )
             {
-                Parse_UnreadSourceToken( source, &token );
+                UnreadSourceToken( source, &token );
                 break;
             }
-            if( token.type == TT_PUNCTUATION && *token.string == '>' ) break;
-            strncat( path, token.string, MAX_QPATH - 1 );
+            
+            if( token.type == TT_PUNCTUATION && *token.string == '>' )
+            {
+                break;
+            }
+            
+            ::strncat( path, token.string, MAX_QPATH - 1 );
         }
+        
         if( *token.string != '>' )
         {
-            Parse_SourceWarning( source, "#include missing trailing >" );
+            SourceWarning( source, "#include missing trailing >" );
         }
-        if( !strlen( path ) )
+        
+        if( !::strlen( path ) )
         {
-            Parse_SourceError( source, "#include without file name between < >" );
+            SourceError( source, "#include without file name between < >" );
             return false;
         }
-        Parse_ConvertPath( path );
-        script = Parse_LoadScriptFile( path );
+        
+        ConvertPath( path );
+        script = LoadScriptFile( path );
     }
     else
     {
-        Parse_SourceError( source, "#include without file name" );
+        SourceError( source, "#include without file name" );
         return false;
     }
+    
     if( !script )
     {
-        Parse_SourceError( source, "file %s not found", path );
+        SourceError( source, "file %s not found", path );
         return false;
     }
-    Parse_PushScript( source, script );
+    
+    PushScript( source, script );
     return true;
 }
 
 /*
 ===============
-Parse_WhiteSpaceBeforeToken
+idParseSystemLocal::WhiteSpaceBeforeToken
 ===============
 */
-static sint Parse_WhiteSpaceBeforeToken( token_t* token )
+sint idParseSystemLocal::WhiteSpaceBeforeToken( token_t* token )
 {
     return token->endwhitespace_p - token->whitespace_p > 0;
 }
 
 /*
 ===============
-Parse_ClearTokenWhiteSpace
+idParseSystemLocal::ClearTokenWhiteSpace
 ===============
 */
-static void Parse_ClearTokenWhiteSpace( token_t* token )
+void idParseSystemLocal::ClearTokenWhiteSpace( token_t* token )
 {
     token->whitespace_p = nullptr;
     token->endwhitespace_p = nullptr;
@@ -2715,135 +3017,161 @@ static void Parse_ClearTokenWhiteSpace( token_t* token )
 
 /*
 ===============
-Parse_Directive_undef
+idParseSystemLocal::Directive_undef
 ===============
 */
-static sint Parse_Directive_undef( source_t* source )
+sint idParseSystemLocal::Directive_undef( source_t* source )
 {
+    sint hash;
     token_t token;
     define_t* define, *lastdefine;
-    sint hash;
     
-    if( source->skip > 0 ) return true;
-    //
-    if( !Parse_ReadLine( source, &token ) )
+    if( source->skip > 0 )
     {
-        Parse_SourceError( source, "undef without name" );
+        return true;
+    }
+    
+    //
+    if( !ReadLine( source, &token ) )
+    {
+        SourceError( source, "undef without name" );
         return false;
     }
+    
     if( token.type != TT_NAME )
     {
-        Parse_UnreadSourceToken( source, &token );
-        Parse_SourceError( source, "expected name, found %s", token.string );
+        UnreadSourceToken( source, &token );
+        SourceError( source, "expected name, found %s", token.string );
         return false;
     }
     
-    hash = Parse_NameHash( token.string );
+    hash = NameHash( token.string );
     for( lastdefine = nullptr, define = source->definehash[hash]; define; define = define->hashnext )
     {
-        if( !strcmp( define->name, token.string ) )
+        if( !::strcmp( define->name, token.string ) )
         {
             if( define->flags & DEFINE_FIXED )
             {
-                Parse_SourceWarning( source, "can't undef %s", token.string );
+                SourceWarning( source, "can't undef %s", token.string );
             }
             else
             {
-                if( lastdefine ) lastdefine->hashnext = define->hashnext;
-                else source->definehash[hash] = define->hashnext;
-                Parse_FreeDefine( define );
+                if( lastdefine )
+                {
+                    lastdefine->hashnext = define->hashnext;
+                }
+                else
+                {
+                    source->definehash[hash] = define->hashnext;
+                }
+                
+                FreeDefine( define );
             }
             break;
         }
+        
         lastdefine = define;
     }
+    
     return true;
 }
 
 /*
 ===============
-Parse_Directive_elif
+idParseSystemLocal::Directive_elif
 ===============
 */
-static sint Parse_Directive_elif( source_t* source )
+sint idParseSystemLocal::Directive_elif( source_t* source )
 {
-    sint32 value;
     sint type, skip;
+    sint32 value;
     
-    Parse_PopIndent( source, &type, &skip );
+    PopIndent( source, &type, &skip );
+    
     if( !type || type == INDENT_ELSE )
     {
-        Parse_SourceError( source, "misplaced #elif" );
+        SourceError( source, "misplaced #elif" );
         return false;
     }
-    if( !Parse_Evaluate( source, &value, nullptr, true ) ) return false;
+    
+    if( !Evaluate( source, &value, nullptr, true ) )
+    {
+        return false;
+    }
+    
     skip = ( value == 0 );
-    Parse_PushIndent( source, INDENT_ELIF, skip );
+    PushIndent( source, INDENT_ELIF, skip );
     return true;
 }
 
 /*
 ===============
-Parse_Directive_if
+idParseSystemLocal::Directive_if
 ===============
 */
-static sint Parse_Directive_if( source_t* source )
+sint idParseSystemLocal::Directive_if( source_t* source )
 {
-    sint32 value;
     sint skip;
+    sint32 value;
     
-    if( !Parse_Evaluate( source, &value, nullptr, true ) ) return false;
+    if( !Evaluate( source, &value, nullptr, true ) )
+    {
+        return false;
+    }
+    
     skip = ( value == 0 );
-    Parse_PushIndent( source, INDENT_IF, skip );
+    PushIndent( source, INDENT_IF, skip );
     return true;
 }
 
 /*
 ===============
-Parse_Directive_line
+idParseSystemLocal::Directive_line
 ===============
 */
-static sint Parse_Directive_line( source_t* source )
+sint idParseSystemLocal::Directive_line( source_t* source )
 {
-    Parse_SourceError( source, "#line directive not supported" );
+    SourceError( source, "#line directive not supported" );
     return false;
 }
 
 /*
 ===============
-Parse_Directive_error
+idParseSystemLocal::Directive_error
 ===============
 */
-static sint Parse_Directive_error( source_t* source )
+sint idParseSystemLocal::Directive_error( source_t* source )
 {
     token_t token;
     
-    strcpy( token.string, "" );
-    Parse_ReadSourceToken( source, &token );
-    Parse_SourceError( source, "#error directive: %s", token.string );
+    ::strcpy( token.string, "" );
+    ReadSourceToken( source, &token );
+    SourceError( source, "#error directive: %s", token.string );
     return false;
 }
 
 /*
 ===============
-Parse_Directive_pragma
+idParseSystemLocal::Directive_pragma
 ===============
 */
-static sint Parse_Directive_pragma( source_t* source )
+sint idParseSystemLocal::Directive_pragma( source_t* source )
 {
     token_t token;
     
-    Parse_SourceWarning( source, "#pragma directive not supported" );
-    while( Parse_ReadLine( source, &token ) ) ;
+    SourceWarning( source, "#pragma directive not supported" );
+    
+    while( ReadLine( source, &token ) ) ;
+    
     return true;
 }
 
 /*
 ===============
-Parse_UnreadSignToken
+idParseSystemLocal::UnreadSignToken
 ===============
 */
-static void Parse_UnreadSignToken( source_t* source )
+void idParseSystemLocal::UnreadSignToken( source_t* source )
 {
     token_t token;
     
@@ -2851,483 +3179,597 @@ static void Parse_UnreadSignToken( source_t* source )
     token.whitespace_p = source->scriptstack->script_p;
     token.endwhitespace_p = source->scriptstack->script_p;
     token.linescrossed = 0;
-    strcpy( token.string, "-" );
+    ::strcpy( token.string, "-" );
     token.type = TT_PUNCTUATION;
     token.subtype = P_SUB;
-    Parse_UnreadSourceToken( source, &token );
+    UnreadSourceToken( source, &token );
 }
 
 /*
 ===============
-Parse_Directive_eval
+idParseSystemLocal::Directive_eval
 ===============
 */
-static sint Parse_Directive_eval( source_t* source )
+sint idParseSystemLocal::Directive_eval( source_t* source )
 {
     sint32 value;
     token_t token;
     
-    if( !Parse_Evaluate( source, &value, nullptr, true ) ) return false;
+    if( !Evaluate( source, &value, nullptr, true ) )
+    {
+        return false;
+    }
+    
     //
     token.line = source->scriptstack->line;
     token.whitespace_p = source->scriptstack->script_p;
     token.endwhitespace_p = source->scriptstack->script_p;
     token.linescrossed = 0;
-    sprintf( token.string, "%d", abs( value ) );
+    ::sprintf( token.string, "%d", abs( value ) );
     token.type = TT_NUMBER;
     token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL;
-    Parse_UnreadSourceToken( source, &token );
-    if( value < 0 ) Parse_UnreadSignToken( source );
+    UnreadSourceToken( source, &token );
+    
+    if( value < 0 )
+    {
+        UnreadSignToken( source );
+    }
+    
     return true;
 }
 
 /*
 ===============
-Parse_Directive_evalfloat
+idParseSystemLocal::Directive_evalfloat
 ===============
 */
-static sint Parse_Directive_evalfloat( source_t* source )
+sint idParseSystemLocal::Directive_evalfloat( source_t* source )
 {
     float64 value;
     token_t token;
     
-    if( !Parse_Evaluate( source, nullptr, &value, false ) ) return false;
+    if( !Evaluate( source, nullptr, &value, false ) )
+    {
+        return false;
+    }
+    
     token.line = source->scriptstack->line;
     token.whitespace_p = source->scriptstack->script_p;
     token.endwhitespace_p = source->scriptstack->script_p;
     token.linescrossed = 0;
-    sprintf( token.string, "%1.2f", fabs( value ) );
+    ::sprintf( token.string, "%1.2f", fabs( value ) );
     token.type = TT_NUMBER;
     token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
-    Parse_UnreadSourceToken( source, &token );
-    if( value < 0 ) Parse_UnreadSignToken( source );
+    UnreadSourceToken( source, &token );
+    
+    if( value < 0 )
+    {
+        UnreadSignToken( source );
+    }
+    
     return true;
 }
 
 /*
 ===============
-Parse_DollarDirective_evalint
+idParseSystemLocal::DollarDirective_evalint
 ===============
 */
-static sint Parse_DollarDirective_evalint( source_t* source )
+sint idParseSystemLocal::DollarDirective_evalint( source_t* source )
 {
     sint32 value;
     token_t token;
     
-    if( !Parse_DollarEvaluate( source, &value, nullptr, true ) ) return false;
+    if( !DollarEvaluate( source, &value, nullptr, true ) )
+    {
+        return false;
+    }
+    
     //
     token.line = source->scriptstack->line;
     token.whitespace_p = source->scriptstack->script_p;
     token.endwhitespace_p = source->scriptstack->script_p;
     token.linescrossed = 0;
-    sprintf( token.string, "%d", abs( value ) );
+    ::sprintf( token.string, "%d", abs( value ) );
     token.type = TT_NUMBER;
     token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL;
     token.intvalue = value;
     token.floatvalue = value;
-    Parse_UnreadSourceToken( source, &token );
-    if( value < 0 ) Parse_UnreadSignToken( source );
+    UnreadSourceToken( source, &token );
+    
+    if( value < 0 )
+    {
+        UnreadSignToken( source );
+    }
+    
     return true;
 }
 
 /*
 ===============
-Parse_DollarDirective_evalfloat
+idParseSystemLocal::DollarDirective_evalfloat
 ===============
 */
-static sint Parse_DollarDirective_evalfloat( source_t* source )
+sint idParseSystemLocal::DollarDirective_evalfloat( source_t* source )
 {
     float64 value;
     token_t token;
     
-    if( !Parse_DollarEvaluate( source, nullptr, &value, false ) ) return false;
+    if( !DollarEvaluate( source, nullptr, &value, false ) )
+    {
+        return false;
+    }
+    
     token.line = source->scriptstack->line;
     token.whitespace_p = source->scriptstack->script_p;
     token.endwhitespace_p = source->scriptstack->script_p;
     token.linescrossed = 0;
-    sprintf( token.string, "%1.2f", fabs( value ) );
+    ::sprintf( token.string, "%1.2f", fabs( value ) );
     token.type = TT_NUMBER;
     token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
     token.intvalue = ( unsigned long ) value;
     token.floatvalue = value;
-    Parse_UnreadSourceToken( source, &token );
-    if( value < 0 ) Parse_UnreadSignToken( source );
+    
+    UnreadSourceToken( source, &token );
+    
+    if( value < 0 )
+    {
+        UnreadSignToken( source );
+    }
+    
     return true;
 }
 
 /*
 ===============
-Parse_ReadDollarDirective
+ReadDollarDirective
 ===============
 */
 directive_t DollarDirectives[20] =
 {
-    {"evalint", Parse_DollarDirective_evalint},
-    {"evalfloat", Parse_DollarDirective_evalfloat},
+    {"evalint", idParseSystemLocal::DollarDirective_evalint},
+    {"evalfloat", idParseSystemLocal::DollarDirective_evalfloat},
     {nullptr, nullptr}
 };
 
-static sint Parse_ReadDollarDirective( source_t* source )
+sint idParseSystemLocal::ReadDollarDirective( source_t* source )
 {
-    token_t token;
     sint i;
+    token_t token;
     
     //read the directive name
-    if( !Parse_ReadSourceToken( source, &token ) )
+    if( !ReadSourceToken( source, &token ) )
     {
-        Parse_SourceError( source, "found $ without name" );
+        SourceError( source, "found $ without name" );
         return false;
     }
+    
     //directive name must be on the same line
     if( token.linescrossed > 0 )
     {
-        Parse_UnreadSourceToken( source, &token );
-        Parse_SourceError( source, "found $ at end of line" );
+        UnreadSourceToken( source, &token );
+        SourceError( source, "found $ at end of line" );
         return false;
     }
+    
     //if if is a name
     if( token.type == TT_NAME )
     {
         //find the precompiler directive
         for( i = 0; DollarDirectives[i].name; i++ )
         {
-            if( !strcmp( DollarDirectives[i].name, token.string ) )
+            if( !::strcmp( DollarDirectives[i].name, token.string ) )
             {
                 return DollarDirectives[i].func( source );
             }
         }
     }
-    Parse_UnreadSourceToken( source, &token );
-    Parse_SourceError( source, "unknown precompiler directive %s", token.string );
+    
+    UnreadSourceToken( source, &token );
+    SourceError( source, "unknown precompiler directive %s", token.string );
+    
     return false;
 }
 
 /*
 ===============
-Parse_Directive_if_def
+idParseSystemLocal::Directive_if_def
 ===============
 */
-static sint Parse_Directive_if_def( source_t* source, sint type )
+sint idParseSystemLocal::Directive_if_def( source_t* source, sint type )
 {
+    sint skip;
     token_t token;
     define_t* d;
-    sint skip;
     
-    if( !Parse_ReadLine( source, &token ) )
+    if( !ReadLine( source, &token ) )
     {
-        Parse_SourceError( source, "#ifdef without name" );
+        SourceError( source, "#ifdef without name" );
         return false;
     }
+    
     if( token.type != TT_NAME )
     {
-        Parse_UnreadSourceToken( source, &token );
-        Parse_SourceError( source, "expected name after #ifdef, found %s", token.string );
+        UnreadSourceToken( source, &token );
+        SourceError( source, "expected name after #ifdef, found %s", token.string );
         return false;
     }
-    d = Parse_FindHashedDefine( source->definehash, token.string );
+    
+    d = FindHashedDefine( source->definehash, token.string );
+    
     skip = ( type == INDENT_IFDEF ) == ( d == nullptr );
-    Parse_PushIndent( source, type, skip );
+    PushIndent( source, type, skip );
+    
     return true;
 }
 
 /*
 ===============
-Parse_Directive_ifdef
+idParseSystemLocal::Directive_ifdef
 ===============
 */
-static sint Parse_Directive_ifdef( source_t* source )
+sint idParseSystemLocal::Directive_ifdef( source_t* source )
 {
-    return Parse_Directive_if_def( source, INDENT_IFDEF );
+    return Directive_if_def( source, INDENT_IFDEF );
 }
 
 /*
 ===============
-Parse_Directive_ifndef
+idParseSystemLocal::Directive_ifndef
 ===============
 */
-static sint Parse_Directive_ifndef( source_t* source )
+sint idParseSystemLocal::Directive_ifndef( source_t* source )
 {
-    return Parse_Directive_if_def( source, INDENT_IFNDEF );
+    return Directive_if_def( source, INDENT_IFNDEF );
 }
 
 /*
 ===============
-Parse_Directive_else
+idParseSystemLocal::Directive_else
 ===============
 */
-static sint Parse_Directive_else( source_t* source )
+sint idParseSystemLocal::Directive_else( source_t* source )
 {
     sint type, skip;
     
-    Parse_PopIndent( source, &type, &skip );
+    PopIndent( source, &type, &skip );
+    
     if( !type )
     {
-        Parse_SourceError( source, "misplaced #else" );
+        SourceError( source, "misplaced #else" );
         return false;
     }
+    
     if( type == INDENT_ELSE )
     {
-        Parse_SourceError( source, "#else after #else" );
+        SourceError( source, "#else after #else" );
         return false;
     }
-    Parse_PushIndent( source, INDENT_ELSE, !skip );
+    
+    PushIndent( source, INDENT_ELSE, !skip );
+    
     return true;
 }
 
 /*
 ===============
-Parse_Directive_endif
+idParseSystemLocal::Directive_endif
 ===============
 */
-static sint Parse_Directive_endif( source_t* source )
+sint idParseSystemLocal::Directive_endif( source_t* source )
 {
     sint type, skip;
     
-    Parse_PopIndent( source, &type, &skip );
+    PopIndent( source, &type, &skip );
+    
     if( !type )
     {
-        Parse_SourceError( source, "misplaced #endif" );
+        SourceError( source, "misplaced #endif" );
         return false;
     }
+    
     return true;
 }
 
 /*
 ===============
-Parse_CheckTokenString
+idParseSystemLocal::CheckTokenString
 ===============
 */
-static sint Parse_CheckTokenString( source_t* source, valueType* string )
+sint idParseSystemLocal::CheckTokenString( source_t* source, valueType* string )
 {
     token_t tok;
     
-    if( !Parse_ReadToken( source, &tok ) ) return false;
+    if( !ReadToken( source, &tok ) )
+    {
+        return false;
+    }
+    
     //if the token is available
-    if( !strcmp( tok.string, string ) ) return true;
+    if( !::strcmp( tok.string, string ) )
+    {
+        return true;
+    }
+    
     //
-    Parse_UnreadSourceToken( source, &tok );
+    UnreadSourceToken( source, &tok );
+    
     return false;
 }
 
 /*
 ===============
-Parse_Directive_define
+idParseSystemLocal::Directive_define
 ===============
 */
-static sint Parse_Directive_define( source_t* source )
+sint idParseSystemLocal::Directive_define( source_t* source )
 {
     token_t token, *t, *last;
     define_t* define;
     
-    if( source->skip > 0 ) return true;
-    //
-    if( !Parse_ReadLine( source, &token ) )
+    if( source->skip > 0 )
     {
-        Parse_SourceError( source, "#define without name" );
+        return true;
+    }
+    
+    //
+    if( !ReadLine( source, &token ) )
+    {
+        SourceError( source, "#define without name" );
         return false;
     }
+    
     if( token.type != TT_NAME )
     {
-        Parse_UnreadSourceToken( source, &token );
-        Parse_SourceError( source, "expected name after #define, found %s", token.string );
+        UnreadSourceToken( source, &token );
+        SourceError( source, "expected name after #define, found %s", token.string );
         return false;
     }
+    
     //check if the define already exists
-    define = Parse_FindHashedDefine( source->definehash, token.string );
+    define = FindHashedDefine( source->definehash, token.string );
     if( define )
     {
         if( define->flags & DEFINE_FIXED )
         {
-            Parse_SourceError( source, "can't redefine %s", token.string );
+            SourceError( source, "can't redefine %s", token.string );
             return false;
         }
-        Parse_SourceWarning( source, "redefinition of %s", token.string );
+        
+        SourceWarning( source, "redefinition of %s", token.string );
+        
         //unread the define name before executing the #undef directive
-        Parse_UnreadSourceToken( source, &token );
-        if( !Parse_Directive_undef( source ) )
+        UnreadSourceToken( source, &token );
+        
+        if( !Directive_undef( source ) )
+        {
             return false;
+        }
     }
+    
     //allocate define
-    define = ( define_t* ) Z_Malloc( sizeof( define_t ) + strlen( token.string ) + 1 );
+    define = ( define_t* )Z_Malloc( sizeof( define_t ) + ::strlen( token.string ) + 1 );
     ::memset( define, 0, sizeof( define_t ) );
+    
     define->name = ( valueType* ) define + sizeof( define_t );
-    strcpy( define->name, token.string );
+    ::strcpy( define->name, token.string );
+    
     //add the define to the source
-    Parse_AddDefineToHash( define, source->definehash );
+    AddDefineToHash( define, source->definehash );
+    
     //if nothing is defined, just return
-    if( !Parse_ReadLine( source, &token ) ) return true;
+    if( !ReadLine( source, &token ) )
+    {
+        return true;
+    }
+    
     //if it is a define with parameters
-    if( !Parse_WhiteSpaceBeforeToken( &token ) && !strcmp( token.string, "(" ) )
+    if( !WhiteSpaceBeforeToken( &token ) && !strcmp( token.string, "(" ) )
     {
         //read the define parameters
         last = nullptr;
-        if( !Parse_CheckTokenString( source, ")" ) )
+        
+        if( !CheckTokenString( source, ")" ) )
         {
             while( 1 )
             {
-                if( !Parse_ReadLine( source, &token ) )
+                if( !ReadLine( source, &token ) )
                 {
-                    Parse_SourceError( source, "expected define parameter" );
+                    SourceError( source, "expected define parameter" );
                     return false;
                 }
+                
                 //if it isn't a name
                 if( token.type != TT_NAME )
                 {
-                    Parse_SourceError( source, "invalid define parameter" );
+                    SourceError( source, "invalid define parameter" );
                     return false;
                 }
                 //
-                if( Parse_FindDefineParm( define, token.string ) >= 0 )
+                if( FindDefineParm( define, token.string ) >= 0 )
                 {
-                    Parse_SourceError( source, "two the same define parameters" );
+                    SourceError( source, "two the same define parameters" );
                     return false;
                 }
+                
                 //add the define parm
-                t = Parse_CopyToken( &token );
-                Parse_ClearTokenWhiteSpace( t );
+                t = CopyToken( &token );
+                ClearTokenWhiteSpace( t );
                 t->next = nullptr;
-                if( last ) last->next = t;
-                else define->parms = t;
+                
+                if( last )
+                {
+                    last->next = t;
+                }
+                else
+                {
+                    define->parms = t;
+                }
+                
                 last = t;
                 define->numparms++;
+                
                 //read next token
-                if( !Parse_ReadLine( source, &token ) )
+                if( !ReadLine( source, &token ) )
                 {
-                    Parse_SourceError( source, "define parameters not terminated" );
+                    SourceError( source, "define parameters not terminated" );
                     return false;
                 }
+                
                 //
-                if( !strcmp( token.string, ")" ) ) break;
+                if( !::strcmp( token.string, ")" ) ) break;
+                
                 //then it must be a comma
-                if( strcmp( token.string, "," ) )
+                if( ::strcmp( token.string, "," ) )
                 {
-                    Parse_SourceError( source, "define not terminated" );
+                    SourceError( source, "define not terminated" );
                     return false;
                 }
             }
         }
-        if( !Parse_ReadLine( source, &token ) ) return true;
+        
+        if( !ReadLine( source, &token ) )
+        {
+            return true;
+        }
     }
+    
     //read the defined stuff
     last = nullptr;
     do
     {
-        t = Parse_CopyToken( &token );
+        t = CopyToken( &token );
+        
         if( t->type == TT_NAME && !strcmp( t->string, define->name ) )
         {
-            Parse_SourceError( source, "recursive define (removed recursion)" );
+            SourceError( source, "recursive define (removed recursion)" );
             continue;
         }
-        Parse_ClearTokenWhiteSpace( t );
+        
+        ClearTokenWhiteSpace( t );
+        
         t->next = nullptr;
-        if( last ) last->next = t;
-        else define->tokens = t;
+        if( last )
+        {
+            last->next = t;
+        }
+        else
+        {
+            define->tokens = t;
+        }
+        
         last = t;
     }
-    while( Parse_ReadLine( source, &token ) );
+    while( ReadLine( source, &token ) );
+    
     //
     if( last )
     {
         //check for merge operators at the beginning or end
-        if( !strcmp( define->tokens->string, "##" ) ||
-                !strcmp( last->string, "##" ) )
+        if( !::strcmp( define->tokens->string, "##" ) || !::strcmp( last->string, "##" ) )
         {
-            Parse_SourceError( source, "define with misplaced ##" );
+            SourceError( source, "define with misplaced ##" );
             return false;
         }
     }
+    
     return true;
 }
 
-/*
-===============
-Parse_ReadDirective
-===============
-*/
 directive_t Directives[20] =
 {
-    {"if", Parse_Directive_if},
-    {"ifdef", Parse_Directive_ifdef},
-    {"ifndef", Parse_Directive_ifndef},
-    {"elif", Parse_Directive_elif},
-    {"else", Parse_Directive_else},
-    {"endif", Parse_Directive_endif},
-    {"include", Parse_Directive_include},
-    {"define", Parse_Directive_define},
-    {"undef", Parse_Directive_undef},
-    {"line", Parse_Directive_line},
-    {"error", Parse_Directive_error},
-    {"pragma", Parse_Directive_pragma},
-    {"eval", Parse_Directive_eval},
-    {"evalfloat", Parse_Directive_evalfloat},
+    {"if", idParseSystemLocal::Directive_if},
+    {"ifdef", idParseSystemLocal::Directive_ifdef},
+    {"ifndef", idParseSystemLocal::Directive_ifndef},
+    {"elif", idParseSystemLocal::Directive_elif},
+    {"else", idParseSystemLocal::Directive_else},
+    {"endif", idParseSystemLocal::Directive_endif},
+    {"include", idParseSystemLocal::Directive_include},
+    {"define", idParseSystemLocal::Directive_define},
+    {"undef", idParseSystemLocal::Directive_undef},
+    {"line", idParseSystemLocal::Directive_line},
+    {"error", idParseSystemLocal::Directive_error},
+    {"pragma", idParseSystemLocal::Directive_pragma},
+    {"eval", idParseSystemLocal::Directive_eval},
+    {"evalfloat", idParseSystemLocal::Directive_evalfloat},
     {nullptr, nullptr}
+    
 };
 
-static sint Parse_ReadDirective( source_t* source )
+/*
+===============
+idParseSystemLocal::ReadDirective
+===============
+*/
+sint idParseSystemLocal::ReadDirective( source_t* source )
 {
-    token_t token;
     sint i;
+    token_t token;
     
     //read the directive name
-    if( !Parse_ReadSourceToken( source, &token ) )
+    if( !ReadSourceToken( source, &token ) )
     {
-        Parse_SourceError( source, "found # without name" );
+        SourceError( source, "found # without name" );
         return false;
     }
+    
     //directive name must be on the same line
     if( token.linescrossed > 0 )
     {
-        Parse_UnreadSourceToken( source, &token );
-        Parse_SourceError( source, "found # at end of line" );
+        UnreadSourceToken( source, &token );
+        SourceError( source, "found # at end of line" );
         return false;
     }
+    
     //if if is a name
     if( token.type == TT_NAME )
     {
         //find the precompiler directive
         for( i = 0; Directives[i].name; i++ )
         {
-            if( !strcmp( Directives[i].name, token.string ) )
+            if( !::strcmp( Directives[i].name, token.string ) )
             {
                 return Directives[i].func( source );
             }
         }
     }
-    Parse_SourceError( source, "unknown precompiler directive %s", token.string );
+    
+    SourceError( source, "unknown precompiler directive %s", token.string );
     return false;
 }
 
 /*
 ===============
-Parse_UnreadToken
+idParseSystemLocal::UnreadToken
 ===============
 */
-static void Parse_UnreadToken( source_t* source, token_t* token )
+void idParseSystemLocal::UnreadToken( source_t* source, token_t* token )
 {
-    Parse_UnreadSourceToken( source, token );
+    UnreadSourceToken( source, token );
 }
 
 /*
 ===============
-Parse_ReadEnumeration
+idParseSystemLocal::ReadEnumeration
 
 It is assumed that the 'enum' token has already been consumed
 This is fairly basic: it doesn't catch some fairly obvious errors like nested
 enums, and enumerated names conflict with #define parameters
 ===============
 */
-static bool Parse_ReadEnumeration( source_t* source )
+bool idParseSystemLocal::ReadEnumeration( source_t* source )
 {
     token_t newtoken;
     sint value;
     
-    if( !Parse_ReadToken( source, &newtoken ) )
+    if( !ReadToken( source, &newtoken ) )
+    {
         return false;
-        
+    }
+    
     if( newtoken.type != TT_PUNCTUATION || newtoken.subtype != P_BRACEOPEN )
     {
-        Parse_SourceError( source, "Found %s when expecting {\n",
-                           newtoken.string );
+        SourceError( source, "Found %s when expecting {\n", newtoken.string );
         return false;
     }
     
@@ -3336,37 +3778,43 @@ static bool Parse_ReadEnumeration( source_t* source )
         token_t name;
         
         // read the name
-        if( !Parse_ReadToken( source, &name ) )
+        if( !ReadToken( source, &name ) )
+        {
             break;
-            
+        }
+        
         // it's ok for the enum to end immediately
         if( name.type == TT_PUNCTUATION && name.subtype == P_BRACECLOSE )
         {
-            if( !Parse_ReadToken( source, &name ) )
+            if( !ReadToken( source, &name ) )
+            {
                 break;
-                
+            }
+            
             // ignore trailing semicolon
             if( name.type != TT_PUNCTUATION || name.subtype != P_SEMICOLON )
-                Parse_UnreadToken( source, &name );
-                
+            {
+                UnreadToken( source, &name );
+            }
+            
             return true;
         }
         
         // ... but not for it to do anything else
         if( name.type != TT_NAME )
         {
-            Parse_SourceError( source, "Found %s when expecting identifier\n",
-                               name.string );
+            SourceError( source, "Found %s when expecting identifier\n", name.string );
             return false;
         }
         
-        if( !Parse_ReadToken( source, &newtoken ) )
+        if( !ReadToken( source, &newtoken ) )
+        {
             break;
-            
+        }
+        
         if( newtoken.type != TT_PUNCTUATION )
         {
-            Parse_SourceError( source, "Found %s when expecting , or = or }\n",
-                               newtoken.string );
+            SourceError( source, "Found %s when expecting , or = or }\n", newtoken.string );
             return false;
         }
         
@@ -3374,66 +3822,70 @@ static bool Parse_ReadEnumeration( source_t* source )
         {
             sint neg = 1;
             
-            if( !Parse_ReadToken( source, &newtoken ) )
+            if( !ReadToken( source, &newtoken ) )
+            {
                 break;
-                
-            // Parse_ReadToken doesn't seem to read negative numbers, so we do it
+            }
+            
+            // ReadToken doesn't seem to read negative numbers, so we do it
             // ourselves
             if( newtoken.type == TT_PUNCTUATION && newtoken.subtype == P_SUB )
             {
                 neg = -1;
                 
                 // the next token should be the number
-                if( !Parse_ReadToken( source, &newtoken ) )
+                if( !ReadToken( source, &newtoken ) )
+                {
                     break;
+                }
             }
             
             if( newtoken.type != TT_NUMBER || !( newtoken.subtype & TT_INTEGER ) )
             {
-                Parse_SourceError( source, "Found %s when expecting integer\n",
-                                   newtoken.string );
+                SourceError( source, "Found %s when expecting integer\n", newtoken.string );
                 return false;
             }
             
             // this is somewhat silly, but cheap to check
             if( neg == -1 && ( newtoken.subtype & TT_UNSIGNED ) )
             {
-                Parse_SourceWarning( source, "Value in enumeration is negative and "
-                                     "unsigned\n" );
+                SourceWarning( source, "Value in enumeration is negative and unsigned\n" );
             }
             
             // set the new define value
             value = newtoken.intvalue * neg;
             
-            if( !Parse_ReadToken( source, &newtoken ) )
+            if( !ReadToken( source, &newtoken ) )
+            {
                 break;
+            }
         }
         
-        if( newtoken.type != TT_PUNCTUATION || ( newtoken.subtype != P_COMMA &&
-                newtoken.subtype != P_BRACECLOSE ) )
+        if( newtoken.type != TT_PUNCTUATION || ( newtoken.subtype != P_COMMA && newtoken.subtype != P_BRACECLOSE ) )
         {
-            Parse_SourceError( source, "Found %s when expecting , or }\n",
-                               newtoken.string );
+            SourceError( source, "Found %s when expecting , or }\n", newtoken.string );
             return false;
         }
         
-        if( !Parse_AddDefineToSourceFromString( source, va( "%s %d\n", name.string,
-                                                value ) ) )
+        if( !AddDefineToSourceFromString( source, va( "%s %d\n", name.string, value ) ) )
         {
-            Parse_SourceWarning( source, "Couldn't add define to source: %s = %d\n",
-                                 name.string, value );
+            SourceWarning( source, "Couldn't add define to source: %s = %d\n", name.string, value );
             return false;
         }
         
         if( newtoken.subtype == P_BRACECLOSE )
         {
-            if( !Parse_ReadToken( source, &name ) )
+            if( !ReadToken( source, &name ) )
+            {
                 break;
-                
+            }
+            
             // ignore trailing semicolon
             if( name.type != TT_PUNCTUATION || name.subtype != P_SEMICOLON )
-                Parse_UnreadToken( source, &name );
-                
+            {
+                UnreadToken( source, &name );
+            }
+            
             return true;
         }
     }
@@ -3444,22 +3896,30 @@ static bool Parse_ReadEnumeration( source_t* source )
 
 /*
 ===============
-Parse_ReadToken
+idParseSystemLocal::ReadToken
 ===============
 */
-static sint Parse_ReadToken( source_t* source, token_t* token )
+sint idParseSystemLocal::ReadToken( source_t* source, token_t* token )
 {
     define_t* define;
     
     while( 1 )
     {
-        if( !Parse_ReadSourceToken( source, token ) ) return false;
+        if( !ReadSourceToken( source, token ) )
+        {
+            return false;
+        }
+        
         //check for precompiler directives
         if( token->type == TT_PUNCTUATION && *token->string == '#' )
         {
             {
                 //read the precompiler directive
-                if( !Parse_ReadDirective( source ) ) return false;
+                if( !ReadDirective( source ) )
+                {
+                    return false;
+                }
+                
                 continue;
             }
         }
@@ -3467,55 +3927,75 @@ static sint Parse_ReadToken( source_t* source, token_t* token )
         {
             {
                 //read the precompiler directive
-                if( !Parse_ReadDollarDirective( source ) ) return false;
+                if( !ReadDollarDirective( source ) )
+                {
+                    return false;
+                }
+                
                 continue;
             }
         }
         if( token->type == TT_NAME && !Q_stricmp( token->string, "enum" ) )
         {
-            if( !Parse_ReadEnumeration( source ) )
+            if( !ReadEnumeration( source ) )
+            {
                 return false;
+            }
+            
             continue;
         }
         // recursively concatenate strings that are behind each other still resolving defines
         if( token->type == TT_STRING )
         {
             token_t newtoken;
-            if( Parse_ReadToken( source, &newtoken ) )
+            if( ReadToken( source, &newtoken ) )
             {
                 if( newtoken.type == TT_STRING )
                 {
-                    token->string[strlen( token->string ) - 1] = '\0';
-                    if( strlen( token->string ) + strlen( newtoken.string + 1 ) + 1 >= MAX_TOKEN_CHARS )
+                    token->string[::strlen( token->string ) - 1] = '\0';
+                    
+                    if( ::strlen( token->string ) + ::strlen( newtoken.string + 1 ) + 1 >= MAX_TOKEN_CHARS )
                     {
-                        Parse_SourceError( source, "string longer than MAX_TOKEN_CHARS %d\n", MAX_TOKEN_CHARS );
+                        SourceError( source, "string longer than MAX_TOKEN_CHARS %d\n", MAX_TOKEN_CHARS );
                         return false;
                     }
-                    strcat( token->string, newtoken.string + 1 );
+                    
+                    ::strcat( token->string, newtoken.string + 1 );
                 }
                 else
                 {
-                    Parse_UnreadToken( source, &newtoken );
+                    UnreadToken( source, &newtoken );
                 }
             }
         }
         //if skipping source because of conditional compilation
-        if( source->skip ) continue;
+        if( source->skip )
+        {
+            continue;
+        }
+        
         //if the token is a name
         if( token->type == TT_NAME )
         {
             //check if the name is a define macro
-            define = Parse_FindHashedDefine( source->definehash, token->string );
+            define = FindHashedDefine( source->definehash, token->string );
+            
             //if it is a define macro
             if( define )
             {
                 //expand the defined macro
-                if( !Parse_ExpandDefineIntoSource( source, token, define ) ) return false;
+                if( !ExpandDefineIntoSource( source, token, define ) )
+                {
+                    return false;
+                }
+                
                 continue;
             }
         }
+        
         //copy token for unreading
         ::memcpy( &source->token, token, sizeof( token_t ) );
+        
         //found a token
         return true;
     }
@@ -3523,33 +4003,39 @@ static sint Parse_ReadToken( source_t* source, token_t* token )
 
 /*
 ===============
-Parse_DefineFromString
+idParseSystemLocal::DefineFromString
 ===============
 */
-static define_t* Parse_DefineFromString( valueType* string )
+define_t* idParseSystemLocal::DefineFromString( valueType* string )
 {
+    sint res, i;
     script_t* script;
     source_t src;
     token_t* t;
-    sint res, i;
     define_t* def;
     
-    script = Parse_LoadScriptMemory( string, strlen( string ), "*extern" );
+    script = LoadScriptMemory( string, ( sint )::strlen( string ), "*extern" );
+    
     //create a new source
     ::memset( &src, 0, sizeof( source_t ) );
-    strncpy( src.filename, "*extern", MAX_QPATH );
+    ::strncpy( src.filename, "*extern", MAX_QPATH );
+    
     src.scriptstack = script;
     src.definehash = ( define_t** )Z_Malloc( DEFINEHASHSIZE * sizeof( define_t* ) );
     ::memset( src.definehash, 0, DEFINEHASHSIZE * sizeof( define_t* ) );
+    
     //create a define from the source
-    res = Parse_Directive_define( &src );
+    res = Directive_define( &src );
+    
     //free any tokens if left
     for( t = src.tokens; t; t = src.tokens )
     {
         src.tokens = src.tokens->next;
-        Parse_FreeToken( t );
+        FreeToken( t );
     }
+    
     def = nullptr;
+    
     for( i = 0; i < DEFINEHASHSIZE; i++ )
     {
         if( src.definehash[i] )
@@ -3558,61 +4044,81 @@ static define_t* Parse_DefineFromString( valueType* string )
             break;
         }
     }
+    
     //
     Z_Free( src.definehash );
+    
     //
-    Parse_FreeScript( script );
+    FreeScript( script );
+    
     //if the define was created succesfully
-    if( res > 0 ) return def;
+    if( res > 0 )
+    {
+        return def;
+    }
+    
     //free the define is created
-    if( src.defines ) Parse_FreeDefine( def );
+    if( src.defines )
+    {
+        FreeDefine( def );
+    }
+    
     //
     return nullptr;
 }
 
 /*
 ===============
-Parse_AddDefineToSourceFromString
+idParseSystemLocal::AddDefineToSourceFromString
 ===============
 */
-static bool Parse_AddDefineToSourceFromString( source_t* source,
-        valueType* string )
+bool idParseSystemLocal::AddDefineToSourceFromString( source_t* source, valueType* string )
 {
-    Parse_PushScript( source, Parse_LoadScriptMemory( string, strlen( string ),
-                      "*extern" ) );
-    return ( bool )Parse_Directive_define( source );
+    PushScript( source, LoadScriptMemory( string, ( sint )::strlen( string ), "*extern" ) );
+    
+    return ( bool )Directive_define( source );
 }
 
 /*
 ===============
-Parse_AddGlobalDefine
+idParseSystemLocal::AddGlobalDefine
 
 adds or overrides a global define that will be added to all opened sources
 ===============
 */
-sint Parse_AddGlobalDefine( valueType* string )
+sint idParseSystemLocal::AddGlobalDefine( valueType* string )
 {
     define_t* define, *prev, *curr;
     
-    define = Parse_DefineFromString( string );
+    define = DefineFromString( string );
     if( !define )
+    {
         return false;
-        
+    }
+    
     prev = nullptr;
     for( curr = globaldefines; curr; curr = curr->next )
     {
-        if( !strcmp( curr->name, define->name ) )
+        if( !::strcmp( curr->name, define->name ) )
         {
             define->next = curr->next;
-            Parse_FreeDefine( curr );
+            FreeDefine( curr );
+            
             if( prev )
+            {
                 prev->next = define;
+            }
             else
+            {
                 globaldefines = define;
+            }
+            
             break;
         }
+        
         prev = curr;
     }
+    
     if( !curr )
     {
         define->next = globaldefines;
@@ -3624,42 +4130,62 @@ sint Parse_AddGlobalDefine( valueType* string )
 
 /*
 ===============
-Parse_CopyDefine
+idParseSystemLocal::CopyDefine
 ===============
 */
-static define_t* Parse_CopyDefine( source_t* source, define_t* define )
+define_t* idParseSystemLocal::CopyDefine( source_t* source, define_t* define )
 {
     define_t* newdefine;
     token_t* token, *newtoken, *lasttoken;
     
-    newdefine = ( define_t* ) Z_Malloc( sizeof( define_t ) + strlen( define->name ) + 1 );
+    newdefine = ( define_t* )Z_Malloc( sizeof( define_t ) + ::strlen( define->name ) + 1 );
+    
     //copy the define name
     newdefine->name = ( valueType* ) newdefine + sizeof( define_t );
-    strcpy( newdefine->name, define->name );
+    ::strcpy( newdefine->name, define->name );
     newdefine->flags = define->flags;
     newdefine->builtin = define->builtin;
     newdefine->numparms = define->numparms;
+    
     //the define is not linked
     newdefine->next = nullptr;
     newdefine->hashnext = nullptr;
+    
     //copy the define tokens
     newdefine->tokens = nullptr;
+    
     for( lasttoken = nullptr, token = define->tokens; token; token = token->next )
     {
-        newtoken = Parse_CopyToken( token );
+        newtoken = CopyToken( token );
         newtoken->next = nullptr;
-        if( lasttoken ) lasttoken->next = newtoken;
-        else newdefine->tokens = newtoken;
+        if( lasttoken )
+        {
+            lasttoken->next = newtoken;
+        }
+        else
+        {
+            newdefine->tokens = newtoken;
+        }
+        
         lasttoken = newtoken;
     }
+    
     //copy the define parameters
     newdefine->parms = nullptr;
+    
     for( lasttoken = nullptr, token = define->parms; token; token = token->next )
     {
-        newtoken = Parse_CopyToken( token );
+        newtoken = CopyToken( token );
         newtoken->next = nullptr;
-        if( lasttoken ) lasttoken->next = newtoken;
-        else newdefine->parms = newtoken;
+        if( lasttoken )
+        {
+            lasttoken->next = newtoken;
+        }
+        else
+        {
+            newdefine->parms = newtoken;
+        }
+        
         lasttoken = newtoken;
     }
     return newdefine;
@@ -3667,39 +4193,42 @@ static define_t* Parse_CopyDefine( source_t* source, define_t* define )
 
 /*
 ===============
-Parse_AddGlobalDefinesToSource
+idParseSystemLocal::AddGlobalDefinesToSource
 ===============
 */
-static void Parse_AddGlobalDefinesToSource( source_t* source )
+void idParseSystemLocal::AddGlobalDefinesToSource( source_t* source )
 {
     define_t* define, *newdefine;
     
     for( define = globaldefines; define; define = define->next )
     {
-        newdefine = Parse_CopyDefine( source, define );
-        Parse_AddDefineToHash( newdefine, source->definehash );
+        newdefine = CopyDefine( source, define );
+        AddDefineToHash( newdefine, source->definehash );
     }
 }
 
 /*
 ===============
-Parse_LoadSourceFile
+idParseSystemLocal::LoadSourceFile
 ===============
 */
-static source_t* Parse_LoadSourceFile( pointer filename )
+source_t* idParseSystemLocal::LoadSourceFile( pointer filename )
 {
     source_t* source;
     script_t* script;
     
-    script = Parse_LoadScriptFile( filename );
-    if( !script ) return nullptr;
+    script = LoadScriptFile( filename );
+    if( !script )
+    {
+        return nullptr;
+    }
     
     script->next = nullptr;
     
-    source = ( source_t* ) Z_Malloc( sizeof( source_t ) );
+    source = ( source_t* )Z_Malloc( sizeof( source_t ) );
     ::memset( source, 0, sizeof( source_t ) );
     
-    strncpy( source->filename, filename, MAX_QPATH );
+    ::strncpy( source->filename, filename, MAX_QPATH );
     source->scriptstack = script;
     source->tokens = nullptr;
     source->defines = nullptr;
@@ -3708,47 +4237,50 @@ static source_t* Parse_LoadSourceFile( pointer filename )
     
     source->definehash = ( define_t** )Z_Malloc( DEFINEHASHSIZE * sizeof( define_t* ) );
     ::memset( source->definehash, 0, DEFINEHASHSIZE * sizeof( define_t* ) );
-    Parse_AddGlobalDefinesToSource( source );
+    
+    AddGlobalDefinesToSource( source );
     return source;
 }
 
 /*
 ===============
-Parse_FreeSource
+idParseSystemLocal::FreeSource
 ===============
 */
-static void Parse_FreeSource( source_t* source )
+void idParseSystemLocal::FreeSource( source_t* source )
 {
+    sint i;
     script_t* script;
     token_t* token;
     define_t* define;
     indent_t* indent;
-    sint i;
     
-    //Parse_PrintDefineHashTable(source->definehash);
     //free all the scripts
     while( source->scriptstack )
     {
         script = source->scriptstack;
         source->scriptstack = source->scriptstack->next;
-        Parse_FreeScript( script );
+        FreeScript( script );
     }
+    
     //free all the tokens
     while( source->tokens )
     {
         token = source->tokens;
         source->tokens = source->tokens->next;
-        Parse_FreeToken( token );
+        FreeToken( token );
     }
+    
     for( i = 0; i < DEFINEHASHSIZE; i++ )
     {
         while( source->definehash[i] )
         {
             define = source->definehash[i];
             source->definehash[i] = source->definehash[i]->hashnext;
-            Parse_FreeDefine( define );
+            FreeDefine( define );
         }
     }
+    
     //free all indents
     while( source->indentstack )
     {
@@ -3757,49 +4289,55 @@ static void Parse_FreeSource( source_t* source )
         Z_Free( indent );
     }
     //
-    if( source->definehash ) Z_Free( source->definehash );
+    if( source->definehash )
+    {
+        Z_Free( source->definehash );
+    }
+    
     //free the source itself
     Z_Free( source );
 }
 
-#define MAX_SOURCEFILES   64
-
-source_t* sourceFiles[MAX_SOURCEFILES];
-
 /*
 ===============
-Parse_LoadSourceHandle
+idParseSystemLocal::LoadSourceHandle
 ===============
 */
-sint Parse_LoadSourceHandle( pointer filename )
+sint idParseSystemLocal::LoadSourceHandle( pointer filename )
 {
-    source_t* source;
     sint i;
+    source_t* source;
     
     for( i = 1; i < MAX_SOURCEFILES; i++ )
     {
         if( !sourceFiles[i] )
+        {
             break;
+        }
     }
+    
     if( i >= MAX_SOURCEFILES )
     {
         return 0;
     }
-    source = Parse_LoadSourceFile( filename );
+    
+    source = LoadSourceFile( filename );
     if( !source )
     {
         return 0;
     }
+    
     sourceFiles[i] = source;
+    
     return i;
 }
 
 /*
 ===============
-Parse_FreeSourceHandle
+idParseSystemLocal::FreeSourceHandle
 ===============
 */
-sint Parse_FreeSourceHandle( sint handle )
+sint idParseSystemLocal::FreeSourceHandle( sint handle )
 {
     if( handle < 1 || handle >= MAX_SOURCEFILES )
     {
@@ -3811,17 +4349,18 @@ sint Parse_FreeSourceHandle( sint handle )
         return false;
     }
     
-    Parse_FreeSource( sourceFiles[handle] );
+    FreeSource( sourceFiles[handle] );
     sourceFiles[handle] = nullptr;
+    
     return true;
 }
 
 /*
 ===============
-Parse_ReadTokenHandle
+idParseSystemLocal::ReadTokenHandle
 ===============
 */
-sint Parse_ReadTokenHandle( sint handle, pc_token_t* pc_token )
+sint idParseSystemLocal::ReadTokenHandle( sint handle, pc_token_t* pc_token )
 {
     token_t token;
     sint ret;
@@ -3836,7 +4375,7 @@ sint Parse_ReadTokenHandle( sint handle, pc_token_t* pc_token )
         return 0;
     }
     
-    ret = Parse_ReadToken( sourceFiles[handle], &token );
+    ret = ReadToken( sourceFiles[handle], &token );
     ::strcpy( pc_token->string, token.string );
     pc_token->type = token.type;
     pc_token->subtype = token.subtype;
@@ -3845,17 +4384,18 @@ sint Parse_ReadTokenHandle( sint handle, pc_token_t* pc_token )
     
     if( pc_token->type == TT_STRING )
     {
-        Parse_StripDoubleQuotes( pc_token->string );
+        StripDoubleQuotes( pc_token->string );
     }
+    
     return ret;
 }
 
 /*
 ===============
-Parse_SourceFileAndLine
+idParseSystemLocal::SourceFileAndLine
 ===============
 */
-sint Parse_SourceFileAndLine( sint handle, valueType* filename, sint* line )
+sint idParseSystemLocal::SourceFileAndLine( sint handle, valueType* filename, sint* line )
 {
     if( handle < 1 || handle >= MAX_SOURCEFILES )
     {

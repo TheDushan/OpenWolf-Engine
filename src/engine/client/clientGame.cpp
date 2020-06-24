@@ -738,12 +738,6 @@ void idClientGameSystemLocal::CreateExportTable( void )
     exports.CL_DemoName = CL_DemoName;
     exports.UI_LimboChat = CL_AddToLimboChat;
     
-    exports.PC_AddGlobalDefine = Parse_AddGlobalDefine;
-    exports.PC_LoadSource = Parse_LoadSourceHandle;
-    exports.PC_FreeSource = Parse_FreeSourceHandle;
-    exports.PC_ReadToken = Parse_ReadTokenHandle;
-    exports.PC_SourceFileAndLine = Parse_SourceFileAndLine;
-    
     exports.clientGameSystem = clientGameSystem;
     exports.renderSystem = renderSystem;
     exports.collisionModelManager = collisionModelManager;
@@ -755,6 +749,7 @@ void idClientGameSystemLocal::CreateExportTable( void )
     exports.idsystem = idsystem;
     exports.idGUISystem = clientGUISystem;
     exports.clientScreenSystem = clientScreenSystem;
+    exports.parseSystem = ParseSystem;
 }
 
 /*

@@ -174,6 +174,8 @@ extern "C"
 #include <GPURenderer/r_dsa.h>
 #include <GPURenderer/r_local.h>
 
+#include <API/Parse_api.h>
+#include <framework/Parse.h>
 #include <API/cgame_api.h>
 #include <API/gui_api.h>
 #include <client/client.h>

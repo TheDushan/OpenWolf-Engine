@@ -284,10 +284,6 @@ void idClientGUISystemLocal::CreateExportTable( void )
     exports.Print = Com_Printf;
     exports.Error = Com_Error;
     
-    exports.Parse_LoadSourceHandle = Parse_LoadSourceHandle;
-    exports.Parse_FreeSourceHandle = Parse_FreeSourceHandle;
-    exports.Parse_ReadTokenHandle = Parse_ReadTokenHandle;
-    exports.Parse_SourceFileAndLine = Parse_SourceFileAndLine;
     exports.RealTime = Com_RealTime;
     exports.CheckAutoUpdate = CL_CheckAutoUpdate;
     exports.GetAutoUpdate = CL_GetAutoUpdate;
@@ -298,7 +294,6 @@ void idClientGUISystemLocal::CreateExportTable( void )
     exports.SetOverstrikeMode = Key_SetOverstrikeMode;
     exports.ClearStates = Key_ClearStates;
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
-    exports.RealTime = Com_RealTime;
     exports.PlayCinematic = CIN_PlayCinematic;
     exports.StopCinematic = CIN_StopCinematic;
     exports.RunCinematic = CIN_RunCinematic;
@@ -319,6 +314,7 @@ void idClientGUISystemLocal::CreateExportTable( void )
     exports.idLANSystem = clientLANSystem;
     exports.idGUISystem = clientGUISystem;
     exports.clientScreenSystem = clientScreenSystem;
+    exports.parseSystem = ParseSystem;
 }
 
 /*

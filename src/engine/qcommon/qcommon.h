@@ -680,22 +680,11 @@ pointer Hist_Prev( void );
 #define CL_ENCODE_START     12
 #define CL_DECODE_START     4
 
-sint				Parse_AddGlobalDefine( valueType* string );
-sint				Parse_LoadSourceHandle( pointer filename );
-sint				Parse_FreeSourceHandle( sint handle );
-sint				Parse_ReadTokenHandle( sint handle, pc_token_t* pc_token );
-sint				Parse_SourceFileAndLine( sint handle, valueType* filename, sint* line );
-
 void            Com_GetHunkInfo( sint* hunkused, sint* hunkexpected );
 void            Com_RandomBytes( uchar8* string, sint len );
 
 #if !defined ( BSPC )
 void            Com_QueueEvent( sint time, sysEventType_t type, sint value, sint value2, sint ptrLength, void* ptr );
 #endif
-
-sint Parse_LoadSourceHandle( pointer filename );
-sint Parse_FreeSourceHandle( sint handle );
-sint Parse_ReadTokenHandle( sint handle, pc_token_t* pc_token );
-sint Parse_SourceFileAndLine( sint handle, valueType* filename, sint* line );
 
 #endif //!__QCOMMON_H__

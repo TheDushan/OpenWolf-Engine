@@ -67,10 +67,6 @@ struct gameImports_t
     void( *Error )( sint level, pointer fmt, ... );
     void( *Endgame )( void );
     sint( *RealTime )( qtime_t* qtime );
-    sint( *Parse_LoadSourceHandle )( pointer filename );
-    sint( *Parse_FreeSourceHandle )( sint handle );
-    sint( *Parse_ReadTokenHandle )( sint handle, pc_token_t* pc_token );
-    sint( *Parse_SourceFileAndLine )( sint handle, valueType* filename, sint* line );
     
     idSoundSystem* soundSystem;
     idCollisionModelManager* collisionModelManager;
@@ -85,6 +81,7 @@ struct gameImports_t
     idServerDemoSystem* serverDemoSystem;
     idSystem* idsystem;
     idServerCryptoSystem* serverCryptoSystem;
+    idParseSystem* parseSystem;
 };
 
 void trap_Print( pointer fmt );

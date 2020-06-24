@@ -494,10 +494,6 @@ void idServerGameSystemLocal::InitExportTable( void )
     exports.Printf = Com_Printf;
     exports.Error = Com_Error;
     exports.RealTime = Com_RealTime;
-    exports.Parse_LoadSourceHandle = Parse_LoadSourceHandle;
-    exports.Parse_FreeSourceHandle = Parse_FreeSourceHandle;
-    exports.Parse_ReadTokenHandle  = Parse_ReadTokenHandle;
-    exports.Parse_SourceFileAndLine = Parse_SourceFileAndLine;
     
     exports.collisionModelManager = collisionModelManager;
 #ifndef DEDICATED
@@ -513,6 +509,7 @@ void idServerGameSystemLocal::InitExportTable( void )
     exports.cmdSystem = cmdSystem;
     exports.idsystem = idsystem;
     exports.serverCryptoSystem = serverCryptoSystem;
+    exports.parseSystem = ParseSystem;
 }
 
 /*
