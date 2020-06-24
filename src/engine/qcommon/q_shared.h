@@ -272,7 +272,12 @@ typedef enum
     h_dontcare
 } ha_pref;
 
+#ifdef HUNK_DEBUG
+#define Hunk_Alloc( size, preference ) Hunk_AllocDebug( size, preference, # size, __FILE__, __LINE__ )
+void* Hunk_AllocDebug( size_t size, ha_pref preference, valueType* label, valueType* file, sint line );
+#else
 void* Hunk_Alloc( size_t size, ha_pref preference );
+#endif
 
 #define CIN_system  1
 #define CIN_loop    2
@@ -1571,17 +1576,6 @@ valueType* Com_ClientListString( const clientList_t* list );
 void Com_ClientListParse( clientList_t* list, pointer s );
 
 #define SQR( a ) ( ( a ) * ( a ) )
-
-enum
-{
-    AUTHORIZE_BAD,
-    AUTHORIZE_OK,
-    AUTHORIZE_NOTVERIFIED,
-    AUTHORIZE_CREATECHARACTER,
-    AUTHORIZE_DELETECHARACTER,
-    AUTHORIZE_ACCOUNTINFO,
-    AUTHORIZE_UNAVAILABLE,
-};
 
 #ifndef BSPC
 typedef enum
