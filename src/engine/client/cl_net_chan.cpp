@@ -160,7 +160,7 @@ CL_Netchan_TransmitNextFragment
 */
 void CL_Netchan_TransmitNextFragment( netchan_t* chan )
 {
-    Netchan_TransmitNextFragment( chan );
+    networkChainSystem->TransmitNextFragment( chan );
 }
 
 /*
@@ -176,7 +176,7 @@ void CL_Netchan_Transmit( netchan_t* chan, msg_t* msg )
     {
         CL_Netchan_Encode( msg );
     }
-    Netchan_Transmit( chan, msg->cursize, msg->data );
+    networkChainSystem->Transmit( chan, msg->cursize, msg->data );
 }
 
 extern sint      oldsize;
@@ -191,7 +191,7 @@ bool CL_Netchan_Process( netchan_t* chan, msg_t* msg )
 {
     bool ret;
     
-    ret = Netchan_Process( chan, msg );
+    ret = networkChainSystem->Process( chan, msg );
     
     if( !ret )
     {

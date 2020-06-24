@@ -187,7 +187,7 @@ sint idClientLANSystemLocal::AddServer( sint source, pointer name, pointer addre
     
     if( servers && *count < max )
     {
-        NET_StringToAdr( address, &adr, NA_UNSPEC );
+        networkChainSystem->StringToAdr( address, &adr, NA_UNSPEC );
         
         for( i = 0; i < *count; i++ )
         {
@@ -246,7 +246,7 @@ void idClientLANSystemLocal::RemoveServer( sint source, pointer addr )
     {
         netadr_t comp;
         
-        NET_StringToAdr( addr, &comp, NA_UNSPEC );
+        networkChainSystem->StringToAdr( addr, &comp, NA_UNSPEC );
         
         for( i = 0; i < *count; i++ )
         {

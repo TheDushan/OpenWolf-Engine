@@ -347,7 +347,7 @@ void idServerMainSystemLocal::MasterHeartbeat( pointer hbname )
             if( adr[i][0].type == NA_BAD )
             {
                 Com_Printf( "Resolving %s (IPv4)\n", master );
-                res = NET_StringToAdr( master, &adr[i][0], NA_IP );
+                res = networkChainSystem->StringToAdr( master, &adr[i][0], NA_IP );
                 
                 if( res == 2 )
                 {
@@ -371,7 +371,7 @@ void idServerMainSystemLocal::MasterHeartbeat( pointer hbname )
             if( adr[i][1].type == NA_BAD )
             {
                 Com_Printf( "Resolving %s (IPv6)\n", master );
-                res = NET_StringToAdr( master, &adr[i][1], NA_IP6 );
+                res = networkChainSystem->StringToAdr( master, &adr[i][1], NA_IP6 );
                 
                 if( res == 2 )
                 {
@@ -407,12 +407,12 @@ void idServerMainSystemLocal::MasterHeartbeat( pointer hbname )
         
         if( ( netenabled & NET_ENABLEV4 ) && adr[i][0].type != NA_BAD )
         {
-            NET_OutOfBandPrint( NS_SERVER, adr[i][0], "heartbeat %s\n", hbname );
+            networkChainSystem->OutOfBandPrint( NS_SERVER, adr[i][0], "heartbeat %s\n", hbname );
         }
         
         if( netenabled & NET_ENABLEV6 && adr[i][1].type != NA_BAD )
         {
-            NET_OutOfBandPrint( NS_SERVER, adr[i][1], "heartbeat %s\n", hbname );
+            networkChainSystem->OutOfBandPrint( NS_SERVER, adr[i][1], "heartbeat %s\n", hbname );
         }
         
     }
@@ -454,7 +454,7 @@ void idServerMainSystemLocal::MasterGameCompleteStatus( void )
             
             Com_Printf( "Resolving %s\n", sv_master[i]->string );
             
-            if( !NET_StringToAdr( sv_master[i]->string, &adr[i], NA_IP ) )
+            if( !networkChainSystem->StringToAdr( sv_master[i]->string, &adr[i], NA_IP ) )
             {
                 // if the address failed to resolve, clear it
                 // so we don't take repeated dns hits
@@ -518,7 +518,7 @@ void idServerMainSystemLocal::MasterGameStat( pointer data )
     
     Com_Printf( "Resolving %s\n", MASTER_SERVER_NAME );
     
-    switch( NET_StringToAdr( MASTER_SERVER_NAME, &adr, NA_UNSPEC ) )
+    switch( networkChainSystem->StringToAdr( MASTER_SERVER_NAME, &adr, NA_UNSPEC ) )
     {
         case 0:
             Com_Printf( "Couldn't resolve master address: %s\n", MASTER_SERVER_NAME );
@@ -533,7 +533,7 @@ void idServerMainSystemLocal::MasterGameStat( pointer data )
     Com_Printf( "%s resolved to %s\n", MASTER_SERVER_NAME, networkSystem->AdrToStringwPort( adr ) );
     
     Com_Printf( "Sending gamestat to %s\n", MASTER_SERVER_NAME );
-    NET_OutOfBandPrint( NS_SERVER, adr, "gamestat %s", data );
+    networkChainSystem->OutOfBandPrint( NS_SERVER, adr, "gamestat %s", data );
 }
 
 /*
@@ -654,7 +654,7 @@ void idServerMainSystemLocal::Status( netadr_t from )
         }
     }
     
-    NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
+    networkChainSystem->OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
 }
 
 /*
@@ -725,7 +725,7 @@ void idServerMainSystemLocal::GameCompleteStatus( netadr_t from )
         }
     }
     
-    NET_OutOfBandPrint( NS_SERVER, from, "gameCompleteStatus\n%s\n%s", infostring, status );
+    networkChainSystem->OutOfBandPrint( NS_SERVER, from, "gameCompleteStatus\n%s\n%s", infostring, status );
 }
 
 /*
@@ -839,7 +839,7 @@ void idServerMainSystemLocal::Info( netadr_t from )
         Info_SetValueForKey( infostring, "balancedteams", balancedteams );
     }
     
-    NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
+    networkChainSystem->OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
 }
 
 /*
@@ -878,12 +878,12 @@ void idServerMainSystemLocal::GetUpdateInfo( netadr_t from )
     
     if( found )
     {
-        NET_OutOfBandPrint( NS_SERVER, from, "updateResponse 1 %s", versionMap[i].installer );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "updateResponse 1 %s", versionMap[i].installer );
         Com_DPrintf( "   SENT:  updateResponse 1 %s\n", versionMap[i].installer );
     }
     else
     {
-        NET_OutOfBandPrint( NS_SERVER, from, "updateResponse 0" );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "updateResponse 0" );
         Com_DPrintf( "   SENT:  updateResponse 0\n" );
     }
 #endif
@@ -898,7 +898,7 @@ void idServerMainSystemLocal::FlushRedirect( valueType* outputbuf )
 {
     if( *outputbuf )
     {
-        NET_OutOfBandPrint( NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf );
     }
 }
 
@@ -1288,7 +1288,7 @@ void idServerMainSystemLocal::PacketEvent( netadr_t from, msg_t* msg )
     
     // if we received a sequenced packet from an address we don't recognize,
     // send an out of band disconnect packet to it
-    NET_OutOfBandPrint( NS_SERVER, from, "disconnect" );
+    networkChainSystem->OutOfBandPrint( NS_SERVER, from, "disconnect" );
 }
 
 /*

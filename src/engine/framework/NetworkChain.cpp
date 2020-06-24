@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2020 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,9 +27,7 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   net_chan.cpp
-// Version:     v1.01
-// Created:
+// File name:   NetworkChain.cpp
 // Compilers:   Visual Studio 2019, gcc 7.3.0
 // Description:
 // -------------------------------------------------------------------------------------
@@ -66,17 +64,8 @@ to the new value before sending out any replies.
 
 */
 
-
-#define	MAX_PACKETLEN			1400		// max size of a network packet
-
-#define	FRAGMENT_SIZE			(MAX_PACKETLEN - 100)
-#define	PACKET_HEADER			10			// two ints and a short
-
-#define	FRAGMENT_BIT	(1U<<31)
-
-convar_t*		showpackets;
-convar_t*		showdrop;
-convar_t*		qport;
+packetQueue_t* packetQueue = nullptr;
+loopback_t loopbacks[2];
 
 static valueType* netsrcString[2] =
 {
@@ -84,13 +73,33 @@ static valueType* netsrcString[2] =
     "server"
 };
 
+idNetworkChainSystemLocal networkSystemChainLocal;
+idNetworkChainSystem* networkChainSystem = &networkSystemChainLocal;
+
 /*
 ===============
-Netchan_Init
-
+idNetworkChainSystemLocal::idNetworkSystemLocal
 ===============
 */
-void Netchan_Init( sint port )
+idNetworkChainSystemLocal::idNetworkChainSystemLocal( void )
+{
+}
+
+/*
+===============
+idNetworkChainSystemLocal::~idNetworkChainSystemLocal
+===============
+*/
+idNetworkChainSystemLocal::~idNetworkChainSystemLocal( void )
+{
+}
+
+/*
+===============
+idNetworkChainSystemLocal::Init
+===============
+*/
+void idNetworkChainSystemLocal::Init( sint port )
 {
     port &= 0xffff;
     showpackets = cvarSystem->Get( "showpackets", "0", CVAR_TEMP, "Toggles the running display of all packets sent and received. 0=disables;1=enables. " );
@@ -100,12 +109,12 @@ void Netchan_Init( sint port )
 
 /*
 ==============
-Netchan_Setup
+idNetworkChainSystemLocal::Setup
 
 called to open a channel to a remote system
 ==============
 */
-void Netchan_Setup( netsrc_t sock, netchan_t* chan, netadr_t adr, sint qport )
+void idNetworkChainSystemLocal::Setup( netsrc_t sock, netchan_t* chan, netadr_t adr, sint qport )
 {
     ::memset( chan, 0, sizeof( *chan ) );
     
@@ -116,106 +125,6 @@ void Netchan_Setup( netsrc_t sock, netchan_t* chan, netadr_t adr, sint qport )
     chan->outgoingSequence = 1;
 }
 
-// TTimo: unused, commenting out to make gcc happy
-#if 0
-/*
-==============
-Netchan_ScramblePacket
-
-A probably futile attempt to make proxy hacking somewhat
-more difficult.
-==============
-*/
-#define	SCRAMBLE_START	6
-static void Netchan_ScramblePacket( msg_t* buf )
-{
-    uint	seed;
-    sint			i, j, c, mask, temp;
-    sint			seq[MAX_PACKETLEN];
-    
-    seed = ( LittleLong( *( uint* )buf->data ) * 3 ) ^ ( buf->cursize * 123 );
-    c = buf->cursize;
-    if( c <= SCRAMBLE_START )
-    {
-        return;
-    }
-    if( c > MAX_PACKETLEN )
-    {
-        Com_Error( ERR_DROP, "MAX_PACKETLEN" );
-    }
-    
-    // generate a sequence of "random" numbers
-    for( i = 0 ; i < c ; i++ )
-    {
-        seed = ( 119 * seed + 1 );
-        seq[i] = seed;
-    }
-    
-    // transpose each character
-    for( mask = 1 ; mask < c - SCRAMBLE_START ; mask = ( mask << 1 ) + 1 )
-    {
-    }
-    mask >>= 1;
-    for( i = SCRAMBLE_START ; i < c ; i++ )
-    {
-        j = SCRAMBLE_START + ( seq[i] & mask );
-        temp = buf->data[j];
-        buf->data[j] = buf->data[i];
-        buf->data[i] = temp;
-    }
-    
-    // uchar8 xor the data after the header
-    for( i = SCRAMBLE_START ; i < c ; i++ )
-    {
-        buf->data[i] ^= seq[i];
-    }
-}
-
-static void Netchan_UnScramblePacket( msg_t* buf )
-{
-    uint	seed;
-    sint			i, j, c, mask, temp;
-    sint			seq[MAX_PACKETLEN];
-    
-    seed = ( LittleLong( *( uint* )buf->data ) * 3 ) ^ ( buf->cursize * 123 );
-    c = buf->cursize;
-    if( c <= SCRAMBLE_START )
-    {
-        return;
-    }
-    if( c > MAX_PACKETLEN )
-    {
-        Com_Error( ERR_DROP, "MAX_PACKETLEN" );
-    }
-    
-    // generate a sequence of "random" numbers
-    for( i = 0 ; i < c ; i++ )
-    {
-        seed = ( 119 * seed + 1 );
-        seq[i] = seed;
-    }
-    
-    // uchar8 xor the data after the header
-    for( i = SCRAMBLE_START ; i < c ; i++ )
-    {
-        buf->data[i] ^= seq[i];
-    }
-    
-    // transpose each character in reverse order
-    for( mask = 1 ; mask < c - SCRAMBLE_START ; mask = ( mask << 1 ) + 1 )
-    {
-    }
-    mask >>= 1;
-    for( i = c - 1 ; i >= SCRAMBLE_START ; i-- )
-    {
-        j = SCRAMBLE_START + ( seq[i] & mask );
-        temp = buf->data[j];
-        buf->data[j] = buf->data[i];
-        buf->data[i] = temp;
-    }
-}
-#endif
-
 /*
 =================
 Netchan_TransmitNextFragment
@@ -223,7 +132,7 @@ Netchan_TransmitNextFragment
 Send one fragment of the current message
 =================
 */
-void Netchan_TransmitNextFragment( netchan_t* chan )
+void idNetworkChainSystemLocal::TransmitNextFragment( netchan_t* chan )
 {
     msg_t		send;
     uchar8		send_buf[MAX_PACKETLEN];
@@ -252,7 +161,7 @@ void Netchan_TransmitNextFragment( netchan_t* chan )
     MSG_WriteData( &send, chan->unsentBuffer + chan->unsentFragmentStart, fragmentLength );
     
     // send the datagram
-    NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
+    networkChainSystem->SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
     
     // Store send time and size of this packet for rate control
     chan->lastSentTime = idsystem->Milliseconds();
@@ -283,13 +192,13 @@ void Netchan_TransmitNextFragment( netchan_t* chan )
 
 /*
 ===============
-Netchan_Transmit
+idNetworkChainSystemLocal::Transmit
 
 Sends a message to a connection, fragmenting if necessary
 A 0 length will still generate a packet.
 ================
 */
-void Netchan_Transmit( netchan_t* chan, sint length, const uchar8* data )
+void idNetworkChainSystemLocal::Transmit( netchan_t* chan, sint length, const uchar8* data )
 {
     msg_t		send;
     uchar8		send_buf[MAX_PACKETLEN];
@@ -308,7 +217,7 @@ void Netchan_Transmit( netchan_t* chan, sint length, const uchar8* data )
         ::memcpy( chan->unsentBuffer, data, length );
         
         // only send the first fragment now
-        Netchan_TransmitNextFragment( chan );
+        networkChainSystem->TransmitNextFragment( chan );
         
         return;
     }
@@ -328,7 +237,7 @@ void Netchan_Transmit( netchan_t* chan, sint length, const uchar8* data )
     MSG_WriteData( &send, data, length );
     
     // send the datagram
-    NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
+    networkChainSystem->SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
     
     // Store send time and size of this packet for rate control
     chan->lastSentTime = idsystem->Milliseconds();
@@ -347,7 +256,7 @@ void Netchan_Transmit( netchan_t* chan, sint length, const uchar8* data )
 
 /*
 =================
-Netchan_Process
+idNetworkChainSystemLocal::Process
 
 Returns false if the message should not be processed due to being
 out of order or a fragment.
@@ -357,7 +266,7 @@ final fragment of a multi-part message, the entire thing will be
 copied out.
 =================
 */
-bool Netchan_Process( netchan_t* chan, msg_t* msg )
+bool idNetworkChainSystemLocal::Process( netchan_t* chan, msg_t* msg )
 {
     sint			sequence;
     sint			qport;
@@ -537,38 +446,13 @@ bool Netchan_Process( netchan_t* chan, msg_t* msg )
     return true;
 }
 
-
-//==============================================================================
-
-
 /*
 =============================================================================
-
 LOOPBACK BUFFERS FOR LOCAL PLAYER
-
 =============================================================================
 */
 
-// there needs to be enough loopback messages to hold a complete
-// gamestate of maximum size
-#define	MAX_LOOPBACK	16
-
-typedef struct
-{
-    uchar8	data[MAX_PACKETLEN];
-    sint		datalen;
-} loopmsg_t;
-
-typedef struct
-{
-    loopmsg_t	msgs[MAX_LOOPBACK];
-    sint			get, send;
-} loopback_t;
-
-loopback_t	loopbacks[2];
-
-
-bool	NET_GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message )
+bool idNetworkChainSystemLocal::GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message )
 {
     sint		i;
     loopback_t*	loop;
@@ -593,7 +477,7 @@ bool	NET_GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message )
 }
 
 
-void NET_SendLoopPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
+void idNetworkChainSystemLocal::SendLoopPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
 {
     sint		i;
     loopback_t*	loop;
@@ -607,21 +491,8 @@ void NET_SendLoopPacket( netsrc_t sock, sint length, const void* data, netadr_t 
     loop->msgs[i].datalen = length;
 }
 
-//=============================================================================
-
-typedef struct packetQueue_s
-{
-    struct packetQueue_s* next;
-    sint length;
-    uchar8* data;
-    netadr_t to;
-    sint release;
-} packetQueue_t;
-
-packetQueue_t* packetQueue = nullptr;
-
-static void NET_QueuePacket( sint length, const void* data, netadr_t to,
-                             sint offset )
+void idNetworkChainSystemLocal::QueuePacket( sint length, const void* data, netadr_t to,
+        sint offset )
 {
     packetQueue_t* _new, *next = packetQueue;
     
@@ -652,7 +523,7 @@ static void NET_QueuePacket( sint length, const void* data, netadr_t to,
     }
 }
 
-void NET_FlushPacketQueue( void )
+void idNetworkChainSystemLocal::FlushPacketQueue( void )
 {
     packetQueue_t* last;
     sint now;
@@ -670,9 +541,8 @@ void NET_FlushPacketQueue( void )
     }
 }
 
-void NET_SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
+void idNetworkChainSystemLocal::SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
 {
-
     // sequenced packets are shown in netchan, so just show oob
     if( showpackets->integer && *( sint* )data == -1 )
     {
@@ -681,7 +551,7 @@ void NET_SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
     
     if( to.type == NA_LOOPBACK )
     {
-        NET_SendLoopPacket( sock, length, data, to );
+        SendLoopPacket( sock, length, data, to );
         return;
     }
     if( to.type == NA_BOT )
@@ -695,11 +565,11 @@ void NET_SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
     
     if( sock == NS_CLIENT && cl_packetdelay->integer > 0 )
     {
-        NET_QueuePacket( length, data, to, cl_packetdelay->integer );
+        QueuePacket( length, data, to, cl_packetdelay->integer );
     }
     else if( sock == NS_SERVER && sv_packetdelay->integer > 0 )
     {
-        NET_QueuePacket( length, data, to, sv_packetdelay->integer );
+        QueuePacket( length, data, to, sv_packetdelay->integer );
     }
     else
     {
@@ -709,16 +579,15 @@ void NET_SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
 
 /*
 ===============
-NET_OutOfBandPrint
+idNetworkChainSystemLocal::OutOfBandPrint
 
 Sends a text message in an out-of-band datagram
 ================
 */
-void NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, pointer format, ... )
+void idNetworkChainSystemLocal::OutOfBandPrint( netsrc_t sock, netadr_t adr, pointer format, ... )
 {
     va_list		argptr;
     valueType		string[MAX_MSGLEN];
-    
     
     // set the header
     string[0] = -1;
@@ -731,17 +600,17 @@ void NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, pointer format, ... )
     va_end( argptr );
     
     // send the datagram
-    NET_SendPacket( sock, strlen( string ), string, adr );
+    networkChainSystem->SendPacket( sock, strlen( string ), string, adr );
 }
 
 /*
 ===============
-NET_OutOfBandPrint
+idNetworkChainSystemLocal::OutOfBandPrint
 
 Sends a data message in an out-of-band datagram (only used for "connect")
 ================
 */
-void NET_OutOfBandData( netsrc_t sock, netadr_t adr, uchar8* format, sint len )
+void idNetworkChainSystemLocal::OutOfBandData( netsrc_t sock, netadr_t adr, uchar8* format, sint len )
 {
     uchar8		string[MAX_MSGLEN * 2];
     sint			i;
@@ -764,18 +633,18 @@ void NET_OutOfBandData( netsrc_t sock, netadr_t adr, uchar8* format, sint len )
     mbuf.cursize = len + 4;
     idHuffmanSystemLocal::DynCompress( &mbuf, 12 );
     // send the datagram
-    NET_SendPacket( sock, mbuf.cursize, mbuf.data, adr );
+    networkChainSystem->SendPacket( sock, mbuf.cursize, mbuf.data, adr );
 }
 
 /*
 =============
-NET_StringToAdr
+idNetworkChainSystemLocal::StringToAdr
 
 Traps "localhost" for loopback, passes everything else to system
 return 0 on address not found, 1 on address found with port, 2 on address found without port.
 =============
 */
-sint NET_StringToAdr( pointer s, netadr_t* a, netadrtype_t family )
+sint idNetworkChainSystemLocal::StringToAdr( pointer s, netadr_t* a, netadrtype_t family )
 {
     valueType	base[MAX_STRING_CHARS], *search;
     valueType*	port = nullptr;

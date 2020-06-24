@@ -215,7 +215,7 @@ idServerNetChanSystemLocal::NetchanTransmitNextFragment
 */
 void idServerNetChanSystemLocal::NetchanTransmitNextFragment( client_t* client )
 {
-    Netchan_TransmitNextFragment( &client->netchan );
+    networkChainSystem->TransmitNextFragment( &client->netchan );
     
     while( !client->netchan.unsentFragments && client->netchan_start_queue )
     {
@@ -238,7 +238,7 @@ void idServerNetChanSystemLocal::NetchanTransmitNextFragment( client_t* client )
             NetchanEncode( client, &netbuf->msg, netbuf->lastClientCommandString );
         }
         
-        Netchan_Transmit( &client->netchan, netbuf->msg.cursize, netbuf->msg.data );
+        networkChainSystem->Transmit( &client->netchan, netbuf->msg.cursize, netbuf->msg.data );
         
         Z_Free( netbuf );
     }
@@ -292,7 +292,7 @@ void idServerNetChanSystemLocal::NetchanTransmit( client_t* client, msg_t* msg )
         client->netchan_end_queue = netbuf;
         
         // emit the next fragment of the current message for now
-        Netchan_TransmitNextFragment( &client->netchan );
+        networkChainSystem->TransmitNextFragment( &client->netchan );
     }
     else
     {
@@ -300,7 +300,7 @@ void idServerNetChanSystemLocal::NetchanTransmit( client_t* client, msg_t* msg )
         {
             NetchanEncode( client, msg, client->lastClientCommandString );
         }
-        Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
+        networkChainSystem->Transmit( &client->netchan, msg->cursize, msg->data );
     }
 }
 
@@ -313,7 +313,7 @@ bool idServerNetChanSystemLocal::NetchanProcess( client_t* client, msg_t* msg )
 {
     bool ret;
     
-    ret = Netchan_Process( &client->netchan, msg );
+    ret = networkChainSystem->Process( &client->netchan, msg );
     
     if( !ret )
     {

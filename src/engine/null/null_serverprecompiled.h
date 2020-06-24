@@ -179,6 +179,8 @@
 #include <framework/MD4.h>
 #include <API/MD5_api.h>
 #include <framework/MD5.h>
+#include <API/NetworkChain_api.h>
+#include <framework/NetworkChain.h>
 #include <API/Network_api.h>
 #include <framework/Network.h>
 #include <server/serverDemo.h>

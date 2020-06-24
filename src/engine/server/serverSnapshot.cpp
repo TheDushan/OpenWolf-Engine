@@ -860,7 +860,7 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
     while( client->state && client->netchan.unsentFragments )
     {
         Com_Printf( "idServerSnapshotSystemLocal::SendMessageToClient [1] for %s, writing out old fragments\n", client->name );
-        Netchan_TransmitNextFragment( &client->netchan );
+        networkChainSystem->TransmitNextFragment( &client->netchan );
     }
     
     // record information about the message
@@ -962,7 +962,7 @@ void idServerSnapshotSystemLocal::SendClientIdle( client_t* client )
     
     while( client->netchan.unsentFragments )
     {
-        Netchan_TransmitNextFragment( &client->netchan );
+        networkChainSystem->TransmitNextFragment( &client->netchan );
     }
     
     sv.bpsTotalBytes += msg.cursize;			// NERVE - SMF - net debugging

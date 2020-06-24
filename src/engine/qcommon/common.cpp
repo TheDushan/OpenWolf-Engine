@@ -2599,12 +2599,12 @@ sint Com_EventLoop( void )
         if( ev.evType == SYSE_NONE )
         {
             // manually send packet events for the loopback channel
-            while( NET_GetLoopPacket( NS_CLIENT, &evFrom, &buf ) )
+            while( networkChainSystem->GetLoopPacket( NS_CLIENT, &evFrom, &buf ) )
             {
                 CL_PacketEvent( evFrom, &buf );
             }
             
-            while( NET_GetLoopPacket( NS_SERVER, &evFrom, &buf ) )
+            while( networkChainSystem->GetLoopPacket( NS_SERVER, &evFrom, &buf ) )
             {
                 // if the server just shut down, flush the events
                 if( com_sv_running->integer )
@@ -3279,7 +3279,7 @@ void Com_Init( valueType* commandLine )
 #endif
     }
     
-    Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random
+    networkChainSystem->Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random
     serverInitSystem->Init();
     Hist_Load();
     
@@ -3691,7 +3691,7 @@ void Com_Frame( void )
         }
     }
     
-    NET_FlushPacketQueue();
+    networkChainSystem->FlushPacketQueue();
     
     //
     // report timing information

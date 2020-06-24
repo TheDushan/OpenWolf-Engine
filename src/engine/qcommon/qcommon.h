@@ -197,14 +197,6 @@ typedef struct
     uint32 scope_id;	// Needed for IPv6 link-local addresses
 } netadr_t;
 
-void            NET_FlushPacketQueue( void );
-void			NET_SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to );
-void      NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, pointer format, ... ) __attribute__( ( format( printf, 3, 4 ) ) );
-void 	NET_OutOfBandData( netsrc_t sock, netadr_t adr, uchar8* format, sint len );
-
-sint				NET_StringToAdr( pointer s, netadr_t* a, netadrtype_t family );
-bool		NET_GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message );
-
 //----(SA)  increased for larger submodel entity counts
 #define MAX_MSGLEN					32768		// max length of a message, which may
 //#define   MAX_MSGLEN              16384       // max length of a message, which may
@@ -243,15 +235,6 @@ typedef struct
     sint lastSentTime;
     sint lastSentSize;
 } netchan_t;
-
-void            Netchan_Init( sint qport );
-void            Netchan_Setup( netsrc_t sock, netchan_t* chan, netadr_t adr, sint qport );
-
-void            Netchan_Transmit( netchan_t* chan, sint length, const uchar8* data );
-void            Netchan_TransmitNextFragment( netchan_t* chan );
-
-bool        Netchan_Process( netchan_t* chan, msg_t* msg );
-
 
 /*
 ==============================================================

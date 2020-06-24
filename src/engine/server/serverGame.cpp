@@ -433,10 +433,10 @@ void idServerGameSystemLocal::UpdateSharedConfig( uint port, pointer rconpass )
     
     Q_strcat( message, MAX_RCON_MESSAGE, " !readconfig" );
     
-    NET_StringToAdr( "127.0.0.1", &to, NA_UNSPEC );
+    networkChainSystem->StringToAdr( "127.0.0.1", &to, NA_UNSPEC );
     to.port = BigShort( port );
     
-    NET_SendPacket( NS_SERVER, strlen( message ) + 1, message, to );
+    networkChainSystem->SendPacket( NS_SERVER, strlen( message ) + 1, message, to );
 }
 
 /*

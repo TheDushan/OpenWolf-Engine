@@ -260,7 +260,6 @@ set( QCOMMONLIST_HEADERS
 set( QCOMMONLIST_SOURCES
 	${MOUNT_DIR}/qcommon/common.cpp
 	${MOUNT_DIR}/qcommon/msg.cpp
-	${MOUNT_DIR}/qcommon/net_chan.cpp
 	${MOUNT_DIR}/qcommon/parse.cpp
 )
 
@@ -273,6 +272,7 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/API/MD4_api.h
 	${MOUNT_DIR}/API/MD5_api.h
 	${MOUNT_DIR}/API/Network_api.h
+	${MOUNT_DIR}/API/NetworkChain_api.h
 	${MOUNT_DIR}/framework/FileSystem.h
 	${MOUNT_DIR}/framework/CVarSystem.h
 	${MOUNT_DIR}/framework/CmdSystem.h
@@ -286,6 +286,7 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/framework/Unzip.h
 	${MOUNT_DIR}/framework/SurfaceFlags_Tech3.h
 	${MOUNT_DIR}/framework/Network.h
+	${MOUNT_DIR}/framework/NetworkChain.h
 )
 
 set( FRAMEWORKS_SOURCES
@@ -301,6 +302,7 @@ set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/Puff.cpp
 	${MOUNT_DIR}/framework/Unzip.cpp
 	${MOUNT_DIR}/framework/Network.cpp
+	${MOUNT_DIR}/framework/NetworkChain.cpp
 )
 
 set( CLIENTLIST_HEADERS

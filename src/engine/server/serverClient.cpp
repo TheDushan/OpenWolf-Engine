@@ -96,7 +96,7 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
     
     if( serverCcmdsLocal.TempBanIsBanned( from ) )
     {
-        NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", sv_tempbanmessage->string );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\n%s\n", sv_tempbanmessage->string );
         return;
     }
     
@@ -154,11 +154,11 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
         challenge->pingTime = svs.time;
         if( sv_onlyVisibleClients->integer )
         {
-            NET_OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %i %i %i", challenge->challenge, clientChallenge, sv_onlyVisibleClients->integer );
+            networkChainSystem->OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %i %i %i", challenge->challenge, clientChallenge, sv_onlyVisibleClients->integer );
         }
         else
         {
-            NET_OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %i %i", challenge->challenge, clientChallenge );
+            networkChainSystem->OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %i %i", challenge->challenge, clientChallenge );
         }
         return;
     }
@@ -192,7 +192,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
     if( version != com_protocol->integer )
     {
-        NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i (yours is %i).\n", com_protocol->integer, version );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i (yours is %i).\n", com_protocol->integer, version );
         Com_DPrintf( "    rejected connect from version %i\n", version );
         return;
     }
@@ -203,7 +203,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     
     if( serverCcmdsLocal.TempBanIsBanned( from ) )
     {
-        NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", sv_tempbanmessage->string );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\n%s\n", sv_tempbanmessage->string );
         return;
     }
     
@@ -234,9 +234,9 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     
     if( !Info_SetValueForKey( userinfo, "ip", ip ) )
     {
-        NET_OutOfBandPrint( NS_SERVER, from,
-                            "print\nUserinfo string length exceeded.  "
-                            "Try removing setu cvars from your config.\n" );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from,
+                                            "print\nUserinfo string length exceeded.  "
+                                            "Try removing setu cvars from your config.\n" );
         return;
     }
     
@@ -270,9 +270,9 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     
     if( ( ( sint )::strlen( ip ) + ( sint )::strlen( userinfo ) + 4 ) >= MAX_INFO_STRING )
     {
-        NET_OutOfBandPrint( NS_SERVER, from,
-                            "print\nUserinfo string length exceeded.  "
-                            "Try removing setu cvars from your config.\n" );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from,
+                                            "print\nUserinfo string length exceeded.  "
+                                            "Try removing setu cvars from your config.\n" );
         return;
     }
     
@@ -297,7 +297,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         
         if( i == MAX_CHALLENGES )
         {
-            NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_dialog]No or bad challenge for address.\n" );
+            networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\n[err_dialog]No or bad challenge for address.\n" );
             return;
         }
         
@@ -324,14 +324,14 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
             if( sv_minPing->value && ping < sv_minPing->value )
             {
                 // don't let them keep trying until they get a big delay
-                NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
+                networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
                 Com_DPrintf( "Client %i rejected on a too low ping\n", i );
                 challengeptr->wasrefused = true;
                 return;
             }
             if( sv_maxPing->value && ping > sv_maxPing->value )
             {
-                NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
+                networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
                 Com_DPrintf( "Client %i rejected on a too high ping\n", i );
                 challengeptr->wasrefused = true;
                 return;
@@ -358,7 +358,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         
         if( connectingip >= 3 )
         {
-            NET_OutOfBandPrint( NS_SERVER, from, "print\nPlease wait...\n" );
+            networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nPlease wait...\n" );
         }
     }
     
@@ -436,7 +436,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         
         if( !cl )
         {
-            NET_OutOfBandPrint( NS_SERVER, from, "xFull\n" );
+            networkChainSystem->OutOfBandPrint( NS_SERVER, from, "xFull\n" );
             Com_DPrintf( "Rejected a connection.\n" );
             return;
         }
@@ -465,7 +465,7 @@ gotnewcl:
     newcl->challenge = challenge;
     
     // save the address
-    Netchan_Setup( NS_SERVER, &newcl->netchan, from, qport );
+    networkChainSystem->Setup( NS_SERVER, &newcl->netchan, from, qport );
     // init the netchan queue
     
     // save the userinfo
@@ -476,7 +476,7 @@ gotnewcl:
     denied = sgame->ClientConnect( clientNum, true ); // firstTime = true
     if( denied )
     {
-        NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_dialog]%s\n", denied );
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\n[err_dialog]%s\n", denied );
         Com_DPrintf( "Game rejected a connection: %s.\n", denied );
         return;
     }
@@ -492,7 +492,7 @@ gotnewcl:
     svs.challenges[i].firstPing = 0;
     
     // send the connect packet to the client
-    NET_OutOfBandPrint( NS_SERVER, from, "connectResponse" );
+    networkChainSystem->OutOfBandPrint( NS_SERVER, from, "connectResponse" );
     
     Com_DPrintf( "Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name );
     
@@ -684,7 +684,7 @@ void idServerClientSystemLocal::SendClientGameState( client_t* client )
     {
     
         Com_DPrintf( "idServerClientSystemLocal::SendClientGameState [2] for %s, writing out old fragments\n", client->name );
-        Netchan_TransmitNextFragment( &client->netchan );
+        networkChainSystem->TransmitNextFragment( &client->netchan );
     }
     
     Com_DPrintf( "idServerClientSystemLocal::SendClientGameState() for %s\n", client->name );

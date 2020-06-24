@@ -1085,7 +1085,7 @@ void CL_MapLoading( void )
         cls.keyCatchers = 0;
         clientScreenSystem->UpdateScreen();
         clc.connectTime = -RETRANSMIT_TIMEOUT;
-        NET_StringToAdr( cls.servername, &clc.serverAddress, NA_UNSPEC );
+        networkChainSystem->StringToAdr( cls.servername, &clc.serverAddress, NA_UNSPEC );
         // we don't need a challenge on the localhost
         
         CL_CheckForResend();
@@ -1405,8 +1405,7 @@ void CL_RequestMotd( void )
     }
     Com_DPrintf( "Resolving %s\n", MASTER_SERVER_NAME );
     
-    switch( NET_StringToAdr( MASTER_SERVER_NAME, &cls.updateServer,
-                             NA_UNSPEC ) )
+    switch( networkChainSystem->StringToAdr( MASTER_SERVER_NAME, &cls.updateServer, NA_UNSPEC ) )
     {
         case 0:
             Com_Printf( "Couldn't resolve master address\n" );
@@ -1430,7 +1429,7 @@ void CL_RequestMotd( void )
     Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
     Info_SetValueForKey( info, "version", com_version->string );
     
-    NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd%s", info );
+    networkChainSystem->OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd%s", info );
 }
 
 /*
@@ -1598,7 +1597,7 @@ void CL_Connect_f( void )
     
     Q_strncpyz( cls.servername, server, sizeof( cls.servername ) );
     
-    if( !NET_StringToAdr( cls.servername, &clc.serverAddress, family ) )
+    if( !networkChainSystem->StringToAdr( cls.servername, &clc.serverAddress, family ) )
     {
         Com_Printf( "Bad server address\n" );
         cls.state = CA_DISCONNECTED;
@@ -1709,14 +1708,14 @@ void CL_Rcon_f( void )
                         
             return;
         }
-        NET_StringToAdr( rconAddress->string, &rcon_address, NA_UNSPEC );
+        networkChainSystem->StringToAdr( rconAddress->string, &rcon_address, NA_UNSPEC );
         if( rcon_address.port == 0 )
         {
             rcon_address.port = BigShort( PORT_SERVER );
         }
     }
     
-    NET_SendPacket( NS_CLIENT, ::strlen( message ) + 1, message, rcon_address );
+    networkChainSystem->SendPacket( NS_CLIENT, ::strlen( message ) + 1, message, rcon_address );
 }
 
 /*
@@ -2372,7 +2371,7 @@ void CL_CheckForResend( void )
             // EVEN BALANCE - T.RAY
             strcpy( pkt, "getchallenge" );
             pktlen = strlen( pkt );
-            NET_OutOfBandPrint( NS_CLIENT, clc.serverAddress, "%s", pkt );
+            networkChainSystem->OutOfBandPrint( NS_CLIENT, clc.serverAddress, "%s", pkt );
             break;
             
         case CA_CHALLENGING:
@@ -2399,7 +2398,7 @@ void CL_CheckForResend( void )
             pktlen = i + 10;
             memcpy( pkt, &data[0], pktlen );
             
-            NET_OutOfBandData( NS_CLIENT, clc.serverAddress, ( uchar8* ) pkt, pktlen );
+            networkChainSystem->OutOfBandData( NS_CLIENT, clc.serverAddress, ( uchar8* ) pkt, pktlen );
             // the most current userinfo has been sent, so watch for any
             // newer changes to userinfo variables
             cvar_modifiedFlags &= ~CVAR_USERINFO;
@@ -2694,7 +2693,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
             }
         }
         
-        Netchan_Setup( NS_CLIENT, &clc.netchan, from, cvarSystem->VariableValue( "net_qport" ) );
+        networkChainSystem->Setup( NS_CLIENT, &clc.netchan, from, cvarSystem->VariableValue( "net_qport" ) );
         cls.state = CA_CONNECTED;
         clc.lastPacketSentTime = -9999;     // send first packet immediately
         return;
@@ -2725,7 +2724,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
     // echo request from server
     if( !Q_stricmp( c, "echo" ) )
     {
-        NET_OutOfBandPrint( NS_CLIENT, from, "%s", cmdSystem->Argv( 1 ) );
+        networkChainSystem->OutOfBandPrint( NS_CLIENT, from, "%s", cmdSystem->Argv( 1 ) );
         return;
     }
     
@@ -3427,7 +3426,7 @@ void CL_CheckAutoUpdate( void )
     srand( Com_Milliseconds() );
     
     // Resolve update server
-    if( !NET_StringToAdr( cls.autoupdateServerNames[0], &cls.autoupdateServer, NA_IP ) )
+    if( !networkChainSystem->StringToAdr( cls.autoupdateServerNames[0], &cls.autoupdateServer, NA_IP ) )
     {
         Com_DPrintf( "Failed to resolve any Auto-update servers.\n" );
         
@@ -3448,7 +3447,7 @@ void CL_CheckAutoUpdate( void )
                  cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
                  BigShort( cls.autoupdateServer.port ) );
                  
-    NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, ARCH_STRING );
+    networkChainSystem->OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, ARCH_STRING );
     
 #endif // !PRE_RELEASE_DEMO
     
@@ -3494,7 +3493,7 @@ bool CL_NextUpdateServer( void )
     servername = cls.autoupdateServerNames[cls.autoupdatServerIndex];
     
     Com_DPrintf( "Resolving AutoUpdate Server... " );
-    if( !NET_StringToAdr( servername, &cls.autoupdateServer, NA_IP ) )
+    if( !networkChainSystem->StringToAdr( servername, &cls.autoupdateServer, NA_IP ) )
     {
         Com_DPrintf( "Couldn't resolve address, trying next one..." );
         

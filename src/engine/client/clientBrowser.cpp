@@ -501,7 +501,7 @@ sint idClientBrowserSystemLocal::ServerStatus( valueType* serverAddress, valueTy
     }
     
     // get the address
-    if( !NET_StringToAdr( serverAddress, &to, NA_UNSPEC ) )
+    if( !networkChainSystem->StringToAdr( serverAddress, &to, NA_UNSPEC ) )
     {
         return false;
     }
@@ -536,7 +536,7 @@ sint idClientBrowserSystemLocal::ServerStatus( valueType* serverAddress, valueTy
             serverStatus->time = 0;
             serverStatus->startTime = idsystem->Milliseconds();
             
-            NET_OutOfBandPrint( NS_CLIENT, to, "getstatus" );
+            networkChainSystem->OutOfBandPrint( NS_CLIENT, to, "getstatus" );
             return false;
         }
     }
@@ -550,7 +550,7 @@ sint idClientBrowserSystemLocal::ServerStatus( valueType* serverAddress, valueTy
         serverStatus->startTime = idsystem->Milliseconds();
         serverStatus->time = 0;
         
-        NET_OutOfBandPrint( NS_CLIENT, to, "getstatus" );
+        networkChainSystem->OutOfBandPrint( NS_CLIENT, to, "getstatus" );
         return false;
     }
     
@@ -730,10 +730,10 @@ void idClientBrowserSystemLocal::LocalServers( void )
             to.port = BigShort( ( short )( PORT_SERVER + j ) );
             
             to.type = NA_BROADCAST;
-            NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
+            networkChainSystem->SendPacket( NS_CLIENT, strlen( message ), message, to );
             
             to.type = NA_MULTICAST6;
-            NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
+            networkChainSystem->SendPacket( NS_CLIENT, strlen( message ), message, to );
         }
     }
 }
@@ -794,7 +794,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
     
     // reset the list, waiting for response
     // -1 is used to distinguish a "no response"
-    i = NET_StringToAdr( masteraddress, &to, NA_UNSPEC );
+    i = networkChainSystem->StringToAdr( masteraddress, &to, NA_UNSPEC );
     
     if( !i )
     {
@@ -836,7 +836,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
         Q_strcat( command, sizeof( command ), cmdSystem->Argv( i ) );
     }
     
-    NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
+    networkChainSystem->OutOfBandPrint( NS_SERVER, to, "%s", command );
 }
 
 /*
@@ -1047,7 +1047,7 @@ void idClientBrowserSystemLocal::Ping( void )
     
     ::memset( &to, 0, sizeof( netadr_t ) );
     
-    if( !NET_StringToAdr( server, &to, family ) )
+    if( !networkChainSystem->StringToAdr( server, &to, family ) )
     {
         return;
     }
@@ -1060,7 +1060,7 @@ void idClientBrowserSystemLocal::Ping( void )
     
     SetServerInfoByAddress( pingptr->adr, nullptr, 0 );
     
-    NET_OutOfBandPrint( NS_CLIENT, to, "getinfo xxx" );
+    networkChainSystem->OutOfBandPrint( NS_CLIENT, to, "getinfo xxx" );
 }
 
 /*
@@ -1149,7 +1149,7 @@ bool idClientBrowserSystemLocal::UpdateVisiblePings( sint source )
                             ::memcpy( &cl_pinglist[j].adr, &server[i].adr, sizeof( netadr_t ) );
                             cl_pinglist[j].start = cls.realtime;
                             cl_pinglist[j].time = 0;
-                            NET_OutOfBandPrint( NS_CLIENT, cl_pinglist[j].adr, "getinfo xxx" );
+                            networkChainSystem->OutOfBandPrint( NS_CLIENT, cl_pinglist[j].adr, "getinfo xxx" );
                             slots++;
                         }
                     }
@@ -1255,13 +1255,13 @@ void idClientBrowserSystemLocal::ServerStatus( void )
         
         toptr = &to;
         
-        if( !NET_StringToAdr( server, toptr, family ) )
+        if( !networkChainSystem->StringToAdr( server, toptr, family ) )
         {
             return;
         }
     }
     
-    NET_OutOfBandPrint( NS_CLIENT, *toptr, "getstatus" );
+    networkChainSystem->OutOfBandPrint( NS_CLIENT, *toptr, "getstatus" );
     
     serverStatus = GetServerStatus( *toptr );
     serverStatus->address = *toptr;
