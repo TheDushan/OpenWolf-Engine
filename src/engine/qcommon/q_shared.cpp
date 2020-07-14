@@ -284,10 +284,10 @@ bool COM_BitCheck( const sint array[], sint bitNum )
     sint i;
     
     i = 0;
-    while( bitNum > 31 )
+    while( bitNum > 63 )
     {
         i++;
-        bitNum -= 32;
+        bitNum -= 64;
     }
     
     return ( bool )( ( array[i] & ( 1 << bitNum ) ) != 0 ); // (SA) heh, whoops. :)
@@ -326,10 +326,10 @@ void COM_BitClear( sint array[], sint bitNum )
     sint i;
     
     i = 0;
-    while( bitNum > 31 )
+    while( bitNum > 63 )
     {
         i++;
-        bitNum -= 32;
+        bitNum -= 64;
     }
     
     array[i] &= ~( 1 << bitNum );
@@ -2359,10 +2359,10 @@ bool Com_ClientListContains( const clientList_t* list, sint clientNum )
 {
     if( clientNum < 0 || clientNum >= MAX_CLIENTS || !list )
         return false;
-    if( clientNum < 32 )
+    if( clientNum < 64 )
         return ( bool )( ( list->lo & ( 1 << clientNum ) ) != 0 );
     else
-        return ( bool )( ( list->hi & ( 1 << ( clientNum - 32 ) ) ) != 0 );
+        return ( bool )( ( list->hi & ( 1 << ( clientNum - 64 ) ) ) != 0 );
 }
 
 /*

@@ -101,15 +101,15 @@ idSystemLocal::TempPath
 */
 pointer idSystemLocal::TempPath( void )
 {
-    static TCHAR path[ MAX_PATH ];
-    DWORD length;
+    static valueType path[ MAX_PATH ];
+    uint length;
     valueType tmp[ MAX_OSPATH ];
     
     length = GetTempPath( sizeof( path ), path );
     
     if( length > sizeof( path ) || length == 0 )
     {
-        return systemLocal.DefaultHomePath( tmp, sizeof( tmp ) );
+        return systemLocal.DefaultHomePath( path, sizeof( tmp ) );
     }
     else
     {

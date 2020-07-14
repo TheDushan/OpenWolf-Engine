@@ -10,10 +10,6 @@
 
 */
 
-#if (defined(_WIN32))
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #ifdef UPDATE_SERVER
 #include <null/null_autoprecompiled.h>
 #elif DEDICATED
