@@ -1893,18 +1893,18 @@ bool Com_sprintf( valueType* dest, size_t size, pointer fmt, ... )
     if( len >= size )
     {
 #ifdef DEBUG
-        Com_Printf( "ERROR! %s: destination buffer overflow of len %i, size %i\n"
+        Com_Printf( "ERROR! %s: destination buffer overflow of len %i, size %lu\n"
                     "Input was: %s", __FUNCTION__, len, size, dest );
         return false;
 #else
-        Com_Printf( "ERROR! %s: destination buffer overflow of len %i, size %i\n"
+        Com_Printf( "ERROR! %s: destination buffer overflow of len %i, size %lu\n"
                     "Input was: %s", __FUNCTION__, len, size, dest );
 #endif
     }
     
     if( len == -1 )
     {
-        Com_Printf( "Com_sprintf: overflow of %i bytes buffer\n", size );
+        Com_Printf( "Com_sprintf: overflow of %lu bytes buffer\n", size );
         return false;
     }
     
@@ -2411,6 +2411,7 @@ void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out )
     out[ 2 ] = m[ 0 ][ 2 ] * p[ 0 ] + m[ 1 ][ 2 ] * p[ 1 ] + m[ 2 ][ 2 ] * p[ 2 ];
 }
 
+#if defined(_MSC_VER)
 /*
 =============
 Q_vsnprintf
@@ -2428,6 +2429,7 @@ sint Q_vsnprintf( valueType* str, size_t size, pointer format, va_list ap )
     
     return retval;
 }
+#endif
 
 #ifndef Q3MAP2
 bool StringContainsWord( pointer haystack, pointer needle )

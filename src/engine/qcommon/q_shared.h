@@ -750,7 +750,14 @@ bool SkipBracedSection( valueType** program );
 bool SkipBracedSection_Depth( valueType** program, sint depth ); // start at given depth if already
 void SkipRestOfLine( valueType** data );
 
+#if defined (_MSC_VER)
+// vsnprintf is ISO/IEC 9899:1999
+// abstracting this to make it portable
 sint Q_vsnprintf( valueType* str, size_t size, pointer format, va_list args );
+#else // not using MSVC
+#define Q_vsnprintf vsnprintf
+#endif
+
 bool Com_sprintf( valueType* dest, size_t size, pointer fmt, ... );
 
 // mode parm for FS_FOpenFile
