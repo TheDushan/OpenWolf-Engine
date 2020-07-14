@@ -2951,11 +2951,11 @@ static bool R_BuildDefaultImage( pointer format )
 R_CreateDefaultImage
 ==================
 */
-#define	DEFAULT_SIZE	128
+#define	DEFAULT_IMG_SIZE 128
 static void R_CreateDefaultImage( void )
 {
     sint x, flags = IMGFLAG_MIPMAP | IMGFLAG_PICMIP;
-    uchar8 data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+    uchar8 data[DEFAULT_IMG_SIZE][DEFAULT_IMG_SIZE][4];
     
     if( r_defaultImage->string[0] )
     {
@@ -2996,7 +2996,7 @@ static void R_CreateDefaultImage( void )
                     data[x][DEFAULT_SIZE - 1][3] = 255;
     }
     
-    tr.defaultImage = R_CreateImage( "*default", ( uchar8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
+    tr.defaultImage = R_CreateImage( "*default", ( uchar8* )data, DEFAULT_IMG_SIZE, DEFAULT_IMG_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
 }
 
 
