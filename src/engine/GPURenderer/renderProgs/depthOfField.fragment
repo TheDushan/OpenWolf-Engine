@@ -1,50 +1,96 @@
-uniform sampler2D	u_DiffuseMap;
-uniform sampler2D	u_DepthMap;
+uniform sampler2D	u_TextureMap;
+uniform sampler2D	u_ScreenDepthMap;
+
+uniform vec2		u_Dimensions;
+uniform vec4		u_ViewInfo; // zfar / znear, zfar
+
+uniform vec4		u_Local0; // dofValue, dynamicGlowEnabled, 0, direction
+uniform vec4		u_Local1; // testvalues
 
 varying vec2		var_TexCoords;
-varying vec4		var_ViewInfo; // zfar / znear, zfar
-varying vec2		var_Dimensions;
-varying vec4		var_Local0; // viewAngX, viewAngY, 0, 0
+varying float		var_FocalDepth;
 
-void	main()
+vec2 sampleOffset = vec2(1.0/u_Dimensions);
+
+#define PIOVER180 0.017453292
+
+//MATSO DOF
+#define fMatsoDOFChromaPow		2.4		// [0.2 to 3.0] Amount of chromatic abberation color shifting.
+#define fMatsoDOFBokehCurve		6.0		// [0.5 to 20.0] Bokeh curve.
+#define fMatsoDOFBokehLight		4.0//0.512 	// [0.0 to 2.0] Bokeh brightening factor.
+#define fMatsoDOFBokehAngle		10		// [0 to 360] Rotation angle of bokeh shape.
+
+#define iMatsoDOFBokehQuality	10		// [1 to 10] Blur quality as control value over tap count.
+#define DOF_BLURRADIUS 			10.0
+
+const vec2 tdirs[4] = vec2[4]( vec2(-0.306, 0.739), vec2(0.306, 0.739), vec2(-0.739, 0.306), vec2(-0.739, -0.306) );
+
+float ExpandDepth(float depth)
 {
-	//gl_FragColor = texture2D(u_DiffuseMap, var_TexCoords.st);
-	//return;
+	return depth * 255.0;
+}
 
-	// calculate the screen texcoord in the 0.0 to 1.0 range
-	//vec2 st = var_TexCoords.st * r_FBufScale;
-	//vec2 st = var_TexCoords.st / var_Dimensions.st;
-	vec2 st = var_TexCoords.st;
+vec4 GetMatsoDOFCA(sampler2D col, vec2 tex, float CoC)
+{
+	vec3 chroma;
+	chroma.r = pow(0.5, fMatsoDOFChromaPow * CoC);
+	chroma.g = pow(1.0, fMatsoDOFChromaPow * CoC);
+	chroma.b = pow(1.5, fMatsoDOFChromaPow * CoC);
 
-	// scale by the screen non-power-of-two-adjust
-	//st *= r_NPOTScale;
+	vec2 tr = ((2.0 * tex - 1.0) * chroma.r) * 0.5 + 0.5;
+	vec2 tg = ((2.0 * tex - 1.0) * chroma.g) * 0.5 + 0.5;
+	vec2 tb = ((2.0 * tex - 1.0) * chroma.b) * 0.5 + 0.5;
+	
+	vec3 color = vec3(texture2D(col, tr).r, texture2D(col, tg).g, texture2D(col, tb).b) * (1.0 - CoC);
 
-	float focus = 0.98;			// focal distance, normalized 0.8-0.999
-	//float radius = 0.5;	  	// 0 - 20.0
-	float radius = 5.0;	  	// 0 - 20.0
+	return vec4(color, 1.0);
+}
 
-	vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
-
-	// autofocus
-	focus = texture2D(u_DepthMap, vec2(0.5, 0.5)).r;
-
-	const float tap = 5.0;
-	const float taps = tap * 2.0 + 1.0;
-
-	float depth = texture2D(u_DepthMap, st).r;
-	float delta = (abs(depth - focus) * abs(depth - focus)) / float(tap);
-	delta *= radius;
-	//delta = clamp(radius * delta, -max, max);
-
-	for(float i = -tap; i < tap; i++)
-    {
-	    for(float j = -tap; j < tap; j++)
-	    {
-			sum += texture2D(u_DiffuseMap, st + ((vec2(i, j) * delta) / var_Dimensions.st));
-		}
+vec4 GetMatsoDOFBlur(int axis, vec2 coord, sampler2D SamplerHDRX)
+{
+	vec4 tcol = texture2D(SamplerHDRX, coord.xy);
+	float focalDepth = var_FocalDepth;
+	float coordDepth = ExpandDepth(texture2D(u_ScreenDepthMap, coord.xy).x);
+	float depthDiff = (coordDepth - focalDepth);
+	vec2 discRadius = (depthDiff * float(DOF_BLURRADIUS)) * sampleOffset.xy * 0.5 / float(iMatsoDOFBokehQuality);
+	float wValue = 1.0;
+	
+	if (depthDiff < 0.0)
+	{
+		// Close to camera pixels, blur much less so player model is not blury...
+		discRadius *= 0.003;
 	}
 
-	sum *=  1.0 / (taps * taps);
+	discRadius *= 0.5;
 
-	gl_FragColor = sum;
+	for (int i = -iMatsoDOFBokehQuality; i < iMatsoDOFBokehQuality; i++)
+	{
+		vec2 taxis =  tdirs[axis];
+
+		taxis.x = cos(fMatsoDOFBokehAngle*PIOVER180)*taxis.x-sin(fMatsoDOFBokehAngle*PIOVER180)*taxis.y;
+		taxis.y = sin(fMatsoDOFBokehAngle*PIOVER180)*taxis.x+cos(fMatsoDOFBokehAngle*PIOVER180)*taxis.y;
+		
+		float fi = float(i);
+		vec2 tcoord = coord.xy + (taxis * fi * discRadius).xy;
+
+		vec4 ct;
+
+		ct = texture2D(SamplerHDRX, tcoord.xy);
+
+		// my own pseudo-bokeh weighting
+		float b = dot(length(ct.rgb),0.333) + length(ct.rgb) + 0.1;
+		float w = pow(b, fMatsoDOFBokehCurve) + abs(fi);
+
+		tcol += ct * w;
+		wValue += w;
+	}
+
+	tcol /= wValue;
+
+	return vec4(tcol.rgb, 1.0);
+}
+
+void main ()
+{
+	gl_FragColor = GetMatsoDOFBlur(int(u_Local0.a), var_TexCoords, u_TextureMap);
 }
