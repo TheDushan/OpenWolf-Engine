@@ -2896,6 +2896,16 @@ static void CollapseStagesToLightall( shaderStage_t* diffuse,
         diffuse->bundle[TB_DELUXEMAP].image[0] = tr.deluxemaps[shader.lightmapIndex];
     }
     
+    if( r_parallaxMapping->integer && !( defs & LIGHTDEF_USE_PARALLAXMAP ) )
+    {
+        //CL_RefPrintf(PRINT_ALL, ", normalmap %s", normal->bundle[0].image[0]->imgName);
+        diffuse->bundle[TB_NORMALMAP] = diffuse->bundle[0];
+        diffuse->bundle[TB_NORMALMAP].numImageAnimations = 0;
+        diffuse->bundle[TB_NORMALMAP].image[0] = diffuse->bundle[TB_DIFFUSEMAP].image[0];
+        
+        VectorSet4( diffuse->normalScale, r_baseNormalX->value, r_baseNormalY->value, 1.0f, r_baseParallax->value );
+    }
+    
     if( r_normalMapping->integer )
     {
         image_t* diffuseImg;
