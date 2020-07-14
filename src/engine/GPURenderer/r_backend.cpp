@@ -942,25 +942,28 @@ const void* RB_StretchPic( const void* data )
 RB_PrefilterEnvMap
 =============
 */
-void RB_PrefilterEnvMap( sint numCubeMap )
+static const void* RB_PrefilterEnvMap( const void* data )
 {
-    cubemap_t* cubemap = &tr.cubemaps[backEnd.viewParms.targetFboCubemapIndex];
+    const convolveCubemapCommand_t* cmd = ( const convolveCubemapCommand_t* )data;
     
     // finish any 2D drawing if needed
     if( tess.numIndexes )
         RB_EndSurface();
         
-    if( !tr.world || tr.numCubemaps == 0 )
+    RB_SetGL2D();
+    
+    cubemap_t* cubemap = &tr.cubemaps[cmd->cubemap];
+    
+    if( !cubemap )
     {
-        // do nothing
-        return;
+        return ( const void* )( cmd + 1 );
     }
     
-    sint cubeMipSize = r_cubemapSize->integer;
+    sint cubeMipSize = cubemap->image->width;
     sint numMips = 0;
     
-    sint width = r_cubemapSize->integer;
-    sint height = r_cubemapSize->integer;
+    sint width = cubemap->image->width;
+    sint height = cubemap->image->height;
     
     vec4_t quadVerts[4];
     vec2_t texCoords[4];
@@ -984,11 +987,10 @@ void RB_PrefilterEnvMap( sint numCubeMap )
         cubeMipSize >>= 1;
         numMips++;
     }
-    numMips = MAX( 1, numMips - 4 );
+    numMips = MAX( 1, numMips - 2 );
     
     FBO_Bind( tr.preFilterEnvMapFbo );
     GL_BindToTMU( cubemap->image, TB_CUBEMAP );
-    GL_State( GLS_DEPTHTEST_DISABLE );
     
     GLSL_BindProgram( &tr.prefilterEnvMapShader );
     
@@ -996,27 +998,24 @@ void RB_PrefilterEnvMap( sint numCubeMap )
     {
         width = width / 2.0;
         height = height / 2.0;
+        
         qglViewport( 0, 0, width, height );
         qglScissor( 0, 0, width, height );
-        for( sint j = 0; j < 6; j++ )
+        
+        for( sint cubemapSide = 0; cubemapSide < 6; cubemapSide++ )
         {
-            //////////////////////////////////////////////////////////////////////////////////////////////
-            {
-                vec4_t viewInfo;
-                VectorSet4( viewInfo, j, level, numMips, 0.0 );
-                GLSL_SetUniformVec4( &tr.prefilterEnvMapShader, UNIFORM_VIEWINFO, viewInfo );
-            }
-            RB_InstantQuad2( quadVerts, texCoords ); //, color, shaderProgram, invTexRes);
-            //////////////////////////////////////////////////////////////////////////////////////////////
-            qglCopyTexSubImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, level, 0, 0, 0, 0, width, height );
+            vec4_t viewInfo;
+            
+            VectorSet4( viewInfo, cubemapSide, level, numMips, 0.0 );
+            GLSL_SetUniformVec4( &tr.prefilterEnvMapShader, UNIFORM_VIEWINFO, viewInfo );
+            RB_InstantQuad2( quadVerts, texCoords );
+            qglCopyTexSubImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + cubemapSide, level, 0, 0, 0, 0, width, height );
         }
     }
     
-    //cubemap->mipmapped++;
-    qglActiveTexture( GL_TEXTURE0 );
+    //qglActiveTexture( GL_TEXTURE0 );
     
-    
-    return;
+    return ( const void* )( cmd + 1 );
 }
 
 
@@ -1327,32 +1326,7 @@ const void* RB_DrawSurfs( const void* data )
         
         FBO_Bind( nullptr );
         GL_BindToTMU( cubemap->image, TB_CUBEMAP );
-        
-        // UGLY find a better way!
-        if( cubemap->mipmapped < 10 )
-        {
-            if( r_pbr->integer == 0 || r_pbrIBL->integer == 0 )
-            {
-                qglGenerateMipmap( GL_TEXTURE_CUBE_MAP );
-                cubemap->mipmapped++;
-            }
-            // else we mip-map elsewhere!
-            else if( cubemap && cubemap->image )
-            {
-                qglGenerateTextureMipmapEXT( cubemap->image->texnum, GL_TEXTURE_CUBE_MAP );
-            }
-        }
-    }
-    
-    if( r_pbr->integer && r_pbrIBL->integer )
-    {
-        cubemap_t* cubemap = &tr.cubemaps[backEnd.viewParms.targetFboCubemapIndex];
-        // UGLY find a better way!
-        if( cubemap && cubemap->mipmapped < 10 )
-        {
-            RB_PrefilterEnvMap( 0 );
-            cubemap->mipmapped++;
-        }
+        qglGenerateTextureMipmapEXT( cubemap->image->texnum, GL_TEXTURE_CUBE_MAP );
     }
     
     return ( const void* )( cmd + 1 );
@@ -2078,6 +2052,9 @@ void RB_ExecuteRenderCommands( const void* data )
                 break;
             case RC_CAPSHADOWMAP:
                 data = RB_CapShadowMap( data );
+                break;
+            case RC_CONVOLVECUBEMAP:
+                data = RB_PrefilterEnvMap( data );
                 break;
             case RC_POSTPROCESS:
                 data = RB_PostProcess( data );

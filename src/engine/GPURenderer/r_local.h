@@ -100,7 +100,6 @@ typedef struct cubemap_s
     vec3_t origin;
     float32 parallaxRadius;
     image_t* image;
-    sint mipmapped;
 } cubemap_t;
 
 typedef struct dlight_s
@@ -1933,7 +1932,6 @@ extern  convar_t*  r_horizonFade;
 extern  convar_t*  r_cubemapSize;
 extern  convar_t*  r_deluxeSpecular;
 extern  convar_t*  r_pbr;
-extern  convar_t*  r_pbrIBL;
 extern  convar_t*  r_baseNormalX;
 extern  convar_t*  r_baseNormalY;
 extern  convar_t*  r_baseParallax;
@@ -2550,6 +2548,12 @@ typedef struct
     sint cubeSide;
 } capShadowmapCommand_t;
 
+typedef struct convolveCubemapCommand_s
+{
+    sint commandId;
+    sint cubemap;
+} convolveCubemapCommand_t;
+
 typedef struct
 {
     sint		commandId;
@@ -2575,6 +2579,7 @@ typedef enum
     RC_COLORMASK,
     RC_CLEARDEPTH,
     RC_CAPSHADOWMAP,
+    RC_CONVOLVECUBEMAP,
     RC_POSTPROCESS,
     RC_EXPORT_CUBEMAPS
 } renderCommand_t;
@@ -2615,6 +2620,7 @@ void R_IssuePendingRenderCommands( void );
 
 void R_AddDrawSurfCmd( drawSurf_t* drawSurfs, sint numDrawSurfs );
 void R_AddCapShadowmapCmd( sint dlight, sint cubeSide );
+void R_AddConvolveCubemapCmd( sint cubemap );
 void R_AddPostProcessCmd( void );
 
 void RE_EndFrame( sint* frontEndMsec, sint* backEndMsec );

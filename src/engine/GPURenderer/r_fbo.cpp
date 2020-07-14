@@ -455,7 +455,7 @@ void idRenderSystemLocal::FBOInit( void )
     }
     
     {
-        for( sint i = 0; i < ARRAY_LEN( tr.glowImageScaled ); i++ )
+        for( i = 0; i < ARRAY_LEN( tr.glowImageScaled ); i++ )
         {
             tr.glowFboScaled[i] = FBO_Create( va( "*glowScaled%d", i ), tr.glowImageScaled[i]->width, tr.glowImageScaled[i]->height );
             FBO_AttachImage( tr.glowFboScaled[i], tr.glowImageScaled[i], GL_COLOR_ATTACHMENT0, 0 );
@@ -463,7 +463,7 @@ void idRenderSystemLocal::FBOInit( void )
         }
     }
     
-    if( ( r_pbr->integer == 1 ) && ( tr.renderCubeImage != nullptr ) )
+    if( tr.renderCubeImage != nullptr )
     {
         tr.preFilterEnvMapFbo = FBO_Create( "_preFilterEnvMapFbo", tr.renderCubeImage->width, tr.renderCubeImage->height );
         FBO_AttachImage( tr.preFilterEnvMapFbo, tr.prefilterEnvMapImage, GL_COLOR_ATTACHMENT0, 0 );

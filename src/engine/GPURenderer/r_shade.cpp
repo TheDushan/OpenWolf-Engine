@@ -1696,13 +1696,14 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
             if( cubemap->image )
                 GL_BindToTMU( cubemap->image, TB_CUBEMAP );
                 
+            GL_BindToTMU( tr.envBrdfImage, TB_ENVBRDFMAP );
+            
             VectorSubtract( cubemap->origin, backEnd.viewParms.orientation.origin, vec );
             vec[3] = 1.0f;
             
             VectorScale4( vec, 1.0f / cubemap->parallaxRadius, vec );
             
             GLSL_SetUniformVec4( sp, UNIFORM_CUBEMAPINFO, vec );
-            GL_BindToTMU( tr.envBrdfImage, TB_ENVBRDFMAP ); //ok here we go :D
         }
         
         //

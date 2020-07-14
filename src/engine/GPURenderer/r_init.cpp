@@ -137,7 +137,6 @@ convar_t*  r_horizonFade;
 convar_t*  r_cubemapSize;
 convar_t*  r_deluxeSpecular;
 convar_t*  r_pbr;
-convar_t* r_pbrIBL;
 convar_t*  r_baseNormalX;
 convar_t*  r_baseNormalY;
 convar_t*  r_baseParallax;
@@ -1301,7 +1300,6 @@ void R_Register( void )
     r_cubemapSize = cvarSystem->Get( "r_cubemapSize", "128", CVAR_ARCHIVE | CVAR_LATCH, "Cubempa size" );
     r_deluxeSpecular = cvarSystem->Get( "r_deluxeSpecular", "0.3", CVAR_ARCHIVE | CVAR_LATCH, "Enable deluxe specular for materials that support it" );
     r_pbr = cvarSystem->Get( "r_pbr", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable physically based rendering." );
-    r_pbrIBL = cvarSystem->Get( "r_pbrIBL", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable IBL physically based rendering. " );
     r_baseNormalX = cvarSystem->Get( "r_baseNormalX", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "Set the scale of the X values from normal maps when the normalScale keyword is not used. -1 - Flip X. 0 - Ignore X. 1 - Normal X. (default) 2 - Double X." );
     r_baseNormalY = cvarSystem->Get( "r_baseNormalY", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "Set the scale of the Y values from normal maps when the normalScale keyword is not used. -1 - Flip Y. 0 - Ignore Y. 1 - Normal Y. (default) 2 - Double Y" );
     r_baseParallax = cvarSystem->Get( "r_baseParallax", "0.001", CVAR_ARCHIVE | CVAR_LATCH, "Sets the scale of the parallax effect for materials when the parallaxDepth keyword is not used. 0 - No depth. 0.01 - Pretty smooth. 0.05 - Standard depth. (default) 0.001" );

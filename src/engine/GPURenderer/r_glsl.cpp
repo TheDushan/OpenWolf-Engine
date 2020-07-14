@@ -359,8 +359,6 @@ static void GLSL_GetShaderHeader( uint shaderType, pointer extra, valueType* des
             numRoughnessMips++;
         }
         numRoughnessMips = MAX( 1, numRoughnessMips - 2 );
-        if( r_pbrIBL->integer != 0 && r_pbr->integer )
-            numRoughnessMips = MAX( 1, numRoughnessMips - 4 );
         Q_strcat( dest, size, va( "#define ROUGHNESS_MIPS float(%d)\n", numRoughnessMips ) );
     }
     
@@ -432,8 +430,6 @@ static sint GLSL_LoadGPUShaderText( pointer name, uint shaderType, valueType* de
     {
         Com_sprintf( filename, sizeof( filename ), "renderProgs/%s.fragment", name );
     }
-    
-    size = fileSystem->ReadFile( filename, ( void** )&buffer );
     
     size = fileSystem->ReadFile( filename, ( void** )&buffer );
     CL_RefPrintf( PRINT_DEVELOPER, "...loading '%s'\n", filename );

@@ -3074,13 +3074,11 @@ void R_CreateBuiltinImages( void )
         tr.normalDetailedImage = R_CreateImage( "*normaldetailed", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         
         if( r_shadowBlur->integer )
+        {
             tr.screenScratchImage = R_CreateImage( "screenScratch", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, rgbFormat );
-            
-        //if (r_shadowBlur->integer || r_ssao->integer)
-        //	tr.hdrDepthImage = R_CreateImage("*hdrDepth", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_INTENSITY32F_ARB);
-        if( r_shadowBlur->integer || r_ssao->integer )
             tr.hdrDepthImage = R_CreateImage( "*hdrDepth", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F );
-            
+        }
+        
         if( r_drawSunRays->integer )
             tr.sunRaysImage = R_CreateImage( "*sunRays", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, rgbFormat );
             
@@ -3125,6 +3123,7 @@ void R_CreateBuiltinImages( void )
         if( r_ssao->integer )
         {
             tr.screenSsaoImage = R_CreateImage( "*screenSsao", nullptr, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8 );
+            tr.hdrDepthImage = R_CreateImage( "*hdrDepth", nullptr, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F );
         }
         
         for( x = 0; x < MAX_DRAWN_PSHADOWS; x++ )
@@ -3132,11 +3131,6 @@ void R_CreateBuiltinImages( void )
             tr.pshadowMaps[x] = R_CreateImage( va( "*shadowmap%i", x ), nullptr, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24 );
             //qglTextureParameterfEXT(tr.pshadowMaps[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
             //qglTextureParameterfEXT(tr.pshadowMaps[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-        }
-        
-        if( r_pbr->integer )
-        {
-            tr.prefilterEnvMapImage = R_CreateImage( "*prefilterEnvMapFbo", nullptr, r_cubemapSize->integer / 2, r_cubemapSize->integer / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         }
         
         if( r_sunlightMode->integer )
@@ -3154,6 +3148,7 @@ void R_CreateBuiltinImages( void )
         if( r_cubeMapping->integer )
         {
             tr.renderCubeImage = R_CreateImage( "*renderCube", nullptr, r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP | IMGFLAG_CUBEMAP, hdrFormat );
+            tr.prefilterEnvMapImage = R_CreateImage( "*prefilterEnvMapFbo", nullptr, r_cubemapSize->integer / 2, r_cubemapSize->integer / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         }
     }
 }

@@ -2832,7 +2832,6 @@ void R_LoadCubemaps( void )
         Com_sprintf( filename, MAX_QPATH, "cubemaps/%s/%03d.dds", tr.world->baseName, i );
         
         cubemap->image = R_FindImageFile( filename, IMGTYPE_COLORALPHA, flags );
-        cubemap->mipmapped = 0;
     }
 }
 
@@ -2854,7 +2853,6 @@ void R_RenderMissingCubemaps( void )
         if( !tr.cubemaps[i].image )
         {
             tr.cubemaps[i].image = R_CreateImage( va( "*cubeMap%d", i ), nullptr, r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA, flags, cubemapFormat );
-            tr.cubemaps[i].mipmapped = 0;
             
             for( j = 0; j < 6; j++ )
             {
@@ -2863,6 +2861,8 @@ void R_RenderMissingCubemaps( void )
                 R_IssuePendingRenderCommands();
                 R_InitNextFrame();
             }
+            
+            R_AddConvolveCubemapCmd( i );
         }
     }
 }

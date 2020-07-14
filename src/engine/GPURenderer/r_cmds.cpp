@@ -274,6 +274,27 @@ void	R_AddCapShadowmapCmd( sint map, sint cubeSide )
     cmd->cubeSide = cubeSide;
 }
 
+/*
+=============
+R_AddConvolveCubemapsCmd
+
+=============
+*/
+void	R_AddConvolveCubemapCmd( sint cubemap )
+{
+    convolveCubemapCommand_t* cmd;
+    
+    cmd = ( convolveCubemapCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    if( !cmd )
+    {
+        return;
+    }
+    cmd->commandId = RC_CONVOLVECUBEMAP;
+    
+    cmd->cubemap = cubemap;
+}
+
+
 
 /*
 =============
