@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2020 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,7 +28,6 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   cl_parse.cpp
-// Version:     v1.01
 // Created:
 // Compilers:   Visual Studio 2019, gcc 7.3.0
 // Description: parse a message received from the server
@@ -36,6 +35,26 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include <framework/precompiled.h>
+
+idClientParseSystemLocal clientParseSystemLocal;
+
+/*
+===============
+idClientParseSystemLocal::idClientParseSystemLocal
+===============
+*/
+idClientParseSystemLocal::idClientParseSystemLocal( void )
+{
+}
+
+/*
+===============
+idClientParseSystemLocal::~idClientParseSystemLocal
+===============
+*/
+idClientParseSystemLocal::~idClientParseSystemLocal( void )
+{
+}
 
 valueType* svc_strings[256] =
 {
@@ -52,7 +71,7 @@ valueType* svc_strings[256] =
     "svc_EOF"
 };
 
-void SHOWNET( msg_t* msg, valueType* s )
+void idClientParseSystemLocal::ShowNet( msg_t* msg, valueType* s )
 {
     if( cl_shownet->integer >= 2 )
     {
@@ -68,11 +87,8 @@ MESSAGE PARSING
 
 =========================================================================
 */
-#if 1
 
-sint             entLastVisible[MAX_CLIENTS];
-
-bool isEntVisible( entityState_t* ent )
+bool idClientParseSystemLocal::isEntVisible( entityState_t* ent )
 {
     trace_t         tr;
     vec3_t          start, end, temp;
@@ -192,17 +208,15 @@ bool isEntVisible( entityState_t* ent )
     return false;
 }
 
-#endif
-
 /*
 ==================
-CL_DeltaEntity
+idClientParseSystemLocal::DeltaEntity
 
 Parses deltas from the given base and adds the resulting entity
 to the current frame
 ==================
 */
-void CL_DeltaEntity( msg_t* msg, clSnapshot_t* frame, sint newnum, entityState_t* old, bool unchanged )
+void idClientParseSystemLocal::DeltaEntity( msg_t* msg, clSnapshot_t* frame, sint newnum, entityState_t* old, bool unchanged )
 {
     entityState_t*  state;
     
@@ -252,11 +266,10 @@ void CL_DeltaEntity( msg_t* msg, clSnapshot_t* frame, sint newnum, entityState_t
 
 /*
 ==================
-CL_ParsePacketEntities
-
+idClientParseSystemLocal::ParsePacketEntities
 ==================
 */
-void CL_ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* newframe )
+void idClientParseSystemLocal::ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* newframe )
 {
     sint			newnum;
     entityState_t*	oldstate;
@@ -308,7 +321,8 @@ void CL_ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* n
             {
                 Com_Printf( "%3i:  unchanged: %i\n", msg->readcount, oldnum );
             }
-            CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
+            
+            DeltaEntity( msg, newframe, oldnum, oldstate, true );
             
             oldindex++;
             
@@ -330,7 +344,8 @@ void CL_ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* n
             {
                 Com_Printf( "%3i:  delta: %i\n", msg->readcount, newnum );
             }
-            CL_DeltaEntity( msg, newframe, newnum, oldstate, false );
+            
+            DeltaEntity( msg, newframe, newnum, oldstate, false );
             
             oldindex++;
             
@@ -354,7 +369,8 @@ void CL_ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* n
             {
                 Com_Printf( "%3i:  baseline: %i\n", msg->readcount, newnum );
             }
-            CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], false );
+            
+            DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], false );
             continue;
         }
         
@@ -368,7 +384,8 @@ void CL_ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* n
         {
             Com_Printf( "%3i:  unchanged: %i\n", msg->readcount, oldnum );
         }
-        CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
+        
+        DeltaEntity( msg, newframe, oldnum, oldstate, true );
         
         oldindex++;
         
@@ -390,24 +407,23 @@ void CL_ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* n
     }
 }
 
-
 /*
 ================
-CL_ParseSnapshot
+idClientParseSystemLocal::ParseSnapshot
 
 If the snapshot is parsed properly, it will be copied to
 cl.snap and saved in cl.snapshots[].  If the snapshot is invalid
 for any reason, no changes to the state will be made at all.
 ================
 */
-void CL_ParseSnapshot( msg_t* msg )
+void idClientParseSystemLocal::ParseSnapshot( msg_t* msg )
 {
     sint             len;
-    clSnapshot_t*   old;
-    clSnapshot_t    newSnap;
     sint             deltaNum;
     sint             oldMessageNum;
     sint             i, packetNum;
+    clSnapshot_t*   old;
+    clSnapshot_t    newSnap;
     
     // get the reliable sequence acknowledge number
     // NOTE: now sent with all server to client messages
@@ -533,7 +549,7 @@ void CL_ParseSnapshot( msg_t* msg )
     MSG_ReadData( msg, &newSnap.areamask, len );
     
     // read playerinfo
-    SHOWNET( msg, "playerstate" );
+    ShowNet( msg, "playerstate" );
     if( old )
     {
         MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
@@ -544,8 +560,8 @@ void CL_ParseSnapshot( msg_t* msg )
     }
     
     // read packet entities
-    SHOWNET( msg, "packet entities" );
-    CL_ParsePacketEntities( msg, old, &newSnap );
+    ShowNet( msg, "packet entities" );
+    ParsePacketEntities( msg, old, &newSnap );
     
     // if not valid, dump the entire thing now that it has
     // been properly read
@@ -607,13 +623,12 @@ new information out of it.  This will happen at every
 gamestate, and possibly during gameplay.
 ==================
 */
-void            CL_PurgeCache( void );
-void CL_SystemInfoChanged( void )
+void idClientParseSystemLocal::SystemInfoChanged( void )
 {
-    valueType*           systemInfo;
-    pointer     s, t;
-    valueType            key[BIG_INFO_KEY];
-    valueType            value[BIG_INFO_VALUE];
+    valueType* systemInfo;
+    valueType key[BIG_INFO_KEY];
+    valueType value[BIG_INFO_VALUE];
+    pointer s, t;
     
     systemInfo = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SYSTEMINFO];
     // NOTE TTimo:
@@ -622,7 +637,7 @@ void CL_SystemInfoChanged( void )
     // in some cases, outdated cp commands might get sent with this news serverId
     cl.serverId = atoi( Info_ValueForKey( systemInfo, "sv_serverid" ) );
     
-    memset( &entLastVisible, 0, sizeof( entLastVisible ) );
+    ::memset( &entLastVisible, 0, sizeof( entLastVisible ) );
     
     // don't set any vars when playing a demo
     if( clc.demoplaying )
@@ -681,10 +696,10 @@ void CL_SystemInfoChanged( void )
 
 /*
 ==================
-CL_ParseGamestate
+idClientParseSystemLocal::ParseGamestate
 ==================
 */
-void CL_ParseGamestate( msg_t* msg )
+void idClientParseSystemLocal::ParseGamestate( msg_t* msg )
 {
     sint             i;
     entityState_t*  es;
@@ -758,7 +773,7 @@ void CL_ParseGamestate( msg_t* msg )
     clc.checksumFeed = MSG_ReadLong( msg );
     
     // parse serverId and other cvars
-    CL_SystemInfoChanged();
+    SystemInfoChanged();
     
     // Arnout: verify if we have all official pakfiles. As we won't
     // be downloading them, we should be kicked for not having them.
@@ -778,17 +793,14 @@ void CL_ParseGamestate( msg_t* msg )
     cvarSystem->Set( "cl_paused", "0" );
 }
 
-
-//=====================================================================
-
 /*
 =====================
-CL_ParseDownload
+idClientParseSystemLocal::ParseDownload
 
 A download message has been received from the server
 =====================
 */
-void CL_ParseDownload( msg_t* msg )
+void idClientParseSystemLocal::ParseDownload( msg_t* msg )
 {
     sint             size;
     uchar8   data[MAX_MSGLEN];
@@ -946,17 +958,16 @@ void CL_ParseDownload( msg_t* msg )
 
 /*
 =====================
-CL_ParseCommandString
+idClientParseSystemLocal::ParseCommandString
 
 Command strings are just saved off until cgame asks for them
 when it transitions a snapshot
 =====================
 */
-void CL_ParseCommandString( msg_t* msg )
+void idClientParseSystemLocal::ParseCommandString( msg_t* msg )
 {
-    valueType*           s;
-    sint             seq;
-    sint             index;
+    valueType* s;
+    sint seq, index;
     
     seq = MSG_ReadLong( msg );
     s = MSG_ReadString( msg );
@@ -974,10 +985,10 @@ void CL_ParseCommandString( msg_t* msg )
 
 /*
 =====================
-CL_ParseServerMessage
+idClientParseSystemLocal::ParseServerMessage
 =====================
 */
-void CL_ParseServerMessage( msg_t* msg )
+void idClientParseSystemLocal::ParseServerMessage( msg_t* msg )
 {
     sint             cmd;
     msg_t           msgback;
@@ -1010,7 +1021,7 @@ void CL_ParseServerMessage( msg_t* msg )
     {
         if( msg->readcount > msg->cursize )
         {
-            Com_Error( ERR_DROP, "CL_ParseServerMessage: read past end of server message" );
+            Com_Error( ERR_DROP, "idClientParseSystemLocal::ParseServerMessage: read past end of server message" );
             break;
         }
         
@@ -1020,7 +1031,7 @@ void CL_ParseServerMessage( msg_t* msg )
         //  got data that a legacy client should ignore.
         if( ( cmd == svc_EOF ) && ( MSG_LookaheadByte( msg ) == svc_extension ) )
         {
-            SHOWNET( msg, "EXTENSION" );
+            ShowNet( msg, "EXTENSION" );
             MSG_ReadByte( msg );					// throw the svc_extension byte away.
             cmd = MSG_ReadByte( msg );				// something legacy clients can't do!
             // sometimes you get a svc_extension at end of stream...dangling
@@ -1033,7 +1044,7 @@ void CL_ParseServerMessage( msg_t* msg )
         
         if( cmd == svc_EOF )
         {
-            SHOWNET( msg, "END OF MESSAGE" );
+            ShowNet( msg, "END OF MESSAGE" );
             break;
         }
         
@@ -1045,7 +1056,7 @@ void CL_ParseServerMessage( msg_t* msg )
             }
             else
             {
-                SHOWNET( msg, svc_strings[cmd] );
+                ShowNet( msg, svc_strings[cmd] );
             }
         }
         
@@ -1053,21 +1064,21 @@ void CL_ParseServerMessage( msg_t* msg )
         switch( cmd )
         {
             default:
-                Com_Error( ERR_DROP, "CL_ParseServerMessage: Illegible server message %d\n", cmd );
+                Com_Error( ERR_DROP, "idClientParseSystemLocal::ParseServerMessage: Illegible server message %d\n", cmd );
                 break;
             case svc_nop:
                 break;
             case svc_serverCommand:
-                CL_ParseCommandString( msg );
+                ParseCommandString( msg );
                 break;
             case svc_gamestate:
-                CL_ParseGamestate( msg );
+                ParseGamestate( msg );
                 break;
             case svc_snapshot:
-                CL_ParseSnapshot( msg );
+                ParseSnapshot( msg );
                 break;
             case svc_download:
-                CL_ParseDownload( msg );
+                ParseDownload( msg );
                 break;
         }
     }

@@ -178,6 +178,7 @@ extern "C"
 #include <API/cgame_api.h>
 #include <API/gui_api.h>
 #include <client/client.h>
+#include <client/clientParse.h>
 #include <client/keys.h>
 #include <framework/keycodes.h>
 

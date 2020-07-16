@@ -597,7 +597,8 @@ void CL_ReadDemoMessage( void )
     
     clc.lastPacketTime = cls.realtime;
     buf.readcount = 0;
-    CL_ParseServerMessage( &buf );
+    
+    idClientParseSystemLocal::ParseServerMessage( &buf );
 }
 
 /*
@@ -2918,7 +2919,7 @@ void CL_PacketEvent( netadr_t from, msg_t* msg )
     clc.serverMessageSequence = LittleLong( *( sint* )msg->data );
     
     clc.lastPacketTime = cls.realtime;
-    CL_ParseServerMessage( msg );
+    idClientParseSystemLocal::ParseServerMessage( msg );
     
     //
     // we don't know if it is ok to save a demo message until

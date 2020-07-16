@@ -362,7 +362,7 @@ void idClientGameSystemLocal::ConfigstringModified( void )
     if( index == CS_SYSTEMINFO )
     {
         // parse serverId and other cvars
-        CL_SystemInfoChanged();
+        idClientParseSystemLocal::SystemInfoChanged();
     }
     
 }

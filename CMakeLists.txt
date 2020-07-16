@@ -320,6 +320,7 @@ set( CLIENTLIST_HEADERS
 	${MOUNT_DIR}/API/clientGame_api.h
 	${MOUNT_DIR}/API/clientGUI_api.h
 	${MOUNT_DIR}/API/clientLAN_api.h
+	${MOUNT_DIR}/client/clientParse.h
 )
 
 set( CLIENTLIST_SOURCES
@@ -331,7 +332,7 @@ set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/cl_keys.cpp
 	${MOUNT_DIR}/client/cl_main.cpp
 	${MOUNT_DIR}/client/cl_net_chan.cpp
-	${MOUNT_DIR}/client/cl_parse.cpp
+	${MOUNT_DIR}/client/clientParse.cpp
 	${MOUNT_DIR}/client/clientScreen.cpp
 	${MOUNT_DIR}/client/clientBrowser.cpp
 	${MOUNT_DIR}/client/clientBrowser.h

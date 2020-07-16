@@ -460,7 +460,7 @@ void            Key_GetBindingByString( pointer binding, sint* key1, sint* key2 
 //
 // cl_main
 //
-
+void CL_PurgeCache( void );
 void            CL_Init( void );
 void            CL_FlushMemory( void );
 void            CL_ShutdownAll( void );
@@ -586,12 +586,7 @@ float32           CL_KeyState( kbutton_t* key );
 sint             Key_StringToKeynum( valueType* str );
 valueType*           Key_KeynumToString( sint keynum );
 
-//
-// cl_parse.c
-//
 extern sint      cl_connectedToPureServer;
-void            CL_SystemInfoChanged( void );
-void            CL_ParseServerMessage( msg_t* msg );
 
 //====================================================================
 
