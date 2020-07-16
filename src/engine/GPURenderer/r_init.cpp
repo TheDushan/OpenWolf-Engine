@@ -1270,8 +1270,8 @@ void R_Register( void )
     r_greyscale = cvarSystem->Get( "r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enables greyscaling of everything" );
     cvarSystem->CheckRange( r_greyscale, 0, 1, false );
     
-    r_hdr = cvarSystem->Get( "r_hdr", "0", CVAR_ARCHIVE | CVAR_LATCH, "Do scene rendering in a framebuffer with high dynamic range. (Less banding, and exposure changes look much better)" );
-    r_truehdr = cvarSystem->Get( "r_truehdr", "1", CVAR_ARCHIVE, "Do scene rendering in a framebuffer with high dynamic range with GLSL shaders" );
+    r_hdr = cvarSystem->Get( "r_hdr", "1", CVAR_ARCHIVE | CVAR_LATCH, "Do scene rendering in a framebuffer with high dynamic range. (Less banding, and exposure changes look much better)" );
+    r_truehdr = cvarSystem->Get( "r_truehdr", "0", CVAR_ARCHIVE, "Do scene rendering in a framebuffer with high dynamic range with GLSL shaders" );
     r_postProcess = cvarSystem->Get( "r_postProcess", "1", CVAR_ARCHIVE, "Enable post-processing" );
     
     r_toneMap = cvarSystem->Get( "r_toneMap", "1", CVAR_ARCHIVE, "Enable tone mapping. Requires r_hdr and r_postProcess." );
