@@ -46,6 +46,7 @@ public:
     virtual void GetChallenge( netadr_t from ) = 0;
     virtual void DirectConnect( netadr_t from ) = 0;
     virtual void ExecuteClientMessage( client_t* cl, msg_t* msg ) = 0;
+    virtual void AuthorizeIpPacket( netadr_t from ) = 0;
 };
 
 extern idServerClientSystem* serverClientSystem;

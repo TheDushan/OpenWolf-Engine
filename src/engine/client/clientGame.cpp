@@ -1164,7 +1164,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
     // if we have gotten to this point, cl.snap is guaranteed to be valid
     if( !cl.snap.valid )
     {
-        Com_Error( ERR_DROP, "CL_SetCGameTime: !cl.snap.valid" );
+        Com_Error( ERR_DROP, "idClientGameSystemLocal::SetCGameTime: !cl.snap.valid" );
     }
     
     // allow pause in single player

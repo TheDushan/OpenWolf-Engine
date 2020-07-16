@@ -218,6 +218,9 @@ typedef struct client_s
     //% netchan_buffer_t **netchan_end_queue;
     netchan_buffer_t* netchan_end_queue;
     
+    valueType guid[GUIDKEY_SIZE];
+    bool authenticated;
+    
     //bani
     sint             downloadnotify;
     bool		csUpdated[MAX_CONFIGSTRINGS + 1];
@@ -252,7 +255,7 @@ typedef struct svstats_s
 // while not allowing a single ip to grab all challenge resources
 #define MAX_CHALLENGES_MULTI (MAX_CHALLENGES / 2)
 
-#define AUTHORIZE_TIMEOUT   5000
+#define AUTHORIZE_TIMEOUT 8000
 
 typedef struct challenge_s
 {
@@ -265,6 +268,10 @@ typedef struct challenge_s
     sint firstPing;	// Used for min and max ping checks
     bool connected;
     bool wasrefused;
+    valueType guid[GUIDKEY_SIZE];
+    sint getChallengeCookie;
+    bool authenticated;
+    bool authServerStrict;
 } challenge_t;
 
 typedef struct
@@ -326,6 +333,8 @@ typedef struct serverStatic_s
     // Dushan
     svstats_t		stats;
     sint				queryDone;
+    
+    netadr_t authorizeAddress;
     
     struct
     {
@@ -438,6 +447,9 @@ extern convar_t* sv_wh_active;
 extern convar_t* sv_wh_bbox_horz;
 extern convar_t* sv_wh_bbox_vert;
 extern convar_t* sv_wh_check_fov;
+
+extern convar_t* sv_minimumAgeGuid; // Min guid age to enter a server
+extern convar_t* sv_maximumAgeGuid; // Max guid age to enter a server
 
 //bani - cl->downloadnotify
 #define DLNOTIFY_REDIRECT   0x00000001	// "Redirecting client ..."

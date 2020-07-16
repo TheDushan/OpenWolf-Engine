@@ -74,7 +74,8 @@ endif()
 option( BUILD_CLIENT                   "Build client"                             ON )
 option( BUILD_SERVER                   "Build dedicated server"                   ON )
 option( BUILD_AUTOUPDATE_SERVER        "Build AutoUpdate server"                  ON )
-option( BUILD_MASTER_SERVER            "Build master server"                                   ON )
+option( BUILD_MASTER_SERVER            "Build master server"                      ON )
+option( BUILD_AUTH_SERVER              "Build authorization server"               ON )
 
 # Package info
 set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Application client" )
@@ -188,7 +189,6 @@ set( SERVERLIST_HEADERS
 	${MOUNT_DIR}/server/server.h
 	${MOUNT_DIR}/server/serverCcmds.h
 	${MOUNT_DIR}/server/serverClient.h
-	${MOUNT_DIR}/server/serverCrypto.h
 	${MOUNT_DIR}/server/serverGame.h
 	${MOUNT_DIR}/server/serverWorld.h
 	${MOUNT_DIR}/server/serverSnapshot.h
@@ -200,7 +200,6 @@ set( SERVERLIST_HEADERS
 	${MOUNT_DIR}/server/serverWallhack.h
 	${MOUNT_DIR}/API/sgame_api.h
 	${MOUNT_DIR}/API/serverClient_api.h
-	${MOUNT_DIR}/API/serverCrypto_api.h
 	${MOUNT_DIR}/API/serverGame_api.h
 	${MOUNT_DIR}/API/serverWorld_api.h
 	${MOUNT_DIR}/API/serverSnapshot_api.h
@@ -214,7 +213,6 @@ set( SERVERLIST_HEADERS
 set( SERVERLIST_SOURCES
 	${MOUNT_DIR}/server/serverCcmds.cpp
 	${MOUNT_DIR}/server/serverClient.cpp
-	${MOUNT_DIR}/server/serverCrypto.cpp
 	${MOUNT_DIR}/server/serverGame.cpp
 	${MOUNT_DIR}/server/serverWorld.cpp
 	${MOUNT_DIR}/server/serverSnapshot.cpp
@@ -416,7 +414,6 @@ set( NULL_AUTOUPDATESERVER_SOURCES
 	${MOUNT_DIR}/null/null_autoprecompiled.cpp
 )
 
-
 set( OWMASTERSERVERLIST_HEADERS
 	${TOOLS_DIR}/master/clients.h
 	${TOOLS_DIR}/master/games.h
@@ -436,10 +433,28 @@ set( OWMASTERSERVERLIST_SOURCES
 	${TOOLS_DIR}/master/dpmaster.cpp
 )
 
+set( OWAUTHSERVERLIST_HEADERS
+	${TOOLS_DIR}/authserver/clients.h
+	${TOOLS_DIR}/authserver/games.h
+	${TOOLS_DIR}/authserver/common.h
+	${TOOLS_DIR}/authserver/messages.h
+	${TOOLS_DIR}/authserver/servers.h
+	${TOOLS_DIR}/authserver/system.h
+)
+
+set( OWAUTHSERVERLIST_SOURCES
+	${TOOLS_DIR}/authserver/clients.cpp
+	${TOOLS_DIR}/authserver/games.cpp
+	${TOOLS_DIR}/authserver/common.cpp
+	${TOOLS_DIR}/authserver/messages.cpp
+	${TOOLS_DIR}/authserver/servers.cpp
+	${TOOLS_DIR}/authserver/system.cpp
+	${TOOLS_DIR}/authserver/dpmaster.cpp
+)
+
 set( CLIENT_SOURCES
 	${MOUNT_DIR}/platform/systemLauncher.cpp
 )
-
 
 ####################
 # End of file list #
@@ -495,16 +510,16 @@ if( BUILD_CLIENT )
 		SOURCE_GROUP( Source\ Files\\SDL                                      FILES ${SDLLIST} )
 	endif( WIN32 )
 
-	add_library( engine SHARED ${SHAREDLIST_HEADERS} ${GPURENDERER_HEADERS} ${FRAMEWORKS_HEADERS} ${QCOMMONLIST_HEADERS} ${SERVERLIST_HEADERS} ${COLLISIONMODEL_HEADERS} ${CLIENTLIST_HEADERS} ${AUDIO_HEADERS} ${SHAREDLIST_SOURCES} ${GPURENDERER_SOURCES} ${SERVERLIST_SOURCES} ${COLLISIONMODEL_SOURCES} ${QCOMMONLIST_SOURCES} ${CLIENTLIST_SOURCES} ${AUDIO_SOURCES} ${FRAMEWORKS_SOURCES} ${PLATFORMLIST} ${SDLLIST} ${CRYPTOLIST_SOURCES} ${PLATFORMLIST_SOURCES} ${PLATFORMLIST_HEADERS} ${MOUNT_DIR}/framework/precompiled.h ${MOUNT_DIR}/framework/precompiled.cpp ${DOWNLOADLIST_HEADERS} ${DOWNLOADLIST_SOURCES} )
+	add_library( engine SHARED ${SHAREDLIST_HEADERS} ${GPURENDERER_HEADERS} ${FRAMEWORKS_HEADERS} ${QCOMMONLIST_HEADERS} ${SERVERLIST_HEADERS} ${COLLISIONMODEL_HEADERS} ${CLIENTLIST_HEADERS} ${AUDIO_HEADERS} ${SHAREDLIST_SOURCES} ${GPURENDERER_SOURCES} ${SERVERLIST_SOURCES} ${COLLISIONMODEL_SOURCES} ${QCOMMONLIST_SOURCES} ${CLIENTLIST_SOURCES} ${AUDIO_SOURCES} ${FRAMEWORKS_SOURCES} ${PLATFORMLIST} ${SDLLIST} ${PLATFORMLIST_SOURCES} ${PLATFORMLIST_HEADERS} ${MOUNT_DIR}/framework/precompiled.h ${MOUNT_DIR}/framework/precompiled.cpp ${DOWNLOADLIST_HEADERS} ${DOWNLOADLIST_SOURCES} )
 	
 	if( MSVC )
 	SET_TARGET_PROPERTIES( engine PROPERTIES LINK_FLAGS "/DEF:\"${MOUNT_DIR}/platform/engineMain.def" )
 endif(MSVC)
 	    
 if(WIN32)
-	set_property( TARGET engine APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG _WINDOWS USE_CRYPTO HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  BUILD_FREETYPE HAVE_BOOLEAN HAVE_BZIP2 SODIUM_STATIC )
+	set_property( TARGET engine APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG _WINDOWS HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  BUILD_FREETYPE HAVE_BOOLEAN HAVE_BZIP2 )
 elseif( UNIX )
-	set_property( TARGET engine APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX USE_CRYPTO HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  BUILD_FREETYPE HAVE_BZIP2 SODIUM_STATIC )
+	set_property( TARGET engine APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  BUILD_FREETYPE HAVE_BZIP2 )
 endif()
 
 	target_precompile_headers( engine PRIVATE "${MOUNT_DIR}/framework/precompiled.h" )
@@ -522,7 +537,6 @@ endif()
 	find_package( BZ2 REQUIRED )
 	find_package( OpenAL REQUIRED )
 	find_package( OggVorbis REQUIRED )
-	find_package( Sodium REQUIRED )
 	find_package( OpenSSL REQUIRED )
 
 	set( CURSES_NEED_NCURSES 1 ) # Tells FindCurses that ncurses is required
@@ -533,9 +547,9 @@ endif()
 		find_package( Curses REQUIRED )
 	endif()
 
-	TARGET_INCLUDE_DIRECTORIES( engine PRIVATE ${OPENSSL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PNG_INCLUDE_DIR} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} ${JPEG_INCLUDE_DIR} ${BZ2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR} ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR} ${SODIUM_INCLUDE_DIR} )
+	TARGET_INCLUDE_DIRECTORIES( engine PRIVATE ${OPENSSL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PNG_INCLUDE_DIR} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} ${JPEG_INCLUDE_DIR} ${BZ2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR} ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR} )
 
-	TARGET_LINK_LIBRARIES( engine ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${FREETYPE_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PNG_LIBRARIES} ${PDCURSES_LIBRARY} ${JPEG_LIBRARIES} ${LINK_LIBRARY} ${BZ2_LIBRARY} ${OPENAL_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARY} ${SODIUM_LIBRARIES})
+	TARGET_LINK_LIBRARIES( engine ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${FREETYPE_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PNG_LIBRARIES} ${PDCURSES_LIBRARY} ${JPEG_LIBRARIES} ${LINK_LIBRARY} ${BZ2_LIBRARY} ${OPENAL_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARY} )
 
 	if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 		link_directories( /opt/local/lib )
@@ -602,9 +616,9 @@ if( BUILD_SERVER )
 
 	if(WIN32)
 		target_compile_options(server PRIVATE "/MP")
-		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG DEDICATED _WINDOWS USE_CRYPTO HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  HAVE_BOOLEAN HAVE_BZIP2 SODIUM_STATIC )
+		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG DEDICATED _WINDOWS HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  HAVE_BOOLEAN HAVE_BZIP2 )
 	elseif( UNIX )
-		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED USE_CRYPTO HAVE_CONFIG_H USE_INCREASED_ENTITIES __STDC_CONSTANT_MACROS BUILD_FREETYPE HAVE_BZIP2 SODIUM_STATIC )
+		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED HAVE_CONFIG_H USE_INCREASED_ENTITIES __STDC_CONSTANT_MACROS BUILD_FREETYPE HAVE_BZIP2 )
 	endif()
 
 	target_precompile_headers( server PRIVATE "${MOUNT_DIR}/null/null_serverprecompiled.h" )
@@ -616,11 +630,10 @@ if( BUILD_SERVER )
 	find_package( CURL REQUIRED )
 	find_package( Zlib REQUIRED )
 	find_package( BZ2 REQUIRED )
-	find_package( Sodium REQUIRED )
 	find_package( OpenSSL REQUIRED )
 	
-	TARGET_INCLUDE_DIRECTORIES( server PRIVATE ${OPENSSL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} ${BZ2_INCLUDE_DIR} ${SODIUM_INCLUDE_DIR} )
-	target_link_libraries( server ${OS_LIBRARIES} ${OPENSSL_LIBRARIES} ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PDCURSES_LIBRARY} ${PDCURSES_LIBRARY} ${BZ2_LIBRARY} ${SODIUM_LIBRARIES})
+	TARGET_INCLUDE_DIRECTORIES( server PRIVATE ${OPENSSL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} ${BZ2_INCLUDE_DIR} )
+	target_link_libraries( server ${OS_LIBRARIES} ${OPENSSL_LIBRARIES} ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PDCURSES_LIBRARY} ${PDCURSES_LIBRARY} ${BZ2_LIBRARY} )
 	# The following section finds the OPTIONAL dependencies and makes them available to the target
 
 	set( CURSES_NEED_NCURSES 1 ) # Tells FindCurses that ncurses is required
@@ -650,9 +663,9 @@ if( BUILD_AUTOUPDATE_SERVER )
 	target_link_libraries( autoupdateserver ${OS_LIBRARIES} )
 	if(WIN32)
 		target_compile_options(autoupdateserver PRIVATE "/MP")
-        set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS DEDICATED USE_CRYPTO _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ UPDATE_SERVER SODIUM_STATIC )
+        set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS DEDICATED _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ UPDATE_SERVER )
 	elseif( UNIX )
-		set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED UPDATE_SERVER SODIUM_STATIC )
+		set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED UPDATE_SERVER )
 	endif()
 
 	target_precompile_headers( autoupdateserver PRIVATE "${MOUNT_DIR}/null/null_autoprecompiled.h" )
@@ -661,11 +674,10 @@ if( BUILD_AUTOUPDATE_SERVER )
 	find_package( SDL REQUIRED )
 	find_package( CURL REQUIRED )
 	find_package( Zlib REQUIRED )
-	find_package( Sodium REQUIRED )
 	find_package( OpenSSL REQUIRED )
 	
-	TARGET_INCLUDE_DIRECTORIES( autoupdateserver PRIVATE ${OPENSSL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} ${SODIUM_INCLUDE_DIR})
-	target_link_libraries( autoupdateserver ${SDL2_LIBRARY} ${OPENSSL_LIBRARIES} ${SDL2MAIN_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PDCURSES_LIBRARY} ${PDCURSES_LIBRARY} ${SODIUM_LIBRARIES})
+	TARGET_INCLUDE_DIRECTORIES( autoupdateserver PRIVATE ${OPENSSL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} )
+	target_link_libraries( autoupdateserver ${SDL2_LIBRARY} ${OPENSSL_LIBRARIES} ${SDL2MAIN_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PDCURSES_LIBRARY} ${PDCURSES_LIBRARY} )
 	# The following section finds the OPTIONAL dependencies and makes them available to the target
 
 	set( CURSES_NEED_NCURSES 1 ) # Tells FindCurses that ncurses is required
@@ -711,5 +723,39 @@ if( BUILD_MASTER_SERVER )
 	endif() 
 
 	set_target_properties( OWMaster PROPERTIES OUTPUT_NAME "OWMaster.${BUILD_ARCH}" PREFIX "" )
+
+endif()
+
+#########################
+# Build OWAuthServer  #
+#########################
+
+if( BUILD_AUTH_SERVER )
+	# Dushan - This is how visual studio directories (or filters) are generated
+	if( MSVC )
+		SOURCE_GROUP( Header\ Files\\OWAuthServer                             FILES ${OWAUTHSERVERLIST_HEADERS} )
+		SOURCE_GROUP( Source\ Files\\OWAuthServer                             FILES ${OWAUTHSERVERLIST_SOURCES} )
+	endif( MSVC )
+
+	# Setup OWAuthServer target
+	add_executable( OWAuthServer ${OWAUTHSERVERLIST_SOURCES} ${OWAUTHSERVERLIST_HEADERS} )
+	if(WIN32)
+		target_compile_options(OWAuthServer PRIVATE "/MP")
+		set_property( TARGET OWAuthServer APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ NDEBUG _WIN32 WIN32 _AMD64 _WIN64 __WIN64__  )
+	elseif( UNIX )
+		set_property( TARGET OWAuthServer APPEND PROPERTY COMPILE_DEFINITIONS __LINUX__ _LINUX_ LINUX )
+	endif() 
+
+	find_package( MYSQL REQUIRED )
+	
+	TARGET_INCLUDE_DIRECTORIES( OWAuthServer PRIVATE ${TOOLS_DIR}/authserver ${MYSQL_INCLUDE_DIR})
+
+	if(WIN32)
+		target_link_libraries( OWAuthServer wsock32 ws2_32 ${MYSQL_LIBRARIES} )
+	elseif( UNIX )
+		target_link_libraries( OWAuthServer -ltdb -lm ${MYSQL_LIBRARIES} )
+	endif() 
+
+	set_target_properties( OWAuthServer PROPERTIES OUTPUT_NAME "OWAuthServer.${BUILD_ARCH}" PREFIX "" )
 
 endif()

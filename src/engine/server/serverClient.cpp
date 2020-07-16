@@ -84,9 +84,10 @@ sent to that ip.
 */
 void idServerClientSystemLocal::GetChallenge( netadr_t from )
 {
-    sint i, oldest, oldestTime, oldestClientTime, clientChallenge;
+    sint i, oldest, oldestTime, oldestClientTime, clientChallenge, getChallengeCookie;
     challenge_t* challenge;
-    bool wasfound = false;
+    bool wasfound = false, gameMismatch, isBanned = false;
+    valueType* guid, * c, *gameName;
     
     // ignore if we are in single player
     if( serverGameSystem->GameIsSinglePlayer() )
@@ -97,6 +98,16 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
     if( serverCcmdsLocal.TempBanIsBanned( from ) )
     {
         networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\n%s\n", sv_tempbanmessage->string );
+        return;
+    }
+    
+    gameName = cmdSystem->Argv( 2 );
+    guid = cmdSystem->Argv( 3 );
+    getChallengeCookie = atoi( cmdSystem->Argv( 4 ) );
+    
+    if( !getChallengeCookie )
+    {
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nIllegal request\n" );
         return;
     }
     
@@ -114,7 +125,15 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
             wasfound = true;
             
             if( challenge->time < oldestClientTime )
+            {
                 oldestClientTime = challenge->time;
+            }
+            
+            if( challenge->authServerStrict )
+            {
+                oldestClientTime = svs.time;
+                challenge->authServerStrict = false;
+            }
         }
         
         if( wasfound && i >= MAX_CHALLENGES_MULTI )
@@ -130,17 +149,23 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
         }
     }
     
+    if( challenge->authServerStrict )
+    {
+        oldestTime = svs.time;
+        challenge->authServerStrict = false;
+    }
+    
     if( i == MAX_CHALLENGES )
     {
         // this is the first time this client has asked for a challenge
         challenge = &svs.challenges[oldest];
-        
         challenge->clientChallenge = clientChallenge;
         challenge->adr = from;
         challenge->pingTime = -1;
         challenge->firstTime = svs.time;
         challenge->firstPing = 0;
         challenge->connected = false;
+        challenge->authenticated = false;
     }
     
     // always generate a new challenge number, so the client cannot circumvent sv_maxping
@@ -148,10 +173,50 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
     challenge->wasrefused = false;
     challenge->time = svs.time;
     
-    // FIXME: deal with restricted filesystem
-    if( 1 )
+    Q_strncpyz( challenge->guid, guid, sizeof( challenge->guid ) );
+    challenge->getChallengeCookie = getChallengeCookie;
+    
+    if( svs.authorizeAddress.type == NA_BAD )
+    {
+        Com_DPrintf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
+        
+        if( networkChainSystem->StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) )
+        {
+            svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
+            Com_DPrintf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+                         svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
+                         svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
+                         BigShort( svs.authorizeAddress.port ) );
+        }
+    }
+    
+    if( svs.authorizeAddress.type == NA_BAD )
+    {
+        Com_DPrintf( "Couldn't resolve auth server address\n" );
+    }
+    else if( sv.time - oldestClientTime > AUTHORIZE_TIMEOUT )
+    {
+        Com_DPrintf( "Authorize server timed out\n" );
+        
+        networkChainSystem->OutOfBandPrint( NS_SERVER, challenge->adr, "authStatus %i 2 Server is configured as Strict and auth server failed to respond.", challenge->getChallengeCookie );
+        
+        challenge->authServerStrict = true;
+        return;
+    }
+    else
+    {
+        Com_DPrintf( "Sending getIpAuthorize for %s\n", networkSystem->AdrToString( from ) );
+        
+        networkChainSystem->OutOfBandPrint( NS_SERVER, svs.authorizeAddress, "getIpAuthorize %i %i.%i.%i.%i %s %i %i %i",  challenge->challenge, from.ip[0], from.ip[1], from.ip[2], from.ip[3],
+                                            guid, challenge->getChallengeCookie, sv_minimumAgeGuid->integer, sv_maximumAgeGuid->integer );
+                                            
+        return;
+    }
+    
+    if( svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT )
     {
         challenge->pingTime = svs.time;
+        
         if( sv_onlyVisibleClients->integer )
         {
             networkChainSystem->OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %i %i %i", challenge->challenge, clientChallenge, sv_onlyVisibleClients->integer );
@@ -165,6 +230,93 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
 }
 
 /*
+====================
+idServerClientSystemLocal::AuthorizeIpPacket
+
+A packet has been returned from the authorize server.
+If we have a challenge adr for that ip, send the
+challengeResponse to it
+====================
+*/
+void idServerClientSystemLocal::AuthorizeIpPacket( netadr_t from )
+{
+    sint i, challenge, response;
+    challenge_t* challengeptr;
+    valueType* reason;
+    
+    if( !networkSystem->CompareBaseAdr( from, svs.authorizeAddress ) )
+    {
+        Com_Printf( "idServerClientSystemLocal::AuthorizeIpPacket: not from authorize server\n" );
+        return;
+    }
+    
+    challenge = ::atoi( cmdSystem->Argv( 1 ) );
+    
+    for( i = 0; i < MAX_CHALLENGES; i++ )
+    {
+        if( svs.challenges[i].challenge == challenge )
+        {
+            break;
+        }
+    }
+    
+    if( i == MAX_CHALLENGES )
+    {
+        Com_Printf( "idServerClientSystemLocal::AuthorizeIpPacket: challenge not found\n" );
+        return;
+    }
+    
+    challengeptr = &svs.challenges[i];
+    challengeptr->pingTime = svs.time;
+    response = ::atoi( cmdSystem->Argv( 2 ) );
+    reason = cmdSystem->ArgsFrom( 3 );
+    
+    if( response == 0 )
+    {
+        challengeptr->authenticated = true;
+        
+        if( sv_onlyVisibleClients->integer )
+        {
+            networkChainSystem->OutOfBandPrint( NS_SERVER, challengeptr->adr, "challengeResponse %i %i", challengeptr->challenge, sv_onlyVisibleClients->integer );
+        }
+        else
+        {
+            networkChainSystem->OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, "challengeResponse %i", challengeptr->challenge );
+        }
+        return;
+    }
+    
+    if( response == 1 )
+    {
+        if( !reason )
+        {
+            networkChainSystem->OutOfBandPrint( NS_SERVER, challengeptr->adr, "authStatus %i 1", challengeptr->getChallengeCookie );
+        }
+        else
+        {
+            networkChainSystem->OutOfBandPrint( NS_SERVER, challengeptr->adr, "authStatus %i 1 %s", challengeptr->getChallengeCookie, reason );
+        }
+        
+        ::memset( challengeptr, 0, sizeof( *challengeptr ) );
+        return;
+    }
+    
+    if( response > 1 )
+    {
+        if( !reason )
+        {
+            networkChainSystem->OutOfBandPrint( NS_SERVER, challengeptr->adr, "authStatus %i %i", challengeptr->getChallengeCookie, response );
+        }
+        else
+        {
+            networkChainSystem->OutOfBandPrint( NS_SERVER, challengeptr->adr, "authStatus %i %i %s", challengeptr->getChallengeCookie, response, reason );
+        }
+    }
+    
+    ::memset( challengeptr, 0, sizeof( *challengeptr ) );
+}
+
+/*
 ==================
 idServerClientSystemLocal::DirectConnect
 
@@ -173,23 +325,25 @@ A "connect" OOB command has been received
 */
 void idServerClientSystemLocal::DirectConnect( netadr_t from )
 {
-    valueType userinfo[MAX_INFO_STRING], *denied, *ip;
+    valueType userinfo[MAX_INFO_STRING], *denied, *ip, guid[GUIDKEY_SIZE];
     sint	i, clientNum, qport, challenge, startIndex, count, oldInfoLen2 = ( sint )::strlen( userinfo ), newInfoLen2;
     client_t* cl, *newcl, temp;
     sharedEntity_t* ent;
 #if !defined (UPDATE_SERVER)
     sint	version;
 #endif
-    bool reconnect = false;
+    bool reconnect = false, authed;
     
     Com_DPrintf( "idServerClientSystemLocal::DirectConnect ()\n" );
     
     Q_strncpyz( userinfo, cmdSystem->Argv( 1 ), sizeof( userinfo ) );
+    challenge = ::atoi( Info_ValueForKey( userinfo, "challenge" ) );
+    qport = ::atoi( Info_ValueForKey( userinfo, "qport" ) );
     
     // DHM - Nerve :: Update Server allows any protocol to connect
     // NOTE TTimo: but we might need to store the protocol around for potential non http/ftp clients
 #if !defined (UPDATE_SERVER)
-    version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
+    version = ::atoi( Info_ValueForKey( userinfo, "protocol" ) );
     if( version != com_protocol->integer )
     {
         networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i (yours is %i).\n", com_protocol->integer, version );
@@ -197,9 +351,6 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         return;
     }
 #endif
-    
-    challenge = atoi( Info_ValueForKey( userinfo, "challenge" ) );
-    qport = atoi( Info_ValueForKey( userinfo, "qport" ) );
     
     if( serverCcmdsLocal.TempBanIsBanned( from ) )
     {
@@ -278,6 +429,9 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     
     Info_SetValueForKey( userinfo, "ip", ip );
     
+    Info_SetValueForKey( cl->userinfo, "authenticated", va( "%i", cl->authenticated ) );
+    Info_SetValueForKey( cl->userinfo, "cl_guid", cl->guid );
+    
     // see if the challenge is valid (local clients don't need to challenge)
     if( !networkSystem->IsLocalAddress( from ) )
     {
@@ -338,8 +492,19 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
             }
         }
         
+        Q_strncpyz( guid, svs.challenges[i].guid, sizeof( guid ) );
+        authed = svs.challenges[i].authenticated;
+        
         Com_Printf( "Client %i connecting with %i challenge ping\n", i, ping );
         challengeptr->connected = true;
+        
+        Q_strncpyz( guid, svs.challenges[i].guid, sizeof( guid ) );
+        authed = svs.challenges[i].authenticated;
+    }
+    else
+    {
+        Q_strncpyz( guid, Info_ValueForKey( userinfo, "cl_guid" ), sizeof( guid ) );
+        authed = false;
     }
     
     // q3fill protection
@@ -468,6 +633,11 @@ gotnewcl:
     networkChainSystem->Setup( NS_SERVER, &newcl->netchan, from, qport );
     // init the netchan queue
     
+    newcl->authenticated = authed;
+    Info_SetValueForKey( userinfo, "authenticated", va( "%i", authed ) );
+    Q_strncpyz( newcl->guid, guid, sizeof( newcl->guid ) );
+    Info_SetValueForKey( userinfo, "cl_guid", guid );
+    
     // save the userinfo
     Q_strncpyz( newcl->userinfo, userinfo, sizeof( newcl->userinfo ) );
     
@@ -584,7 +754,7 @@ void idServerClientSystemLocal::DropClient( client_t* drop, pointer reason )
         {
             if( networkSystem->CompareAdr( drop->netchan.remoteAddress, challenge->adr ) )
             {
-                challenge->connected = false;
+                ::memset( challenge, 0, sizeof( *challenge ) );
                 break;
             }
         }
@@ -1799,6 +1969,9 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
         // force the "ip" info key to "localhost" for local clients
         Info_SetValueForKey( cl->userinfo, "ip", "localhost" );
     }
+    
+    Info_SetValueForKey( cl->userinfo, "authenticated", va( "%i", cl->authenticated ) );
+    Info_SetValueForKey( cl->userinfo, "cl_guid", cl->guid );
     
     // TTimo
     // download prefs of the client

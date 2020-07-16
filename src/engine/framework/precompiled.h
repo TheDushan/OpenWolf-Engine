@@ -144,7 +144,6 @@ extern "C"
 #include <API/CmdSystem_api.h>
 #include <API/serverDemo_api.h>
 #include <API/system_api.h>
-#include <API/serverCrypto_api.h>
 #include <API/clientScreen_api.h>
 #include <client/clientScreen.h>
 #include <API/clientGame_api.h>
@@ -272,7 +271,6 @@ extern "C"
 #include <API/Network_api.h>
 #include <framework/Network.h>
 #include <server/serverDemo.h>
-#include <server/serverCrypto.h>
 #include <server/serverOACS.h>
 #include <server/serverWallhack.h>
 
@@ -280,8 +278,6 @@ extern "C"
 #include <errno.h>
 #define OV_EXCLUDE_STATIC_CALLBACKS
 #include <vorbis/vorbisfile.h>
-
-#include <sodium.h>
 
 // curses.h defines COLOR_*, which are already defined in q_shared.h
 #undef COLOR_BLACK

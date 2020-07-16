@@ -202,7 +202,6 @@ sint idDownloadSystemLocal::BeginDownload( pointer localName, pointer remoteName
     return 1;
 }
 
-
 /*
 ===============
 dlStatus_t DL_DownloadLoop( void)

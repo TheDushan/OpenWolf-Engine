@@ -1716,7 +1716,7 @@ void idNetworkSystemLocal::Init( void )
     
     Config( true );
     
-    cmdSystem->AddCommand( "net_restart", NETRestart_f, "If you change any net_ setting in-game or in a config you need to also to a net_restart to make the changes take effect, i have seen very few people with this in their configurations, but i have seen some people specify a lot of net_ settings and they have it in their config." );
+    //cmdSystem->AddCommand( "net_restart", NETRestart_f, "If you change any net_ setting in-game or in a config you need to also to a net_restart to make the changes take effect, i have seen very few people with this in their configurations, but i have seen some people specify a lot of net_ settings and they have it in their config." );
 }
 
 

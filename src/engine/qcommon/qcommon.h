@@ -256,10 +256,10 @@ You or the server may be running older versions of the game. Press the auto-upda
  button if it appears on the Main Menu screen."
 
 //Dushan - I will soon move this in the appConfig.h
-#define GAMENAME_STRING "StellarPray"
+#define GAMENAME_STRING GAMENAME_FOR_MASTER
 
 #ifndef PRE_RELEASE_DEMO
-#define ETPROTOCOL_VERSION    2
+#define ETPROTOCOL_VERSION    1
 #else
 // the demo uses a different protocol version for independant browsing
 #define ETPROTOCOL_VERSION    1
@@ -267,13 +267,15 @@ You or the server may be running older versions of the game. Press the auto-upda
 
 // NERVE - SMF - wolf multiplayer master servers
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME      "master.stellarprey.com"
+#define MASTER_SERVER_NAME      "127.0.0.1"
 #endif
-#define MOTD_SERVER_NAME        "master.stellarprey.com"//"etmotd.idsoftware.com" // ?.?.?.?
+#define MOTD_SERVER_NAME        "127.0.0.1"//"etmotd.idsoftware.com" // ?.?.?.?
+
+#define AUTHORIZE_SERVER_NAME   "127.0.0.1"
 
 // TTimo: override autoupdate server for testing
 #ifndef AUTOUPDATE_SERVER_NAME
-#define AUTOUPDATE_SERVER_NAME "update.stellarprey.com"
+#define AUTOUPDATE_SERVER_NAME "127.0.0.1"
 //#define AUTOUPDATE_SERVER_NAME "au2rtcw2.activision.com"
 #endif
 
@@ -297,6 +299,7 @@ You or the server may be running older versions of the game. Press the auto-upda
 
 #define PORT_MASTER         27950
 #define PORT_MOTD           27950
+#define PORT_AUTHORIZE      27952
 #define PORT_SERVER         27960
 #define NUM_SERVER_PORTS    4	// broadcast scan this many ports after
 // PORT_SERVER so a single machine can
@@ -686,5 +689,11 @@ void            Com_RandomBytes( uchar8* string, sint len );
 #if !defined ( BSPC )
 void            Com_QueueEvent( sint time, sysEventType_t type, sint value, sint value2, sint ptrLength, void* ptr );
 #endif
+
+// Dushan - create CL_GUID
+// we cannot call it "qkey", "etkey" is already taken,
+// so we will change it to etxreal
+#define GUIDKEY_FILE "guidopenwolf"
+#define GUIDKEY_SIZE 28
 
 #endif //!__QCOMMON_H__

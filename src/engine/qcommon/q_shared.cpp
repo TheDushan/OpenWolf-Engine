@@ -1484,6 +1484,10 @@ void Q_strncpyzDebug( valueType* dest, pointer src, uint32 destsize, pointer fil
 void Q_strncpyz( valueType* dest, pointer src, sint destsize )
 #endif
 {
+    valueType* d;
+    pointer s;
+    size_t n;
+    
 #ifdef _DEBUG
     if( !dest )
     {
@@ -1513,22 +1517,44 @@ void Q_strncpyz( valueType* dest, pointer src, sint destsize )
     }
 #endif
     
-    while( *src && destsize - 1 )
+    /*
+    * Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
+    *
+    * Permission to use, copy, modify, and distribute this software for any
+    * purpose with or without fee is hereby granted, provided that the above
+    * copyright notice and this permission notice appear in all copies.
+    *
+    * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+    * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+    * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+    * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+    * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+    * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+    * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+    */
+    
+    d = dest;
+    s = src;
+    n = destsize;
+    
+    /* Copy as many bytes as will fit */
+    if( n != 0 )
     {
-        *dest++ = *src++;
-        destsize--;
+        while( --n != 0 )
+        {
+            if( ( *d++ = *s++ ) == '\0' )
+                break;
+        }
     }
     
-#if defined(_DEBUG)
-    if( *src )
+    /* Not enough room in dst, add NUL and traverse rest of src */
+    if( n == 0 )
     {
-        Com_Printf( "Buffer too small: %s: %i (%s)\n", file, line, src );
+        if( destsize != 0 )
+            *d = '\0';		/* NUL-terminate dst */
+        while( *s++ )
+            ;
     }
-#else
-    *dest = '\0';
-#endif
-    
-    ::memset( dest, 0, destsize );
 }
 
 sint Q_stricmpn( pointer s1, pointer s2, sint n )
@@ -1637,7 +1663,7 @@ void Q_strcat( valueType* dest, sint size, pointer src )
     {
         Com_Error( ERR_FATAL, "Q_strcat: already overflowed" );
     }
-    Q_strncpyz( dest + l1, src, size - l1 );
+    Q_strncpyz( dest + l1, src,  size - l1 );
 }
 
 

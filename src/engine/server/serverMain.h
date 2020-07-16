@@ -41,8 +41,8 @@
 #define HEARTBEAT_MSEC  50 * 1000
 
 //Dushan - I will soon move this in the appConfig.h
-#define HEARTBEAT_GAME  "StellarPray-1"
-#define HEARTBEAT_DEAD  "StellarPrayFlatline-1"
+#define HEARTBEAT_GAME  "StellarPrey-1"
+#define HEARTBEAT_DEAD  "StellarPreyFlatline-1"
 
 static sint lastTimeResolve[MAX_MASTER_SERVERS];
 

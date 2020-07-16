@@ -126,7 +126,6 @@
 #include <API/CmdSystem_api.h>
 #include <API/serverDemo_api.h>
 #include <API/system_api.h>
-#include <API/serverCrypto_api.h>
 
 #include <cm/cm_local.h>
 
@@ -186,11 +185,8 @@
 #include <API/Network_api.h>
 #include <framework/Network.h>
 #include <server/serverDemo.h>
-#include <server/serverCrypto.h>
 #include <server/serverOACS.h>
 #include <server/serverWallhack.h>
-
-#include <sodium.h>
 
 // curses.h defines COLOR_*, which are already defined in q_shared.h
 #undef COLOR_BLACK

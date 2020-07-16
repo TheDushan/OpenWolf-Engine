@@ -30,7 +30,7 @@
 
 static const char** game_names = NULL;
 static unsigned int nb_game_names = 0;
-static qboolean reject_when_known = qtrue;
+static bool reject_when_known = true;
 
 
 // ---------- Private functions ---------- //
@@ -43,7 +43,7 @@ Find a game name in the list of game names
 After the call, *index_ptr will contain the index where the game is stored in game_names (or should be stored, if it is not present)
 ====================
 */
-static qboolean Game_Find( const char* game_name, unsigned int* index_ptr )
+static bool Game_Find( const char* game_name, unsigned int* index_ptr )
 {
     int left = 0;
     
@@ -62,7 +62,7 @@ static qboolean Game_Find( const char* game_name, unsigned int* index_ptr )
             {
                 if( index_ptr != NULL )
                     *index_ptr = middle;
-                return qtrue;
+                return true;
             }
             
             if( diff > 0 )
@@ -74,7 +74,7 @@ static qboolean Game_Find( const char* game_name, unsigned int* index_ptr )
     
     if( index_ptr != NULL )
         *index_ptr = left;
-    return qfalse;
+    return false;
 }
 
 
@@ -89,13 +89,13 @@ Declare the server policy regarding which games are allowed on this master
 */
 cmdline_status_t Game_DeclarePolicy( const char* policy, const char** games, unsigned int nb_games )
 {
-    qboolean new_reject_when_known;
+    bool new_reject_when_known;
     unsigned int i;
     
     if( strcmp( policy, "accept" ) == 0 )
-        new_reject_when_known = qfalse;
+        new_reject_when_known = false;
     else if( strcmp( policy, "reject" ) == 0 )
-        new_reject_when_known = qtrue;
+        new_reject_when_known = true;
     else
         return CMDLINE_STATUS_INVALID_OPT_PARAMS;
         
@@ -137,12 +137,12 @@ cmdline_status_t Game_DeclarePolicy( const char* policy, const char** games, uns
 ====================
 Game_IsAccepted
 
-Return qtrue if the game is allowed on this master
+Return true if the game is allowed on this master
 ====================
 */
-qboolean Game_IsAccepted( const char* game_name )
+bool Game_IsAccepted( const char* game_name )
 {
-    return qboolean( Game_Find( game_name, NULL ) ^ reject_when_known );
+    return ( Game_Find( game_name, NULL ) ^ reject_when_known );
 }
 
 
@@ -194,7 +194,7 @@ Game_GetAnonymous
 Returns the properties of an anonymous game
 ====================
 */
-static game_properties_t* Game_GetAnonymous( const char* game, qboolean creation_allowed )
+static game_properties_t* Game_GetAnonymous( const char* game, bool creation_allowed )
 {
     game_properties_t* props = game_properties_list;
     
@@ -237,7 +237,7 @@ Find game properties in the list of game protocols
 After the call, *index_ptr will contain the index where the game is stored in game_names (or should be stored, if it is not present)
 ====================
 */
-static qboolean Game_FindAnonymous( int protocol, unsigned int* index_ptr )
+static bool Game_FindAnonymous( int protocol, unsigned int* index_ptr )
 {
     int left = 0;
     
@@ -255,7 +255,7 @@ static qboolean Game_FindAnonymous( int protocol, unsigned int* index_ptr )
             {
                 if( index_ptr != NULL )
                     *index_ptr = middle;
-                return qtrue;
+                return true;
             }
             
             if( game_protocols[middle].protocol > protocol )
@@ -267,7 +267,7 @@ static qboolean Game_FindAnonymous( int protocol, unsigned int* index_ptr )
     
     if( index_ptr != NULL )
         *index_ptr = left;
-    return qfalse;
+    return false;
 }
 
 
@@ -378,7 +378,7 @@ Game_UpdateHeartbeat
 Add or remove an heartbeat to the properties of a game
 ====================
 */
-static cmdline_status_t Game_UpdateHeartbeat( game_properties_t* game_props, heartbeat_type_t hb_type, const char* value, qboolean remove )
+static cmdline_status_t Game_UpdateHeartbeat( game_properties_t* game_props, heartbeat_type_t hb_type, const char* value, bool remove )
 {
     if( remove )
     {
@@ -411,7 +411,7 @@ Game_UpdateOption
 Add or remove an option to the properties of a game
 ====================
 */
-static cmdline_status_t Game_UpdateOption( game_properties_t* game_props, const char* option_name, qboolean remove )
+static cmdline_status_t Game_UpdateOption( game_properties_t* game_props, const char* option_name, bool remove )
 {
     size_t option_ind;
     
@@ -441,7 +441,7 @@ Update a game property
 ====================
 */
 static cmdline_status_t Game_UpdateProperty( game_properties_t* game_props, const char* prop_name, char* prop_value,
-        qboolean reset_property, qboolean remove_values )
+        bool reset_property, bool remove_values )
 {
     char* next_value;
     
@@ -692,7 +692,7 @@ Update the properties of a game according to the given list of properties
 cmdline_status_t Game_UpdateProperties( const char* game, const char** props, size_t nb_props )
 {
     unsigned int prop_ind;
-    game_properties_t* game_props = Game_GetAnonymous( game, qtrue );
+    game_properties_t* game_props = Game_GetAnonymous( game, true );
     
     if( game_props == NULL )
         return CMDLINE_STATUS_NOT_ENOUGH_MEMORY;
@@ -710,25 +710,25 @@ cmdline_status_t Game_UpdateProperties( const char* game, const char** props, si
         if( equal_sign != NULL && equal_sign != work_buff )
         {
             cmdline_status_t result;
-            qboolean reset_property, remove_values;
+            bool reset_property, remove_values;
             
             if( equal_sign[-1] == '+' )
             {
                 equal_sign[-1] = '\0';
-                reset_property = qfalse;
-                remove_values = qfalse;
+                reset_property = false;
+                remove_values = false;
             }
             else if( equal_sign[-1] == '-' )
             {
                 equal_sign[-1] = '\0';
-                reset_property = qfalse;
-                remove_values = qtrue;
+                reset_property = false;
+                remove_values = true;
             }
             else
             {
                 equal_sign[0] = '\0';
-                reset_property = qtrue;
-                remove_values = qfalse;
+                reset_property = true;
+                remove_values = false;
             }
             
             result = Game_UpdateProperty( game_props, work_buff, equal_sign + 1, reset_property, remove_values );
@@ -778,10 +778,10 @@ const char* Game_GetNameByProtocol( int protocol, game_options_t* options )
 Game_GetPropertiesByHeartbeat
 
 Returns the properties of the game which uses this heartbeat tag.
-"flatline_heartbeat" will be set to "qtrue" if it's a flatline tag
+"flatline_heartbeat" will be set to "true" if it's a flatline tag
 ====================
 */
-const game_properties_t* Game_GetPropertiesByHeartbeat( const char* heartbeat_tag, qboolean* flatline_heartbeat )
+const game_properties_t* Game_GetPropertiesByHeartbeat( const char* heartbeat_tag, bool* flatline_heartbeat )
 {
     game_properties_t* props = game_properties_list;
     
@@ -795,7 +795,7 @@ const game_properties_t* Game_GetPropertiesByHeartbeat( const char* heartbeat_ta
             
             if( tag != NULL && strcmp( heartbeat_tag, tag ) == 0 )
             {
-                *flatline_heartbeat = qboolean( hb_ind == HEARTBEAT_TYPE_DEAD );
+                *flatline_heartbeat = ( hb_ind == HEARTBEAT_TYPE_DEAD );
                 return props;
             }
         }
@@ -803,7 +803,7 @@ const game_properties_t* Game_GetPropertiesByHeartbeat( const char* heartbeat_ta
         props = props->next;
     }
     
-    *flatline_heartbeat = qfalse;
+    *flatline_heartbeat = false;
     return NULL;
 }
 
@@ -817,7 +817,7 @@ Returns the options of a game
 */
 game_options_t Game_GetOptions( const char* game )
 {
-    const game_properties_t* props = Game_GetAnonymous( game, qfalse );
+    const game_properties_t* props = Game_GetAnonymous( game, false );
     
     if( props != NULL )
         return props->options;

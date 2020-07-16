@@ -508,7 +508,6 @@ void idServerGameSystemLocal::InitExportTable( void )
     exports.cmdBufferSystem = cmdBufferSystem;
     exports.cmdSystem = cmdSystem;
     exports.idsystem = idsystem;
-    exports.serverCryptoSystem = serverCryptoSystem;
     exports.parseSystem = ParseSystem;
 }
 

@@ -2801,7 +2801,7 @@ static void Com_Crash_f( void )
     *( volatile sint* )0 = 0x12345678;
 }
 
-void Com_SetRecommended()
+void Com_SetRecommended( void )
 {
     convar_t* r_highQualityVideo, *com_recommended;
     bool goodVideo;

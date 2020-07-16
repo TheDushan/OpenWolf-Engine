@@ -57,8 +57,10 @@ public:
     virtual void GetChallenge( netadr_t from );
     virtual void DirectConnect( netadr_t from );
     virtual void ExecuteClientMessage( client_t* cl, msg_t* msg );
+    virtual void AuthorizeIpPacket( netadr_t from );
     
 public:
+    static valueType* isClientBanned( valueType* ip, valueType* password );
     static bool CheckFunstuffExploit( valueType* userinfo, valueType* key );
     static void UpdateUserinfo_f( client_t* cl );
     static void SendClientGameState( client_t* client );

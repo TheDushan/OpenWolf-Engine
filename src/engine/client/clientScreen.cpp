@@ -523,15 +523,21 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
             case CA_DISCONNECTED:
                 // force menu up
                 soundSystem->StopAllSounds();
-                uiManager->SetActiveMenu( UIMENU_MAIN );
+                if( uivm )
+                {
+                    uiManager->SetActiveMenu( UIMENU_MAIN );
+                }
                 break;
             case CA_CONNECTING:
             case CA_CHALLENGING:
             case CA_CONNECTED:
                 // connecting clients will only show the connection dialog
                 // refresh to update the time
-                uiManager->Refresh( cls.realtime );
-                uiManager->DrawConnectScreen( false );
+                if( uivm )
+                {
+                    uiManager->Refresh( cls.realtime );
+                    uiManager->DrawConnectScreen( false );
+                }
                 break;
                 // Ridah, if the cgame is valid, fall through to there
                 if( !cls.cgameStarted || !com_sv_running->integer )
@@ -545,9 +551,11 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
                 // also draw the connection information, so it doesn't
                 // flash away too briefly on local or lan games
                 //if (!com_sv_running->value || cvarSystem->VariableIntegerValue("sv_cheats"))	// Ridah, don't draw useless text if not in dev mode
-                uiManager->Refresh( cls.realtime );
-                uiManager->DrawConnectScreen( true );
-                
+                if( uivm )
+                {
+                    uiManager->Refresh( cls.realtime );
+                    uiManager->DrawConnectScreen( true );
+                }
                 // draw the game information screen and loading progress
                 if( cgvm )
                 {
@@ -556,7 +564,11 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
                 
                 break;
             case CA_ACTIVE:
-                clientGameSystem->CGameRendering( stereoFrame );
+                if( cgvm )
+                {
+                    clientGameSystem->CGameRendering( stereoFrame );
+                }
+                
                 DrawDemoRecording();
                 break;
         }
@@ -598,7 +610,8 @@ void idClientScreenSystemLocal::UpdateScreen( void )
     
     if( ++recursive >= 2 )
     {
-        Com_Error( ERR_FATAL, "idClientScreenSystemLocal::UpdateScreen: recursively called" );
+        recursive = 0;
+        return;
     }
     
     recursive = 1;

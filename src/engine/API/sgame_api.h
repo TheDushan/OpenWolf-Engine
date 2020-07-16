@@ -80,7 +80,6 @@ struct gameImports_t
     idCmdSystem* cmdSystem;
     idServerDemoSystem* serverDemoSystem;
     idSystem* idsystem;
-    idServerCryptoSystem* serverCryptoSystem;
     idParseSystem* parseSystem;
 };
 
@@ -141,12 +140,6 @@ sint trap_GetSoundLength( sfxHandle_t sfxHandle );
 sfxHandle_t trap_S_RegisterSound( pointer sample );
 sint trap_S_SoundDuration( sfxHandle_t handle );
 void trap_DemoCommand( demoCommand_t cmd, pointer string );
-bool trap_Crypto_GenerateKeys( publicKey_t* pk, secretKey_t* sk );
-bool trap_Crypto_LoadKeysFromFS( publicKey_t* pk, pointer pkFilename, secretKey_t* sk, pointer skFilename );
-bool trap_Crypto_SaveKeysToFS( publicKey_t* pk, pointer pkFilename, secretKey_t* sk, pointer skFilename );
-bool trap_Crypto_EncryptString( publicKey_t* pk, pointer inRaw, valueType* outHex, size_t outHexSize );
-bool trap_Crypto_DecryptString( publicKey_t* pk, secretKey_t* sk, pointer inHex, valueType* outRaw, size_t outRawSize );
-bool trap_Crypto_Hash( pointer inRaw, valueType* outHex, size_t outHexSize );
 
 //
 // idGame

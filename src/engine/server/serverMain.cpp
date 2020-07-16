@@ -124,6 +124,9 @@ convar_t* sv_wh_bbox_horz;
 convar_t* sv_wh_bbox_vert;
 convar_t* sv_wh_check_fov;
 
+convar_t* sv_minimumAgeGuid;
+convar_t* sv_maximumAgeGuid;
+
 #define LL( x ) x = LittleLong( x )
 
 /*
@@ -1182,23 +1185,53 @@ void idServerMainSystemLocal::ConnectionlessPacket( netadr_t from, msg_t* msg )
         {
             return;
         }
+        
         Info( from );
     }
     else if( !Q_stricmp( c, "getchallenge" ) )
     {
+        if( CheckDRDoS( from ) )
+        {
+            return;
+        }
+        
         serverClientSystem->GetChallenge( from );
     }
     else if( !Q_stricmp( c, "connect" ) )
     {
+        if( CheckDRDoS( from ) )
+        {
+            return;
+        }
+        
         serverClientSystem->DirectConnect( from );
+    }
+    else if( !Q_stricmp( c, "ipAuthorize" ) )
+    {
+        if( CheckDRDoS( from ) )
+        {
+            return;
+        }
+        
+        serverClientSystem->AuthorizeIpPacket( from );
     }
     else if( !Q_stricmp( c, "rcon" ) )
     {
+        if( CheckDRDoS( from ) )
+        {
+            return;
+        }
+        
         RemoteCommand( from, msg );
     }
 #if defined (UPDATE_SERVER)
     else if( !Q_stricmp( c, "getUpdateInfo" ) )
     {
+        if( CheckDRDoS( from ) )
+        {
+            return;
+        }
+        
         GetUpdateInfo( from );
     }
 #endif

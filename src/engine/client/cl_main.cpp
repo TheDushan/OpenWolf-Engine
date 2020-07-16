@@ -117,8 +117,6 @@ convar_t*         cl_updatefiles;
 
 // DHM - Nerve
 
-convar_t*         cl_authserver;
-
 convar_t*         cl_profile;
 convar_t*         cl_defaultProfile;
 
@@ -145,6 +143,8 @@ convar_t*         cl_altTab;
 
 convar_t*         cl_aviMotionJpeg;
 convar_t*         cl_guidServerUniq;
+
+convar_t* cl_guid;
 
 clientActive_t  cl;
 clientConnection_t clc;
@@ -494,6 +494,7 @@ void CL_Record( pointer name )
     fileSystem->Write( buf.data, buf.cursize, clc.demofile );
     
     // the rest of the demo file will be copied from net messages
+    CL_AddReliableCommand( "getstatus" );
 }
 
 /*
@@ -1433,6 +1434,39 @@ void CL_RequestMotd( void )
 }
 
 /*
+===================
+CL_RequestAuthorization
+===================
+*/
+void CL_RequestAuthorization( void )
+{
+    sint i, j, l;
+    
+    if( !cls.authorizeServer.port )
+    {
+        Com_DPrintf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
+        if( !networkChainSystem->StringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer, NA_UNSPEC ) )
+        {
+            Com_DPrintf( "Couldn't resolve authorization server address\n" );
+            return;
+        }
+        
+        cls.authorizeServer.port = BigShort( PORT_AUTHORIZE );
+        Com_DPrintf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+                     cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
+                     cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
+                     BigShort( cls.authorizeServer.port ) );
+    }
+    
+    if( cls.authorizeServer.type == NA_BAD )
+    {
+        return;
+    }
+    
+    networkChainSystem->OutOfBandPrint( NS_CLIENT, cls.authorizeServer, "getKeyAuthorize %i", cls.authorizeAuthCookie );
+}
+
+/*
 ======================================================================
 
 CONSOLE COMMANDS
@@ -1604,6 +1638,7 @@ void CL_Connect_f( void )
         cvarSystem->Set( "ui_connecting", "0" );
         return;
     }
+    
     if( clc.serverAddress.port == 0 )
     {
         clc.serverAddress.port = BigShort( PORT_SERVER );
@@ -2368,10 +2403,16 @@ void CL_CheckForResend( void )
     switch( cls.state )
     {
         case CA_CONNECTING:
-            // EVEN BALANCE - T.RAY
-            strcpy( pkt, "getchallenge" );
-            pktlen = strlen( pkt );
-            networkChainSystem->OutOfBandPrint( NS_CLIENT, clc.serverAddress, "%s", pkt );
+            if( clc.connectPacketCount == 1 )
+            {
+                cls.authorizeAuthCookie = ( ( rand() << 16 ) ^ rand() ) ^ Com_Milliseconds();
+                
+            }
+            
+            CL_RequestAuthorization();
+            
+            Com_sprintf( data, sizeof( data ), "getchallenge %d %s %s %i", clc.challenge, GAMENAME_FOR_MASTER, cl_guid->string, cls.authorizeAuthCookie );
+            networkChainSystem->OutOfBandPrint( NS_CLIENT, clc.serverAddress, "%s", data );
             break;
             
         case CA_CHALLENGING:
@@ -2383,22 +2424,17 @@ void CL_CheckForResend( void )
             Info_SetValueForKey( info, "qport", va( "%i", port ) );
             Info_SetValueForKey( info, "challenge", va( "%i", clc.challenge ) );
             
-            strcpy( data, "connect " );
+            ::strcpy( data, "connect " );
+            data[8] = '\"';
             
-            data[8] = '\"';		// NERVE - SMF - spaces in name bugfix
-            
-            for( i = 0; i < strlen( info ); i++ )
+            for( i = 0; i < ::strlen( info ); i++ )
             {
                 data[9 + i] = info[i];	// + (clc.challenge)&0x3;
             }
-            data[9 + i] = '\"';	// NERVE - SMF - spaces in name bugfix
+            data[9 + i] = '\"';
             data[10 + i] = 0;
             
-            // EVEN BALANCE - T.RAY
-            pktlen = i + 10;
-            memcpy( pkt, &data[0], pktlen );
-            
-            networkChainSystem->OutOfBandData( NS_CLIENT, clc.serverAddress, ( uchar8* ) pkt, pktlen );
+            networkChainSystem->OutOfBandData( NS_CLIENT, clc.serverAddress, ( uchar8* )&data[0], i + 10 );
             // the most current userinfo has been sent, so watch for any
             // newer changes to userinfo variables
             cvar_modifiedFlags &= ~CVAR_USERINFO;
@@ -2488,6 +2524,61 @@ valueType* str_replace( pointer string, pointer substr, pointer replacement )
         free( oldstr );
     }
     return newstr;
+}
+
+/*
+===================
+CL_AuthPacket
+===================
+*/
+void CL_AuthPacket( netadr_t from )
+{
+    sint challenge;
+    uint type;
+    valueType* msg;
+    
+    // if not from our server, ignore it
+    if( !networkSystem->CompareAdr( from, clc.serverAddress ) )
+    {
+        return;
+    }
+    
+    challenge = ::atoi( cmdSystem->Argv( 1 ) );
+    if( challenge != cls.authorizeAuthCookie )
+    {
+        return;
+    }
+    
+    // Packet handler
+    type = atoi( cmdSystem->Argv( 2 ) );
+    msg = cmdSystem->ArgsFrom( 3 );
+    
+    switch( type )
+    {
+        case 1:
+            msg = ( !msg ) ? "Awaiting authorization server response.." : msg;
+            break;
+        case 2:
+            if( msg )
+                Com_Error( ERR_DROP, "You cannot enter this server^n!\n\n^zReason:^7\n%s\n", msg );
+            else
+                Com_Error( ERR_DROP, "Authorization failed with 0x884 error.\n" );
+            return;
+            break;
+        case 3:
+            if( msg )
+                Com_Error( ERR_FATAL, "%s\n", msg );
+            else
+                Com_Error( ERR_FATAL, "Authorization failed with 0x888 error.\n" );
+            return;
+            break;
+        default:
+            msg = "Awaiting Authorization server response..";
+    }
+    
+    Q_strncpyz( clc.serverMessage, msg, sizeof( clc.serverMessage ) );
+    
+    Com_Printf( "%s", clc.serverMessage );
 }
 
 /*
@@ -2721,17 +2812,10 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
         return;
     }
     
-    // echo request from server
-    if( !Q_stricmp( c, "echo" ) )
+    // Auth check
+    if( !Q_stricmp( c, "authStatus" ) )
     {
-        networkChainSystem->OutOfBandPrint( NS_CLIENT, from, "%s", cmdSystem->Argv( 1 ) );
-        return;
-    }
-    
-    // cd check
-    if( !Q_stricmp( c, "keyAuthorize" ) )
-    {
-        // we don't use these now, so dump them on the floor
+        CL_AuthPacket( from );
         return;
     }
     
@@ -3355,6 +3439,8 @@ void CL_InitRenderer( void )
     
     g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
     g_consoleField.widthInChars = g_console_field_width;
+    
+    ::srand( Com_Milliseconds() );
 }
 
 /*
@@ -3887,7 +3973,6 @@ void CL_Init( void )
     cvarSystem->Get( "name", idsystem->GetCurrentUser(), CVAR_USERINFO | CVAR_ARCHIVE, "Sets the name of the player" );
     cvarSystem->Get( "rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE, "Cap on the connection bandwidth to use, 1000=~1KB/s. For 56k use about 4000, broadband 25000" );	// Dushan - changed from 5000
     cvarSystem->Get( "snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE, "snapshots for server to send you, leave at 20." );
-    cvarSystem->Get( "cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE, "This is included in the info you send on connect & server keeps in console logs, but nobody knows what its for, except perhaps “toggle anonymous connection to server erm ? Hiding OS username that isnt in the logs anyway ? There is a sv_allowAnonymous..." );
     cvarSystem->Get( "cg_version", PRODUCT_NAME, CVAR_ROM | CVAR_USERINFO, "Displays client game version." );
     cvarSystem->Get( "password", "", CVAR_USERINFO, "Used for setting password required for some servers" );
     cvarSystem->Get( "cg_predictItems", "1", CVAR_ARCHIVE, "Toggle use of prediction for picking up items." );
@@ -3981,7 +4066,8 @@ void CL_Init( void )
     cvarSystem->Set( "cl_running", "1" );
     
     CL_GenerateGUIDKey();
-    cvarSystem->Get( "cl_guid", "", CVAR_USERINFO | CVAR_ROM, "Enable GUID userinfo identifie" );
+    //Dushan
+    cl_guid = cvarSystem->Get( "cl_guid", "NO_GUID", CVAR_USERINFO | CVAR_ROM, "Enable GUID userinfo identification" );
     CL_UpdateGUID( nullptr, 0 );
     
     // DHM - Nerve

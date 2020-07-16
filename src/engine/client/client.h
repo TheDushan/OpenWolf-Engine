@@ -41,12 +41,6 @@
 #if !defined ( DEDICATED ) && !defined ( UPDATE_SERVER ) && !defined ( BSPC )
 #endif
 
-// Dushan - create CL_GUID
-// we cannot call it "qkey", "etkey" is already taken,
-// so we will change it to etxreal
-#define GUIDKEY_FILE "guidopenwolf"
-#define GUIDKEY_SIZE 28
-
 #define RETRANSMIT_TIMEOUT  3000	// time between connection packet retransmits
 
 #define LIMBOCHAT_WIDTH     140	// NERVE - SMF - NOTE TTimo buffer size indicator, not related to screen bbox
@@ -324,6 +318,7 @@ typedef struct
     valueType            updateChallenge[MAX_TOKEN_CHARS];
     valueType            updateInfoString[MAX_INFO_STRING];
     netadr_t        authorizeServer;
+    sint authorizeAuthCookie;
     // DHM - Nerve :: Auto-update Info
     valueType            autoupdateServerNames[MAX_AUTOUPDATE_SERVERS][MAX_QPATH];
     netadr_t        autoupdateServer;
@@ -434,7 +429,6 @@ extern convar_t*  cl_autorecord;
 extern convar_t*  cl_allowDownload;
 extern convar_t*  cl_conXOffset;
 extern convar_t*  cl_inGameVideo;
-extern convar_t*  cl_authserver;
 
 extern convar_t*  cl_missionStats;
 extern convar_t*  cl_waitForFire;

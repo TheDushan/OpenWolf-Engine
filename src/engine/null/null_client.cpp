@@ -122,12 +122,6 @@ void CL_ShutdownAll( void )
 {
 };
 
-// bk001208 - added new dummy (RC4)
-bool CL_CDKeyValidate( pointer key, pointer checksum )
-{
-    return true;
-}
-
 // TTimo added for win32 dedicated
 void Key_ClearStates( void )
 {
