@@ -887,7 +887,10 @@ void idFileSystemLocal::FCloseFile( fileHandle_t f )
     {
         unzCloseCurrentFile( fsh[f].handleFiles.file.z );
         
-        unzClose( fsh[f].handleFiles.file.z );
+        if( fsh[f].handleFiles.unique )
+        {
+            unzClose( fsh[f].handleFiles.file.z );
+        }
         
         ::memset( &fsh[f], 0, sizeof( fsh[f] ) );
         
@@ -1358,17 +1361,31 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                     {
                         pak->referenced |= FS_QAGAME_REF;
                     }
+                    
                     // cgame dll
                     if( !( pak->referenced & FS_CGAME_REF ) && !Q_stricmp( filename, idsystem->GetDLLName( "cgame" ) ) )
                     {
                         pak->referenced |= FS_CGAME_REF;
                     }
                     
-                    // open a new file on the pakfile
-                    fsh[*file].handleFiles.file.z = unzOpen( pak->pakFilename );
-                    if( fsh[*file].handleFiles.file.z == nullptr )
+                    // gui dll
+                    if( !( pak->referenced & FS_UI_REF ) && !Q_stricmp( filename, idsystem->GetDLLName( "gui" ) ) )
                     {
-                        Com_Error( ERR_FATAL, "Couldn't open %s", pak->pakFilename );
+                        pak->referenced |= FS_UI_REF;
+                    }
+                    
+                    if( uniqueFILE )
+                    {
+                        // open a new file on the pakfile
+                        fsh[*file].handleFiles.file.z = unzOpen( pak->pakFilename );
+                        if( fsh[*file].handleFiles.file.z == NULL )
+                        {
+                            Com_Error( ERR_FATAL, "Couldn't reopen %s", pak->pakFilename );
+                        }
+                    }
+                    else
+                    {
+                        fsh[*file].handleFiles.file.z = pak->handle;
                     }
                     
                     Q_strncpyz( fsh[*file].name, filename, sizeof( fsh[*file].name ) );
@@ -2489,6 +2506,7 @@ pack_t* idFileSystemLocal::LoadZipFile( pointer zipfile, pointer basename )
         pack->pakBasename[strlen( pack->pakBasename ) - 4] = 0;
     }
     
+    pack->handle = uf;
     pack->numfiles = gi.number_entry;
     unzGoToFirstFile( uf );
     
@@ -2536,8 +2554,6 @@ pack_t* idFileSystemLocal::LoadZipFile( pointer zipfile, pointer basename )
     Z_Free( fs_headerLongs );
     
     pack->buildBuffer = buildBuffer;
-    
-    unzClose( uf );
     
     return pack;
 }
@@ -3877,7 +3893,10 @@ void idFileSystemLocal::Shutdown( bool closemfp )
     
     for( i = 0; i < MAX_FILE_HANDLES; i++ )
     {
-        FCloseFile( i );
+        if( fsh[i].fileSize )
+        {
+            FCloseFile( i );
+        }
     }
     
     // free everything
@@ -3887,6 +3906,7 @@ void idFileSystemLocal::Shutdown( bool closemfp )
         
         if( p->pack )
         {
+            unzClose( p->pack->handle );
             Z_Free( p->pack->buildBuffer );
             Z_Free( p->pack );
         }
