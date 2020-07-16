@@ -747,14 +747,12 @@ if( BUILD_AUTH_SERVER )
 		set_property( TARGET OWAuthServer APPEND PROPERTY COMPILE_DEFINITIONS __LINUX__ _LINUX_ LINUX )
 	endif() 
 
-	find_package( MYSQL REQUIRED )
-	
-	TARGET_INCLUDE_DIRECTORIES( OWAuthServer PRIVATE ${TOOLS_DIR}/authserver ${MYSQL_INCLUDE_DIR})
+	TARGET_INCLUDE_DIRECTORIES( OWAuthServer PRIVATE ${TOOLS_DIR}/authserver )
 
 	if(WIN32)
-		target_link_libraries( OWAuthServer wsock32 ws2_32 ${MYSQL_LIBRARIES} )
+		target_link_libraries( OWAuthServer wsock32 ws2_32 )
 	elseif( UNIX )
-		target_link_libraries( OWAuthServer -ltdb -lm ${MYSQL_LIBRARIES} )
+		target_link_libraries( OWAuthServer -ltdb -lm )
 	endif() 
 
 	set_target_properties( OWAuthServer PROPERTIES OUTPUT_NAME "OWAuthServer.${BUILD_ARCH}" PREFIX "" )
