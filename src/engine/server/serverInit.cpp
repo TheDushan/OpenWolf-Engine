@@ -1087,7 +1087,7 @@ void idServerInitSystemLocal::Init( void )
     //bani - added convar_t for sv_cheats so server engine can reference it
     sv_cheats = cvarSystem->Get( "sv_cheats", "0", CVAR_SYSTEMINFO | CVAR_ROM, "Enable cheats (serverside only)" );
     sv_serverid = cvarSystem->Get( "sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM, "The identification number of the local server. " );
-    sv_pure = cvarSystem->Get( "sv_pure", "0", CVAR_SYSTEMINFO, "Toggles check that client's files are the same as the servers (basic anticheat)." );
+    sv_pure = cvarSystem->Get( "sv_pure", "1", CVAR_SYSTEMINFO, "Toggles check that client's files are the same as the servers (basic anticheat)." );
     
     cvarSystem->Get( "sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM, "Variable holds the checksum of all pk3 files" );
     cvarSystem->Get( "sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM, "Variable holds a list of all the pk3 files the server found" );
