@@ -267,15 +267,15 @@ You or the server may be running older versions of the game. Press the auto-upda
 
 // NERVE - SMF - wolf multiplayer master servers
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME      "127.0.0.1"
+#define MASTER_SERVER_NAME      "74.91.126.143"
 #endif
-#define MOTD_SERVER_NAME        "127.0.0.1"//"etmotd.idsoftware.com" // ?.?.?.?
+#define MOTD_SERVER_NAME        "74.91.126.143"//"etmotd.idsoftware.com" // ?.?.?.?
 
-#define AUTHORIZE_SERVER_NAME   "127.0.0.1"
+#define AUTHORIZE_SERVER_NAME   "74.91.126.143"
 
 // TTimo: override autoupdate server for testing
 #ifndef AUTOUPDATE_SERVER_NAME
-#define AUTOUPDATE_SERVER_NAME "127.0.0.1"
+#define AUTOUPDATE_SERVER_NAME "74.91.126.143"
 //#define AUTOUPDATE_SERVER_NAME "au2rtcw2.activision.com"
 #endif
 
