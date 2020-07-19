@@ -60,9 +60,9 @@ valueType* idSystemLocal::DefaultHomePath( valueType* buffer, sint size )
         {
             Q_strncpyz( buffer, p, size );
 #ifdef MACOS_X
-            Q_strcat( buffer, size, "/Library/Application Support/" PRODUCT_NAME );
+            Q_strcat( buffer, size, "/Library/Application Support/" PRODUCT_NAME_UPPPER );
 #else
-            Q_strcat( buffer, size, "/." PRODUCT_NAME );
+            Q_strcat( buffer, size, "/." PRODUCT_NAME_UPPPER );
 #endif
         }
     }

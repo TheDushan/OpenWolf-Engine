@@ -39,11 +39,11 @@
 #endif //!PRODUCT_STAGE
 
 #ifndef PRODUCT_NAME_UPPPER
-#define PRODUCT_NAME_UPPPER "@GAME_APP_NAME@" // Case, No spaces
+#define PRODUCT_NAME_UPPPER "@GAME_APP_NAME_UPPER@" // Case, No spaces
 #endif //!PRODUCT_NAME_UPPPER
 
 #ifndef PRODUCT_NAME_LOWER
-#define PRODUCT_NAME_LOWER "@GAME_APP_NAME@" // No case, No spaces
+#define PRODUCT_NAME_LOWER "@GAME_APP_NAME_LOWER@" // No case, No spaces
 #endif //!PRODUCT_NAME_LOWER
 
 #ifndef PRODUCT_VERSION
