@@ -16,6 +16,9 @@ set( GAME_APP_NAME "" CACHE            STRING "The Application name")
 set( GAME_APP_VERSION "" CACHE         STRING "The Application version")
 set( GAME_APP_STAGE "" CACHE           STRING "The Application stage")
 
+string( REPLACE " " "" GAME_APP_NAME_UPPER ${GAME_APP_NAME} )
+string( TOLOWER ${GAME_APP_NAME} GAME_APP_NAME_LOWER )
+
 if("${GAME_APP_NAME}" STREQUAL "")
 	message(FATAL_ERROR "Please set GAME_APP_NAME first")
 endif()
@@ -599,7 +602,7 @@ elseif( UNIX )
 	set_property( TARGET client APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX __STDC_CONSTANT_MACROS )
 endif()
   
-	set_target_properties( client PROPERTIES OUTPUT_NAME "${GAME_APP_NAME}.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
+	set_target_properties( client PROPERTIES OUTPUT_NAME "${GAME_APP_NAME_UPPER}.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
 if( MSVC )
 	set_target_properties( client PROPERTIES LINK_FLAGS  /SUBSYSTEM:CONSOLE )
@@ -624,7 +627,7 @@ if( BUILD_SERVER )
 
 	target_precompile_headers( server PRIVATE "${MOUNT_DIR}/null/null_serverprecompiled.h" )
 	
-	set_target_properties( server PROPERTIES OUTPUT_NAME "${GAME_APP_NAME}ded.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
+	set_target_properties( server PROPERTIES OUTPUT_NAME "${GAME_APP_NAME_UPPER}ded.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
 	# The following section finds the REQUIRED dependencies and makes them available to the target
 	find_package( SDL REQUIRED )

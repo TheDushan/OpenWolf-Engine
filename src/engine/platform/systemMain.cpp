@@ -694,6 +694,13 @@ Q_EXPORT sint engineMain( sint argc, valueType * *argv )
         }
         
         Q_strcat( commandLine, sizeof( commandLine ), argv[ i ] );
+        
+        if( containsSpaces )
+        {
+            Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+        }
+
+        Q_strcat( commandLine, sizeof( commandLine ), " " );
     }
     
     consoleCursesSystem->Init();
@@ -715,4 +722,3 @@ Q_EXPORT sint engineMain( sint argc, valueType * *argv )
     
     return 0;
 }
-
