@@ -3786,7 +3786,6 @@ bool idFileSystemLocal::ComparePaks( valueType* neededpaks, sint len, bool dlstr
 {
     searchpath_t* sp;
     bool havepak, badchecksum;
-    valueType* origpos = neededpaks;
     sint i;
     
     if( !fs_numServerReferencedPaks )
@@ -3808,13 +3807,6 @@ bool idFileSystemLocal::ComparePaks( valueType* neededpaks, sint len, bool dlstr
             continue;
         }
         
-        // Make sure the server cannot make us write to non-quake3 directories.
-        if( strstr( fs_serverReferencedPakNames[i], "../" ) || strstr( fs_serverReferencedPakNames[i], "..\\" ) )
-        {
-            Com_Printf( "WARNING: Invalid download name %s\n", fs_serverReferencedPakNames[i] );
-            continue;
-        }
-        
         for( sp = fs_searchpaths ; sp ; sp = sp->next )
         {
             if( sp->pack && sp->pack->checksum == fs_serverReferencedPaks[i] )
@@ -3830,8 +3822,6 @@ bool idFileSystemLocal::ComparePaks( valueType* neededpaks, sint len, bool dlstr
             
             if( dlstring )
             {
-                origpos += ::strlen( origpos );
-                
                 // Remote name
                 Q_strcat( neededpaks, len, "@" );
                 Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
@@ -3852,12 +3842,6 @@ bool idFileSystemLocal::ComparePaks( valueType* neededpaks, sint len, bool dlstr
                 {
                     Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
                     Q_strcat( neededpaks, len, ".pk3" );
-                }
-                
-                if( ::strlen( origpos ) + ( origpos - neededpaks ) >= len - 1 )
-                {
-                    *origpos = '\0';
-                    break;
                 }
             }
             else
@@ -4477,7 +4461,7 @@ checksums to see if any pk3 files need to be auto-downloaded.
 */
 void idFileSystemLocal::PureServerSetReferencedPaks( pointer pakSums, pointer pakNames )
 {
-    sint i, c, d = 0;
+    sint i, c, d;
     
     cmdSystem->TokenizeString( pakSums );
     
@@ -4487,7 +4471,14 @@ void idFileSystemLocal::PureServerSetReferencedPaks( pointer pakSums, pointer pa
         c = MAX_SEARCH_PATHS;
     }
     
-    for( i = 0 ; i < sizeof( fs_serverReferencedPakNames ) / sizeof( *fs_serverReferencedPakNames ); i++ )
+    fs_numServerReferencedPaks = c;
+    
+    for( i = 0 ; i < c ; i++ )
+    {
+        fs_serverReferencedPaks[i] = atoi( cmdSystem->Argv( i ) );
+    }
+    
+    for( i = 0 ; i < c ; i++ )
     {
         if( fs_serverReferencedPakNames[i] )
         {
@@ -4507,23 +4498,12 @@ void idFileSystemLocal::PureServerSetReferencedPaks( pointer pakSums, pointer pa
         {
             d = MAX_SEARCH_PATHS;
         }
-        else if( d > c )
-        {
-            d = c;
-        }
         
         for( i = 0 ; i < d ; i++ )
         {
             fs_serverReferencedPakNames[i] = CopyString( cmdSystem->Argv( i ) );
         }
     }
-    
-    if( d < c )
-    {
-        c = d;
-    }
-    
-    fs_numServerReferencedPaks = c;
 }
 
 /*

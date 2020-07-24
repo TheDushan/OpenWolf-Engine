@@ -571,12 +571,11 @@ sint NearestPowerOfTwo( sint val );
 sint Q_log2( sint val );
 float32 Q_acos( float32 c );
 sint Q_isnan( float32 x );
-sint     Q_rand( sint* seed );
 float32   Q_random( sint* seed );
 float32   Q_crandom( sint* seed );
 
-#define random()    ( ( rand() & 0x7fff ) / ( (float32)0x7fff ) )
-#define crandom()   ( 2.0 * ( random() - 0.5 ) )
+#define random()     ( ( rand() & 0x7FFF ) / ( ( float32 )0x8000 ) )
+#define crandom()   ( 2.0f * ( ( ( rand() & 0x7FFF ) / ( ( float32 )0x7FFF ) ) - 0.5f ) )
 
 void vectoangles( const vec3_t value1, vec3_t angles );
 

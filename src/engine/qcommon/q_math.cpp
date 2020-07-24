@@ -240,20 +240,14 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 //==============================================================
 
-sint Q_rand( sint* seed )
-{
-    *seed = ( 69069 * *seed + 1 );
-    return *seed;
-}
-
 float32 Q_random( sint* seed )
 {
-    return ( Q_rand( seed ) & 0xffff ) / ( float32 )0x10000;
+    return ( ( rand() & 0x7FFF ) / ( ( float32 )0x8000 ) );
 }
 
 float32 Q_crandom( sint* seed )
 {
-    return 2.0f * ( Q_random( seed ) - 0.5f );
+    return ( 2.0f * ( ( ( rand() & 0x7FFF ) / ( ( float32 )0x7FFF ) ) - 0.5f ) );
 }
 
 
