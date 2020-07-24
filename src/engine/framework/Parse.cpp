@@ -2696,12 +2696,15 @@ sint idParseSystemLocal::Evaluate( source_t* source, sint32* intvalue, float64* 
                 define = FindHashedDefine( source->definehash, token.string );
                 if( !define )
                 {
+                    FreeToken( firsttoken );
+                    
                     SourceError( source, "can't evaluate %s, not defined", token.string );
                     return false;
                 }
                 
                 if( !ExpandDefineIntoSource( source, &token, define ) )
                 {
+                    FreeToken( firsttoken );
                     return false;
                 }
             }
@@ -2726,6 +2729,7 @@ sint idParseSystemLocal::Evaluate( source_t* source, sint32* intvalue, float64* 
         //can't evaluate the token
         else
         {
+            FreeToken( firsttoken );
             SourceError( source, "can't evaluate %s", token.string );
             return false;
         }
@@ -2735,15 +2739,12 @@ sint idParseSystemLocal::Evaluate( source_t* source, sint32* intvalue, float64* 
     //
     if( !EvaluateTokens( source, firsttoken, intvalue, floatvalue, integer ) )
     {
+        FreeToken( firsttoken );
         return false;
     }
     
     //
-    for( t = firsttoken; t; t = nexttoken )
-    {
-        nexttoken = t->next;
-        FreeToken( t );
-    }
+    FreeToken( firsttoken );
     
     //
     return true;

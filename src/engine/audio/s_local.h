@@ -220,6 +220,7 @@ extern convar_t* s_testsound;
 
 bool S_LoadSound( sfx_t* sfx );
 
+void SND_shutdown( void );
 void SND_free( sndBuffer* v );
 sndBuffer* SND_malloc( void );
 void SND_setup( void );

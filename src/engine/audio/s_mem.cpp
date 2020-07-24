@@ -48,6 +48,12 @@ schar16* sfxScratchBuffer = nullptr;
 sfx_t* sfxScratchPointer = nullptr;
 sint	sfxScratchIndex = 0;
 
+void SND_shutdown( void )
+{
+    free( sfxScratchBuffer );
+    free( buffer );
+}
+
 void SND_free( sndBuffer* v )
 {
     *( sndBuffer** )v = freelist;

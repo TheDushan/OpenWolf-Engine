@@ -455,19 +455,36 @@ idNetworkSystemLocal::AdrToString
 */
 pointer	idNetworkSystemLocal::AdrToString( netadr_t a )
 {
-    static	valueType	s[NET_ADDRSTRMAXLEN];
+    static valueType s[NET_ADDRSTRMAXLEN];
     
-    if( a.type == NA_LOOPBACK )
-        Com_sprintf( s, sizeof( s ), "loopback" );
-    else if( a.type == NA_BOT )
-        Com_sprintf( s, sizeof( s ), "bot" );
-    else if( a.type == NA_IP || a.type == NA_IP6 )
+    switch( a.type )
     {
-        struct sockaddr_storage sadr;
-        
-        memset( &sadr, 0, sizeof( sadr ) );
-        NetadrToSockadr( &a, ( struct sockaddr* ) &sadr );
-        SockaddrToString( s, sizeof( s ), ( struct sockaddr* ) &sadr );
+        case NA_LOOPBACK:
+            Com_sprintf( s, sizeof( s ), "loopback" );
+            break;
+        case NA_BOT:
+            Com_sprintf( s, sizeof( s ), "bot" );
+            break;
+        case NA_IP:
+            Com_sprintf( s, sizeof( s ), "%i.%i.%i.%i", a.ip[0], a.ip[1], a.ip[2], a.ip[3] );
+            break;
+        case NA_IP6:
+        {
+            struct sockaddr_storage sadr;
+            
+            memset( &sadr, 0, sizeof( sadr ) );
+            NetadrToSockadr( &a, ( struct sockaddr* )&sadr );
+            SockaddrToString( s, sizeof( s ), ( struct sockaddr* )&sadr );
+            break;
+        }
+        break;
+        case NA_BAD:
+            Com_sprintf( s, sizeof( s ), "invalid" );
+            break;
+        default:
+            Com_Printf( "idNetworkSystemLocal::AdrToString: Unknown address type: %i\n", a.type );
+            Com_sprintf( s, sizeof( s ), "unknown" );
+            break;
     }
     
     return s;
@@ -480,16 +497,31 @@ idNetworkSystemLocal::AdrToStringwPort
 */
 pointer	idNetworkSystemLocal::AdrToStringwPort( netadr_t a )
 {
-    static	valueType	s[NET_ADDRSTRMAXLEN];
+    static valueType s[NET_ADDRSTRMAXLEN];
     
-    if( a.type == NA_LOOPBACK )
-        Com_sprintf( s, sizeof( s ), "loopback" );
-    else if( a.type == NA_BOT )
-        Com_sprintf( s, sizeof( s ), "bot" );
-    else if( a.type == NA_IP )
-        Com_sprintf( s, sizeof( s ), "%s:%d", AdrToString( a ), ( uint32 )ntohs( a.port ) );
-    else if( a.type == NA_IP6 )
-        Com_sprintf( s, sizeof( s ), "[%s]:%d", AdrToString( a ), ( uint32 )ntohs( a.port ) );
+    switch( a.type )
+    {
+        case NA_LOOPBACK:
+            Com_sprintf( s, sizeof( s ), "loopback" );
+            break;
+        case NA_BOT:
+            Com_sprintf( s, sizeof( s ), "bot" );
+            break;
+        case NA_IP:
+            Com_sprintf( s, sizeof( s ), "%i.%i.%i.%i:%hu", a.ip[0], a.ip[1], a.ip[2], a.ip[3], BigShort( a.port ) );
+            break;
+        case NA_IP6:
+            Com_sprintf( s, sizeof( s ), "[%s]:%hu", AdrToString( a ), ntohs( a.port ) );
+            break;
+        case NA_BAD:
+            Com_sprintf( s, sizeof( s ), "invalid" );
+            break;
+        default:
+            Com_Printf( "idNetworkSystemLocal::AdrToStringwPort: Unknown address type: %i\n", a.type );
+            Com_sprintf( s, sizeof( s ), "unknown" );
+            break;
+    }
+    
     return s;
 }
 
@@ -1716,7 +1748,7 @@ void idNetworkSystemLocal::Init( void )
     
     Config( true );
     
-    //cmdSystem->AddCommand( "net_restart", NETRestart_f, "If you change any net_ setting in-game or in a config you need to also to a net_restart to make the changes take effect, i have seen very few people with this in their configurations, but i have seen some people specify a lot of net_ settings and they have it in their config." );
+    cmdSystem->AddCommand( "net_restart", NETRestart_f, "If you change any net_ setting in-game or in a config you need to also to a net_restart to make the changes take effect, i have seen very few people with this in their configurations, but i have seen some people specify a lot of net_ settings and they have it in their config." );
 }
 
 

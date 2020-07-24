@@ -2279,10 +2279,19 @@ static	void R_LoadFogs( lump_t* l, lump_t* brushesLump, lump_t* sidesLump )
         }
         else
         {
-            out->hasSurface = true;
-            planeNum = LittleLong( sides[ firstSide + sideNum ].planeNum );
-            VectorSubtract( vec3_origin, s_worldData.planes[ planeNum ].normal, out->surface );
-            out->surface[3] = -s_worldData.planes[ planeNum ].dist;
+            sint sideOffset = firstSide + sideNum;
+            if( ( sint )sideOffset >= sidesCount )
+            {
+                CL_RefPrintf( PRINT_WARNING, "bad fog side offset %i\n", sideOffset );
+                out->hasSurface = false;
+            }
+            else
+            {
+                out->hasSurface = true;
+                planeNum = LittleLong( sides[sideOffset].planeNum );
+                VectorSubtract( vec3_origin, s_worldData.planes[planeNum].normal, out->surface );
+                out->surface[3] = -s_worldData.planes[planeNum].dist;
+            }
         }
         
         out++;
@@ -2997,13 +3006,12 @@ void idRenderSystemLocal::LoadWorld( pointer name )
     fileBase = ( uchar8* )header;
     
     i = LittleLong( header->version );
-#if 0
+    
     if( i != BSP_VERSION )
     {
         Com_Error( ERR_DROP, "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i)",
                    name, i, BSP_VERSION );
     }
-#endif
     
     // swap all the lumps
     for( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ )

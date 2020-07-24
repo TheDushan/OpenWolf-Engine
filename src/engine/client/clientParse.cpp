@@ -516,7 +516,7 @@ void idClientParseSystemLocal::ParseSnapshot( msg_t* msg )
     else
     {
         old = &cl.snapshots[newSnap.deltaNum & PACKET_MASK];
-
+        
         if( !old->valid )
         {
             // should never happen
@@ -533,7 +533,7 @@ void idClientParseSystemLocal::ParseSnapshot( msg_t* msg )
                 Com_Printf( "Found more recent frame to delta from.\n" );
             }
         }
-
+        
         if( !old->valid )
         {
             Com_Printf( "Failed to find more recent frame to delta from.\n" );

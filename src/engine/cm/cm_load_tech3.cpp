@@ -679,6 +679,25 @@ void CMod_LoadLeafSurfaces( lump_t* l )
 
 /*
 =================
+CMod_CheckLeafBrushes
+=================
+*/
+void CMod_CheckLeafBrushes( void )
+{
+    sint	i;
+    
+    for( i = 0; i < cm.numLeafBrushes; i++ )
+    {
+        if( cm.leafbrushes[i] < 0 || cm.leafbrushes[i] >= cm.numBrushes )
+        {
+            Com_DPrintf( S_COLOR_YELLOW "[%i] invalid leaf brush %08x\n", i, cm.leafbrushes[i] );
+            cm.leafbrushes[i] = 0;
+        }
+    }
+}
+
+/*
+=================
 CMod_LoadBrushSides
 =================
 */
@@ -1194,12 +1213,11 @@ void idCollisionModelManagerLocal::LoadMap( pointer name, bool clientload, sint*
         ( ( sint* )&header )[i] = LittleLong( ( ( sint* )&header )[i] );
     }
     
-#if 0
     if( header.version != BSP_VERSION )
     {
         Com_Error( ERR_DROP, "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i)", name, header.version, BSP_VERSION );
     }
-#endif
+
     cmod_base = ( uchar8* ) buf;
     
     // load into heap
@@ -1215,6 +1233,8 @@ void idCollisionModelManagerLocal::LoadMap( pointer name, bool clientload, sint*
     CMod_LoadEntityString( &header.lumps[LUMP_ENTITIES] );
     CMod_LoadVisibility( &header.lumps[LUMP_VISIBILITY] );
     CMod_LoadSurfaces( &header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS], &header.lumps[LUMP_DRAWINDEXES] );
+    
+    CMod_CheckLeafBrushes();
     
     CMod_CreateBrushSideWindings();
     
