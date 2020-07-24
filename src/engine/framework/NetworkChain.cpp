@@ -205,7 +205,8 @@ void idNetworkChainSystemLocal::Transmit( netchan_t* chan, sint length, const uc
     
     if( length > MAX_MSGLEN )
     {
-        Com_Error( ERR_DROP, "Netchan_Transmit: length = %i", length );
+        Com_Printf( "^idNetworkChainSystemLocal::Transmit: truncated a message of length %i\n", length );
+        length = MAX_MSGLEN;
     }
     chan->unsentFragmentStart = 0;
     
@@ -460,11 +461,15 @@ bool idNetworkChainSystemLocal::GetLoopPacket( netsrc_t sock, netadr_t* net_from
     loop = &loopbacks[sock];
     
     if( loop->send - loop->get > MAX_LOOPBACK )
+    {
         loop->get = loop->send - MAX_LOOPBACK;
-        
+    }
+    
     if( loop->get >= loop->send )
+    {
         return false;
-        
+    }
+    
     i = loop->get & ( MAX_LOOPBACK - 1 );
     loop->get++;
     
