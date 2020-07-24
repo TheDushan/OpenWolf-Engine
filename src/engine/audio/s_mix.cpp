@@ -37,41 +37,33 @@ sint*     snd_p;
 sint      snd_linear_count;
 schar16*   snd_out;
 
-void S_WriteLinearBlastStereo16( void )
+static void S_WriteLinearBlastStereo16( void )
 {
-    sint	i, val;
+    sint v1, v2;
     
-    for( i = 0 ; i < snd_linear_count ; i += 2 )
+    for( sint i = 0; i < snd_linear_count; i += 2 )
     {
-        val = snd_p[i] >> 8;
-        
-        if( val > 0x7fff )
+        v1 = snd_p[i] >> 8;
+        if( v1 > 32767 )
         {
-            snd_out[i] = 0x7fff;
+            v1 = 32767;
         }
-        else if( val < -32768 )
+        else if( v1 < -32768 )
         {
-            snd_out[i] = -32768;
-        }
-        else
-        {
-            snd_out[i] = val;
+            v1 = -32768;
         }
         
-        val = snd_p[i + 1] >> 8;
+        v2 = snd_p[i + 1] >> 8;
+        if( v2 > 32767 )
+        {
+            v2 = 32767;
+        }
+        else if( v2 < -32768 )
+        {
+            v2 = -32768;
+        }
         
-        if( val > 0x7fff )
-        {
-            snd_out[i + 1] = 0x7fff;
-        }
-        else if( val < -32768 )
-        {
-            snd_out[i + 1] = -32768;
-        }
-        else
-        {
-            snd_out[i + 1] = val;
-        }
+        *( uint* )( &snd_out[i] ) = ( v2 << 16 ) | ( v1 & 0xFFFF );
     }
 }
 

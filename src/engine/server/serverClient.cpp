@@ -867,8 +867,8 @@ void idServerClientSystemLocal::SendClientGameState( client_t* client )
     {
         client->state = CS_PRIMED;
     }
-    client->pureAuthentic = 0;
-    client->gotCP = false;
+    client->pureAuthentic = false;
+    client->pureReceived = false;
     
     // when we receive the first packet from the client, we will
     // notice that it is from a different serverid and that the
@@ -1002,8 +1002,9 @@ void idServerClientSystemLocal::CloseDownload( client_t* cl )
     if( cl->download )
     {
         fileSystem->FCloseFile( cl->download );
+        cl->download = 0;
     }
-    cl->download = 0;
+    
     *cl->downloadName = 0;
     
     // Free the temporary buffer space
@@ -1792,15 +1793,15 @@ void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
             break;
         }
         
-        cl->gotCP = true;
+        cl->pureReceived = true;
         
         if( bGood )
         {
-            cl->pureAuthentic = 1;
+            cl->pureAuthentic = true;
         }
         else
         {
-            cl->pureAuthentic = 0;
+            cl->pureAuthentic = false;
             cl->nextSnapshotTime = -1;
             cl->state = CS_ACTIVE;
             
@@ -1818,8 +1819,8 @@ idServerClientSystemLocal::ResetPureClient_f
 */
 void idServerClientSystemLocal::ResetPureClient_f( client_t* cl )
 {
-    cl->pureAuthentic = 0;
-    cl->gotCP = false;
+    cl->pureAuthentic = false;
+    cl->pureReceived = false;
 }
 
 /*
@@ -2487,7 +2488,7 @@ void idServerClientSystemLocal::UserMove( client_t* cl, msg_t* msg, bool delta )
     // catch the no-cp-yet situation before SV_ClientEnterWorld
     // if CS_ACTIVE, then it's time to trigger a new gamestate emission
     // if not, then we are getting remaining parasite usermove commands, which we should ignore
-    if( sv_pure->integer != 0 && cl->pureAuthentic == 0 && !cl->gotCP )
+    if( sv_pure->integer != 0 && cl->pureAuthentic == false && !cl->pureReceived )
     {
         if( cl->state == CS_ACTIVE )
         {
@@ -2507,7 +2508,7 @@ void idServerClientSystemLocal::UserMove( client_t* cl, msg_t* msg, bool delta )
     }
     
     // a bad cp command was sent, drop the client
-    if( sv_pure->integer != 0 && cl->pureAuthentic == 0 )
+    if( sv_pure->integer != 0 && cl->pureAuthentic == false )
     {
         serverClientLocal.DropClient( cl, "Cannot validate pure client!" );
         return;
