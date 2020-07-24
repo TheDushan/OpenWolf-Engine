@@ -512,6 +512,12 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
         }
     }
     
+    if( !uivm )
+    {
+        Com_DPrintf( "idClientScreenSystemLocal::DrawScreenField - draw screen without GUI loaded\n" );
+        return;
+    }
+    
     // if the menu is going to cover the entire screen, we
     // don't need to render anything under it
     if( uivm && !uiFullscreen )
