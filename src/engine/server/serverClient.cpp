@@ -472,6 +472,9 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
             ping = svs.challenges[i].firstPing;
         }
         
+        Com_Printf( "Client %i connecting with %i challenge ping\n", i, ping );
+        svs.challenges[i].connected = true;
+        
         // never reject a LAN client based on ping
         if( !networkSystem->IsLANAddress( from ) )
         {
@@ -965,7 +968,14 @@ void idServerClientSystemLocal::ClientEnterWorld( client_t* client, usercmd_t* c
     
     client->deltaMessage = -1;
     client->nextSnapshotTime = svs.time; // generate a snapshot immediately
-    client->lastUsercmd = *cmd;
+    if( cmd )
+    {
+        memcpy( &client->lastUsercmd, cmd, sizeof( client->lastUsercmd ) );
+    }
+    else
+    {
+        memset( &client->lastUsercmd, '\0', sizeof( client->lastUsercmd ) );
+    }
     
     // call the game begin function
     sgame->ClientBegin( client - svs.clients );
@@ -2599,7 +2609,7 @@ void idServerClientSystemLocal::ExecuteClientMessage( client_t* cl, msg_t* msg )
         }
         // if we can tell that the client has dropped the last
         // gamestate we sent them, resend it
-        if( cl->messageAcknowledge > cl->gamestateMessageNum )
+        if( cl->state != CS_ACTIVE && cl->messageAcknowledge > cl->gamestateMessageNum )
         {
             Com_DPrintf( "%s : dropped gamestate, resending\n", cl->name );
             SendClientGameState( cl );

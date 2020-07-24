@@ -594,7 +594,7 @@ void IN_ButtonUp( void )
 
 
 /*void IN_CenterView (void) {
-	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
+	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snapServer.ps.delta_angles[PITCH]);
 }*/
 
 
@@ -719,7 +719,7 @@ void CL_KeyMove( usercmd_t* cmd )
     forward -= movespeed * CL_KeyState( &kb[KB_BACK] );
     
     // fretn - moved this to bg_pmove.c
-    //if (!(cl.snap.ps.persistant[PERS_HWEAPON_USE]))
+    //if (!(cl.snapServer.ps.persistant[PERS_HWEAPON_USE]))
     //{
     cmd->forwardmove = ClampChar( forward );
     cmd->rightmove = ClampChar( side );
@@ -984,11 +984,11 @@ void CL_MouseMove( usercmd_t* cmd )
             my = cl_sensitivity->value * ( my + ( ( my < 0 ) ? -power[1] : power[1] ) * cl_mouseAccelOffset->value );
             
             /*	NERVE - SMF - this has moved to CG_CalcFov to fix zoomed-in/out transition movement bug
-            	if ( cl.snap.ps.stats[STAT_ZOOMED_VIEW] ) {
-            		if(cl.snap.ps.weapon == WP_SNIPERRIFLE) {
+            	if ( cl.snapServer.ps.stats[STAT_ZOOMED_VIEW] ) {
+            		if(cl.snapServer.ps.weapon == WP_SNIPERRIFLE) {
             			accelSensitivity *= 0.1;
             		}
-            		else if(cl.snap.ps.weapon == WP_SNOOPERSCOPE) {
+            		else if(cl.snapServer.ps.weapon == WP_SNOOPERSCOPE) {
             			accelSensitivity *= 0.2;
             		}
             	}
@@ -1001,7 +1001,7 @@ void CL_MouseMove( usercmd_t* cmd )
 // Ridah, experimenting with a slow tracking gun
 #if 0
     // Rafael - mg42
-    if( cl.snap.ps.persistant[PERS_HWEAPON_USE] )
+    if( cl.snapServer.ps.persistant[PERS_HWEAPON_USE] )
     {
         mx *= 2.5;				//(accelSensitivity * 0.1);
         my *= 2;				//(accelSensitivity * 0.075);
@@ -1390,7 +1390,7 @@ void CL_WritePacket( void )
         }
         
         // begin a client move command
-        if( cl_nodelta->integer || !cl.snap.valid || clc.demowaiting || clc.serverMessageSequence != cl.snap.messageNum )
+        if( cl_nodelta->integer || !cl.snapServer.valid || clc.demowaiting || clc.serverMessageSequence != cl.snapServer.messageNum )
         {
             MSG_WriteByte( &buf, clc_moveNoDelta );
         }

@@ -448,7 +448,7 @@ void idServerInitSystemLocal::Startup( void )
     BoundMaxClients( 1 );
     
     // RF, avoid trying to allocate large chunk on a fragmented zone
-    svs.clients = static_cast<client_t*>( calloc( sizeof( client_t ) * sv_maxclients->integer, 1 ) );
+    svs.clients = ( client_t* )( calloc( sizeof( client_t ) * sv_maxclients->integer, 1 ) );
     if( !svs.clients )
     {
         Com_Error( ERR_FATAL, "idServerInitSystemLocal::Startup: unable to allocate svs.clients" );
@@ -513,7 +513,7 @@ void idServerInitSystemLocal::ChangeMaxClients( void )
         return;
     }
     
-    oldClients = static_cast<client_t*>( Hunk_AllocateTempMemory( count * sizeof( client_t ) ) );
+    oldClients = ( client_t* )( Hunk_AllocateTempMemory( count * sizeof( client_t ) ) );
     
     // copy the clients to hunk memory
     for( i = 0; i < count; i++ )
@@ -534,7 +534,7 @@ void idServerInitSystemLocal::ChangeMaxClients( void )
     
     // allocate new clients
     // RF, avoid trying to allocate large chunk on a fragmented zone
-    svs.clients = static_cast<client_t*>( calloc( sizeof( client_t ) * sv_maxclients->integer, 1 ) );
+    svs.clients = ( client_t* )( calloc( sizeof( client_t ) * sv_maxclients->integer, 1 ) );
     if( !svs.clients )
     {
         Com_Error( ERR_FATAL, "idServerInitSystemLocal::Startup: unable to allocate svs.clients" );
@@ -584,7 +584,7 @@ void idServerInitSystemLocal::SetExpectedHunkUsage( valueType* mapname )
         buf = ( valueType* )Z_Malloc( len + 1 );
         ::memset( buf, 0, len + 1 );
         
-        fileSystem->Read( static_cast<void*>( buf ), len, handle );
+        fileSystem->Read( ( void* )( buf ), len, handle );
         fileSystem->FCloseFile( handle );
         
         // now parse the file, filtering out the current map
@@ -855,7 +855,7 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
             }
             
             // connect the client again
-            denied = static_cast<valueType*>( sgame->ClientConnect( i, false ) ); // firstTime = false
+            denied = ( valueType* )( sgame->ClientConnect( i, false ) ); // firstTime = false
             if( denied )
             {
                 // this generally shouldn't happen, because the client
@@ -1097,7 +1097,7 @@ void idServerInitSystemLocal::Init( void )
     // server vars
     sv_rconPassword = cvarSystem->Get( "rconPassword", "", CVAR_TEMP, "RCon password, for server admins to use Remote Console commands." );
     sv_privatePassword = cvarSystem->Get( "sv_privatePassword", "", CVAR_TEMP, "Set password for private clients to login with" );
-    sv_fps = cvarSystem->Get( "sv_fps", "60", CVAR_TEMP, "Set the max frames per second the server sends the client" );
+    sv_fps = cvarSystem->Get( "sv_fps", "20", CVAR_TEMP, "Set the max frames per second the server sends the client" );
     sv_timeout = cvarSystem->Get( "sv_timeout", "240", CVAR_TEMP, "Sets the amount of time for the server to wait for a client packet before assuming a disconnected state." );
     sv_zombietime = cvarSystem->Get( "sv_zombietime", "2", CVAR_TEMP, "The amount of time in minutes before a frozen character is removed from the map." );
     cvarSystem->Get( "nextmap", "", CVAR_TEMP, "Start the next map in the rotation" );

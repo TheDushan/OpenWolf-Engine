@@ -502,7 +502,7 @@ convar_t* idCVarSystemLocal::Get( pointer var_name, pointer var_value, sint flag
     
     if( var )
     {
-        var_value = Validate( var, var_value, false );
+        //var_value = Validate( var, var_value, false );
         
         // if the C code is now specifying a variable that the user already
         // set a value for, take the new value as the reset value
@@ -626,7 +626,7 @@ convar_t* idCVarSystemLocal::GetSet2( pointer var_name, pointer value, bool forc
     
     if( strcmp( "com_hunkused", var_name ) != 0 )
     {
-        Com_DPrintf( "idCVarSystemLocal::Set2: %s %s\n", var_name, value );
+        //Com_DPrintf( "idCVarSystemLocal::Set2: %s %s\n", var_name, value );
     }
     
     if( !ValidateString( var_name ) )
@@ -659,7 +659,7 @@ convar_t* idCVarSystemLocal::GetSet2( pointer var_name, pointer value, bool forc
         value = var->resetString;
     }
     
-    value = Validate( var, value, true );
+    //value = Validate( var, value, true );
     
     if( var->flags & CVAR_USERINFO )
     {

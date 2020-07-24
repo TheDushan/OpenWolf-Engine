@@ -457,9 +457,9 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
         delay = atoi( cmdSystem->Argv( 1 ) );
     }
     
-    if( delay )
+    if( delay && !cvarSystem->VariableValue( "g_doWarmup" ) )
     {
-        sv.restartTime = svs.time + delay * 1000;
+        sv.restartTime = sv.time + delay * 1000;
         serverInitSystem->SetConfigstring( CS_WARMUP, va( "%i", sv.restartTime ) );
         return;
     }
@@ -625,7 +625,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
         serverMainSystem->AddServerCommand( client, "map_restart\n" );
         
         // connect the client again, without the firstTime flag
-        denied = static_cast< valueType* >( sgame->ClientConnect( i, false ) );
+        denied = ( valueType* )sgame->ClientConnect( i, false );
         if( denied )
         {
             // this generally shouldn't happen, because the client
@@ -656,7 +656,6 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
     // run another frame to allow things to look at all the players
     sgame->RunFrame( sv.time );
     sv.time += 100;
-    //SV_BotFrame( svs.time );
     svs.time += FRAMETIME;
     
     cvarSystem->Set( "sv_serverRestarting", "0" );

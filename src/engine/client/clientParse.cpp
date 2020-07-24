@@ -96,15 +96,15 @@ bool idClientParseSystemLocal::isEntVisible( entityState_t* ent )
     float32           view_height;
     
     VectorCopy( cl.cgameClientLerpOrigin, start );
-    start[2] += ( cl.snap.ps.viewheight - 1 );
-    if( cl.snap.ps.leanf != 0 )
+    start[2] += ( cl.snapServer.ps.viewheight - 1 );
+    if( cl.snapServer.ps.leanf != 0 )
     {
         vec3_t          lright, v3ViewAngles;
         
-        VectorCopy( cl.snap.ps.viewangles, v3ViewAngles );
-        v3ViewAngles[2] += cl.snap.ps.leanf / 2.0f;
+        VectorCopy( cl.snapServer.ps.viewangles, v3ViewAngles );
+        v3ViewAngles[2] += cl.snapServer.ps.leanf / 2.0f;
         AngleVectors( v3ViewAngles, nullptr, lright, nullptr );
-        VectorMA( start, cl.snap.ps.leanf, lright, start );
+        VectorMA( start, cl.snapServer.ps.leanf, lright, start );
     }
     
     VectorCopy( ent->pos.trBase, end );
@@ -441,7 +441,7 @@ void idClientParseSystemLocal::ParseSnapshot( msg_t* msg )
     
     // if we were just unpaused, we can only *now* really let the
     // change come into effect or the client hangs.
-    cl_paused->modified = 0;
+    cl_paused->modified = ( bool )0;
     
     newSnap.messageNum = clc.serverMessageSequence;
     
@@ -574,7 +574,7 @@ void idClientParseSystemLocal::ParseSnapshot( msg_t* msg )
     // received and this one, so if there was a dropped packet
     // it won't look like something valid to delta from next
     // time we wrap around in the buffer
-    oldMessageNum = cl.snap.messageNum + 1;
+    oldMessageNum = cl.snapServer.messageNum + 1;
     
     if( newSnap.messageNum - oldMessageNum >= PACKET_BACKUP )
     {
@@ -586,24 +586,24 @@ void idClientParseSystemLocal::ParseSnapshot( msg_t* msg )
     }
     
     // copy to the current good spot
-    cl.snap = newSnap;
-    cl.snap.ping = 999;
+    cl.snapServer = newSnap;
+    cl.snapServer.ping = 999;
     // calculate ping time
     for( i = 0; i < PACKET_BACKUP; i++ )
     {
         packetNum = ( clc.netchan.outgoingSequence - 1 - i ) & PACKET_MASK;
-        if( cl.snap.ps.commandTime >= cl.outPackets[packetNum].p_serverTime )
+        if( cl.snapServer.ps.commandTime >= cl.outPackets[packetNum].p_serverTime )
         {
-            cl.snap.ping = cls.realtime - cl.outPackets[packetNum].p_realtime;
+            cl.snapServer.ping = cls.realtime - cl.outPackets[packetNum].p_realtime;
             break;
         }
     }
     // save the frame off in the backup array for later delta comparisons
-    cl.snapshots[cl.snap.messageNum & PACKET_MASK] = cl.snap;
+    cl.snapshots[cl.snapServer.messageNum & PACKET_MASK] = cl.snapServer;
     
     if( cl_shownet->integer == 3 )
     {
-        Com_Printf( "   snapshot:%i  delta:%i  ping:%i\n", cl.snap.messageNum, cl.snap.deltaNum, cl.snap.ping );
+        Com_Printf( "   snapshot:%i  delta:%i  ping:%i\n", cl.snapServer.messageNum, cl.snapServer.deltaNum, cl.snapServer.ping );
     }
     
     cl.newSnapshots = true;

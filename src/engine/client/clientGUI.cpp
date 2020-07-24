@@ -77,7 +77,7 @@ void idClientGUISystemLocal::GetClientState( uiClientState_t* state )
     Q_strncpyz( state->servername, cls.servername, sizeof( state->servername ) );
     Q_strncpyz( state->updateInfoString, cls.updateInfoString, sizeof( state->updateInfoString ) );
     Q_strncpyz( state->messageString, clc.serverMessage, sizeof( state->messageString ) );
-    state->clientNum = cl.snap.ps.clientNum;
+    state->clientNum = cl.snapServer.ps.clientNum;
 }
 
 /*

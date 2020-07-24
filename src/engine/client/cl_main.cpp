@@ -1206,6 +1206,10 @@ void CL_Disconnect( bool showMainMenu )
         CL_WritePacket();
     }
 #endif
+    
+    // Remove pure paks
+    fileSystem->PureServerSetLoadedPaks( "", "" );
+    
     CL_ClearState();
     
     // wipe the client connection
@@ -1215,6 +1219,8 @@ void CL_Disconnect( bool showMainMenu )
     {
         CL_ClearStaticDownload();
     }
+    
+    cls.state = CA_DISCONNECTED;
     
     // allow cheats locally
     //cvarSystem->Set( "sv_cheats", "1" );
@@ -2114,19 +2120,6 @@ void CL_DownloadsComplete( void )
 #endif
     valueType*    fn;
     
-    if( cls.state < CA_CONNECTING )
-    {
-        //	a download has completed outside of a game
-        return;
-    }
-    
-    if( cls.state == CA_ACTIVE )
-    {
-        //	a download has completed while the game is playing
-        //	inform the client that its download is complete
-        cmdBufferSystem->ExecuteText( EXEC_INSERT, "donedl" );
-        return;
-    }
     
     // DHM - Nerve :: Auto-update (not finished yet)
     if( autoupdateStarted )
@@ -2406,11 +2399,14 @@ void CL_CheckForResend( void )
         case CA_CONNECTING:
             if( clc.connectPacketCount == 1 )
             {
-                cls.authorizeAuthCookie = ( ( rand() << 16 ) ^ rand() ) ^ Com_Milliseconds();
-                
+                cls.authorizeAuthCookie = rand();
             }
             
-            CL_RequestAuthorization();
+            // requesting a challenge .. IPv6 users always get in as authorize server supports no ipv6.
+            if( clc.serverAddress.type == NA_IP )
+            {
+                CL_RequestAuthorization();
+            }
             
             Com_sprintf( data, sizeof( data ), "getchallenge %d %s %s %i", clc.challenge, GAMENAME_FOR_MASTER, cl_guid->string, cls.authorizeAuthCookie );
             networkChainSystem->OutOfBandPrint( NS_CLIENT, clc.serverAddress, "%s", data );
@@ -2421,18 +2417,18 @@ void CL_CheckForResend( void )
             port = cvarSystem->VariableValue( "net_qport" );
             
             Q_strncpyz( info, cvarSystem->InfoString( CVAR_USERINFO ), sizeof( info ) );
-            Info_SetValueForKey( info, "protocol", va( "%i", com_protocol->integer ) );
+            Info_SetValueForKey( info, "protocol", va( "%i", ETPROTOCOL_VERSION ) );
             Info_SetValueForKey( info, "qport", va( "%i", port ) );
             Info_SetValueForKey( info, "challenge", va( "%i", clc.challenge ) );
             
             ::strcpy( data, "connect " );
-            data[8] = '\"';
+            data[8] = '"';
             
-            for( i = 0; i < ::strlen( info ); i++ )
+            for( i = 0; i < strlen( info ); i++ )
             {
                 data[9 + i] = info[i];	// + (clc.challenge)&0x3;
             }
-            data[9 + i] = '\"';
+            data[9 + i] = '"';
             data[10 + i] = 0;
             
             networkChainSystem->OutOfBandData( NS_CLIENT, clc.serverAddress, ( uchar8* )&data[0], i + 10 );
@@ -3131,7 +3127,7 @@ void CL_Frame( sint msec )
         return;
     }
     
-    if( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI ) && !com_sv_running->integer && clc.demoplaying )
+    if( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI ) && !com_sv_running->integer && clc.demoplaying && uivm )
     {
         // if disconnected, bring up the menu
         soundSystem->StopAllSounds();

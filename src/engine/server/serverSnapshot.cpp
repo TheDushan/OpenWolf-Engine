@@ -873,13 +873,12 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
     
     // set nextSnapshotTime based on rate and requested number of updates
     
-    // local clients get snapshots every frame
+    // local clients get snapshots every server frame
     // TTimo - show_bug.cgi?id=491
     // added sv_lanForceRate check
     if( client->netchan.remoteAddress.type == NA_LOOPBACK || ( sv_lanForceRate->integer && networkSystem->IsLANAddress( client->netchan.remoteAddress ) ) )
     {
-        client->nextSnapshotTime = svs.time - 1;
-        //client->nextSnapshotTime = svs.time + ( 1000.0 / sv_fps->integer * com_timescale->value );
+        client->nextSnapshotTime = svs.time + ( ( int )( 1000.0 / sv_fps->integer * com_timescale->value ) );
         return;
     }
     
@@ -901,8 +900,7 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
         client->rateDelayed = true;
     }
     
-    //client->nextSnapshotTime = svs.time + rateMsec;
-    client->nextSnapshotTime = svs.time + rateMsec * com_timescale->value;
+    client->nextSnapshotTime = svs.time + ( ( sint )( rateMsec * com_timescale->value ) );
     
     // don't pile up empty snapshots while connecting
     if( client->state != CS_ACTIVE )
@@ -910,9 +908,9 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
         // a gigantic connection message may have already put the nextSnapshotTime
         // more than a second away, so don't shorten it
         // do shorten if client is downloading
-        if( client->nextSnapshotTime < svs.time + 1000 )
+        if( !*client->downloadName && client->nextSnapshotTime < svs.time + ( ( int )( 1000.0 * com_timescale->value ) ) )
         {
-            client->nextSnapshotTime = svs.time + 1000 * com_timescale->value;
+            client->nextSnapshotTime = svs.time + ( ( sint )( 1000 * com_timescale->value ) );
         }
     }
 }
@@ -1070,6 +1068,12 @@ void idServerSnapshotSystemLocal::SendClientMessages( void )
             continue;
         }
         
+        if( svs.time - c->nextSnapshotTime < c->snapshotMsec * com_timescale->value )
+        {
+            // It's not time yet
+            continue;
+        }
+        
         // rain - changed <= CS_ZOMBIE to < CS_ZOMBIE so that the
         // disconnect reason is properly sent in the network stream
         if( c->state < CS_ZOMBIE )
@@ -1082,12 +1086,6 @@ void idServerSnapshotSystemLocal::SendClientMessages( void )
         // --> "netchan queue is not properly initialized in SV_Netchan_TransmitNextFragment\n"
         if( c->gentity && c->gentity->r.svFlags & SVF_BOT )
         {
-            continue;
-        }
-        
-        if( svs.time < c->nextSnapshotTime )
-        {
-            // not time yet
             continue;
         }
         

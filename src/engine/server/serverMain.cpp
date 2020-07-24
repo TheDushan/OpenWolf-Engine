@@ -1753,6 +1753,7 @@ void idServerMainSystemLocal::Frame( sint msec )
         // let everything in the world think and move
 #if !defined (UPDATE_SERVER)
         sgame->RunFrame( sv.time );
+        
         if( sv.demoState == DS_RECORDING )
         {
             serverDemoSystem->DemoWriteFrame();

@@ -142,8 +142,8 @@ idClientGameSystemLocal::GetCurrentSnapshotNumber
 */
 void idClientGameSystemLocal::GetCurrentSnapshotNumber( sint* snapshotNumber, sint* serverTime )
 {
-    *snapshotNumber = cl.snap.messageNum;
-    *serverTime = cl.snap.serverTime;
+    *snapshotNumber = cl.snapServer.messageNum;
+    *serverTime = cl.snapServer.serverTime;
 }
 
 /*
@@ -156,13 +156,13 @@ bool idClientGameSystemLocal::GetSnapshot( sint snapshotNumber, snapshot_t* snap
     sint i, count;
     clSnapshot_t* clSnap;
     
-    if( snapshotNumber > cl.snap.messageNum )
+    if( snapshotNumber > cl.snapServer.messageNum )
     {
         Com_Error( ERR_DROP, "idClientGameSystemLocal::GetSnapshot: snapshotNumber > cl.snapshot.messageNum" );
     }
     
     // if the frame has fallen out of the circular buffer, we can't return it
-    if( cl.snap.messageNum - snapshotNumber >= PACKET_BACKUP )
+    if( cl.snapServer.messageNum - snapshotNumber >= PACKET_BACKUP )
     {
         return false;
     }
@@ -1038,14 +1038,14 @@ void idClientGameSystemLocal::AdjustTimeDelta( void )
         resetTime = RESET_TIME;
     }
     
-    newDelta = cl.snap.serverTime - cls.realtime;
+    newDelta = cl.snapServer.serverTime - cls.realtime;
     deltaDelta = abs( newDelta - cl.serverTimeDelta );
     
     if( deltaDelta > RESET_TIME )
     {
         cl.serverTimeDelta = newDelta;
-        cl.oldServerTime = cl.snap.serverTime;	// FIXME: is this a problem for cgame?
-        cl.serverTime = cl.snap.serverTime;
+        cl.oldServerTime = cl.snapServer.serverTime;	// FIXME: is this a problem for cgame?
+        cl.serverTime = cl.snapServer.serverTime;
         
         if( cl_showTimeDelta->integer )
         {
@@ -1096,7 +1096,7 @@ idClientGameSystemLocal::FirstSnapshot
 void idClientGameSystemLocal::FirstSnapshot( void )
 {
     // ignore snapshots that don't have entities
-    if( cl.snap.snapFlags & SNAPFLAG_NOT_ACTIVE )
+    if( cl.snapServer.snapFlags & SNAPFLAG_NOT_ACTIVE )
     {
         return;
     }
@@ -1104,10 +1104,10 @@ void idClientGameSystemLocal::FirstSnapshot( void )
     cls.state = CA_ACTIVE;
     
     // set the timedelta so we are exactly on this first frame
-    cl.serverTimeDelta = cl.snap.serverTime - cls.realtime;
-    cl.oldServerTime = cl.snap.serverTime;
+    cl.serverTimeDelta = cl.snapServer.serverTime - cls.realtime;
+    cl.oldServerTime = cl.snapServer.serverTime;
     
-    clc.timeDemoBaseTime = cl.snap.serverTime;
+    clc.timeDemoBaseTime = cl.snapServer.serverTime;
     
     // if this is the first frame of active play,
     // execute the contents of activeAction now
@@ -1162,9 +1162,9 @@ void idClientGameSystemLocal::SetCGameTime( void )
     }
     
     // if we have gotten to this point, cl.snap is guaranteed to be valid
-    if( !cl.snap.valid )
+    if( !cl.snapServer.valid )
     {
-        Com_Error( ERR_DROP, "idClientGameSystemLocal::SetCGameTime: !cl.snap.valid" );
+        Com_Error( ERR_DROP, "idClientGameSystemLocal::SetCGameTime: !cl.snapServer.valid" );
     }
     
     // allow pause in single player
@@ -1174,7 +1174,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
         return;
     }
     
-    if( cl.snap.serverTime < cl.oldFrameServerTime )
+    if( cl.snapServer.serverTime < cl.oldFrameServerTime )
     {
         // Ridah, if this is a localhost, then we are probably loading a savegame
         if( !Q_stricmp( cls.servername, "localhost" ) )
@@ -1184,17 +1184,17 @@ void idClientGameSystemLocal::SetCGameTime( void )
         }
         else
         {
-            Com_Error( ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime" );
+            Com_Error( ERR_DROP, "cl.snapServer.serverTime < cl.oldFrameServerTime" );
         }
     }
     
-    cl.oldFrameServerTime = cl.snap.serverTime;
+    cl.oldFrameServerTime = cl.snapServer.serverTime;
     
     // get our current view of time
     if( clc.demoplaying && cl_freezeDemo->integer )
     {
         // cl_freezeDemo is used to lock a demo in place for single frame advances
-        
+        cl.serverTimeDelta -= cls.frametime;
     }
     else
     {
@@ -1204,7 +1204,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
         sint             tn;
         
         tn = cl_timeNudge->integer;
-        if( tn < 0 && ( cl.snap.ps.pm_type == PM_SPECTATOR || cl.snap.ps.pm_flags & PMF_FOLLOW || clc.demoplaying ) )
+        if( tn < 0 && ( cl.snapServer.ps.pm_type == PM_SPECTATOR || cl.snapServer.ps.pm_flags & PMF_FOLLOW || clc.demoplaying ) )
         {
             tn = 0;
         }
@@ -1241,7 +1241,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
         
         // note if we are almost past the latest frame (without timeNudge),
         // so we will try and adjust back a bit when the next snapshot arrives
-        if( cls.realtime + cl.serverTimeDelta >= cl.snap.serverTime - 5 )
+        if( cls.realtime + cl.serverTimeDelta >= cl.snapServer.serverTime - 5 )
         {
             cl.extrapolatedSnapshot = true;
         }
@@ -1278,7 +1278,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
         cl.serverTime = clc.timeDemoBaseTime + clc.timeDemoFrames * 50;
     }
     
-    while( cl.serverTime >= cl.snap.serverTime )
+    while( cl.serverTime >= cl.snapServer.serverTime )
     {
         // feed another messag, which should change
         // the contents of cl.snap

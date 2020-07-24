@@ -489,6 +489,8 @@ This will be called twice if rendering in stereo mode
 */
 void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
 {
+    bool uiFullscreen;
+    
     if( !cls.rendererStarted )
     {
         return;
@@ -496,9 +498,11 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
     
     renderSystem->BeginFrame( stereoFrame );
     
+    uiFullscreen = ( uivm && uiManager->IsFullscreen() );
+    
     // wide aspect ratio screens need to have the sides cleared
     // unless they are displaying game renderings
-    if( cls.state != CA_ACTIVE && cls.state != CA_CINEMATIC )
+    if( uiFullscreen || cls.state < CA_LOADING )
     {
         if( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 )
         {
@@ -510,7 +514,7 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
     
     // if the menu is going to cover the entire screen, we
     // don't need to render anything under it
-    if( !uiManager->IsFullscreen() || ( !( cls.framecount & 7 ) && cls.state == CA_ACTIVE ) )
+    if( uivm && !uiFullscreen )
     {
         switch( cls.state )
         {
@@ -533,11 +537,8 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
             case CA_CONNECTED:
                 // connecting clients will only show the connection dialog
                 // refresh to update the time
-                if( uivm )
-                {
-                    uiManager->Refresh( cls.realtime );
-                    uiManager->DrawConnectScreen( false );
-                }
+                uiManager->Refresh( cls.realtime );
+                uiManager->DrawConnectScreen( false );
                 break;
                 // Ridah, if the cgame is valid, fall through to there
                 if( !cls.cgameStarted || !com_sv_running->integer )
@@ -551,11 +552,8 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
                 // also draw the connection information, so it doesn't
                 // flash away too briefly on local or lan games
                 //if (!com_sv_running->value || cvarSystem->VariableIntegerValue("sv_cheats"))	// Ridah, don't draw useless text if not in dev mode
-                if( uivm )
-                {
-                    uiManager->Refresh( cls.realtime );
-                    uiManager->DrawConnectScreen( true );
-                }
+                uiManager->Refresh( cls.realtime );
+                uiManager->DrawConnectScreen( true );
                 // draw the game information screen and loading progress
                 if( cgvm )
                 {
@@ -564,10 +562,7 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
                 
                 break;
             case CA_ACTIVE:
-                if( cgvm )
-                {
-                    clientGameSystem->CGameRendering( stereoFrame );
-                }
+                clientGameSystem->CGameRendering( stereoFrame );
                 
                 DrawDemoRecording();
                 break;
