@@ -225,11 +225,8 @@ typedef enum
     ERR_VID_FATAL,              // exit the entire game with a popup window and doesn't delete profile.pid
     ERR_DROP,                   // print to console and disconnect from game
     ERR_SERVERDISCONNECT,       // don't kill server
-    ERR_DISCONNECT,             // client disconnected from the server
-    ERR_NEED_CD,                // pop up the need-cd dialog
     ERR_AUTOUPDATE
 } errorParm_t;
-
 
 // font rendering values used by ui and cgame
 
@@ -826,6 +823,7 @@ void            Q_strncpyzDebug( valueType* dest, pointer src, uint32 destsize, 
 void            Q_strcat( valueType* dest, sint destsize, pointer src );
 sint				Q_strnicmp( pointer string1, pointer string2, sint n );
 bool        Q_strreplace( valueType* dest, sint destsize, pointer find, pointer replace );
+void Q_strstrip( valueType* string, pointer strip, pointer repl );
 
 // strlen that discounts Quake color sequences
 sint Q_PrintStrlen( pointer string );

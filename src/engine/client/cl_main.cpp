@@ -532,7 +532,7 @@ void CL_DemoCompleted( void )
         clc.waverecording = false;
     }
     
-    CL_Disconnect( true );
+    CL_Disconnect( true, "Demo completed" );
     CL_NextDemo();
     
 }
@@ -807,7 +807,7 @@ void CL_PlayDemo_f( void )
     // make sure a local server is killed
     cvarSystem->Set( "sv_killserver", "1" );
     
-    CL_Disconnect( true );
+    CL_Disconnect( true, "Playing demo" );
     
     //CL_FlushMemory();   //----(SA)  MEM NOTE: in missionpack, this is moved to CL_DownloadsComplete
     
@@ -1081,7 +1081,7 @@ void CL_MapLoading( void )
     {
         // clear nextmap so the cinematic shutdown doesn't execute it
         cvarSystem->Set( "nextmap", "" );
-        CL_Disconnect( true );
+        CL_Disconnect( true,  "Loading map" );
         Q_strncpyz( cls.servername, "localhost", sizeof( cls.servername ) );
         cls.state = CA_CHALLENGING;     // so the connect screen is drawn
         cls.keyCatchers = 0;
@@ -1156,7 +1156,7 @@ Sends a disconnect message to the server
 This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
-void CL_Disconnect( bool showMainMenu )
+void CL_Disconnect( bool showMainMenu, pointer reason )
 {
     if( !com_cl_running || !com_cl_running->integer )
     {
@@ -1195,17 +1195,26 @@ void CL_Disconnect( bool showMainMenu )
     
     SCR_StopCinematic();
     soundSystemLocal.ClearSoundBuffer();
-#if 1
+    
     // send a disconnect message to the server
     // send it a few times in case one is dropped
     if( cls.state >= CA_CONNECTED )
     {
-        CL_AddReliableCommand( "disconnect" );
+        valueType cmd[MAX_STRING_CHARS] = { 0 }, * pCmd = cmd;
+        if( reason )
+        {
+            Com_sprintf( cmd, sizeof( cmd ), "disconnect %s", reason );
+        }
+        else
+        {
+            pCmd = "disconnect";
+        }
+        
+        CL_AddReliableCommand( pCmd );
         CL_WritePacket();
         CL_WritePacket();
         CL_WritePacket();
     }
-#endif
     
     // Remove pure paks
     fileSystem->PureServerSetLoadedPaks( "", "" );
@@ -1556,8 +1565,17 @@ void CL_Disconnect_f( void )
     cvarSystem->Set( "g_reloading", "0" );
     if( cls.state != CA_DISCONNECTED && cls.state != CA_CINEMATIC )
     {
-        Com_Printf( "Disconnected from server" );
-        CL_Disconnect( true );
+        if( cmdSystem->Argc() > 1 )
+        {
+            char reason[MAX_STRING_CHARS] = { 0 };
+            Q_strncpyz( reason, cmdSystem->Argv( 1 ), sizeof( reason ) );
+            Q_strstrip( reason, "\r\n;\"", NULL );
+            CL_Disconnect( true, reason );
+        }
+        else
+        {
+            CL_Disconnect( true, nullptr );
+        }
     }
 }
 
@@ -1633,7 +1651,7 @@ void CL_Connect_f( void )
     cvarSystem->Set( "sv_killserver", "1" );
     serverMainSystem->Frame( 0 );
     
-    CL_Disconnect( true );
+    CL_Disconnect( true,  "Joining another server" );
     Con_Close();
     
     Q_strncpyz( cls.servername, server, sizeof( cls.servername ) );
@@ -2141,7 +2159,7 @@ void CL_DownloadsComplete( void )
         }
         
         autoupdateStarted = false;
-        CL_Disconnect( true );
+        CL_Disconnect( true, "Downloads complete" );
         return;
     }
     
@@ -2485,11 +2503,11 @@ void CL_DisconnectPacket( netadr_t from )
         message = "Server disconnected for unknown reason";
         Com_Printf( "%s", message );
         cvarSystem->Set( "com_errorMessage", message );
-        CL_Disconnect( true );
+        CL_Disconnect( true, "Disconnect packet" );
     }
     else
     {
-        CL_Disconnect( false );
+        CL_Disconnect( false, "Disconnect packet" );
         cvarSystem->Set( "ui_connecting", "1" );
         cvarSystem->Set( "ui_dl_running", "1" );
     }
@@ -2696,7 +2714,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t* msg )
     {
         if( cls.state == CA_CONNECTED )
         {
-            CL_Disconnect( true );
+            CL_Disconnect( true , "Disconnect response" );
         }
         return;
     }
@@ -2946,7 +2964,7 @@ void CL_CheckTimeout( void )
         {
             // timeoutcount saves debugger
             cvarSystem->Set( "com_errorMessage", "Server connection timed out." );
-            CL_Disconnect( true );
+            CL_Disconnect( true, "server timed out" );
             return;
         }
     }
@@ -3633,7 +3651,7 @@ void CL_GetAutoUpdate( void )
     cvarSystem->Set( "sv_killserver", "1" );
     serverMainSystem->Frame( 0 );
     
-    CL_Disconnect( true );
+    CL_Disconnect( true, "Get autoupdate" );
     Con_Close();
     
     Q_strncpyz( cls.servername, "Auto-Updater", sizeof( cls.servername ) );
@@ -4106,7 +4124,7 @@ void CL_Shutdown( void )
         CL_WavStopRecord_f();
     }
     
-    CL_Disconnect( true );
+    CL_Disconnect( true, "client shutdown" );
     
     downloadSystem->Shutdown();
     CL_ShutdownRef();

@@ -1592,7 +1592,18 @@ The client is going to disconnect, so remove the connection immediately  FIXME: 
 */
 void idServerClientSystemLocal::Disconnect_f( client_t* cl )
 {
-    serverClientLocal.DropClient( cl, "disconnected" );
+    if( cmdSystem->Argc() > 1 )
+    {
+        valueType reason[MAX_STRING_CHARS] = { 0 };
+        Q_strncpyz( reason, cmdSystem->Argv( 1 ), sizeof( reason ) );
+        Q_strstrip( reason, "\r\n;\"", NULL );
+        serverClientLocal.DropClient( cl, "disconnected" );
+        ( cl, va( "disconnected: %s", reason ) );
+    }
+    else
+    {
+        serverClientLocal.DropClient( cl, "disconnected" );
+    }
 }
 
 /*

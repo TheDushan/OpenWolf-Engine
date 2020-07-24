@@ -77,10 +77,6 @@ void CL_CharEvent( sint key )
 {
 }
 
-void CL_Disconnect( bool showMainMenu )
-{
-}
-
 void CL_MapLoading( void )
 {
 }

@@ -572,7 +572,7 @@ void            CL_InitKeyCommands( void );
 
 void            CL_Init( void );
 void            CL_ClearStaticDownload( void );
-void            CL_Disconnect( bool showMainMenu );
+void CL_Disconnect( bool showMainMenu, pointer reason );
 void            CL_Shutdown( void );
 void            CL_Frame( sint msec );
 void            CL_KeyEvent( sint key, sint down, sint time );

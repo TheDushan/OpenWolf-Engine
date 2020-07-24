@@ -1370,5 +1370,7 @@ void idServerInitSystemLocal::Shutdown( valueType* finalmsg )
     Com_Printf( "---------------------------\n" );
     
     // disconnect any local clients
-    CL_Disconnect( false );
+#ifndef DEDICATED
+    CL_Disconnect( false, "Server shutdown" );
+#endif
 }

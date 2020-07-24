@@ -397,16 +397,20 @@ void Com_Error( sint code, pointer fmt, ... )
     
     if( code == ERR_SERVERDISCONNECT )
     {
-        CL_Disconnect( true );
+#ifndef DEDICATED
+        CL_Disconnect( true, nullptr );
+#endif
         CL_FlushMemory();
         com_errorEntered = false;
         longjmp( abortframe, -1 );
     }
-    else if( code == ERR_DROP || code == ERR_DISCONNECT )
+    else if( code == ERR_DROP )
     {
         Com_Printf( "********************\nERROR: %s\n********************\n", com_errorMessage );
         serverInitSystem->Shutdown( va( "Server crashed: %s\n", com_errorMessage ) );
-        CL_Disconnect( true );
+#ifndef DEDICATED
+        CL_Disconnect( true, "Server crashed" );
+#endif
         CL_FlushMemory();
         com_errorEntered = false;
         longjmp( abortframe, -1 );
@@ -414,7 +418,9 @@ void Com_Error( sint code, pointer fmt, ... )
 #ifndef DEDICATED
     else if( code == ERR_AUTOUPDATE )
     {
-        CL_Disconnect( true );
+#ifndef DEDICATED
+        CL_Disconnect( true, "Autoupdate server crashed" );
+#endif
         CL_FlushMemory();
         com_errorEntered = false;
         if( !Q_stricmpn( com_errorMessage, "Server is full", 14 ) && CL_NextUpdateServer() )

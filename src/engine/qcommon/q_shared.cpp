@@ -2840,3 +2840,41 @@ sint COM_CompressBracedSection( valueType** data_p, valueType** name, valueType*
     
     return c;
 }
+
+void Q_strstrip( valueType* string, pointer strip, pointer repl )
+{
+    sint replaceLen = repl ? strlen( repl ) : 0, offset = 0;
+    valueType* out = string, * p = string, c;
+    pointer s = strip;
+    bool recordChar = true;
+    
+    while( ( c = *p++ ) != '\0' )
+    {
+        recordChar = true;
+        
+        for( s = strip; *s; s++ )
+        {
+            offset = s - strip;
+            
+            if( c == *s )
+            {
+                if( !repl || offset >= replaceLen )
+                {
+                    recordChar = false;
+                }
+                else
+                {
+                    c = repl[offset];
+                }
+                break;
+            }
+        }
+        
+        if( recordChar )
+        {
+            *out++ = c;
+        }
+    }
+    
+    *out = '\0';
+}
