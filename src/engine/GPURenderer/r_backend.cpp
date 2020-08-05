@@ -30,7 +30,7 @@
 
 #include <framework/precompiled.h>
 
-backEndData_t* backEndData[SMP_FRAMES];
+backEndData_t* backEndData;
 backEndState_t	backEnd;
 
 static float32	s_flipMatrix[16] =
@@ -959,12 +959,6 @@ static const void* RB_PrefilterEnvMap( const void* data )
         return ( const void* )( cmd + 1 );
     }
     
-    sint cubeMipSize = cubemap->image->width;
-    sint numMips = 0;
-    
-    sint width = cubemap->image->width;
-    sint height = cubemap->image->height;
-    
     vec4_t quadVerts[4];
     vec2_t texCoords[4];
     
@@ -982,38 +976,29 @@ static const void* RB_PrefilterEnvMap( const void* data )
     texCoords[3][0] = 0;
     texCoords[3][1] = 1;
     
-    while( cubeMipSize )
-    {
-        cubeMipSize >>= 1;
-        numMips++;
-    }
-    numMips = MAX( 1, numMips - 2 );
-    
     FBO_Bind( tr.preFilterEnvMapFbo );
     GL_BindToTMU( cubemap->image, TB_CUBEMAP );
     
     GLSL_BindProgram( &tr.prefilterEnvMapShader );
     
-    for( sint level = 1; level <= numMips; level++ )
+    sint width = cubemap->image->width;
+    sint height = cubemap->image->height;
+    
+    for( sint level = 1; level <= r_cubemapSize->integer; level++ )
     {
         width = width / 2.0;
         height = height / 2.0;
-        
         qglViewport( 0, 0, width, height );
         qglScissor( 0, 0, width, height );
-        
         for( sint cubemapSide = 0; cubemapSide < 6; cubemapSide++ )
         {
             vec4_t viewInfo;
-            
-            VectorSet4( viewInfo, cubemapSide, level, numMips, 0.0 );
+            VectorSet4( viewInfo, cubemapSide, level, r_cubemapSize->integer, ( level / ( float32 )r_cubemapSize->integer ) );
             GLSL_SetUniformVec4( &tr.prefilterEnvMapShader, UNIFORM_VIEWINFO, viewInfo );
             RB_InstantQuad2( quadVerts, texCoords );
             qglCopyTexSubImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + cubemapSide, level, 0, 0, 0, 0, width, height );
         }
     }
-    
-    //qglActiveTexture( GL_TEXTURE0 );
     
     return ( const void* )( cmd + 1 );
 }
@@ -2007,15 +1992,6 @@ void RB_ExecuteRenderCommands( const void* data )
     sint		t1, t2;
     
     t1 = CL_ScaledMilliseconds();
-    
-    if( !r_smp->integer || data == backEndData[0]->commands.cmds )
-    {
-        backEnd.smpFrame = 0;
-    }
-    else
-    {
-        backEnd.smpFrame = 1;
-    }
     
     while( 1 )
     {

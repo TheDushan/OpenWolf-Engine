@@ -1301,6 +1301,8 @@ static SDL_cond* renderCommandsEvent = nullptr;
 static SDL_cond* renderCompletedEvent = nullptr;
 static void ( *glimpRenderThread )( void ) = nullptr;
 static SDL_Thread* renderThread = nullptr;
+static volatile void* smpData = nullptr;
+static volatile bool smpDataReady;
 
 /*
 ===============
@@ -1414,11 +1416,16 @@ bool GLimp_SpawnRenderThread( void ( *function )( void ) )
         return false;
     }
     
+    SDL_LockMutex( smpMutex );
+    while( smpData )
+    {
+        SDL_CondWait( renderCompletedEvent, smpMutex );
+    }
+    
+    SDL_UnlockMutex( smpMutex );
+    
     return true;
 }
-
-static volatile void* smpData = nullptr;
-static volatile bool smpDataReady;
 
 /*
 ===============

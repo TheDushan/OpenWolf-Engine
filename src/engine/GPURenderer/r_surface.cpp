@@ -496,13 +496,13 @@ RB_SurfaceTriangles
 static void RB_SurfaceTriangles( srfBspSurface_t* srf )
 {
     if( RB_SurfaceVaoCached( srf->numVerts, srf->verts, srf->numIndexes,
-                             srf->indexes, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits ) )
+                             srf->indexes, srf->dlightBits, srf->pshadowBits ) )
     {
         return;
     }
     
     RB_SurfaceVertsAndIndexes( srf->numVerts, srf->verts, srf->numIndexes,
-                               srf->indexes, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits );
+                               srf->indexes, srf->dlightBits, srf->pshadowBits );
 }
 
 
@@ -945,13 +945,13 @@ RB_SurfaceFace
 static void RB_SurfaceFace( srfBspSurface_t* srf )
 {
     if( RB_SurfaceVaoCached( srf->numVerts, srf->verts, srf->numIndexes,
-                             srf->indexes, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits ) )
+                             srf->indexes, srf->dlightBits, srf->pshadowBits ) )
     {
         return;
     }
     
     RB_SurfaceVertsAndIndexes( srf->numVerts, srf->verts, srf->numIndexes,
-                               srf->indexes, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits );
+                               srf->indexes, srf->dlightBits, srf->pshadowBits );
 }
 
 
@@ -1018,14 +1018,14 @@ static void RB_SurfaceGrid( srfBspSurface_t* srf )
     //sint		*vDlightBits;
     
     if( RB_SurfaceVaoCached( srf->numVerts, srf->verts, srf->numIndexes,
-                             srf->indexes, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits ) )
+                             srf->indexes, srf->dlightBits, srf->pshadowBits ) )
     {
         return;
     }
     
     RB_CheckVao( tess.vao );
     
-    dlightBits = srf->dlightBits[backEnd.smpFrame];
+    dlightBits = srf->dlightBits;
     tess.dlightBits |= dlightBits;
     
     pshadowBits = srf->pshadowBits;

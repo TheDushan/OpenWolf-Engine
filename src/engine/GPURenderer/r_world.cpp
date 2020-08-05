@@ -248,7 +248,7 @@ static sint R_DlightSurface( msurface_t* surf, sint dlightBits )
         case SF_FACE:
         case SF_GRID:
         case SF_TRIANGLES:
-            ( ( srfBspSurface_t* )surf->data )->dlightBits[tr.smpFrame] = dlightBits;
+            ( ( srfBspSurface_t* )surf->data )->dlightBits = dlightBits;
             break;
             
         default:

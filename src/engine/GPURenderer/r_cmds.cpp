@@ -106,7 +106,7 @@ R_IssueRenderCommands
 void R_IssueRenderCommands( bool runPerformanceCounters )
 {
     static sint c_blockedOnRender, c_blockedOnMain;
-    renderCommandList_t* cmdList = &backEndData[tr.smpFrame]->commands;
+    renderCommandList_t* cmdList = &backEndData->commands[tr.smpFrame];
     assert( cmdList );
     
     // add an end-of-list command
@@ -196,7 +196,7 @@ void* R_GetCommandBufferReserved( sint bytes, sint reservedBytes )
 {
     renderCommandList_t*	cmdList;
     
-    cmdList = &backEndData[tr.smpFrame]->commands;
+    cmdList = &backEndData->commands[tr.smpFrame];
     bytes = PAD( bytes, sizeof( void* ) );
     
     // always leave room for the end of list command
@@ -750,6 +750,11 @@ void idRenderSystemLocal::EndFrame( sint* frontEndMsec, sint* backEndMsec )
     cmd->commandId = RC_SWAP_BUFFERS;
     
     R_IssueRenderCommands( true );
+    
+    if( glConfig.smpActive )
+    {
+        GLimp_FrontEndSleep();
+    }
     
     R_InitNextFrame();
     

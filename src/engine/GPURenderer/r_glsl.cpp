@@ -362,6 +362,8 @@ static void GLSL_GetShaderHeader( uint shaderType, pointer extra, valueType* des
         Q_strcat( dest, size, va( "#define ROUGHNESS_MIPS float(%d)\n", numRoughnessMips ) );
     }
     
+    Q_strcat( dest, size, va( "#define CUBEMAP_RESOLUTION float(%i)\n", r_cubemapSize->integer ) );
+    
     if( r_horizonFade->integer )
     {
         float32 fade = 1 + ( 0.1 * r_horizonFade->integer );

@@ -3312,7 +3312,7 @@ sortedIndex.
 */
 static void FixRenderCommandList( sint newShader )
 {
-    renderCommandList_t* cmdList = &backEndData[tr.smpFrame]->commands;
+    renderCommandList_t* cmdList = &backEndData->commands[tr.smpFrame];
     
     if( cmdList )
     {

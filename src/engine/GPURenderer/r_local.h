@@ -1005,7 +1005,7 @@ typedef struct srfBspSurface_s
     surfaceType_t   surfaceType;
     
     // dynamic lighting information
-    sint				dlightBits[SMP_FRAMES];
+    sint				dlightBits;
     sint             pshadowBits;
     
     // culling information
@@ -1561,7 +1561,6 @@ typedef struct
 // from the front end state
 typedef struct
 {
-    sint smpFrame;
     trRefdef_t	refdef;
     viewParms_t	viewParms;
     orientationr_t	orientation;
@@ -2601,13 +2600,13 @@ typedef struct
     srfPoly_t* polys;//[MAX_POLYS];
     polyVert_t*	polyVerts;//[MAX_POLYVERTS];
     pshadow_t pshadows[MAX_CALC_PSHADOWS];
-    renderCommandList_t	commands;
+    renderCommandList_t	commands[SMP_FRAMES];
 } backEndData_t;
 
 extern	sint		max_polys;
 extern	sint		max_polyverts;
 
-extern	backEndData_t* backEndData[SMP_FRAMES];	// the second one may not be allocated
+extern	backEndData_t* backEndData;	// the second one may not be allocated
 
 void R_SyncRenderThread( void );
 
