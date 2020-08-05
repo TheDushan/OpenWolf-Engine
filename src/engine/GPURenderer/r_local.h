@@ -1896,8 +1896,6 @@ extern	convar_t*	r_portalOnly;
 
 extern	convar_t*	r_subdivisions;
 extern	convar_t*	r_lodCurveError;
-extern	convar_t* r_smp;
-extern	convar_t* r_showSmp;
 extern	convar_t*	r_skipBackEnd;
 
 extern	convar_t*	r_anaglyphMode;
@@ -2607,8 +2605,6 @@ extern	sint		max_polys;
 extern	sint		max_polyverts;
 
 extern	backEndData_t* backEndData;	// the second one may not be allocated
-
-void R_SyncRenderThread( void );
 
 extern volatile bool renderThreadActive;
 

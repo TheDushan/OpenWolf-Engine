@@ -3637,12 +3637,7 @@ static void InitShader( pointer name, sint lightmapIndex )
 {
     sint i;
     
-    // make sure the render thread is stopped, because we are probably
-// going to have to upload an image
-    if( r_smp->integer )
-    {
-        R_IssuePendingRenderCommands();
-    }
+    R_IssuePendingRenderCommands();
     
     // clear the global shader
     ::memset( &shader, 0, sizeof( shader ) );

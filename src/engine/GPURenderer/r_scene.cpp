@@ -52,16 +52,9 @@ R_InitNextFrame
 */
 void R_InitNextFrame( void )
 {
-    if( r_smp->integer )
-    {
-        // use the other buffers next frame, because another CPU
-        // may still be rendering into the current ones
-        tr.smpFrame ^= 1;
-    }
-    else
-    {
-        tr.smpFrame = 0;
-    }
+    // use the other buffers next frame, because another CPU
+    // may still be rendering into the current ones
+    tr.smpFrame ^= 1;
     
     backEndData->commands[tr.smpFrame].used = 0;
     

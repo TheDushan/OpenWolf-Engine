@@ -58,8 +58,6 @@ convar_t*	r_detailTextures;
 convar_t*	r_znear;
 convar_t*	r_zproj;
 convar_t*	r_stereoSeparation;
-convar_t* r_smp;
-convar_t* r_showSmp;
 
 convar_t*	r_skipBackEnd;
 
@@ -327,19 +325,16 @@ static void InitOpenGL( void )
         
         glConfig.smpActive = false;
         
-        if( r_smp->integer )
+        CL_RefPrintf( PRINT_DEVELOPER, "Trying SMP acceleration...\n" );
+        
+        if( GLimp_SpawnRenderThread( RB_RenderThread ) )
         {
-            CL_RefPrintf( PRINT_DEVELOPER, "Trying SMP acceleration...\n" );
-            
-            if( GLimp_SpawnRenderThread( RB_RenderThread ) )
-            {
-                CL_RefPrintf( PRINT_DEVELOPER, "...succeeded.\n" );
-                glConfig.smpActive = true;
-            }
-            else
-            {
-                CL_RefPrintf( PRINT_DEVELOPER, "...failed.\n" );
-            }
+            CL_RefPrintf( PRINT_DEVELOPER, "...succeeded.\n" );
+            glConfig.smpActive = true;
+        }
+        else
+        {
+            CL_RefPrintf( PRINT_DEVELOPER, "...failed.\n" );
         }
     }
     
@@ -1264,8 +1259,6 @@ void R_Register( void )
     r_vertexLight = cvarSystem->Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enable vertex lighting (faster, lower quality than lightmap) removes lightmaps, forces every shader to only use a single rendering pass, no layered transparancy, environment mapping, world lighting is completely static, and there is no dynamic lighting when in vertex lighting mode. (recommend dynamiclight 0 and this 1) direct FPS benefit" );
     r_uiFullScreen = cvarSystem->Get( "r_uifullscreen", "0", 0, "Sets the User Interface(UI) running fullscreen." );
     r_subdivisions = cvarSystem->Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH, "Patch mesh/curve sub divisions, sets number of subdivisions of curves, increasing makes curves into straights." );
-    r_smp = cvarSystem->Get( "r_smp", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enables symmetric multiprocessing acceleration." );
-    r_showSmp = cvarSystem->Get( "r_showSmp", "0", CVAR_ARCHIVE, "Toggle display of multi processor (SMP) info on the HUD" );
     r_stereoEnabled = cvarSystem->Get( "r_stereoEnabled", "0", CVAR_CHEAT, "Enables stereo separation, for 3D effects" );
     r_greyscale = cvarSystem->Get( "r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enables greyscaling of everything" );
     cvarSystem->CheckRange( r_greyscale, 0, 1, false );

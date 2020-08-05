@@ -105,7 +105,6 @@ R_IssueRenderCommands
 */
 void R_IssueRenderCommands( bool runPerformanceCounters )
 {
-    static sint c_blockedOnRender, c_blockedOnMain;
     renderCommandList_t* cmdList = &backEndData->commands[tr.smpFrame];
     assert( cmdList );
     
@@ -115,26 +114,8 @@ void R_IssueRenderCommands( bool runPerformanceCounters )
     // clear it out, in case this is a sync and not a buffer flip
     cmdList->used = 0;
     
-    if( glConfig.smpActive )
+    if( glConfig.smpActive && renderThreadActive )
     {
-        // if the render thread is not idle, wait for it
-        if( renderThreadActive )
-        {
-            c_blockedOnRender++;
-            if( r_showSmp->integer )
-            {
-                CL_RefPrintf( PRINT_ALL, "R" );
-            }
-        }
-        else
-        {
-            c_blockedOnMain++;
-            if( r_showSmp->integer )
-            {
-                CL_RefPrintf( PRINT_ALL, "." );
-            }
-        }
-        
         // sleep until the renderer has completed
         GLimp_FrontEndSleep();
     }
@@ -155,7 +136,7 @@ void R_IssueRenderCommands( bool runPerformanceCounters )
         }
         else
         {
-            GLimp_WakeRenderer( cmdList );
+            GLimp_WakeRenderer( cmdList->cmds );
         }
     }
 }
