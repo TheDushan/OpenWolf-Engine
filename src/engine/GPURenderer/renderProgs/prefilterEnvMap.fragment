@@ -16,23 +16,32 @@ vec2 hammersley2D(uint i, uint N) {
      return vec2(float(i)/float(N), radicalInverse_VdC(i));
 }
 
+float spec_D( float NH, float roughness)
+{
+  // normal distribution
+  // from http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+  float alpha = roughness * roughness;
+  float quotient = alpha / max(1e-8,(NH*NH*(alpha*alpha-1.0)+1.0));
+  return (quotient * quotient) / M_PI;
+}
+
 vec3 ImportanceSampleGGX(vec2 Xi, float Roughness, vec3 N)
 {
 	float a = Roughness * Roughness;
-	float Phi = 2 * M_PI * Xi.x;
-	float CosTheta = sqrt((1-Xi.y) / (1+(a*a -1) * Xi.y));
-	float SinTheta = sqrt( 1 - CosTheta * CosTheta);
+	float Phi = 2.0 * M_PI * Xi.x;
+	float CosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+	float SinTheta = sqrt( 1.0 - CosTheta * CosTheta);
 
 	vec3 H;
 	H.x = SinTheta * cos( Phi );
 	H.y = SinTheta * sin( Phi );
 	H.z = CosTheta;
 
-	vec3 UpVector = abs(N.z) < 0.999 ? vec3(0,0,1) : vec3(1,0,0);
-	vec3 TangentX = normalize(cross(UpVector , N));
-	vec3 TangentY = cross(N , TangentX);
+	vec3 UpVector = abs(N.z) < 0.999 ? vec3(0.0,0.0,1.0) : vec3(1.0,0.0,0.0);
+	vec3 TangentX = normalize(cross(UpVector, N));
+	vec3 TangentY = cross(N, TangentX);
 
-	return TangentX * H.x + TangentY * H.y + N * H.z;
+	return normalize(TangentX * H.x + TangentY * H.y + N * H.z);
 }
 
 vec3 PrefilterEnvMap( float Roughness, vec3 R )
@@ -40,21 +49,33 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 	vec3 N = R;
 	vec3 V = R;
 	vec3 PrefilteredColor = vec3(0.0);
+	vec3 TextureColor = vec3(0.0);
 	float TotalWeight = 0.0;
-	uint NumSamples = 1024u;
+	const uint NumSamples = 4096u;
 	for ( uint i = 0u; i < NumSamples; i++ )
 	{
 		vec2 Xi = hammersley2D( i, NumSamples );
 		vec3 H = ImportanceSampleGGX( Xi, Roughness, N );
-		vec3 L = 2 * dot( V, H ) * H - V;
-		float NoL = clamp((dot( N, L )),0.0,1.0);
-		if ( NoL > 0 )
+		vec3 L = 2.0 * dot( V, H ) * H - V;
+		float NoL = max((dot( N, L )), 0.0);
+		if ( NoL > 0.0 )
 		{
-			PrefilteredColor += textureLod(u_CubeMap, L, 0.0).rgb * NoL;
+			float NH = max(dot ( N, H ), 0.0);
+			float HV = max(dot ( H, V ), 0.0);
+			float D   = spec_D(NH, Roughness);
+			float pdf = (D * NH / (4.0 * HV)) + 0.0001; 
+
+			float saTexel  = 4.0 * M_PI / (6.0 * CUBEMAP_RESOLUTION * CUBEMAP_RESOLUTION);
+			float saSample = 1.0 / (float(NumSamples) * pdf + 0.0001);
+
+			float mipLevel = Roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
+
+			TextureColor = textureLod(u_CubeMap, L, mipLevel).rgb;
+			PrefilteredColor += TextureColor * TextureColor * NoL;
 			TotalWeight += NoL;
 		}
 	}
-	return PrefilteredColor / TotalWeight;
+	return PrefilteredColor / max(TotalWeight, 0.001);
 }
 
 void main()
@@ -79,5 +100,5 @@ void main()
 
 	vec3 result = PrefilterEnvMap(roughness, normal);
 			
-	gl_FragColor = vec4(result, 1.0);
+	gl_FragColor = vec4(sqrt(result), 1.0);
 }
