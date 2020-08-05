@@ -328,14 +328,14 @@ void idClientGUISystemLocal::InitGUI( void )
     uivm = idsystem->LoadDll( "gui" );
     if( !uivm )
     {
-        Com_Error( ERR_DROP, "vm on gui failed" );
+        Com_Error( ERR_DROP, "cannot load client gui dynamic module.\n" );
     }
     
     // Load in the entry point.
     dllEntry = ( idUserInterfaceManager * ( QDECL* )( guiImports_t* ) )idsystem->GetProcAddress( uivm, "dllEntry" );
     if( !dllEntry )
     {
-        Com_Error( ERR_DROP, "cgdllEntry on cgame failed" );
+        Com_Error( ERR_DROP, "error loading entry point on client gui.\n" );
     }
     
     // Create the export table.

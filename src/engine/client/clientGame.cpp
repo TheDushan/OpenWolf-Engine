@@ -892,14 +892,14 @@ void idClientGameSystemLocal::InitCGame( void )
     cgvm = idsystem->LoadDll( "cgame" );
     if( !cgvm )
     {
-        Com_Error( ERR_DROP, "cgvm on cgame failed" );
+        Com_Error( ERR_DROP, "cannot load cgame dynamic module.\n" );
     }
     
     // Load in the entry point.
     cgdllEntry = ( idCGame * ( QDECL* )( cgameImports_t* ) )idsystem->GetProcAddress( cgvm, "dllEntry" );
     if( !cgdllEntry )
     {
-        Com_Error( ERR_DROP, "cgdllEntry on clientGame failed" );
+        Com_Error( ERR_DROP, "error loading entry point on clientGame.\n" );
     }
     
     // Create the export table.
