@@ -258,7 +258,7 @@ Com_HashKey
 */
 sint Com_HashKey( valueType* string, sint maxlen )
 {
-    register sint    hash, i;
+    sint hash, i;
     
     hash = 0;
     for( i = 0; i < maxlen && string[i] != '\0'; i++ )
@@ -2798,7 +2798,7 @@ sint COM_CompressBracedSection( valueType** data_p, valueType** name, valueType*
                 {
                     *name = *data_p;
                     if( *( *name ) <= ' ' )( *name )++;
-                    *nameLength = ( sint )out - ( sint ) * name;
+                    *nameLength = out - *name;
                     if( ( *name )[*nameLength - 1] <= ' ' )( *nameLength )--;
                     *text = out;
                 }
@@ -2832,9 +2832,9 @@ sint COM_CompressBracedSection( valueType** data_p, valueType** name, valueType*
     
     if( *text && *( *text ) <= ' ' )( *text )++;			// remove begining white char
     if( out > * data_p && out[-1] <= ' ' ) out--;		// remove ending white char
-    if( *text ) *textLength = ( sint )out - ( sint ) * text;	// compressed text length
+    if( *text ) *textLength = out - *text;	// compressed text length
     
-    c = ( sint )out - ( sint ) * data_p;						// uncompressed chars parsed
+    c = out - *data_p;						// uncompressed chars parsed
     
     *data_p = in;
     
