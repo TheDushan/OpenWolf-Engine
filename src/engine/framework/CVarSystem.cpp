@@ -47,7 +47,7 @@ convar_t* cvar_vars;
 convar_t* cvar_cheats;
 sint cvar_modifiedFlags;
 
-#define MAX_CVARS 2048
+#define MAX_CVARS 4096
 convar_t cvar_indexes[MAX_CVARS];
 sint cvar_numIndexes;
 

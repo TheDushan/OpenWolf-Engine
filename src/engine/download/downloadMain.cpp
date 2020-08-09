@@ -107,7 +107,6 @@ idDownloadSystemLocal::InitDownload
 */
 void idDownloadSystemLocal::InitDownload( void )
 {
-#ifndef DEDICATED
     if( dl_initialized )
     {
         return;
@@ -120,7 +119,6 @@ void idDownloadSystemLocal::InitDownload( void )
     
     Com_Printf( "Client download subsystem initialized\n" );
     dl_initialized = 1;
-#endif
 }
 
 /*
@@ -130,7 +128,6 @@ idDownloadSystemLocal::Shutdown
 */
 void idDownloadSystemLocal::Shutdown( void )
 {
-#ifndef DEDICATED
     if( !dl_initialized )
     {
         return;
@@ -142,7 +139,6 @@ void idDownloadSystemLocal::Shutdown( void )
     curl_global_cleanup();
     
     dl_initialized = 0;
-#endif
 }
 
 /*
@@ -155,7 +151,6 @@ setup the download, return once we have a connection
 */
 sint idDownloadSystemLocal::BeginDownload( pointer localName, pointer remoteName, sint debug )
 {
-#ifndef DEDICATED
     valueType referer[MAX_STRING_CHARS + 5 /*"ET://" */ ];
     
     if( dl_request )
@@ -197,7 +192,6 @@ sint idDownloadSystemLocal::BeginDownload( pointer localName, pointer remoteName
     curl_multi_add_handle( dl_multi, dl_request );
     
     cvarSystem->Set( "cl_downloadName", remoteName );
-#endif
     
     return 1;
 }
@@ -211,7 +205,6 @@ dlStatus_t DL_DownloadLoop( void)
 */
 dlStatus_t idDownloadSystemLocal::DownloadLoop( void )
 {
-#ifndef DEDICATED
     CURLMcode status;
     CURLMsg* msg;
     sint dls = 0;
@@ -264,7 +257,6 @@ dlStatus_t idDownloadSystemLocal::DownloadLoop( void )
         Com_DPrintf( "idDownloadSystemLocal::DownloadLoop: request terminated with failure status '%s'\n", err );
         return DL_FAILED;
     }
-#endif
     
     return DL_DONE;
 }

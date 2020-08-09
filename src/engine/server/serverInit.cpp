@@ -1217,7 +1217,9 @@ void idServerInitSystemLocal::Init( void )
     
     sv_wh_check_fov = cvarSystem->Get( "sv_wh_check_fov", "0", CVAR_ARCHIVE, "Enable wallhack protection only when players are in their respective FOV." );
     
+#if !defined (UPDATE_SERVER)
     idServerWallhackSystemLocal::InitWallhack();
+#endif
     
     // can't ResolveAuthHost() here since networkSystem->Init() hasn't been
     // called yet; works if we move ResolveAuthHost() to platform/systemMain.cpp
@@ -1254,7 +1256,9 @@ void idServerInitSystemLocal::Init( void )
     // OACS: Initialize the interframe/features variable and write down the extended records structures (types)
     if( sv_oacsEnable->integer == 1 )
     {
+#if !defined(UPDATE_SERVER)
         idServerOACSSystemLocal::ExtendedRecordInit();
+#endif
     }
 }
 

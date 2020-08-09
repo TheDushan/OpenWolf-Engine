@@ -1052,13 +1052,6 @@ memory on the hunk from cgame, ui, and renderer
 */
 void CL_MapLoading( void )
 {
-    if( com_dedicated->integer )
-    {
-        cls.state = CA_DISCONNECTED;
-        clientGUISystem->SetCatcher( KEYCATCH_CONSOLE );
-        return;
-    }
-    
     if( !com_cl_running->integer )
     {
         return;
@@ -1163,6 +1156,9 @@ void CL_Disconnect( bool showMainMenu, pointer reason )
         return;
     }
     
+    // shutting down the client so enter full screen ui mode
+    cvarSystem->Set( "r_uiFullScreen", "1" );
+    
     if( clc.demorecording )
     {
         CL_StopRecord_f();
@@ -1228,8 +1224,6 @@ void CL_Disconnect( bool showMainMenu, pointer reason )
     {
         CL_ClearStaticDownload();
     }
-    
-    cls.state = CA_DISCONNECTED;
     
     // allow cheats locally
     //cvarSystem->Set( "sv_cheats", "1" );
@@ -1868,10 +1862,13 @@ void CL_Vid_Restart_f( void )
     cls.soundRegistered = false;
     autoupdateChecked = false;
     
+    // unpause so the cgame definately gets a snapshot and renders a frame
+    cvarSystem->Set( "cl_paused", "0" );
+    
     // if not running a server clear the whole hunk
     if( !com_sv_running->integer )
     {
-        collisionModelManager->ClearMap();
+        //collisionModelManager->ClearMap();
         // clear the whole hunk
         Hunk_Clear();
     }
@@ -1890,9 +1887,6 @@ void CL_Vid_Restart_f( void )
 #ifdef _WIN32
     idsystem->Restart_f();
 #endif
-    
-    // unpause so the cgame definately gets a snapshot and renders a frame
-    cvarSystem->Set( "cl_paused", "0" );
     
     // start the cgame if connected
     if( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC )
@@ -2986,7 +2980,7 @@ CL_CheckUserinfo
 void CL_CheckUserinfo( void )
 {
     // don't add reliable commands when not yet connected
-    if( cls.state < CA_CONNECTED )
+    if( cls.state < CA_CHALLENGING )
     {
         return;
     }
@@ -3140,8 +3134,6 @@ void CL_Frame( sint msec )
 {
     if( !com_cl_running->integer )
     {
-        soundSystem->Update();
-        clientScreenSystem->UpdateScreen();
         return;
     }
     

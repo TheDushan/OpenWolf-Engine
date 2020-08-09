@@ -1021,31 +1021,34 @@ void Con_DrawSolidConsole( float32 frac )
     color[3] = frac * 2.0f;
     renderSystem->SetColor( color );
     
-    i = strlen( Q3_VERSION );
-    totalwidth = idClientScreenSystemLocal::ConsoleFontStringWidth( Q3_VERSION, i ) + cl_conXOffset->integer;
+    // version string
+    i = strlen( PRODUCT_VERSION );
+    totalwidth = idClientScreenSystemLocal::ConsoleFontStringWidth( PRODUCT_VERSION, i ) + cl_conXOffset->integer;
     totalwidth += 30;
     
     for( x = 0 ; x < i ; x++ )
     {
-        idClientScreenSystemLocal::DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - idClientScreenSystemLocal::ConsoleFontCharHeight() * 2, Q3_VERSION[x] );
-        currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( Q3_VERSION[x] );
+        idClientScreenSystemLocal::DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - idClientScreenSystemLocal::ConsoleFontCharHeight() * 2, PRODUCT_VERSION[x] );
+        currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( PRODUCT_VERSION[x] );
     }
     
     // engine string
-    i = strlen( Q3_ENGINE );
-    totalwidth = idClientScreenSystemLocal::ConsoleFontStringWidth( Q3_ENGINE, i ) + cl_conXOffset->integer;
+    i = strlen( ENGINE_NAME );
+    totalwidth = idClientScreenSystemLocal::ConsoleFontStringWidth( ENGINE_NAME, i ) + cl_conXOffset->integer;
     totalwidth += 30;
     
     currentWidthLocation = 0;
     for( x = 0 ; x < i ; x++ )
     {
-        idClientScreenSystemLocal::DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - idClientScreenSystemLocal::ConsoleFontCharHeight(), Q3_ENGINE[x] );
-        currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( Q3_ENGINE[x] );
+        idClientScreenSystemLocal::DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - idClientScreenSystemLocal::ConsoleFontCharHeight(), ENGINE_NAME[x] );
+        currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( ENGINE_NAME[x] );
     }
     
     // draw the text
     con.vislines = lines;
-    rows = ( lines ) / idClientScreenSystemLocal::ConsoleFontCharHeight() - 3;		// rows of text to draw
+    
+    // rows of text to draw
+    rows = ( lines ) / idClientScreenSystemLocal::ConsoleFontCharHeight() - 3;
     rows++;
     
     y = lines - ( idClientScreenSystemLocal::ConsoleFontCharHeight() * 3 ) + 10;

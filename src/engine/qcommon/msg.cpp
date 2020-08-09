@@ -1124,7 +1124,6 @@ netField_t entityStateFields[] =
     {NETF( generic1 ), 10},
     {NETF( misc ), MAX_MISC},
     {NETF( weaponAnim ), 8},
-    {NETF( extraFlags ), 32}
 };
 
 
@@ -1689,7 +1688,6 @@ netField_t      playerStateFields[] =
     {PSF( tauntTimer ), 12},
     {PSF( weaponAnim ), 8},
     {PSF( otherEntityNum ), GENTITYNUM_BITS},
-    {PSF( extraFlags ), 32 },
     {PSF( loopSound ), 16}
 };
 

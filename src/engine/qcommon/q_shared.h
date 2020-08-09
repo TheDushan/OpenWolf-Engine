@@ -1204,7 +1204,6 @@ typedef struct playerState_s
     sint	misc[MAX_MISC];		// misc data
     sint	jumppad_frame;
     sint	jumppad_ent;	// jumppad entity hit this frame
-    sint extraFlags;
 } playerState_t;
 
 
@@ -1407,7 +1406,6 @@ typedef struct entityState_s
     sint	misc;			// bit flags
     sint	generic1;
     sint	weaponAnim;		// mask off ANIM_TOGGLEBIT
-    sint	extraFlags;
 } entityState_t;
 
 typedef enum

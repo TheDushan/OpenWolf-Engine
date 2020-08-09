@@ -429,8 +429,10 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     
     Info_SetValueForKey( userinfo, "ip", ip );
     
+#ifndef UPDATE_SERVER
     Info_SetValueForKey( cl->userinfo, "authenticated", va( "%i", cl->authenticated ) );
     Info_SetValueForKey( cl->userinfo, "cl_guid", cl->guid );
+#endif
     
     // see if the challenge is valid (local clients don't need to challenge)
     if( !networkSystem->IsLocalAddress( from ) )
@@ -549,8 +551,9 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
             reconnect = true;
             //disconnect the client from the game first so any flags the
             //player might have are dropped
+#if !defined UPDATE_SERVER
             sgame->ClientDisconnect( newcl - svs.clients );
-            
+#endif
             goto gotnewcl;
         }
     }
@@ -627,7 +630,9 @@ gotnewcl:
     ent = serverGameSystem->GentityNum( clientNum );
     newcl->gentity = ent;
     
+#if !defined UPDATE_SERVER
     ent->r.svFlags = 0;
+#endif
     
     // save the challenge
     newcl->challenge = challenge;
@@ -777,6 +782,9 @@ void idServerClientSystemLocal::DropClient( client_t* drop, pointer reason )
         //serverMainSystem->SendServerCommand( nullptr, "print \"[lof]%s" S_COLOR_WHITE " [lon]%s\n\"", drop->name, reason );
     }
     
+    Com_DPrintf( "Going to CS_ZOMBIE for %s\n", drop->name );
+    drop->state = CS_ZOMBIE;	// become free in a few seconds
+    
     if( drop->download )
     {
         fileSystem->FCloseFile( drop->download );
@@ -795,8 +803,10 @@ void idServerClientSystemLocal::DropClient( client_t* drop, pointer reason )
     // nuke user info
     serverInitSystem->SetUserinfo( drop - svs.clients, "" );
     
+#if !defined (UPDATE_SERVER)
     // OACS: Commit then reset the last interframe for this client
     idServerOACSSystemLocal::ExtendedRecordDropClient( drop - svs.clients );
+#endif
     
     Com_DPrintf( "Going to CS_ZOMBIE for %s\n", drop->name );
     drop->state = CS_ZOMBIE; // become free in a few seconds
@@ -947,7 +957,9 @@ void idServerClientSystemLocal::ClientEnterWorld( client_t* client, usercmd_t* c
     // OACS: Set up the interframe for this client
     if( sv_oacsEnable->integer == 1 )
     {
+#if !defined (UPDATE_SERVER)
         idServerOACSSystemLocal::ExtendedRecordClientConnect( client - svs.clients );
+#endif
     }
     
     Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
@@ -978,7 +990,9 @@ void idServerClientSystemLocal::ClientEnterWorld( client_t* client, usercmd_t* c
     }
     
     // call the game begin function
+#ifndef UPDATE_SERVER
     sgame->ClientBegin( client - svs.clients );
+#endif
 }
 
 /*
@@ -1002,9 +1016,8 @@ void idServerClientSystemLocal::CloseDownload( client_t* cl )
     if( cl->download )
     {
         fileSystem->FCloseFile( cl->download );
-        cl->download = 0;
     }
-    
+    cl->download = 0;
     *cl->downloadName = 0;
     
     // Free the temporary buffer space
@@ -2267,7 +2280,9 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, b
                 }
             }
             
+#ifndef UPDATE_SERVER
             sgame->ClientCommand( cl - svs.clients );
+#endif
         }
     }
     else if( !bProcessed )
@@ -2348,7 +2363,7 @@ bool idServerClientSystemLocal::ClientCommand( client_t* cl, msg_t* msg, bool pr
     // Applying floodprotect only to "CS_ACTIVE" clients leaves too much room for abuse.
     // Extending floodprotect to clients pre CS_ACTIVE shouldn't cause any issues,
     // as the download-commands are handled within the engine and floodprotect only filters calls to the VM.
-    if( !com_cl_running->integer /*&& cl->state >= CS_ACTIVE*/ && sv_floodProtect->integer && svs.time < cl->nextReliableTime && floodprotect )
+    if( !com_cl_running->integer && cl->state >= CS_ACTIVE && sv_floodProtect->integer && svs.time < cl->nextReliableTime && floodprotect )
     {
         // ignore any other text messages from this client but let them keep playing
         // TTimo - moved the ignored verbose to the actual processing in SV_ExecuteClientCommand, only printing if the core doesn't intercept
@@ -2634,7 +2649,6 @@ void idServerClientSystemLocal::ExecuteClientMessage( client_t* cl, msg_t* msg )
             Com_DPrintf( "%s acknowledged gamestate\n", cl->name );
             cl->oldServerTime = 0;
         }
-        
         
         // read optional clientCommand strings
         do

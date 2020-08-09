@@ -254,17 +254,8 @@ void idServerCcmdsSystemLocal::Map_f( void )
         cvarSystem->Set( "savegame_filename", "" );
     }
     
-    // We need to copy cmdSystem->Argv(1) before the serverInitSystem->SpawnServer() call below.
-    Q_strncpyz( mapname, map, sizeof( mapname ) );
-    
     // make sure the level exists before trying to change, so that
     // a typo at the server console won't end the game
-    if( strchr( map, '\\' ) )
-    {
-        Com_Printf( "Can't have mapnames with a \\\n" );
-        return;
-    }
-    
     Com_sprintf( expanded, sizeof( expanded ), "maps/%s.bsp", map );
     
     if( fileSystem->ReadFile( expanded, nullptr ) == -1 )
@@ -319,6 +310,10 @@ void idServerCcmdsSystemLocal::Map_f( void )
     {
         serverDemoSystem->DemoStopPlayback();
     }
+    
+    // save the map name here cause on a map restart we reload the q3config.cfg
+    // and thus nuke the arguments of the map command
+    Q_strncpyz( mapname, map, sizeof( mapname ) );
     
     // start up the map
     serverInitSystem->SpawnServer( mapname, killBots );
@@ -457,7 +452,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
         delay = atoi( cmdSystem->Argv( 1 ) );
     }
     
-    if( delay && !cvarSystem->VariableValue( "g_doWarmup" ) )
+    if( delay )
     {
         sv.restartTime = sv.time + delay * 1000;
         serverInitSystem->SetConfigstring( CS_WARMUP, va( "%i", sv.restartTime ) );
@@ -872,10 +867,11 @@ void idServerCcmdsSystemLocal::Status_f( void )
         }
         Com_Printf( "%3i ", i );
         
+#ifndef UPDATE_SERVER
         ps = serverGameSystem->GameClientNum( i );
         
         Com_Printf( "%5i ", ps->persistant[PERS_SCORE] );
-        
+#endif
         if( cl->state == CS_CONNECTED )
         {
             Com_Printf( "CNCT " );
@@ -980,13 +976,14 @@ Examine the serverinfo string
 */
 void idServerCcmdsSystemLocal::Serverinfo_f( void )
 {
-    Com_Printf( "Server info settings:\n" );
-    
-    Info_Print( cvarSystem->InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
     if( !com_sv_running->integer )
     {
         Com_Printf( "Server is not running.\n" );
     }
+    
+    Com_Printf( "Server info settings:\n" );
+    
+    Info_Print( cvarSystem->InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
 }
 
 /*

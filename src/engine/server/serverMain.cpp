@@ -1264,11 +1264,6 @@ void idServerMainSystemLocal::PacketEvent( netadr_t from, msg_t* msg )
         return;
     }
     
-    if( sv.state == SS_DEAD )
-    {
-        return;
-    }
-    
     // read the qport out of the message so we can fix up
     // stupid address translating routers
     MSG_BeginReadingOOB( msg );
@@ -1278,7 +1273,7 @@ void idServerMainSystemLocal::PacketEvent( netadr_t from, msg_t* msg )
     // find which client the message is from
     for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ )
     {
-        if( cl->state <= CS_FREE )
+        if( cl->state == CS_FREE )
         {
             continue;
         }
@@ -1600,6 +1595,7 @@ void idServerMainSystemLocal::Frame( sint msec )
         }
     }
     
+#ifndef UPDATE_SERVER
     if( !com_sv_running->integer )
     {
         // Running as a server, but no map loaded
@@ -1609,6 +1605,7 @@ void idServerMainSystemLocal::Frame( sint msec )
 #endif
         return;
     }
+#endif
     
     // allow pause if only the local client is connected
     if( CheckPaused() )
@@ -1763,9 +1760,12 @@ void idServerMainSystemLocal::Frame( sint msec )
             serverDemoSystem->DemoReadFrame();
         }
 #endif
+        
         if( sv_oacsEnable->integer == 1 )
         {
+#if !defined (UPDATE_SERVER)
             idServerOACSSystemLocal::ExtendedRecordUpdate();
+#endif
         }
     }
     
@@ -1786,7 +1786,9 @@ void idServerMainSystemLocal::Frame( sint msec )
     CheckCvars();
     
     // send a heartbeat to the master if needed
+#ifndef UPDATE_SERVER
     MasterHeartbeat( HEARTBEAT_GAME );
+#endif
     
     if( com_dedicated->integer )
     {

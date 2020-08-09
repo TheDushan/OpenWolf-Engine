@@ -931,6 +931,14 @@ void idClientParseSystemLocal::ParseDownload( msg_t* msg )
     if( !clc.download )
     {
         clc.download = fileSystem->SV_FOpenFileWrite( cls.downloadTempName );
+        
+        if( !clc.download )
+        {
+            Com_Printf( "Could not create %s\n", cls.downloadTempName );
+            CL_AddReliableCommand( "stopdl" );
+            CL_NextDownload();
+            return;
+        }
     }
     
     if( size )

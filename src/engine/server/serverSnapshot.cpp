@@ -629,6 +629,7 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint( vec3_t origin, cl
             
             client = serverGameSystem->GentityNum( frame->ps.clientNum );
             
+#if !defined (UPDATE_SERVER)
             if( sv_wh_active->integer && !portal && !( client->r.svFlags & SVF_BOT ) ) // playerEnt->r.svFlags & SVF_SELF_PORTAL
             {
                 if( !idServerWallhackSystemLocal::CanSee( frame->ps.clientNum, e ) )
@@ -638,6 +639,7 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint( vec3_t origin, cl
                     continue;
                 }
             }
+#endif
         }
         
         // add it
@@ -777,6 +779,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot( client_t* client )
         state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
         *state = ent->s;
         
+#if !defined (UPDATE_SERVER)
         if( sv_wh_active->integer && entityNumbers.snapshotEntities[i] < sv_maxclients->integer )
         {
             if( idServerWallhackSystemLocal::PositionChanged( entityNumbers.snapshotEntities[i] ) )
@@ -784,6 +787,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot( client_t* client )
                 idServerWallhackSystemLocal::RestorePos( entityNumbers.snapshotEntities[i] );
             }
         }
+#endif
         
         svs.nextSnapshotEntities++;
         

@@ -555,17 +555,14 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
                 }
             case CA_LOADING:
             case CA_PRIMED:
+                // draw the game information screen and loading progress
+                clientGameSystem->CGameRendering( stereoFrame );
+                
                 // also draw the connection information, so it doesn't
                 // flash away too briefly on local or lan games
                 //if (!com_sv_running->value || cvarSystem->VariableIntegerValue("sv_cheats"))	// Ridah, don't draw useless text if not in dev mode
                 uiManager->Refresh( cls.realtime );
                 uiManager->DrawConnectScreen( true );
-                // draw the game information screen and loading progress
-                if( cgvm )
-                {
-                    clientGameSystem->CGameRendering( stereoFrame );
-                }
-                
                 break;
             case CA_ACTIVE:
                 clientGameSystem->CGameRendering( stereoFrame );
