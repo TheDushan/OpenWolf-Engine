@@ -2193,15 +2193,6 @@ sint idFileSystemLocal::FileIsInPAK( pointer filename, sint* pChecksum )
                     {
                         *pChecksum = pak->pure_checksum;
                     }
-                    // Mac hack
-                    if( pak->checksum == MP_LEGACY_PAK )
-                    {
-                        legacy_bin = true;
-                    }
-                    else
-                    {
-                        legacy_bin = false;
-                    }
                     return 1;
                 }
                 pakFile = pakFile->next;
@@ -4200,6 +4191,7 @@ pointer idFileSystemLocal::LoadedPakPureChecksums( void )
 {
     static valueType info[BIG_INFO_STRING];
     searchpath_t* search;
+    sint32 len;
     
     info[0] = 0;
     
@@ -4212,6 +4204,12 @@ pointer idFileSystemLocal::LoadedPakPureChecksums( void )
         }
         
         Q_strcat( info, sizeof( info ), va( "%i ", search->pack->pure_checksum ) );
+    }
+    
+    len = ( sint )::strlen( info );
+    if( len > 1 )
+    {
+        info[len - 1] = 0;
     }
     
     // DO_LIGHT_DEDICATED

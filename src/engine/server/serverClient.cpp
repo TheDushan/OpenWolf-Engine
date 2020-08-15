@@ -1637,23 +1637,23 @@ void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
 {
     sint nChkSum1, nChkSum2, nClientPaks, nServerPaks, i, j, nCurArg, nClientChkSum[1024], nServerChkSum[1024];
     pointer pPaks, pArg;
-    bool bGood = true;
+    bool bGood;
     
     // if we are pure, we "expect" the client to load certain things from
     // certain pk3 files, namely we want the client to have loaded the
     // ui and cgame that we think should be loaded based on the pure setting
     if( sv_pure->integer != 0 )
     {
-        bGood = true;
         nChkSum1 = nChkSum2 = 0;
         
-        bGood = ( bool )( fileSystem->FileIsInPAK( idsystem->GetDLLName( "cgame" ), &nChkSum1 ) == 1 );
+        bGood = ( fileSystem->FileIsInPAK( idsystem->GetDLLName( "cgame" ), &nChkSum1 ) == 1 );
         if( bGood )
         {
-            bGood = ( bool )( fileSystem->FileIsInPAK( idsystem->GetDLLName( "gui" ), &nChkSum2 ) == 1 );
+            bGood = ( fileSystem->FileIsInPAK( idsystem->GetDLLName( "gui" ), &nChkSum2 ) == 1 );
         }
         
         nClientPaks = cmdSystem->Argc();
+        
         // start at arg 2 ( skip serverId cl_paks )
         nCurArg = 1;
         
@@ -1774,7 +1774,7 @@ void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
                     }
                 }
                 
-                if( j >= nServerPaks )
+                if( j > nServerPaks )
                 {
                     bGood = false;
                     break;
