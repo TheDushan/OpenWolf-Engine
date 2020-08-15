@@ -1029,7 +1029,6 @@ void idServerInitSystemLocal::ParseVersionMapping( void )
                 Com_Error( ERR_FATAL, "Exceeded maximum number of mappings(%d)", MAX_UPDATE_VERSIONS );
                 return;
             }
-            
         }
         
         Com_Printf( " found %d mapping%c\n--------------------------------------\n\n", numVersions, numVersions > 1 ? 's' : ' ' );

@@ -3048,7 +3048,7 @@ void Com_Init( valueType* commandLine )
     // TTimo gcc warning: variable `safeMode' might be clobbered by `longjmp' or `vfork'
     volatile bool safeMode = true;
     
-    Com_Printf( "%s %s %s\n%s\n", PRODUCT_NAME, ARCH_STRING, __DATE__, commandLine );
+    Com_Printf( "%s %s %s\n%s\n", PRODUCT_NAME, PLATFORM_STRING, __DATE__, commandLine );
     
     if( setjmp( abortframe ) )
     {
@@ -3264,7 +3264,7 @@ void Com_Init( valueType* commandLine )
     cmdSystem->AddCommand( "quit", Com_Quit_f, "Quits the running game, and exits application completely. For server also see killserver" );
     cmdSystem->AddCommand( "writeconfig", Com_WriteConfig_f, "Saves all current settings to the specified file, if none specified then uses owconfig.cfg" );
     
-    s = va( "%s %s %s %s", PRODUCT_NAME, ARCH_STRING, OS_STRING, __DATE__ );
+    s = va( "%s %s %s %s", PRODUCT_NAME, OS_STRING, OS_STRING, __DATE__ );
     com_version = cvarSystem->Get( "version", s, CVAR_ROM | CVAR_SERVERINFO, "Records all info about the application version: build number, build date, win/linux etc" );
     com_protocol = cvarSystem->Get( "protocol", va( "%i", ETPROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "Returns the current protocol (changes with patches)." );
     

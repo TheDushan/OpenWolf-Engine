@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
 // Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
 //
@@ -867,27 +867,55 @@ void idServerMainSystemLocal::GetUpdateInfo( netadr_t from )
     
     for( i = 0; i < numVersions; i++ )
     {
-        if( strcmp( versionMap[i].platform, platform ) == 0 && ( strcmp( versionMap[i].version, version ) != 0 ) )
+        if( !::strcmp( versionMap[i].version, version ) )
         {
-            // If the installer is set to "current", we will skip over it
-            if( strcmp( versionMap[i].installer, "current" ) )
-            {
-                found = true;
-            }
-            
-            break;
+            Com_DPrintf( " version string is same string\n" );
+            found = true;
         }
-    }
-    
-    if( found )
-    {
-        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "updateResponse 1 %s", versionMap[i].installer );
-        Com_DPrintf( "   SENT:  updateResponse 1 %s\n", versionMap[i].installer );
-    }
-    else
-    {
-        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "updateResponse 0" );
-        Com_DPrintf( "   SENT:  updateResponse 0\n" );
+        else
+        {
+            Com_DPrintf( " version string is not the same\n" );
+            Com_DPrintf( " found version %s version %s\n", versionMap[i].version, version );
+            found = false;
+        }
+        
+        if( !::strcmp( versionMap[i].platform, platform ) )
+        {
+            Com_DPrintf( " platform string is the same\n" );
+            Com_DPrintf( " found platform %s platform %s\n", versionMap[i].platform, platform );
+            found = true;
+        }
+        else
+        {
+            Com_DPrintf( " platform string is not the same \n" );
+            Com_DPrintf( " found platform %s platform %s\n", versionMap[i].platform, platform );
+            found = false;
+        }
+        
+        if( ::strcmp( versionMap[i].installer, "current" ) )
+        {
+            Com_DPrintf( " installer string is the current\n" );
+            found = true;
+        }
+        else
+        {
+            Com_DPrintf( " installer string is not the same\n" );
+            Com_DPrintf( " found %s installer\n", versionMap[i].installer );
+            found = false;
+        }
+        
+        Com_DPrintf( " -------------------------------------------------------------------\n" );
+        
+        if( found )
+        {
+            networkChainSystem->OutOfBandPrint( NS_SERVER, from, "updateResponse 1 %s", versionMap[i].installer );
+            Com_DPrintf( "   SENT:  updateResponse 1 %s\n", versionMap[i].installer );
+        }
+        else
+        {
+            networkChainSystem->OutOfBandPrint( NS_SERVER, from, "updateResponse 0" );
+            Com_DPrintf( "   SENT:  updateResponse 0\n" );
+        }
     }
 #endif
 }

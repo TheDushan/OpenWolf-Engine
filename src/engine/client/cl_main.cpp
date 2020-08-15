@@ -3540,7 +3540,7 @@ void CL_CheckAutoUpdate( void )
                  cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
                  BigShort( cls.autoupdateServer.port ) );
                  
-    networkChainSystem->OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, ARCH_STRING );
+    networkChainSystem->OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", PRODUCT_VERSION, OS_STRING );
     
 #endif // !PRE_RELEASE_DEMO
     
