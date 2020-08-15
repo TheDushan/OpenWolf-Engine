@@ -55,6 +55,8 @@ typedef enum
     IMGFLAG_SRGB           = 0x0400,
 } imgFlags_t;
 
+#define MIP_RAW_IMAGE ( IMGFLAG_MIPMAP | IMGFLAG_PICMIP )
+
 typedef struct image_s
 {
     valueType		imgName[MAX_QPATH];		// game path, including extension

@@ -1267,14 +1267,18 @@ const void* RB_DrawSurfs( const void* data )
     
     if( !isShadowView )
     {
+        float32 scale;
+        
         RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
+        
+        scale = tr.sunShaderScale;
         
         if( r_drawSun->integer )
         {
-            RB_DrawSun( 0.1, tr.sunShader );
+            RB_DrawSun( scale, tr.sunShader );
         }
         
-        if( glRefConfig.framebufferObject && r_drawSunRays->integer )
+        if( glRefConfig.framebufferObject && r_drawSunRays->integer && scale > 0 )
         {
             FBO_t* oldFbo = glState.currentFBO;
             FBO_Bind( tr.sunRaysFbo );

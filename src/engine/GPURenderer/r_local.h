@@ -1666,6 +1666,8 @@ typedef struct
     shader_t* flareShader;
     shader_t* sunShader;
     shader_t* sunFlareShader;
+    valueType sunShaderName[MAX_QPATH];
+    float32 sunShaderScale;
     
     sint	numLightmaps;
     sint	lightmapSize;
@@ -1765,6 +1767,9 @@ typedef struct
     vec3_t sunDirection;
     vec3_t lastCascadeSunDirection;
     float32 lastCascadeSunMvp[16];
+    
+    float32 lightGridMulAmbient;	// lightgrid multipliers specified in sky shader
+    float32 lightGridMulDirected;	//
     
     frontEndCounters_t pc;
     sint frontEndMsec; // not in pc due to clearing issue
@@ -2618,7 +2623,7 @@ void R_AddCapShadowmapCmd( sint dlight, sint cubeSide );
 void R_AddConvolveCubemapCmd( sint cubemap );
 void R_AddPostProcessCmd( void );
 
-void RE_EndFrame( sint* frontEndMsec, sint* backEndMsec );
+void R_InitExternalShaders( void );
 void RE_SaveJPG( valueType* filename, sint quality, sint image_width, sint image_height, uchar8* image_buffer, sint padding );
 uint32 RE_SaveJPGToBuffer( uchar8* buffer, uint32 bufSize, sint quality, sint image_width, sint image_height, uchar8* image_buffer, sint padding );
 

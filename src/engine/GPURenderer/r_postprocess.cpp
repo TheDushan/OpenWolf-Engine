@@ -312,6 +312,9 @@ void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox )
     mat4_t mvp, trans, model;
     vec4_t pos, hpos;
     
+    if( tr.sunShaderScale <= 0 )
+        return;
+        
     dot = DotProduct( tr.sunDirection, backEnd.viewParms.orientation.axis[0] );
     if( dot < cutoff )
         return;

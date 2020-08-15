@@ -3148,7 +3148,7 @@ void R_CreateBuiltinImages( void )
         if( r_cubeMapping->integer )
         {
             tr.renderCubeImage = R_CreateImage( "*renderCube", nullptr, r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP | IMGFLAG_CUBEMAP, hdrFormat );
-            tr.prefilterEnvMapImage = R_CreateImage( "*prefilterEnvMapFbo", nullptr, r_cubemapSize->integer / 2, r_cubemapSize->integer / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
+            tr.prefilterEnvMapImage = R_CreateImage( "*prefilterEnvMap", nullptr, r_cubemapSize->integer / 2, r_cubemapSize->integer / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
         }
     }
 }

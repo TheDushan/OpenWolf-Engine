@@ -2229,6 +2229,70 @@ static bool ParseShader( pointer name, valueType** text )
             shader.entityMergable = true;
             continue;
         }
+        // sunShader <shader> [scale]
+        else if( !Q_stricmp( token, "sunShader" ) )
+        {
+            token = COM_ParseExt( text, false );
+            if( !token[0] )
+            {
+                CL_RefPrintf( PRINT_WARNING, "WARNING: '%s' missing shader name for 'sunShader'\n", shader.name );
+                continue;
+            }
+            
+            Q_strncpyz( tr.sunShaderName, token, sizeof( tr.sunShaderName ) );
+            
+            token = COM_ParseExt( text, false );
+            if( !token[0] )
+            {
+                tr.sunShaderScale = 1.0f;
+                continue;
+            }
+            
+            tr.sunShaderScale = atof( token );
+            
+            if( tr.sunShaderScale <= 0 )
+            {
+                CL_RefPrintf( PRINT_WARNING, "WARNING: '%s' scale for 'sunShader' must be more than 0, using scale 1.0 instead.\n", shader.name );
+                tr.sunShaderScale = 1.0f;
+            }
+            continue;
+        }
+        // lightgridmulamb <scale>  ambient multiplier for lightgrid
+        else if( !Q_stricmp( token, "lightgridmulamb" ) )
+        {
+            float32 scale;
+            
+            token = COM_ParseExt( text, false );
+            if( !token[0] )
+            {
+                CL_RefPrintf( PRINT_WARNING, "WARNING: missing parm for 'lightgridmulamb' keyword in shader '%s'\n", shader.name );
+                continue;
+            }
+            
+            scale = atof( token );
+            if( scale > 0 )
+            {
+                tr.lightGridMulAmbient = scale;
+            }
+        }
+        // lightgridmuldir <scale>  directional multiplier for lightgrid
+        else if( !Q_stricmp( token, "lightgridmuldir" ) )
+        {
+            float32 scale;
+            
+            token = COM_ParseExt( text, false );
+            if( !token[0] )
+            {
+                CL_RefPrintf( PRINT_WARNING, "WARNING: missing parm for 'lightgridmuldir' keyword in shader '%s'\n", shader.name );
+                continue;
+            }
+            
+            scale = atof( token );
+            if( scale > 0 )
+            {
+                tr.lightGridMulDirected = scale;
+            }
+        }
         // fogParms
         else if( !Q_stricmp( token, "fogParms" ) )
         {
@@ -2277,6 +2341,32 @@ static bool ParseShader( pointer name, valueType** text )
         else if( !Q_stricmp( token, "skyparms" ) )
         {
             ParseSkyParms( text );
+            continue;
+        }
+        // skyfogvars ( <red> <green> <blue> ) <density>
+        else if( !Q_stricmp( token, "skyfogvars" ) )
+        {
+            vec3_t fogColor;
+            
+            if( !ParseVector( text, 3, fogColor ) )
+            {
+                return false;
+            }
+            token = COM_ParseExt( text, false );
+            
+            if( !token[0] )
+            {
+                CL_RefPrintf( PRINT_WARNING, "WARNING: missing density value for sky fog\n" );
+                continue;
+            }
+            
+            if( atof( token ) > 1 )
+            {
+                CL_RefPrintf( PRINT_WARNING, "WARNING: last value for skyfogvars is 'density' which needs to be 0.0-1.0\n" );
+                continue;
+            }
+            
+            //R_SetFog( FOG_SKY, 0, 5, fogColor[0], fogColor[1], fogColor[2], atof( token ) );
             continue;
         }
         else if( !Q_stricmp( token, "waterfogvars" ) )
@@ -2426,137 +2516,6 @@ static bool ParseShader( pointer name, valueType** text )
         else if( !Q_stricmp( token, "q3map_bouncescale" ) )
         {
             COM_ParseExt2( text, false );
-            continue;
-        }
-        //dpoffsetmapping - .05538845958254273813 match8 91.30766800000000000000
-        //dpglossintensitymod  2
-        //dpglossexponentmod  4
-        //dpreflectcube env / exomorph / exomorph
-        //q3map_bouncescale 1.25
-        else if( !Q_stricmp( token, "dpoffsetmapping" ) )
-        {
-            valueType* keyword = token;
-            token = COM_ParseExt2( text, false );
-            
-            // in common case this is not used since heightmap is detected by engine
-            //shade.heightMapInNormalMap = true;
-            
-            if( !token[0] )
-            {
-                // legacy “parallax” XreaL keyword was never used
-                // it had purpose to enable parallax for the
-                // current shader
-                //
-                // the engine also relied on this to know
-                // that heightMap was stored in normalMap
-                // but there was no other storage options
-                //
-                // since parallax is now enabled by default
-                // when heightMap is present, do nothing
-                continue;
-            }
-            
-            if( !Q_stricmp( token, "none" ) )
-            {
-                //shader.noParallax = true;
-            }
-            else if( !Q_stricmp( token, "disable" ) )
-            {
-                //shader.noParallax = true;
-            }
-            else if( !Q_stricmp( token, "off" ) )
-            {
-                //shader.noParallax = true;
-            }
-            else if( !Q_stricmp( token, "default" ) )
-            {
-                // do nothing more
-            }
-            else if( !Q_stricmp( token, "normal" ) )
-            {
-                // do nothing more (same as default)
-            }
-            else if( !Q_stricmp( token, "linear" ) )
-            {
-                // not implemented yet
-                //Log::Warn("unsupported parm for '%s' keyword in shader '%s'", keyword, shader.name);
-            }
-            else if( !Q_stricmp( token, "relief" ) )
-            {
-                // the only implemented algorithm
-                // hence the default
-                // do nothing more
-            }
-            else if( !Q_stricmp( token, "-" ) )
-            {
-                // do nothing, that's just a filler
-            }
-            else
-            {
-                //Log::Warn("invalid parm for '%s' keyword in shader '%s'", keyword, shader.name);
-                SkipRestOfLine( text );
-                continue;
-            }
-            
-            token = COM_ParseExt2( text, false );
-            
-            if( !token[0] )
-            {
-                //Log::Warn("missing parm for '%s' keyword in shader '%s'", keyword, shader.name);
-                continue;
-            }
-            
-            //shader.offsetScale = atof(token);
-            
-            token = COM_ParseExt2( text, false );
-            
-            // dpoffsetmapping - 2
-            if( !token[0] )
-            {
-                continue;
-            }
-            
-            // dpoffsetmapping - 2 match8 65
-            float32 off;
-            float32 div;
-            
-            if( !Q_stricmp( token, "bias" ) )
-            {
-                off = 0.0f;
-                div = 1.0f;
-            }
-            else if( !Q_stricmp( token, "match" ) )
-            {
-                off = 1.0f;
-                div = 1.0f;
-            }
-            else if( !Q_stricmp( token, "match8" ) )
-            {
-                off = 1.0f;
-                div = 255.0f;
-            }
-            else if( !Q_stricmp( token, "match16" ) )
-            {
-                off = 1.0f;
-                div = 65535.0f;
-            }
-            else
-            {
-                //Log::Warn("invalid parm for '%s' keyword in shader '%s'", keyword, shader.name);
-                SkipRestOfLine( text );
-                continue;
-            }
-            
-            token = COM_ParseExt2( text, false );
-            
-            if( !token[0] )
-            {
-                //Log::Warn("missing parm for '%s' keyword in shader '%s'", keyword, shader.name);
-                continue;
-            }
-            
-            //float32 bias = atof(token);
-            // shader.offsetBias = off - bias / div;
             continue;
         }
         // sort
@@ -2894,16 +2853,6 @@ static void CollapseStagesToLightall( shaderStage_t* diffuse,
         //CL_RefPrintf(PRINT_ALL, ", deluxemap");
         diffuse->bundle[TB_DELUXEMAP] = lightmap->bundle[0];
         diffuse->bundle[TB_DELUXEMAP].image[0] = tr.deluxemaps[shader.lightmapIndex];
-    }
-    
-    if( r_parallaxMapping->integer && !( defs & LIGHTDEF_USE_PARALLAXMAP ) )
-    {
-        //CL_RefPrintf(PRINT_ALL, ", normalmap %s", normal->bundle[0].image[0]->imgName);
-        diffuse->bundle[TB_NORMALMAP] = diffuse->bundle[0];
-        diffuse->bundle[TB_NORMALMAP].numImageAnimations = 0;
-        diffuse->bundle[TB_NORMALMAP].image[0] = diffuse->bundle[TB_DIFFUSEMAP].image[0];
-        
-        VectorSet4( diffuse->normalScale, r_baseNormalX->value, r_baseNormalY->value, 1.0f, r_baseParallax->value );
     }
     
     if( r_normalMapping->integer )
@@ -4755,4 +4704,19 @@ void R_InitShaders( void )
     CL_RefPrintf( PRINT_ALL, "-------------------------\n" );
     
     COM_BeginParseSession( "" );
+}
+
+/*
+==================
+R_InitExternalShaders
+==================
+*/
+void R_InitExternalShaders( void )
+{
+    if( !tr.sunShaderName[0] )
+    {
+        Q_strncpyz( tr.sunShaderName, "sun", sizeof( tr.sunShaderName ) );
+    }
+    
+    tr.sunShader = R_FindShader( tr.sunShaderName, LIGHTMAP_NONE, MIP_RAW_IMAGE );
 }

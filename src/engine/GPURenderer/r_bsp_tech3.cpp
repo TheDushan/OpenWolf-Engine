@@ -3256,6 +3256,7 @@ void idRenderSystemLocal::LoadWorld( pointer name )
         R_RenderMissingCubemaps();
     }
     
+    R_InitExternalShaders();
     
     fileSystem->FreeFile( buffer.v );
 }

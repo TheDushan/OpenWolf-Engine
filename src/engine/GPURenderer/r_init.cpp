@@ -1290,7 +1290,7 @@ void R_Register( void )
     r_parallaxMapShadows = cvarSystem->Get( "r_parallaxMapShadows", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enable self-shadowing on parallax map supported materials. 0 - No. (default) 1 - Yes." );
     r_cubeMapping = cvarSystem->Get( "r_cubeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable cubemap environment mapping" );
     r_horizonFade = cvarSystem->Get( "r_horizonFade", "3", CVAR_ARCHIVE | CVAR_LATCH, "Enable horizon fade cubemap environment mapping" );
-    r_cubemapSize = cvarSystem->Get( "r_cubemapSize", "128", CVAR_ARCHIVE | CVAR_LATCH, "Cubempa size" );
+    r_cubemapSize = cvarSystem->Get( "r_cubemapSize", "128", CVAR_ARCHIVE | CVAR_LATCH, "Cubemap size" );
     r_deluxeSpecular = cvarSystem->Get( "r_deluxeSpecular", "0.3", CVAR_ARCHIVE | CVAR_LATCH, "Enable deluxe specular for materials that support it" );
     r_pbr = cvarSystem->Get( "r_pbr", "1", CVAR_ARCHIVE | CVAR_LATCH, "Enable physically based rendering." );
     r_baseNormalX = cvarSystem->Get( "r_baseNormalX", "1.0", CVAR_ARCHIVE | CVAR_LATCH, "Set the scale of the X values from normal maps when the normalScale keyword is not used. -1 - Flip X. 0 - Ignore X. 1 - Normal X. (default) 2 - Double X." );
@@ -1352,7 +1352,7 @@ void R_Register( void )
     r_bloomScale = cvarSystem->Get( "r_bloomScale", "1.5", CVAR_ARCHIVE, "Scaling bloom effects" );
     r_fxaa = cvarSystem->Get( "r_fxaa", "0", CVAR_ARCHIVE, "Enabled Full Screen Anti Aliasing effects" );
     
-    r_texturedetail = cvarSystem->Get( "r_texturedetail", "0", CVAR_ARCHIVE, "Enabled texture details effects" );
+    r_texturedetail = cvarSystem->Get( "r_textureDetail", "0", CVAR_ARCHIVE, "Enabled texture details effects" );
     r_texturedetailStrength = cvarSystem->Get( "r_texturedetailStrength", "0.004", CVAR_ARCHIVE, "Toggles texture details strength" );
     r_rbm = cvarSystem->Get( "r_rbm", "0", CVAR_ARCHIVE, "Enabled Reflective Bump Mapping effects" );
     r_rbmStrength = cvarSystem->Get( "r_rbmStrength", "0.015", CVAR_ARCHIVE, "Toggles Reflective Bump Mapping strength" );

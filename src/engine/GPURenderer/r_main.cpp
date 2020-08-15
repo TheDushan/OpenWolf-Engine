@@ -2749,11 +2749,13 @@ void R_RenderCubemapSide( sint cubemapIndex, sint cubemapSide, bool subscene )
     parms.viewportHeight = tr.renderCubeFbo->height;
     parms.isPortal = false;
     parms.isMirror = true;
-    parms.flags =  VPF_NOVIEWMODEL | VPF_NOCUBEMAPS;
+    parms.flags = VPF_NOVIEWMODEL | VPF_NOCUBEMAPS;
     
     parms.fovX = 90;
     parms.fovY = 90;
     parms.zNear = 4.0;
+    
+    parms.stereoFrame = tr.refdef.stereoFrame;
     
     VectorCopy( refdef.vieworg, parms.orientation.origin );
     VectorCopy( refdef.viewaxis[0], parms.orientation.axis[0] );
