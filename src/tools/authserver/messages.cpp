@@ -964,7 +964,7 @@ static void HandleKeyResponse( const char* msg, const struct sockaddr_storage* a
     unsigned int index = 0;
     
     // Flood protection
-    if( Cl_BlockedByThrottle( addr, addrlen ) )
+    if( Cl_BlockedByThrottle( addr, addrlen, DEFAULT_FP_THROTTLE ) )
     {
         return;
     }
@@ -1004,7 +1004,7 @@ static void HandleIPResponse( const char* message, const struct sockaddr_storage
     int data;
     
     // Flood protection
-    if( Cl_BlockedByThrottle( address, addressLen ) )
+    if( Cl_BlockedByThrottle( address, addressLen, DEFAULT_FP_THROTTLE ) )
     {
         return;
     }
