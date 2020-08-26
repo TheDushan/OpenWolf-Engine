@@ -1003,6 +1003,12 @@ static void HandleIPResponse( const char* message, const struct sockaddr_storage
     unsigned int index = 0;
     int data;
     
+    // Flood protection
+    if( Cl_BlockedByThrottle( address, addressLen ) )
+    {
+        return;
+    }
+    
     // Break message so packets can be tested
     strncpy( str, message, sizeof( str ) );
     token[index] = strtok( str, " " );
