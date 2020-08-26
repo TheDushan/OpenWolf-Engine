@@ -696,4 +696,53 @@ void            Com_QueueEvent( sint time, sysEventType_t type, sint value, sint
 #define GUIDKEY_FILE "guidopenwolf"
 #define GUIDKEY_SIZE 28
 
+valueType* Com_GetTigerHash( valueType* str );
+
+// HASH TABLE
+typedef struct hash_node_s
+{
+    void* key;
+    void* data;
+    struct hash_node_s* next;
+} hash_node_t;
+
+typedef struct
+{
+    hash_node_t* list;
+    schar16 count;
+} hash_data_t;
+
+typedef struct
+{
+    hash_data_t* table;
+    sint max_colitions;
+    sint size;
+    sint used;
+    uint( *hash_f )( void* k );
+    sint( *compare )( const void* a, const void* b );
+    void ( *destroy_key )( void* a );
+    void ( *destroy_data )( void* a );
+} hash_table_t;
+
+typedef struct
+{
+    hash_table_t* table;
+    hash_node_t* node;
+    sint index;
+} hash_table_iterator_t;
+
+// HASH FUNCTIONS
+hash_table_t* Com_CreateHashTable( uint( *hash_f )( void* k ), sint( *compare )( const void* a, const void* b ), void ( *destroy_key )( void* a ), void ( *destroy_data )( void* a ), sint initial_size );
+hash_node_t* Com_InsertIntoHash( hash_table_t* table, void* key, void* data );
+void Com_DeleteFromHash( hash_table_t* table, void* key );
+hash_node_t* Com_FindHashNode( hash_table_t* table, void* key );
+void* Com_FindHashData( hash_table_t* table, void* key );
+void Com_DestroyHash( hash_table_t* table );
+void Com_RebuildHash( hash_table_t* table, sint new_size );
+uint Com_JenkinsHashKey( void* vkey );
+sint Com_StrCmp( const void* a1, const void* a2 );
+void Com_DestroyStringKey( void* s );
+hash_table_iterator_t* Com_CreateHashIterator( hash_table_t* table );
+void* Com_HashIterationData( hash_table_iterator_t* iter );
+
 #endif //!__QCOMMON_H__

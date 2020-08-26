@@ -946,6 +946,9 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     
     Hunk_SetMark();
     
+    idServerCommunityServer::SaveStatistics();
+    idServerCommunityServer::InitStatistics();
+    
     UpdateConfigStrings();
     
     cvarSystem->Set( "sv_serverRestarting", "0" );
@@ -1029,6 +1032,7 @@ void idServerInitSystemLocal::ParseVersionMapping( void )
                 Com_Error( ERR_FATAL, "Exceeded maximum number of mappings(%d)", MAX_UPDATE_VERSIONS );
                 return;
             }
+            
         }
         
         Com_Printf( " found %d mapping%c\n--------------------------------------\n\n", numVersions, numVersions > 1 ? 's' : ' ' );
@@ -1121,6 +1125,15 @@ void idServerInitSystemLocal::Init( void )
     sv_onlyVisibleClients = cvarSystem->Get( "sv_onlyVisibleClients", "0", 0, "Showing only visible clients while generating a new challenge" ); // DHM - Nerve
     
     sv_showAverageBPS = cvarSystem->Get( "sv_showAverageBPS", "0", 0, "BSP Network debugging" ); // NERVE - SMF - net debugging
+    
+    sv_cs_ServerType = cvarSystem->Get( "sv_cs_ServerType", "1", 0, "Setup server type for the community server. 0: public, 1: public-registered, 2: private." );
+    sv_cs_Salt = cvarSystem->Get( "sv_cs_Salt", "12345", 0, "Community server hash password field." );
+    sv_cs_BotLog = cvarSystem->Get( "sv_cs_BotLog", "1", 0, "Log bots in the community server." );
+    sv_cs_MemberColor = cvarSystem->Get( "sv_cs_MemberColor", "0 255 0", 0, "Color of the registered user in the community server." );
+    sv_cs_UnknownColor = cvarSystem->Get( "sv_cs_UnknownColor", "255 0 0", 0, "Color of the unknown player in the community server." );
+    sv_cs_PrivateOnlyMSG = cvarSystem->Get( "sv_cs_PrivateOnlyMSG", "This server is for registered users only. Register at " PRODUCT_NAME ".com", 0, "Send private message only to the registered user." );
+    sv_cs_stats = cvarSystem->Get( "sv_cs_stats", "", 0, "Enter the address of the community server. Example: xxx.xxx.xxx.xxx:port" );
+    sv_cs_ServerPort = cvarSystem->Get( "sv_cs_ServerPort", "0", 0, "Enter the port address of the community server." );
     
     //Dushan - we need to clean all this
     // NERVE - SMF - create user set cvars
@@ -1259,6 +1272,8 @@ void idServerInitSystemLocal::Init( void )
         idServerOACSSystemLocal::ExtendedRecordInit();
 #endif
     }
+    
+    idServerCommunityServer::StartUp();
 }
 
 

@@ -4903,8 +4903,13 @@ pointer idFileSystemLocal::GetGameDir( void )
     return fs_gamedir;
 }
 
+/*
+=================
+idFileSystemLocal::IsFileEmpty
 
-// Check if a file is empty
+Check if a file is empty
+=================
+*/
 bool idFileSystemLocal::IsFileEmpty( valueType* filename )
 {
     bool result;
@@ -4912,7 +4917,9 @@ bool idFileSystemLocal::IsFileEmpty( valueType* filename )
     valueType buf[1];
     
     // Open the file (we need to use ioquake3 functions because it will build the full path relative to homepath and gamedir, see fileSystem->BuildOSPath)
-    FOpenFileRead( filename, &file, false ); // the length returned by fileSystem->FOpenFileRead is equal to 1 when the file has no content or when it has 1 character, so this length can't be used to know if the file is empty or not
+    // the length returned by fileSystem->FOpenFileRead is equal to 1 when the file has no content or when it has 1 character,
+    // so this length can't be used to know if the file is empty or not
+    FOpenFileRead( filename, &file, false );
     
     // Get the first character from the file, but what we are interested in is the number of characters read, which we store in the var c
     sint c = Read( buf, 1, file );
@@ -4933,4 +4940,14 @@ bool idFileSystemLocal::IsFileEmpty( valueType* filename )
     
     // Return the result
     return result;
+}
+
+/*
+=================
+idFileSystemLocal::GetFullGamePath
+=================
+*/
+valueType* idFileSystemLocal::GetFullGamePath( valueType* filename )
+{
+    return BuildOSPath( fs_homepath->string, fs_gamedir, filename );
 }

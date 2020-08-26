@@ -79,6 +79,7 @@ option( BUILD_SERVER                   "Build dedicated server"                 
 option( BUILD_AUTOUPDATE_SERVER        "Build AutoUpdate server"                  ON )
 option( BUILD_MASTER_SERVER            "Build master server"                      ON )
 option( BUILD_AUTH_SERVER              "Build authorization server"               ON )
+option( BUILD_COMMUNITY_SERVER         "Build community server"                   ON )
 
 # Package info
 set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Application client" )
@@ -192,6 +193,7 @@ set( SERVERLIST_HEADERS
 	${MOUNT_DIR}/server/server.h
 	${MOUNT_DIR}/server/serverCcmds.h
 	${MOUNT_DIR}/server/serverClient.h
+	${MOUNT_DIR}/server/serverCommunity.h
 	${MOUNT_DIR}/server/serverGame.h
 	${MOUNT_DIR}/server/serverWorld.h
 	${MOUNT_DIR}/server/serverSnapshot.h
@@ -216,6 +218,7 @@ set( SERVERLIST_HEADERS
 set( SERVERLIST_SOURCES
 	${MOUNT_DIR}/server/serverCcmds.cpp
 	${MOUNT_DIR}/server/serverClient.cpp
+	${MOUNT_DIR}/server/serverCommunity.cpp
 	${MOUNT_DIR}/server/serverGame.cpp
 	${MOUNT_DIR}/server/serverWorld.cpp
 	${MOUNT_DIR}/server/serverSnapshot.cpp
@@ -293,6 +296,7 @@ set( FRAMEWORKS_HEADERS
 
 set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/FileSystem.cpp
+	${MOUNT_DIR}/framework/hash_table.cpp
 	${MOUNT_DIR}/framework/CVarSystem.cpp
 	${MOUNT_DIR}/framework/CmdSystem.cpp
 	${MOUNT_DIR}/framework/CmdBuffer.cpp
@@ -302,6 +306,7 @@ set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/MD4.cpp
 	${MOUNT_DIR}/framework/MD5.cpp
 	${MOUNT_DIR}/framework/Puff.cpp
+	${MOUNT_DIR}/framework/tiger_hash.cpp
 	${MOUNT_DIR}/framework/Unzip.cpp
 	${MOUNT_DIR}/framework/Network.cpp
 	${MOUNT_DIR}/framework/NetworkChain.cpp
@@ -454,6 +459,19 @@ set( OWAUTHSERVERLIST_SOURCES
 	${TOOLS_DIR}/authserver/servers.cpp
 	${TOOLS_DIR}/authserver/system.cpp
 	${TOOLS_DIR}/authserver/dpmaster.cpp
+)
+
+set( OWCOMMUNITYSERVERLIST_HEADERS
+	${TOOLS_DIR}/communityserver/communityserver.hpp
+	${TOOLS_DIR}/communityserver/json.hpp
+)
+
+set( OWCOMMUNITYSERVERLIST_SOURCES
+	${TOOLS_DIR}/communityserver/communityserver.cpp
+	${TOOLS_DIR}/communityserver/mySQLDatabase.cpp
+	${TOOLS_DIR}/communityserver/net.cpp
+	${TOOLS_DIR}/communityserver/parser.cpp
+	${TOOLS_DIR}/communityserver/json.cpp
 )
 
 set( CLIENT_SOURCES
@@ -723,7 +741,7 @@ if( BUILD_MASTER_SERVER )
 	if(WIN32)
 		target_link_libraries( OWMaster wsock32 ws2_32 ${GEOIP_LIBRARIES} )
 	elseif( UNIX )
-		target_link_libraries( OWMaster -ltdb -lm ${GEOIP_LIBRARIES} )
+		target_link_libraries( OWMaster -lm ${GEOIP_LIBRARIES} )
 	endif() 
 
 	set_target_properties( OWMaster PROPERTIES OUTPUT_NAME "OWMaster.${BUILD_ARCH}" PREFIX "" )
@@ -755,9 +773,44 @@ if( BUILD_AUTH_SERVER )
 	if(WIN32)
 		target_link_libraries( OWAuthServer wsock32 ws2_32 )
 	elseif( UNIX )
-		target_link_libraries( OWAuthServer -ltdb -lm )
+		target_link_libraries( OWAuthServer -lm )
 	endif() 
 
 	set_target_properties( OWAuthServer PROPERTIES OUTPUT_NAME "OWAuthServer.${BUILD_ARCH}" PREFIX "" )
 
+endif()
+
+###########################
+# Build OWCommunityServer #
+###########################
+
+if( BUILD_COMMUNITY_SERVER )
+	# Dushan - This is how visual studio directories (or filters) are generated
+	if( MSVC )
+		SOURCE_GROUP( Header\ Files\\OWCommunityServer                        FILES ${OWCOMMUNITYSERVERLIST_HEADERS} )
+		SOURCE_GROUP( Source\ Files\\OWCommunityServer                        FILES ${OWCOMMUNITYSERVERLIST_SOURCES} )
+	endif( MSVC )
+
+	# Setup OWCommunityServer target
+	add_executable( OWCommunityServer ${OWCOMMUNITYSERVERLIST_SOURCES} ${OWCOMMUNITYSERVERLIST_HEADERS} )
+	if(WIN32)
+		target_compile_options( OWCommunityServer PRIVATE "/MP" )
+		set_property( TARGET OWCommunityServer APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ NDEBUG _WIN32 WIN32 _AMD64 _WIN64 __WIN64__  )
+	elseif( UNIX )
+		set_property( TARGET OWCommunityServer APPEND PROPERTY COMPILE_DEFINITIONS __LINUX__ _LINUX_ LINUX )
+	endif() 
+
+    find_package( MySQL REQUIRED )
+
+	TARGET_INCLUDE_DIRECTORIES( OWCommunityServer PRIVATE ${TOOLS_DIR}/communityserver ${MYSQL_INCLUDE_DIR} )
+    
+	target_link_libraries( OWCommunityServer ${MYSQL_LIBRARIES} )
+	
+	if(WIN32)
+		target_link_libraries( OWCommunityServer wsock32 ws2_32 )
+	elseif( UNIX )
+		target_link_libraries( OWCommunityServer -lm )
+	endif() 
+
+	set_target_properties( OWCommunityServer PROPERTIES OUTPUT_NAME "OWCommunityServer.${BUILD_ARCH}" PREFIX "" )
 endif()

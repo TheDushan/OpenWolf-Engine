@@ -194,7 +194,7 @@ sint S_OGG_Callback_close( void* datasource )
 }
 
 // ftell() replacement
-long S_OGG_Callback_tell( void* datasource )
+sint32 S_OGG_Callback_tell( void* datasource )
 {
     // check if input is valid
     if( !datasource )

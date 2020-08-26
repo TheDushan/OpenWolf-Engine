@@ -613,7 +613,7 @@ void idParseSystemLocal::NumberValue( valueType* string, sint subtype, uint32* i
             string++;
         }
         
-        *intvalue = ( unsigned long ) * floatvalue;
+        *intvalue = ( uint32 ) * floatvalue;
     }
     else if( subtype & TT_DECIMAL )
     {
@@ -3308,7 +3308,7 @@ sint idParseSystemLocal::DollarDirective_evalfloat( source_t* source )
     ::sprintf( token.string, "%1.2f", fabs( value ) );
     token.type = TT_NUMBER;
     token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
-    token.intvalue = ( unsigned long ) value;
+    token.intvalue = ( uint32 ) value;
     token.floatvalue = value;
     
     UnreadSourceToken( source, &token );

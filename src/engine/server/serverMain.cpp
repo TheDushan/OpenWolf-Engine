@@ -127,6 +127,15 @@ convar_t* sv_wh_check_fov;
 convar_t* sv_minimumAgeGuid;
 convar_t* sv_maximumAgeGuid;
 
+convar_t* sv_cs_ServerType;
+convar_t* sv_cs_Salt;
+convar_t* sv_cs_BotLog;
+convar_t* sv_cs_MemberColor;
+convar_t* sv_cs_UnknownColor;
+convar_t* sv_cs_PrivateOnlyMSG;
+convar_t* sv_cs_stats;
+convar_t* sv_cs_ServerPort;
+
 #define LL( x ) x = LittleLong( x )
 
 /*
@@ -248,8 +257,19 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... 
     
     if( cl != nullptr )
     {
+    
+        if( idServerCommunityServer::ProcessServerCmd( ( char* )message ) )
+        {
+            return;
+        }
+        
         AddServerCommand( cl, ( valueType* )message );
         return;
+    }
+    
+    if( ::strstr( ( char* )message, "limit hit" ) || strstr( ( char* )message, "hit the" ) )
+    {
+        community_stats.mapstatus = 2;
     }
     
     // hack to echo broadcast prints to console
@@ -1104,10 +1124,42 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
     // we must NEVER send an OOB message that will be > 1.31 MAXPRINTMSG (4096)
     valueType sv_outputbuf[MAX_MSGLEN - 16];
     static uint lasttime = 0;
+    valueType* cmd_aux;
+    client_t* cl = nullptr;
+    
+    sint p_iter;
+    sint cs_authorized;
+    
+    Com_Printf( "Comando rcon: %s\n", cmdSystem->Cmd() );
+    
+    // UrTEvolution Community Builder rcon automatic autorization
+    for( p_iter = 0, cl = svs.clients;
+            p_iter < sv_maxclients->integer &&
+            strcmp( Info_ValueForKey( cl->userinfo, "ip" ), networkSystem->AdrToString( from ) ) != 0;
+            p_iter++, cl++ );
+            
+    // If rcon comes from a player
+    if( p_iter < sv_maxclients->integer )
+    {
+        if( cl->cs_user != nullptr && ( cl->cs_user->type == CS_ADMIN || cl->cs_user->type == CS_OWNER ) )
+        {
+            cs_authorized = CS_OK;
+        }
+        else
+        {
+            cs_authorized = CS_ERROR;
+        }
+    }
+    // If rcon comes from outside I accept it but I will check rconpassword
+    else
+    {
+        cs_authorized = CS_CHECK;
+    }
     
     // TTimo - show_bug.cgi?id=534
     time = Com_Milliseconds();
-    if( !::strlen( sv_rconPassword->string ) || strcmp( cmdSystem->Argv( 1 ), sv_rconPassword->string ) )
+    
+    if( !( cs_authorized == CS_OK || ( cs_authorized == CS_CHECK && ::strcmp( cmdSystem->Argv( 1 ), sv_rconPassword->string ) == 0 ) ) || cs_authorized == CS_ERROR )
     {
         // MaJ - If the rconpassword is bad and one just happned recently, don't spam the log file, just die.
         if( ( uint )( time - lasttime ) < 500u )
@@ -1129,7 +1181,14 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
         
         valid = true;
         
-        Com_Printf( "Rcon from %s:\n%s\n", networkSystem->AdrToString( from ), cmdSystem->Argv( 2 ) );
+        if( cs_authorized == CS_OK )
+        {
+            Com_Printf( "Rcon from %s:\n%s\n", networkSystem->AdrToString( from ), cmdSystem->Argv( 1 ) );
+        }
+        else
+        {
+            Com_Printf( "Rcon from %s:\n%s\n", networkSystem->AdrToString( from ), cmdSystem->Argv( 2 ) );
+        }
     }
     
     lasttime = time;
@@ -1156,11 +1215,45 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
     {
         remaining[0] = 0;
         
-        for( i = 2; i < cmdSystem->Argc(); i++ )
+        // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
+        // get the command directly, "rcon <pass> <command>" to avoid quoting issues
+        // extract the command by walking
+        // since the cmd formatting can fuckup (amount of spaces), using a dumb step by step parsing
+        cmd_aux = cmdSystem->Cmd();
+        cmd_aux += 4;
+        
+        while( cmd_aux[0] == ' ' )
         {
-            strcat( remaining, cmdSystem->Argv( i ) );
-            strcat( remaining, " " );
+            cmd_aux++;
         }
+        
+        if( cs_authorized == CS_CHECK )
+        {
+            // password
+            while( cmd_aux[0] && cmd_aux[0] != ' ' )
+            {
+                cmd_aux++;
+            }
+             
+            while( cmd_aux[0] == ' ' )
+            {
+                cmd_aux++;
+            }
+        }
+        
+        if( cs_authorized == CS_OK )
+        {
+            // You sould not set rconpassword if you are authorized
+            if( strcmp( cmdSystem->Argv( 1 ), sv_rconPassword->string ) == 0 )
+            {
+                networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nPlease, do not use rconpassword while you are playing.\n" );
+                networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nSolution: /rconpassword \"\"\n" );
+                return;
+            }
+            
+        }
+        
+        Q_strcat( remaining, sizeof( remaining ), cmd_aux );
         
         cmdSystem->ExecuteString( remaining );
         
@@ -1476,6 +1569,8 @@ void idServerMainSystemLocal::CheckTimeouts( void )
             cl->timeoutCount = 0;
         }
     }
+    
+    idServerCommunityServer::StatsLoop();
 }
 
 /*

@@ -829,7 +829,6 @@ static bool SecureInit( void )
     return true;
 }
 
-
 /*
 ====================
 main

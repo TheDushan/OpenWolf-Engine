@@ -1561,7 +1561,7 @@ void CL_Disconnect_f( void )
     {
         if( cmdSystem->Argc() > 1 )
         {
-            char reason[MAX_STRING_CHARS] = { 0 };
+            valueType reason[MAX_STRING_CHARS] = { 0 };
             Q_strncpyz( reason, cmdSystem->Argv( 1 ), sizeof( reason ) );
             Q_strstrip( reason, "\r\n;\"", NULL );
             CL_Disconnect( true, reason );

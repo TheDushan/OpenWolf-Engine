@@ -325,14 +325,15 @@ A "connect" OOB command has been received
 */
 void idServerClientSystemLocal::DirectConnect( netadr_t from )
 {
-    valueType userinfo[MAX_INFO_STRING], *denied, *ip, guid[GUIDKEY_SIZE];
-    sint	i, clientNum, qport, challenge, startIndex, count, oldInfoLen2 = ( sint )::strlen( userinfo ), newInfoLen2;
+    valueType userinfo[MAX_INFO_STRING], *denied, *ip, guid[GUIDKEY_SIZE], *password;
+    sint i, clientNum, qport, challenge, startIndex, count, oldInfoLen2 = ( sint )::strlen( userinfo ), newInfoLen2;
     client_t* cl, *newcl, temp;
     sharedEntity_t* ent;
 #if !defined (UPDATE_SERVER)
     sint	version;
 #endif
     bool reconnect = false, authed;
+    user_t* user;
     
     Com_DPrintf( "idServerClientSystemLocal::DirectConnect ()\n" );
     
@@ -532,6 +533,20 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         }
     }
     
+    // Community server login and ban system
+    // check for privateClient password
+    if( idServerCommunityServer::Login( userinfo, &user ) != CS_OK )
+    {
+        return;
+    }
+    
+    // Check if guid is banned
+    if( idServerCommunityServer::checkBanGUID( Info_ValueForKey( userinfo, "cl_guid" ) ) == 1 )
+    {
+        networkChainSystem->OutOfBandPrint( NS_SERVER, from, "print\nYou are not allowed to enter to this server!\n" );
+        return;
+    }
+    
     newcl = &temp;
     ::memset( newcl, 0, sizeof( client_t ) );
     
@@ -548,11 +563,11 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
             Com_Printf( "%s:reconnect\n", networkSystem->AdrToString( from ) );
             newcl = cl;
             
-            reconnect = true;
+            //reconnect = true;
             //disconnect the client from the game first so any flags the
             //player might have are dropped
 #if !defined UPDATE_SERVER
-            sgame->ClientDisconnect( newcl - svs.clients );
+            //sgame->ClientDisconnect( newcl - svs.clients );
 #endif
             goto gotnewcl;
         }
@@ -569,7 +584,8 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     // servers so we can play without having to kick people.
     
     // check for privateClient password
-    if( !::strcmp( Info_ValueForKey( userinfo, "password" ), sv_privatePassword->string ) )
+    password = Info_ValueForKey( userinfo, "password" );
+    if( !strcmp( password, sv_privatePassword->string ) )
     {
         startIndex = 0;
     }
@@ -626,6 +642,14 @@ gotnewcl:
     // accept the new client
     // this is the only place a client_t is ever initialized
     *newcl = temp;
+    
+    // Adding Community server Data
+    if( newcl->cs_user != NULL )
+    {
+        idServerCommunityServer::destroyUserData( newcl->cs_user );
+    }
+    newcl->cs_user = user;
+    
     clientNum = newcl - svs.clients;
     ent = serverGameSystem->GentityNum( clientNum );
     newcl->gentity = ent;
@@ -1912,6 +1936,8 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
         oldInfoLen = newInfoLen;
     }
     
+    idServerCommunityServer::userInfoChanged( cl );
+    
     // name for C code
     Q_strncpyz( cl->name, Info_ValueForKey( cl->userinfo, "name" ), sizeof( cl->name ) );
     
@@ -2143,6 +2169,11 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, b
     Com_DPrintf( "idServerClientSystemLocal::ExecuteClientCommand: %s\n", s );
     
     cmdSystem->TokenizeString( s );
+    
+    if( idServerCommunityServer::checkClientCommandPermitions( cl, s ) != CS_OK )
+    {
+        clientOK = false;
+    }
     
     // see if it is a server level command
     for( u = ucmds; u->name; u++ )

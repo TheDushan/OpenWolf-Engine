@@ -50,7 +50,7 @@ public:
     static void AddOperatorCommands( void );
     static void Heartbeat_f( void );
     static bool TempBanIsBanned( netadr_t address );
-    
+    static client_t* GetPlayerByHandle( void );
     static client_t* GetPlayerByName( void );
     static void Map_f( void );
     static bool CheckTransitionGameState( gamestate_t new_gs, gamestate_t old_gs );
@@ -63,6 +63,18 @@ public:
     static void Serverinfo_f( void );
     static void Systeminfo_f( void );
     static void DumpUser_f( void );
+    static void UserInfo_f( void );
+    static void StartMatch_f( void );
+    static void StopMatch_f( void );
+    static void AddClanMatch_f( void );
+    static void AddUserMatch_f( void );
+    static void AddRefereeMatch_f( void );
+    static void MatchInfo_f( void );
+    static void AddIP_f( void );
+    static void BanList_f( void );
+    static void UnBan_f( void );
+    static void StatsPlayers_f( void );
+    static void StatsPlayer_f( void );
     static void KillServer_f( void );
     static void GameCompleteStatus_f( void );
     static void CompleteMapName( valueType* args, sint argNum );

@@ -73,6 +73,76 @@ These commands can only be entered from stdin or by a remote operator datagram
 
 /*
 ==================
+idServerCcmdsSystemLocal::GetPlayerByHandle
+
+Returns the player with player id or name from Cmd_Argv(1)
+==================
+*/
+client_t* idServerCcmdsSystemLocal::GetPlayerByHandle( void )
+{
+    sint i;
+    client_t* cl;
+    valueType* s, cleanName[64];
+    
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        return NULL;
+    }
+    
+    if( cmdSystem->Argc() < 2 )
+    {
+        Com_Printf( "No player specified.\n" );
+        return NULL;
+    }
+    
+    s = cmdSystem->Argv( 1 );
+    
+    // Check whether this is a numeric player handle
+    for( i = 0; s[i] >= '0' && s[i] <= '9'; i++ );
+    
+    if( !s[i] )
+    {
+        int plid = atoi( s );
+        
+        // Check for numeric playerid match
+        if( plid >= 0 && plid < sv_maxclients->integer )
+        {
+            cl = &svs.clients[plid];
+            
+            if( cl->state )
+                return cl;
+        }
+    }
+    
+    // check for a name match
+    for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ )
+    {
+        if( !cl->state )
+        {
+            continue;
+        }
+        if( !Q_stricmp( cl->name, s ) )
+        {
+            return cl;
+        }
+        
+        Q_strncpyz( cleanName, cl->name, sizeof( cleanName ) );
+        Q_CleanStr( cleanName );
+        
+        if( !Q_stricmp( cleanName, s ) )
+        {
+            return cl;
+        }
+    }
+    
+    Com_Printf( "Player %s is not on the server\n", s );
+    
+    return nullptr;
+}
+
+/*
+==================
 idServerCcmdsSystemLocal::GetPlayerByName
 
 Returns the player with name from cmdSystem->Argv(1)
@@ -855,7 +925,7 @@ void idServerCcmdsSystemLocal::Status_f( void )
     Com_Printf( "avg response time: %i ms\n", ( sint )avg );
     
     Com_Printf( "map: %s\n", sv_mapname->string );
-    
+    Com_Printf( "Game ID: %s\n", community_stats.game_id );
     Com_Printf( "num score ping name            lastmsg address               qport rate\n" );
     Com_Printf( "--- ----- ---- --------------- ------- --------------------- ----- -----\n" );
     
@@ -906,6 +976,15 @@ void idServerCcmdsSystemLocal::Status_f( void )
         Com_Printf( "%5i", cl->netchan.qport );
         
         Com_Printf( " %5i", cl->rate );
+        
+        if( cl->cs_user != nullptr )
+        {
+            Com_Printf( " %s", cl->cs_user->name );
+        }
+        else
+        {
+            Com_Printf( " N/A" );
+        }
         
         Com_Printf( "\n" );
     }
@@ -988,7 +1067,7 @@ void idServerCcmdsSystemLocal::Serverinfo_f( void )
 
 /*
 ===========
-SV_Systeminfo_f
+idServerCcmdsSystemLocal::Systeminfo_f
 
 Examine or change the serverinfo string
 ===========
@@ -1042,6 +1121,410 @@ void idServerCcmdsSystemLocal::DumpUser_f( void )
     Info_Print( cl->userinfo );
 }
 
+/*
+====================
+idServerCcmdsSystemLocal::UserInfo_f
+====================
+*/
+void idServerCcmdsSystemLocal::UserInfo_f( void )
+{
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    if( cmdSystem->Argc() != 2 )
+    {
+        Com_Printf( "Usage: userinfo <username>\n" );
+        return;
+    }
+    
+    idServerCommunityServer::UserInfo( cmdSystem->Argv( 1 ) );
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::StartMatch_f
+====================
+*/
+void idServerCcmdsSystemLocal::StartMatch_f( void )
+{
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    idServerCommunityServer::startMatch();
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::StopMatch_f
+====================
+*/
+void idServerCcmdsSystemLocal::StopMatch_f( void )
+{
+    int i;
+    client_t* cl;
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    idServerCommunityServer::stopMatch();
+    
+    // Say bye to all players and referees and restart server
+    for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ )
+    {
+        if( !cl->state )
+        {
+            continue;
+        }
+        if( cl->netchan.remoteAddress.type == NA_LOOPBACK )
+        {
+            continue;
+        }
+        serverClientSystem->DropClient( cl, "Thanks for playing! Bye!" );
+        cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+    }
+    
+    cmdSystem->ExecuteString( "exec server.cfg" );
+    
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::AddClanMatch_f
+====================
+*/
+void idServerCcmdsSystemLocal::AddClanMatch_f( void )
+{
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    if( cmdSystem->Argc() != 2 )
+    {
+        Com_Printf( "Usage: addclanmatch <clanname>\n" );
+        return;
+    }
+    
+    idServerCommunityServer::addMatchClan( cmdSystem->Argv( 1 ) );
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::AddUserMatch_f
+====================
+*/
+void idServerCcmdsSystemLocal::AddUserMatch_f( void )
+{
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    if( cmdSystem->Argc() != 2 )
+    {
+        Com_Printf( "Usage: addusermatch <username>\n" );
+        return;
+    }
+    
+    idServerCommunityServer::addMatchUser( cmdSystem->Argv( 1 ) );
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::AddRefereeMatch_f
+====================
+*/
+void idServerCcmdsSystemLocal::AddRefereeMatch_f( void )
+{
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    if( cmdSystem->Argc() != 2 )
+    {
+        Com_Printf( "Usage: addrefereematch <username>\n" );
+        return;
+    }
+    
+    idServerCommunityServer::addMatchReferee( cmdSystem->Argv( 1 ) );
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::MatchInfo_f
+====================
+*/
+void idServerCcmdsSystemLocal::MatchInfo_f( void )
+{
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    idServerCommunityServer::matchInfo();
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::AddIP_f
+====================
+*/
+void idServerCcmdsSystemLocal::AddIP_f( void )
+{
+    client_t* cl;
+    
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    if( cmdSystem->Argc() != 2 )
+    {
+        Com_Printf( "Usage: addip <userid>\n" );
+        return;
+    }
+    
+    cl = GetPlayerByHandle();
+    if( !cl )
+    {
+        return;
+    }
+    
+    idServerCommunityServer::BanUser( cl );
+    
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::BanList_f
+====================
+*/
+void idServerCcmdsSystemLocal::BanList_f( void )
+{
+
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    idServerCommunityServer::showBanUsers();
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::UnBan_f
+====================
+*/
+void idServerCcmdsSystemLocal::UnBan_f( void )
+{
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    if( cmdSystem->Argc() != 2 )
+    {
+        Com_Printf( "Usage: unban <banlist num>\n" );
+        return;
+    }
+    
+    idServerCommunityServer::unbanUser( cmdSystem->Argv( 1 ) );
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::StatsPlayers_f
+====================
+*/
+void idServerCcmdsSystemLocal::StatsPlayers_f( void )
+{
+    sint i;
+    
+    char bigbuffer[MAX_INFO_STRING * 2];
+    
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    for( i = 0; i < sv_maxclients->integer; i++ )
+    {
+        if( svs.clients[i].state >= CS_ACTIVE )
+        {
+            ::sprintf( bigbuffer, "stats %i MELEE", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i BLASTER", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i MACHINEGUNE", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i PAIN_SAW", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i SHOTGUN", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i LAS_GUN", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i MASS_DRIVER", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i CHAINGUN", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i PULSE_RIFLE", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i FLAMER", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i LUCIFER_CANNON", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i GRENADE", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i LOCKBLOB_LAUNCHER", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i MISC", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+            
+            ::sprintf( bigbuffer, "stats %i EXPLOSIONS", i );
+            cmdSystem->TokenizeString( bigbuffer );
+            sgame->ClientCommand( i );
+        }
+    }
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::StatsPlayer_f
+====================
+*/
+void idServerCcmdsSystemLocal::StatsPlayer_f( void )
+{
+    static sint player;
+    
+    valueType bigbuffer[MAX_INFO_STRING * 2];
+    
+    // make sure server is running
+    if( !com_sv_running->integer )
+    {
+        Com_Printf( "Server is not running.\n" );
+        return;
+    }
+    
+    player = ( player + 1 ) % sv_maxclients->integer;
+    
+    if( svs.clients[player].state >= CS_ACTIVE )
+    {
+        ::sprintf( bigbuffer, "stats %i MELEE", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i BLASTER", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i MACHINEGUNE", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i PAIN_SAW", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i SHOTGUN", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i LAS_GUN", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i MASS_DRIVER", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i CHAINGUN", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i PULSE_RIFLE", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i FLAMER", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i LUCIFER_CANNON", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i GRENADE", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i LOCKBLOB_LAUNCHER", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i MISC", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+        
+        ::sprintf( bigbuffer, "stats %i EXPLOSIONS", player );
+        cmdSystem->TokenizeString( bigbuffer );
+        sgame->ClientCommand( player );
+    }
+}
 
 /*
 =================
@@ -1082,7 +1565,7 @@ void idServerCcmdsSystemLocal::CompleteMapName( valueType* args, sint argNum )
 
 /*
 =================
-SV_StartRedirect_f
+idServerCcmdsSystemLocal::ClientRedirect
 
 Redirect console output to a client
 =================
@@ -1094,6 +1577,11 @@ void idServerCcmdsSystemLocal::ClientRedirect( valueType* outputbuf )
     serverMainSystem->SendServerCommand( redirect_client, "%s", outputbuf );
 }
 
+/*
+====================
+idServerCcmdsSystemLocal::StartRedirect_f
+====================
+*/
 void idServerCcmdsSystemLocal::StartRedirect_f( void )
 {
 #define SV_OUTPUTBUF_LENGTH (1024 - 16)
@@ -1112,7 +1600,6 @@ void idServerCcmdsSystemLocal::StartRedirect_f( void )
     Com_EndRedirect();
     Com_BeginRedirect( sv_outputbuf, SV_OUTPUTBUF_LENGTH, ClientRedirect );
 }
-
 
 /*
 =================
@@ -1173,14 +1660,14 @@ void idServerCcmdsSystemLocal::Demo_Record_f( void )
         Com_Printf( "ERROR: Couldn't open %s for writing.\n", sv.demoName );
         return;
     }
+    
     serverDemoSystem->DemoStartRecord();
 }
 
-
 /*
-=================
-SV_Demo_Play_f
-=================
+====================
+idServerCcmdsSystemLocal::Demo_Play_f
+====================
 */
 void idServerCcmdsSystemLocal::Demo_Play_f( void )
 {
@@ -1221,11 +1708,10 @@ void idServerCcmdsSystemLocal::Demo_Play_f( void )
     serverDemoSystem->DemoStartPlayback();
 }
 
-
 /*
-=================
-SV_Demo_Stop_f
-=================
+====================
+idServerCcmdsSystemLocal::Demo_Stop_f
+====================
 */
 void idServerCcmdsSystemLocal::Demo_Stop_f( void )
 {
@@ -1248,7 +1734,7 @@ void idServerCcmdsSystemLocal::Demo_Stop_f( void )
 
 /*
 ====================
-SV_CompleteDemoName
+idServerCcmdsSystemLocal::CompleteDemoName
 ====================
 */
 void idServerCcmdsSystemLocal::CompleteDemoName( valueType* args, sint argNum )
@@ -1308,6 +1794,21 @@ void idServerCcmdsSystemLocal::AddOperatorCommands( void )
     cmdSystem->AddCommand( "demo_stop", &idServerCcmdsSystemLocal::Demo_Stop_f, "Stopping a demo file" );
     
     cmdSystem->AddCommand( "cheater", &idServerOACSSystemLocal::ExtendedRecordSetCheater_f, "Server-side command to set a client's cheater label cheater <client> <label> where label is 0 for honest players, and >= 1 for cheaters" );
+    
+    cmdSystem->AddCommand( "userinfo", &idServerCcmdsSystemLocal::UserInfo_f, "" );
+    cmdSystem->AddCommand( "startmatch", &idServerCcmdsSystemLocal::StartMatch_f, "" );
+    cmdSystem->AddCommand( "stopmatch", &idServerCcmdsSystemLocal::StopMatch_f, "" );
+    cmdSystem->AddCommand( "addclanmatch", &idServerCcmdsSystemLocal::AddClanMatch_f, "" );
+    cmdSystem->AddCommand( "addusermatch", &idServerCcmdsSystemLocal::AddUserMatch_f, "" );
+    cmdSystem->AddCommand( "addrefereematch", &idServerCcmdsSystemLocal::AddRefereeMatch_f, "" );
+    cmdSystem->AddCommand( "matchinfo", &idServerCcmdsSystemLocal::MatchInfo_f, "" );
+    cmdSystem->AddCommand( "addip", &idServerCcmdsSystemLocal::AddIP_f, "" );
+    cmdSystem->AddCommand( "banlist", &idServerCcmdsSystemLocal::BanList_f, "" );
+    cmdSystem->AddCommand( "unban", &idServerCcmdsSystemLocal::UnBan_f, "" );
+    
+    cmdSystem->AddCommand( "csstats_players", &idServerCcmdsSystemLocal::StatsPlayers_f, "" );
+    cmdSystem->AddCommand( "csstats_player", &idServerCcmdsSystemLocal::StatsPlayer_f, "" );
+    
     
     if( com_dedicated->integer )
     {

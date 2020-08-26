@@ -28,7 +28,6 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   server.h
-// Version:     v1.01
 // Created:
 // Compilers:   Visual Studio 2019, gcc 7.3.0
 // Description:
@@ -43,19 +42,173 @@
 
 #define MAX_BPS_WINDOW      20	// NERVE - SMF - net debugging
 
+#define CLAN_NAME_SIZE 33
+#define USER_NAME_SIZE 33
+
+typedef struct
+{
+    valueType name[CLAN_NAME_SIZE + 1];
+} clan_t;
+
+typedef struct user_clan_s
+{
+    clan_t* clan;
+    struct user_clan_s* next;
+} user_clan_t;
+
+typedef struct
+{
+    valueType name[USER_NAME_SIZE + 1];
+    valueType password[49]; // Tiger Hash password
+    valueType uguid[33];
+    valueType type;
+    user_clan_t* clans;
+} user_t;
+
+#define WEAPONS 12
+typedef enum
+{
+    W_BLASTER,
+    W_MACHINEGUN,
+    W_PAIN_SAW,
+    W_SHOTGUN,
+    W_LAS_GUN,
+    W_MASS_DRIVER,
+    W_CHAINGUN,
+    W_PULSE_RIFLE,
+    W_FLAMER,
+    W_LUCIFER_CANNON,
+    W_GRENADE,
+    W_LOCKBLOB_LAUNCHER
+} weapon_name_e;
+
+#define WEAPONS_MNEMONICS "$BL", "$MC", "$PS", "$SH", "$LG", "$MD", "$CG", "$PR", "$FL", "$LC", "$GR", "$LL", NULL
+
+// Must be the same long as weapon_stats_e
+#define WEAPON_STATS 18
+
+typedef enum
+{
+    WS_FIRED,
+    WS_FIRED_HIT,
+    WS_FIRED_HIT_TEAM,
+    WS_FIRED_MISSED,
+    WS_KILLS,
+    WS_DEADS,
+    WS_DAMAGE_DONE,
+    WS_DAMEGE_TO_TEAM,
+    WS_HIT_HEAD,
+    WS_HIT_TORSO,
+    WS_HIT_LEGS,
+    WS_HIT_ARMS,
+    WS_DAMAGE_TAKEN,
+    WS_DAMAGE_TAKEN_FROM_TEAM,
+    WS_DAMAGE_TAKEN_HEAD,
+    WS_DAMAGE_TAKEN_TORSO,
+    WS_DAMAGE_TAKEN_LEGS,
+    WS_DAMAGE_TAKEN_ARMS
+} weapon_stats_e;
+
+#define WEAPONS_STATS_MNEMONICS "WFD", "WFH", "WFT", "WFM", "WK", "WD", "WDD", "WTT", "WHH", "WHT", "WHL", "WHA", "WDN", "WTN", "WDH", "WDT", "WDL", "WDA", NULL
+
+#define MELEE_STATS 8
+
+typedef enum
+{
+    alevel0_kills,
+    alevel1_kills,
+    alevel1_upg_kills,
+    alevel2_kills,
+    alevel2_upg_kills,
+    alevel3_kills,
+    alevel3_upg_kills,
+    alevel4_kills
+} melee_stats_e;
+
+#define MELEE_STATS_MNEMONICS "MKK", NULL
+
+#define EXPLOSIONS_STATS 10
+typedef enum
+{
+    ES_GRANADE_KILLS
+} explosions_stats_e;
+
+#define EXPLOSIONS_STATS_MNEMONICS "EGK", NULL
+
+#define MISC_STATS 5
+typedef enum
+{
+    MIS_ENVIRONMENTAL_DEATHS,
+    MIS_SUICIDES
+} misc_stats_e;
+
+#define MISC_STATS_MNEMONICS "IED", "ISD", NULL
+
+typedef enum
+{
+    CS_USER,
+    CS_GUID
+} user_type_e;
+
+typedef struct user_stats_s
+{
+    sint type;
+    valueType name[USER_NAME_SIZE + 1];
+    valueType game_name[USER_NAME_SIZE + 1];
+    sint weapons[WEAPONS][WEAPON_STATS];
+    sint melee[MELEE_STATS];
+    sint explosions[EXPLOSIONS_STATS];
+    sint misc[MISC_STATS];
+    sint avg_ping;
+    sint n_ping;
+    sint time;
+    sint game_time;
+    sint start_time;
+    sint last_time;
+    sint login;
+    sint score;
+    sint team;
+    struct user_stats_s* next;
+} user_stats_t;
+
+typedef struct
+{
+    sint players;
+    sint cpu;
+    sint mem;
+} server_stats_t;
+
+typedef struct
+{
+    user_stats_t* user_stats;
+    server_stats_t server_stats;
+    valueType game_id[49];
+    sint game_date;
+    sint mapstatus;
+    valueType mapname[MAX_QPATH];
+    sint start_time;
+} community_stats_t;
+
+typedef struct statistics_tmp
+{
+    sint32 filepos;
+    valueType game_id[49];
+    struct statistics_tmp* next;
+} statistics_t;
+
 typedef enum serverState_s
 {
-    SS_DEAD,					// no map loaded
-    SS_LOADING,					// spawning level entities
-    SS_GAME						// actively running
+    SS_DEAD,    // no map loaded
+    SS_LOADING, // spawning level entities
+    SS_GAME     // actively running
 } serverState_t;
 
 typedef struct configString_s
 {
-    valueType*					s;
+    valueType* s;
     
-    bool			restricted; // if true, don't send to clientList
-    clientList_t	clientList;
+    bool restricted; // if true, don't send to clientList
+    clientList_t clientList;
 } configString_t;
 
 typedef struct server_s
@@ -227,6 +380,7 @@ typedef struct client_s
     sint lastUserInfoChange;
     sint lastUserInfoCount;
     sint oldServerTime;
+    user_t* cs_user;
 } client_t;
 
 //=============================================================================
@@ -450,6 +604,24 @@ extern convar_t* sv_wh_check_fov;
 
 extern convar_t* sv_minimumAgeGuid; // Min guid age to enter a server
 extern convar_t* sv_maximumAgeGuid; // Max guid age to enter a server
+
+extern convar_t* sv_cs_ServerType; // 0: public, 1: public-registered, 2: private
+extern convar_t* sv_cs_Salt;
+extern convar_t* sv_cs_BotLog;
+extern convar_t* sv_cs_MemberColor;
+extern convar_t* sv_cs_UnknownColor;
+extern convar_t* sv_cs_PrivateOnlyMSG;
+extern convar_t* sv_cs_stats;
+extern convar_t* sv_cs_ServerPort;
+
+#define CS_OK 1
+#define CS_ERROR 0
+#define CS_CHECK 2
+#define CS_ADMIN 'A'
+#define CS_MEMBER 'M'
+#define CS_BANNED 'B'
+#define CS_OWNER  'O'
+#define CS_UNKNOW 'U'
 
 //bani - cl->downloadnotify
 #define DLNOTIFY_REDIRECT   0x00000001	// "Redirecting client ..."

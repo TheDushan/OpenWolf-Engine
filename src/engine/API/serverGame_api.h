@@ -97,12 +97,12 @@ typedef struct svEntity_s
     struct svEntity_s* nextEntityInWorldSector;
     
     entityState_t   baseline;	// for delta compression of initial sighting
-    sint             numClusters;	// if -1, use headnode instead
-    sint             clusternums[MAX_ENT_CLUSTERS];
-    sint             lastCluster;	// if all the clusters don't fit in clusternums
-    sint             areanum, areanum2;
-    sint             snapshotCounter;	// used to prevent double adding from portal views
-    sint             originCluster;	// Gordon: calced upon linking, for origin only bmodel vis checks
+    sint            numClusters;	// if -1, use headnode instead
+    sint            clusternums[MAX_ENT_CLUSTERS];
+    sint            lastCluster;	// if all the clusters don't fit in clusternums
+    sint            areanum, areanum2;
+    sint            snapshotCounter;	// used to prevent double adding from portal views
+    sint            originCluster;	// Gordon: calced upon linking, for origin only bmodel vis checks
 } svEntity_t;
 
 //

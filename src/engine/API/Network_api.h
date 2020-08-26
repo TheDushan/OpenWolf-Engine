@@ -59,6 +59,7 @@ public:
     virtual void Shutdown( void ) = 0;
     virtual void Sleep( sint msec ) = 0;
     virtual void Restart_f( void ) = 0;
+    virtual sint ConnectTCP( valueType* s_host_port ) = 0;
 };
 
 extern idNetworkSystem* networkSystem;

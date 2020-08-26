@@ -253,6 +253,7 @@ public:
     virtual void FilenameCompletion( pointer dir, pointer ext, bool stripExt, void( *callback )( pointer s ) );
     virtual pointer GetGameDir( void );
     virtual bool IsFileEmpty( valueType* filename );
+    virtual valueType* GetFullGamePath( valueType* filename );
 };
 
 extern idFileSystemLocal fileSystemLocal;

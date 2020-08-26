@@ -374,7 +374,7 @@ effect a entity.
 =================
 */
 
-void R_AddLightToEntity( trRefEntity_t* ent, dlight_t* light, float dist )
+void R_AddLightToEntity( trRefEntity_t* ent, dlight_t* light, float32 dist )
 {
     // Fill all the light slots first.
     for( sint i = 0; i < MAX_ENTITY_LIGHTS; i++ )

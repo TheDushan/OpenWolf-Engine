@@ -579,7 +579,7 @@ float64 idServerOACSSystemLocal::ExtendedRecordInterframeInitValue( sint client,
     {
         case FEATURE_PLAYERID:
             // Set unique player id (we want this id to be completely generated serverside and without any means to tamper it clientside) - we don't care that the id change for the same player when he reconnects, since anyway the id will always link to the player's ip and guid using the playerstable
-            //valueType tmp[MAX_STRING_CHARS] = ""; snprintf(tmp, MAX_STRING_CHARS, "%i%lu", rand_range(1, 99999), (unsigned long int)time(nullptr));
+            //valueType tmp[MAX_STRING_CHARS] = ""; snprintf(tmp, MAX_STRING_CHARS, "%i%lu", rand_range(1, 99999), (uint32)time(nullptr));
             return atof( va( "%i%lu", rand_range( 1, 99999 ), ( uint32 )time( nullptr ) ) ); // FIXME: use a real UUID/GUID here (for the moment we simply use the timestamp in seconds + a random number, this should be enough for now to ensure the uniqueness of all the players) - do NOT use ioquake3 GUID since it can be spoofed (there's no centralized authorization system!)
         case FEATURE_SVSTIME:
             // Server time (serverStatic_t time, which is always strictly increasing)

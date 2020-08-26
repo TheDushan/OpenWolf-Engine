@@ -1508,6 +1508,7 @@ void idNetworkSystemLocal::OpenIP( void )
             if( ip6_socket != INVALID_SOCKET )
             {
                 cvarSystem->SetValue( "net_port6", port6 + i );
+                cvarSystem->SetValue( "sv_cs_ServerPort", port6 + i );
                 break;
             }
             else
@@ -1528,6 +1529,7 @@ void idNetworkSystemLocal::OpenIP( void )
             if( ip_socket != INVALID_SOCKET )
             {
                 cvarSystem->SetValue( "net_port", port + i );
+                cvarSystem->SetValue( "sv_cs_ServerPort", port + i );
                 
                 if( net_socksEnabled->integer )
                     OpenSocks( port + i );
@@ -1816,7 +1818,6 @@ void idNetworkSystemLocal::Sleep( sint msec )
     select( highestfd + 1, &fdset, nullptr, nullptr, &timeout );
 }
 
-
 /*
 ====================
 idNetworkSystemLocal::Restart_f
@@ -1825,4 +1826,69 @@ idNetworkSystemLocal::Restart_f
 void idNetworkSystemLocal::Restart_f( void )
 {
     Config( networkingEnabled );
+}
+
+/*
+====================
+idNetworkSystemLocal::ConnectTCP
+====================
+*/
+sint idNetworkSystemLocal::ConnectTCP( valueType* s_host_port )
+{
+    sint err, sock;
+    valueType buffer[1024], *s_server, *s_port;
+    struct sockaddr_in address;
+    struct hostent* h;
+    
+    ::strcpy( buffer, s_host_port );
+    
+    s_server = strtok( buffer, ":\n\0" );
+    if( s_server == nullptr )
+    {
+        Com_Printf( "Error parsing server string %s does not have port\n", s_host_port );
+        return -1;
+    }
+    
+    s_port = ::strtok( nullptr, "\n\0" );
+    if( s_port == nullptr )
+    {
+        Com_Printf( "Error parsing server string %s port problem\n", s_host_port );
+    }
+    
+    if( ( sock = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) == INVALID_SOCKET )
+    {
+        err = socketError;
+        Com_Printf( "WARNING: idNetworkSystemLocal::ConnectTCP: socket: %s\n", ErrorString() );
+        return -1;
+    }
+    
+    h = gethostbyname( s_server );
+    if( h == nullptr )
+    {
+        err = socketError;
+        Com_Printf( "WARNING: idNetworkSystemLocal::ConnectTCP: gethostbyname: %s\n", ErrorString() );
+        close( sock );
+        return -1;
+    }
+    
+    if( h->h_addrtype != AF_INET )
+    {
+        Com_Printf( "WARNING: idNetworkSystemLocal::ConnectTCP: gethostbyname: address type was not AF_INET\n" );
+        close( sock );
+        return -1;
+    }
+    
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = *( sint* )h->h_addr_list[0];
+    address.sin_port = htons( atoi( s_port ) );
+    
+    if( connect( sock, ( struct sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
+    {
+        err = socketError;
+        Com_Printf( "NET_OpenSocks: connect: %s\n", ErrorString() );
+        close( sock );
+        return -1;
+    }
+    
+    return sock;
 }

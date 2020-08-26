@@ -81,7 +81,6 @@ static sint bbox_vert;
 #define PREDICT_TIME      0.1f
 #define VOFS              6
 
-
 //
 // idServerWallhackSystemLocal
 //

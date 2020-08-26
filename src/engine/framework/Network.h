@@ -154,6 +154,7 @@ public:
     virtual void Shutdown( void );
     virtual void Sleep( sint msec );
     virtual void Restart_f( void );
+    virtual sint ConnectTCP( valueType* s_host_port );
     
     static valueType* ErrorString( void );
     static void SockaddrToString( valueType* dest, sint destlen, struct sockaddr* input );
