@@ -162,6 +162,7 @@
 #include <API/sgame_api.h>
 #include <server/serverCcmds.h>
 #include <API/serverClient_api.h>
+#include <server/serverCommunity.h>
 #include <server/serverClient.h>
 #include <server/serverGame.h>
 #include <server/serverWorld.h>
