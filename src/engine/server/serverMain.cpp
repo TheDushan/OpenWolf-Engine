@@ -1234,7 +1234,7 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
             {
                 cmd_aux++;
             }
-             
+            
             while( cmd_aux[0] == ' ' )
             {
                 cmd_aux++;

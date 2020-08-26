@@ -963,6 +963,12 @@ static void HandleKeyResponse( const char* msg, const struct sockaddr_storage* a
     char* token[64] = { 0 };
     unsigned int index = 0;
     
+    // Flood protection
+    if( Cl_BlockedByThrottle( addr, addrlen ) )
+    {
+        return;
+    }
+    
     // Break message so packets can be tested
     strncpy( str, msg, sizeof( str ) );
     token[index] = strtok( str, " " );
