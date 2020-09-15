@@ -245,7 +245,7 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... 
     client_t* client;
     
     va_start( argptr, fmt );
-    Q_vsnprintf( ( valueType* )message, sizeof( message ), fmt, argptr );
+    Q_vsnprintf( reinterpret_cast< valueType* >( message ), sizeof( message ), fmt, argptr );
     va_end( argptr );
     
     // do not forward server command messages that would be too big to clients

@@ -1842,7 +1842,7 @@ sint idNetworkSystemLocal::ConnectTCP( valueType* s_host_port )
     
     ::strcpy( buffer, s_host_port );
     
-    s_server = strtok( buffer, ":\n\0" );
+    s_server = ::strtok( buffer, ":\n\0" );
     if( s_server == nullptr )
     {
         Com_Printf( "Error parsing server string %s does not have port\n", s_host_port );
@@ -1885,7 +1885,7 @@ sint idNetworkSystemLocal::ConnectTCP( valueType* s_host_port )
     if( connect( sock, ( struct sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
     {
         err = socketError;
-        Com_Printf( "NET_OpenSocks: connect: %s\n", ErrorString() );
+        Com_Printf( "idNetworkSystemLocal::ConnectTCP: connect: %s\n", ErrorString() );
         close( sock );
         return -1;
     }

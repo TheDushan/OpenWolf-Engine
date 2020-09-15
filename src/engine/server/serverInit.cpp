@@ -1126,9 +1126,9 @@ void idServerInitSystemLocal::Init( void )
     
     sv_showAverageBPS = cvarSystem->Get( "sv_showAverageBPS", "0", 0, "BSP Network debugging" ); // NERVE - SMF - net debugging
     
-    sv_cs_ServerType = cvarSystem->Get( "sv_cs_ServerType", "1", 0, "Setup server type for the community server. 0: public, 1: public-registered, 2: private." );
+    sv_cs_ServerType = cvarSystem->Get( "sv_cs_ServerType", "0", 0, "Setup server type for the community server. 0: public, 1: public-registered, 2: private." );
     sv_cs_Salt = cvarSystem->Get( "sv_cs_Salt", "12345", 0, "Community server hash password field." );
-    sv_cs_BotLog = cvarSystem->Get( "sv_cs_BotLog", "1", 0, "Log bots in the community server." );
+    sv_cs_BotLog = cvarSystem->Get( "sv_cs_BotLog", "0", 0, "Log bots in the community server." );
     sv_cs_MemberColor = cvarSystem->Get( "sv_cs_MemberColor", "0 255 0", 0, "Color of the registered user in the community server." );
     sv_cs_UnknownColor = cvarSystem->Get( "sv_cs_UnknownColor", "255 0 0", 0, "Color of the unknown player in the community server." );
     sv_cs_PrivateOnlyMSG = cvarSystem->Get( "sv_cs_PrivateOnlyMSG", "This server is for registered users only. Register at " PRODUCT_NAME ".com", 0, "Send private message only to the registered user." );
