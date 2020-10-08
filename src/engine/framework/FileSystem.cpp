@@ -3640,7 +3640,7 @@ bool idFileSystemLocal::idPak( valueType* pak, valueType* base )
 {
     sint i;
     
-    if( !FilenameCompare( pak, va( "%s/mp_bin", base ) ) )
+    if( !FilenameCompare( pak, va( "%s/bin", base ) ) )
     {
         return true;
     }
