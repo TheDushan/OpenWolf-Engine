@@ -39,7 +39,7 @@ MYSQL* connect_database( char* server, char* user, char* password, char* databas
 
     mysql_init( &g_mysql );
     
-    my_bool reconnect = 1;
+    bool reconnect = 1;
     
     mysql_options( &g_mysql, MYSQL_OPT_RECONNECT, &reconnect );
     

@@ -430,11 +430,6 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     
     Info_SetValueForKey( userinfo, "ip", ip );
     
-#ifndef UPDATE_SERVER
-    Info_SetValueForKey( cl->userinfo, "authenticated", va( "%i", cl->authenticated ) );
-    Info_SetValueForKey( cl->userinfo, "cl_guid", cl->guid );
-#endif
-    
     // see if the challenge is valid (local clients don't need to challenge)
     if( !networkSystem->IsLocalAddress( from ) )
     {

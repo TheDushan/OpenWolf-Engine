@@ -26,7 +26,7 @@
 
 #define _ULL(x) x##ull
 
-uint64 table[4 * 256] =
+uint64_t table[4 * 256] =
 {
     _ULL( 0x02AAB17CF7E90C5E )   /*    0 */,    _ULL( 0xAC424B03E243A8EC )   /*    1 */,
     _ULL( 0x72CD5BE30DD5FCD3 )   /*    2 */,    _ULL( 0x6D019B93F6F97F3A )   /*    3 */,

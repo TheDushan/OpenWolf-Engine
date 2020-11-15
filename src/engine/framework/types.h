@@ -48,8 +48,8 @@ typedef unsigned long      uint32;     ///< Compiler independent Unsigned 64-bit
 typedef signed __int64     sint64;
 typedef unsigned __int64   uint64;
 #else
-typedef signed long long   sin64;
-typedef unsigned long long uin64;
+typedef signed long long   sint64;
+typedef unsigned long long uint64;
 #endif
 
 typedef float              float32;     ///< Compiler independent 32-bit float

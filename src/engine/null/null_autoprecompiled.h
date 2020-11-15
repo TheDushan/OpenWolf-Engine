@@ -70,7 +70,6 @@
 #include <platform/windows/resource.h>
 #pragma fenv_access (on)
 #else
-#include <sys/types.h>
 #include <dirent.h>
 #include <libgen.h>
 #include <fenv.h>
@@ -97,7 +96,6 @@
 #include <sys/socket.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
-#include <sys/types.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <ifaddrs.h>
