@@ -187,7 +187,7 @@ float LightRay(vec2 dp, vec2 ds, sampler2D normalMap)
 }
 #endif
 
-vec3 CalcDiffuse(vec3 diffuseAlbedo, float NE, float NL, float LH, float roughness, float ao )
+vec3 CalcDiffuse(vec3 diffuseAlbedo, float NH, float EH, float roughness, float ao) 
 {
 	return diffuseAlbedo * ao;
 }
@@ -293,7 +293,7 @@ void main()
 {
 	vec3 viewDir, lightColor, ambientColor, reflectance;
 	vec3 L, N, E, H;
-	float NL, NH, NE, EH, LH, attenuation;
+	float NL, NH, NE, EH, attenuation;
 	vec4 specular = vec4(0.0);
 	
 	#if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
@@ -484,24 +484,18 @@ void main()
 		diffuse.rgb *= vec3(1.0) - specular.rgb;
 	#endif
 	
-	H = normalize(L + E);
-	NE = abs(dot(N, E)) + 1e-5;
-	NL = clamp(dot(N, L), 0.0, 1.0);
-	LH = clamp(dot(L, H), 0.0, 1.0);
-	NH = clamp(dot(N, H), 0.0, 1.0);	
+	reflectance = CalcDiffuse(diffuse.rgb, NH, EH, roughness, ao);
 	
-	vec3 Fd = CalcDiffuse(diffuse.rgb, NE, NL, LH, roughness, ao);
-	vec3 Fs = vec3(0.0);
-	
-	#if defined(USE_LIGHT_VECTOR)
-		Fs = CalcSpecular(specular.rgb, NH, NL, NE, LH, roughness);
-	#endif
+	#if defined(USE_LIGHT_VECTOR) || defined(USE_DELUXEMAP)
+		H  = normalize(L + E);
+		NL = clamp(dot(N, L), 0.0, 1.0);
+		NL = max(1e-8, abs(NL) );
+		EH = max(1e-8, dot(E, H));
+		NH = max(1e-8, dot(N, H));
+		NE = abs(dot(N, E)) + 1e-5;
 
-	#if defined(USE_LIGHTMAP) && defined(USE_DELUXEMAP) && defined(r_deluxeSpecular)
-		Fs = CalcSpecular(specular.rgb, NH, NL, NE, LH, roughness) * r_deluxeSpecular;
+		reflectance += CalcSpecular(specular.rgb, NH, NL, NE, EH, roughness);
 	#endif
-
-	reflectance = Fd + Fs;
   
 	gl_FragColor.rgb = lightColor * reflectance * (attenuation * NL);
 	gl_FragColor.rgb += ambientColor * diffuse.rgb;
@@ -539,7 +533,7 @@ void main()
 
 	#if defined(USE_PRIMARY_LIGHT) || defined(SHADOWMAP_MODULATE)
 		vec3 L2, H2;
-		float NL2, EH2, NH2, L2H2;
+		float NL2, EH2, NH2;
 
 		L2 = var_PrimaryLightDir.xyz;
 
@@ -547,15 +541,18 @@ void main()
 		//sqrLightDist = dot(L2, L2);
 		//L2 /= sqrt(sqrLightDist);
 
-		L2 = normalize(var_PrimaryLightDir.xyz);
-		H2 = normalize(L2 + E);
-		NL2 = clamp(dot(N,  L2), 0.0, 1.0);
+		H2  = normalize(L2 + E);
+		NL2 = clamp(dot(N, L2), 0.0, 1.0);
+		NL2 = max(1e-8, abs(NL2) );
 		EH2 = max(1e-8, dot(E, H2));
-		L2H2 = clamp(dot(L2, H2), 0.0, 1.0);
 		NH2 = max(1e-8, dot(N, H2));
 
-		reflectance = CalcDiffuse(diffuse.rgb, NE, NL2, L2H2, roughness, 1.0f);
-		reflectance += CalcSpecular(specular.rgb, NH2, NL2, NE, EH2, roughness);
+		reflectance = CalcSpecular(specular.rgb, NH2, NL2, NE, EH2, roughness);
+
+		// bit of a hack, with modulated shadowmaps, ignore diffuse
+		#if !defined(SHADOWMAP_MODULATE)
+			reflectance += CalcDiffuse(diffuse.rgb, NH2, EH2, roughness, 1.0f);
+		#endif
 
 		lightColor = u_PrimaryLightColor * var_Color.rgb;
 

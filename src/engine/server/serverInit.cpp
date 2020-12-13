@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,19 +28,19 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   serverInit.cpp
-// Version:     v1.01
 // Created:     12/27/2018
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 idServerInitSystemLocal serverInitSystemLocal;
@@ -642,17 +642,14 @@ touch the cgame DLL so that a pure client (with DLL sv_pure support) can load do
 */
 void idServerInitSystemLocal::TouchCGameDLL( void )
 {
+    sint ref;
     fileHandle_t f;
-    valueType* filename;
+    pointer filename;
     
     filename = idsystem->GetDLLName( "cgame" );
-    fileSystem->FOpenFileRead_Filtered( filename, &f, false, FS_EXCLUDE_DIR );
+    ref = fileSystem->FOpenFileRead_Filtered( filename, &f, false, FS_EXCLUDE_DIR );
     
-    if( f )
-    {
-        fileSystem->FCloseFile( f );
-    }
-    else if( sv_pure->integer ) // ydnar: so we can work the damn game
+    if( ref <= FS_GENERAL_REF && sv_pure->integer )
     {
         Com_Error( ERR_DROP, "idServerInitSystemLocal::TouchCGameDLL - Failed to locate cgame DLL for pure server mode" );
     }
@@ -705,6 +702,11 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     // clear the whole hunk because we're (re)loading the server
     Hunk_Clear();
     
+#ifndef DEDICATED
+    // Restart renderer
+    //CL_StartHunkUsers();
+#endif
+    
     // clear collision map data     // (SA) NOTE: TODO: used in missionpack
     collisionModelManager->ClearMap();
     
@@ -737,6 +739,12 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
             ChangeMaxClients();
         }
     }
+    
+#ifndef DEDICATED
+    // remove pure paks that may left from client-side
+    //fileSystem->PureServerSetLoadedPaks( "", "" );
+    //fileSystem->PureServerSetReferencedPaks( "", "" );
+#endif
     
     // clear pak references
     fileSystem->ClearPakReferences( 0 );
@@ -783,9 +791,11 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     // make sure we are not paused
     cvarSystem->Set( "cl_paused", "0" );
     
+    // get latched value
+    //cvarSystem->Get( "sv_pure", "1", CVAR_SYSTEMINFO | CVAR_LATCH, "Toggles check that client's files are the same as the servers (basic anticheat)." );
+    
     // get a new checksum feed and restart the file system
-    srand( idsystem->Milliseconds() );
-    sv.checksumFeed = ( ( ( sint )rand() << 16 ) ^ rand() ) ^ idsystem->Milliseconds();
+    sv.checksumFeed = ( ( ( uint )rand() << 16 ) ^ ( uint )rand() ) ^ Com_Milliseconds();
     
     // DO_LIGHT_DEDICATED
     // only comment out when you need a new pure checksum string and it's associated random feed
@@ -907,6 +917,9 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
         }
         p = fileSystem->LoadedPakNames();
         cvarSystem->Set( "sv_pakNames", p );
+        
+        // we want the server to reference the bin pk3 that the client is expected to load from
+        //TouchCGameDLL();
     }
     else
     {

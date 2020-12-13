@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 id Software, Inc.
-// Copyright(C) 2011 - 2018 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -20,14 +20,14 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   r_glimp.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2017, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 sint qglMajorVersion, qglMinorVersion;
 sint qglesMajorVersion, qglesMinorVersion;
@@ -1496,7 +1496,6 @@ void GLimp_WakeRenderer( void* data )
     SDL_UnlockMutex( smpMutex );
     
 }
-
 
 /*
 ===============

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,15 +27,15 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   cl_cgame.cpp
-// Version:     v1.01
+// File name:   clientGame.cpp
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: client system interaction with client game
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 static void( *completer )( pointer s ) = nullptr;
 
@@ -43,7 +43,7 @@ idClientGameSystemLocal clientGameLocal;
 idClientGameSystem* clientGameSystem = &clientGameLocal;
 
 idCGame* cgame;
-idCGame* ( *cgdllEntry )( cgameImports_t* cgimports );
+idCGame* ( *cgameEntry )( cgameImports_t* cgimports );
 static cgameImports_t exports;
 
 /*
@@ -896,8 +896,8 @@ void idClientGameSystemLocal::InitCGame( void )
     }
     
     // Load in the entry point.
-    cgdllEntry = ( idCGame * ( QDECL* )( cgameImports_t* ) )idsystem->GetProcAddress( cgvm, "dllEntry" );
-    if( !cgdllEntry )
+    cgameEntry = ( idCGame * ( QDECL* )( cgameImports_t* ) )idsystem->GetProcAddress( cgvm, "cgameEntry" );
+    if( !cgameEntry )
     {
         Com_Error( ERR_DROP, "error loading entry point on clientGame.\n" );
     }
@@ -906,7 +906,10 @@ void idClientGameSystemLocal::InitCGame( void )
     CreateExportTable();
     
     // Call the dll entry point.
-    cgame = cgdllEntry( &exports );
+    if( cgameEntry )
+    {
+        cgame = cgameEntry( &exports );
+    }
     
     cls.state = CA_LOADING;
     
@@ -1018,7 +1021,7 @@ or bursted delayed packets.
 */
 void idClientGameSystemLocal::AdjustTimeDelta( void )
 {
-    sint resetTime, newDelta, deltaDelta;
+    sint newDelta, deltaDelta;
     
     cl.newSnapshots = false;
     
@@ -1026,16 +1029,6 @@ void idClientGameSystemLocal::AdjustTimeDelta( void )
     if( clc.demoplaying )
     {
         return;
-    }
-    
-    // if the current time is WAY off, just correct to the current value
-    if( com_sv_running->integer )
-    {
-        resetTime = 100;
-    }
-    else
-    {
-        resetTime = RESET_TIME;
     }
     
     newDelta = cl.snapServer.serverTime - cls.realtime;
@@ -1209,7 +1202,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
             tn = 0;
         }
         
-#ifdef _DEBUG
+#if 1//def _DEBUG
         if( tn < -900 )
         {
             tn = -900;

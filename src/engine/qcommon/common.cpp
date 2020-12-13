@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,19 +28,19 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   common.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: misc functions used in client and server
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 sint demo_protocols[] = { 1, 0 };
@@ -48,10 +48,10 @@ sint demo_protocols[] = { 1, 0 };
 #define MAX_NUM_ARGVS   50
 
 #define MIN_DEDICATED_COMHUNKMEGS 64
-#define MIN_COMHUNKMEGS 256				// JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
-#define DEF_COMHUNKMEGS 512				// RF, increased this, some maps are exceeding 56mb 
+#define MIN_COMHUNKMEGS 512				// JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
+#define DEF_COMHUNKMEGS 1024			// RF, increased this, some maps are exceeding 56mb 
 // JPW NERVE changed this for multiplayer back to 42, 56 for depot/mp_cpdepot, 42 for everything else
-#define DEF_COMZONEMEGS 128				// RF, increased this from 16, to account for botlib/AAS
+#define DEF_COMZONEMEGS 256				// RF, increased this from 16, to account for botlib/AAS
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
 
@@ -2326,6 +2326,19 @@ void Com_QueueEvent( sint time, sysEventType_t type, sint value, sint value2, si
 {
     sysEvent_t*  ev;
     
+    // combine mouse movement with previous mouse event
+    if( type == SYSE_MOUSE && eventHead != eventTail )
+    {
+        ev = &eventQueue[( eventHead + MAX_QUEUED_EVENTS - 1 ) & MASK_QUEUED_EVENTS];
+        
+        if( ev->evType == SYSE_MOUSE )
+        {
+            ev->evValue += value;
+            ev->evValue2 += value2;
+            return;
+        }
+    }
+    
     ev = &eventQueue[ eventHead & MASK_QUEUED_EVENTS ];
     
     if( eventHead - eventTail >= MAX_QUEUED_EVENTS )
@@ -3415,14 +3428,15 @@ void Com_WriteConfig_f( void )
 {
     valueType            filename[MAX_QPATH];
     
+    Q_strncpyz( filename, cmdSystem->Argv( 1 ), sizeof( filename ) );
+    COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
+    
     if( cmdSystem->Argc() != 2 )
     {
         Com_Printf( "Usage: writeconfig <filename>\n" );
         return;
     }
     
-    Q_strncpyz( filename, cmdSystem->Argv( 1 ), sizeof( filename ) );
-    COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
     Com_Printf( "Writing %s.\n", filename );
     Com_WriteConfigToFile( filename );
 }

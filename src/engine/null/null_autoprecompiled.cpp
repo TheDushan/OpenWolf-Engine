@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2018 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -18,12 +18,12 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   null_autoprecompiled.cpp
-// Version:     v1.00
+// File name:   null_autoprecompiled.hpp
 // Created:     04/12/2019
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>

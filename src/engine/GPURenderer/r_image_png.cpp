@@ -1,26 +1,35 @@
-/*
-===========================================================================
-ioquake3 png decoder
-Copyright (C) 2007,2008 Joerg Dietrich
-Copyright (C) 2000-2013 Darklegion Development
-Copyright (C) 2015-2018 GrangerHub
+////////////////////////////////////////////////////////////////////////////////////////
+// Copyright(C) 2007, 2008 Joerg Dietrich
+// Copyright(C) 2000 - 2013 Darklegion Development
+// Copyright(C) 2015 - 2018 GrangerHub
+// Copyright(C) 2015 - 2021 Dusan Jocic <dusanjocic@msn.com>
+//
+// This file is part of OpenWolf.
+//
+// OpenWolf is free software; you can redistribute it
+// and / or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation; either version 3 of the License,
+// or (at your option) any later version.
+//
+// OpenWolf is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with OpenWolf; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
+//
+// -------------------------------------------------------------------------------------
+// File name:   r_image_png.cpp
+// Created:
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+// Description:
+// -------------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////////////
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 3
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, see <https://www.gnu.org/licenses/>
-===========================================================================
-*/
-
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 // we could limit the png size to a lower value here
 #ifndef INT_MAX

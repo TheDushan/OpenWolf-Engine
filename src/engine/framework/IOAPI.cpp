@@ -11,11 +11,11 @@
 */
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 voidpf call_zopen64( const zlib_filefunc64_32_def* pfilefunc, const void* filename, int mode )

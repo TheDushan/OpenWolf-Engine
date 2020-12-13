@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2018 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,20 +27,20 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   files.cpp
-// Version:     v1.01
+// File name:   FileSystem.cpp
 // Created:
-// Compilers:   Visual Studio 2017, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: handle based filesystem for Quake III Arena
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 FILE* missingFiles = nullptr;
@@ -1355,12 +1355,6 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                     
                     // for OS client/server interoperability, we expect binaries for .so and .dll to be in the same pk3
                     // so that when we reference the DLL files on any platform, this covers everyone else
-                    
-                    // qagame dll
-                    if( !( pak->referenced & FS_QAGAME_REF ) && !Q_stricmp( filename, idsystem->GetDLLName( "sgame" ) ) )
-                    {
-                        pak->referenced |= FS_QAGAME_REF;
-                    }
                     
                     // cgame dll
                     if( !( pak->referenced & FS_CGAME_REF ) && !Q_stricmp( filename, idsystem->GetDLLName( "cgame" ) ) )

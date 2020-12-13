@@ -23,7 +23,7 @@ freely, subject to the following restrictions:
 
 #ifndef NO_DMAHD
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 void dmaHD_Update_Mix( void );
 void S_UpdateBackgroundTrack( void );
@@ -829,51 +829,10 @@ static void dmaHD_PaintChannelFrom16( channel_t* ch, const sfx_t* sc, sint count
     }
 }
 
-void dmaHD_TransferPaintBuffer( sint endtime )
-{
-    sint lpos;
-    sint ls_paintedtime;
-    sint i;
-    sint val;
-    sint* snd_p;
-    sint snd_linear_count;
-    schar16* snd_out;
-    schar16* snd_outtmp;
-    uint32* pbuf = ( uint32* )dma.buffer;
-    
-    snd_p = ( sint* )dmaHD_paintbuffer;
-    ls_paintedtime = s_paintedtime;
-    
-    while( ls_paintedtime < endtime )
-    {
-        // handle recirculating buffer issues
-        lpos = ls_paintedtime & ( ( dma.samples >> 1 ) - 1 );
-        
-        snd_out = ( schar16* )pbuf + ( lpos << 1 );
-        
-        snd_linear_count = ( dma.samples >> 1 ) - lpos;
-        if( ls_paintedtime + snd_linear_count > endtime )
-        {
-            snd_linear_count = endtime - ls_paintedtime;
-        }
-        
-        snd_linear_count <<= 1;
-        
-        // write a linear blast of samples
-        for( snd_outtmp = snd_out, i = 0; i < snd_linear_count; ++i )
-        {
-            val = *snd_p++ >> 8;
-            *snd_outtmp++ = SMPCLAMP( val );
-        }
-        
-        ls_paintedtime += ( snd_linear_count >> 1 );
-        
-        if( clientAVISystem->VideoRecording() )
-        {
-            clientAVISystem->WriteAVIAudioFrame( ( uchar8* )snd_out, snd_linear_count << 1 );
-        }
-    }
-}
+extern sint* snd_p;
+extern sint snd_linear_count;
+extern schar16* snd_out;
+extern void S_TransferPaintBuffer( sint endtime, portable_samplepair_t paintbuffer[] );
 
 void dmaHD_PaintChannels( sint endtime )
 {
@@ -1008,7 +967,7 @@ void dmaHD_PaintChannels( sint endtime )
         }
         
         // transfer out according to DMA format
-        dmaHD_TransferPaintBuffer( end );
+        S_TransferPaintBuffer( end, dmaHD_paintbuffer );
         s_paintedtime = end;
     }
 }
@@ -1528,7 +1487,6 @@ void dmaHD_Update( void )
 void dmaHD_Update_Mix( void )
 {
     uint endtime;
-    sint samps;
     static sint lastTime = 0.0f;
     sint mixahead, op, thisTime, sane;
     static sint lastsoundtime = -1;
@@ -1564,10 +1522,9 @@ void dmaHD_Update_Mix( void )
     endtime = s_soundtime + mixahead;
     
     // never mix more than the complete buffer
-    samps = dma.samples >> ( dma.channels - 1 );
-    if( ( endtime - s_soundtime ) > samps )
+    if( endtime - s_soundtime > dma.fullsamples )
     {
-        endtime = ( s_soundtime + samps );
+        endtime = s_soundtime + dma.fullsamples;
     }
     
     SNDDMA_BeginPainting();

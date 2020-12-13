@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2020 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,20 +27,20 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   cl_ui.cpp
-// Version:     v1.01
+// File name:   clientCUI.cpp
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 void* uivm;
 
 idUserInterfaceManager* uiManager;
-idUserInterfaceManager* ( *dllEntry )( guiImports_t* guimports );
+idUserInterfaceManager* ( *guiEntry )( guiImports_t* guimports );
 
 static guiImports_t exports;
 
@@ -324,6 +324,10 @@ idClientGUISystemLocal::InitGUI
 */
 void idClientGUISystemLocal::InitGUI( void )
 {
+    sint t1, t2;
+    
+    t1 = idsystem->Milliseconds();
+    
     // load the GUI module
     uivm = idsystem->LoadDll( "gui" );
     if( !uivm )
@@ -332,8 +336,8 @@ void idClientGUISystemLocal::InitGUI( void )
     }
     
     // Load in the entry point.
-    dllEntry = ( idUserInterfaceManager * ( QDECL* )( guiImports_t* ) )idsystem->GetProcAddress( uivm, "dllEntry" );
-    if( !dllEntry )
+    guiEntry = ( idUserInterfaceManager * ( QDECL* )( guiImports_t* ) )idsystem->GetProcAddress( uivm, "guiEntry" );
+    if( !guiEntry )
     {
         Com_Error( ERR_DROP, "error loading entry point on client gui.\n" );
     }
@@ -342,9 +346,16 @@ void idClientGUISystemLocal::InitGUI( void )
     CreateExportTable();
     
     // Call the dll entry point.
-    uiManager = dllEntry( &exports );
+    if( guiEntry )
+    {
+        uiManager = guiEntry( &exports );
+    }
     
     uiManager->Init( cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE );
+    
+    t2 = idsystem->Milliseconds();
+    
+    Com_Printf( "idClientGUISystemLocal::InitGUI: %5.2f seconds\n", ( t2 - t1 ) / 1000.0 );
 }
 
 /*

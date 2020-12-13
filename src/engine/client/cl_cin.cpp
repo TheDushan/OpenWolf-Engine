@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,9 +28,9 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   cl_cin.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: video and cinematic playback
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@
 // I need to ask Ryan if it's as simple as a constant index or
 // if some more coding needs to be done.
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 #define MAXSIZE             8
 #define MINSIZE             4
@@ -1474,7 +1474,7 @@ sint CIN_PlayCinematic( pointer arg, sint x, sint y, sint w, sint h, sint system
     if( cinTable[currentHandle].alterGameState )
     {
         // close the menu
-        //if ( uivm )
+        if( uivm )
         {
             uiManager->SetActiveMenu( UIMENU_NONE );
         }

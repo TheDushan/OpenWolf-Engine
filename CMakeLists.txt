@@ -91,8 +91,8 @@ set( MOUNT_DIR ${CMAKE_SOURCE_DIR}/src/engine )
 set( LIB_DIR ${CMAKE_SOURCE_DIR}/src/libs )
 set( TOOLS_DIR ${CMAKE_SOURCE_DIR}/src/tools )
 
-message(STATUS "writing ${MOUNT_DIR}/framework/appConfig.h")
-CONFIGURE_FILE("cmake/appConfig.h.in" "${MOUNT_DIR}/framework/appConfig.h" @ONLY)
+message(STATUS "writing ${MOUNT_DIR}/framework/appConfig.hpp")
+CONFIGURE_FILE("cmake/appConfig.hpp.in" "${MOUNT_DIR}/framework/appConfig.hpp" @ONLY)
 
 find_package( PkgConfig )
 
@@ -125,9 +125,9 @@ endif()
 ######################
 
 set( SHAREDLIST_HEADERS
-    ${MOUNT_DIR}/framework/appConfig.h
-	${MOUNT_DIR}/qcommon/q_platform.h
-	${MOUNT_DIR}/qcommon/q_shared.h
+    ${MOUNT_DIR}/framework/appConfig.hpp
+	${MOUNT_DIR}/qcommon/q_platform.hpp
+	${MOUNT_DIR}/qcommon/q_shared.hpp
 )
 
 set( SHAREDLIST_SOURCES
@@ -136,18 +136,18 @@ set( SHAREDLIST_SOURCES
 )
 
 set( GPURENDERER_HEADERS 
-	${MOUNT_DIR}/GPURenderer/iqm.h
-	${MOUNT_DIR}/GPURenderer/qgl.h
-	${MOUNT_DIR}/GPURenderer/r_common.h
-	${MOUNT_DIR}/GPURenderer/r_dsa.h
-	${MOUNT_DIR}/GPURenderer/r_extramath.h
-	${MOUNT_DIR}/GPURenderer/r_extratypes.h
-	${MOUNT_DIR}/GPURenderer/r_fbo.h
-	${MOUNT_DIR}/GPURenderer/r_local.h
-	${MOUNT_DIR}/GPURenderer/r_postprocess.h
-	${MOUNT_DIR}/GPURenderer/r_splash.h
-	${MOUNT_DIR}/API/renderer_api.h
-	${MOUNT_DIR}/GPURenderer/r_types.h
+	${MOUNT_DIR}/GPURenderer/iqm.hpp
+	${MOUNT_DIR}/GPURenderer/qgl.hpp
+	${MOUNT_DIR}/GPURenderer/r_common.hpp
+	${MOUNT_DIR}/GPURenderer/r_dsa.hpp
+	${MOUNT_DIR}/GPURenderer/r_extramath.hpp
+	${MOUNT_DIR}/GPURenderer/r_extratypes.hpp
+	${MOUNT_DIR}/GPURenderer/r_fbo.hpp
+	${MOUNT_DIR}/GPURenderer/r_local.hpp
+	${MOUNT_DIR}/GPURenderer/r_postprocess.hpp
+	${MOUNT_DIR}/GPURenderer/r_splash.hpp
+	${MOUNT_DIR}/API/renderer_api.hpp
+	${MOUNT_DIR}/GPURenderer/r_types.hpp
 )
 
 set( GPURENDERER_SOURCES
@@ -190,28 +190,28 @@ set( GPURENDERER_SOURCES
 )
 
 set( SERVERLIST_HEADERS
-	${MOUNT_DIR}/server/server.h
-	${MOUNT_DIR}/server/serverCcmds.h
-	${MOUNT_DIR}/server/serverClient.h
-	${MOUNT_DIR}/server/serverCommunity.h
-	${MOUNT_DIR}/server/serverGame.h
-	${MOUNT_DIR}/server/serverWorld.h
-	${MOUNT_DIR}/server/serverSnapshot.h
-	${MOUNT_DIR}/server/serverNetChan.h
-	${MOUNT_DIR}/server/serverInit.h
-	${MOUNT_DIR}/server/serverMain.h
-	${MOUNT_DIR}/server/serverDemo.h
-	${MOUNT_DIR}/server/serverOACS.h
-	${MOUNT_DIR}/server/serverWallhack.h
-	${MOUNT_DIR}/API/sgame_api.h
-	${MOUNT_DIR}/API/serverClient_api.h
-	${MOUNT_DIR}/API/serverGame_api.h
-	${MOUNT_DIR}/API/serverWorld_api.h
-	${MOUNT_DIR}/API/serverSnapshot_api.h
-	${MOUNT_DIR}/API/serverNetChan_api.h
-	${MOUNT_DIR}/API/serverInit_api.h
-	${MOUNT_DIR}/API/serverMain_api.h
-	${MOUNT_DIR}/API/serverDemo_api.h
+	${MOUNT_DIR}/server/server.hpp
+	${MOUNT_DIR}/server/serverCcmds.hpp
+	${MOUNT_DIR}/server/serverClient.hpp
+	${MOUNT_DIR}/server/serverCommunity.hpp
+	${MOUNT_DIR}/server/serverGame.hpp
+	${MOUNT_DIR}/server/serverWorld.hpp
+	${MOUNT_DIR}/server/serverSnapshot.hpp
+	${MOUNT_DIR}/server/serverNetChan.hpp
+	${MOUNT_DIR}/server/serverInit.hpp
+	${MOUNT_DIR}/server/serverMain.hpp
+	${MOUNT_DIR}/server/serverDemo.hpp
+	${MOUNT_DIR}/server/serverOACS.hpp
+	${MOUNT_DIR}/server/serverWallhack.hpp
+	${MOUNT_DIR}/API/sgame_api.hpp
+	${MOUNT_DIR}/API/serverClient_api.hpp
+	${MOUNT_DIR}/API/serverGame_api.hpp
+	${MOUNT_DIR}/API/serverWorld_api.hpp
+	${MOUNT_DIR}/API/serverSnapshot_api.hpp
+	${MOUNT_DIR}/API/serverNetChan_api.hpp
+	${MOUNT_DIR}/API/serverInit_api.hpp
+	${MOUNT_DIR}/API/serverMain_api.hpp
+	${MOUNT_DIR}/API/serverDemo_api.hpp
 
 )
 
@@ -231,10 +231,10 @@ set( SERVERLIST_SOURCES
 )
 
 set( COLLISIONMODEL_HEADERS
-	${MOUNT_DIR}/cm/cm_local.h
-	${MOUNT_DIR}/cm/cm_patch.h
-	${MOUNT_DIR}/cm/cm_polylib.h
-	${MOUNT_DIR}/API/cm_api.h
+	${MOUNT_DIR}/cm/cm_local.hpp
+	${MOUNT_DIR}/cm/cm_patch.hpp
+	${MOUNT_DIR}/cm/cm_polylib.hpp
+	${MOUNT_DIR}/API/cm_api.hpp
 )
 
 set( COLLISIONMODEL_SOURCES
@@ -247,7 +247,7 @@ set( COLLISIONMODEL_SOURCES
 )
 
 set( DOWNLOADLIST_HEADERS
-	${MOUNT_DIR}/download/downloadLocal.h
+	${MOUNT_DIR}/download/downloadLocal.hpp
 )
 
 set( DOWNLOADLIST_SOURCES
@@ -255,10 +255,10 @@ set( DOWNLOADLIST_SOURCES
 ) 
 
 set( QCOMMONLIST_HEADERS
-	${MOUNT_DIR}/API/download_api.h
-	${MOUNT_DIR}/qcommon/q_shared.h
-	${MOUNT_DIR}/qcommon/qcommon.h
-	${MOUNT_DIR}/qcommon/qfiles.h
+	${MOUNT_DIR}/API/download_api.hpp
+	${MOUNT_DIR}/qcommon/q_shared.hpp
+	${MOUNT_DIR}/qcommon/qcommon.hpp
+	${MOUNT_DIR}/qcommon/qfiles.hpp
 )
 
 set( QCOMMONLIST_SOURCES
@@ -267,31 +267,31 @@ set( QCOMMONLIST_SOURCES
 )
 
 set( FRAMEWORKS_HEADERS
-	${MOUNT_DIR}/API/FileSystem_api.h
-	${MOUNT_DIR}/API/CVarSystem_api.h
-	${MOUNT_DIR}/API/CmdSystem_api.h
-	${MOUNT_DIR}/API/CmdBuffer_api.h
-	${MOUNT_DIR}/API/CmdDelay_api.h
-	${MOUNT_DIR}/API/MD4_api.h
-	${MOUNT_DIR}/API/MD5_api.h
-	${MOUNT_DIR}/API/Network_api.h
-	${MOUNT_DIR}/API/NetworkChain_api.h
-	${MOUNT_DIR}/API/Parse_api.h
-	${MOUNT_DIR}/framework/FileSystem.h
-	${MOUNT_DIR}/framework/CVarSystem.h
-	${MOUNT_DIR}/framework/CmdSystem.h
-	${MOUNT_DIR}/framework/CmdBuffer.h
-	${MOUNT_DIR}/framework/CmdDelay.h
-	${MOUNT_DIR}/framework/Huffman.h
-	${MOUNT_DIR}/framework/IOAPI.h
-	${MOUNT_DIR}/framework/MD4.h
-	${MOUNT_DIR}/framework/MD5.h
-	${MOUNT_DIR}/framework/Puff.h
-	${MOUNT_DIR}/framework/Unzip.h
-	${MOUNT_DIR}/framework/SurfaceFlags_Tech3.h
-	${MOUNT_DIR}/framework/Network.h
-	${MOUNT_DIR}/framework/NetworkChain.h
-	${MOUNT_DIR}/framework/Parse.h
+	${MOUNT_DIR}/API/FileSystem_api.hpp
+	${MOUNT_DIR}/API/CVarSystem_api.hpp
+	${MOUNT_DIR}/API/CmdSystem_api.hpp
+	${MOUNT_DIR}/API/CmdBuffer_api.hpp
+	${MOUNT_DIR}/API/CmdDelay_api.hpp
+	${MOUNT_DIR}/API/MD4_api.hpp
+	${MOUNT_DIR}/API/MD5_api.hpp
+	${MOUNT_DIR}/API/Network_api.hpp
+	${MOUNT_DIR}/API/NetworkChain_api.hpp
+	${MOUNT_DIR}/API/Parse_api.hpp
+	${MOUNT_DIR}/framework/FileSystem.hpp
+	${MOUNT_DIR}/framework/CVarSystem.hpp
+	${MOUNT_DIR}/framework/CmdSystem.hpp
+	${MOUNT_DIR}/framework/CmdBuffer.hpp
+	${MOUNT_DIR}/framework/CmdDelay.hpp
+	${MOUNT_DIR}/framework/Huffman.hpp
+	${MOUNT_DIR}/framework/IOAPI.hpp
+	${MOUNT_DIR}/framework/MD4.hpp
+	${MOUNT_DIR}/framework/MD5.hpp
+	${MOUNT_DIR}/framework/Puff.hpp
+	${MOUNT_DIR}/framework/Unzip.hpp
+	${MOUNT_DIR}/framework/SurfaceFlags_Tech3.hpp
+	${MOUNT_DIR}/framework/Network.hpp
+	${MOUNT_DIR}/framework/NetworkChain.hpp
+	${MOUNT_DIR}/framework/Parse.hpp
 )
 
 set( FRAMEWORKS_SOURCES
@@ -314,21 +314,21 @@ set( FRAMEWORKS_SOURCES
 )
 
 set( CLIENTLIST_HEADERS
-	${MOUNT_DIR}/client/client.h
-	${MOUNT_DIR}/client/clientAVI.h
-	${MOUNT_DIR}/client/clientBrowser.h
-	${MOUNT_DIR}/client/clientGame.h
-	${MOUNT_DIR}/client/clientGUI.h
-	${MOUNT_DIR}/client/clientLAN.h
-	${MOUNT_DIR}/client/clientScreen.h
-	${MOUNT_DIR}/client/keycodes.h
-	${MOUNT_DIR}/client/keys.h
-	${MOUNT_DIR}/API/clientScreen_api.h
-	${MOUNT_DIR}/API/clientAVI_api.h
-	${MOUNT_DIR}/API/clientGame_api.h
-	${MOUNT_DIR}/API/clientGUI_api.h
-	${MOUNT_DIR}/API/clientLAN_api.h
-	${MOUNT_DIR}/client/clientParse.h
+	${MOUNT_DIR}/client/client.hpp
+	${MOUNT_DIR}/client/clientAVI.hpp
+	${MOUNT_DIR}/client/clientBrowser.hpp
+	${MOUNT_DIR}/client/clientGame.hpp
+	${MOUNT_DIR}/client/clientGUI.hpp
+	${MOUNT_DIR}/client/clientLAN.hpp
+	${MOUNT_DIR}/client/clientScreen.hpp
+	${MOUNT_DIR}/client/keycodes.hpp
+	${MOUNT_DIR}/client/keys.hpp
+	${MOUNT_DIR}/API/clientScreen_api.hpp
+	${MOUNT_DIR}/API/clientAVI_api.hpp
+	${MOUNT_DIR}/API/clientGame_api.hpp
+	${MOUNT_DIR}/API/clientGUI_api.hpp
+	${MOUNT_DIR}/API/clientLAN_api.hpp
+	${MOUNT_DIR}/client/clientParse.hpp
 )
 
 set( CLIENTLIST_SOURCES
@@ -343,18 +343,18 @@ set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/clientParse.cpp
 	${MOUNT_DIR}/client/clientScreen.cpp
 	${MOUNT_DIR}/client/clientBrowser.cpp
-	${MOUNT_DIR}/client/clientBrowser.h
-	${MOUNT_DIR}/client/clientGUI.h
+	${MOUNT_DIR}/client/clientBrowser.hpp
+	${MOUNT_DIR}/client/clientGUI.hpp
 	${MOUNT_DIR}/client/clientGUI.cpp
-	${MOUNT_DIR}/client/clientLAN.h
+	${MOUNT_DIR}/client/clientLAN.hpp
 	${MOUNT_DIR}/client/clientLAN.cpp
 )
 
 set( AUDIO_HEADERS
-	${MOUNT_DIR}/audio/s_codec.h
-	${MOUNT_DIR}/audio/s_dmahd.h
-	${MOUNT_DIR}/audio/s_local.h
-	${MOUNT_DIR}/API/sound_api.h
+	${MOUNT_DIR}/audio/s_codec.hpp
+	${MOUNT_DIR}/audio/s_dmahd.hpp
+	${MOUNT_DIR}/audio/s_local.hpp
+	${MOUNT_DIR}/API/sound_api.hpp
 )
 
 set( AUDIO_SOURCES
@@ -389,13 +389,13 @@ SET ( PLATFORM_DEDICATED_SOURCES
 )
 
 SET ( PLATFORMLIST_HEADERS
-    ${MOUNT_DIR}/platform/Windows/resource.h
-	${MOUNT_DIR}/platform/systemLocal.h
-	${MOUNT_DIR}/API/system_api.h
-	${MOUNT_DIR}/API/consoleCurses_api.h
-    ${MOUNT_DIR}/console/consoleCurses.h
-	${MOUNT_DIR}/API/consoleLogging_api.h
-    ${MOUNT_DIR}/console/consoleLogging.h
+    ${MOUNT_DIR}/platform/Windows/resource.hpp
+	${MOUNT_DIR}/platform/systemLocal.hpp
+	${MOUNT_DIR}/API/system_api.hpp
+	${MOUNT_DIR}/API/consoleCurses_api.hpp
+    ${MOUNT_DIR}/console/consoleCurses.hpp
+	${MOUNT_DIR}/API/consoleLogging_api.hpp
+    ${MOUNT_DIR}/console/consoleLogging.hpp
 )
 
 set( SDLLIST
@@ -404,7 +404,7 @@ set( SDLLIST
 )
 
 set( NULL_SERVER_HEADERS
-	${MOUNT_DIR}/null/null_serverprecompiled.h
+	${MOUNT_DIR}/null/null_serverprecompiled.hpp
 )
 
 set( NULL_SERVER_SOURCES
@@ -414,7 +414,7 @@ set( NULL_SERVER_SOURCES
 )
 
 set( NULL_AUTOUPDATESERVER_HEADERS
-	${MOUNT_DIR}/null/null_autoprecompiled.h
+	${MOUNT_DIR}/null/null_autoprecompiled.hpp
 )
 
 set( NULL_AUTOUPDATESERVER_SOURCES
@@ -424,12 +424,12 @@ set( NULL_AUTOUPDATESERVER_SOURCES
 )
 
 set( OWMASTERSERVERLIST_HEADERS
-	${TOOLS_DIR}/master/clients.h
-	${TOOLS_DIR}/master/games.h
-	${TOOLS_DIR}/master/common.h
-	${TOOLS_DIR}/master/messages.h
-	${TOOLS_DIR}/master/servers.h
-	${TOOLS_DIR}/master/system.h
+	${TOOLS_DIR}/master/clients.hpp
+	${TOOLS_DIR}/master/games.hpp
+	${TOOLS_DIR}/master/common.hpp
+	${TOOLS_DIR}/master/messages.hpp
+	${TOOLS_DIR}/master/servers.hpp
+	${TOOLS_DIR}/master/system.hpp
 )
 
 set( OWMASTERSERVERLIST_SOURCES
@@ -443,12 +443,12 @@ set( OWMASTERSERVERLIST_SOURCES
 )
 
 set( OWAUTHSERVERLIST_HEADERS
-	${TOOLS_DIR}/authserver/clients.h
-	${TOOLS_DIR}/authserver/games.h
-	${TOOLS_DIR}/authserver/common.h
-	${TOOLS_DIR}/authserver/messages.h
-	${TOOLS_DIR}/authserver/servers.h
-	${TOOLS_DIR}/authserver/system.h
+	${TOOLS_DIR}/authserver/clients.hpp
+	${TOOLS_DIR}/authserver/games.hpp
+	${TOOLS_DIR}/authserver/common.hpp
+	${TOOLS_DIR}/authserver/messages.hpp
+	${TOOLS_DIR}/authserver/servers.hpp
+	${TOOLS_DIR}/authserver/system.hpp
 )
 
 set( OWAUTHSERVERLIST_SOURCES
@@ -532,7 +532,7 @@ if( BUILD_CLIENT )
 		SOURCE_GROUP( Source\ Files\\SDL                                      FILES ${SDLLIST} )
 	endif( WIN32 )
 
-	add_library( engine SHARED ${SHAREDLIST_HEADERS} ${GPURENDERER_HEADERS} ${FRAMEWORKS_HEADERS} ${QCOMMONLIST_HEADERS} ${SERVERLIST_HEADERS} ${COLLISIONMODEL_HEADERS} ${CLIENTLIST_HEADERS} ${AUDIO_HEADERS} ${SHAREDLIST_SOURCES} ${GPURENDERER_SOURCES} ${SERVERLIST_SOURCES} ${COLLISIONMODEL_SOURCES} ${QCOMMONLIST_SOURCES} ${CLIENTLIST_SOURCES} ${AUDIO_SOURCES} ${FRAMEWORKS_SOURCES} ${PLATFORMLIST} ${SDLLIST} ${PLATFORMLIST_SOURCES} ${PLATFORMLIST_HEADERS} ${MOUNT_DIR}/framework/precompiled.h ${MOUNT_DIR}/framework/precompiled.cpp ${DOWNLOADLIST_HEADERS} ${DOWNLOADLIST_SOURCES} )
+	add_library( engine SHARED ${SHAREDLIST_HEADERS} ${GPURENDERER_HEADERS} ${FRAMEWORKS_HEADERS} ${QCOMMONLIST_HEADERS} ${SERVERLIST_HEADERS} ${COLLISIONMODEL_HEADERS} ${CLIENTLIST_HEADERS} ${AUDIO_HEADERS} ${SHAREDLIST_SOURCES} ${GPURENDERER_SOURCES} ${SERVERLIST_SOURCES} ${COLLISIONMODEL_SOURCES} ${QCOMMONLIST_SOURCES} ${CLIENTLIST_SOURCES} ${AUDIO_SOURCES} ${FRAMEWORKS_SOURCES} ${PLATFORMLIST} ${SDLLIST} ${PLATFORMLIST_SOURCES} ${PLATFORMLIST_HEADERS} ${MOUNT_DIR}/framework/precompiled.hpp ${MOUNT_DIR}/framework/precompiled.cpp ${DOWNLOADLIST_HEADERS} ${DOWNLOADLIST_SOURCES} )
 	
 	if( MSVC )
 	SET_TARGET_PROPERTIES( engine PROPERTIES LINK_FLAGS "/DEF:\"${MOUNT_DIR}/platform/engineMain.def" )
@@ -544,7 +544,7 @@ elseif( UNIX )
 	set_property( TARGET engine APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  BUILD_FREETYPE HAVE_BZIP2 )
 endif()
 
-	target_precompile_headers( engine PRIVATE "${MOUNT_DIR}/framework/precompiled.h" )
+	target_precompile_headers( engine PRIVATE "${MOUNT_DIR}/framework/precompiled.hpp" )
   
   	set_target_properties( engine PROPERTIES OUTPUT_NAME "engine.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
@@ -643,7 +643,7 @@ if( BUILD_SERVER )
 		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED HAVE_CONFIG_H USE_INCREASED_ENTITIES __STDC_CONSTANT_MACROS BUILD_FREETYPE HAVE_BZIP2 )
 	endif()
 
-	target_precompile_headers( server PRIVATE "${MOUNT_DIR}/null/null_serverprecompiled.h" )
+	target_precompile_headers( server PRIVATE "${MOUNT_DIR}/null/null_serverprecompiled.hpp" )
 	
 	set_target_properties( server PROPERTIES OUTPUT_NAME "${GAME_APP_NAME_UPPER}ded.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
@@ -690,7 +690,7 @@ if( BUILD_AUTOUPDATE_SERVER )
 		set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED UPDATE_SERVER )
 	endif()
 
-	target_precompile_headers( autoupdateserver PRIVATE "${MOUNT_DIR}/null/null_autoprecompiled.h" )
+	target_precompile_headers( autoupdateserver PRIVATE "${MOUNT_DIR}/null/null_autoprecompiled.hpp" )
 
 	# The following section finds the REQUIRED dependencies and makes them available to the target
 	find_package( SDL REQUIRED )

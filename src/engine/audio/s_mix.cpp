@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -20,14 +20,14 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   s_mix.cpp
-// Version:     v1.02
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: portable code to mix sounds for s_dma.cpp
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 static portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
 static sint snd_vol;
@@ -67,23 +67,21 @@ static void S_WriteLinearBlastStereo16( void )
     }
 }
 
-
 void S_TransferStereo16( uint32* pbuf, sint endtime )
 {
     sint lpos;
     sint ls_paintedtime;
     
-    snd_p = ( sint* ) paintbuffer;
     ls_paintedtime = s_paintedtime;
     
     while( ls_paintedtime < endtime )
     {
         // handle recirculating buffer issues
-        lpos = ls_paintedtime & ( ( dma.samples >> 1 ) - 1 );
+        lpos = ls_paintedtime % dma.fullsamples;
         
         snd_out = ( schar16* ) pbuf + ( lpos << 1 );
         
-        snd_linear_count = ( dma.samples >> 1 ) - lpos;
+        snd_linear_count = dma.fullsamples - lpos;
         if( ls_paintedtime + snd_linear_count > endtime )
         {
             snd_linear_count = endtime - ls_paintedtime;
@@ -107,24 +105,23 @@ void S_TransferStereo16( uint32* pbuf, sint endtime )
 /*
 ===================
 S_TransferPaintBuffer
-
 ===================
 */
-void S_TransferPaintBuffer( sint endtime )
+void S_TransferPaintBuffer( sint endtime, portable_samplepair_t paintbuffer[] )
 {
     sint out_idx;
     sint count;
-    sint out_mask;
     sint* p;
     sint step;
     sint val;
+    sint i;
     uint32* pbuf;
     
     pbuf = ( uint32* )dma.buffer;
     
     if( s_testsound->integer )
     {
-        sint i, count;
+        sint count;
         
         // write a fixed sine wave
         count = ( endtime - s_paintedtime );
@@ -136,6 +133,8 @@ void S_TransferPaintBuffer( sint endtime )
     
     if( dma.samplebits == 16 && dma.channels == 2 )
     {
+        snd_p = ( sint* )paintbuffer;
+        
         // optimized case
         S_TransferStereo16( pbuf, endtime );
     }
@@ -144,17 +143,23 @@ void S_TransferPaintBuffer( sint endtime )
         // general case
         p = ( sint* ) paintbuffer;
         count = ( endtime - s_paintedtime ) * dma.channels;
-        out_mask = dma.samples - 1;
-        out_idx = s_paintedtime * dma.channels & out_mask;
-        step = 3 - dma.channels;
+        out_idx = ( s_paintedtime * dma.channels ) % dma.samples;
+        step = 3 - MIN( dma.channels, 2 );
         
         if( dma.samplebits == 16 )
         {
             schar16* out = ( schar16* ) pbuf;
-            while( count-- )
+            for( i = 0; i < count; i++ )
             {
-                val = *p >> 8;
-                p += step;
+                if( ( i % dma.channels ) >= 2 )
+                {
+                    val = 0;
+                }
+                else
+                {
+                    val = *p >> 8;
+                    p += step;
+                }
                 
                 if( val > 0x7fff )
                 {
@@ -164,17 +169,25 @@ void S_TransferPaintBuffer( sint endtime )
                 {
                     val = -32768;
                 }
+                
                 out[out_idx] = val;
-                out_idx = ( out_idx + 1 ) & out_mask;
+                out_idx = ( out_idx + 1 ) % dma.samples;
             }
         }
         else if( dma.samplebits == 8 )
         {
             uchar8* out = ( uchar8* ) pbuf;
-            while( count-- )
+            for( i = 0; i < count; i++ )
             {
-                val = *p >> 8;
-                p += step;
+                if( ( i % dma.channels ) >= 2 )
+                {
+                    val = 0;
+                }
+                else
+                {
+                    val = *p >> 8;
+                    p += step;
+                }
                 
                 if( val > 0x7fff )
                 {
@@ -186,7 +199,7 @@ void S_TransferPaintBuffer( sint endtime )
                 }
                 
                 out[out_idx] = ( val >> 8 ) + 128;
-                out_idx = ( out_idx + 1 ) & out_mask;
+                out_idx = ( out_idx + 1 ) % dma.samples;
             }
         }
     }
@@ -633,7 +646,7 @@ void S_PaintChannels( sint endtime )
         }
         
         // transfer out according to DMA format
-        S_TransferPaintBuffer( end );
+        S_TransferPaintBuffer( end, paintbuffer );
         s_paintedtime = end;
     }
 }

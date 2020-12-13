@@ -1,7 +1,6 @@
-
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 2011 James Canete (use.less01@gmail.com)
-// Copyright(C) 2011 - 2018 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 James Canete (use.less01@gmail.com)
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -21,14 +20,14 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   r_extensions.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2017, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: extensions needed by the renderer not in r_glimp.cpp
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 void GLimp_InitExtraExtensions()
 {

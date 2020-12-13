@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2020 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,25 +28,25 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   q_shared.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: stateless support routines that are included in each code dll
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif defined DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #elif defined GUI
-#include <GUI/gui_precompiled.h>
+#include <GUI/gui_precompiled.hpp>
 #elif defined CGAMEDLL
-#include <cgame/cgame_precompiled.h>
+#include <cgame/cgame_precompiled.hpp>
 #elif defined GAMEDLL
-#include <sgame/sgame_precompiled.h>
+#include <sgame/sgame_precompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 /*
@@ -2877,4 +2877,36 @@ void Q_strstrip( valueType* string, pointer strip, pointer repl )
     }
     
     *out = '\0';
+}
+
+bool Q_IsColorString( pointer p )
+{
+    if( !p )
+    {
+        return false;
+    }
+    
+    if( p[0] != Q_COLOR_ESCAPE )
+    {
+        return false;
+    }
+    
+    if( p[1] == 0 )
+    {
+        return false;
+    }
+    
+    // isalnum expects a signed integer in the range -1 (EOF) to 255, or it might assert on undefined behaviour
+    // a dereferenced char pointer has the range -128 to 127, so we just need to rangecheck the negative part
+    if( p[1] < 0 )
+    {
+        return false;
+    }
+    
+    if( isalnum( p[1] ) == 0 )
+    {
+        return false;
+    }
+    
+    return true;
 }

@@ -27,13 +27,14 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   sys_osx.cpp
-// Version:     v1.00
+// File name:   systemMacOS.cpp
 // Created:
 // Compilers:   
 // Description: 
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
+
+//Dushan - broken
 
 #if !defined (_WIN32) && !defined (_LINUX_)
 
@@ -44,9 +45,9 @@
 // Please note that this file is just some Mac-specific bits. Most of the
 // Mac OS X code is shared with other Unix platforms in sys_unix.c ...
 
-#include <qcommon/q_shared.h>
-#include <qcommon/qcommon.h>
-#include <platform/sys_local.h>
+#include <qcommon/q_shared.hpp>
+#include <qcommon/qcommon.hpp>
+#include <platform/sys_local.hpp>
 
 #include <sys/sysctl.h>
 #import <Carbon/Carbon.h>

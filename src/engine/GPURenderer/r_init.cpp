@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2018 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -20,15 +20,15 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   tr_init.cpp
-// Version:     v1.00
+// File name:   r_init.cpp
 // Created:
-// Compilers:   Visual Studio 2015
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: functions that are not called every frame
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 vidconfig_t glConfig;
 glRefConfig_t glRefConfig;
@@ -336,6 +336,13 @@ static void InitOpenGL( void )
         {
             CL_RefPrintf( PRINT_DEVELOPER, "...failed.\n" );
         }
+    }
+    
+    // check for GLSL function textureCubeLod()
+    if( r_cubeMapping->integer && !QGL_VERSION_ATLEAST( 3, 0 ) )
+    {
+        CL_RefPrintf( PRINT_WARNING, "WARNING: Disabled r_cubeMapping because it requires OpenGL 3.0\n" );
+        cvarSystem->Set( "r_cubeMapping", "0" );
     }
     
     // set default state
@@ -1165,7 +1172,7 @@ void GfxInfo_f( void )
         R_PrintLongString( glConfig.extensions_string );
     }
     CL_RefPrintf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-    CL_RefPrintf( PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.numTextureUnits );
+    CL_RefPrintf( PRINT_ALL, "GL_MAX_TEXTURE_IMAGE_UNITS: %d\n", glConfig.numTextureUnits );
     CL_RefPrintf( PRINT_ALL, "PIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
     CL_RefPrintf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
     if( glConfig.displayFrequency )

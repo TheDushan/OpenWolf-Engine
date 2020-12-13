@@ -38,6 +38,6 @@ void main()
 	HDR = ((clamp(HDR - const_1, 0.0, 1.0)) * const_2);
 
 	// Use HDR
-	gl_FragColor = ( (HDR + color + color) * 0.125 );
+	gl_FragColor = ( (HDR + color + color) * 0.275 );
 	gl_FragColor.a = 1.0;
 }

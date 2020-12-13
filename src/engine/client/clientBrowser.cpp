@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2005 - 2006 Tim Angus
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -19,15 +19,15 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   clientAVI.cpp
-// Version:     v1.02
+// File name:   clientBrowser.cpp
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 sint serverStatusCount;
 ping_t cl_pinglist[MAX_PINGREQUESTS];
@@ -87,7 +87,7 @@ void idClientBrowserSystemLocal::ServersResponsePacket( const netadr_t* from, ms
     uchar8* buffptr;
     uchar8* buffend;
     
-    Com_Printf( "idClientBrowserSystemLocal::ServersResponsePacket from %s\n", networkSystem->AdrToStringwPort( *from ) );
+    Com_Printf( "idClientBrowserSystemLocal::ServersResponsePacket\n" );
     
     if( cls.numglobalservers == -1 )
     {

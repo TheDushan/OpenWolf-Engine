@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2006 - 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
-// Copyright(C) 2011 - 2018 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -20,14 +20,14 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   r_glsl.cpp
-// Version:     v1.00
 // Created:
-// Compilers:   Visual Studio 2015
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 struct uniformInfo_t
 {
@@ -35,7 +35,7 @@ struct uniformInfo_t
     sint type;
 };
 
-// These must be in the same order as in uniform_t in r_local.h.
+// These must be in the same order as in uniform_t in r_local.hpp.
 static uniformInfo_t uniformsInfo[] =
 {
     { "u_DiffuseMap",  GLSL_INT },

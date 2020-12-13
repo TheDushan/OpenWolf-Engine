@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2011 James Canete (use.less01@gmail.com)
-// Copyright(C) 2011 - 2018 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -20,14 +20,14 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   r_extramath.cpp
-// Version:     v1.00
 // Created:
-// Compilers:   Visual Studio 2015
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: extra math needed by the renderer not in qmath.c
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 // Some matrix helper functions
 // FIXME: do these already exist in ioq3 and I don't know about them?

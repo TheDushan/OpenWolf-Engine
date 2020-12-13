@@ -1,6 +1,6 @@
 ﻿////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,14 +28,14 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   cl_main.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: client main loop
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 convar_t*         cl_wavefilerecord;
 convar_t*         cl_nodelta;
@@ -789,14 +789,12 @@ static void CL_CompleteDemoName( valueType* args, sint argNum )
 CL_PlayDemo_f
 
 demo <demoname>
-
 ====================
 */
 void CL_PlayDemo_f( void )
 {
-    valueType            name[MAX_OSPATH], extension[32];
-    valueType*           arg;
-    sint             prot_ver;
+    sint prot_ver;
+    valueType name[MAX_OSPATH], extension[32], *arg;
     
     if( cmdSystem->Argc() != 2 )
     {
@@ -1159,6 +1157,7 @@ void CL_Disconnect( bool showMainMenu, pointer reason )
     // shutting down the client so enter full screen ui mode
     cvarSystem->Set( "r_uiFullScreen", "1" );
     
+    // Stop demo recording
     if( clc.demorecording )
     {
         CL_StopRecord_f();
@@ -1184,13 +1183,25 @@ void CL_Disconnect( bool showMainMenu, pointer reason )
         clc.demofile = 0;
     }
     
-    if( uivm && showMainMenu )
+    if( cgvm )
     {
-        uiManager->SetActiveMenu( UIMENU_NONE );
+        // do that right after we rendered last video frame
+        clientGameSystem->ShutdownCGame();
     }
     
     SCR_StopCinematic();
     soundSystemLocal.ClearSoundBuffer();
+    
+    // Remove pure paks
+    fileSystem->PureServerSetLoadedPaks( "", "" );
+    fileSystem->PureServerSetReferencedPaks( "", "" );
+    
+    fileSystem->ClearPakReferences( FS_GENERAL_REF | FS_UI_REF | FS_CGAME_REF );
+    
+    if( uivm && showMainMenu )
+    {
+        uiManager->SetActiveMenu( UIMENU_NONE );
+    }
     
     // send a disconnect message to the server
     // send it a few times in case one is dropped
@@ -1211,9 +1222,6 @@ void CL_Disconnect( bool showMainMenu, pointer reason )
         CL_WritePacket();
         CL_WritePacket();
     }
-    
-    // Remove pure paks
-    fileSystem->PureServerSetLoadedPaks( "", "" );
     
     CL_ClearState();
     
@@ -1433,9 +1441,8 @@ void CL_RequestMotd( void )
                  
     info[0] = 0;
     
-    Com_sprintf( cls.updateChallenge, sizeof( cls.updateChallenge ),
-                 "%i", ( ( rand() << 16 ) ^ rand() ) ^ Com_Milliseconds() );
-                 
+    Com_sprintf( cls.updateChallenge, sizeof( cls.updateChallenge ), "%i", ( ( rand() << 16 ) ^ rand() ) ^ Com_Milliseconds() );
+    
     Info_SetValueForKey( info, "challenge", cls.updateChallenge );
     Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
     Info_SetValueForKey( info, "version", com_version->string );
@@ -1680,6 +1687,9 @@ void CL_Connect_f( void )
     else
     {
         cls.state = CA_CONNECTING;
+        
+        // Set a client challenge number that ideally is mirrored back by the server.
+        clc.challenge = ( ( rand() << 16 ) ^ rand() ) ^ Com_Milliseconds();
     }
     
     cvarSystem->Set( "cl_avidemo", "0" );
@@ -1779,9 +1789,9 @@ CL_SendPureChecksums
 */
 void CL_SendPureChecksums( void )
 {
-    pointer     pChecksums;
-    valueType            cMsg[MAX_INFO_VALUE];
-    sint             i;
+    sint i;
+    pointer pChecksums;
+    valueType cMsg[MAX_INFO_VALUE];
     
     // if we are pure we need to send back a command with our referenced pk3 checksums
     pChecksums = fileSystem->ReferencedPakPureChecksums();
@@ -1822,8 +1832,11 @@ void CL_Vid_Restart_f( void )
 {
     if( cls.lastVidRestart )
     {
-        if( abs( cls.lastVidRestart - idsystem->Milliseconds() ) < 500 )
-            return; // do not allow vid restart righ after cgame init
+        if( ::abs( cls.lastVidRestart - idsystem->Milliseconds() ) < 500 )
+        {
+            // do not allow video restart right after cgame init
+            return;
+        }
     }
     
     // settings may have changed so stop recording now
@@ -1847,14 +1860,18 @@ void CL_Vid_Restart_f( void )
     
     // shutdown the renderer and clear the renderer interface
     CL_ShutdownRef();
+    
     // client is no longer pure untill new checksums are sent
     CL_ResetPureClientAtServer();
+    
     // clear pak references
     fileSystem->ClearPakReferences( FS_UI_REF | FS_CGAME_REF );
+    
     // reinitialize the filesystem if the game directory or checksum has changed
     fileSystem->ConditionalRestart( clc.checksumFeed );
     
-    soundSystem->BeginRegistration();		// all sound handles are now invalid
+    // all sound handles are now invalid
+    soundSystem->BeginRegistration();
     
     cls.rendererStarted = false;
     cls.uiStarted = false;
@@ -1893,6 +1910,7 @@ void CL_Vid_Restart_f( void )
     {
         cls.cgameStarted = true;
         clientGameSystem->InitCGame();
+        
         // send pure checksums
         CL_SendPureChecksums();
     }
@@ -3906,10 +3924,10 @@ void CL_Init( void )
     // init autoswitch so the ui will have it correctly even
     // if the cgame hasn't been started
     // -NERVE - SMF - disabled autoswitch by default
-    cvarSystem->Get( "cg_autoswitch", "0", CVAR_ARCHIVE, "Toggles automatically chaning weapon when current one is out of ammo" );
+    //cvarSystem->Get( "cg_autoswitch", "0", CVAR_ARCHIVE, "Toggles automatically chaning weapon when current one is out of ammo" );
     
     // Rafael - particle switch
-    cvarSystem->Get( "cg_wolfparticles", "1", CVAR_ARCHIVE, "Toggles display of particle effects – e.g. Explosions, some smoke effects." );
+    //cvarSystem->Get( "cg_wolfparticles", "1", CVAR_ARCHIVE, "Toggles display of particle effects – e.g. Explosions, some smoke effects." );
     // done
     
     cl_conXOffset = cvarSystem->Get( "cl_conXOffset", "3", 0, "Supposed to move the on-screen console text up/down" );
@@ -3985,15 +4003,15 @@ void CL_Init( void )
     cvarSystem->Get( "cg_predictItems", "1", CVAR_ARCHIVE, "Toggle use of prediction for picking up items." );
     
 //----(SA) added
-    cvarSystem->Get( "cg_autoactivate", "1", CVAR_ARCHIVE, "Toggles automatically picking up items (paks, weapons etc)" );
+    //cvarSystem->Get( "cg_autoactivate", "1", CVAR_ARCHIVE, "Toggles automatically picking up items (paks, weapons etc)" );
 //----(SA) end
 
     // cgame might not be initialized before menu is used
     cvarSystem->Get( "cg_viewsize", "100", CVAR_ARCHIVE, "Supposed to be for setting the % of screen actually displaying rendered game. Might have been useful for using a lower-res ET while using a native resolution on TFT screens" );
     
-    cvarSystem->Get( "cg_autoReload", "1", CVAR_ARCHIVE, "Toggles automatically reloading weapon when clip becomes empty" );
+    //cvarSystem->Get( "cg_autoReload", "1", CVAR_ARCHIVE, "Toggles automatically reloading weapon when clip becomes empty" );
     
-    cl_missionStats = cvarSystem->Get( "g_missionStats", "0", CVAR_ROM, "Mission statistics" );
+    //cl_missionStats = cvarSystem->Get( "g_missionStats", "0", CVAR_ROM, "Mission statistics" );
     cl_waitForFire = cvarSystem->Get( "cl_waitForFire", "0", CVAR_ROM, "Wait for the fire." );
     
     // NERVE - SMF - localization

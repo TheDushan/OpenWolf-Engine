@@ -7,7 +7,7 @@
 /*
  * puff.c
  * Copyright (C) 2002-2004 Mark Adler
- * For conditions of distribution and use, see copyright notice in puff.h
+ * For conditions of distribution and use, see copyright notice in puff.hpp
  * version 1.8, 9 Jan 2004
  *
  * puff.c is a simple inflate written to be an unambiguous way to specify the
@@ -56,7 +56,7 @@
  *                      - Provide a scanning mode for determining size of
  *                        uncompressed data
  * 1.3  20 Mar 2002     - Go back to lengths for puff() parameters [Jean-loup]
- *                      - Add a puff.h file for the interface
+ *                      - Add a puff.hpp file for the interface
  *                      - Add braces in puff() for else do [Jean-loup]
  *                      - Use indexes instead of pointers for readability
  * 1.4  31 Mar 2002     - Simplify construct() code set check
@@ -70,11 +70,11 @@
  */
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 #define local static            /* for local function definitions */

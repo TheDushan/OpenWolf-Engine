@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -20,14 +20,14 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   s_dma.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 void S_Play_f( void );
 void S_Music_f( void );
@@ -105,7 +105,7 @@ void S_Base_SoundInfo( void )
     }
     else
     {
-        Com_Printf( "%5d stereo\n", dma.channels - 1 );
+        Com_Printf( "%5d channels\n", dma.channels );
         Com_Printf( "%5d samples\n", dma.samples );
         Com_Printf( "%5d samplebits\n", dma.samplebits );
         Com_Printf( "%5d submission_chunk\n", dma.submission_chunk );
@@ -1352,9 +1352,6 @@ void S_GetSoundtime( void )
     sint samplepos;
     static sint buffers;
     static sint oldsamplepos;
-    sint fullsamples;
-    
-    fullsamples = dma.samples / dma.channels;
     
     if( clientAVISystem->VideoRecording( ) )
     {
@@ -1374,13 +1371,13 @@ void S_GetSoundtime( void )
         {
             // time to chop things off to avoid 32 bit limits
             buffers = 0;
-            s_paintedtime = fullsamples;
+            s_paintedtime = dma.fullsamples;
             S_Base_StopAllSounds();
         }
     }
     oldsamplepos = samplepos;
     
-    s_soundtime = buffers * fullsamples + samplepos / dma.channels;
+    s_soundtime = buffers * dma.fullsamples + samplepos / dma.channels;
     
 #if 0
 // check to make sure that we haven't overshot
@@ -1453,10 +1450,9 @@ void S_Update_( void )
               & ~( dma.submission_chunk - 1 );
               
     // never mix more than the complete buffer
-    samps = dma.samples >> ( dma.channels - 1 );
-    if( endtime - s_soundtime > samps )
+    if( endtime - s_soundtime > dma.fullsamples )
     {
-        endtime = s_soundtime + samps;
+        endtime = s_soundtime + dma.fullsamples;
     }
     
     SNDDMA_BeginPainting();

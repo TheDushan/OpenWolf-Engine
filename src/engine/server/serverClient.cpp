@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,19 +28,19 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   serverClient.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: server code for dealing with clients
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 idServerClientSystemLocal serverClientLocal;
@@ -103,7 +103,7 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
     
     gameName = cmdSystem->Argv( 2 );
     guid = cmdSystem->Argv( 3 );
-    getChallengeCookie = atoi( cmdSystem->Argv( 4 ) );
+    getChallengeCookie = ::atoi( cmdSystem->Argv( 4 ) );
     
     if( !getChallengeCookie )
     {
@@ -116,7 +116,7 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
     
     // see if we already have a challenge for this ip
     challenge = &svs.challenges[0];
-    clientChallenge = atoi( cmdSystem->Argv( 1 ) );
+    clientChallenge = ::atoi( cmdSystem->Argv( 1 ) );
     
     for( i = 0; i < MAX_CHALLENGES; i++, challenge++ )
     {
@@ -884,13 +884,15 @@ void idServerClientSystemLocal::SendClientGameState( client_t* client )
     
     while( client->state && client->netchan.unsentFragments )
     {
-    
         Com_DPrintf( "idServerClientSystemLocal::SendClientGameState [2] for %s, writing out old fragments\n", client->name );
         networkChainSystem->TransmitNextFragment( &client->netchan );
     }
     
     Com_DPrintf( "idServerClientSystemLocal::SendClientGameState() for %s\n", client->name );
-    Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
+    if( client->state != CS_PRIMED )
+    {
+        Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
+    }
     
     if( client->state == CS_CONNECTED )
     {
@@ -1338,6 +1340,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
             return;
         }
 #endif
+        
         //bani - prevent duplicate download notifications
         if( cl->downloadnotify & DLNOTIFY_BEGIN )
         {
@@ -1645,36 +1648,42 @@ idServerClientSystemLocal::VerifyPaks_f
 
 If we are pure, disconnect the client if they do no meet the following conditions:
 
-1. the first two checksums match our view of cgame and ui DLLs
+1. the first two checksums match our view of cgame and gui DLLs
    Wolf specific: the checksum is the checksum of the pk3 we found the DLL in
 2. there are no any additional checksums that we do not have
 
-This routine would be a bit simpler with a goto but i abstained
+This routine would be a bit simpler with a goto but I abstained
 =================
 */
 void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
 {
-    sint nChkSum1, nChkSum2, nClientPaks, nServerPaks, i, j, nCurArg, nClientChkSum[1024], nServerChkSum[1024];
+    sint nChkSum1, nChkSum2, nClientPaks, nServerPaks, i, j, nClientChkSum[1024], nServerChkSum[1024];
     pointer pPaks, pArg;
-    bool bGood;
     
     // if we are pure, we "expect" the client to load certain things from
     // certain pk3 files, namely we want the client to have loaded the
     // ui and cgame that we think should be loaded based on the pure setting
     if( sv_pure->integer != 0 )
     {
+        bool bGood = true;
         nChkSum1 = nChkSum2 = 0;
         
-        bGood = ( fileSystem->FileIsInPAK( idsystem->GetDLLName( "cgame" ), &nChkSum1 ) == 1 );
+        bGood = ( bool )( fileSystem->FileIsInPAK( idsystem->GetDLLName( "cgame" ), &nChkSum1 ) == 1 );
         if( bGood )
         {
-            bGood = ( fileSystem->FileIsInPAK( idsystem->GetDLLName( "gui" ), &nChkSum2 ) == 1 );
+            bGood = ( bool )( fileSystem->FileIsInPAK( idsystem->GetDLLName( "gui" ), &nChkSum2 ) == 1 );
+            
         }
         
         nClientPaks = cmdSystem->Argc();
         
+        if( nClientPaks > ARRAY_LEN( nClientChkSum ) )
+        {
+            nClientPaks = ARRAY_LEN( nClientChkSum );
+        }
+        
         // start at arg 2 ( skip serverId cl_paks )
-        nCurArg = 1;
+        sint nCurArg = 1;
         
         pArg = cmdSystem->Argv( nCurArg++ );
         
@@ -1687,7 +1696,7 @@ void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
             // show_bug.cgi?id=475
             // we may get incoming cp sequences from a previous checksumFeed, which we need to ignore
             // since serverId is a frame count, it always goes up
-            if( atoi( pArg ) < sv.checksumFeedServerId )
+            if( ::atoi( pArg ) < sv.checksumFeedServerId )
             {
                 Com_DPrintf( "ignoring outdated cp command from client %s\n", cl->name );
                 return;
@@ -1707,20 +1716,22 @@ void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
             
             // verify first to be the cgame checksum
             pArg = cmdSystem->Argv( nCurArg++ );
-            if( !pArg || *pArg == '@' || atoi( pArg ) != nChkSum1 )
+            if( !pArg || *pArg == '@' || ::atoi( pArg ) != nChkSum1 )
             {
-                Com_Printf( "nChkSum1 %d == %d\n", atoi( pArg ), nChkSum1 );
+                Com_Printf( "nChkSum1 %d == %d\n", ::atoi( pArg ), nChkSum1 );
                 bGood = false;
                 break;
             }
-            // verify the second to be the ui checksum
+            
+            // verify the second to be the gui checksum
             pArg = cmdSystem->Argv( nCurArg++ );
-            if( !pArg || *pArg == '@' || atoi( pArg ) != nChkSum2 )
+            if( !pArg || *pArg == '@' || ::atoi( pArg ) != nChkSum2 )
             {
-                Com_Printf( "nChkSum2 %d == %d\n", atoi( pArg ), nChkSum2 );
+                Com_Printf( "nChkSum2 %d == %d\n", ::atoi( pArg ), nChkSum2 );
                 bGood = false;
                 break;
             }
+            
             // should be sitting at the delimeter now
             pArg = cmdSystem->Argv( nCurArg++ );
             if( *pArg != '@' )
@@ -1732,7 +1743,7 @@ void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
             // store checksums since tokenization is not re-entrant
             for( i = 0; nCurArg < nClientPaks; i++ )
             {
-                nClientChkSum[i] = atoi( cmdSystem->Argv( nCurArg++ ) );
+                nClientChkSum[i] = ::atoi( cmdSystem->Argv( nCurArg++ ) );
             }
             
             // store number to compare against (minus one cause the last is the number of checksums)
@@ -1779,7 +1790,7 @@ void idServerClientSystemLocal::VerifyPaks_f( client_t* cl )
             
             for( i = 0; i < nServerPaks; i++ )
             {
-                nServerChkSum[i] = atoi( cmdSystem->Argv( i ) );
+                nServerChkSum[i] = ::atoi( cmdSystem->Argv( i ) );
             }
             
             // check if the client has provided any pure checksums of pk3 files not loaded by the server
@@ -1948,7 +1959,7 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
         val = Info_ValueForKey( cl->userinfo, "rate" );
         if( strlen( val ) )
         {
-            i = atoi( val );
+            i = ::atoi( val );
             cl->rate = i;
             
             if( cl->rate < 1000 )
@@ -1969,7 +1980,7 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
     val = Info_ValueForKey( cl->userinfo, "handicap" );
     if( strlen( val ) )
     {
-        i = atoi( val );
+        i = ::atoi( val );
         if( i <= -100 || i > 100 || strlen( val ) > 4 )
         {
             Info_SetValueForKey( cl->userinfo, "handicap", "0" );
@@ -1981,7 +1992,7 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
     
     if( val[0] && !networkSystem->IsLocalAddress( cl->netchan.remoteAddress ) )
     {
-        i = atoi( val );
+        i = ::atoi( val );
     }
     else
     {
@@ -2036,7 +2047,7 @@ void idServerClientSystemLocal::UserinfoChanged( client_t* cl )
     
     if( strlen( val ) )
     {
-        i = atoi( val );
+        i = ::atoi( val );
         if( i != 0 )
         {
             cl->bDlOK = true;
@@ -2151,7 +2162,6 @@ idServerClientSystemLocal::ExecuteClientCommand
 Also called by bot code
 ==================
 */
-
 void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, bool clientOK, bool premaprestart )
 {
     ucmd_t* u;
@@ -2359,7 +2369,7 @@ bool idServerClientSystemLocal::ClientCommand( client_t* cl, msg_t* msg, bool pr
         
         if( strlen( s ) > 2 )
         {
-            idx = atoi( &s[3] );
+            idx = ::atoi( &s[3] );
             
             if( idx < 0 || idx > 128 ) //Using 128 because i doubt this may be higher than 128, no matter which mod is used
             {
@@ -2525,25 +2535,25 @@ void idServerClientSystemLocal::UserMove( client_t* cl, msg_t* msg, bool delta )
         cl->frames[cl->messageAcknowledge & PACKET_MASK].messageAcked = svs.time;
     }
     
-    // TTimo
-    // catch the no-cp-yet situation before SV_ClientEnterWorld
-    // if CS_ACTIVE, then it's time to trigger a new gamestate emission
-    // if not, then we are getting remaining parasite usermove commands, which we should ignore
-    if( sv_pure->integer != 0 && cl->pureAuthentic == false && !cl->pureReceived )
-    {
-        if( cl->state == CS_ACTIVE )
-        {
-            // we didn't get a cp yet, don't assume anything and just send the gamestate all over again
-            Com_DPrintf( "%s: didn't get cp command, resending gamestate\n", cl->name );
-            SendClientGameState( cl );
-        }
-        return;
-    }
-    
     // if this is the first usercmd we have received
     // this gamestate, put the client into the world
     if( cl->state == CS_PRIMED )
     {
+        // TTimo
+        // catch the no-cp-yet situation before SV_ClientEnterWorld
+        // if CS_ACTIVE, then it's time to trigger a new gamestate emission
+        // if not, then we are getting remaining parasite usermove commands, which we should ignore
+        if( sv_pure->integer != 0 && cl->pureAuthentic == false && !cl->pureReceived )
+        {
+            if( cl->state == CS_ACTIVE )
+            {
+                // we didn't get a cp yet, don't assume anything and just send the gamestate all over again
+                Com_DPrintf( "%s: didn't get cp command, resending gamestate\n", cl->name );
+                SendClientGameState( cl );
+            }
+            return;
+        }
+        
         serverClientLocal.ClientEnterWorld( cl, &cmds[0] );
         // the moves can be processed normaly
     }

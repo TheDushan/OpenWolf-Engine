@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,28 +28,28 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   q_math.cpp
-// Version:     v1.01
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description: stateless support routines that are included in each code module
-//              Some of the vector functions are static inline in q_shared.h. q3asm
+//              Some of the vector functions are static inline in q_shared.hpp. q3asm
 //              doesn't understand static functions though, so we only want them in
 //              one file. That's what this is about.
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #elif defined GUI
-#include <GUI/gui_precompiled.h>
+#include <GUI/gui_precompiled.hpp>
 #elif CGAMEDLL
-#include <cgame/cgame_precompiled.h>
+#include <cgame/cgame_precompiled.hpp>
 #elif GAMEDLL
-#include <sgame/sgame_precompiled.h>
+#include <sgame/sgame_precompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif // !GAMEDLL
 
 // *INDENT-OFF*
@@ -736,7 +736,7 @@ AnglesToAxis
 */
 void AnglesToAxis( const vec3_t angles, vec3_t axis[3] )
 {
-    vec3_t          right;
+    vec3_t right;
     
     // angle vectors returns "right" instead of "y axis"
     AngleVectors( angles, axis[0], right, axis[2] );

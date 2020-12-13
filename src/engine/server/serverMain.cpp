@@ -1,6 +1,6 @@
 ﻿////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -28,19 +28,19 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   serverMain.cpp
-// Version:     v1.00
 // Created:     12/26/2018
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 serverStatic_t svs;			// persistant server info
@@ -245,12 +245,12 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... 
     client_t* client;
     
     va_start( argptr, fmt );
-    Q_vsnprintf( reinterpret_cast< valueType* >( message ), sizeof( message ), fmt, argptr );
+    Q_vsnprintf( ( valueType* )message, sizeof( message ), fmt, argptr );
     va_end( argptr );
     
     // do not forward server command messages that would be too big to clients
     // ( q3infoboom / q3msgboom stuff )
-    if( strlen( ( valueType* )message ) > 1022 )
+    if( ::strlen( ( valueType* )message ) > 1022 )
     {
         return;
     }

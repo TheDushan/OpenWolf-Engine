@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2010 Aldo Luis Aguirre
-// Copyright(C) 2011 - 2020 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -28,11 +28,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 idServerCommunityServer serverCommunityServer;
@@ -2069,11 +2069,11 @@ void idServerCommunityServer::LoadMsgFile( void )
     
     if( fcbbackup == nullptr )
     {
-        filename = fileSystem->GetFullGamePath( "cbss.dat" );
+        filename = fileSystem->GetFullGamePath( "cmss.dat" );
         fcbbackup = fopen( filename, "ab" );
         if( fcbbackup == nullptr )
         {
-            Com_Printf( "Error! I cannot write cbss.dat!\n" );
+            Com_Printf( "Error! I cannot write cmss.dat!\n" );
         }
     }
 }

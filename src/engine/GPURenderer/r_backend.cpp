@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2018 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -21,14 +21,14 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   r_backend.cpp
-// Version:     v1.00
 // Created:
-// Compilers:   Visual Studio 2015
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 
 backEndData_t* backEndData;
 backEndState_t	backEnd;
@@ -65,7 +65,7 @@ void GL_BindToTMU( image_t* image, sint tmu )
         image = tr.defaultImage;
     }
     
-    GL_BindMultiTexture( GL_TEXTURE0_ARB + tmu, target, texture );
+    GL_BindMultiTexture( GL_TEXTURE0 + tmu, target, texture );
 }
 
 
@@ -455,7 +455,6 @@ void RB_RenderDrawSurfList( drawSurf_t* drawSurfs, sint numDrawSurfs )
     drawSurf_t* drawSurf;
     size_t oldSort;
     FBO_t* fbo = nullptr;
-    bool inQuery = false;
     float32 depth[2];
     
     // save original time for entity shader offsets
@@ -636,14 +635,11 @@ void RB_RenderDrawSurfList( drawSurf_t* drawSurfs, sint numDrawSurfs )
         RB_EndSurface();
     }
     
-    if( inQuery )
+    if( glRefConfig.framebufferObject )
     {
-        qglEndQuery( GL_SAMPLES_PASSED );
+        FBO_Bind( fbo );
     }
     
-    if( glRefConfig.framebufferObject )
-        FBO_Bind( fbo );
-        
     // go back to the world modelview matrix
     
     GL_SetModelviewMatrix( backEnd.viewParms.world.modelMatrix );
@@ -702,7 +698,6 @@ void	RB_SetGL2D( void )
               GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
               
     GL_Cull( CT_TWO_SIDED );
-    qglDisable( GL_CLIP_PLANE0 );
     
     // set time for 2D shaders
     backEnd.refdef.time = CL_ScaledMilliseconds();

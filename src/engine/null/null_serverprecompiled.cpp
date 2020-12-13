@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2018 - 2019 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -19,11 +19,11 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   null_serverprecompiled.cpp
-// Version:     v1.02
 // Created:
-// Compilers:   Visual Studio 2019, gcc 7.3.0
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>

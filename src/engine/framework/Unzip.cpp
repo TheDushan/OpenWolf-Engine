@@ -64,11 +64,11 @@
 */
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.h>
+#include <null/null_autoprecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.h>
+#include <null/null_serverprecompiled.hpp>
 #else
-#include <framework/precompiled.h>
+#include <framework/precompiled.hpp>
 #endif
 
 #include <stdio.h>
@@ -80,7 +80,7 @@
 #endif
 
 #include <zlib.h>
-#include <framework/Unzip.h>
+#include <framework/Unzip.hpp>
 
 #ifdef STDC
 #  include <stddef.h>
