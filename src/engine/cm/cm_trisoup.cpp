@@ -670,7 +670,7 @@ static void CM_AddFacetBevels( cFacet_t* facet )
                     ChopWindingInPlace( &w2, newplane, newplane[3], 0.1f );
                     if( !w2 )
                     {
-                        Com_DPrintf( "WARNING: CM_AddFacetBevels... invalid bevel\n" );
+                        Com_DPrintf( "WARNING: Invalid bevel %f %f %f %f\n", w->p[0][0], w->p[0][1], w->p[0][2], w->p[0][3] );
                         continue;
                     }
                     else

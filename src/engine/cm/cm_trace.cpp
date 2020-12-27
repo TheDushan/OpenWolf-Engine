@@ -1590,6 +1590,11 @@ void CM_TraceThroughLeaf( traceWork_t* tw, cLeaf_t* leaf )
 #endif
         for( k = 0; k < leaf->numLeafSurfaces; k++ )
         {
+            if( !( cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]] ) )
+            {
+                continue;
+            }
+            
             surface = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
             
             if( !surface )

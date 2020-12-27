@@ -650,10 +650,12 @@ static sint CM_EdgePlaneNum( cGrid_t* grid, sint gridPlanes[MAX_GRID_SIZE][MAX_G
             p1 = grid->points[i][j];
             p2 = grid->points[i + 1][j];
             p = CM_GridPlane( gridPlanes, i, j, 0 );
+            
             if( p == -1 )
             {
-                return -1;
+                Com_Printf( " top border %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2] );
             }
+            
             VectorMA( p1, 4, planes[p].plane, up );
             return CM_FindPlane( p1, p2, up );
             
@@ -661,10 +663,12 @@ static sint CM_EdgePlaneNum( cGrid_t* grid, sint gridPlanes[MAX_GRID_SIZE][MAX_G
             p1 = grid->points[i][j + 1];
             p2 = grid->points[i + 1][j + 1];
             p = CM_GridPlane( gridPlanes, i, j, 1 );
+            
             if( p == -1 )
             {
-                return -1;
+                Com_Printf( " bottom border %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2] );
             }
+            
             VectorMA( p1, 4, planes[p].plane, up );
             return CM_FindPlane( p2, p1, up );
             
@@ -672,10 +676,12 @@ static sint CM_EdgePlaneNum( cGrid_t* grid, sint gridPlanes[MAX_GRID_SIZE][MAX_G
             p1 = grid->points[i][j];
             p2 = grid->points[i][j + 1];
             p = CM_GridPlane( gridPlanes, i, j, 1 );
+            
             if( p == -1 )
             {
-                return -1;
+                Com_Printf( " left border %f %f %f\n", grid->points[i][j][0], grid->points[i][j][1], grid->points[i][j][2] );
             }
+            
             VectorMA( p1, 4, planes[p].plane, up );
             return CM_FindPlane( p2, p1, up );
             
@@ -683,10 +689,12 @@ static sint CM_EdgePlaneNum( cGrid_t* grid, sint gridPlanes[MAX_GRID_SIZE][MAX_G
             p1 = grid->points[i + 1][j];
             p2 = grid->points[i + 1][j + 1];
             p = CM_GridPlane( gridPlanes, i, j, 0 );
+            
             if( p == -1 )
             {
-                return -1;
+                Com_Printf( " right border %f %f %f\n", grid->points[i][j][0], grid->points[i][j][1], grid->points[i][j][2] );
             }
+            
             VectorMA( p1, 4, planes[p].plane, up );
             return CM_FindPlane( p1, p2, up );
             
@@ -694,10 +702,12 @@ static sint CM_EdgePlaneNum( cGrid_t* grid, sint gridPlanes[MAX_GRID_SIZE][MAX_G
             p1 = grid->points[i + 1][j + 1];
             p2 = grid->points[i][j];
             p = CM_GridPlane( gridPlanes, i, j, 0 );
+            
             if( p == -1 )
             {
-                return -1;
+                Com_Printf( " diagonal out of triangle 0 %f %f %f\n", grid->points[i + 1][j + 1][0], grid->points[i + 1][j + 1][1], grid->points[i + 1][j + 1][2] );
             }
+            
             VectorMA( p1, 4, planes[p].plane, up );
             return CM_FindPlane( p1, p2, up );
             
@@ -705,10 +715,12 @@ static sint CM_EdgePlaneNum( cGrid_t* grid, sint gridPlanes[MAX_GRID_SIZE][MAX_G
             p1 = grid->points[i][j];
             p2 = grid->points[i + 1][j + 1];
             p = CM_GridPlane( gridPlanes, i, j, 1 );
+            
             if( p == -1 )
             {
-                return -1;
+                Com_Printf( " diagonal out of triangle 1 %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2] );
             }
+            
             VectorMA( p1, 4, planes[p].plane, up );
             return CM_FindPlane( p1, p2, up );
     }
@@ -1075,7 +1087,7 @@ static void CM_AddFacetBevels( cFacet_t* facet )
                     ChopWindingInPlace( &w2, newplane, newplane[3], 0.1f );
                     if( !w2 )
                     {
-                        Com_DPrintf( "WARNING: CM_AddFacetBevels... invalid bevel\n" );
+                        Com_DPrintf( "WARNING: Invalid patch %f %f %f %f\n", w->p[0][0], w->p[0][1], w->p[0][2], w->p[0][3] );
                         continue;
                     }
                     else
