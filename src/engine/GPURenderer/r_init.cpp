@@ -1156,6 +1156,7 @@ void GfxInfo_f( void )
     CL_RefPrintf( PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
     CL_RefPrintf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
     CL_RefPrintf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
+#ifdef _DEBUG
     if( qglGetStringi )
     {
         GLint numExtensions;
@@ -1171,6 +1172,7 @@ void GfxInfo_f( void )
     {
         R_PrintLongString( glConfig.extensions_string );
     }
+#endif
     CL_RefPrintf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
     CL_RefPrintf( PRINT_ALL, "GL_MAX_TEXTURE_IMAGE_UNITS: %d\n", glConfig.numTextureUnits );
     CL_RefPrintf( PRINT_ALL, "PIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
