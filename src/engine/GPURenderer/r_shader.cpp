@@ -2625,7 +2625,9 @@ static bool ParseShader( pointer name, valueType** text )
             shader.surfaceFlags |= MATERIAL_CARPET;
         else
         {
+#ifdef _DEBUG
             CL_RefPrintf( PRINT_DEVELOPER, "Could not work out a default surface type for shader %s. It will fallback to default parallax and specular.\n", name );
+#endif
         }
     }
     

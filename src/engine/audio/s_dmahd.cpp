@@ -507,7 +507,9 @@ bool dmaHD_LoadSound( sfx_t* sfx )
     }
     
     // Information
+#ifdef _DEBUG
     Com_DPrintf( "Loading sound: %s", sfx->soundName );
+#endif
     if( info.width == 1 )
     {
         Com_DPrintf( " [8 bit -> 16 bit]" );

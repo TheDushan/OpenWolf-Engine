@@ -2452,8 +2452,9 @@ void R_LoadImage( pointer name, uchar8** pic, sint* width, sint* height, uint* p
         {
             if( orgNameFailed )
             {
-                CL_RefPrintf( PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n",
-                              name, altName );
+#ifdef _DEBUG
+                CL_RefPrintf( PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", name, altName );
+#endif
             }
             
             break;

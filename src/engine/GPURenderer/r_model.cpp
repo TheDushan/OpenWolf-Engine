@@ -373,7 +373,9 @@ qhandle_t idRenderSystemLocal::RegisterModel( pointer name )
         {
             if( orgNameFailed )
             {
+#ifdef _DEBUG
                 CL_RefPrintf( PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", name, altName );
+#endif
             }
             
             break;

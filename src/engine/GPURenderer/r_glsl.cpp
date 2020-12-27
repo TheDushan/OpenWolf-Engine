@@ -434,7 +434,9 @@ static sint GLSL_LoadGPUShaderText( pointer name, uint shaderType, valueType* de
     }
     
     size = fileSystem->ReadFile( filename, ( void** )&buffer );
+#ifdef _DEBUG
     CL_RefPrintf( PRINT_DEVELOPER, "...loading '%s'\n", filename );
+#endif
     shaderText = buffer;
     size += 1;
     
@@ -497,14 +499,17 @@ static void GLSL_ShowProgramUniforms( uint program )
     for( i = 0; i < count; i++ )
     {
         qglGetActiveUniform( program, i, sizeof( uniformName ), nullptr, &size, &type, uniformName );
-        
+#ifdef _DEBUG
         CL_RefPrintf( PRINT_DEVELOPER, "active uniform: '%s'\n", uniformName );
+#endif
     }
 }
 
 static sint GLSL_InitGPUShader2( shaderProgram_t* program, pointer name, sint attribs, pointer vpCode, pointer fpCode )
 {
+#ifdef _DEBUG
     CL_RefPrintf( PRINT_DEVELOPER, "------- GPU shader -------\n" );
+#endif
     
     if( strlen( name ) >= MAX_QPATH )
     {
