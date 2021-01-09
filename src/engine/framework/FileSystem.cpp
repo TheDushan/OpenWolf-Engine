@@ -1192,7 +1192,7 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
     sint32 hash = 0;
     FILE* temp;
     sint l;
-    valueType demoExt[16];
+    //valueType demoExt[16];
     
     hash = 0;
     
@@ -1452,7 +1452,7 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                         && Q_stricmp( filename + l - 4, ".otf" )
                         && Q_stricmp( filename + l - 5, ".menu" )  // menu files
                         && Q_stricmp( filename + l - 5, ".game" )  // menu files
-                        && Q_stricmp( filename + l - strlen( demoExt ), demoExt )	// menu files
+                        //&& Q_stricmp( filename + l - strlen( demoExt ), demoExt )	// menu files
                         && Q_stricmp( filename + l - 4, ".dat" ) // for journal files
                         && Q_stricmp( filename + l - 8, "bots.txt" )
                         && Q_stricmp( filename + l - 8, ".botents" )
@@ -1481,7 +1481,7 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                     && Q_stricmp( filename + l - 4, ".otf" ) != 0
                     && Q_stricmp( filename + l - 5, ".menu" )  // menu files
                     && Q_stricmp( filename + l - 5, ".game" )  // menu files
-                    && Q_stricmp( filename + l - strlen( demoExt ), demoExt ) // menu files
+                    //&& Q_stricmp( filename + l - strlen( demoExt ), demoExt ) // menu files
                     && Q_stricmp( filename + l - 4, ".dat" )
                     && Q_stricmp( filename + l - 8, ".botents" )
                     && !strstr( filename, "botfiles" ) )   // RF, need this for dev
