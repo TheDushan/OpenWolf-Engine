@@ -766,11 +766,11 @@ void CL_ConsolePrint( valueType* txt )
             {
                 break;
             }
-			if( l > 0)
-			{
-            	if( txt[l - 1] <= ';' ) break;
-            	if( txt[l - 1] <= ',' ) break;
-			}
+            if( l > 0)
+            {
+                if( txt[l - 1] <= ';' ) break;
+                if( txt[l - 1] <= ',' ) break;
+            }
         }
         
         // word wrap
