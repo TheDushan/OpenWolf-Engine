@@ -1333,17 +1333,17 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                     l = strlen( filename );
                     if( !( pak->referenced & FS_GENERAL_REF ) )
                     {
-                        if( fileSystemLocal.IsExt( filename, ".shader", l ) &&
-                                fileSystemLocal.IsExt( filename, ".mtr", l ) &&
-                                fileSystemLocal.IsExt( filename, ".txt", l ) &&
-                                fileSystemLocal.IsExt( filename, ".ttf", l ) &&
-                                fileSystemLocal.IsExt( filename, ".otf", l ) &&
-                                fileSystemLocal.IsExt( filename, ".cfg", l ) &&
-                                fileSystemLocal.IsExt( filename, ".config", l ) &&
+                        if( !fileSystemLocal.IsExt( filename, ".shader", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".mtr", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".txt", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".ttf", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".otf", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".cfg", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".config", l ) &&
                                 strstr( filename, "levelshots" ) == nullptr &&
-                                fileSystemLocal.IsExt( filename, ".bot", l ) &&
-                                fileSystemLocal.IsExt( filename, ".arena", l ) &&
-                                fileSystemLocal.IsExt( filename, ".menu", l ) )
+                                !fileSystemLocal.IsExt( filename, ".bot", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".arena", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".menu", l ) )
                         {
                             // hack to work around issue of com_logfile set and this being first thing logged
                             fsh[*file].handleFiles.file.z = ( unzFile ) - 1;
@@ -1447,18 +1447,18 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
             if( fs_restrict->integer || fs_numServerPaks )
             {
             
-                if( fileSystemLocal.IsExt( filename, ".cfg", l )  // for config files
-                        && fileSystemLocal.IsExt( filename, ".ttf", l )
-                        && fileSystemLocal.IsExt( filename, ".otf", l )
-                        && fileSystemLocal.IsExt( filename, ".menu", l )  // menu files
-                        && fileSystemLocal.IsExt( filename, ".game", l )  // menu files
-                        //&& fileSystemLocal.IsExt( filename, demoExt, l )  // menu files
-                        && fileSystemLocal.IsExt( filename, ".dat", l )  // for journal files
-                        && fileSystemLocal.IsExt( filename, "bots.txt", l )
-                        && fileSystemLocal.IsExt( filename, ".botents", l )
+                if( !fileSystemLocal.IsExt( filename, ".cfg", l )  // for config files
+                        && !fileSystemLocal.IsExt( filename, ".ttf", l )
+                        && !fileSystemLocal.IsExt( filename, ".otf", l )
+                        && !fileSystemLocal.IsExt( filename, ".menu", l )  // menu files
+                        && !fileSystemLocal.IsExt( filename, ".game", l )  // menu files
+                        //&& !fileSystemLocal.IsExt( filename, demoExt, l )  // menu files
+                        && !fileSystemLocal.IsExt( filename, ".dat", l )  // for journal files
+                        && !fileSystemLocal.IsExt( filename, "bots.txt", l )
+                        && !fileSystemLocal.IsExt( filename, ".botents", l )
 #ifdef __MACOS__
                         // even when pure is on, let the server game be loaded
-                        && fileSystemLocal.IsExt( filename, "qagame_mac", l )  // Dushan - this is wrong now
+                        && !fileSystemLocal.IsExt( filename, "qagame_mac", l )  // Dushan - this is wrong now
 #endif
                   )
                 {
@@ -1476,14 +1476,14 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                 continue;
             }
             
-            if( fileSystemLocal.IsExt( filename, ".cfg", l )  // for config files
-                    && fileSystemLocal.IsExt( filename, ".ttf", l )
-                    && fileSystemLocal.IsExt( filename, ".otf", l )
-                    && fileSystemLocal.IsExt( filename, ".menu", l )  // menu files
-                    && fileSystemLocal.IsExt( filename, ".game", l )  // menu files
-                    //&& fileSystemLocal.IsExt( filename, demoExt, l )  // menu files
-                    && fileSystemLocal.IsExt( filename, ".dat", l )  // for journal files
-                    && fileSystemLocal.IsExt( filename, ".botents", l )
+            if( !fileSystemLocal.IsExt( filename, ".cfg", l )  // for config files
+                    && !fileSystemLocal.IsExt( filename, ".ttf", l )
+                    && !fileSystemLocal.IsExt( filename, ".otf", l )
+                    && !fileSystemLocal.IsExt( filename, ".menu", l )  // menu files
+                    && !fileSystemLocal.IsExt( filename, ".game", l )  // menu files
+                    //&& !fileSystemLocal.IsExt( filename, demoExt, l )  // menu files
+                    && !fileSystemLocal.IsExt( filename, ".dat", l )  // for journal files
+                    && !fileSystemLocal.IsExt( filename, ".botents", l )
                     && !strstr( filename, "botfiles" ) )   // RF, need this for dev
             {
                 fs_fakeChkSum = random();
@@ -2692,7 +2692,7 @@ valueType** idFileSystemLocal::ListFilteredFiles( pointer path, pointer extensio
                     // check for extension match
                     length = strlen( name );
                     
-                    if( fileSystemLocal.IsExt( name, extension, length ) )
+                    if( !fileSystemLocal.IsExt( name, extension, length ) )
                     {
                         continue;
                     }
