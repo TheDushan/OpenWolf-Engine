@@ -1192,7 +1192,7 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
     sint32 hash = 0;
     FILE* temp;
     sint l;
-    valueType demoExt[16];
+    //valueType demoExt[16];
     
     hash = 0;
     
@@ -1333,17 +1333,17 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                     l = strlen( filename );
                     if( !( pak->referenced & FS_GENERAL_REF ) )
                     {
-                        if( Q_stricmp( filename + l - 7, ".shader" ) != 0 &&
-                                Q_stricmp( filename + l - 4, ".mtr" ) != 0 &&
-                                Q_stricmp( filename + l - 4, ".txt" ) != 0 &&
-                                Q_stricmp( filename + l - 4, ".ttf" ) != 0 &&
-                                Q_stricmp( filename + l - 4, ".otf" ) != 0 &&
-                                Q_stricmp( filename + l - 4, ".cfg" ) != 0 &&
-                                Q_stricmp( filename + l - 7, ".config" ) != 0 &&
+                        if( !fileSystemLocal.IsExt( filename, ".shader", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".mtr", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".txt", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".ttf", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".otf", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".cfg", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".config", l ) &&
                                 strstr( filename, "levelshots" ) == nullptr &&
-                                Q_stricmp( filename + l - 4, ".bot" ) != 0 &&
-                                Q_stricmp( filename + l - 6, ".arena" ) != 0 &&
-                                Q_stricmp( filename + l - 5, ".menu" ) != 0 )
+                                !fileSystemLocal.IsExt( filename, ".bot", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".arena", l ) &&
+                                !fileSystemLocal.IsExt( filename, ".menu", l ) )
                         {
                             // hack to work around issue of com_logfile set and this being first thing logged
                             fsh[*file].handleFiles.file.z = ( unzFile ) - 1;
@@ -1447,18 +1447,18 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
             if( fs_restrict->integer || fs_numServerPaks )
             {
             
-                if( Q_stricmp( filename + l - 4, ".cfg" )        // for config files
-                        && Q_stricmp( filename + l - 4, ".ttf" )
-                        && Q_stricmp( filename + l - 4, ".otf" )
-                        && Q_stricmp( filename + l - 5, ".menu" )  // menu files
-                        && Q_stricmp( filename + l - 5, ".game" )  // menu files
-                        && Q_stricmp( filename + l - strlen( demoExt ), demoExt )	// menu files
-                        && Q_stricmp( filename + l - 4, ".dat" ) // for journal files
-                        && Q_stricmp( filename + l - 8, "bots.txt" )
-                        && Q_stricmp( filename + l - 8, ".botents" )
+                if( !fileSystemLocal.IsExt( filename, ".cfg", l )  // for config files
+                        && !fileSystemLocal.IsExt( filename, ".ttf", l )
+                        && !fileSystemLocal.IsExt( filename, ".otf", l )
+                        && !fileSystemLocal.IsExt( filename, ".menu", l )  // menu files
+                        && !fileSystemLocal.IsExt( filename, ".game", l )  // menu files
+                        //&& !fileSystemLocal.IsExt( filename, demoExt, l )  // menu files
+                        && !fileSystemLocal.IsExt( filename, ".dat", l )  // for journal files
+                        && !fileSystemLocal.IsExt( filename, "bots.txt", l )
+                        && !fileSystemLocal.IsExt( filename, ".botents", l )
 #ifdef __MACOS__
                         // even when pure is on, let the server game be loaded
-                        && Q_stricmp( filename, "qagame_mac" ) // Dushan - this is wrong now
+                        && !fileSystemLocal.IsExt( filename, "qagame_mac", l )  // Dushan - this is wrong now
 #endif
                   )
                 {
@@ -1476,14 +1476,14 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                 continue;
             }
             
-            if( Q_stricmp( filename + l - 4, ".cfg" )        // for config files
-                    && Q_stricmp( filename + l - 4, ".ttf" ) != 0
-                    && Q_stricmp( filename + l - 4, ".otf" ) != 0
-                    && Q_stricmp( filename + l - 5, ".menu" )  // menu files
-                    && Q_stricmp( filename + l - 5, ".game" )  // menu files
-                    && Q_stricmp( filename + l - strlen( demoExt ), demoExt ) // menu files
-                    && Q_stricmp( filename + l - 4, ".dat" )
-                    && Q_stricmp( filename + l - 8, ".botents" )
+            if( !fileSystemLocal.IsExt( filename, ".cfg", l )  // for config files
+                    && !fileSystemLocal.IsExt( filename, ".ttf", l )
+                    && !fileSystemLocal.IsExt( filename, ".otf", l )
+                    && !fileSystemLocal.IsExt( filename, ".menu", l )  // menu files
+                    && !fileSystemLocal.IsExt( filename, ".game", l )  // menu files
+                    //&& !fileSystemLocal.IsExt( filename, demoExt, l )  // menu files
+                    && !fileSystemLocal.IsExt( filename, ".dat", l )  // for journal files
+                    && !fileSystemLocal.IsExt( filename, ".botents", l )
                     && !strstr( filename, "botfiles" ) )   // RF, need this for dev
             {
                 fs_fakeChkSum = random();
@@ -2486,7 +2486,7 @@ pack_t* idFileSystemLocal::LoadZipFile( pointer zipfile, pointer basename )
     Q_strncpyz( pack->pakBasename, basename, sizeof( pack->pakBasename ) );
     
     // strip .pk3 if needed
-    if( strlen( pack->pakBasename ) > 4 && !Q_stricmp( pack->pakBasename + strlen( pack->pakBasename ) - 4, ".pk3" ) )
+    if( fileSystemLocal.IsExt( pack->pakBasename, ".pk3", strlen( pack->pakBasename ) ) )
     {
         pack->pakBasename[strlen( pack->pakBasename ) - 4] = 0;
     }
@@ -2613,7 +2613,7 @@ from all search paths
 */
 valueType** idFileSystemLocal::ListFilteredFiles( pointer path, pointer extension, valueType* filter, sint* numfiles )
 {
-    sint nfiles, i, pathLength, extensionLength, length, pathDepth, temp;
+    sint nfiles, i, pathLength, length, pathDepth, temp;
     valueType** listCopy, *list[MAX_FOUND_FILES];
     searchpath_t* search;
     pack_t* pak;
@@ -2643,7 +2643,6 @@ valueType** idFileSystemLocal::ListFilteredFiles( pointer path, pointer extensio
         pathLength--;
     }
     
-    extensionLength = strlen( extension );
     nfiles = 0;
     ReturnPath( path, zpath, &pathDepth );
     
@@ -2693,12 +2692,7 @@ valueType** idFileSystemLocal::ListFilteredFiles( pointer path, pointer extensio
                     // check for extension match
                     length = strlen( name );
                     
-                    if( length < extensionLength )
-                    {
-                        continue;
-                    }
-                    
-                    if( Q_stricmp( name + length - extensionLength, extension ) )
+                    if( !fileSystemLocal.IsExt( name, extension, length ) )
                     {
                         continue;
                     }

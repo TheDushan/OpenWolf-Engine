@@ -512,10 +512,9 @@ sint idServerCommunityServer::CheckUserFileChange( void )
     valueType* filename, filesrc[1024], filedst[1024];
     
     filename = fileSystem->GetFullGamePath( "cs_users.new" );
-    ::stat( filename, &st );
     
     // Check for file real time modifications
-    if( ::time( nullptr ) - st.st_mtime > 10 )
+    if( ::stat( filename, &st ) != -1 && ::time( nullptr ) - st.st_mtime > 10 )
     {
         if( file_user_last_modified < st.st_mtime )
         {

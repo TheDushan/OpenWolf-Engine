@@ -326,7 +326,7 @@ A "connect" OOB command has been received
 void idServerClientSystemLocal::DirectConnect( netadr_t from )
 {
     valueType userinfo[MAX_INFO_STRING], *denied, *ip, guid[GUIDKEY_SIZE], *password;
-    sint i, clientNum, qport, challenge, startIndex, count, oldInfoLen2 = ( sint )::strlen( userinfo ), newInfoLen2;
+    sint i, clientNum, qport, challenge, startIndex, count, oldInfoLen2, newInfoLen2;
     client_t* cl, *newcl, temp;
     sharedEntity_t* ent;
 #if !defined (UPDATE_SERVER)
@@ -338,6 +338,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     Com_DPrintf( "idServerClientSystemLocal::DirectConnect ()\n" );
     
     Q_strncpyz( userinfo, cmdSystem->Argv( 1 ), sizeof( userinfo ) );
+    oldInfoLen2 = ( sint )::strlen( userinfo );
     challenge = ::atoi( Info_ValueForKey( userinfo, "challenge" ) );
     qport = ::atoi( Info_ValueForKey( userinfo, "qport" ) );
     
