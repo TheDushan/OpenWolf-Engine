@@ -1,7 +1,8 @@
 uniform sampler2D u_DiffuseMap;
 uniform vec4 u_Local1; // 0, 0, 0, 0
-varying vec4 var_Local1; // 0, 0, 0, 0
-varying vec4 var_Local2; // surfaceType, 0, 0, 0
+uniform vec4 u_Local2; // 0, 0, 0, 0
+uniform vec4 u_Local3; // 0, 0, 0, 0
+uniform vec4 u_Local4; // 0, 0, 0, 0
 varying vec2 var_Dimensions;
 
 #if defined(USE_LIGHTMAP)
@@ -187,9 +188,9 @@ float LightRay(vec2 dp, vec2 ds, sampler2D normalMap)
 }
 #endif
 
-vec3 CalcDiffuse(vec3 diffuseAlbedo, float NH, float EH, float roughness, float ao) 
+vec3 CalcDiffuse(vec3 diffuseAlbedo, float NH, float EH, float roughness) 
 {
-	return diffuseAlbedo * ao;
+	return diffuseAlbedo;
 }
 
 vec2 GetParallaxOffset(in vec2 texCoords, in vec3 E, in mat3 tangentToWorld )
@@ -368,9 +369,9 @@ void main()
 		N.xy *= u_NormalScale.xy;
 		N.z = sqrt(clamp((0.25 - N.x * N.x) - N.y * N.y, 0.0, 1.0));
 		N = tangentToWorld * N;
-		N = normalize(N);
 	#endif
 
+	N = normalize(N);
 	L /= sqrt(sqrLightDist);
 	
 	#if defined(USE_SHADOWMAP) 
@@ -460,18 +461,14 @@ void main()
 	#if defined(USE_PBR)
 		diffuse.rgb *= diffuse.rgb;
 		specular.rgb *= specular.rgb;
-		// energy conservation, requires specular workflow to use an albedo texture too
-		diffuse.rgb *= vec3(1.0) - specular.rgb;
 	#endif
 
-	float ao = 1.0f;
 	#if defined(USE_PBR)
 		// diffuse rgb is base color
 		// specular red is gloss
 		// specular green is metallicness
-		float roughness = max(specular.r, 0.04);
+		float roughness = max(1.0 - specular.a, 0.02);
 		float metal		= specular.g;
-		ao              = specular.b;
 		specular.rgb	= metal * diffuse.rgb + vec3(0.04 - 0.04 * metal);
 		diffuse.rgb    *= 1.0 - metal;
 	#else
@@ -484,7 +481,7 @@ void main()
 		diffuse.rgb *= vec3(1.0) - specular.rgb;
 	#endif
 	
-	reflectance = CalcDiffuse(diffuse.rgb, NH, EH, roughness, ao);
+	reflectance = CalcDiffuse(diffuse.rgb, NH, EH, roughness);
 	
 	#if defined(USE_LIGHT_VECTOR) || defined(USE_DELUXEMAP)
 		H  = normalize(L + E);
@@ -496,7 +493,7 @@ void main()
 
 		reflectance += CalcSpecular(specular.rgb, NH, NL, NE, EH, roughness);
 	#endif
-  
+	
 	gl_FragColor.rgb = lightColor * reflectance * (attenuation * NL);
 	gl_FragColor.rgb += ambientColor * diffuse.rgb;
 	

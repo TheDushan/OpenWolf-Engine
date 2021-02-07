@@ -2197,7 +2197,7 @@ image_t* R_CreateImage2( pointer name, uchar8* pic, sint width, sint height, uin
     image->type = type;
     image->flags = flags;
     
-    strcpy( image->imgName, name );
+    Q_strcpy_s( image->imgName, name );
     
     image->width = width;
     image->height = height;

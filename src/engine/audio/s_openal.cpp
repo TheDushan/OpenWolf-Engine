@@ -191,7 +191,7 @@ static sfxHandle_t S_AL_BufferFind( pointer filename )
         // Clear and copy the filename over
         ptr = &knownSfx[sfx];
         ::memset( ptr, 0, sizeof( *ptr ) );
-        ::strcpy( ptr->filename, filename );
+        Q_strcpy_s( ptr->filename, filename );
     }
     
     // Return the handle

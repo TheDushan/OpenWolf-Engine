@@ -479,10 +479,10 @@ bool dmaHD_LoadSound( sfx_t* sfx )
     // Player specific sounds are never directly loaded.
     if( sfx->soundName[0] == '*' ) return false;
     
-    strcpy( dmahd_soundName, sfx->soundName );
+    Q_strcpy_s( dmahd_soundName, sfx->soundName );
     if( ( lpext = strrchr( sfx->soundName, '.' ) ) != nullptr )
     {
-        strcpy( dmahd_soundName, sfx->soundName );
+        Q_strcpy_s( dmahd_soundName, sfx->soundName );
         *( strrchr( dmahd_soundName, '.' ) ) = '\0'; // for sure there is a '.'
     }
     strcat( dmahd_soundName, "_dmahd" );

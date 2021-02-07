@@ -48,10 +48,10 @@ sint demo_protocols[] = { 1, 0 };
 #define MAX_NUM_ARGVS   50
 
 #define MIN_DEDICATED_COMHUNKMEGS 64
-#define MIN_COMHUNKMEGS 512				// JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
-#define DEF_COMHUNKMEGS 1024			// RF, increased this, some maps are exceeding 56mb 
+#define MIN_COMHUNKMEGS 64				// JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
+#define DEF_COMHUNKMEGS 512			// RF, increased this, some maps are exceeding 56mb 
 // JPW NERVE changed this for multiplayer back to 42, 56 for depot/mp_cpdepot, 42 for everything else
-#define DEF_COMZONEMEGS 256				// RF, increased this from 16, to account for botlib/AAS
+#define DEF_COMZONEMEGS 64				// RF, increased this from 16, to account for botlib/AAS
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
 
@@ -187,7 +187,7 @@ void Com_Printf( pointer fmt, ... )
     static bool opening_qconsole = false;
     
     va_start( argptr, fmt );
-    Q_vsnprintf( msg, sizeof( msg ) - 1, fmt, argptr );
+    Q_vsprintf_s( msg, sizeof( msg ) - 1, fmt, argptr );
     va_end( argptr );
     
     if( rd_buffer && !rd_flushing )
@@ -271,7 +271,7 @@ void Com_FatalError( pointer error, ... )
     valueType msg[8192];
     
     va_start( argptr, error );
-    Q_vsnprintf( msg, sizeof( msg ), error, argptr );
+    Q_vsprintf_s( msg, sizeof( msg ), error, argptr );
     va_end( argptr );
     
     Com_Error( ERR_FATAL, msg );
@@ -283,7 +283,7 @@ void Com_DropError( pointer error, ... )
     valueType msg[8192];
     
     va_start( argptr, error );
-    Q_vsnprintf( msg, sizeof( msg ), error, argptr );
+    Q_vsprintf_s( msg, sizeof( msg ), error, argptr );
     va_end( argptr );
     
     Com_Error( ERR_DROP, msg );
@@ -295,7 +295,7 @@ void Com_Warning( pointer error, ... )
     valueType msg[8192];
     
     va_start( argptr, error );
-    Q_vsnprintf( msg, sizeof( msg ), error, argptr );
+    Q_vsprintf_s( msg, sizeof( msg ), error, argptr );
     va_end( argptr );
     
     Com_Printf( msg );
@@ -321,7 +321,7 @@ void Com_DPrintf( pointer fmt, ... )
     }
     
     va_start( argptr, fmt );
-    Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+    Q_vsprintf_s( msg, sizeof( msg ), fmt, argptr );
     va_end( argptr );
     
     Com_Printf( "%s", msg );
@@ -342,16 +342,10 @@ void Com_Error( sint code, pointer fmt, ... )
     static sint      lastErrorTime;
     static sint      errorCount;
     sint             currentTime;
-    static bool calledSysError = false;
     
     if( com_errorEntered )
     {
-        if( !calledSysError )
-        {
-            calledSysError = true;
-            idsystem->Error( "recursive error after: %s", com_errorMessage );
-        }
-        return;
+        idsystem->Error( "recursive error after: %s", com_errorMessage );
     }
     
     com_errorEntered = true;
@@ -384,7 +378,7 @@ void Com_Error( sint code, pointer fmt, ... )
     lastErrorTime = currentTime;
     
     va_start( argptr, fmt );
-    Q_vsnprintf( com_errorMessage, sizeof( com_errorMessage ), fmt, argptr );
+    Q_vsprintf_s( com_errorMessage, sizeof( com_errorMessage ), fmt, argptr );
     va_end( argptr );
     
     switch( code )
@@ -397,32 +391,53 @@ void Com_Error( sint code, pointer fmt, ... )
     
     if( code == ERR_SERVERDISCONNECT )
     {
+        serverInitSystem->Shutdown( "Server disconnected" );
+        
 #ifndef DEDICATED
         CL_Disconnect( true, nullptr );
 #endif
+        
         CL_FlushMemory();
+        
+        // make sure we can get at our local stuff
+        fileSystem->PureServerSetLoadedPaks( "", "" );
+        
         com_errorEntered = false;
         longjmp( abortframe, -1 );
     }
     else if( code == ERR_DROP )
     {
         Com_Printf( "********************\nERROR: %s\n********************\n", com_errorMessage );
+        
         serverInitSystem->Shutdown( va( "Server crashed: %s\n", com_errorMessage ) );
+        
 #ifndef DEDICATED
         CL_Disconnect( true, "Server crashed" );
 #endif
         CL_FlushMemory();
+        
+        // make sure we can get at our local stuff
+        fileSystem->PureServerSetLoadedPaks( "", "" );
+        
         com_errorEntered = false;
         longjmp( abortframe, -1 );
     }
 #ifndef DEDICATED
     else if( code == ERR_AUTOUPDATE )
     {
+        serverInitSystem->Shutdown( "Autoupdate server disconnected" );
+        
 #ifndef DEDICATED
         CL_Disconnect( true, "Autoupdate server crashed" );
 #endif
+        
         CL_FlushMemory();
+        
+        // make sure we can get at our local stuff
+        fileSystem->PureServerSetLoadedPaks( "", "" );
+        
         com_errorEntered = false;
+        
         if( !Q_stricmpn( com_errorMessage, "Server is full", 14 ) && CL_NextUpdateServer() )
         {
             CL_GetAutoUpdate();
@@ -441,7 +456,6 @@ void Com_Error( sint code, pointer fmt, ... )
     
     Com_Shutdown( code == ERR_VID_FATAL ? true : false );
     
-    calledSysError = true;
     idsystem->Error( "%s", com_errorMessage );
 }
 
@@ -463,16 +477,19 @@ void Com_Quit_f( void )
         // idSystemLocal::Quit will kill this process anyways, so
         // a corrupt call stack makes no difference
         serverInitSystem->Shutdown( "Server quit\n" );
+        
 //bani
 #ifndef DEDICATED
         clientGameSystem->ShutdownCGame();
 #endif
         CL_Shutdown();
         Com_Shutdown( false );
-        fileSystem->Shutdown( true );
+        
         cmdSystem->Shutdown();
         cvarSystem->Shutdown();
+        fileSystem->Shutdown( true );
     }
+    
     idsystem->Quit();
 }
 
@@ -1279,7 +1296,7 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
         return;
     }
     size = allocSize = numBlocks = 0;
-    Com_sprintf( buf, sizeof( buf ), "\r\n================\r\n%s log\r\n================\r\n", name );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "\r\n================\r\n%s log\r\n================\r\n", name );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
     for( block = zone->blocklist.next; block->next != &zone->blocklist; block = block->next )
     {
@@ -1300,8 +1317,8 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
                 }
             }
             dump[j] = '\0';
-            Com_sprintf( buf, sizeof( buf ), "size = %8d: %s, line: %d (%s) [%s]\r\n", block->d.allocSize, block->d.file,
-                         block->d.line, block->d.label, dump );
+            Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "size = %8d: %s, line: %d (%s) [%s]\r\n", block->d.allocSize, block->d.file,
+                          block->d.line, block->d.label, dump );
             fileSystem->Write( buf, strlen( buf ), logfile_ );
             allocSize += block->d.allocSize;
 #endif
@@ -1315,9 +1332,9 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
 #else
     allocSize = numBlocks * sizeof( memblock_t );	// + 32 bit alignment
 #endif
-    Com_sprintf( buf, sizeof( buf ), "%d %s memory in %d blocks\r\n", size, name, numBlocks );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d %s memory in %d blocks\r\n", size, name, numBlocks );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
-    Com_sprintf( buf, sizeof( buf ), "%d %s memory overhead\r\n", size - allocSize, name );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d %s memory overhead\r\n", size - allocSize, name );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
 }
 
@@ -1434,7 +1451,7 @@ valueType* CopyString( pointer in )
         }
     }
     out = ( valueType* )S_Malloc( strlen( in ) + 1 );
-    strcpy( out, in );
+    ::strcpy( out, in );
     return out;
 }
 
@@ -1749,20 +1766,20 @@ void Hunk_Log( void )
         return;
     size = 0;
     numBlocks = 0;
-    Com_sprintf( buf, sizeof( buf ), "\r\n================\r\nHunk log\r\n================\r\n" );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "\r\n================\r\nHunk log\r\n================\r\n" );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
     for( block = s_hunk.blocks; block; block = block->next )
     {
 #ifdef HUNK_DEBUG
-        Com_sprintf( buf, sizeof( buf ), "size = %8d: %s, line: %d (%s)\r\n", block->size, block->file, block->line, block->label );
+        Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "size = %8d: %s, line: %d (%s)\r\n", block->size, block->file, block->line, block->label );
         fileSystem->Write( buf, strlen( buf ), logfile_ );
 #endif
         size += block->size;
         numBlocks++;
     }
-    Com_sprintf( buf, sizeof( buf ), "%d Hunk memory\r\n", size );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d Hunk memory\r\n", size );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
-    Com_sprintf( buf, sizeof( buf ), "%d hunk blocks\r\n", numBlocks );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d hunk blocks\r\n", numBlocks );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
 }
 
@@ -1785,7 +1802,7 @@ void Hunk_SmallLog( void )
     }
     size = 0;
     numBlocks = 0;
-    Com_sprintf( buf, sizeof( buf ), "\r\n================\r\nHunk Small log\r\n================\r\n" );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "\r\n================\r\nHunk Small log\r\n================\r\n" );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
     for( block = s_hunk.blocks; block; block = block->next )
     {
@@ -1809,15 +1826,15 @@ void Hunk_SmallLog( void )
             block2->printed = true;
         }
 #ifdef HUNK_DEBUG
-        Com_sprintf( buf, sizeof( buf ), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label );
+        Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label );
         fileSystem->Write( buf, strlen( buf ), logfile_ );
 #endif
         size += block->size;
         numBlocks++;
     }
-    Com_sprintf( buf, sizeof( buf ), "%d Hunk memory\r\n", size );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d Hunk memory\r\n", size );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
-    Com_sprintf( buf, sizeof( buf ), "%d hunk blocks\r\n", numBlocks );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d hunk blocks\r\n", numBlocks );
     fileSystem->Write( buf, strlen( buf ), logfile_ );
 }
 
@@ -2030,8 +2047,11 @@ void* Hunk_Alloc( size_t size, ha_pref preference )
 #ifdef HUNK_DEBUG
         Hunk_Log();
         Hunk_SmallLog();
-#endif
+        
+        Com_Error( ERR_DROP, "Hunk_Alloc failed on %i: %s, line: %d (%s)", size, file, line, label );
+#else
         Com_Error( ERR_DROP, "Hunk_Alloc failed on %i", size );
+#endif
     }
     
     buf = s_hunk.mem + s_hunk.permTop;
@@ -2259,7 +2279,7 @@ void Com_InitJournaling( void )
         for( i = 0; i <= 9999 ; i++ )
         {
             valueType f[MAX_OSPATH];
-            Com_sprintf( f, sizeof( f ), "journal_%04d.dat", i );
+            Q_vsprintf_s( f, sizeof( f ), sizeof( f ), "journal_%04d.dat", i );
             if( !fileSystem->FileExists( f ) )
                 break;
         }

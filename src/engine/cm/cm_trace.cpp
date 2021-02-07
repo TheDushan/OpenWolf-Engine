@@ -2459,8 +2459,8 @@ void idCollisionModelManagerLocal::TransformedBoxTrace( trace_t* results, const 
     
     halfwidth = symetricSize[1][0];
     halfheight = symetricSize[1][2];
-   	
-    sphere.use = false; 
+    
+    sphere.use = false;
     sphere.radius = ( halfwidth > halfheight ) ? halfheight : halfwidth;
     sphere.halfheight = halfheight;
     t = halfheight - sphere.radius;

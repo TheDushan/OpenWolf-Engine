@@ -695,7 +695,7 @@ void Console_Key( sint key )
             valueType temp[MAX_STRING_CHARS];
             
             Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
-            Com_sprintf( g_consoleField.buffer, sizeof( g_consoleField.buffer ), "\\%s", temp );
+            Q_vsprintf_s( g_consoleField.buffer, sizeof( g_consoleField.buffer ), sizeof( g_consoleField.buffer ), "\\%s", temp );
             g_consoleField.cursor++;
         }
         
@@ -876,15 +876,15 @@ void Message_Key( sint key )
         {
             if( chat_team )
             {
-                Com_sprintf( buffer, sizeof( buffer ), "say_team \"%s\"\n", chatField.buffer );
+                Q_vsprintf_s( buffer, sizeof( buffer ), sizeof( buffer ), "say_team \"%s\"\n", chatField.buffer );
             }
             else if( chat_buddy )
             {
-                Com_sprintf( buffer, sizeof( buffer ), "say_buddy \"%s\"\n", chatField.buffer );
+                Q_vsprintf_s( buffer, sizeof( buffer ), sizeof( buffer ), "say_buddy \"%s\"\n", chatField.buffer );
             }
             else
             {
-                Com_sprintf( buffer, sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
+                Q_vsprintf_s( buffer, sizeof( buffer ), sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
             }
             
             if( buffer[0] )
@@ -1267,7 +1267,7 @@ void Key_EditBind_f( void )
     
     keyq = ( valueType* )Com_QuoteStr( key ); // <- static buffer
     buf = ( valueType* )malloc( 8 + strlen( keyq ) + strlen( binding ) );
-    Com_sprintf( buf, sizeof( buf ), "/bind %s %s", keyq, binding );
+    Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "/bind %s %s", keyq, binding );
     
     Con_OpenConsole_f();
     Field_Set( &g_consoleField, buf );
@@ -1434,7 +1434,7 @@ void CL_AddKeyUpCommands( sint key, valueType* kb, sint time )
             {
                 // button commands add keynum and time as parms so that multiple
                 // sources can be discriminated and subframe corrected
-                Com_sprintf( cmd, sizeof( cmd ), "-%s %i %i\n", button + 1, key, time );
+                Q_vsprintf_s( cmd, sizeof( cmd ), sizeof( cmd ), "-%s %i %i\n", button + 1, key, time );
                 cmdBufferSystem->AddText( cmd );
                 keyevent = true;
             }
@@ -1701,7 +1701,7 @@ void CL_KeyEvent( sint key, sint down, sint time )
         {
             // button commands add keynum and time as parms so that multiple
             // sources can be discriminated and subframe corrected
-            Com_sprintf( cmd, sizeof( cmd ), "-%s %i %i\n", kb + 1, key, time );
+            Q_vsprintf_s( cmd, sizeof( cmd ), sizeof( cmd ), "-%s %i %i\n", kb + 1, key, time );
             cmdBufferSystem->AddText( cmd );
         }
         
@@ -1822,7 +1822,7 @@ void CL_KeyEvent( sint key, sint down, sint time )
         {
             // button commands add keynum and time as parms so that multiple
             // sources can be discriminated and subframe corrected
-            Com_sprintf( cmd, sizeof( cmd ), "%s %i %i\n", kb, key, time );
+            Q_vsprintf_s( cmd, sizeof( cmd ), sizeof( cmd ), "%s %i %i\n", kb, key, time );
             cmdBufferSystem->AddText( cmd );
         }
         else

@@ -103,7 +103,7 @@ valueType* idSystemLocal::DefaultInstallPath( void )
 {
     static valueType installdir[MAX_OSPATH];
     
-    Com_sprintf( installdir, sizeof( installdir ), "%s", Cwd() );
+    Q_vsprintf_s( installdir, sizeof( installdir ), sizeof( installdir ), "%s", Cwd() );
     
     // Windows
     Q_strreplace( installdir, sizeof( installdir ), "bin/windows", "" );
@@ -313,7 +313,7 @@ void idSystemLocal::WriteDump( pointer fmt, ... )
         */
         
         va_start( vargs, fmt );
-        Q_vsnprintf( msg, sizeof( msg ) - 1, fmt, vargs );
+        Q_vsprintf_s( msg, sizeof( msg ) - 1, fmt, vargs );
         va_end( vargs );
         
         msg[sizeof( msg ) - 1] = 0; //ensure null termination
@@ -346,7 +346,7 @@ void idSystemLocal::Error( pointer error, ... )
     valueType string[4096];
     
     va_start( argptr, error );
-    Q_vsnprintf( string, sizeof( string ), error, argptr );
+    Q_vsprintf_s( string, sizeof( string ), error, argptr );
     va_end( argptr );
     
     // Print text in the console window/box

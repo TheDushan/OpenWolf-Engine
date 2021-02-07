@@ -176,12 +176,12 @@ valueType* idSystemLocal::GetCurrentUser( void )
     
     if( !GetUserName( s_userName, ( LPDWORD )&size ) )
     {
-        strcpy( s_userName, "player" );
+        Q_strcpy_s( s_userName, "player" );
     }
     
     if( !s_userName[0] )
     {
-        strcpy( s_userName, "player" );
+        Q_strcpy_s( s_userName, "player" );
     }
     
     return s_userName;
@@ -340,11 +340,11 @@ void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valu
     
     if( strlen( subdirs ) )
     {
-        Com_sprintf( search, sizeof( search ), "%s\\%s\\*", basedir, subdirs );
+        Q_vsprintf_s( search, sizeof( search ), sizeof( search ), "%s\\%s\\*", basedir, subdirs );
     }
     else
     {
-        Com_sprintf( search, sizeof( search ), "%s\\*", basedir );
+        Q_vsprintf_s( search, sizeof( search ), sizeof( search ), "%s\\*", basedir );
     }
     
     findhandle = _findfirst( search, &findinfo );
@@ -362,11 +362,11 @@ void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valu
             {
                 if( strlen( subdirs ) )
                 {
-                    Com_sprintf( newsubdirs, sizeof( newsubdirs ), "%s\\%s", subdirs, findinfo.name );
+                    Q_vsprintf_s( newsubdirs, sizeof( newsubdirs ), sizeof( newsubdirs ), "%s\\%s", subdirs, findinfo.name );
                 }
                 else
                 {
-                    Com_sprintf( newsubdirs, sizeof( newsubdirs ), "%s", findinfo.name );
+                    Q_vsprintf_s( newsubdirs, sizeof( newsubdirs ), sizeof( newsubdirs ), "%s", findinfo.name );
                 }
                 
                 ListFilteredFiles( basedir, newsubdirs, filter, list, numfiles );
@@ -378,7 +378,7 @@ void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valu
             break;
         }
         
-        Com_sprintf( filename, sizeof( filename ), "%s\\%s", subdirs, findinfo.name );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "%s\\%s", subdirs, findinfo.name );
         
         if( !Com_FilterPath( filter, filename, false ) )
         {
@@ -480,7 +480,7 @@ valueType** idSystemLocal::ListFiles( pointer directory, pointer extension, valu
         flag = _A_SUBDIR;
     }
     
-    Com_sprintf( search, sizeof( search ), "%s\\*%s", directory, extension );
+    Q_vsprintf_s( search, sizeof( search ), sizeof( search ), "%s\\*%s", directory, extension );
     
     // search
     nfiles = 0;

@@ -139,12 +139,12 @@ void S_Base_SoundList( void )
     valueType type[4][16];
     valueType mem[2][16];
     
-    ::strcpy( type[0], "16bit" );
-    ::strcpy( type[1], "adpcm" );
-    ::strcpy( type[2], "daub4" );
-    ::strcpy( type[3], "mulaw" );
-    ::strcpy( mem[0], "paged out" );
-    ::strcpy( mem[1], "resident " );
+    Q_strcpy_s( type[0], "16bit" );
+    Q_strcpy_s( type[1], "adpcm" );
+    Q_strcpy_s( type[2], "daub4" );
+    Q_strcpy_s( type[3], "mulaw" );
+    Q_strcpy_s( mem[0], "paged out" );
+    Q_strcpy_s( mem[1], "resident " );
     
     total = 0;
     for( sfx = s_knownSfx, i = 0 ; i < s_numSfx ; i++, sfx++ )
@@ -304,7 +304,7 @@ static sfx_t* S_FindName( pointer name )
     
     sfx = &s_knownSfx[i];
     ::memset( sfx, 0, sizeof( *sfx ) );
-    strcpy( sfx->soundName, name );
+    Q_strcpy_s( sfx->soundName, name );
     
     sfx->next = sfxHash[hash];
     sfxHash[hash] = sfx;

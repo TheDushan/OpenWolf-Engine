@@ -272,7 +272,7 @@ void idServerNetChanSystemLocal::NetchanTransmit( client_t* client, msg_t* msg )
         // copy the command, since the command number used for encryption is
         // already compressed in the buffer, and receiving a new command would
         // otherwise lose the proper encryption key
-        ::strcpy( netbuf->lastClientCommandString, client->lastClientCommandString );
+        Q_strcpy_s( netbuf->lastClientCommandString, client->lastClientCommandString );
         
         // insert it in the queue, the message will be encoded and sent later
         //% *client->netchan_end_queue = netbuf;

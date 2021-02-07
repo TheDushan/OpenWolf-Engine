@@ -588,7 +588,7 @@ void idClientBrowserSystemLocal::ServerStatusResponse( netadr_t from, msg_t* msg
     s = MSG_ReadStringLine( msg );
     
     len = 0;
-    Com_sprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "%s", s );
+    Q_vsprintf_s( &serverStatus->string[len], sizeof( serverStatus->string ) - len, sizeof( serverStatus->string ) - len,  "%s", s );
     
     if( serverStatus->print )
     {
@@ -638,7 +638,7 @@ void idClientBrowserSystemLocal::ServerStatusResponse( netadr_t from, msg_t* msg
     }
     
     len = ::strlen( serverStatus->string );
-    Com_sprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\" );
+    Q_vsprintf_s( &serverStatus->string[len], sizeof( serverStatus->string ) - len, sizeof( serverStatus->string ) - len, "\\" );
     
     if( serverStatus->print )
     {
@@ -649,7 +649,7 @@ void idClientBrowserSystemLocal::ServerStatusResponse( netadr_t from, msg_t* msg
     {
     
         len = ::strlen( serverStatus->string );
-        Com_sprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\%s", s );
+        Q_vsprintf_s( &serverStatus->string[len], sizeof( serverStatus->string ) - len, sizeof( serverStatus->string ) - len, "\\%s", s );
         
         if( serverStatus->print )
         {
@@ -676,7 +676,7 @@ void idClientBrowserSystemLocal::ServerStatusResponse( netadr_t from, msg_t* msg
     }
     
     len = strlen( serverStatus->string );
-    Com_sprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\" );
+    Q_vsprintf_s( &serverStatus->string[len], sizeof( serverStatus->string ) - len, sizeof( serverStatus->string ) - len, "\\" );
     
     serverStatus->time = idsystem->Milliseconds();
     serverStatus->address = from;
@@ -762,7 +762,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
         
         for( i = 1; i <= MAX_MASTER_SERVERS; i++ )
         {
-            Com_sprintf( command, sizeof( command ), "sv_master%d", i );
+            Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "sv_master%d", i );
             masteraddress = cvarSystem->VariableString( command );
             
             if( !*masteraddress )
@@ -772,7 +772,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
             
             numAddress++;
             
-            Com_sprintf( command, sizeof( command ), "globalservers %d %s %s\n", i, cmdSystem->Argv( 2 ), cmdSystem->ArgsFrom( 3 ) );
+            Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "globalservers %d %s %s\n", i, cmdSystem->Argv( 2 ), cmdSystem->ArgsFrom( 3 ) );
             cmdBufferSystem->AddText( command );
         }
         
@@ -783,7 +783,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
         return;
     }
     
-    Com_sprintf( command, sizeof( command ), "sv_master%d", masterNum );
+    Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "sv_master%d", masterNum );
     masteraddress = cvarSystem->VariableString( command );
     
     if( !*masteraddress )
@@ -818,16 +818,16 @@ void idClientBrowserSystemLocal::GlobalServers( void )
         
         if( v4enabled )
         {
-            Com_sprintf( command, sizeof( command ), "getserversExt %s %s", cl_gamename->string, cmdSystem->Argv( 2 ) );
+            Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "getserversExt %s %s", cl_gamename->string, cmdSystem->Argv( 2 ) );
         }
         else
         {
-            Com_sprintf( command, sizeof( command ), "getserversExt %s %s ipv6", cl_gamename->string, cmdSystem->Argv( 2 ) );
+            Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "getserversExt %s %s ipv6", cl_gamename->string, cmdSystem->Argv( 2 ) );
         }
     }
     else
     {
-        Com_sprintf( command, sizeof( command ), "getservers %s %s", cl_gamename->string, cmdSystem->Argv( 2 ) );
+        Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "getservers %s %s", cl_gamename->string, cmdSystem->Argv( 2 ) );
     }
     
     for( i = 3; i < count; i++ )

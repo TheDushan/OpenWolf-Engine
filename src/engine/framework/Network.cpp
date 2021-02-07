@@ -461,13 +461,13 @@ pointer	idNetworkSystemLocal::AdrToString( netadr_t a )
     switch( a.type )
     {
         case NA_LOOPBACK:
-            Com_sprintf( s, sizeof( s ), "loopback" );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "loopback" );
             break;
         case NA_BOT:
-            Com_sprintf( s, sizeof( s ), "bot" );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "bot" );
             break;
         case NA_IP:
-            Com_sprintf( s, sizeof( s ), "%i.%i.%i.%i", a.ip[0], a.ip[1], a.ip[2], a.ip[3] );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%i.%i.%i.%i", a.ip[0], a.ip[1], a.ip[2], a.ip[3] );
             break;
         case NA_IP6:
         {
@@ -480,11 +480,11 @@ pointer	idNetworkSystemLocal::AdrToString( netadr_t a )
         }
         break;
         case NA_BAD:
-            Com_sprintf( s, sizeof( s ), "invalid" );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "invalid" );
             break;
         default:
             Com_Printf( "idNetworkSystemLocal::AdrToString: Unknown address type: %i\n", a.type );
-            Com_sprintf( s, sizeof( s ), "unknown" );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "unknown" );
             break;
     }
     
@@ -503,23 +503,23 @@ pointer	idNetworkSystemLocal::AdrToStringwPort( netadr_t a )
     switch( a.type )
     {
         case NA_LOOPBACK:
-            Com_sprintf( s, sizeof( s ), "loopback" );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "loopback" );
             break;
         case NA_BOT:
-            Com_sprintf( s, sizeof( s ), "bot" );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "bot" );
             break;
         case NA_IP:
-            Com_sprintf( s, sizeof( s ), "%i.%i.%i.%i:%hu", a.ip[0], a.ip[1], a.ip[2], a.ip[3], BigShort( a.port ) );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%i.%i.%i.%i:%hu", a.ip[0], a.ip[1], a.ip[2], a.ip[3], BigShort( a.port ) );
             break;
         case NA_IP6:
-            Com_sprintf( s, sizeof( s ), "[%s]:%hu", AdrToString( a ), ntohs( a.port ) );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "[%s]:%hu", AdrToString( a ), ntohs( a.port ) );
             break;
         case NA_BAD:
-            Com_sprintf( s, sizeof( s ), "invalid" );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "invalid" );
             break;
         default:
             Com_Printf( "idNetworkSystemLocal::AdrToStringwPort: Unknown address type: %i\n", a.type );
-            Com_sprintf( s, sizeof( s ), "unknown" );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "unknown" );
             break;
     }
     
@@ -1841,7 +1841,7 @@ sint idNetworkSystemLocal::ConnectTCP( valueType* s_host_port )
     struct sockaddr_in address;
     struct hostent* h;
     
-    ::strcpy( buffer, s_host_port );
+    Q_strcpy_s( buffer, s_host_port );
     
     s_server = ::strtok( buffer, ":\n\0" );
     if( s_server == nullptr )

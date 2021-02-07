@@ -371,25 +371,25 @@ void GL_CheckErrs( pointer file, sint line )
     switch( err )
     {
         case GL_INVALID_ENUM:
-            strcpy( s, "GL_INVALID_ENUM" );
+            Q_strcpy_s( s, "GL_INVALID_ENUM" );
             break;
         case GL_INVALID_VALUE:
-            strcpy( s, "GL_INVALID_VALUE" );
+            Q_strcpy_s( s, "GL_INVALID_VALUE" );
             break;
         case GL_INVALID_OPERATION:
-            strcpy( s, "GL_INVALID_OPERATION" );
+            Q_strcpy_s( s, "GL_INVALID_OPERATION" );
             break;
         case GL_STACK_OVERFLOW:
-            strcpy( s, "GL_STACK_OVERFLOW" );
+            Q_strcpy_s( s, "GL_STACK_OVERFLOW" );
             break;
         case GL_STACK_UNDERFLOW:
-            strcpy( s, "GL_STACK_UNDERFLOW" );
+            Q_strcpy_s( s, "GL_STACK_UNDERFLOW" );
             break;
         case GL_OUT_OF_MEMORY:
-            strcpy( s, "GL_OUT_OF_MEMORY" );
+            Q_strcpy_s( s, "GL_OUT_OF_MEMORY" );
             break;
         default:
-            Com_sprintf( s, sizeof( s ), "%i", err );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%i", err );
             break;
     }
     
@@ -696,7 +696,7 @@ void R_ScreenshotFilename( sint lastNumber, valueType* fileName )
     
     if( lastNumber < 0 || lastNumber > 9999 )
     {
-        Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot9999.tga" );
+        Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "screenshots/shot9999.tga" );
         return;
     }
     
@@ -708,8 +708,7 @@ void R_ScreenshotFilename( sint lastNumber, valueType* fileName )
     lastNumber -= c * 10;
     d = lastNumber;
     
-    Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.tga"
-                 , a, b, c, d );
+    Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "screenshots/shot%i%i%i%i.tga" , a, b, c, d );
 }
 
 /*
@@ -723,7 +722,7 @@ void R_ScreenshotFilenameJPEG( sint lastNumber, valueType* fileName )
     
     if( lastNumber < 0 || lastNumber > 9999 )
     {
-        Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot9999.jpg" );
+        Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "screenshots/shot9999.jpg" );
         return;
     }
     
@@ -735,8 +734,7 @@ void R_ScreenshotFilenameJPEG( sint lastNumber, valueType* fileName )
     lastNumber -= c * 10;
     d = lastNumber;
     
-    Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.jpg"
-                 , a, b, c, d );
+    Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "screenshots/shot%i%i%i%i.jpg" , a, b, c, d );
 }
 
 /*
@@ -760,7 +758,7 @@ void R_LevelShot( void )
     float32		xScale, yScale;
     sint			xx, yy;
     
-    Com_sprintf( checkname, sizeof( checkname ), "levelshots/%s.tga", tr.world->baseName );
+    Q_vsprintf_s( checkname, sizeof( checkname ), sizeof( checkname ), "levelshots/%s.tga", tr.world->baseName );
     
     allsource = RB_ReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, &offset, &padlen );
     source = allsource + offset;
@@ -842,7 +840,7 @@ void R_ScreenShot_f( void )
     if( cmdSystem->Argc() == 2 && !silent )
     {
         // explicit filename
-        Com_sprintf( checkname, MAX_OSPATH, "screenshots/%s.tga", cmdSystem->Argv( 1 ) );
+        Q_vsprintf_s( checkname, MAX_OSPATH, MAX_OSPATH, "screenshots/%s.tga", cmdSystem->Argv( 1 ) );
     }
     else
     {
@@ -907,7 +905,7 @@ void R_ScreenShotJPEG_f( void )
     if( cmdSystem->Argc() == 2 && !silent )
     {
         // explicit filename
-        Com_sprintf( checkname, MAX_OSPATH, "screenshots/%s.jpg", cmdSystem->Argv( 1 ) );
+        Q_vsprintf_s( checkname, MAX_OSPATH, MAX_OSPATH, "screenshots/%s.jpg", cmdSystem->Argv( 1 ) );
     }
     else
     {

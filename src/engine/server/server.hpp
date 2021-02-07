@@ -468,7 +468,7 @@ typedef struct serverStatic_s
     
     sint             time;		// will be strictly increasing across level changes
     
-    sint             snapFlagServerBit;	// ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
+    sint             snapFlagServerBit;	// ^= SNAPFLAG_SERVERCOUNT every idServerInitSystemLocal::SpawnServer()
     
     client_t*       clients;	// [sv_maxclients->integer];
     sint             numSnapshotEntities;	// sv_maxclients->integer*PACKET_BACKUP*MAX_PACKET_ENTITIES

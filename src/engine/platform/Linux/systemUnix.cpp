@@ -277,11 +277,11 @@ void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valu
     
     if( strlen( subdirs ) )
     {
-        Com_sprintf( search, sizeof( search ), "%s/%s", basedir, subdirs );
+        Q_vsprintf_s( search, sizeof( search ), sizeof( search ), "%s/%s", basedir, subdirs );
     }
     else
     {
-        Com_sprintf( search, sizeof( search ), "%s", basedir );
+        Q_vsprintf_s( search, sizeof( search ), sizeof( search ), "%s", basedir );
     }
     
     if( ( fdir = opendir( search ) ) == nullptr )
@@ -291,7 +291,7 @@ void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valu
     
     while( ( d = readdir( fdir ) ) != nullptr )
     {
-        Com_sprintf( filename, sizeof( filename ), "%s/%s", search, d->d_name );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "%s/%s", search, d->d_name );
         if( stat( filename, &st ) == -1 )
             continue;
             
@@ -301,11 +301,11 @@ void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valu
             {
                 if( strlen( subdirs ) )
                 {
-                    Com_sprintf( newsubdirs, sizeof( newsubdirs ), "%s/%s", subdirs, d->d_name );
+                    Q_vsprintf_s( newsubdirs, sizeof( newsubdirs ), sizeof( newsubdirs ), "%s/%s", subdirs, d->d_name );
                 }
                 else
                 {
-                    Com_sprintf( newsubdirs, sizeof( newsubdirs ), "%s", d->d_name );
+                    Q_vsprintf_s( newsubdirs, sizeof( newsubdirs ), sizeof( newsubdirs ), "%s", d->d_name );
                 }
                 ListFilteredFiles( basedir, newsubdirs, filter, list, numfiles );
             }
@@ -314,7 +314,7 @@ void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valu
         {
             break;
         }
-        Com_sprintf( filename, sizeof( filename ), "%s/%s", subdirs, d->d_name );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "%s/%s", subdirs, d->d_name );
         if( !Com_FilterPath( filter, filename, false ) )
             continue;
         list[*numfiles] = CopyString( filename );
@@ -388,7 +388,7 @@ valueType** idSystemLocal::ListFiles( pointer directory, pointer extension, valu
     
     while( ( d = readdir( fdir ) ) != nullptr )
     {
-        Com_sprintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
+        Q_vsprintf_s( search, sizeof( search ), sizeof( search ), "%s/%s", directory, d->d_name );
         if( stat( search, &st ) == -1 )
             continue;
         if( ( dironly && !( st.st_mode & S_IFDIR ) ) ||
@@ -581,9 +581,9 @@ sint idSystemLocal::ZenityCommand( dialogType_t type, pointer message, pointer t
             break;
     }
     
-    Com_sprintf( command, sizeof( command ), "zenity %s --text=\"%s\" --title=\"%s\"",
-                 options, message, title );
-                 
+    Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "zenity %s --text=\"%s\" --title=\"%s\"",
+                  options, message, title );
+                  
     return system( command );
 }
 
@@ -617,9 +617,9 @@ sint idSystemLocal::KdialogCommand( dialogType_t type, pointer message, pointer 
             break;
     }
     
-    Com_sprintf( command, sizeof( command ), "kdialog %s \"%s\" --title \"%s\"",
-                 options, message, title );
-                 
+    Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "kdialog %s \"%s\" --title \"%s\"",
+                  options, message, title );
+                  
     return system( command );
 }
 
@@ -646,9 +646,9 @@ sint idSystemLocal::XmessageCommand( dialogType_t type, pointer message, pointer
             break;
     }
     
-    Com_sprintf( command, sizeof( command ), "xmessage -center %s \"%s\"",
-                 options, message );
-                 
+    Q_vsprintf_s( command, sizeof( command ), sizeof( command ), "xmessage -center %s \"%s\"",
+                  options, message );
+                  
     return system( command );
 }
 
@@ -832,19 +832,19 @@ void idSystemLocal::OpenURL( pointer url, bool doexit )
     Q_strncpyz( fname, "openurl.sh", 20 );
     
     pwdpath = Cwd();
-    Com_sprintf( fn, MAX_OSPATH, "%s/%s", pwdpath, fname );
+    Q_vsprintf_s( fn, MAX_OSPATH, MAX_OSPATH, "%s/%s", pwdpath, fname );
     if( access( fn, X_OK ) == -1 )
     {
         Com_DPrintf( "%s not found\n", fn );
         // try in home path
         homepath = cvarSystem->VariableString( "fs_homepath" );
-        Com_sprintf( fn, MAX_OSPATH, "%s/%s", homepath, fname );
+        Q_vsprintf_s( fn, MAX_OSPATH, MAX_OSPATH, "%s/%s", homepath, fname );
         if( access( fn, X_OK ) == -1 )
         {
             Com_DPrintf( "%s not found\n", fn );
             // basepath, last resort
             basepath = cvarSystem->VariableString( "fs_basepath" );
-            Com_sprintf( fn, MAX_OSPATH, "%s/%s", basepath, fname );
+            Q_vsprintf_s( fn, MAX_OSPATH, MAX_OSPATH, "%s/%s", basepath, fname );
             if( access( fn, X_OK ) == -1 )
             {
                 Com_DPrintf( "%s not found\n", fn );
@@ -864,7 +864,7 @@ void idSystemLocal::OpenURL( pointer url, bool doexit )
     Com_DPrintf( "URL script: %s\n", fn );
     
     // build the command line
-    Com_sprintf( cmdline, MAX_CMD, "%s '%s' &", fn, url );
+    Q_vsprintf_s( cmdline, MAX_CMD, MAX_CMD, "%s '%s' &", fn, url );
     
     StartProcess( cmdline, doexit );
     

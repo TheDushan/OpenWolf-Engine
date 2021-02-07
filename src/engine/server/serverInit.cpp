@@ -685,13 +685,6 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     Com_Printf( "------ Server Initialization ------\n" );
     Com_Printf( "Server: %s\n", server );
     
-    // de allocate the snapshot entities
-    if( svs.snapshotEntities )
-    {
-        delete[] svs.snapshotEntities;
-        svs.snapshotEntities = nullptr;
-    }
-    
     // if not running a dedicated server CL_MapLoading will connect the client to the server
     // also print some status stuff
     CL_MapLoading();
@@ -701,11 +694,6 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     
     // clear the whole hunk because we're (re)loading the server
     Hunk_Clear();
-    
-#ifndef DEDICATED
-    // Restart renderer
-    //CL_StartHunkUsers();
-#endif
     
     // clear collision map data     // (SA) NOTE: TODO: used in missionpack
     collisionModelManager->ClearMap();
@@ -740,22 +728,12 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
         }
     }
     
-#ifndef DEDICATED
-    // remove pure paks that may left from client-side
-    //fileSystem->PureServerSetLoadedPaks( "", "" );
-    //fileSystem->PureServerSetReferencedPaks( "", "" );
-#endif
-    
     // clear pak references
     fileSystem->ClearPakReferences( 0 );
     
     // allocate the snapshot entities on the hunk
+    svs.snapshotEntities = ( entityState_t* )Hunk_Alloc( sizeof( entityState_t ) * svs.numSnapshotEntities, h_high );
     svs.nextSnapshotEntities = 0;
-    
-    // allocate the snapshot entities
-    svs.snapshotEntities = new entityState_s[svs.numSnapshotEntities];
-    // we CAN afford to do this here, since we know the STL vectors in Ghoul2 are empty
-    ::memset( svs.snapshotEntities, 0, sizeof( entityState_t ) * svs.numSnapshotEntities );
     
     // toggle the server bit so clients can detect that a
     // server has changed
@@ -791,15 +769,13 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     // make sure we are not paused
     cvarSystem->Set( "cl_paused", "0" );
     
-    // get latched value
-    //cvarSystem->Get( "sv_pure", "1", CVAR_SYSTEMINFO | CVAR_LATCH, "Toggles check that client's files are the same as the servers (basic anticheat)." );
-    
     // get a new checksum feed and restart the file system
-    sv.checksumFeed = ( ( ( uint )rand() << 16 ) ^ ( uint )rand() ) ^ Com_Milliseconds();
+    srand( idsystem->Milliseconds() );
+    sv.checksumFeed = ( ( ( sint )rand() << 16 ) ^ rand() ) ^ idsystem->Milliseconds();
     
     // DO_LIGHT_DEDICATED
     // only comment out when you need a new pure checksum string and it's associated random feed
-    //Com_DPrintf("SV_SpawnServer checksum feed: %p\n", sv.checksumFeed);
+    //Com_DPrintf("idServerInitSystemLocal::SpawnServer checksum feed: %p\n", sv.checksumFeed);
     
     fileSystem->Restart( sv.checksumFeed );
     
@@ -917,15 +893,13 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
         }
         p = fileSystem->LoadedPakNames();
         cvarSystem->Set( "sv_pakNames", p );
-        
-        // we want the server to reference the bin pk3 that the client is expected to load from
-        //TouchCGameDLL();
     }
     else
     {
         cvarSystem->Set( "sv_paks", "" );
         cvarSystem->Set( "sv_pakNames", "" );
     }
+    
     // the server sends these to the clients so they can figure
     // out which pk3s should be auto-downloaded
     // NOTE: we consider the referencedPaks as 'required for operation'
@@ -1010,13 +984,13 @@ void idServerInitSystemLocal::ParseVersionMapping( void )
         while( ( token = COM_Parse( &buftrav ) ) && token[0] )
         {
             // read the version number
-            ::strcpy( versionMap[ numVersions ].version, token );
+            Q_strcpy_s( versionMap[ numVersions ].version, token );
             
             // read the platform
             token = COM_Parse( &buftrav );
             if( token && token[0] )
             {
-                ::strcpy( versionMap[ numVersions ].platform, token );
+                Q_strcpy_s( versionMap[ numVersions ].platform, token );
             }
             else
             {
@@ -1029,7 +1003,7 @@ void idServerInitSystemLocal::ParseVersionMapping( void )
             token = COM_Parse( &buftrav );
             if( token && token[0] )
             {
-                ::strcpy( versionMap[ numVersions ].installer, token );
+                Q_strcpy_s( versionMap[ numVersions ].installer, token );
             }
             else
             {

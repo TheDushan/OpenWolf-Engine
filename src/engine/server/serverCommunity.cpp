@@ -114,7 +114,7 @@ sint idServerCommunityServer::Login( valueType* userinfo, user_t** user_ret )
         return CS_OK;
     }
     
-    ::strcpy( buffer, password );
+    Q_strcpy_s( buffer, password );
     
     username = strtok( buffer, "@#\r\n\0" );
     if( username != nullptr )
@@ -289,7 +289,7 @@ idServerCommunityServer::LoadUserFile
 void idServerCommunityServer::LoadUserFile( void )
 {
     sint32 pos, * dpos;
-    valueType** reg, * filename, buffer[512], * key;
+    valueType** reg, *filename, buffer[512], * key;
     clan_t* clan;
     hash_table_t* hash_tmp = nullptr;
     struct stat st;
@@ -420,7 +420,7 @@ user_t* idServerCommunityServer::parseUserLine( pointer user_pass )
     user_clan_t* user_clan;
     clan_t* clan_p;
     
-    ::strcpy( client_user_pass, user_pass );
+    Q_strcpy_s( client_user_pass, user_pass );
     
     username = ::strtok( client_user_pass, "@#" );
     if( username == nullptr )
@@ -518,8 +518,8 @@ sint idServerCommunityServer::CheckUserFileChange( void )
     {
         if( file_user_last_modified < st.st_mtime )
         {
-            ::strcpy( filesrc, fileSystem->GetFullGamePath( "cs_users.new" ) );
-            ::strcpy( filedst, fileSystem->GetFullGamePath( "cs_users.txt" ) );
+            Q_strcpy_s( filesrc, fileSystem->GetFullGamePath( "cs_users.new" ) );
+            Q_strcpy_s( filedst, fileSystem->GetFullGamePath( "cs_users.txt" ) );
             
             copyFile( filesrc, filedst );
             
@@ -801,7 +801,7 @@ void idServerCommunityServer::addMatchClan( valueType* clan_name )
         return;
     }
     
-    ::strcpy( match_clans[i], clan_name );
+    Q_strcpy_s( match_clans[i], clan_name );
     Com_Printf( "Clan %s added to match\n", clan_name );
     
     return;
@@ -850,7 +850,7 @@ void idServerCommunityServer::addMatchUser( valueType* user_name )
         return;
     }
     
-    ::strcpy( match_users[i], user_name );
+    Q_strcpy_s( match_users[i], user_name );
     Com_Printf( "User %s added to match\n", user_name );
     
     return;
@@ -899,7 +899,7 @@ void idServerCommunityServer::addMatchReferee( valueType* user_name )
         return;
     }
     
-    ::strcpy( match_referees[i], user_name );
+    Q_strcpy_s( match_referees[i], user_name );
     Com_Printf( "Referee %s added to match\n", user_name );
     
     return;
@@ -1066,7 +1066,7 @@ banuser_t* idServerCommunityServer::processBanLine( valueType* line )
         return nullptr;
     }
     
-    ::strcpy( banuser.guid, word );
+    Q_strcpy_s( banuser.guid, word );
     
     return &banuser;
 }
@@ -1113,7 +1113,7 @@ void idServerCommunityServer::BanUser( client_t* cl )
     // Add to file
     if( cl->cs_user != nullptr )
     {
-        ::strcpy( banuser.name, cl->cs_user->name );
+        Q_strcpy_s( banuser.name, cl->cs_user->name );
         banuser.type = CS_MEMBER;
     }
     else
@@ -1488,7 +1488,7 @@ void idServerCommunityServer::ProcessSplit( valueType** tokens )
     }
     else
     {
-        ::strcpy( username, svs.clients[stats_client_num].cs_user->name );
+        Q_strcpy_s( username, svs.clients[stats_client_num].cs_user->name );
         type = CS_USER;
     }
     
@@ -1512,7 +1512,7 @@ user_stats_t* idServerCommunityServer::GetPlayerStats( valueType* player_name )
     valueType username[USER_NAME_SIZE + 1] = {0};
     user_stats_t** paux;
     
-    ::strcpy( username, player_name );
+    Q_strcpy_s( username, player_name );
     
     for( paux = &( community_stats.user_stats ); *paux != nullptr && ::strcmp( ( *paux )->name, username ) != 0; paux = &( ( *paux )->next ) );
     
@@ -1521,7 +1521,7 @@ user_stats_t* idServerCommunityServer::GetPlayerStats( valueType* player_name )
         *paux = ( user_stats_t* )::malloc( sizeof( user_stats_t ) );
         
         ::memset( *paux, 0, sizeof( user_stats_t ) );
-        ::strcpy( ( *paux )->name, username );
+        Q_strcpy_s( ( *paux )->name, username );
         
         ( *paux )->start_time = idsystem->Milliseconds();
     }
@@ -1911,7 +1911,7 @@ void idServerCommunityServer::PlayerServerInfo( sint clnum )
         }
         else
         {
-            strcpy( username, svs.clients[stats_client_num].cs_user->name );
+            Q_strcpy_s( username, svs.clients[stats_client_num].cs_user->name );
             type = CS_USER;
         }
         

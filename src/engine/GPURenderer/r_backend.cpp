@@ -1965,7 +1965,7 @@ const void* RB_ExportCubemaps( const void* data )
             }
             else
             {
-                Com_sprintf( filename, MAX_QPATH, "cubemaps/%s/%03d.dds", tr.world->baseName, i );
+                Q_vsprintf_s( filename, MAX_QPATH, MAX_QPATH, "cubemaps/%s/%03d.dds", tr.world->baseName, i );
             }
             
             R_SaveDDS( filename, cubemapPixels, r_cubemapSize->integer, r_cubemapSize->integer, 6 );

@@ -746,15 +746,13 @@ bool SkipBracedSection( valueType** program );
 bool SkipBracedSection_Depth( valueType** program, sint depth ); // start at given depth if already
 void SkipRestOfLine( valueType** data );
 
-#if defined (_MSC_VER)
-// vsnprintf is ISO/IEC 9899:1999
-// abstracting this to make it portable
-sint Q_vsnprintf( valueType* str, size_t size, pointer format, va_list args );
-#else // not using MSVC
-#define Q_vsnprintf vsnprintf
-#endif
+void Q_vsprintf_s( valueType* pDest, uint32 nDestSize, _Printf_format_string_ pointer pFmt, va_list args );
 
-bool Com_sprintf( valueType* dest, size_t size, pointer fmt, ... );
+template< uint32 nDestSize >
+ID_INLINE void Q_vsprintf_s( valueType( &pDest )[nDestSize], _Printf_format_string_ pointer pFmt, va_list args )
+{
+    Q_vsprintf_s( pDest, nDestSize, pFmt, args );
+}
 
 // mode parm for FS_FOpenFile
 typedef enum
@@ -795,7 +793,30 @@ bool Q_isintegral( float32 f );
 bool        Q_strtol( pointer s, sint32* out );
 bool        Q_strtoi( pointer s, sint* out );
 
-// portable case insensitive compare
+[[nodiscard]]
+ID_INLINE uint32 Q_strlen( pointer str )
+{
+    return static_cast<uint32>( strlen( str ) );
+}
+
+// Safe strcpy that ensures null termination
+// Returns bytes written
+void Q_strcpy_s( valueType* pDest, uint32 nDestSize, pointer pSrc );
+
+template< uint32 nDestSize >
+ID_INLINE void Q_strcpy_s( valueType( &pDest )[nDestSize], pointer pSrc )
+{
+    Q_strcpy_s( pDest, nDestSize, pSrc );
+}
+
+sint Q_vsprintf_s( valueType* strDest, size_t destMax, size_t count, pointer format, ... );
+
+template< uint32 nDestSize >
+ID_INLINE void Q_vsprintf_s( valueType( &strDest )[nDestSize], size_t destMax, size_t count, pointer format, ... )
+{
+    Q_vsprintf_s( strDest, destMax, count, format );
+}
+
 sint     Q_stricmp( pointer s1, pointer s2 );
 sint     Q_strncmp( pointer s1, pointer s2, sint n );
 sint     Q_stricmpn( pointer s1, pointer s2, sint n );

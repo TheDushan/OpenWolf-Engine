@@ -529,11 +529,13 @@ void idServerGameSystemLocal::ShutdownGameProgs( void )
     {
         return;
     }
+    
     sgame->Shutdown( false );
     sgame = nullptr;
     
     idsystem->UnloadDll( gvm );
     gvm = nullptr;
+    
     if( sv_newGameShlib->string[0] )
     {
         fileSystem->Rename( sv_newGameShlib->string, "sgameAMD64" DLL_EXT );
@@ -567,8 +569,10 @@ void idServerGameSystemLocal::InitGameModule( bool restart )
     
     // use the current msec count for a random seed
     // init for this gamestate
-    sgame->Init( sv.time, Com_Milliseconds(), restart );
-    
+    if( gvm || sgame )
+    {
+        sgame->Init( sv.time, Com_Milliseconds(), restart );
+    }
 }
 
 /*
@@ -580,8 +584,6 @@ Called on a map_restart, but not on a normal map change
 */
 void idServerGameSystemLocal::RestartGameProgs( void )
 {
-    InitExportTable();
-    
     if( !gvm )
     {
         svs.gameStarted = false;
@@ -589,7 +591,10 @@ void idServerGameSystemLocal::RestartGameProgs( void )
         return;
     }
     
-    sgame->Shutdown( true );
+    if( gvm || sgame )
+    {
+        sgame->Shutdown( true );
+    }
     
     InitGameModule( true );
 }

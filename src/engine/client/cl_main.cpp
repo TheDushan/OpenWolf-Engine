@@ -331,11 +331,11 @@ void CL_DemoFilename( sint number, valueType* fileName )
 {
     if( number < 0 || number > 9999 )
     {
-        Com_sprintf( fileName, MAX_OSPATH, "demo9999" );	// fretn - removed .tga
+        Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "demo9999" );	// fretn - removed .tga
         return;
     }
     
-    Com_sprintf( fileName, MAX_OSPATH, "demo%04i", number );
+    Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "demo%04i", number );
 }
 
 /*
@@ -385,7 +385,7 @@ void CL_Record_f( void )
     {
         s = cmdSystem->Argv( 1 );
         Q_strncpyz( demoName, s, sizeof( demoName ) );
-        Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, com_protocol->integer );
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", demoName, com_protocol->integer );
     }
     else
     {
@@ -395,7 +395,7 @@ void CL_Record_f( void )
         for( number = 0; number <= 9999; number++ )
         {
             CL_DemoFilename( number, demoName );
-            Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, com_protocol->integer );
+            Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", demoName, com_protocol->integer );
             
             len = fileSystem->ReadFile( name, nullptr );
             if( len <= 0 )
@@ -620,11 +620,11 @@ void CL_WavFilename( sint number, valueType* fileName )
 {
     if( number < 0 || number > 9999 )
     {
-        Com_sprintf( fileName, MAX_OSPATH, "wav9999" );	// fretn - removed .tga
+        Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "wav9999" );	// fretn - removed .tga
         return;
     }
     
-    Com_sprintf( fileName, MAX_OSPATH, "wav%04i", number );
+    Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "wav%04i", number );
 }
 
 typedef struct wav_hdr_s
@@ -710,7 +710,7 @@ void CL_WriteWaveOpen()
     {
         s = cmdSystem->Argv( 1 );
         Q_strncpyz( wavName, s, sizeof( wavName ) );
-        Com_sprintf( name, sizeof( name ), "wav/%s.wav", wavName );
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "wav/%s.wav", wavName );
     }
     else
     {
@@ -720,7 +720,7 @@ void CL_WriteWaveOpen()
         for( number = 0; number <= 9999; number++ )
         {
             CL_WavFilename( number, wavName );
-            Com_sprintf( name, sizeof( name ), "wav/%s.wav", wavName );
+            Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "wav/%s.wav", wavName );
             
             len = fileSystem->FileExists( name );
             if( len <= 0 )
@@ -777,7 +777,7 @@ static void CL_CompleteDemoName( valueType* args, sint argNum )
     {
         valueType demoExt[ 16 ];
         
-        Com_sprintf( demoExt, sizeof( demoExt ), ".dm_%d", com_protocol->integer );
+        Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".dm_%d", com_protocol->integer );
         Field_CompleteFilename( "demos", demoExt, true );
     }
 }
@@ -814,14 +814,14 @@ void CL_PlayDemo_f( void )
     prot_ver = com_protocol->integer - 1;
     while( prot_ver <= com_protocol->integer && !clc.demofile )
     {
-        Com_sprintf( extension, sizeof( extension ), ".dm_%d", prot_ver );
+        Q_vsprintf_s( extension, sizeof( extension ), sizeof( extension ), ".dm_%d", prot_ver );
         if( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) )
         {
-            Com_sprintf( name, sizeof( name ), "demos/%s", arg );
+            Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s", arg );
         }
         else
         {
-            Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", arg, prot_ver );
+            Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", arg, prot_ver );
         }
         fileSystem->FOpenFileRead( name, &clc.demofile, true );
         prot_ver++;
@@ -1210,7 +1210,7 @@ void CL_Disconnect( bool showMainMenu, pointer reason )
         valueType cmd[MAX_STRING_CHARS] = { 0 }, * pCmd = cmd;
         if( reason )
         {
-            Com_sprintf( cmd, sizeof( cmd ), "disconnect %s", reason );
+            Q_vsprintf_s( cmd, sizeof( cmd ), sizeof( cmd ), "disconnect %s", reason );
         }
         else
         {
@@ -1441,7 +1441,7 @@ void CL_RequestMotd( void )
                  
     info[0] = 0;
     
-    Com_sprintf( cls.updateChallenge, sizeof( cls.updateChallenge ), "%i", ( ( rand() << 16 ) ^ rand() ) ^ Com_Milliseconds() );
+    Q_vsprintf_s( cls.updateChallenge, sizeof( cls.updateChallenge ), sizeof( cls.updateChallenge ), "%i", ( ( rand() << 16 ) ^ rand() ) ^ Com_Milliseconds() );
     
     Info_SetValueForKey( info, "challenge", cls.updateChallenge );
     Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
@@ -1527,7 +1527,7 @@ void CL_Setenv_f( void )
         valueType buffer[1024];
         sint i;
         
-        ::strcpy( buffer, cmdSystem->Argv( 1 ) );
+        Q_strcpy_s( buffer, cmdSystem->Argv( 1 ) );
         ::strcat( buffer, "=" );
         
         for( i = 2; i < argc; i++ )
@@ -1797,7 +1797,7 @@ void CL_SendPureChecksums( void )
     pChecksums = fileSystem->ReferencedPakPureChecksums();
     
     // "cp"
-    Com_sprintf( cMsg, sizeof( cMsg ), "Va " );
+    Q_vsprintf_s( cMsg, sizeof( cMsg ), sizeof( cMsg ), "Va " );
     Q_strcat( cMsg, sizeof( cMsg ), va( "%d ", cl.serverId ) );
     Q_strcat( cMsg, sizeof( cMsg ), pChecksums );
     for( i = 0; i < 2; i++ )
@@ -2091,7 +2091,7 @@ void CL_Video_f( void )
     if( cmdSystem->Argc() == 2 )
     {
         // explicit filename
-        Com_sprintf( filename, MAX_OSPATH, "videos/%s.avi", cmdSystem->Argv( 1 ) );
+        Q_vsprintf_s( filename, MAX_OSPATH, MAX_OSPATH, "videos/%s.avi", cmdSystem->Argv( 1 ) );
     }
     else
     {
@@ -2110,7 +2110,7 @@ void CL_Video_f( void )
             last -= c * 10;
             d = last;
             
-            Com_sprintf( filename, MAX_OSPATH, "videos/video%d%d%d%d.avi", a, b, c, d );
+            Q_vsprintf_s( filename, MAX_OSPATH, MAX_OSPATH, "videos/video%d%d%d%d.avi", a, b, c, d );
             
             if( !fileSystem->FileExists( filename ) )
                 break;			// file doesn't exist
@@ -2252,7 +2252,7 @@ void CL_BeginDownload( pointer localName, pointer remoteName )
                  "Localname: %s\n" "Remotename: %s\n" "****************************\n", localName, remoteName );
                  
     Q_strncpyz( cls.downloadName, localName, sizeof( cls.downloadName ) );
-    Com_sprintf( cls.downloadTempName, sizeof( cls.downloadTempName ), "%s.tmp", localName );
+    Q_vsprintf_s( cls.downloadTempName, sizeof( cls.downloadTempName ), sizeof( cls.downloadTempName ), "%s.tmp", localName );
     
     // Set so UI gets access to it
     cvarSystem->Set( "cl_downloadName", remoteName );
@@ -2438,7 +2438,7 @@ void CL_CheckForResend( void )
                 CL_RequestAuthorization();
             }
             
-            Com_sprintf( data, sizeof( data ), "getchallenge %d %s %s %i", clc.challenge, GAMENAME_FOR_MASTER, cl_guid->string, cls.authorizeAuthCookie );
+            Q_vsprintf_s( data, sizeof( data ), sizeof( data ), "getchallenge %d %s %s %i", clc.challenge, GAMENAME_FOR_MASTER, cl_guid->string, cls.authorizeAuthCookie );
             networkChainSystem->OutOfBandPrint( NS_CLIENT, clc.serverAddress, "%s", data );
             break;
             
@@ -2451,7 +2451,7 @@ void CL_CheckForResend( void )
             Info_SetValueForKey( info, "qport", va( "%i", port ) );
             Info_SetValueForKey( info, "challenge", va( "%i", clc.challenge ) );
             
-            ::strcpy( data, "connect " );
+            Q_strcpy_s( data, "connect " );
             data[8] = '"';
             
             for( i = 0; i < strlen( info ); i++ )
@@ -3284,9 +3284,9 @@ static void CL_Cache_UsedFile_f( void )
         return;
     }
     
-    strcpy( groupStr, cmdSystem->Argv( 1 ) );
+    Q_strcpy_s( groupStr, cmdSystem->Argv( 1 ) );
     
-    strcpy( itemStr, cmdSystem->Argv( 2 ) );
+    Q_strcpy_s( itemStr, cmdSystem->Argv( 2 ) );
     for( i = 3; i < cmdSystem->Argc(); i++ )
     {
         strcat( itemStr, " " );
@@ -3413,7 +3413,7 @@ void CL_RefPrintf( sint print_level, pointer fmt, ... )
     valueType            msg[MAXPRINTMSG];
     
     va_start( argptr, fmt );
-    Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+    Q_vsprintf_s( msg, sizeof( msg ), fmt, argptr );
     va_end( argptr );
     
     if( print_level == PRINT_ALL )
@@ -3762,7 +3762,7 @@ void CL_SaveNewTranslations_f( void )
         return;
     }
     
-    strcpy( fileName, va( "translations/%s.lang", cmdSystem->Argv( 1 ) ) );
+    Q_strcpy_s( fileName, va( "translations/%s.lang", cmdSystem->Argv( 1 ) ) );
     
     CL_SaveTransTable( fileName, true );
 }
@@ -4539,7 +4539,7 @@ void CL_LoadTransTable( pointer fileName )
             if( !Q_stricmp( "#version", token ) )
             {
                 token = COM_Parse( &text_p );
-                strcpy( cl.translationVersion, token );
+                Q_strcpy_s( cl.translationVersion, token );
                 continue;
             }
             
@@ -4555,7 +4555,7 @@ void CL_LoadTransTable( pointer fileName )
         }
         
         token = COM_Parse( &text_p );
-        strcpy( original, token );
+        Q_strcpy_s( original, token );
         
         if( cl_debugTranslation->integer == 3 )
         {
@@ -4571,7 +4571,7 @@ void CL_LoadTransTable( pointer fileName )
         }
         
         token = COM_Parse( &text_p );
-        strcpy( translated[LANGUAGE_FRENCH], token );
+        Q_strcpy_s( translated[LANGUAGE_FRENCH], token );
         if( !CL_CheckTranslationString( original, translated[LANGUAGE_FRENCH] ) )
         {
             Com_Printf( S_COLOR_YELLOW "WARNING: Translation formatting doesn't match up with English version!\n" );
@@ -4588,7 +4588,7 @@ void CL_LoadTransTable( pointer fileName )
         }
         
         token = COM_Parse( &text_p );
-        strcpy( translated[LANGUAGE_GERMAN], token );
+        Q_strcpy_s( translated[LANGUAGE_GERMAN], token );
         if( !CL_CheckTranslationString( original, translated[LANGUAGE_GERMAN] ) )
         {
             Com_Printf( S_COLOR_YELLOW "WARNING: Translation formatting doesn't match up with English version!\n" );
@@ -4605,7 +4605,7 @@ void CL_LoadTransTable( pointer fileName )
         }
         
         token = COM_Parse( &text_p );
-        strcpy( translated[LANGUAGE_ITALIAN], token );
+        Q_strcpy_s( translated[LANGUAGE_ITALIAN], token );
         if( !CL_CheckTranslationString( original, translated[LANGUAGE_ITALIAN] ) )
         {
             Com_Printf( S_COLOR_YELLOW "WARNING: Translation formatting doesn't match up with English version!\n" );
@@ -4622,7 +4622,7 @@ void CL_LoadTransTable( pointer fileName )
         }
         
         token = COM_Parse( &text_p );
-        strcpy( translated[LANGUAGE_SPANISH], token );
+        Q_strcpy_s( translated[LANGUAGE_SPANISH], token );
         if( !CL_CheckTranslationString( original, translated[LANGUAGE_SPANISH] ) )
         {
             Com_Printf( S_COLOR_YELLOW "WARNING: Translation formatting doesn't match up with English version!\n" );
@@ -4757,12 +4757,12 @@ void CL_TranslateString( pointer string, valueType* dest_buffer )
     // early bail if we only want english or bad language type
     if( !string )
     {
-        strcpy( buf, "(null)" );
+        ::strcpy( buf, "(null)" );
         return;
     }
     else if( currentLanguage < 0 || currentLanguage >= MAX_LANGUAGES || !strlen( string ) )
     {
-        strcpy( buf, string );
+        ::strcpy( buf, string );
         return;
     }
     
@@ -4795,7 +4795,7 @@ void CL_TranslateString( pointer string, valueType* dest_buffer )
             offset = 3;
         }
         
-        strcpy( buf + offset, t->translated[currentLanguage] );
+        ::strcpy( buf + offset, t->translated[currentLanguage] );
         
         if( cl_debugTranslation->integer >= 1 )
         {
@@ -4827,7 +4827,7 @@ void CL_TranslateString( pointer string, valueType* dest_buffer )
             offset = 3;
         }
         
-        strcpy( buf + offset, string );
+        ::strcpy( buf + offset, string );
         
         if( cl_debugTranslation->integer >= 1 )
         {
@@ -4962,7 +4962,7 @@ void CL_AddToLimboChat( pointer str )
     // copy old strings
     for( i = cl.limboChatPos; i > 0; i-- )
     {
-        ::strcpy( cl.limboChatMsgs[i], cl.limboChatMsgs[i - 1] );
+        Q_strcpy_s( cl.limboChatMsgs[i], cl.limboChatMsgs[i - 1] );
     }
     
     // copy new string

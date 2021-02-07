@@ -148,7 +148,7 @@ void idParseSystemLocal::ScriptError( script_t* script, valueType* str, ... )
     }
     
     va_start( argptr, str );
-    Q_vsnprintf( text, sizeof( text ), str, argptr );
+    Q_vsprintf_s( text, sizeof( text ), str, argptr );
     va_end( argptr );
     
     Com_Printf( "file %s, line %d: %s\n", script->filename, script->line, text );
@@ -170,7 +170,7 @@ void idParseSystemLocal::ScriptWarning( script_t* script, valueType* str, ... )
     }
     
     va_start( argptr, str );
-    Q_vsnprintf( text, sizeof( text ), str, argptr );
+    Q_vsprintf_s( text, sizeof( text ), str, argptr );
     va_end( argptr );
     
     Com_Printf( "file %s, line %d: %s\n", script->filename, script->line, text );
@@ -1029,7 +1029,7 @@ script_t* idParseSystemLocal::LoadScriptFile( pointer filename )
     
     script = ( script_t* ) buffer;
     ::memset( script, 0, sizeof( script_t ) );
-    ::strcpy( script->filename, filename );
+    Q_strcpy_s( script->filename, filename );
     script->buffer = ( valueType* ) buffer + sizeof( script_t );
     script->buffer[length] = 0;
     script->length = length;
@@ -1076,7 +1076,7 @@ script_t* idParseSystemLocal::LoadScriptMemory( valueType* ptr, sint length, val
     
     script = ( script_t* ) buffer;
     ::memset( script, 0, sizeof( script_t ) );
-    ::strcpy( script->filename, name );
+    Q_strcpy_s( script->filename, name );
     script->buffer = ( valueType* ) buffer + sizeof( script_t );
     script->buffer[length] = 0;
     script->length = length;
@@ -1133,7 +1133,7 @@ void idParseSystemLocal::SourceError( source_t* source, valueType* str, ... )
     valueType text[8192];
     
     va_start( argptr, str );
-    Q_vsnprintf( text, sizeof( text ), str, argptr );
+    Q_vsprintf_s( text, sizeof( text ), str, argptr );
     va_end( argptr );
     
     Com_Printf( "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
@@ -1150,7 +1150,7 @@ void idParseSystemLocal::SourceWarning( source_t* source, valueType* str, ... )
     valueType text[8192];
     
     va_start( argptr, str );
-    Q_vsnprintf( text, sizeof( text ), str, argptr );
+    Q_vsprintf_s( text, sizeof( text ), str, argptr );
     va_end( argptr );
     
     Com_Printf( "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
@@ -1656,7 +1656,7 @@ sint idParseSystemLocal::ExpandBuiltinDefine( source_t* source, token_t* deftoke
         }
         case BUILTIN_FILE:
         {
-            ::strcpy( token->string, source->scriptstack->filename );
+            Q_strcpy_s( token->string, source->scriptstack->filename );
             token->type = TT_NAME;
             token->subtype = ( sint )::strlen( token->string );
             *firsttoken = token;
@@ -1667,7 +1667,7 @@ sint idParseSystemLocal::ExpandBuiltinDefine( source_t* source, token_t* deftoke
         {
             t = ::time( nullptr );
             curtime = ::ctime( &t );
-            ::strcpy( token->string, "\"" );
+            Q_strcpy_s( token->string, "\"" );
             ::strncat( token->string, curtime + 4, 7 );
             ::strncat( token->string + 7, curtime + 20, 4 );
             ::strcat( token->string, "\"" );
@@ -1682,7 +1682,7 @@ sint idParseSystemLocal::ExpandBuiltinDefine( source_t* source, token_t* deftoke
         {
             t = ::time( nullptr );
             curtime = ::ctime( &t );
-            ::strcpy( token->string, "\"" );
+            Q_strcpy_s( token->string, "\"" );
             ::strncat( token->string, curtime + 11, 8 );
             ::strcat( token->string, "\"" );
             ::free( curtime );
@@ -2941,14 +2941,14 @@ sint idParseSystemLocal::Directive_include( source_t* source )
         script = LoadScriptFile( token.string );
         if( !script )
         {
-            ::strcpy( path, source->includepath );
+            Q_strcpy_s( path, source->includepath );
             ::strcat( path, token.string );
             script = LoadScriptFile( path );
         }
     }
     else if( token.type == TT_PUNCTUATION && *token.string == '<' )
     {
-        ::strcpy( path, source->includepath );
+        Q_strcpy_s( path, source->includepath );
         
         while( ReadSourceToken( source, &token ) )
         {
@@ -3147,7 +3147,7 @@ sint idParseSystemLocal::Directive_error( source_t* source )
 {
     token_t token;
     
-    ::strcpy( token.string, "" );
+    Q_strcpy_s( token.string, "" );
     ReadSourceToken( source, &token );
     SourceError( source, "#error directive: %s", token.string );
     return false;
@@ -3182,7 +3182,7 @@ void idParseSystemLocal::UnreadSignToken( source_t* source )
     token.whitespace_p = source->scriptstack->script_p;
     token.endwhitespace_p = source->scriptstack->script_p;
     token.linescrossed = 0;
-    ::strcpy( token.string, "-" );
+    Q_strcpy_s( token.string, "-" );
     token.type = TT_PUNCTUATION;
     token.subtype = P_SUB;
     UnreadSourceToken( source, &token );
@@ -4379,7 +4379,7 @@ sint idParseSystemLocal::ReadTokenHandle( sint handle, pc_token_t* pc_token )
     }
     
     ret = ReadToken( sourceFiles[handle], &token );
-    ::strcpy( pc_token->string, token.string );
+    Q_strcpy_s( pc_token->string, token.string );
     pc_token->type = token.type;
     pc_token->subtype = token.subtype;
     pc_token->intvalue = token.intvalue;

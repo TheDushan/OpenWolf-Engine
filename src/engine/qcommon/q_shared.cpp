@@ -246,7 +246,7 @@ void COM_DefaultExtension( valueType* path, sint maxSize, pointer extension )
     }
     
     Q_strncpyz( oldPath, path, sizeof( oldPath ) );
-    Com_sprintf( path, maxSize, "%s%s", oldPath, extension );
+    Q_vsprintf_s( path, maxSize, maxSize, "%s%s", oldPath, extension );
 }
 
 //============================================================================
@@ -424,7 +424,7 @@ static valueType*    backup_text;
 void COM_BeginParseSession( pointer name )
 {
     com_lines = 0;
-    Com_sprintf( com_parsename, sizeof( com_parsename ), "%s", name );
+    Q_vsprintf_s( com_parsename, sizeof( com_parsename ), sizeof( com_parsename ), "%s", name );
 }
 
 void COM_BackupParseSession( valueType** data_p )
@@ -460,7 +460,7 @@ void COM_ParseError( valueType* format, ... )
     static valueType string[4096];
     
     va_start( argptr, format );
-    Q_vsnprintf( string, sizeof( string ), format, argptr );
+    Q_vsprintf_s( string, sizeof( string ), format, argptr );
     va_end( argptr );
     
     Com_Printf( S_COLOR_RED "ERROR: %s, line %d: %s\n", com_parsename, com_lines, string );
@@ -472,7 +472,7 @@ void COM_ParseWarning( valueType* format, ... )
     static valueType string[4096];
     
     va_start( argptr, format );
-    Q_vsnprintf( string, sizeof( string ), format, argptr );
+    Q_vsprintf_s( string, sizeof( string ), format, argptr );
     va_end( argptr );
     
     Com_Printf( "WARNING: %s, line %d: %s\n", com_parsename, com_lines, string );
@@ -1902,41 +1902,6 @@ sint Q_CountChar( pointer string, valueType tocount )
     return count;
 }
 
-bool Com_sprintf( valueType* dest, size_t size, pointer fmt, ... )
-{
-    va_list argptr;
-    
-    if( !fmt )
-    {
-        return false;
-    }
-    
-    va_start( argptr, fmt );
-    sint len = Q_vsnprintf( dest, size, fmt, argptr );
-    va_end( argptr );
-    
-    // Dushan
-    if( len >= size )
-    {
-#ifdef DEBUG
-        Com_Printf( "ERROR! %s: destination buffer overflow of len %i, size %lu\n"
-                    "Input was: %s", __FUNCTION__, len, size, dest );
-        return false;
-#else
-        Com_Printf( "ERROR! %s: destination buffer overflow of len %i, size %lu\n"
-                    "Input was: %s", __FUNCTION__, len, size, dest );
-#endif
-    }
-    
-    if( len == -1 )
-    {
-        Com_Printf( "Com_sprintf: overflow of %lu bytes buffer\n", size );
-        return false;
-    }
-    
-    return 0 <= len && ( size_t )len < size;
-}
-
 /*
 ============
 va
@@ -1957,7 +1922,8 @@ valueType* va( pointer format, ... )
     s = string[stringindex];
     stringindex = ( stringindex + 1 ) & 63;
     va_start( argptr, format );
-    Q_vsnprintf( s, sizeof( string[0] ), format, argptr );
+    Q_vsprintf_s( s, sizeof( string[0] ), format, argptr );
+    
     va_end( argptr );
     
     return s;
@@ -2300,7 +2266,7 @@ bool Info_SetValueForKey( valueType* s, pointer key, pointer value )
         return true; // just clear variable
     }
     
-    Com_sprintf( newi, sizeof( newi ), "\\%s\\%s", key, value );
+    Q_vsprintf_s( newi, sizeof( newi ), sizeof( newi ), "\\%s\\%s", key, value );
     
     if( strlen( newi ) + strlen( s ) > maxsize )
     {
@@ -2365,7 +2331,7 @@ void Info_SetValueForKey_Big( valueType* s, pointer key, pointer value )
         return;
     }
     
-    Com_sprintf( newi, sizeof( newi ), "\\%s\\%s", key, value );
+    Q_vsprintf_s( newi, sizeof( newi ), sizeof( newi ), "\\%s\\%s", key, value );
     
     if( strlen( newi ) + strlen( s ) > BIG_INFO_STRING )
     {
@@ -2403,7 +2369,7 @@ valueType* Com_ClientListString( const clientList_t* list )
     s[ 0 ] = '\0';
     if( !list )
         return s;
-    Com_sprintf( s, sizeof( s ), "%08x%08x", list->hi, list->lo );
+    Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%08x%08x", list->hi, list->lo );
     return s;
 }
 
@@ -2437,25 +2403,19 @@ void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out )
     out[ 2 ] = m[ 0 ][ 2 ] * p[ 0 ] + m[ 1 ][ 2 ] * p[ 1 ] + m[ 2 ][ 2 ] * p[ 2 ];
 }
 
-#if defined(_MSC_VER)
 /*
 =============
 Q_vsnprintf
 =============
 */
-sint Q_vsnprintf( valueType* str, size_t size, pointer format, va_list ap )
+void Q_vsprintf_s( valueType* pDest, uint32 nDestSize, _Printf_format_string_ pointer pFmt, va_list args )
 {
-    sint retval = _vsnprintf( str, size, format, ap );
-    
-    if( retval < 0 || retval == ( sint )size )
-    {
-        str[size - 1] = '\0';
-        return ( sint )size;
-    }
-    
-    return retval;
-}
+#ifdef _WIN32
+    vsprintf_s( pDest, nDestSize, pFmt, args );
+#else
+    vsprintf( pDest, pFmt, args );
 #endif
+}
 
 #ifndef Q3MAP2
 bool StringContainsWord( pointer haystack, pointer needle )
@@ -2909,4 +2869,34 @@ bool Q_IsColorString( pointer p )
     }
     
     return true;
+}
+
+void Q_strcpy_s( valueType* pDest, uint32 nDestSize, pointer pSrc )
+{
+    assert( pDest && pSrc );
+    
+    valueType* pLast = pDest + nDestSize - 1;
+    
+    while( ( pDest < pLast ) && ( *pSrc != 0 ) )
+    {
+        *pDest = *pSrc;
+        ++pDest;
+        ++pSrc;
+    }
+    
+    *pDest = 0;
+}
+
+sint Q_vsprintf_s( valueType* strDest, size_t destMax, size_t count, pointer format, ... )
+{
+    sint ret = 0;
+    va_list arglist;
+    
+    va_start( arglist, format );
+    
+    ret = vsnprintf_s( strDest, destMax, count, format, arglist );
+    
+    va_end( arglist );
+    
+    return ret;
 }

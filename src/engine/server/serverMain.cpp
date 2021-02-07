@@ -245,7 +245,7 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... 
     client_t* client;
     
     va_start( argptr, fmt );
-    Q_vsnprintf( ( valueType* )message, sizeof( message ), fmt, argptr );
+    Q_vsprintf_s( ( valueType* )message, sizeof( message ), fmt, argptr );
     va_end( argptr );
     
     // do not forward server command messages that would be too big to clients
@@ -633,7 +633,7 @@ void idServerMainSystemLocal::Status( netadr_t from )
     return;
 #endif
     
-    ::strcpy( infostring, cvarSystem->InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+    Q_strcpy_s( infostring, cvarSystem->InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
     
     // echo back the parameter to status. so master servers can use it as a challenge
     // to prevent timed spoofed reply packets that add ghost servers
@@ -644,14 +644,14 @@ void idServerMainSystemLocal::Status( netadr_t from )
     {
         valueType keywords[MAX_INFO_STRING];
         
-        Com_sprintf( keywords, sizeof( keywords ), "ettest %s", Info_ValueForKey( infostring, "sv_keywords" ) );
+        Q_vsprintf_s( keywords, sizeof( keywords ), sizeof( keywords ), "ettest %s", Info_ValueForKey( infostring, "sv_keywords" ) );
         Info_SetValueForKey( infostring, "sv_keywords", keywords );
     }
     else
     {
         // echo back the parameter to status. so master servers can use it as a challenge
         // to prevent timed spoofed reply packets that add ghost servers
-        Info_SetValueForKey(	infostring, "challenge", cmdSystem->Argv( 1 ) );
+        Info_SetValueForKey( infostring, "challenge", cmdSystem->Argv( 1 ) );
     }
     
     status[0] = 0;
@@ -664,15 +664,17 @@ void idServerMainSystemLocal::Status( netadr_t from )
         if( cl->state >= CS_CONNECTED )
         {
             ps = serverGameSystem->GameClientNum( i );
-            Com_sprintf( player, sizeof( player ), "%i %i \"%s\"\n", ps->persistant[PERS_SCORE], cl->ping, cl->name );
+            Q_vsprintf_s( player, sizeof( player ), sizeof( player ), "%i %i \"%s\"\n", ps->persistant[PERS_SCORE], cl->ping, cl->name );
             playerLength = strlen( player );
             
             if( statusLength + playerLength >= sizeof( status ) )
             {
-                break; // can't hold any more
+                // can't hold any more
+                break;
             }
             
             ::strcpy( status + statusLength, player );
+            
             statusLength += playerLength;
         }
     }
@@ -707,7 +709,7 @@ void idServerMainSystemLocal::GameCompleteStatus( netadr_t from )
         return;
     }
     
-    ::strcpy( infostring, cvarSystem->InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+    Q_strcpy_s( infostring, cvarSystem->InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
     
     // echo back the parameter to status. so master servers can use it as a challenge
     // to prevent timed spoofed reply packets that add ghost servers
@@ -718,7 +720,7 @@ void idServerMainSystemLocal::GameCompleteStatus( netadr_t from )
     {
         valueType keywords[MAX_INFO_STRING];
         
-        Com_sprintf( keywords, sizeof( keywords ), "ettest %s", Info_ValueForKey( infostring, "sv_keywords" ) );
+        Q_vsprintf_s( keywords, sizeof( keywords ), sizeof( keywords ), "ettest %s", Info_ValueForKey( infostring, "sv_keywords" ) );
         Info_SetValueForKey( infostring, "sv_keywords", keywords );
     }
     
@@ -733,7 +735,7 @@ void idServerMainSystemLocal::GameCompleteStatus( netadr_t from )
         {
             ps = serverGameSystem->GameClientNum( i );
             
-            Com_sprintf( player, sizeof( player ), "%i %i \"%s\"\n", ps->persistant[PERS_SCORE], cl->ping, cl->name );
+            Q_vsprintf_s( player, sizeof( player ), sizeof( player ), "%i %i \"%s\"\n", ps->persistant[PERS_SCORE], cl->ping, cl->name );
             
             playerLength = strlen( player );
             
@@ -1634,7 +1636,7 @@ void idServerMainSystemLocal::CheckCvars( void )
         valueType* c = hostname;
         lastMod = sv_hostname->modificationCount;
         
-        strcpy( hostname, sv_hostname->string );
+        Q_strcpy_s( hostname, sv_hostname->string );
         
         while( *c )
         {

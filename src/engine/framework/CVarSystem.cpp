@@ -440,7 +440,7 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
     {
         if( Q_isintegral( valuef ) )
         {
-            Com_sprintf( s, sizeof( s ), "%d", ( int )valuef );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%d", ( int )valuef );
             
             if( warn )
             {
@@ -449,7 +449,7 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
         }
         else
         {
-            Com_sprintf( s, sizeof( s ), "%f", valuef );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%f", valuef );
             
             if( warn )
             {
@@ -828,11 +828,11 @@ void idCVarSystemLocal::SetValue( pointer var_name, float32 value )
     
     if( value == ( sint )value )
     {
-        Com_sprintf( val, sizeof( val ), "%i", ( sint )value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", ( sint )value );
     }
     else
     {
-        Com_sprintf( val, sizeof( val ), "%f", value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%f", value );
     }
     
     Set( var_name, val );
@@ -849,11 +849,11 @@ void idCVarSystemLocal::SetValueSafe( pointer var_name, float32 value )
     
     if( value == ( sint )value )
     {
-        Com_sprintf( val, sizeof( val ), "%i", ( sint )value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", ( sint )value );
     }
     else
     {
-        Com_sprintf( val, sizeof( val ), "%f", value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%f", value );
     }
     
     GetSet2( var_name, val, false );
@@ -870,11 +870,11 @@ void idCVarSystemLocal::SetValueLatched( pointer var_name, float32 value )
     
     if( value == ( sint )value )
     {
-        Com_sprintf( val, sizeof( val ), "%i", ( sint )value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", ( sint )value );
     }
     else
     {
-        Com_sprintf( val, sizeof( val ), "%f", value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%f", value );
     }
     
     GetSet2( var_name, val, false );
@@ -1262,7 +1262,7 @@ void idCVarSystemLocal::WriteVariables( fileHandle_t f )
                                 "\"%s\" too long to write to file\n", var->name );
                     continue;
                 }
-                Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->latchedString );
+                Q_vsprintf_s( buffer, sizeof( buffer ), sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->latchedString );
             }
             else
             {
@@ -1272,7 +1272,7 @@ void idCVarSystemLocal::WriteVariables( fileHandle_t f )
                                 "\"%s\" too long to write to file\n", var->name );
                     continue;
                 }
-                Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->string );
+                Q_vsprintf_s( buffer, sizeof( buffer ), sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->string );
             }
             fileSystem->Write( buffer, strlen( buffer ), f );
         }

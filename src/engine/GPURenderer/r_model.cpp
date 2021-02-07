@@ -57,7 +57,7 @@ qhandle_t R_RegisterMD3( pointer name, model_t* mod )
     
     numLoaded = 0;
     
-    strcpy( filename, name );
+    Q_strcpy_s( filename, name );
     
     fext = strchr( filename, '.' );
     if( !fext )
@@ -71,9 +71,9 @@ qhandle_t R_RegisterMD3( pointer name, model_t* mod )
     for( lod = MD3_MAX_LODS - 1 ; lod >= 0 ; lod-- )
     {
         if( lod )
-            Com_sprintf( namebuf, sizeof( namebuf ), "%s_%d.%s", filename, lod, fext );
+            Q_vsprintf_s( namebuf, sizeof( namebuf ), sizeof( namebuf ), "%s_%d.%s", filename, lod, fext );
         else
-            Com_sprintf( namebuf, sizeof( namebuf ), "%s.%s", filename, fext );
+            Q_vsprintf_s( namebuf, sizeof( namebuf ), sizeof( namebuf ), "%s.%s", filename, fext );
             
         size = fileSystem->ReadFile( namebuf, &buf.v );
         if( !buf.u )
@@ -364,7 +364,7 @@ qhandle_t idRenderSystemLocal::RegisterModel( pointer name )
         if( i == orgLoader )
             continue;
             
-        Com_sprintf( altName, sizeof( altName ), "%s.%s", localName, modelLoaders[ i ].ext );
+        Q_vsprintf_s( altName, sizeof( altName ), sizeof( altName ), "%s.%s", localName, modelLoaders[ i ].ext );
         
         // Load
         hModel = modelLoaders[ i ].ModelLoader( altName, mod );

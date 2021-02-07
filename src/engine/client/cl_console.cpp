@@ -169,7 +169,7 @@ void Con_MessageMode_f( void )
     
     for( i = 1; i < cmdSystem->Argc(); i++ )
     {
-        Com_sprintf( chatField.buffer, MAX_SAY_TEXT, "%s%s ", chatField.buffer, cmdSystem->Argv( i ) );
+        Q_vsprintf_s( chatField.buffer, MAX_SAY_TEXT, MAX_SAY_TEXT, "%s%s ", chatField.buffer, cmdSystem->Argv( i ) );
     }
     chatField.cursor += strlen( chatField.buffer );
     
@@ -191,7 +191,7 @@ void Con_MessageMode2_f( void )
     
     for( i = 1; i < cmdSystem->Argc(); i++ )
     {
-        Com_sprintf( chatField.buffer, MAX_SAY_TEXT, "%s%s ", chatField.buffer, cmdSystem->Argv( i ) );
+        Q_vsprintf_s( chatField.buffer, MAX_SAY_TEXT, MAX_SAY_TEXT, "%s%s ", chatField.buffer, cmdSystem->Argv( i ) );
     }
     chatField.cursor += strlen( chatField.buffer );
     
@@ -214,7 +214,7 @@ void Con_MessageMode3_f( void )
     
     for( i = 1; i < cmdSystem->Argc(); i++ )
     {
-        Com_sprintf( chatField.buffer, MAX_SAY_TEXT, "%s%s ", chatField.buffer, cmdSystem->Argv( i ) );
+        Q_vsprintf_s( chatField.buffer, MAX_SAY_TEXT, MAX_SAY_TEXT, "%s%s ", chatField.buffer, cmdSystem->Argv( i ) );
     }
     chatField.cursor += strlen( chatField.buffer );
     cls.keyCatchers ^= KEYCATCH_MESSAGE;
@@ -303,9 +303,9 @@ void Con_Dump_f( void )
         valueType*	count = ( dump_time == cls.realtime / 1000 ) ? va( "(%d)", dump_count++ + 2 ) : "";
         Com_RealTime( &time );
         
-        Com_sprintf( name, sizeof( name ), "condump%04d%02d%02d%02d%02d%02d%s",
-                     time.tm_year + 1900, time.tm_mon + 1, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec, count );
-                     
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "condump%04d%02d%02d%02d%02d%02d%s",
+                      time.tm_year + 1900, time.tm_mon + 1, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec, count );
+                      
         if( dump_time != cls.realtime / 1000 ) dump_count = 0;
         dump_time = cls.realtime / 1000;
     }
@@ -316,7 +316,7 @@ void Con_Dump_f( void )
     
     if( ( ilen - isub ) != 0 )
     {
-        Com_sprintf( filename, sizeof( filename ), "%s%s", "logs/", name );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "%s%s", "logs/", name );
     }
     else
         Q_strncpyz( filename, name, sizeof( filename ) );
@@ -497,8 +497,9 @@ void Con_Grep_f( void )
                 break;
         }
         // Don't search commands
-        strcpy( buffer2, buffer );
+        Q_strcpy_s( buffer2, buffer );
         Q_CleanStr( buffer2 );
+        
         if( Q_stristr( buffer2, search ) )
         {
             strcat( printbuf, buffer );
@@ -766,7 +767,7 @@ void CL_ConsolePrint( valueType* txt )
             {
                 break;
             }
-            if( l > 0)
+            if( l > 0 )
             {
                 if( txt[l - 1] <= ';' ) break;
                 if( txt[l - 1] <= ',' ) break;
@@ -861,7 +862,7 @@ void Con_DrawInput( void )
     
     y = con.vislines - ( idClientScreenSystemLocal::ConsoleFontCharHeight() * 2 ) + 2 ;
     
-    Com_sprintf( prompt,  sizeof( prompt ), "^0[^3%02d%c%02d^0]^7 %s", realtime.tm_hour, ( realtime.tm_sec & 1 ) ? ':' : ' ', realtime.tm_min, cl_consolePrompt->string );
+    Q_vsprintf_s( prompt, sizeof( prompt ), sizeof( prompt ), "^0[^3%02d%c%02d^0]^7 %s", realtime.tm_hour, ( realtime.tm_sec & 1 ) ? ':' : ' ', realtime.tm_min, cl_consolePrompt->string );
     
     color[0] = 1.0f;
     color[1] = 1.0f;

@@ -505,11 +505,11 @@ void idClientParseSystemLocal::ParseSnapshot( msg_t* msg )
                     period++;
                 }
                 
-                Com_sprintf( name, sizeof( name ), "demos/%s_%04i-%02i-%02i_%02i%02i%02i.dm_%d", period,
-                             1900 + time.tm_year, time.tm_mon + 1, time.tm_mday,
-                             time.tm_hour, time.tm_min, time.tm_sec,
-                             com_protocol->integer );
-                             
+                Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s_%04i-%02i-%02i_%02i%02i%02i.dm_%d", period,
+                              1900 + time.tm_year, time.tm_mon + 1, time.tm_mday,
+                              time.tm_hour, time.tm_min, time.tm_sec,
+                              com_protocol->integer );
+                              
                 CL_Record( name );
             }
         }

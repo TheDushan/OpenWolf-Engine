@@ -282,7 +282,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
         // Check for the first hdr lightmap, if it exists, use GL_RGBA16 for textures.
         valueType filename[MAX_QPATH];
         
-        Com_sprintf( filename, sizeof( filename ), "maps/%s/lm_0000.hdr", s_worldData.baseName );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "maps/%s/lm_0000.hdr", s_worldData.baseName );
         if( fileSystem->FileExists( filename ) )
             textureInternalFormat = GL_RGBA16;
     }
@@ -327,7 +327,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
             // look for hdr lightmaps
             if( textureInternalFormat == GL_RGBA16 )
             {
-                Com_sprintf( filename, sizeof( filename ), "maps/%s/lm_%04d.hdr", s_worldData.baseName, i * ( tr.worldDeluxeMapping ? 2 : 1 ) );
+                Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "maps/%s/lm_%04d.hdr", s_worldData.baseName, i * ( tr.worldDeluxeMapping ? 2 : 1 ) );
                 //CL_RefPrintf(PRINT_ALL, "looking for %s\n", filename);
                 
                 size = fileSystem->ReadFile( filename, ( void** )&hdrLightmap );
@@ -1830,7 +1830,7 @@ static	void R_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexLump )
         valueType filename[MAX_QPATH];
         sint size;
         
-        Com_sprintf( filename, sizeof( filename ), "maps/%s/vertlight.raw", s_worldData.baseName );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "maps/%s/vertlight.raw", s_worldData.baseName );
         //CL_RefPrintf(PRINT_ALL, "looking for %s\n", filename);
         
         size = fileSystem->ReadFile( filename, ( void** )&hdrVertColors );
@@ -1951,7 +1951,7 @@ static	void R_LoadSubmodels( lump_t* l )
         
         model->type = MOD_BRUSH;
         model->bmodel = out;
-        Com_sprintf( model->name, sizeof( model->name ), "*%d", i );
+        Q_vsprintf_s( model->name, sizeof( model->name ), sizeof( model->name ), "*%d", i );
         
         for( j = 0 ; j < 3 ; j++ )
         {
@@ -2355,7 +2355,7 @@ void R_LoadLightGrid( lump_t* l )
         float32* hdrLightGrid;
         sint size;
         
-        Com_sprintf( filename, sizeof( filename ), "maps/%s/lightgrid.raw", s_worldData.baseName );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "maps/%s/lightgrid.raw", s_worldData.baseName );
         //CL_RefPrintf(PRINT_ALL, "looking for %s\n", filename);
         
         size = fileSystem->ReadFile( filename, ( void** )&hdrLightGrid );
@@ -2838,7 +2838,7 @@ void R_LoadCubemaps( void )
         valueType filename[MAX_QPATH];
         cubemap_t* cubemap = &tr.cubemaps[i];
         
-        Com_sprintf( filename, MAX_QPATH, "cubemaps/%s/%03d.dds", tr.world->baseName, i );
+        Q_vsprintf_s( filename, MAX_QPATH, MAX_QPATH, "cubemaps/%s/%03d.dds", tr.world->baseName, i );
         
         cubemap->image = R_FindImageFile( filename, IMGTYPE_COLORALPHA, flags );
     }
@@ -3110,7 +3110,7 @@ void idRenderSystemLocal::LoadWorld( pointer name )
             {
                 sint j;
                 
-                Com_sprintf( fileName, sizeof( fileName ), "primarylg%d.tga", i );
+                Q_vsprintf_s( fileName, sizeof( fileName ), sizeof( fileName ), "primarylg%d.tga", i );
                 
                 out = buffer + 18;
                 for( j = 0; j < w->lightGridBounds[0] * w->lightGridBounds[1]; j++ )

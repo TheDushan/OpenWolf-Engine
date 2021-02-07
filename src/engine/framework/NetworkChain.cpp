@@ -603,7 +603,7 @@ void idNetworkChainSystemLocal::OutOfBandPrint( netsrc_t sock, netadr_t adr, poi
     string[3] = -1;
     
     va_start( argptr, format );
-    Q_vsnprintf( string + 4, sizeof( string ) - 4, format, argptr );
+    Q_vsprintf_s( string + 4, sizeof( string ) - 4, format, argptr );
     va_end( argptr );
     
     // send the datagram

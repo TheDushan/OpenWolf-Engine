@@ -242,7 +242,7 @@ void idServerCcmdsSystemLocal::Map_f( void )
             
             if( com_gameInfo.usesProfiles && cl_profileStr[0] )
             {
-                Com_sprintf( savedir, sizeof( savedir ), "profiles/%s/save/", cl_profileStr );
+                Q_vsprintf_s( savedir, sizeof( savedir ), sizeof( savedir ), "profiles/%s/save/", cl_profileStr );
             }
             else
             {
@@ -251,11 +251,11 @@ void idServerCcmdsSystemLocal::Map_f( void )
             
             if( !( strstr( map, savedir ) == map ) )
             {
-                Com_sprintf( savemap, sizeof( savemap ), "%s%s", savedir, map );
+                Q_vsprintf_s( savemap, sizeof( savemap ), sizeof( savemap ), "%s%s", savedir, map );
             }
             else
             {
-                strcpy( savemap, map );
+                Q_strcpy_s( savemap, map );
             }
             
             size = fileSystem->ReadFile( savemap, nullptr );
@@ -326,7 +326,7 @@ void idServerCcmdsSystemLocal::Map_f( void )
     
     // make sure the level exists before trying to change, so that
     // a typo at the server console won't end the game
-    Com_sprintf( expanded, sizeof( expanded ), "maps/%s.bsp", map );
+    Q_vsprintf_s( expanded, sizeof( expanded ), sizeof( expanded ), "maps/%s.bsp", map );
     
     if( fileSystem->ReadFile( expanded, nullptr ) == -1 )
     {
@@ -577,7 +577,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
         
         if( com_gameInfo.usesProfiles )
         {
-            Com_sprintf( savemap, sizeof( savemap ), "profiles/%s/save/current.sav", cl_profileStr );
+            Q_vsprintf_s( savemap, sizeof( savemap ), sizeof( savemap ), "profiles/%s/save/current.sav", cl_profileStr );
         }
         else
         {
@@ -758,7 +758,7 @@ void idServerCcmdsSystemLocal::LoadGame_f( void )
     
     if( com_gameInfo.usesProfiles && cl_profileStr[0] )
     {
-        Com_sprintf( savedir, sizeof( savedir ), "profiles/%s/save/", cl_profileStr );
+        Q_vsprintf_s( savedir, sizeof( savedir ), sizeof( savedir ), "profiles/%s/save/", cl_profileStr );
     }
     else
     {
@@ -1019,7 +1019,7 @@ void idServerCcmdsSystemLocal::ConSay_f( void )
         return;
     }
     
-    ::strcpy( text, "Server: " );
+    Q_strcpy_s( text, "Server: " );
     p = cmdSystemLocal.Args();
     
     if( *p == '"' )
@@ -1635,7 +1635,7 @@ void idServerCcmdsSystemLocal::Demo_Record_f( void )
     
     if( cmdSystem->Argc() == 2 )
     {
-        Com_sprintf( sv.demoName, sizeof( sv.demoName ), "svdemos/%s.svdm_%d", cmdSystem->Argv( 1 ), ETPROTOCOL_VERSION );
+        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s.svdm_%d", cmdSystem->Argv( 1 ), ETPROTOCOL_VERSION );
     }
     else
     {
@@ -1643,7 +1643,7 @@ void idServerCcmdsSystemLocal::Demo_Record_f( void )
         // scan for a free demo name
         for( number = 0; number >= 0; number++ )
         {
-            Com_sprintf( sv.demoName, sizeof( sv.demoName ), "svdemos/%d.svdm_%d", number, ETPROTOCOL_VERSION );
+            Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%d.svdm_%d", number, ETPROTOCOL_VERSION );
             if( !fileSystem->FileExists( sv.demoName ) )
                 break;	// file doesn't exist
         }
@@ -1694,9 +1694,9 @@ void idServerCcmdsSystemLocal::Demo_Play_f( void )
     // check for an extension .svdm_?? (?? is protocol)
     arg = cmdSystem->Argv( 1 );
     if( !strcmp( arg + strlen( arg ) - 6, va( ".svdm_%d", ETPROTOCOL_VERSION ) ) )
-        Com_sprintf( sv.demoName, sizeof( sv.demoName ), "svdemos/%s", arg );
+        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s", arg );
     else
-        Com_sprintf( sv.demoName, sizeof( sv.demoName ), "svdemos/%s.svdm_%d", arg, ETPROTOCOL_VERSION );
+        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s.svdm_%d", arg, ETPROTOCOL_VERSION );
         
     fileSystem->FOpenFileRead( sv.demoName, &sv.demoFile, true );
     if( !sv.demoFile )
@@ -1743,7 +1743,7 @@ void idServerCcmdsSystemLocal::CompleteDemoName( valueType* args, sint argNum )
     {
         valueType demoExt[16];
         
-        Com_sprintf( demoExt, sizeof( demoExt ), ".svdm_%d", ETPROTOCOL_VERSION );
+        Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".svdm_%d", ETPROTOCOL_VERSION );
         Field_CompleteFilename( "svdemos", demoExt, true );
     }
 }

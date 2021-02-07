@@ -1421,11 +1421,11 @@ sint CIN_PlayCinematic( pointer arg, sint x, sint y, sint w, sint h, sint system
     
     if( strstr( arg, "/" ) == nullptr && strstr( arg, "\\" ) == nullptr )
     {
-        Com_sprintf( name, sizeof( name ), "video/%s", arg );
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "video/%s", arg );
     }
     else
     {
-        Com_sprintf( name, sizeof( name ), "%s", arg );
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "%s", arg );
     }
     
     if( !( systemBits & CIN_system ) )
@@ -1446,7 +1446,7 @@ sint CIN_PlayCinematic( pointer arg, sint x, sint y, sint w, sint h, sint system
     
     cin.currentHandle = currentHandle;
     
-    strcpy( cinTable[currentHandle].fileName, name );
+    Q_strcpy_s( cinTable[currentHandle].fileName, name );
     
     cinTable[currentHandle].ROQSize = 0;
     cinTable[currentHandle].ROQSize = fileSystem->FOpenFileRead( cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true );

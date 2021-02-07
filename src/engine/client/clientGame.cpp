@@ -521,7 +521,7 @@ rescan:
     
     if( !strcmp( cmd, "bcs0" ) )
     {
-        Com_sprintf( bigConfigString, BIG_INFO_STRING, "cs %s \"%s", cmdSystem->Argv( 1 ), cmdSystem->Argv( 2 ) );
+        Q_vsprintf_s( bigConfigString, BIG_INFO_STRING, BIG_INFO_STRING, "cs %s \"%s", cmdSystem->Argv( 1 ), cmdSystem->Argv( 2 ) );
         return false;
     }
     
@@ -853,7 +853,7 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage( void )
         Com_Error( ERR_DROP, "cannot write to hunkusage.dat, check disk full\n" );
     }
     
-    Com_sprintf( outstr, sizeof( outstr ), "%s %i\n", cl.mapname, memusage );
+    Q_vsprintf_s( outstr, sizeof( outstr ), sizeof( outstr ), "%s %i\n", cl.mapname, memusage );
     
     fileSystem->Write( outstr, strlen( outstr ), handle );
     fileSystem->FCloseFile( handle );
@@ -886,7 +886,7 @@ void idClientGameSystemLocal::InitCGame( void )
     // find the current mapname
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
     mapname = Info_ValueForKey( info, "mapname" );
-    Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
+    Q_vsprintf_s( cl.mapname, sizeof( cl.mapname ), sizeof( cl.mapname ), "maps/%s.bsp", mapname );
     
     // load the dll
     cgvm = idsystem->LoadDll( "cgame" );

@@ -391,7 +391,7 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
         return;
     }
     
-    Com_sprintf( name, sizeof( name ), "fonts/fontImage_%i.dat", pointSize );
+    Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "fonts/fontImage_%i.dat", pointSize );
     for( i = 0; i < registeredFontCount; i++ )
     {
         if( Q_stricmp( name, registeredFont[i].name ) == 0 )
@@ -540,13 +540,13 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
                 imageBuff[left++] = ( ( float32 )out[k] * max );
             }
     
-            Com_sprintf( name, sizeof( name ), "fonts/fontImage_%i_%i.tga", imageNumber++, pointSize );
+            Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "fonts/fontImage_%i_%i.tga", imageNumber++, pointSize );
             if( r_saveFontData->integer )
             {
                 WriteTGA( name, imageBuff, 256, 256 );
             }
     
-            //Com_sprintf (name, sizeof(name), "fonts/fontImage_%i_%i", imageNumber++, pointSize);
+            //Q_vsprintf_s (name, sizeof(name), sizeof(name), "fonts/fontImage_%i_%i", imageNumber++, pointSize);
             image = R_CreateImage( name, imageBuff, 256, 256, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
             h = RE_RegisterShaderFromImage( name, LIGHTMAP_2D, image, false );
             for( j = lastStart; j < i; j++ )

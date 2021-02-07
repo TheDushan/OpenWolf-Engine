@@ -176,7 +176,7 @@ sint idDownloadSystemLocal::BeginDownload( pointer localName, pointer remoteName
     InitDownload();
     
     /* ET://ip:port */
-    ::strcpy( referer, "ET://" );
+    ::Q_strcpy_s( referer, "ET://" );
     Q_strncpyz( referer + 5, cvarSystem->VariableString( "cl_currentServerIP" ), MAX_STRING_CHARS );
     
     dl_request = curl_easy_init();

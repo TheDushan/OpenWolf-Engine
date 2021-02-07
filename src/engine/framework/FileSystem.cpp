@@ -469,11 +469,11 @@ valueType* idFileSystemLocal::BuildOSPath( pointer base, pointer game, pointer q
         game = fs_gamedir;
     }
     
-    Com_sprintf( temp, sizeof( temp ), "/%s/%s", game, qpath );
+    Q_vsprintf_s( temp, sizeof( temp ), sizeof( temp ), "/%s/%s", game, qpath );
     
     ReplaceSeparators( temp );
     
-    Com_sprintf( ospath[toggle], sizeof( ospath[0] ), "%s%s", base, temp );
+    Q_vsprintf_s( ospath[toggle], sizeof( ospath[0] ), sizeof( ospath[0] ), "%s%s", base, temp );
     
     return ospath[toggle];
 }
@@ -487,7 +487,7 @@ return a path to a file in the users homepath
 */
 void idFileSystemLocal::BuildOSHomePath( valueType* ospath, sint size, sint qpath )
 {
-    Com_sprintf( ospath, size, "%s/%s/%s", fs_homepath->string, fs_gamedir, qpath );
+    Q_vsprintf_s( ospath, size, size, "%s/%s/%s", fs_homepath->string, fs_gamedir, qpath );
     ReplaceSeparators( ospath );
 }
 
@@ -1267,7 +1267,7 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
         Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed\n" );
     }
     
-    //Com_sprintf( demoExt, sizeof( demoExt ), ".dm_%d",PROTOCOL_VERSION );
+    //Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".dm_%d",PROTOCOL_VERSION );
     // qpaths are not supposed to have a leading slash
     if( filename[0] == '/' || filename[0] == '\\' )
     {
@@ -1693,7 +1693,7 @@ sint idFileSystemLocal::DeleteDir( valueType* dirname, bool nonEmpty, bool recur
                 continue;
             }
             
-            Com_sprintf( temp, sizeof( temp ), "%s/%s", dirname, pFiles[i] );
+            Q_vsprintf_s( temp, sizeof( temp ), sizeof( temp ), "%s/%s", dirname, pFiles[i] );
             
             if( !DeleteDir( temp, nonEmpty, recursive ) )
             {
@@ -1823,7 +1823,7 @@ sint idFileSystemLocal::FPrintf( fileHandle_t f, pointer fmt, ... )
     sint l, r;
     
     va_start( argptr, fmt );
-    Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+    Q_vsprintf_s( msg, sizeof( msg ), fmt, argptr );
     va_end( argptr );
     
     l = strlen( msg );
@@ -2016,7 +2016,7 @@ void idFileSystemLocal::Printf( fileHandle_t h, pointer fmt, ... )
     valueType msg[MAXPRINTMSG];
     
     va_start( argptr, fmt );
-    Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+    Q_vsprintf_s( msg, sizeof( msg ), fmt, argptr );
     va_end( argptr );
     
     Write( msg, strlen( msg ), h );
@@ -2515,7 +2515,7 @@ pack_t* idFileSystemLocal::LoadZipFile( pointer zipfile, pointer basename )
         hash = HashFileName( filename_inzip, pack->hashSize );
         buildBuffer[i].name = namePtr;
         
-        strcpy( buildBuffer[i].name, filename_inzip );
+        ::strcpy( buildBuffer[i].name, filename_inzip );
         
         namePtr += strlen( filename_inzip ) + 1;
         
@@ -2567,7 +2567,7 @@ sint idFileSystemLocal::ReturnPath( pointer zname, valueType* zpath, sint* depth
         at++;
     }
     
-    strcpy( zpath, zname );
+    ::strcpy( zpath, zname );
     
     zpath[len] = 0;
     *depth = newdep;
@@ -2825,7 +2825,7 @@ sint idFileSystemLocal::GetFileList( pointer path, pointer extension, valueType*
         
         if( nTotal + nLen + 1 < bufsize )
         {
-            strcpy( listbuf, pFiles[i] );
+            ::strcpy( listbuf, pFiles[i] );
             listbuf += nLen;
             nTotal += nLen;
         }
@@ -3021,7 +3021,7 @@ sint idFileSystemLocal::GetModList( valueType* listbuf, sint bufsize )
                 // nLen is the length of the mod path
                 // we need to see if there is a description available
                 descPath[0] = '\0';
-                strcpy( descPath, name );
+                Q_strcpy_s( descPath, name );
                 strcat( descPath, "/description.txt" );
                 nDescLen = SV_FOpenFileRead( descPath, &descHandle );
                 
@@ -3041,16 +3041,16 @@ sint idFileSystemLocal::GetModList( valueType* listbuf, sint bufsize )
                 }
                 else
                 {
-                    strcpy( descPath, name );
+                    Q_strcpy_s( descPath, name );
                 }
                 nDescLen = strlen( descPath ) + 1;
                 
                 if( nTotal + nLen + 1 + nDescLen + 1 < bufsize )
                 {
-                    strcpy( listbuf, name );
+                    ::strcpy( listbuf, name );
                     listbuf += nLen;
                     
-                    strcpy( listbuf, descPath );
+                    ::strcpy( listbuf, descPath );
                     listbuf += nDescLen;
                     
                     nTotal += nLen + nDescLen;
@@ -3402,7 +3402,7 @@ void idFileSystemLocal::Which_f( void )
             
             fclose( temp );
             
-            Com_sprintf( buf, sizeof( buf ), "%s/%s", dir->path, dir->gamedir );
+            Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%s/%s", dir->path, dir->gamedir );
             
             fileSystemLocal.ReplaceSeparators( buf );
             
@@ -3698,7 +3698,7 @@ bool idFileSystemLocal::VerifyOfficialPaks( void )
             {
                 valueType packPath[MAX_QPATH];
                 
-                Com_sprintf( packPath, sizeof( packPath ), "%s/%s", sp->pack->pakGamename, sp->pack->pakBasename );
+                Q_vsprintf_s( packPath, sizeof( packPath ), sizeof( packPath ), "%s/%s", sp->pack->pakGamename, sp->pack->pakBasename );
                 
                 if( idPak( packPath, BASEGAME ) )
                 {
@@ -3814,7 +3814,7 @@ bool idFileSystemLocal::ComparePaks( valueType* neededpaks, sint len, bool dlstr
                     valueType st[MAX_ZPATH];
                     // We already have one called this, we need to download it to another name
                     // Make something up with the checksum in it
-                    Com_sprintf( st, sizeof( st ), "%s.%08x.pk3", fs_serverReferencedPakNames[i], fs_serverReferencedPaks[i] );
+                    Q_vsprintf_s( st, sizeof( st ), sizeof( st ), "%s.%08x.pk3", fs_serverReferencedPakNames[i], fs_serverReferencedPaks[i] );
                     Q_strcat( neededpaks, len, st );
                 }
                 else
@@ -4091,7 +4091,7 @@ pointer idFileSystemLocal::GamePureChecksum( void )
         {
             if( search->pack->referenced & FS_QAGAME_REF )
             {
-                Com_sprintf( info, sizeof( info ), "%d", search->pack->checksum );
+                Q_vsprintf_s( info, sizeof( info ), sizeof( info ), "%d", search->pack->checksum );
             }
         }
     }

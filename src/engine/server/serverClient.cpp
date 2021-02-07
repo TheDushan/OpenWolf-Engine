@@ -1332,7 +1332,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
             MSG_WriteShort( msg, 0 ); // client is expecting block zero
             MSG_WriteLong( msg, -1 ); // illegal file size
             
-            Com_sprintf( errorMessage, sizeof( errorMessage ), "Invalid download from update server" );
+            Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ), "Invalid download from update server" );
             MSG_WriteString( msg, errorMessage );
             
             *cl->downloadName = 0;
@@ -1358,17 +1358,17 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
             if( !::strstr( cl->downloadName, ".pk3" ) )
             {
                 Com_Printf( "Not a pk3 %s\n", cl->downloadName );
-                Com_sprintf( errorMessage, sizeof( errorMessage ), "Cannot download non-pk3 \"%s\"\n", cl->downloadName );
+                Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ), "Cannot download non-pk3 \"%s\"\n", cl->downloadName );
             }
             else if( ::strstr( cl->downloadName, ".." ) )
             {
                 Com_Printf( "Folder hack? %s\n", cl->downloadName );
-                Com_sprintf( errorMessage, sizeof( errorMessage ), "Cannot download bad folder \"%s\"\n", cl->downloadName );
+                Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ), "Cannot download bad folder \"%s\"\n", cl->downloadName );
             }
             else if( idPack )
             {
                 Com_Printf( "clientDownload: %d : \"%s\" cannot download id pk3 files\n", ( sint )( cl - svs.clients ), cl->downloadName );
-                Com_sprintf( errorMessage, sizeof( errorMessage ), "Cannot autodownload official pk3 file \"%s\"", cl->downloadName );
+                Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ), "Cannot autodownload official pk3 file \"%s\"", cl->downloadName );
             }
             else
             {
@@ -1376,17 +1376,17 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
                 
                 if( sv_pure->integer )
                 {
-                    Com_sprintf( errorMessage, sizeof( errorMessage ),
-                                 "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
-                                 "You will need to get this file elsewhere before you " "can connect to this pure server.\n",
-                                 cl->downloadName );
+                    Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ),
+                                  "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
+                                  "You will need to get this file elsewhere before you " "can connect to this pure server.\n",
+                                  cl->downloadName );
                 }
                 else
                 {
-                    Com_sprintf( errorMessage, sizeof( errorMessage ),
-                                 "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
-                                 "Set autodownload to No in your settings and you might be "
-                                 "able to connect even if you don't have the file.\n", cl->downloadName );
+                    Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ),
+                                  "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
+                                  "Set autodownload to No in your settings and you might be "
+                                  "able to connect even if you don't have the file.\n", cl->downloadName );
                 }
             }
             
@@ -1477,7 +1477,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
         if( cl->downloadSize <= 0 )
         {
             Com_Printf( "clientDownload: %d : \"%s\" file not found on server\n", ( sint )( cl - svs.clients ), cl->downloadName );
-            Com_sprintf( errorMessage, sizeof( errorMessage ), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName );
+            Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName );
             
             BadDownload( cl, msg );
             
@@ -2375,7 +2375,7 @@ bool idServerClientSystemLocal::ClientCommand( client_t* cl, msg_t* msg, bool pr
             if( idx < 0 || idx > 128 ) //Using 128 because i doubt this may be higher than 128, no matter which mod is used
             {
                 cl->lastClientCommand = seq;
-                Com_sprintf( cl->lastClientCommandString, sizeof( cl->lastClientCommandString ), "%s", s );
+                Q_vsprintf_s( cl->lastClientCommandString, sizeof( cl->lastClientCommandString ), sizeof( cl->lastClientCommandString ), "%s", s );
                 return false;
             }
         }
@@ -2416,7 +2416,7 @@ bool idServerClientSystemLocal::ClientCommand( client_t* cl, msg_t* msg, bool pr
     serverClientLocal.ExecuteClientCommand( cl, s, clientOk, premaprestart );
     
     cl->lastClientCommand = seq;
-    Com_sprintf( cl->lastClientCommandString, sizeof( cl->lastClientCommandString ), "%s", s );
+    Q_vsprintf_s( cl->lastClientCommandString, sizeof( cl->lastClientCommandString ), sizeof( cl->lastClientCommandString ), "%s", s );
     
     return true; // continue procesing
 }
@@ -2536,25 +2536,27 @@ void idServerClientSystemLocal::UserMove( client_t* cl, msg_t* msg, bool delta )
         cl->frames[cl->messageAcknowledge & PACKET_MASK].messageAcked = svs.time;
     }
     
+    
+    // TTimo
+    // catch the no-cp-yet situation before SV_ClientEnterWorld
+    // if CS_ACTIVE, then it's time to trigger a new gamestate emission
+    // if not, then we are getting remaining parasite usermove commands, which we should ignore
+    if( sv_pure->integer != 0 && cl->pureAuthentic == false && !cl->pureReceived )
+    {
+        if( cl->state == CS_ACTIVE )
+        {
+            // we didn't get a cp yet, don't assume anything and just send the gamestate all over again
+            Com_DPrintf( "%s: didn't get cp command, resending gamestate\n", cl->name );
+            
+            SendClientGameState( cl );
+        }
+        return;
+    }
+    
     // if this is the first usercmd we have received
     // this gamestate, put the client into the world
     if( cl->state == CS_PRIMED )
     {
-        // TTimo
-        // catch the no-cp-yet situation before SV_ClientEnterWorld
-        // if CS_ACTIVE, then it's time to trigger a new gamestate emission
-        // if not, then we are getting remaining parasite usermove commands, which we should ignore
-        if( sv_pure->integer != 0 && cl->pureAuthentic == false && !cl->pureReceived )
-        {
-            if( cl->state == CS_ACTIVE )
-            {
-                // we didn't get a cp yet, don't assume anything and just send the gamestate all over again
-                Com_DPrintf( "%s: didn't get cp command, resending gamestate\n", cl->name );
-                SendClientGameState( cl );
-            }
-            return;
-        }
-        
         serverClientLocal.ClientEnterWorld( cl, &cmds[0] );
         // the moves can be processed normaly
     }

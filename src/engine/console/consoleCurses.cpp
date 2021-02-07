@@ -534,7 +534,7 @@ valueType* idConsoleCursesLocal::Input( void )
                 }
                 
                 Hist_Add( input_field.buffer );
-                strcpy( text, input_field.buffer );
+                Q_strcpy_s( text, input_field.buffer );
                 Field_Clear( &input_field );
                 werase( inputwin );
                 wnoutrefresh( inputwin );
@@ -678,6 +678,7 @@ void idConsoleCursesLocal::Print( pointer msg )
     {
         ::memmove( logbuf, logbuf + sizeof( logbuf ) / 2, sizeof( logbuf ) / 2 );
         ::memset( logbuf + sizeof( logbuf ) / 2, 0, sizeof( logbuf ) / 2 );
+        
         insert -= sizeof( logbuf ) / 2;
     }
     

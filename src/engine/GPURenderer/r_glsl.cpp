@@ -426,11 +426,11 @@ static sint GLSL_LoadGPUShaderText( pointer name, uint shaderType, valueType* de
     
     if( shaderType == GL_VERTEX_SHADER )
     {
-        Com_sprintf( filename, sizeof( filename ), "renderProgs/%s.vertex", name );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "renderProgs/%s.vertex", name );
     }
     else
     {
-        Com_sprintf( filename, sizeof( filename ), "renderProgs/%s.fragment", name );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "renderProgs/%s.fragment", name );
     }
     
     size = fileSystem->ReadFile( filename, ( void** )&buffer );

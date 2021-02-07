@@ -1185,7 +1185,7 @@ void idServerSnapshotSystemLocal::CheckClientUserinfoTimer( void )
         {
             //We have something in the buffer
             //and its time to process it
-            Com_sprintf( bigbuffer, sizeof( bigbuffer ), "userinfo \"%s\"", cl->userinfobuffer );
+            Q_vsprintf_s( bigbuffer, sizeof( bigbuffer ), sizeof( bigbuffer ), "userinfo \"%s\"", cl->userinfobuffer );
             
             cmdSystem->TokenizeString( bigbuffer );
             serverClientLocal.UpdateUserinfo_f( cl );

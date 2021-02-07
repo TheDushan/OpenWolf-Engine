@@ -10,18 +10,11 @@ uniform float  u_DeformParams[5];
 uniform float  u_Time;
 #endif
 
+uniform vec4   u_Color;
 uniform mat4   u_ModelViewProjectionMatrix;
 
-uniform vec4   u_LightColor;
-uniform vec4   u_LightOrigin;
-uniform float   u_LightRadius;
-
 varying vec2   var_Tex1;
-varying vec3   var_Normal;
-varying vec3   var_Position;
-varying vec4	var_LightColor;
-varying vec4	var_LightOrigin;
-varying float   var_LightRadius;
+varying vec4   var_Color;
 
 #if defined(USE_DEFORM_VERTEXES)
 vec3 DeformPosition(const vec3 pos, const vec3 normal, const vec2 st)
@@ -88,20 +81,12 @@ void main()
 #endif
 
 	gl_Position = u_ModelViewProjectionMatrix * vec4(position, 1.0);
-
-	// Calculate the normal (N)
-	var_Normal = normalize(gl_NormalMatrix * gl_Normal);
-
-	// Transform the vertex position to eye space (V)
-	var_Position = vec3(u_ModelViewProjectionMatrix * vec4(attr_Position, 1.0));
 		
-	vec3 dist = u_LightOrigin.xyz - position;
+	vec3 dist = u_DlightInfo.xyz - position;
 
-	var_Tex1 = dist.xy * u_LightOrigin.a + vec2(0.5);
+	var_Tex1 = dist.xy * u_DlightInfo.a + vec2(0.5);
 	float dlightmod = step(0.0, dot(dist, normal));
-	dlightmod *= clamp(2.0 * (1.0 - abs(dist.x + dist.y + dist.z) * u_LightOrigin.a), 0.0, 1.0);
+	dlightmod *= clamp(2.0 * (1.0 - abs(dist.z) * u_DlightInfo.a), 0.0, 1.0);
 	
-	var_LightColor = (u_LightColor * dlightmod);
-	var_LightOrigin = u_LightOrigin;
-	var_LightRadius = u_LightRadius;
+	var_Color = u_Color * dlightmod;
 }

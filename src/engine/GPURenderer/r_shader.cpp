@@ -1738,8 +1738,7 @@ static void ParseSkyParms( valueType** text )
     {
         for( i = 0 ; i < 6 ; i++ )
         {
-            Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
-                         , token, suf[i] );
+            Q_vsprintf_s( pathname, sizeof( pathname ), sizeof( pathname ), "%s_%s.tga" , token, suf[i] );
             shader.sky.outerbox[i] = R_FindImageFile( const_cast< valueType* >( pathname ), IMGTYPE_COLORALPHA, imgFlags | IMGFLAG_CLAMPTOEDGE );
             
             if( !shader.sky.outerbox[i] )
@@ -1775,8 +1774,7 @@ static void ParseSkyParms( valueType** text )
     {
         for( i = 0 ; i < 6 ; i++ )
         {
-            Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
-                         , token, suf[i] );
+            Q_vsprintf_s( pathname, sizeof( pathname ), sizeof( pathname ), "%s_%s.tga", token, suf[i] );
             shader.sky.innerbox[i] = R_FindImageFile( const_cast< valueType* >( pathname ), IMGTYPE_COLORALPHA, imgFlags );
             if( !shader.sky.innerbox[i] )
             {
@@ -2399,12 +2397,12 @@ static bool ParseShader( pointer name, valueType** text )
             }
             else if( fogvar > 1 )  // distance "linear" fog
             {
-                Com_sprintf( fogString, sizeof( fogString ), "0 %d 1.1 %f %f %f 200", ( sint )fogvar, watercolor[0], watercolor[1], watercolor[2] );
+                Q_vsprintf_s( fogString, sizeof( fogString ), sizeof( fogString ), "0 %d 1.1 %f %f %f 200", ( sint )fogvar, watercolor[0], watercolor[1], watercolor[2] );
                 //				R_SetFog(FOG_WATER, 0, fogvar, watercolor[0], watercolor[1], watercolor[2], 1.1);
             }
             else                        // density "exp" fog
             {
-                Com_sprintf( fogString, sizeof( fogString ), "0 5 %f %f %f %f 200", fogvar, watercolor[0], watercolor[1], watercolor[2] );
+                Q_vsprintf_s( fogString, sizeof( fogString ), sizeof( fogString ), "0 5 %f %f %f %f 200", fogvar, watercolor[0], watercolor[1], watercolor[2] );
                 //				R_SetFog(FOG_WATER, 0, 5, watercolor[0], watercolor[1], watercolor[2], fogvar);
             }
             
@@ -4582,7 +4580,7 @@ static void ScanAndLoadShaderFiles( void )
     
     for( i = numShaderFiles - 1; i >= 0; i-- )
     {
-        Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+        Q_vsprintf_s( filename, sizeof( filename ), sizeof( filename ), "scripts/%s", shaderFiles[i] );
         CL_RefPrintf( PRINT_DEVELOPER, "...loading '%s'\n", filename );
         
         fileSystem->ReadFile( filename, ( void** )&buffer );

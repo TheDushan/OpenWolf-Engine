@@ -698,7 +698,7 @@ void idCmdSystemLocal::Concat( void )
     v1 = cvarSystem->VariableString( cmdSystemLocal.Argv( 2 ) );
     v2 = cvarSystem->VariableString( cmdSystemLocal.Argv( 3 ) );
     
-    Com_sprintf( vc, sizeof( vc ), "%s%s", v1, v2 );
+    Q_vsprintf_s( vc, sizeof( vc ), sizeof( vc ), "%s%s", v1, v2 );
     
     cvarSystem->Set( cmdSystemLocal.Argv( 1 ), vc );
 }
@@ -973,7 +973,7 @@ void idCmdSystemLocal::WriteAliases( fileHandle_t f )
     
     while( alias )
     {
-        Com_sprintf( buffer, sizeof( buffer ), "alias %s \"%s\"\n", alias->name, EscapeString( alias->exec ) );
+        Q_vsprintf_s( buffer, sizeof( buffer ), sizeof( buffer ), "alias %s \"%s\"\n", alias->name, EscapeString( alias->exec ) );
         fileSystem->Write( buffer, strlen( buffer ), f );
         alias = alias->next;
     }

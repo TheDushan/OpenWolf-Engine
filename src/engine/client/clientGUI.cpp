@@ -124,7 +124,7 @@ bool idClientGUISystemLocal::GetNews( bool begin )
     
     if( !finished )
     {
-        ::strcpy( clc.newsString, "Retrieving..." );
+        Q_strcpy_s( clc.newsString, "Retrieving..." );
     }
     
     cvarSystem->Set( "cl_newsString", clc.newsString );
