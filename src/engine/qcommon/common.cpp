@@ -4106,6 +4106,11 @@ void Field_CompleteCommand( valueType* cmd, bool doCommands, bool doCvars )
         completionString = cmdSystem->Argv( completionArgument - 1 );
     }
     
+    if( completionString == nullptr )
+    {
+        return;
+    }
+    
 #ifndef DEDICATED
     // Unconditionally add a '\' to the start of the buffer
     if( completionField->buffer[0] && completionField->buffer[0] != '\\' )
