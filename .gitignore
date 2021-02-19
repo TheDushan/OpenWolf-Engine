@@ -10,6 +10,7 @@ CPackSourceConfig.cmake
 Makefile
 cmake_install.cmake
 src/engine/framework/appConfig.h
+src/engine/framework/appConfig.hpp
 
 # OS X
 ####################
