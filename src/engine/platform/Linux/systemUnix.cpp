@@ -171,6 +171,9 @@ valueType* idSystemLocal::GetCurrentUser( void )
     {
         return "player";
     }
+    
+    fcntl( STDIN_FILENO, F_SETFL, fcntl( STDIN_FILENO, F_GETFL, 0 ) | O_NONBLOCK );
+    
     return p->pw_name;
 }
 

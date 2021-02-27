@@ -468,6 +468,10 @@ void* idSystemLocal::LoadDll( pointer name )
         }
     }
     
+#if defined (__LINUX__)
+    fcntl( STDIN_FILENO, F_SETFL, fcntl( STDIN_FILENO, F_GETFL, 0 ) | O_NONBLOCK );
+#endif
+    
     return libHandle;
 }
 
@@ -528,8 +532,10 @@ pointer idSystemLocal::SignalToString( sint sig )
             return "Illegal instruction";
         case SIGFPE:
             return "Erroneous arithmetic operation";
+#if !defined (__LINUX__)
         case SIGSEGV:
             return "Invalid memory reference";
+#endif
         case SIGTERM:
             return "Termination signal";
 #if defined (_WIN32)
@@ -710,7 +716,9 @@ Q_EXPORT sint engineMain( sint argc, valueType * *argv )
     
     signal( SIGILL, systemLocal.SigHandler );
     signal( SIGFPE, systemLocal.SigHandler );
+#if !defined (__LINUX__)
     signal( SIGSEGV, systemLocal.SigHandler );
+#endif
     signal( SIGTERM, systemLocal.SigHandler );
     signal( SIGINT, systemLocal.SigHandler );
     
