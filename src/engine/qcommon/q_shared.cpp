@@ -2405,10 +2405,10 @@ void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out )
 
 /*
 =============
-Q_vsnprintf
+Q_vsprintf_s
 =============
 */
-void Q_vsprintf_s( valueType* pDest, uint32 nDestSize, _Printf_format_string_ pointer pFmt, va_list args )
+void Q_vsprintf_s( valueType* pDest, uint32 nDestSize, pointer pFmt, va_list args )
 {
 #ifdef _WIN32
     vsprintf_s( pDest, nDestSize, pFmt, args );
@@ -2894,8 +2894,11 @@ sint Q_vsprintf_s( valueType* strDest, size_t destMax, size_t count, pointer for
     
     va_start( arglist, format );
     
+#if defined (_WIN32)
     ret = vsnprintf_s( strDest, destMax, count, format, arglist );
-    
+#else
+    ret = vsnprintf( strDest, destMax, format, arglist );
+#endif
     va_end( arglist );
     
     return ret;

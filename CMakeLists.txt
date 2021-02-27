@@ -585,7 +585,7 @@ endif()
 		target_compile_options(engine PRIVATE "/MP")
 		target_link_libraries( engine ${OS_LIBRARIES} )
 	else ( UNIX )
-		target_link_libraries( engine ${OS_LIBRARIES} -fopenmp)
+		target_link_libraries( engine ${OS_LIBRARIES} -fopenmp -lfreetype )
 	endif() 
 	
 	if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )

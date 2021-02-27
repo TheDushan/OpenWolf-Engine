@@ -1,8 +1,7 @@
 uniform sampler2D u_DiffuseMap;
 uniform vec4 u_Local1; // 0, 0, 0, 0
-uniform vec4 u_Local2; // 0, 0, 0, 0
-uniform vec4 u_Local3; // 0, 0, 0, 0
-uniform vec4 u_Local4; // 0, 0, 0, 0
+varying vec4 var_Local1; // 0, 0, 0, 0
+varying vec4 var_Local2; // surfaceType, 0, 0, 0
 varying vec2 var_Dimensions;
 
 #if defined(USE_LIGHTMAP)

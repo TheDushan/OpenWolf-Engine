@@ -718,6 +718,11 @@ void idServerCommunityServer::logString( sint client_num, valueType* area, value
     }
 }
 
+/*
+===============
+idServerCommunityServer::startMatch
+===============
+*/
 void idServerCommunityServer::startMatch( void )
 {
     if( match_in_progress == 1 )
