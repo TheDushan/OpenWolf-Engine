@@ -188,7 +188,9 @@ void* R_GetCommandBufferReserved( sint bytes, sint reservedBytes )
         {
             Com_Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
         }
-        // if we run out of room, just start dropping commands
+        
+        CL_RefPrintf( PRINT_ALL, "R_GetCommandBufferReserved (%i, %i): out of room, dropping command\n", bytes, reservedBytes );
+        
         return nullptr;
     }
     
