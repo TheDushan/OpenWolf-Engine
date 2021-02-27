@@ -171,6 +171,7 @@ extern "C"
 #include <GPURenderer/r_postprocess.hpp>
 #include <GPURenderer/r_dsa.hpp>
 #include <GPURenderer/r_local.hpp>
+#include <GPURenderer/r_cmdsTemplate.hpp>
 
 #include <API/Parse_api.hpp>
 #include <framework/Parse.hpp>

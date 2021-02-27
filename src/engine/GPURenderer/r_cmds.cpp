@@ -161,68 +161,21 @@ void R_IssuePendingRenderCommands( void )
     if( glConfig.smpActive )
     {
         GLimp_FrontEndSleep();
-        return;
     }
     
-    //GLimp_SyncRenderThread();
+    GLimp_SyncRenderThread();
 }
-
-/*
-============
-R_GetCommandBufferReserved
-
-make sure there is enough command space
-============
-*/
-void* R_GetCommandBufferReserved( sint bytes, sint reservedBytes )
-{
-    renderCommandList_t*	cmdList;
-    
-    cmdList = &backEndData->commands[tr.smpFrame];
-    bytes = PAD( bytes, sizeof( void* ) );
-    
-    // always leave room for the end of list command
-    if( cmdList->used + bytes + sizeof( sint ) + reservedBytes > MAX_RENDER_COMMANDS )
-    {
-        if( bytes > MAX_RENDER_COMMANDS - sizeof( sint ) )
-        {
-            Com_Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
-        }
-        
-        CL_RefPrintf( PRINT_ALL, "R_GetCommandBufferReserved (%i, %i): out of room, dropping command\n", bytes, reservedBytes );
-        
-        return nullptr;
-    }
-    
-    cmdList->used += bytes;
-    
-    return cmdList->cmds + cmdList->used - bytes;
-}
-
-/*
-=============
-R_GetCommandBuffer
-
-returns nullptr if there is not enough space for important commands
-=============
-*/
-void* R_GetCommandBuffer( sint bytes )
-{
-    return R_GetCommandBufferReserved( bytes, PAD( sizeof( swapBuffersCommand_t ), sizeof( void* ) ) );
-}
-
 
 /*
 =============
 R_AddDrawSurfCmd
-
 =============
 */
 void	R_AddDrawSurfCmd( drawSurf_t* drawSurfs, sint numDrawSurfs )
 {
-    drawSurfsCommand_t*	cmd;
+    drawSurfsCommand_t* cmd = nullptr;
     
-    cmd = ( drawSurfsCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd , cmd );
     if( !cmd )
     {
         return;
@@ -245,9 +198,9 @@ R_AddCapShadowmapCmd
 */
 void	R_AddCapShadowmapCmd( sint map, sint cubeSide )
 {
-    capShadowmapCommand_t*	cmd;
+    capShadowmapCommand_t* cmd = nullptr;
     
-    cmd = ( capShadowmapCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd , cmd );
     if( !cmd )
     {
         return;
@@ -266,9 +219,9 @@ R_AddConvolveCubemapsCmd
 */
 void	R_AddConvolveCubemapCmd( sint cubemap )
 {
-    convolveCubemapCommand_t* cmd;
+    convolveCubemapCommand_t* cmd = nullptr;
     
-    cmd = ( convolveCubemapCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd, cmd );
     if( !cmd )
     {
         return;
@@ -288,9 +241,9 @@ R_PostProcessingCmd
 */
 void	R_AddPostProcessCmd( )
 {
-    postProcessCommand_t*	cmd;
+    postProcessCommand_t* cmd = nullptr;
     
-    cmd = ( postProcessCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd, cmd );
     if( !cmd )
     {
         return;
@@ -310,13 +263,13 @@ Passing nullptr will set the color to white
 */
 void idRenderSystemLocal::SetColor( const float32* rgba )
 {
-    setColorCommand_t*	cmd;
+    setColorCommand_t* cmd = nullptr;
     
     if( !tr.registered )
     {
         return;
     }
-    cmd = ( setColorCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd, cmd );
     if( !cmd )
     {
         return;
@@ -435,7 +388,7 @@ idRenderSystemLocal::DrawStretchPic
 */
 void idRenderSystemLocal::DrawStretchPic( float32 x, float32 y, float32 w, float32 h, float32 s1, float32 t1, float32 s2, float32 t2, qhandle_t hShader )
 {
-    stretchPicCommand_t*	cmd;
+    stretchPicCommand_t* cmd = nullptr;
     
     if( !tr.registered )
     {
@@ -445,7 +398,7 @@ void idRenderSystemLocal::DrawStretchPic( float32 x, float32 y, float32 w, float
     {
         return;
     }
-    cmd = ( stretchPicCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd, cmd );
     if( !cmd )
     {
         return;
@@ -600,7 +553,7 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
     
     if( glConfig.stereoEnabled )
     {
-        if( !( cmd = ( drawBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) ) ) )
+        if( !( cmd = GetCommandBuffer( sizeof * cmd, cmd ) ) )
             return;
             
         cmd->commandId = RC_DRAW_BUFFER;
@@ -653,22 +606,22 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
             
             if( stereoFrame == STEREO_LEFT )
             {
-                if( !( cmd = ( drawBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) ) ) )
+                if( !( cmd = GetCommandBuffer( sizeof * cmd, cmd ) ) )
                     return;
                     
-                if( !( colcmd = ( colorMaskCommand_t* )R_GetCommandBuffer( sizeof( *colcmd ) ) ) )
+                if( !( colcmd = GetCommandBuffer( sizeof * colcmd, colcmd ) ) )
                     return;
             }
             else if( stereoFrame == STEREO_RIGHT )
             {
-                clearDepthCommand_t* cldcmd;
+                clearDepthCommand_t* cldcmd = nullptr;
                 
-                if( !( cldcmd = ( clearDepthCommand_t* )R_GetCommandBuffer( sizeof( *cldcmd ) ) ) )
+                if( !( cldcmd = GetCommandBuffer( sizeof * cldcmd, cldcmd ) ) )
                     return;
                     
                 cldcmd->commandId = RC_CLEARDEPTH;
                 
-                if( !( colcmd = ( colorMaskCommand_t* )R_GetCommandBuffer( sizeof( *colcmd ) ) ) )
+                if( !( colcmd = GetCommandBuffer( sizeof * colcmd, colcmd ) ) )
                     return;
             }
             else
@@ -682,7 +635,7 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
             if( stereoFrame != STEREO_CENTER )
                 Com_Error( ERR_FATAL, "idRenderSystemLocal::BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame );
                 
-            if( !( cmd = ( drawBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) ) ) )
+            if( !( cmd = GetCommandBuffer( sizeof * cmd, cmd ) ) )
                 return;
         }
         
@@ -720,17 +673,19 @@ Returns the number of msec spent in the back end
 */
 void idRenderSystemLocal::EndFrame( sint* frontEndMsec, sint* backEndMsec )
 {
-    swapBuffersCommand_t*	cmd;
+    swapBuffersCommand_t* cmd = nullptr;
     
     if( !tr.registered )
     {
         return;
     }
-    cmd = ( swapBuffersCommand_t* )R_GetCommandBufferReserved( sizeof( *cmd ), 0 );
+    
+    cmd = GetCommandBuffer( sizeof * cmd, cmd );
     if( !cmd )
     {
         return;
     }
+    
     cmd->commandId = RC_SWAP_BUFFERS;
     
     R_IssueRenderCommands( true );
@@ -761,14 +716,14 @@ idRenderSystemLocal::TakeVideoFrame
 */
 void idRenderSystemLocal::TakeVideoFrame( sint width, sint height, uchar8* captureBuffer, uchar8* encodeBuffer, bool motionJpeg )
 {
-    videoFrameCommand_t*	cmd;
+    videoFrameCommand_t* cmd = nullptr;
     
     if( !tr.registered )
     {
         return;
     }
     
-    cmd = ( videoFrameCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd, cmd );
     if( !cmd )
     {
         return;

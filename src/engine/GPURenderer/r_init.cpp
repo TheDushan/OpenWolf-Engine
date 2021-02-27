@@ -667,9 +667,9 @@ R_TakeScreenshot
 void R_TakeScreenshot( sint x, sint y, sint width, sint height, valueType* name, bool jpeg )
 {
     static valueType	fileName[MAX_OSPATH]; // bad things if two screenshots per frame?
-    screenshotCommand_t*	cmd;
+    screenshotCommand_t* cmd = nullptr;
     
-    cmd = ( screenshotCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd, cmd );
     if( !cmd )
     {
         return;
@@ -955,9 +955,9 @@ R_ExportCubemaps
 */
 void R_ExportCubemaps( void )
 {
-    exportCubemapsCommand_t*	cmd;
+    exportCubemapsCommand_t* cmd = nullptr;
     
-    cmd = ( exportCubemapsCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+    cmd = GetCommandBuffer( sizeof * cmd, cmd );
     if( !cmd )
     {
         return;

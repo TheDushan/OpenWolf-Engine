@@ -2613,7 +2613,6 @@ extern	backEndData_t* backEndData;	// the second one may not be allocated
 
 extern volatile bool renderThreadActive;
 
-void* R_GetCommandBuffer( sint bytes );
 void RB_ExecuteRenderCommands( const void* data );
 
 void R_IssuePendingRenderCommands( void );
@@ -2626,6 +2625,9 @@ void R_AddPostProcessCmd( void );
 void R_InitExternalShaders( void );
 void RE_SaveJPG( valueType* filename, sint quality, sint image_width, sint image_height, uchar8* image_buffer, sint padding );
 uint32 RE_SaveJPGToBuffer( uchar8* buffer, uint32 bufSize, sint quality, sint image_width, sint image_height, uchar8* image_buffer, sint padding );
+
+template<typename B, typename T>
+T GetCommandBuffer( B bytes, T type );
 
 //
 // idRenderSystemLocal
