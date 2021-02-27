@@ -158,12 +158,13 @@ void R_IssuePendingRenderCommands( void )
     
     R_IssueRenderCommands( false );
     
-    if( !glConfig.smpActive )
+    if( glConfig.smpActive )
     {
+        GLimp_FrontEndSleep();
         return;
     }
     
-    GLimp_SyncRenderThread();
+    //GLimp_SyncRenderThread();
 }
 
 /*

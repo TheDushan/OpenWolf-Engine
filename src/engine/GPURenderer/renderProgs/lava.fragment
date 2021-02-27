@@ -72,5 +72,5 @@ void main()
 
 	getCoolStuff(color, texCoords);
 
-	gl_FragColor = color * 0.0625;
+	gl_FragColor = color;
 }

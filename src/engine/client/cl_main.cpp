@@ -3714,10 +3714,14 @@ void CL_RefTagFree( void )
     return;
 }
 
+static sint cl_faketime = 0;
 sint CL_ScaledMilliseconds( void )
 {
+#ifdef NDEBUG
+    return ++cl_faketime;
+#else
     return idsystem->Milliseconds() * com_timescale->value;
-    //return cls.realtime;
+#endif
 }
 
 /*

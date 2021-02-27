@@ -205,59 +205,42 @@ vec2 GetParallaxOffset(in vec2 texCoords, in vec3 E, in mat3 tangentToWorld )
 #endif
 }
 
-float spec_D( float NH, float roughness)
+float CalcVisibility( in float NL, in float NE, in float roughness )
 {
-	// normal distribution
-	// from http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
-	float alpha = roughness * roughness;
-	float quotient = alpha / max(1e-8,(NH*NH*(alpha*alpha-1.0)+1.0));
-	return (quotient * quotient) / M_PI;
+	float alphaSq = roughness*roughness;
+
+	float lambdaE = NL * sqrt((-NE * alphaSq + NE) * NE + alphaSq);
+	float lambdaL = NE * sqrt((-NL * alphaSq + NL) * NL + alphaSq);
+
+	return 0.5 / (lambdaE + lambdaL);
 }
 
-vec3 spec_F( float EH, vec3 F0)
+// http://www.frostbite.com/2014/11/moving-frostbite-to-pbr/
+vec3 CalcSpecular( in vec3 specular, in float NH, in float NL, in float NE, in float LH, in float roughness )
 {
-	// Fresnel
-	// from http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
-	float pow2 = pow(2.0, (-5.55473*EH - 6.98316) * EH);
-	return F0 + (vec3(1.0) - F0) * pow2;
+	// from http://community.arm.com/servlet/JiveServlet/download/96891546-19496/siggraph2015-mmg-renaldas-slides.pdf
+	float rr = roughness*roughness;
+	float rrrr = rr*rr;
+	float d = (NH * NH) * (rrrr - 1.0) + 1.0;
+	float v = CalcVisibility(NL, NE, roughness);
+	return specular * (rrrr / (4.0 * d * d * v));
 }
 
-float G1(float NV, float k)
-{
-	return NV / (NV*(1.0-k) +  k);
-}
 
-float spec_G(float NL, float NE, float roughness )
+float CalcLightAttenuation(float point, float normDist)
 {
-	// GXX Schlick
-	// from http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
-	float k = max(((roughness + 1.0) * (roughness + 1.0)) / 8.0, 1e-5);
-	return G1(NL,k)*G1(NE,k);
- }
+	// zero light at 1.0, approximating q3 style
+	// also don't attenuate directional light
+	float attenuation = (0.5 * normDist - 1.5) * point + 1.0;
 
-vec3 CalcSpecular(vec3 specular, float NH, in float NL, in float NE, float EH, float roughness)
-{
-	float distrib = spec_D(NH,roughness);
-	vec3 fresnel = spec_F(EH,specular);
-	float vis = spec_G(NL, NE, roughness);
-	float denominator = max((4.0 * max(NE,0.0) * max(NL,0.0)),0.001);
-	return (distrib * fresnel * vis) / denominator;
-}
+	// clamp attenuation
+	#if defined(NO_LIGHT_CLAMP)
+	attenuation = max(attenuation, 0.0);
+	#else
+	attenuation = clamp(attenuation, 0.0, 1.0);
+	#endif
 
-float CalcLightAttenuation(float distance, float radius)
-{
-#if defined(USE_PBR)
-	float d = (distance*distance) / (radius*radius);
-	float attenuation = clamp(1.0 - d, 0.0, 1.0);
-	attenuation *= attenuation;
-	attenuation /= max(distance , 0.0001);
-	attenuation *= sqrt(radius);
-	// don't attenuate directional light
-	attenuation = attenuation + float(radius < 1.0);
-#else
-	float attenuation = (0.5 * radius / distance - 1.5) * float(radius > 0.0) + 1.0;
-#endif
-	return clamp(attenuation, 0.0, 1.0);
+	return attenuation;
 }
 
 vec4 hitCube(vec3 ray, vec3 pos, vec3 invSize, float lod, samplerCube tex)
@@ -309,11 +292,13 @@ void main()
 		vec4 lightmapColor = texture2D(u_LightMap, var_TexCoords.zw);
 	
 		#if defined(RGBM_LIGHTMAP)
-		  	lightmapColor.rgb = pow(lightmapColor.a, vec3(2.233333));
+			lightmapColor.rgb *= lightmapColor.a;
+		  	//lightmapColor.rgb *= pow(lightmapColor.a, vec3(2.233333));
 		#endif
 	
 		#if defined(USE_PBR) && !defined(USE_FAST_LIGHT)
-			lightmapColor.rgb = pow(lightmapColor.rgb, vec3(2.233333));
+			lightmapColor.rgb *= lightmapColor.rgb;
+			//lightmapColor.rgb *= pow(lightmapColor.rgb, vec3(2.233333));
 		#endif
 		
 		lightColor *= lightmapColor.rgb;
@@ -467,7 +452,8 @@ void main()
 		// diffuse rgb is base color
 		// specular red is gloss
 		// specular green is metallicness
-		float roughness = max(1.0 - specular.a, 0.02);
+		float roughness = specular.r;
+		//float roughness = max(1.0 - specular.a, 0.02);
 		float metal		= specular.g;
 		specular.rgb	= metal * diffuse.rgb + vec3(0.04 - 0.04 * metal);
 		diffuse.rgb    *= 1.0 - metal;
@@ -486,14 +472,13 @@ void main()
 	#if defined(USE_LIGHT_VECTOR) || defined(USE_DELUXEMAP)
 		H  = normalize(L + E);
 		NL = clamp(dot(N, L), 0.0, 1.0);
-		NL = max(1e-8, abs(NL) );
-		EH = max(1e-8, dot(E, H));
-		NH = max(1e-8, dot(N, H));
 		NE = abs(dot(N, E)) + 1e-5;
+		float LH = clamp(dot(L, H), 0.0, 1.0);
+		NH = clamp(dot(N, H), 0.0, 1.0);
 
-		reflectance += CalcSpecular(specular.rgb, NH, NL, NE, EH, roughness);
+		reflectance += CalcSpecular(specular.rgb, NH, NL, NE, LH, roughness);
 	#endif
-	
+  
 	gl_FragColor.rgb = lightColor * reflectance * (attenuation * NL);
 	gl_FragColor.rgb += ambientColor * diffuse.rgb;
 	
@@ -522,7 +507,8 @@ void main()
 		#endif
 
 		#if defined(USE_PBR)
-			cubeLightColor.rgb = pow(cubeLightColor.rgb, vec3(2.233333));
+			cubeLightColor *= cubeLightColor;
+			//cubeLightColor.rgb *= pow(cubeLightColor.rgb, vec3(2.233333));
 		#endif
 
 		gl_FragColor.rgb += cubeLightColor * (specular.rgb * EnvBRDF.x + EnvBRDF.y) * horiz;
@@ -530,7 +516,7 @@ void main()
 
 	#if defined(USE_PRIMARY_LIGHT) || defined(SHADOWMAP_MODULATE)
 		vec3 L2, H2;
-		float NL2, EH2, NH2;
+		float NL2, EH2, NH2, L2H2;
 
 		L2 = var_PrimaryLightDir.xyz;
 
@@ -538,17 +524,17 @@ void main()
 		//sqrLightDist = dot(L2, L2);
 		//L2 /= sqrt(sqrLightDist);
 
-		H2  = normalize(L2 + E);
 		NL2 = clamp(dot(N, L2), 0.0, 1.0);
-		NL2 = max(1e-8, abs(NL2) );
-		EH2 = max(1e-8, dot(E, H2));
-		NH2 = max(1e-8, dot(N, H2));
+		H2 = normalize(L2 + E);
+		EH2 = clamp(dot(E, H2), 0.0, 1.0);
+		L2H2 = clamp(dot(L2, H2), 0.0, 1.0);
+		NH2 = clamp(dot(N, H2), 0.0, 1.0);
 
-		reflectance = CalcSpecular(specular.rgb, NH2, NL2, NE, EH2, roughness);
+		reflectance = CalcSpecular(specular.rgb, NH2, NL2, NE, L2H2, roughness);
 
 		// bit of a hack, with modulated shadowmaps, ignore diffuse
 		#if !defined(SHADOWMAP_MODULATE)
-			reflectance += CalcDiffuse(diffuse.rgb, NH2, EH2, roughness, 1.0f);
+			reflectance += CalcDiffuse(diffuse.rgb, NH2, EH2, roughness);
 		#endif
 
 		lightColor = u_PrimaryLightColor * var_Color.rgb;
@@ -573,8 +559,6 @@ void main()
 			gl_FragColor.rgb = sqrt(gl_FragColor.rgb);
 		#endif
 	#else
-		lightColor = var_Color.rgb;
-
 		#if defined(USE_LIGHTMAP) 
 			lightColor *= lightmapColor.rgb;
 		#endif

@@ -19,6 +19,9 @@ attribute vec4 attr_Tangent;
 attribute vec3 attr_Position2;
 attribute vec3 attr_Normal2;
 attribute vec4 attr_Tangent2;
+#elif defined(USE_BONE_ANIMATION)
+attribute vec4 attr_BoneIndexes;
+attribute vec4 attr_BoneWeights;
 #endif
 
 #if defined(USE_LIGHT) && !defined(USE_LIGHT_VECTOR)
@@ -61,6 +64,8 @@ uniform mat4   u_ModelMatrix;
 
 #if defined(USE_VERTEX_ANIMATION)
 uniform float  u_VertexLerp;
+#elif defined(USE_BONE_ANIMATION)
+uniform mat4 u_BoneMatrix[MAX_GLSL_BONES];
 #endif
 
 #if defined(USE_LIGHT_VECTOR)
@@ -138,19 +143,11 @@ vec2 ModTexCoords(vec2 st, vec3 position, vec4 texMatrix, vec4 offTurb)
 }
 #endif
 
-
-float CalcLightAttenuation(float distance, float radius)
+float CalcLightAttenuation(in bool isPoint, float normDist)
 {
-#if defined(USE_PBR)
-	float d = (distance*distance) / (radius*radius);
-	float attenuation = clamp(1.0 - d, 0.0, 1.0);
-	attenuation *= attenuation;
-	attenuation /= max(distance, 0.0001);
-	// don't attenuate directional light
-	attenuation = attenuation + float(radius < 1.0);
-#else
-	float attenuation = (0.5 * radius / distance - 1.5) * float(radius > 0.0) + 1.0;
-#endif
+	// zero light at 1.0, approximating q3 style
+	// also don't attenuate directional light
+	float attenuation = 1.0 + mix(0.0, 0.5 * normDist - 1.5, isPoint);
 	return clamp(attenuation, 0.0, 1.0);
 }
 
@@ -161,6 +158,18 @@ void main()
 	vec3 normal    = mix(attr_Normal,      attr_Normal2,      u_VertexLerp);
   #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
 	vec3 tangent   = mix(attr_Tangent.xyz, attr_Tangent2.xyz, u_VertexLerp);
+  #endif
+#elif defined(USE_BONE_ANIMATION)
+	mat4 vtxMat  = u_BoneMatrix[int(attr_BoneIndexes.x)] * attr_BoneWeights.x;
+	     vtxMat += u_BoneMatrix[int(attr_BoneIndexes.y)] * attr_BoneWeights.y;
+	     vtxMat += u_BoneMatrix[int(attr_BoneIndexes.z)] * attr_BoneWeights.z;
+	     vtxMat += u_BoneMatrix[int(attr_BoneIndexes.w)] * attr_BoneWeights.w;
+	mat3 nrmMat = mat3(cross(vtxMat[1].xyz, vtxMat[2].xyz), cross(vtxMat[2].xyz, vtxMat[0].xyz), cross(vtxMat[0].xyz, vtxMat[1].xyz));
+
+	vec3 position  = vec3(vtxMat * vec4(attr_Position, 1.0));
+	vec3 normal    = normalize(nrmMat * attr_Normal);
+  #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
+	vec3 tangent   = normalize(nrmMat * attr_Tangent.xyz);
   #endif
 #else
 	vec3 position  = attr_Position;

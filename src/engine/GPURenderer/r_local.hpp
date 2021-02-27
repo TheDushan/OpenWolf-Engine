@@ -952,9 +952,9 @@ typedef enum
 
 typedef struct drawSurf_s
 {
-    uint		sort;			// bit combination for fast compares
-    sint                 cubemapIndex;
-    surfaceType_t*		surface;		// any of surface*_t
+    uint64 sort;			// bit combination for fast compares
+    sint cubemapIndex;
+    surfaceType_t* surface;		// any of surface*_t
 } drawSurf_t;
 
 #define	MAX_FACE_POINTS		64

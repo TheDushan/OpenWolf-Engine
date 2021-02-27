@@ -1420,9 +1420,10 @@ void R_AddIQMSurfaces( trRefEntity_t* ent )
             || ( ent->e.oldframe >= data->num_frames )
             || ( ent->e.oldframe < 0 ) )
     {
-        CL_RefPrintf( PRINT_DEVELOPER, "R_AddIQMSurfaces: no such frame %d to %d for '%s'\n",
-                      ent->e.oldframe, ent->e.frame,
-                      tr.currentModel->name );
+        if( ( ent->e.oldframe && ent->e.frame ) )
+            CL_RefPrintf( PRINT_DEVELOPER, "R_AddIQMSurfaces: no such frame %d to %d for '%s'\n",
+                          ent->e.oldframe, ent->e.frame,
+                          tr.currentModel->name );
         ent->e.frame = 0;
         ent->e.oldframe = 0;
     }

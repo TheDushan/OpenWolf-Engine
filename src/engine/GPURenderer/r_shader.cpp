@@ -1073,7 +1073,7 @@ static bool ParseStage( shaderStage_t* stage, valueType** text )
                 continue;
             }
             
-            if( r_pbr->integer )
+            if( 0 ) //if (r_pbr->integer)
             {
                 // interpret specularReflectance < 0.5 as nonmetal
                 stage->specularScale[1] = atof( token ); // < 0.5f) ? 0.0f : 1.0f;

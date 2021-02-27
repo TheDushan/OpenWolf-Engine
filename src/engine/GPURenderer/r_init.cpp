@@ -1270,8 +1270,8 @@ void R_Register( void )
     r_greyscale = cvarSystem->Get( "r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enables greyscaling of everything" );
     cvarSystem->CheckRange( r_greyscale, 0, 1, false );
     
-    r_hdr = cvarSystem->Get( "r_hdr", "1", CVAR_ARCHIVE | CVAR_LATCH, "Do scene rendering in a framebuffer with high dynamic range. (Less banding, and exposure changes look much better)" );
-    r_truehdr = cvarSystem->Get( "r_truehdr", "0", CVAR_ARCHIVE, "Do scene rendering in a framebuffer with high dynamic range with GLSL shaders" );
+    r_hdr = cvarSystem->Get( "r_hdr", "0", CVAR_CHEAT, "Do scene rendering in a framebuffer with high dynamic range. (Less banding, and exposure changes look much better)" );
+    r_truehdr = cvarSystem->Get( "r_truehdr", "1", CVAR_ARCHIVE, "Do scene rendering in a framebuffer with high dynamic range with GLSL shaders" );
     r_postProcess = cvarSystem->Get( "r_postProcess", "1", CVAR_ARCHIVE, "Enable post-processing" );
     
     r_toneMap = cvarSystem->Get( "r_toneMap", "1", CVAR_ARCHIVE, "Enable tone mapping. Requires r_hdr and r_postProcess." );
@@ -1285,7 +1285,7 @@ void R_Register( void )
     r_forceAutoExposureMin = cvarSystem->Get( "r_forceAutoExposureMin", "-2.0", CVAR_CHEAT, "Set minimum exposure to this value, in powers of two. Requires r_forceAutoExpsure. -3.0 - Dimmer. -2.0 - Normal. (default) -1.0 - Brighter." );
     r_forceAutoExposureMax = cvarSystem->Get( "r_forceAutoExposureMax", "2.0", CVAR_CHEAT, "Set maximum exposure to this value, in powers of two. Requires r_forceAutoExpsure. 1.0 - Dimmer. 2.0 - Normal. (default) 3.0 - Brighter" );
     
-    r_cameraExposure = cvarSystem->Get( "r_cameraExposurre", "4", CVAR_CHEAT, "Alter brightness, in powers of two. -2 - 4x as dark. 0 - Normal. (default) 0.5 - Sqrt(2)x as bright. 2 - 4x as bright." );
+    r_cameraExposure = cvarSystem->Get( "r_cameraExposure", "0", CVAR_CHEAT, "Alter brightness, in powers of two. -2 - 4x as dark. 0 - Normal. (default) 0.5 - Sqrt(2)x as bright. 2 - 4x as bright." );
     
     r_depthPrepass = cvarSystem->Get( "r_depthPrepass", "1", CVAR_ARCHIVE, "Do a depth-only pass before rendering. Speeds up rendering in cases where advanced features are used. Required for r_sunShadows. 0 - No. 1 - Yes. (default)" );
     r_ssao = cvarSystem->Get( "r_ssao", "0", CVAR_LATCH | CVAR_ARCHIVE, "Enable screen-space ambient occlusion. Currently eats framerate and has some visible artifacts. 0 - No. (default) 1 - Yes." );
@@ -1352,7 +1352,7 @@ void R_Register( void )
     r_trueAnaglyphRed = cvarSystem->Get( "r_trueAnaglyphRed", "0.0", CVAR_ARCHIVE, "Setting Anaglyph red color" );
     r_trueAnaglyphGreen = cvarSystem->Get( "r_trueAnaglyphGreen", "0.0", CVAR_ARCHIVE, "Setting Anaglyph green color" );
     r_trueAnaglyphBlue = cvarSystem->Get( "r_trueAnaglyphBlue", "0.0", CVAR_ARCHIVE, "Setting Anaglyph blue color" );
-    r_vibrancy = cvarSystem->Get( "r_vibrancy", "0.4", CVAR_ARCHIVE, "Enabled vibrancy effects" );
+    r_vibrancy = cvarSystem->Get( "r_vibrancy", "1.4", CVAR_ARCHIVE, "Enabled vibrancy effects" );
     r_bloom = cvarSystem->Get( "r_bloom", "0", CVAR_ARCHIVE, "Enabled Bloom effects" );
     r_bloomPasses = cvarSystem->Get( "r_bloomPasses", "1", CVAR_ARCHIVE, "Bloom Passes" );
     r_bloomDarkenPower = cvarSystem->Get( "r_bloomDarkenPower", "5.0", CVAR_ARCHIVE, "Darken power for bloom" );

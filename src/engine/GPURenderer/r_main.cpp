@@ -58,6 +58,7 @@ bool R_CompareVert( srfVert_t* v1, srfVert_t* v2, bool checkST )
 {
     sint             i;
     
+    #pragma omp critical
     for( i = 0; i < 3; i++ )
     {
         if( floor( v1->xyz[i] + 0.1 ) != floor( v2->xyz[i] + 0.1 ) )
@@ -143,6 +144,7 @@ bool R_CalcTangentVectors( srfVert_t* dv[3] )
         return false;
         
     /* do each vertex */
+    #pragma omp critical
     for( i = 0; i < 3; i++ )
     {
         vec4_t tangent;
@@ -279,6 +281,7 @@ sint R_CullLocalBox( vec3_t localBounds[2] )
     // transform into world space
     ClearBounds( worldBounds[0], worldBounds[1] );
     
+    #pragma omp critical
     for( j = 0; j < 8; j++ )
     {
         v[0] = localBounds[j & 1][0];
@@ -312,6 +315,8 @@ sint R_CullBox( vec3_t worldBounds[2] )
     
     // check against frustum planes
     anyClip = false;
+    
+    #pragma omp critical
     for( i = 0; i < numPlanes; i++ )
     {
         frust = &tr.viewParms.frustum[i];
@@ -367,6 +372,7 @@ sint R_CullPointAndRadiusEx( const vec3_t pt, float32 radius, const cplane_t* fr
     }
     
     // check against frustum planes
+    #pragma omp critical
     for( i = 0 ; i < numPlanes ; i++ )
     {
         frust = &frustum[i];
@@ -448,6 +454,7 @@ void R_TransformModelToClip( const vec3_t src, const float32* modelMatrix, const
 {
     sint i;
     
+    #pragma omp critical
     for( i = 0 ; i < 4 ; i++ )
     {
         eye[i] =
@@ -498,6 +505,7 @@ void myGlMultMatrix( const float32* a, const float32* b, float32* out )
 {
     sint		i, j;
     
+    #pragma omp critical
     for( i = 0 ; i < 4 ; i++ )
     {
         for( j = 0 ; j < 4 ; j++ )
@@ -1104,6 +1112,7 @@ bool R_GetPortalOrientations( drawSurf_t* drawSurf, sint entityNum,
     // locate the portal entity closest to this plane.
     // origin will be the origin of the portal, origin2 will be
     // the origin of the camera
+    #pragma omp critical
     for( i = 0 ; i < tr.refdef.num_entities ; i++ )
     {
         e = &tr.refdef.entities[i];
@@ -1225,6 +1234,7 @@ static bool IsMirror( const drawSurf_t* drawSurf, sint entityNum )
     // locate the portal entity closest to this plane.
     // origin will be the origin of the portal, origin2 will be
     // the origin of the camera
+    #pragma omp critical
     for( i = 0 ; i < tr.refdef.num_entities ; i++ )
     {
         e = &tr.refdef.entities[i];
@@ -1279,6 +1289,7 @@ static bool SurfIsOffscreen( const drawSurf_t* drawSurf, vec4_t clipDest[128] )
     
     assert( tess.numVertexes < 128 );
     
+    #pragma omp critical
     for( i = 0; i < tess.numVertexes; i++ )
     {
         sint j;
@@ -1314,6 +1325,7 @@ static bool SurfIsOffscreen( const drawSurf_t* drawSurf, vec4_t clipDest[128] )
     // we have in the game right now.
     numTriangles = tess.numIndexes / 3;
     
+    #pragma omp critical
     for( i = 0; i < tess.numIndexes; i += 3 )
     {
         vec3_t normal, tNormal;
@@ -1446,6 +1458,7 @@ sint R_SpriteFogNum( trRefEntity_t* ent )
     }
     radius = ent->e.radius;
     
+    #pragma omp critical
     for( i = 1; i < tr.world->numfogs; i++ )
     {
         fog = &tr.world->fogs[i];
@@ -1600,6 +1613,7 @@ void R_SortDrawSurfs( drawSurf_t* drawSurfs, sint numDrawSurfs )
     
     // check for any pass through drawing, which
     // may cause another view to be rendered first
+    #pragma omp critical
     for( i = 0 ; i < numDrawSurfs ; i++ )
     {
         R_DecomposeSort( ( drawSurfs + i )->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
@@ -1732,6 +1746,7 @@ void R_AddEntitySurfaces( void )
         return;
     }
     
+    #pragma omp critical
     for( i = 0; i < tr.refdef.num_entities; i++ )
         R_AddEntitySurface( i );
 }
@@ -1812,6 +1827,10 @@ Visualization aid for movement clipping debugging
 */
 void R_DebugGraphics( void )
 {
+    if( tr.refdef.rdflags & RDF_NOWORLDMODEL )
+    {
+        return;
+    }
     if( !r_debugSurface->integer )
     {
         return;
@@ -1872,7 +1891,9 @@ void R_RenderView( viewParms_t* parms )
     R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, numDrawSurfs - firstDrawSurf );
     
     // draw main system development information (surface outlines, etc)
+#ifdef _DEBUG
     R_DebugGraphics();
+#endif
 }
 
 
@@ -1880,6 +1901,7 @@ void R_RenderDlightCubemaps( const refdef_t* fd )
 {
     sint i;
     
+    #pragma omp critical
     for( i = 0; i < tr.refdef.num_dlights; i++ )
     {
         viewParms_t		shadowParms;
@@ -1961,6 +1983,7 @@ void R_RenderPshadowMaps( const refdef_t* fd )
     sint i;
     
     // first, make a list of shadows
+    #pragma omp critical
     for( i = 0; i < tr.refdef.num_entities; i++ )
     {
         trRefEntity_t* ent = &tr.refdef.entities[i];
@@ -2068,6 +2091,7 @@ void R_RenderPshadowMaps( const refdef_t* fd )
     }
     
     // next, merge touching pshadows
+    #pragma omp critical
     for( i = 0; i < tr.refdef.num_pshadows; i++ )
     {
         pshadow_t* ps1 = &tr.refdef.pshadows[i];
@@ -2128,6 +2152,7 @@ void R_RenderPshadowMaps( const refdef_t* fd )
     }
     
     // next, fill up the rest of the shadow info
+    #pragma omp critical
     for( i = 0; i < tr.refdef.num_pshadows; i++ )
     {
         pshadow_t* shadow = &tr.refdef.pshadows[i];
@@ -2170,6 +2195,7 @@ void R_RenderPshadowMaps( const refdef_t* fd )
     }
     
     // next, render shadowmaps
+    #pragma omp critical
     for( i = 0; i < tr.refdef.num_pshadows; i++ )
     {
         sint firstDrawSurf;

@@ -5,7 +5,7 @@ uniform int       u_AlphaTest;
 varying vec2      var_DiffuseTex;
 
 varying vec4      var_Color;
-varying vec2	  var_Dimensions;
+
 
 void main()
 {

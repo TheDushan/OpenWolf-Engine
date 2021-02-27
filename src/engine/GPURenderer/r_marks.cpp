@@ -179,6 +179,11 @@ void R_BoxSurfaces_r( mnode_t* node, vec3_t mins, vec3_t maxs, surfaceType_t** l
         }
     }
     
+    if( node->contents & CONTENTS_TRANSLUCENT )
+    {
+        return;
+    }
+    
     // add the individual surfaces
     mark = tr.world->marksurfaces + node->firstmarksurface;
     c = node->nummarksurfaces;

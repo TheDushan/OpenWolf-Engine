@@ -3007,11 +3007,10 @@ void idRenderSystemLocal::LoadWorld( pointer name )
     
     i = LittleLong( header->version );
     
-    if( i != BSP_VERSION )
-    {
-        Com_Error( ERR_DROP, "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i)",
-                   name, i, BSP_VERSION );
-    }
+    //if( i != BSP_VERSION )
+    //{
+    //    Com_Error( ERR_DROP, "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i)", name, i, BSP_VERSION );
+    //}
     
     // swap all the lumps
     for( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ )
@@ -3226,6 +3225,7 @@ void idRenderSystemLocal::LoadWorld( pointer name )
     if( r_cubeMapping->integer )
     {
         R_LoadCubemapEntities( "misc_cubemap" );
+        
         if( !tr.numCubemaps )
         {
             // use deathmatch spawn points as cubemaps
@@ -3245,6 +3245,11 @@ void idRenderSystemLocal::LoadWorld( pointer name )
                   
     // only set tr.world now that we know the entire level has loaded properly
     tr.world = &s_worldData;
+    
+    if( tr.sunShaderName )
+    {
+        tr.sunShader = R_FindShader( tr.sunShaderName, LIGHTMAP_NONE, true );
+    }
     
     // make sure the VAO glState entry is safe
     R_BindNullVao();
