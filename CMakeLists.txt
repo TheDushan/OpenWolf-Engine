@@ -148,6 +148,7 @@ set( GPURENDERER_HEADERS
 	${MOUNT_DIR}/GPURenderer/r_splash.hpp
 	${MOUNT_DIR}/API/renderer_api.hpp
 	${MOUNT_DIR}/GPURenderer/r_types.hpp
+	${MOUNT_DIR}/GPURenderer/r_cmdsTemplate.hpp
 )
 
 set( GPURENDERER_SOURCES

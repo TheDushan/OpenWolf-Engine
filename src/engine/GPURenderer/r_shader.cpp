@@ -1528,8 +1528,7 @@ static bool ParseStage( shaderStage_t* stage, valueType** text )
     // decide which agens we can skip
     if( stage->alphaGen == AGEN_IDENTITY )
     {
-        if( stage->rgbGen == CGEN_IDENTITY
-                || stage->rgbGen == CGEN_LIGHTING_DIFFUSE )
+        if( stage->rgbGen == CGEN_IDENTITY /* || stage->rgbGen == CGEN_LIGHTING_DIFFUSE*/ )
         {
             stage->alphaGen = AGEN_SKIP;
         }
@@ -3303,7 +3302,7 @@ static void FixRenderCommandList( sint newShader )
                         sortedIndex = ( ( drawSurf->sort >> QSORT_SHADERNUM_SHIFT ) & ( MAX_SHADERS - 1 ) );
                         if( sortedIndex >= newShader )
                         {
-                            sortedIndex++;
+                            sortedIndex = shader->sortedIndex;
                             drawSurf->sort = ( sortedIndex << QSORT_SHADERNUM_SHIFT ) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( ( sint )pshadowMap << QSORT_PSHADOW_SHIFT ) | ( sint )dlightMap;
                         }
                     }
