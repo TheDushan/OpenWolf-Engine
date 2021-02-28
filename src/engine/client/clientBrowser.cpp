@@ -238,10 +238,10 @@ void idClientBrowserSystemLocal::SetServerInfo( serverInfo_t* server, pointer in
 			else \
 			    server->sfield = (sint)vL
             
-            Q_strncpyz( server->hostName, Info_ValueForKey( info, "hostname" ), MAX_NAME_LENGTH );
-            Q_strncpyz( server->mapName, Info_ValueForKey( info, "mapname" ), MAX_NAME_LENGTH );
-            Q_strncpyz( server->game, Info_ValueForKey( info, "game" ), MAX_NAME_LENGTH );
-            Q_strncpyz( server->gameName, Info_ValueForKey( info, "gamename" ), MAX_NAME_LENGTH );
+            Q_strncpyz( server->hostName, Info_ValueForKey( info, "hostname" ), sizeof( server->hostName ) );
+            Q_strncpyz( server->mapName, Info_ValueForKey( info, "mapname" ), sizeof( server->mapName ) );
+            Q_strncpyz( server->game, Info_ValueForKey( info, "game" ), sizeof( server->game ) );
+            Q_strncpyz( server->gameName, Info_ValueForKey( info, "gamename" ), sizeof( server->gameName ) );
             
             setserverinfo( "clients", clients );
             setserverinfo( "serverload", load );
