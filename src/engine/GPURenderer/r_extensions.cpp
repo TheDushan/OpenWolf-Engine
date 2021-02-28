@@ -29,7 +29,7 @@
 
 #include <framework/precompiled.hpp>
 
-void GLimp_InitExtraExtensions()
+void GLimp_InitExtraExtensions( void )
 {
     //sint len;
     valueType* extension;

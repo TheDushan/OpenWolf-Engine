@@ -33,7 +33,7 @@
 =============
 idRenderSystemCmdsLocal::GetCommandBuffer
 
-returns NULL if there is not enough space for important commands
+returns nullptr if there is not enough space for important commands
 =============
 */
 template<typename B, typename T>
