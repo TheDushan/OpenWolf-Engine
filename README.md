@@ -39,7 +39,7 @@ Use cMake to generate your `make` or `Visual Studio 2019` solution.
     - `sudo apt install libgeoip-dev`
     - `sudo apt install mysql-client`
     - `sudo apt install libmysqlcient-dev`
-    - `sudo apt install libfreetype-dev``
+    - `sudo apt install libfreetype-dev`
 * Generate `Unix makefile`
   * NOTE: Only x64 build is supported.
 * Switch to the your `build` directory where `make` file is located.
