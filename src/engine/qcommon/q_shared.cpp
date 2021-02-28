@@ -1261,15 +1261,18 @@ pointer Com_QuoteStr( pointer str )
 //		return str;
 
     length = ( uint32 )::strlen( str );
+    
     if( buflen < 2 * length + 3 )
     {
-        free( buf );
+        ::free( buf );
         buflen = 2 * length + 3;
-        buf = ( valueType* )malloc( buflen );
+        buf = ( valueType* )::malloc( buflen );
     }
+    
     ptr = buf;
     *ptr++ = '"';
     --str;
+    
     while( *++str )
     {
         if( *str == '"' )

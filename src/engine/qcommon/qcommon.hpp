@@ -488,7 +488,6 @@ typedef enum
     TAG_BOTLIB,
     TAG_RENDERER,
     TAG_SMALL,
-    TAG_CRYPTO,
     TAG_STATIC
 } memtag_t;
 
@@ -672,11 +671,6 @@ void			Com_QueueEvent( sint time, sysEventType_t type, sint value, sint value2, 
 sint				Com_EventLoop( void );
 sysEvent_t		Com_GetSystemEvent( void );
 #endif
-
-void Hist_Load( void );
-void Hist_Add( pointer field );
-pointer Hist_Next( pointer field );
-pointer Hist_Prev( void );
 
 #define SV_ENCODE_START     4
 #define SV_DECODE_START     12

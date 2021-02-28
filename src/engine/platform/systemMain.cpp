@@ -251,6 +251,9 @@ void idSystemLocal::Exit( sint exitCode )
         remove( PIDFileName( ) );
     }
     
+    sys_retcode = exitCode;
+    longjmp( sys_exitframe, -1 );
+    
     exit( exitCode );
     
 #ifndef DEDICATED
@@ -667,6 +670,24 @@ Q_EXPORT sint engineMain( sint argc, valueType * *argv )
         systemLocal.Exit( 1 );
     }
 #endif
+    
+    if( _setjmp( sys_exitframe ) )
+    {
+        __try
+        {
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
+            soundSystem->Shutdown();
+            CL_ShutdownRef();
+#endif
+        }
+        __finally
+        {
+            Com_ReleaseMemory();
+        }
+        
+        return sys_retcode;
+    }
+    
     
     idSystemLocal::PlatformInit( );
     

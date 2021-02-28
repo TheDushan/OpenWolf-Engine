@@ -197,6 +197,8 @@
 
 #include <curses.h>
 
+#include <API/consoleHistory_api.hpp>
+#include <console/consoleHistory.hpp>
 #include <API/consoleCurses_api.hpp>
 #include <console/consoleCurses.hpp>
 #include <API/consoleLogging_api.hpp>

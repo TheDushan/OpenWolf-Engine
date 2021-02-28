@@ -724,7 +724,7 @@ void Console_Key( sint key )
         }
         
         // copy line to history buffer
-        Hist_Add( g_consoleField.buffer );
+        consoleHistorySystem->Add( g_consoleField.buffer );
         if( cls.state == CA_DISCONNECTED )
         {
             clientScreenSystem->UpdateScreen();     // force an update, because the command
@@ -755,7 +755,7 @@ void Console_Key( sint key )
     if( ( key == K_MWHEELUP && keys[K_SHIFT].down ) || ( key == K_UPARROW ) || ( key == K_KP_UPARROW ) ||
             ( ( tolower( key ) == 'p' ) && keys[K_CTRL].down ) )
     {
-        Q_strncpyz( g_consoleField.buffer, Hist_Prev(), sizeof( g_consoleField.buffer ) );
+        Q_strncpyz( g_consoleField.buffer, consoleHistorySystem->Prev(), sizeof( g_consoleField.buffer ) );
         g_consoleField.cursor = strlen( g_consoleField.buffer );
         if( g_consoleField.cursor >= g_consoleField.widthInChars )
         {
@@ -772,7 +772,7 @@ void Console_Key( sint key )
     if( ( key == K_MWHEELDOWN && keys[K_SHIFT].down ) || ( key == K_DOWNARROW ) || ( key == K_KP_DOWNARROW ) ||
             ( ( tolower( key ) == 'n' ) && keys[K_CTRL].down ) )
     {
-        pointer history = Hist_Next( g_consoleField.buffer );
+        pointer history = consoleHistorySystem->Next( g_consoleField.buffer );
         if( history )
         {
             Q_strncpyz( g_consoleField.buffer, history, sizeof( g_consoleField.buffer ) );
@@ -788,7 +788,7 @@ void Console_Key( sint key )
         }
         else if( g_consoleField.buffer[0] )
         {
-            Hist_Add( g_consoleField.buffer );
+            consoleHistorySystem->Add( g_consoleField.buffer );
             Field_Clear( &g_consoleField );
         }
         return;

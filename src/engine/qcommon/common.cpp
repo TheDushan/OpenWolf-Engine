@@ -1521,14 +1521,14 @@ static struct
     hunkblock_t* blocks;
     
     uchar8*	mem, *original;
-    uint32	memSize;
+    uint64	memSize;
     
-    uint32	permTop, permMax;
-    uint32	tempTop, tempMax;
+    uint64	permTop, permMax;
+    uint64	tempTop, tempMax;
     
-    uint32	maxEver;
+    uint64	maxEver;
     
-    uint32	mark;
+    uint64	mark;
 } s_hunk;
 
 static hunkblock_t* hunkblocks;
@@ -1553,13 +1553,12 @@ void Com_Meminfo_f( void )
     sint			zoneBytes, zoneBlocks;
     sint			smallZoneBytes, smallZoneBlocks;
     sint			botlibBytes, rendererBytes, otherBytes;
-    sint			cryptoBytes, staticBytes, generalBytes;
+    sint			staticBytes, generalBytes;
     
     zoneBytes = 0;
     botlibBytes = 0;
     rendererBytes = 0;
     otherBytes = 0;
-    cryptoBytes = 0;
     staticBytes = 0;
     generalBytes = 0;
     zoneBlocks = 0;
@@ -1581,10 +1580,6 @@ void Com_Meminfo_f( void )
             else if( block->tag == TAG_RENDERER )
             {
                 rendererBytes += block->size;
-            }
-            else if( block->tag == TAG_CRYPTO )
-            {
-                cryptoBytes += block->size;
             }
             else if( block->tag == TAG_STATIC )
             {
@@ -1657,7 +1652,6 @@ void Com_Meminfo_f( void )
     Com_Printf( "        %8i bytes in dynamic renderer\n", rendererBytes );
     Com_Printf( "        %8i bytes in dynamic other\n", otherBytes );
     Com_Printf( "        %8i bytes in small Zone memory\n", smallZoneBytes );
-    Com_Printf( "        %8i bytes in cryto client memory\n", cryptoBytes );
     Com_Printf( "        %8i bytes in static server memory\n", staticBytes );
     Com_Printf( "        %8i bytes in general common memory\n", generalBytes );
 }
@@ -1702,8 +1696,6 @@ void Com_TouchMemory( void )
     
     Com_Printf( "Com_TouchMemory: %i msec\n", end - start );
 }
-
-
 
 /*
 =================
@@ -1886,13 +1878,13 @@ void Com_InitHunkMemory( void )
     }
     
     // bk001205 - was malloc
-    s_hunk.original = ( uchar8* )calloc( s_hunk.memSize + 31, 1 );
+    s_hunk.original = ( uchar8* )calloc( s_hunk.memSize + 63, 1 );
     if( !s_hunk.original )
     {
         Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunk.memSize / ( 1024 * 1024 ) );
     }
     // cacheline align
-    s_hunk.mem = ( uchar8* )( ( ( intptr_t )s_hunk.original + 31 ) & ~31 );
+    s_hunk.mem = ( uchar8* )( ( ( intptr_t )s_hunk.original + 63 ) & ~63 );
     
     Hunk_Clear();
     
@@ -1965,6 +1957,8 @@ void Hunk_ClearToMark( void )
 /*
 =================
 Hunk_CheckMark
+
+Used before for bots
 =================
 */
 bool Hunk_CheckMark( void )
@@ -2040,7 +2034,7 @@ void* Hunk_Alloc( size_t size, ha_pref preference )
 #endif
     
     // round to cacheline
-    size = ( size + 31 ) & ~31;
+    size = ( size + 63 ) & ~63;
     
     if( s_hunk.permTop + s_hunk.tempTop + size > s_hunk.memSize )
     {
@@ -2208,22 +2202,6 @@ static void Hunk_FrameInit( void )
     s_frameStackEnd = s_frameStackBase + cb;
     
     s_frameStackLoc = s_frameStackBase;
-}
-
-
-void* Hunk_FrameAlloc( uint32 cb )
-{
-    void* ret;
-    
-    if( s_frameStackLoc + cb >= s_frameStackEnd )
-        //out of frame stack memory
-        return 0;
-        
-    ret = s_frameStackLoc;
-    s_frameStackLoc += cb;
-    
-    //::memset( ret, 0, cb );
-    return ret;
 }
 
 void Hunk_FrameReset( void )
@@ -3317,9 +3295,12 @@ void Com_Init( valueType* commandLine )
 #endif
     }
     
-    networkChainSystem->Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random
+    // pick a port value that should be nice and random
+    networkChainSystem->Init( Com_Milliseconds() & 0xffff );
+    
     serverInitSystem->Init();
-    Hist_Load();
+    
+    consoleHistorySystem->Load();
     
     com_dedicated->modified = false;
     if( !com_dedicated->integer )
@@ -3772,6 +3753,9 @@ void Com_Frame( void )
     }
     
     com_frameNumber++;
+    
+    //reset the frame memory stack
+    Hunk_FrameReset();
 }
 
 /*
@@ -4217,171 +4201,4 @@ void Com_RandomBytes( uchar8* string, sint len )
     {
         string[i] = ( uchar8 )( rand() % 255 );
     }
-}
-
-#define CON_HISTORY 64
-#ifdef DEDICATED
-#define CON_HISTORY_FILE "conhistory_server"
-#else
-#define CON_HISTORY_FILE "conhistory"
-#endif
-static valueType history[CON_HISTORY][MAX_EDIT_LINE];
-static sint hist_current = -1, hist_next = 0;
-
-/*
-==================
-Hist_Load
-==================
-*/
-void Hist_Load( void )
-{
-    sint i;
-    fileHandle_t f;
-    valueType* buf, *end;
-    valueType buffer[sizeof( history )];
-    
-    fileSystem->SV_FOpenFileRead( CON_HISTORY_FILE, &f );
-    if( !f )
-    {
-        Com_Printf( "Couldn't read %s.\n", CON_HISTORY_FILE );
-        return;
-    }
-    
-    memset( buffer, '\0', sizeof( buffer ) );
-    memset( history, '\0', sizeof( history ) );
-    
-    fileSystem->Read( buffer, sizeof( buffer ), f );
-    fileSystem->FCloseFile( f );
-    
-    buf = buffer;
-    
-    for( i = 0; i < CON_HISTORY; i++ )
-    {
-        end = strchr( buf, '\n' );
-        if( !end )
-        {
-            Q_strncpyz( history[i], buf, sizeof( history[0] ) );
-            break;
-        }
-        
-        *end = '\0';
-        
-        Q_strncpyz( history[i], buf, sizeof( history[0] ) );
-        buf = end + 1;
-        if( !*buf )
-        {
-            break;
-        }
-    }
-    
-    if( i > CON_HISTORY )
-    {
-        i = CON_HISTORY;
-    }
-    
-    hist_current = hist_next = i + 1;
-}
-
-/*
-==================
-Hist_Save
-==================
-*/
-static void Hist_Save( void )
-{
-    sint i;
-    fileHandle_t f;
-    
-    f = fileSystem->SV_FOpenFileWrite( CON_HISTORY_FILE );
-    if( !f )
-    {
-        Com_Printf( "Couldn't write %s.\n", CON_HISTORY_FILE );
-        return;
-    }
-    
-    i = ( hist_next + 1 ) % CON_HISTORY;
-    do
-    {
-        valueType* buf;
-        if( !history[i][0] )
-        {
-            i = ( i + 1 ) % CON_HISTORY;
-            continue;
-        }
-        buf = va( "%s\n", history[i] );
-        fileSystem->Write( buf, strlen( buf ), f );
-        i = ( i + 1 ) % CON_HISTORY;
-    }
-    while( i != ( hist_next - 1 ) % CON_HISTORY );
-    
-    fileSystem->FCloseFile( f );
-}
-
-/*
-==================
-Hist_Add
-==================
-*/
-void Hist_Add( pointer field )
-{
-    pointer prev = history[( hist_next - 1 ) % CON_HISTORY];
-    
-    // don't add "", "\" or "/"
-    if( !field[0] || ( ( field[0] == '/' || field[0] == '\\' ) && !field[1] ) )
-    {
-        hist_current = hist_next;
-        return;
-    }
-    
-    // don't add if same as previous (treat leading \ and / as equivalent)
-    if( ( *field == *prev || ( *field == '/' && *prev == '\\' ) || ( *field == '\\' && *prev == '/' ) ) && !::strcmp( &field[1], &prev[1] ) )
-    {
-        hist_current = hist_next;
-        return;
-    }
-    
-    Q_strncpyz( history[hist_next % CON_HISTORY], field, sizeof( history[0] ) );
-    
-    hist_next++;
-    hist_current = hist_next;
-    Hist_Save();
-}
-
-/*
-==================
-Hist_Prev
-==================
-*/
-pointer Hist_Prev( void )
-{
-    if( ( hist_current - 1 ) % CON_HISTORY != hist_next % CON_HISTORY && history[( hist_current - 1 ) % CON_HISTORY][0] )
-    {
-        hist_current--;
-    }
-    
-    return history[hist_current % CON_HISTORY];
-}
-
-/*
-==================
-Hist_Next
-==================
-*/
-pointer Hist_Next( pointer field )
-{
-    if( hist_current % CON_HISTORY != hist_next % CON_HISTORY )
-    {
-        hist_current++;
-    }
-    
-    if( hist_current % CON_HISTORY == hist_next % CON_HISTORY )
-    {
-        if( *field && strcmp( field, history[( hist_current - 1 ) % CON_HISTORY] ) )
-        {
-            Hist_Add( field );
-        }
-        
-        return "";
-    }
-    return history[hist_current % CON_HISTORY];
 }

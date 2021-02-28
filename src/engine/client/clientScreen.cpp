@@ -505,7 +505,7 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
     // unless they are displaying game renderings
     if( uiFullscreen || cls.state < CA_LOADING )
     {
-        if( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 )
+        if( cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640 )
         {
             renderSystem->SetColor( g_color_table[0] );
             renderSystem->DrawStretchPic( 0, 0, ( float32 )cls.glconfig.vidWidth, ( float32 )cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );

@@ -47,6 +47,8 @@ using unsigned long data type to work right with Sys_XTimeToSysTime */
 static time_t initial_tv_sec = 0;
 #endif
 
+static jmp_buf sys_exitframe;
+static sint sys_retcode;
 static valueType homePath[MAX_OSPATH] = { 0 };
 static sint sys_timeBase;
 #define MAX_FOUND_FILES 0x1000

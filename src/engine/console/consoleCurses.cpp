@@ -533,7 +533,7 @@ valueType* idConsoleCursesLocal::Input( void )
                     continue;
                 }
                 
-                Hist_Add( input_field.buffer );
+                consoleHistorySystem->Add( input_field.buffer );
                 Q_strcpy_s( text, input_field.buffer );
                 Field_Clear( &input_field );
                 werase( inputwin );
@@ -569,12 +569,12 @@ valueType* idConsoleCursesLocal::Input( void )
                 }
                 continue;
             case KEY_UP:
-                Q_strncpyz( input_field.buffer, Hist_Prev(), sizeof( input_field.buffer ) );
+                Q_strncpyz( input_field.buffer, consoleHistorySystem->Prev(), sizeof( input_field.buffer ) );
                 input_field.cursor = strlen( input_field.buffer );
                 continue;
             case KEY_DOWN:
             
-                Q_strncpyz( input_field.buffer, Hist_Next( input_field.buffer ), sizeof( input_field.buffer ) );
+                Q_strncpyz( input_field.buffer, consoleHistorySystem->Next( input_field.buffer ), sizeof( input_field.buffer ) );
                 input_field.cursor = strlen( input_field.buffer );
                 continue;
             case KEY_HOME:
