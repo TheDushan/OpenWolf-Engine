@@ -2049,11 +2049,11 @@ void idCmdSystemLocal::CompleteCfgName( valueType* args, sint argNum )
             valueType realdir[MAX_QPATH] = { 0 };
             Q_strncpyz( realdir, s, /*strlen(s)-*/( pos - s ) + 1 );
             completionString = pos + 1;
-            Field_CompleteFilename( realdir, "cfg", true );
+            cmdCompletionSystem->CompleteFilename( realdir, "cfg", true );
         }
         else
         {
-            Field_CompleteFilename( "", "cfg", true );
+            cmdCompletionSystem->CompleteFilename( "", "cfg", true );
         }
     }
 }
@@ -2067,7 +2067,7 @@ void idCmdSystemLocal::CompleteAliasName( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
-        Field_CompleteAlias( );
+        cmdCompletionSystem->CompleteAlias( );
     }
 }
 
@@ -2083,7 +2083,7 @@ void idCmdSystemLocal::CompleteConcat( valueType* args, sint argNum )
     
     if( p > args )
     {
-        Field_CompleteCommand( p, false, true );
+        cmdCompletionSystem->CompleteCommand( p, false, true );
     }
 }
 
@@ -2101,7 +2101,7 @@ void idCmdSystemLocal::CompleteIf( valueType* args, sint argNum )
         
         if( p > args )
         {
-            Field_CompleteCommand( p, false, true );
+            cmdCompletionSystem->CompleteCommand( p, false, true );
         }
     }
 }
@@ -2120,7 +2120,7 @@ void idCmdSystemLocal::CompleteDelay( valueType* args, sint argNum )
         
         if( p > args )
         {
-            Field_CompleteCommand( p, true, true );
+            cmdCompletionSystem->CompleteCommand( p, true, true );
         }
     }
 }
@@ -2134,7 +2134,7 @@ void idCmdSystemLocal::CompleteUnDelay( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
-        Field_CompleteDelay( );
+        cmdCompletionSystem->CompleteDelay( );
     }
 }
 

@@ -137,10 +137,13 @@
 #include <API/clientGame_api.hpp>
 #include <API/clientGUI_api.hpp>
 #include <API/gui_api.hpp>
+#include <framework/keycodes.hpp>
+#include <framework/CmdSystem.hpp>
+#include <API/CmdCompletion_api.hpp>
+#include <framework/CmdCompletion.hpp>
 #include <API/cgame_api.hpp>
 #include <client/client.hpp>
 #include <client/keys.hpp>
-#include <framework/keycodes.hpp>
 
 #include <zlib.h>
 #include <bzlib.h>
@@ -173,7 +176,6 @@
 #include <server/serverInit.hpp>
 #include <API/serverMain_api.hpp>
 #include <server/serverMain.hpp>
-#include <framework/CmdSystem.hpp>
 #include <framework/CmdBuffer.hpp>
 #include <API/CmdDelay_api.hpp>
 #include <framework/CmdDelay.hpp>

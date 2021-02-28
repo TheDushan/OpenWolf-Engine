@@ -240,7 +240,7 @@ idClientGameSystemLocal::CompleteCgameCommand
 */
 void idClientGameSystemLocal::CompleteCgameCommand( valueType* args, sint argNum )
 {
-    Field_CompleteCgame( argNum );
+    cmdCompletionSystem->CompleteCgame( argNum );
 }
 
 /*

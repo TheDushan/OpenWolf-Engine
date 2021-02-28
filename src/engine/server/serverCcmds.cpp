@@ -1559,7 +1559,7 @@ void idServerCcmdsSystemLocal::CompleteMapName( valueType* args, sint argNum )
 {
     if( argNum == 2 )
     {
-        Field_CompleteFilename( "maps", "bsp", true );
+        cmdCompletionSystem->CompleteFilename( "maps", "bsp", true );
     }
 }
 
@@ -1744,7 +1744,7 @@ void idServerCcmdsSystemLocal::CompleteDemoName( valueType* args, sint argNum )
         valueType demoExt[16];
         
         Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".svdm_%d", ETPROTOCOL_VERSION );
-        Field_CompleteFilename( "svdemos", demoExt, true );
+        cmdCompletionSystem->CompleteFilename( "svdemos", demoExt, true );
     }
 }
 

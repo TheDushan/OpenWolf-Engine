@@ -130,7 +130,7 @@ void idClientScreenSystemLocal::FillRect( float32 x, float32 y, float32 width, f
 
 /*
 ==================
-idClientScreenSystemLocal::DrawConsoleFontChar
+idClientScreenSystemLocal::DrawChar
 
 chars are drawn at 640*480 virtual screen size
 ==================

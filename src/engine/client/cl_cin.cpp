@@ -1640,7 +1640,7 @@ void CIN_DrawCinematic( sint handle )
     w = cinTable[handle].width;
     h = cinTable[handle].height;
     buf = cinTable[handle].buf;
-    idClientScreenSystemLocal::AdjustFrom640( &x, &y, &w, &h );
+    clientScreenSystem->AdjustFrom640( &x, &y, &w, &h );
     
     if( cinTable[handle].letterBox )
     {

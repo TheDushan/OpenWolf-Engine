@@ -1616,7 +1616,7 @@ void idCVarSystemLocal::CompleteCvarName( valueType* args, sint argNum )
         
         if( p > args )
         {
-            Field_CompleteCommand( p, false, true );
+            cmdCompletionSystem->CompleteCommand( p, false, true );
         }
     }
 }

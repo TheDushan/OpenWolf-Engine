@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,7 +26,7 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   keys.hpp
+// File name:   cmdCompletion_api.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -35,38 +34,46 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __KEYS_H__
-#define __KEYS_H__
+#ifndef __CMDCOMPLETION_API_H__
+#define __CMDCOMPLETION_API_H__
 
-#ifndef __KEYCODES_H__
-#include <framework/keycodes.hpp>
-#endif
+/*
+==============================================================
+Edit fields and command line history/completion
+==============================================================
+*/
 
+#define MAX_EDIT_LINE   256
 typedef struct
 {
-    bool        down;
-    sint             repeats;	// if > 1, it is autorepeating
-    valueType*           binding;
-    sint             hash;
-} qkey_t;
+    sint cursor;
+    sint scroll;
+    sint widthInChars;
+    valueType buffer[MAX_EDIT_LINE];
+} field_t;
 
-extern bool key_overstrikeMode;
-extern qkey_t   keys[MAX_KEYS];
+//
+// idCmdCompletionSystem
+//
+class idCmdCompletionSystem
+{
+public:
+    virtual void CompleteKeyname( void ) = 0;
+    virtual void CompleteCgame( sint argNum ) = 0;
+    virtual void CompleteFilename( pointer dir, pointer ext, bool stripExt ) = 0;
+    virtual void CompleteAlias( void ) = 0;
+    virtual void CompleteDelay( void ) = 0;
+    virtual void CompleteCommand( valueType* cmd, bool doCommands, bool doCvars ) = 0;
+    virtual void AutoComplete( field_t* field, pointer prompt ) = 0;
+    virtual void Clear( field_t* edit ) = 0;
+    virtual void Set( field_t* edit, pointer content ) = 0;
+    virtual void WordDelete( field_t* edit ) = 0;
+    virtual void Draw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape, float32 alpha ) = 0;
+    virtual void BigDraw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape ) = 0;
+    virtual void KeyDownEvent( field_t* edit, sint key ) = 0;
+    virtual void CharEvent( field_t* edit, sint ch ) = 0;
+};
 
-extern field_t  g_consoleField;
-extern field_t  chatField;
-extern sint      anykeydown;
-extern bool chat_team;
-extern bool chat_buddy;
+extern idCmdCompletionSystem* cmdCompletionSystem;
 
-void            Key_WriteBindings( fileHandle_t f );
-void            Key_SetBinding( sint keynum, pointer binding );
-void            Key_GetBindingByString( pointer binding, sint* key1, sint* key2 );
-valueType*           Key_GetBinding( sint keynum );
-bool			Key_IsDown( sint keynum );
-bool			Key_GetOverstrikeMode( void );
-void            Key_SetOverstrikeMode( bool state );
-void            Key_ClearStates( void );
-sint             Key_GetKey( pointer binding );
-
-#endif // !__KEYS_H__
+#endif //__COMMANDLINECOMPLETION_API_H__

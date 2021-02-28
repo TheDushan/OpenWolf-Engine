@@ -353,34 +353,6 @@ DOWNLOAD
 /*
 ==============================================================
 
-Edit fields and command line history/completion
-
-==============================================================
-*/
-
-#define MAX_EDIT_LINE   256
-typedef struct
-{
-    sint             cursor;
-    sint             scroll;
-    sint             widthInChars;
-    valueType            buffer[MAX_EDIT_LINE];
-} field_t;
-
-void Field_Clear( field_t* edit );
-void Field_Set( field_t* edit, pointer text );
-void Field_WordDelete( field_t* edit );
-void Field_AutoComplete( field_t* edit, pointer prompt );
-void Field_CompleteKeyname( void );
-void Field_CompleteCgame( sint argNum );
-void Field_CompleteFilename( pointer dir, pointer ext, bool stripExt );
-void Field_CompleteAlias( void );
-void Field_CompleteDelay( void );
-void Field_CompleteCommand( valueType* cmd, bool doCommands, bool doCvars );
-
-/*
-==============================================================
-
 MISC
 
 ==============================================================

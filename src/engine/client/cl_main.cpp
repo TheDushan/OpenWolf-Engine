@@ -778,7 +778,7 @@ static void CL_CompleteDemoName( valueType* args, sint argNum )
         valueType demoExt[ 16 ];
         
         Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".dm_%d", com_protocol->integer );
-        Field_CompleteFilename( "demos", demoExt, true );
+        cmdCompletionSystem->CompleteFilename( "demos", demoExt, true );
     }
 }
 
@@ -3194,7 +3194,7 @@ void CL_Frame( sint msec )
     
     if( cl_timegraph->integer )
     {
-        idClientScreenSystemLocal::DebugGraph( cls.realFrametime * 0.25, 0 );
+        clientScreenSystem->DebugGraph( cls.realFrametime * 0.25, 0 );
     }
     
     // see if we need to update any userinfo
@@ -4088,7 +4088,7 @@ void CL_Init( void )
     
     CL_InitRef();
     
-    idClientScreenSystemLocal::Init();
+    clientScreenSystem->Init();
     
     cmdBufferSystem->Execute();
     

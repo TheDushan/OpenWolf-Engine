@@ -179,8 +179,11 @@ extern "C"
 #include <API/gui_api.hpp>
 #include <client/client.hpp>
 #include <client/clientParse.hpp>
-#include <client/keys.hpp>
 #include <framework/keycodes.hpp>
+#include <framework/CmdSystem.hpp>
+#include <API/CmdCompletion_api.hpp>
+#include <framework/CmdCompletion.hpp>
+#include <client/keys.hpp>
 
 #include <zlib.h>
 #include <bzlib.h>
@@ -260,7 +263,6 @@ extern "C"
 #include <server/serverInit.hpp>
 #include <API/serverMain_api.hpp>
 #include <server/serverMain.hpp>
-#include <framework/CmdSystem.hpp>
 #include <framework/CmdBuffer.hpp>
 #include <API/CmdDelay_api.hpp>
 #include <framework/CmdDelay.hpp>

@@ -119,7 +119,7 @@ void Con_ToggleConsole_f( void )
     // Arnout: added cvar
     if( con_autoclear->integer )
     {
-        Field_Clear( &g_consoleField );
+        cmdCompletionSystem->Clear( &g_consoleField );
     }
     
     g_consoleField.widthInChars = g_console_field_width;
@@ -164,7 +164,7 @@ void Con_MessageMode_f( void )
     sint i;
     
     chat_team = false;
-    Field_Clear( &chatField );
+    cmdCompletionSystem->Clear( &chatField );
     chatField.widthInChars = 30;
     
     for( i = 1; i < cmdSystem->Argc(); i++ )
@@ -186,7 +186,7 @@ void Con_MessageMode2_f( void )
     sint i;
     
     chat_team = true;
-    Field_Clear( &chatField );
+    cmdCompletionSystem->Clear( &chatField );
     chatField.widthInChars = 25;
     
     for( i = 1; i < cmdSystem->Argc(); i++ )
@@ -209,7 +209,7 @@ void Con_MessageMode3_f( void )
     
     chat_team = false;
     chat_buddy = true;
-    Field_Clear( &chatField );
+    cmdCompletionSystem->Clear( &chatField );
     chatField.widthInChars = 26;
     
     for( i = 1; i < cmdSystem->Argc(); i++ )
@@ -543,7 +543,7 @@ void Con_CheckResize( void )
     
     if( cls.glconfig.vidWidth )
     {
-        width = ( cls.glconfig.vidWidth - 30 ) / idClientScreenSystemLocal::ConsoleFontCharWidth( 'W' );
+        width = ( cls.glconfig.vidWidth - 30 ) / clientScreenSystem->ConsoleFontCharWidth( 'W' );
         
         g_consoleField.widthInChars = width - Q_PrintStrlen( cl_consolePrompt->string ) - 1;
     }
@@ -633,7 +633,7 @@ void Con_Init( void )
     
     // Done defining cvars for console colors
     
-    Field_Clear( &g_consoleField );
+    cmdCompletionSystem->Clear( &g_consoleField );
     g_consoleField.widthInChars = g_console_field_width;
     
     cmdSystem->AddCommand( "toggleConsole", Con_ToggleConsole_f, "^1Opens or closes the console." );
@@ -860,7 +860,7 @@ void Con_DrawInput( void )
     
     Com_RealTime( &realtime );
     
-    y = con.vislines - ( idClientScreenSystemLocal::ConsoleFontCharHeight() * 2 ) + 2 ;
+    y = con.vislines - ( clientScreenSystem->ConsoleFontCharHeight() * 2 ) + 2 ;
     
     Q_vsprintf_s( prompt, sizeof( prompt ), sizeof( prompt ), "^0[^3%02d%c%02d^0]^7 %s", realtime.tm_hour, ( realtime.tm_sec & 1 ) ? ':' : ' ', realtime.tm_min, cl_consolePrompt->string );
     
@@ -869,10 +869,10 @@ void Con_DrawInput( void )
     color[2] = 1.0f;
     color[3] = con.displayFrac * 2.0f;
     
-    idClientScreenSystemLocal::DrawSmallStringExt( con.xadjust + cl_conXOffset->integer, y + 10, prompt, color, false, false );
+    clientScreenSystem->DrawSmallStringExt( con.xadjust + cl_conXOffset->integer, y + 10, prompt, color, false, false );
     
     Q_CleanStr( prompt );
-    Field_Draw( &g_consoleField, con.xadjust + cl_conXOffset->integer + idClientScreenSystemLocal::ConsoleFontStringWidth( prompt, strlen( prompt ) ), y + 10, true, true, color[3] );
+    cmdCompletionSystem->Draw( &g_consoleField, con.xadjust + cl_conXOffset->integer + clientScreenSystem->ConsoleFontStringWidth( prompt, ::strlen( prompt ) ), y + 10, true, true, color[3] );
 }
 
 
@@ -930,7 +930,7 @@ void Con_DrawNotify( void )
                 currentColor = ( text[x] >> 8 ) & COLOR_BITS;
                 renderSystem->SetColor( g_color_table[currentColor] );
             }
-            idClientScreenSystemLocal::DrawSmallChar( cl_conXOffset->integer + con.xadjust + ( x + 1 ) * SMALLCHAR_WIDTH, v, text[x] & 0xff );
+            clientScreenSystem->DrawSmallChar( cl_conXOffset->integer + con.xadjust + ( x + 1 ) * SMALLCHAR_WIDTH, v, text[x] & 0xff );
         }
         
         v += SMALLCHAR_HEIGHT;
@@ -951,7 +951,7 @@ void Con_DrawNotify( void )
             valueType            buf[128];
             
             CL_TranslateString( "say_team:", buf );
-            idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
+            clientScreenSystem->DrawBigString( 8, v, buf, 1.0f, false );
             skip = strlen( buf ) + 2;
         }
         else if( chat_buddy )
@@ -959,7 +959,7 @@ void Con_DrawNotify( void )
             valueType            buf[128];
             
             CL_TranslateString( "say_fireteam:", buf );
-            idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
+            clientScreenSystem->DrawBigString( 8, v, buf, 1.0f, false );
             skip = strlen( buf ) + 2;
         }
         else
@@ -967,11 +967,11 @@ void Con_DrawNotify( void )
             valueType            buf[128];
             
             CL_TranslateString( "say:", buf );
-            idClientScreenSystemLocal::DrawBigString( 8, v, buf, 1.0f, false );
+            clientScreenSystem->DrawBigString( 8, v, buf, 1.0f, false );
             skip = strlen( buf ) + 1;
         }
         
-        Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, 232, true, true );
+        cmdCompletionSystem->BigDraw( &chatField, skip * BIGCHAR_WIDTH, 232, true, true );
         
         v += BIGCHAR_HEIGHT;
     }
@@ -1001,22 +1001,22 @@ void Con_DrawSolidConsole( float32 frac )
     
     con.xadjust = 15;
     
-    idClientScreenSystemLocal::AdjustFrom640( &con.xadjust, nullptr, nullptr, nullptr );
+    clientScreenSystem->AdjustFrom640( &con.xadjust, nullptr, nullptr, nullptr );
     
     color[0] = scr_conColorRed->value;
     color[1] = scr_conColorGreen->value;
     color[2] = scr_conColorBlue->value;
     color[3] = frac * 2 * scr_conColorAlpha->value;
-    idClientScreenSystemLocal::FillRect( 10, 10, 620, 460 * scr_conHeight->integer * 0.01, color );
+    clientScreenSystem->FillRect( 10, 10, 620, 460 * scr_conHeight->integer * 0.01, color );
     
     color[0] = scr_conBarColorRed->value;
     color[1] = scr_conBarColorGreen->value;
     color[2] = scr_conBarColorBlue->value;
     color[3] = frac * 2 * scr_conBarColorAlpha->value;
-    idClientScreenSystemLocal::FillRect( 10, 10, 620, 1, color );	//top
-    idClientScreenSystemLocal::FillRect( 10, 460 * scr_conHeight->integer * 0.01 + 10, 621, 1, color );	//bottom
-    idClientScreenSystemLocal::FillRect( 10, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//left
-    idClientScreenSystemLocal::FillRect( 630, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//right
+    clientScreenSystem->FillRect( 10, 10, 620, 1, color );	//top
+    clientScreenSystem->FillRect( 10, 460 * scr_conHeight->integer * 0.01 + 10, 621, 1, color );	//bottom
+    clientScreenSystem->FillRect( 10, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//left
+    clientScreenSystem->FillRect( 630, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//right
     
     // draw the version number
     color[0] = 1.0f;
@@ -1027,35 +1027,35 @@ void Con_DrawSolidConsole( float32 frac )
     
     // version string
     i = strlen( PRODUCT_VERSION );
-    totalwidth = idClientScreenSystemLocal::ConsoleFontStringWidth( PRODUCT_VERSION, i ) + cl_conXOffset->integer;
+    totalwidth = clientScreenSystem->ConsoleFontStringWidth( PRODUCT_VERSION, i ) + cl_conXOffset->integer;
     totalwidth += 30;
     
     for( x = 0 ; x < i ; x++ )
     {
-        idClientScreenSystemLocal::DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - idClientScreenSystemLocal::ConsoleFontCharHeight() * 2, PRODUCT_VERSION[x] );
-        currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( PRODUCT_VERSION[x] );
+        clientScreenSystem->DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - clientScreenSystem->ConsoleFontCharHeight() * 2, PRODUCT_VERSION[x] );
+        currentWidthLocation += clientScreenSystem->ConsoleFontCharWidth( PRODUCT_VERSION[x] );
     }
     
     // engine string
     i = strlen( ENGINE_NAME );
-    totalwidth = idClientScreenSystemLocal::ConsoleFontStringWidth( ENGINE_NAME, i ) + cl_conXOffset->integer;
+    totalwidth = clientScreenSystem->ConsoleFontStringWidth( ENGINE_NAME, i ) + cl_conXOffset->integer;
     totalwidth += 30;
     
     currentWidthLocation = 0;
     for( x = 0 ; x < i ; x++ )
     {
-        idClientScreenSystemLocal::DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - idClientScreenSystemLocal::ConsoleFontCharHeight(), ENGINE_NAME[x] );
-        currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( ENGINE_NAME[x] );
+        clientScreenSystem->DrawConsoleFontChar( cls.glconfig.vidWidth - totalwidth + currentWidthLocation, lines - clientScreenSystem->ConsoleFontCharHeight(), ENGINE_NAME[x] );
+        currentWidthLocation += clientScreenSystem->ConsoleFontCharWidth( ENGINE_NAME[x] );
     }
     
     // draw the text
     con.vislines = lines;
     
     // rows of text to draw
-    rows = ( lines ) / idClientScreenSystemLocal::ConsoleFontCharHeight() - 3;
+    rows = ( lines ) / clientScreenSystem->ConsoleFontCharHeight() - 3;
     rows++;
     
-    y = lines - ( idClientScreenSystemLocal::ConsoleFontCharHeight() * 3 ) + 10;
+    y = lines - ( clientScreenSystem->ConsoleFontCharHeight() * 3 ) + 10;
     
     // draw from the bottom up
     if( con.display != con.current )
@@ -1067,8 +1067,8 @@ void Con_DrawSolidConsole( float32 frac )
         color[3] = frac * 2.0f;
         renderSystem->SetColor( color );
         for( x = 0 ; x < con.linewidth - 4; x += 4 )
-            idClientScreenSystemLocal::DrawConsoleFontChar( con.xadjust + ( x + 1 ) * idClientScreenSystemLocal::ConsoleFontCharWidth( '^' ), y, '^' );
-        y -= idClientScreenSystemLocal::ConsoleFontCharHeight();
+            clientScreenSystem->DrawConsoleFontChar( con.xadjust + ( x + 1 ) * clientScreenSystem->ConsoleFontCharWidth( '^' ), y, '^' );
+        y -= clientScreenSystem->ConsoleFontCharHeight();
         rows--;
     }
     
@@ -1086,7 +1086,7 @@ void Con_DrawSolidConsole( float32 frac )
     color[3] = frac * 2.0f;
     renderSystem->SetColor( color );
     
-    for( i = 0 ; i < rows ; i++, y -= idClientScreenSystemLocal::ConsoleFontCharHeight(), row-- )
+    for( i = 0 ; i < rows ; i++, y -= clientScreenSystem->ConsoleFontCharHeight(), row-- )
     {
         float32 currentWidthLocation = cl_conXOffset->integer;
         
@@ -1112,8 +1112,8 @@ void Con_DrawSolidConsole( float32 frac )
                 renderSystem->SetColor( color );
             }
             
-            idClientScreenSystemLocal::DrawConsoleFontChar( con.xadjust + currentWidthLocation, y, text[x] & 0xff );
-            currentWidthLocation += idClientScreenSystemLocal::ConsoleFontCharWidth( text[x] & 0xff );
+            clientScreenSystem->DrawConsoleFontChar( con.xadjust + currentWidthLocation, y, text[x] & 0xff );
+            currentWidthLocation += clientScreenSystem->ConsoleFontCharWidth( text[x] & 0xff );
         }
     }
     
@@ -1234,7 +1234,7 @@ void Con_Close( void )
     {
         return;
     }
-    Field_Clear( &g_consoleField );
+    cmdCompletionSystem->Clear( &g_consoleField );
     Con_ClearNotify();
     cls.keyCatchers &= ~KEYCATCH_CONSOLE;
     con.finalFrac = 0;			// none visible

@@ -321,334 +321,6 @@ keyname_t keynames[] =
     {nullptr, 0}
 };
 
-
-/*
-=============================================================================
-
-EDIT FIELDS
-
-=============================================================================
-*/
-
-
-/*
-===================
-Field_Draw
-
-Handles horizontal scrolling and cursor blinking
-x, y, and width are in pixels
-===================
-*/
-void Field_VariableSizeDraw( field_t* edit, sint x, sint y, sint size, bool showCursor,
-                             bool noColorEscape, float32 alpha )
-{
-    sint		len;
-    sint		drawLen;
-    sint		prestep;
-    sint		cursorChar;
-    valueType	str[MAX_STRING_CHARS];
-    sint		i;
-    
-    drawLen = edit->widthInChars - 1; // - 1 so there is always a space for the cursor
-    len = strlen( edit->buffer );
-    
-    // guarantee that cursor will be visible
-    if( len <= drawLen )
-    {
-        prestep = 0;
-    }
-    else
-    {
-        if( edit->scroll + drawLen > len )
-        {
-            edit->scroll = len - drawLen;
-            if( edit->scroll < 0 )
-            {
-                edit->scroll = 0;
-            }
-        }
-        prestep = edit->scroll;
-    }
-    
-    if( prestep + drawLen > len )
-    {
-        drawLen = len - prestep;
-    }
-    
-    // extract <drawLen> characters from the field at <prestep>
-    if( drawLen >= MAX_STRING_CHARS )
-    {
-        Com_Error( ERR_DROP, "drawLen >= MAX_STRING_CHARS" );
-    }
-    
-    ::memcpy( str, edit->buffer + prestep, drawLen );
-    str[ drawLen ] = 0;
-    
-    // draw it
-    if( size == SMALLCHAR_WIDTH )
-    {
-        float32	color[4];
-        
-        color[0] = color[1] = color[2] = 1.0;
-        color[3] = alpha;
-        idClientScreenSystemLocal::DrawSmallStringExt( x, y, str, color, false, noColorEscape );
-    }
-    else
-    {
-        // draw big string with drop shadow
-        idClientScreenSystemLocal::DrawBigString( x, y, str, 1.0, noColorEscape );
-    }
-    
-    // draw the cursor
-    if( showCursor )
-    {
-        if( ( sint )( cls.realtime >> 8 ) & 1 )
-        {
-            return;		// off blink
-        }
-        
-        if( key_overstrikeMode )
-        {
-            cursorChar = 11;
-        }
-        else
-        {
-            cursorChar = 10;
-        }
-        
-        i = drawLen - strlen( str );
-        
-        if( size == SMALLCHAR_WIDTH )
-        {
-            float32 xlocation = x + idClientScreenSystemLocal::ConsoleFontStringWidth( str + prestep, edit->cursor - prestep ) ;
-            idClientScreenSystemLocal::DrawConsoleFontChar( xlocation , y, cursorChar );
-        }
-        else
-        {
-            str[0] = cursorChar;
-            str[1] = 0;
-            idClientScreenSystemLocal::DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, false );
-            
-        }
-    }
-}
-
-void Field_Draw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape, float32 alpha )
-{
-    Field_VariableSizeDraw( edit, x, y, SMALLCHAR_WIDTH, showCursor, noColorEscape, alpha );
-}
-
-void Field_BigDraw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape )
-{
-    Field_VariableSizeDraw( edit, x, y, BIGCHAR_WIDTH, showCursor, noColorEscape, 1.0f );
-}
-
-/*
-================
-Field_Paste
-================
-*/
-void Field_Paste( field_t* edit )
-{
-    valueType*    cbd;
-    sint pasteLen, i;
-    
-    cbd = idsystem->SysGetClipboardData();
-    
-    if( !cbd )
-    {
-        return;
-    }
-    
-    // send as if typed, so insert / overstrike works properly
-    pasteLen = strlen( cbd );
-    for( i = 0 ; i < pasteLen ; i++ )
-    {
-        Field_CharEvent( edit, cbd[i] );
-    }
-    
-    Z_Free( cbd );
-}
-
-/*
-=================
-Field_KeyDownEvent
-
-Performs the basic line editing functions for the console,
-in-game talk, and menu fields
-
-Key events are used for non-printable characters, others are gotten from char events.
-=================
-*/
-void Field_KeyDownEvent( field_t* edit, sint key )
-{
-    sint len;
-    
-    // shift-insert is paste
-    if( ( ( key == K_INS ) || ( key == K_KP_INS ) ) && keys[K_SHIFT].down )
-    {
-        Field_Paste( edit );
-        return;
-    }
-    
-    len = strlen( edit->buffer );
-    
-    switch( key )
-    {
-        case K_DEL:
-        case K_KP_DEL:
-            if( edit->cursor < len )
-            {
-                memmove( edit->buffer + edit->cursor,
-                         edit->buffer + edit->cursor + 1, len - edit->cursor );
-            }
-            break;
-            
-        case K_RIGHTARROW:
-        case K_KP_RIGHTARROW:
-            if( edit->cursor < len )
-            {
-                edit->cursor++;
-            }
-            break;
-            
-        case K_LEFTARROW:
-        case K_KP_LEFTARROW:
-            if( edit->cursor > 0 )
-            {
-                edit->cursor--;
-            }
-            break;
-        case K_HOME:
-        case K_KP_HOME:
-            edit->cursor = 0;
-        case 'a':
-            if( keys[K_CTRL].down )
-            {
-                edit->cursor = 0;
-            }
-            break;
-        case K_END:
-        case K_KP_END:
-            edit->cursor = len;
-        case 'e':
-            if( keys[K_CTRL].down )
-            {
-                edit->cursor = len;
-            }
-            break;
-        case K_INS:
-        case K_KP_INS:
-            key_overstrikeMode = ( bool )!key_overstrikeMode;
-            break;
-    }
-    
-    // Change scroll if cursor is no longer visible
-    if( edit->cursor < edit->scroll )
-    {
-        edit->scroll = edit->cursor;
-    }
-    else if( edit->cursor >= edit->scroll + edit->widthInChars && edit->cursor <= len )
-    {
-        edit->scroll = edit->cursor - edit->widthInChars + 1;
-    }
-}
-
-/*
-==================
-Field_CharEvent
-==================
-*/
-void Field_CharEvent( field_t* edit, sint ch )
-{
-    sint len;
-    
-    if( ch == 'v' - 'a' + 1 )     // ctrl-v is paste
-    {
-        Field_Paste( edit );
-        return;
-    }
-    
-    if( ch == 'c' - 'a' + 1 || ch == 'u' - 'a' + 1 )     // ctrl-c or ctrl-u clear the field
-    {
-        Field_Clear( edit );
-        return;
-    }
-    
-    len = strlen( edit->buffer );
-    
-    if( ch == 'h' - 'a' + 1 )         // ctrl-h is backspace
-    {
-        if( edit->cursor > 0 )
-        {
-            memmove( edit->buffer + edit->cursor - 1,
-                     edit->buffer + edit->cursor, len + 1 - edit->cursor );
-            edit->cursor--;
-            if( edit->cursor < edit->scroll )
-            {
-                edit->scroll--;
-            }
-        }
-        return;
-    }
-    
-    if( ch == 'a' - 'a' + 1 )     // ctrl-a is home
-    {
-        edit->cursor = 0;
-        edit->scroll = 0;
-        return;
-    }
-    
-    if( ch == 'e' - 'a' + 1 )     // ctrl-e is end
-    {
-        edit->cursor = len;
-        edit->scroll = edit->cursor - edit->widthInChars;
-        return;
-    }
-    
-    //
-    // ignore any other non printable chars
-    //
-    if( ch < 32 || ch == 0x7f )
-    {
-        return;
-    }
-    
-    if( key_overstrikeMode )
-    {
-        // - 2 to leave room for the leading slash and trailing \0
-        if( edit->cursor == MAX_EDIT_LINE - 2 )
-        {
-            return;
-        }
-        edit->buffer[edit->cursor] = ch;
-        edit->cursor++;
-    }
-    else        // insert mode
-    {
-        // - 2 to leave room for the leading slash and trailing \0
-        if( len == MAX_EDIT_LINE - 2 )
-        {
-            return; // all full
-        }
-        memmove( edit->buffer + edit->cursor + 1,
-                 edit->buffer + edit->cursor, len + 1 - edit->cursor );
-        edit->buffer[edit->cursor] = ch;
-        edit->cursor++;
-    }
-    
-    
-    if( edit->cursor >= edit->widthInChars )
-    {
-        edit->scroll++;
-    }
-    
-    if( edit->cursor == len + 1 )
-    {
-        edit->buffer[edit->cursor] = 0;
-    }
-}
-
 /*
 ===============
 CompleteCommand
@@ -664,7 +336,7 @@ static void CompleteCommand( void )
     // only look at the first token for completion purposes
     cmdSystem->TokenizeString( edit->buffer );
     
-    Field_AutoComplete( edit, "]" );
+    cmdCompletionSystem->AutoComplete( edit, "]" );
 }
 
 /*
@@ -729,7 +401,7 @@ void Console_Key( sint key )
         {
             clientScreenSystem->UpdateScreen();     // force an update, because the command
         }                           // may take some time
-        Field_Clear( &g_consoleField );
+        cmdCompletionSystem->Clear( &g_consoleField );
         return;
     }
     
@@ -789,7 +461,7 @@ void Console_Key( sint key )
         else if( g_consoleField.buffer[0] )
         {
             consoleHistorySystem->Add( g_consoleField.buffer );
-            Field_Clear( &g_consoleField );
+            cmdCompletionSystem->Clear( &g_consoleField );
         }
         return;
     }
@@ -844,7 +516,7 @@ void Console_Key( sint key )
     }
     
     // pass to the normal editline routine
-    Field_KeyDownEvent( &g_consoleField, key );
+    cmdCompletionSystem->KeyDownEvent( &g_consoleField, key );
 }
 
 //============================================================================
@@ -859,14 +531,12 @@ In game talk message
 */
 void Message_Key( sint key )
 {
-
     valueType buffer[MAX_STRING_CHARS];
-    
     
     if( key == K_ESCAPE )
     {
         cls.keyCatchers &= ~KEYCATCH_MESSAGE;
-        Field_Clear( &chatField );
+        cmdCompletionSystem->Clear( &chatField );
         return;
     }
     
@@ -893,11 +563,11 @@ void Message_Key( sint key )
             }
         }
         cls.keyCatchers &= ~KEYCATCH_MESSAGE;
-        Field_Clear( &chatField );
+        cmdCompletionSystem->Clear( &chatField );
         return;
     }
     
-    Field_KeyDownEvent( &chatField, key );
+    cmdCompletionSystem->KeyDownEvent( &chatField, key );
 }
 
 //============================================================================
@@ -1270,7 +940,7 @@ void Key_EditBind_f( void )
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "/bind %s %s", keyq, binding );
     
     Con_OpenConsole_f();
-    Field_Set( &g_consoleField, buf );
+    cmdCompletionSystem->Set( &g_consoleField, buf );
     free( buf );
 }
 
@@ -1345,7 +1015,7 @@ static void Key_CompleteUnbind( valueType* args, sint argNum )
         valueType* p = Com_SkipTokens( args, 1, " " );
         
         if( p > args )
-            Field_CompleteKeyname( );
+            cmdCompletionSystem->CompleteKeyname( );
     }
 }
 
@@ -1364,7 +1034,7 @@ void Key_CompleteBind( valueType* args, sint argNum )
         p = Com_SkipTokens( args, 1, " " );
         
         if( p > args )
-            Field_CompleteKeyname( );
+            cmdCompletionSystem->CompleteKeyname( );
     }
     else if( argNum >= 3 )
     {
@@ -1372,7 +1042,7 @@ void Key_CompleteBind( valueType* args, sint argNum )
         p = Com_SkipTokens( args, 2, " " );
         
         if( p > args )
-            Field_CompleteCommand( p, true, true );
+            cmdCompletionSystem->CompleteCommand( p, true, true );
     }
 }
 
@@ -1384,7 +1054,7 @@ static void Key_CompleteEditbind( valueType* args, sint argNum )
     
     if( p > args )
     {
-        Field_CompleteKeyname();
+        cmdCompletionSystem->CompleteKeyname();
     }
 }
 
@@ -1859,7 +1529,7 @@ void CL_CharEvent( sint key )
     // distribute the key down event to the apropriate handler
     if( cls.keyCatchers & KEYCATCH_CONSOLE )
     {
-        Field_CharEvent( &g_consoleField, key );
+        cmdCompletionSystem->CharEvent( &g_consoleField, key );
     }
     else if( cls.keyCatchers & ( KEYCATCH_UI | KEYCATCH_BUG ) )
     {
@@ -1875,11 +1545,11 @@ void CL_CharEvent( sint key )
     }
     else if( cls.keyCatchers & KEYCATCH_MESSAGE )
     {
-        Field_CharEvent( &chatField, key );
+        cmdCompletionSystem->CharEvent( &chatField, key );
     }
     else if( cls.state == CA_DISCONNECTED )
     {
-        Field_CharEvent( &g_consoleField, key );
+        cmdCompletionSystem->CharEvent( &g_consoleField, key );
     }
 }
 

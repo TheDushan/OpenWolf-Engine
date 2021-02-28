@@ -535,7 +535,7 @@ valueType* idConsoleCursesLocal::Input( void )
                 
                 consoleHistorySystem->Add( input_field.buffer );
                 Q_strcpy_s( text, input_field.buffer );
-                Field_Clear( &input_field );
+                cmdCompletionSystem->Clear( &input_field );
                 werase( inputwin );
                 wnoutrefresh( inputwin );
                 UpdateCursor();
@@ -543,14 +543,14 @@ valueType* idConsoleCursesLocal::Input( void )
                 Com_Printf( PROMPT "^7%s\n", text );
                 return text;
             case 21: // Ctrl-U
-                Field_Clear( &input_field );
+                cmdCompletionSystem->Clear( &input_field );
                 werase( inputwin );
                 wnoutrefresh( inputwin );
                 UpdateCursor();
                 continue;
             case '\t':
             case KEY_STAB:
-                Field_AutoComplete( &input_field, PROMPT );
+                cmdCompletionSystem->AutoComplete( &input_field, PROMPT );
                 input_field.cursor = strlen( input_field.buffer );
                 continue;
             case '\f':
