@@ -66,4 +66,4 @@ Whole project inherited the license GNU GPL v3 from [Wolfenstein: Enemy Territor
 
 * For full list of [Credits](https://github.com/TheDushan/OpenWolf-Engine/wiki/Credits) 
 * For full list of [Licenses](https://www.gnu.org/licenses/gpl-3.0.en.html) 
-* For full list of [Additional Licenses](https://github.com/Barbatos/ioq3-for-UrbanTerror-4) 
+* For full list of [Additional Licenses](https://github.com/TheDushan/OpenWolf-Engine/wiki/Additional-Licenses) 
