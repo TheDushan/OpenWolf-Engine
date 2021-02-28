@@ -48,7 +48,7 @@
 // from the server to all connected clients.
 //
 
-// CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
+// CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.hpp
 #define CS_MUSIC            2
 #define CS_MESSAGE          3   // from the map worldspawn's message field
 #define CS_MOTD             4   // g_motd string for server message of the day

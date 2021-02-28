@@ -144,7 +144,7 @@ sint idSystemLocal::Milliseconds( void )
 idSystemLocal::RandomBytes
 ================
 */
-bool idSystemLocal::RandomBytes( uchar8* string, sint len )
+bool idSystemLocal::RandomBytes( uchar8* string, uint64 len )
 {
     HCRYPTPROV prov;
     
@@ -329,7 +329,7 @@ idSystemLocal::ListFilteredFiles
 */
 void idSystemLocal::ListFilteredFiles( pointer basedir, valueType* subdirs, valueType* filter, valueType** list, sint* numfiles )
 {
-    intptr_t findhandle;
+    sint64 findhandle;
     valueType search[MAX_OSPATH], newsubdirs[MAX_OSPATH], filename[MAX_OSPATH];
     struct		_finddata_t findinfo;
     
@@ -437,7 +437,7 @@ valueType** idSystemLocal::ListFiles( pointer directory, pointer extension, valu
     sint nfiles, flag, i;
     valueType** listCopy, *list[MAX_FOUND_FILES];
     struct _finddata_t findinfo;
-    intptr_t findhandle;
+    sint64 findhandle;
     
     if( filter )
     {

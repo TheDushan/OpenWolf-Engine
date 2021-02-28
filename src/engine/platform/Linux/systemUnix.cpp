@@ -140,7 +140,7 @@ sint idSystemLocal::Milliseconds( void )
 idSystemLocal::RandomBytes
 ==================
 */
-bool idSystemLocal::RandomBytes( uchar8* string, sint len )
+bool idSystemLocal::RandomBytes( uchar8* string, uint64 len )
 {
     FILE* fp;
     

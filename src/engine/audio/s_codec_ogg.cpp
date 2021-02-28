@@ -49,12 +49,12 @@ snd_codec_t ogg_codec =
 // callbacks for vobisfile
 
 // fread() replacement
-size_t S_OGG_Callback_read( void* ptr, size_t size, size_t nmemb, void* datasource )
+uint64 S_OGG_Callback_read( void* ptr, uint64 size, uint64 nmemb, void* datasource )
 {
     snd_stream_t* stream;
     sint byteSize = 0;
     sint bytesRead = 0;
-    size_t nMembRead = 0;
+    uint64 nMembRead = 0;
     
     // check if input is valid
     if( !ptr )

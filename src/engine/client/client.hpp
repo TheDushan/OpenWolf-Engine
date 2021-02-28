@@ -475,7 +475,6 @@ void            CL_GetAutoUpdate( void );
 #endif
 
 void            CL_Disconnect_f( void );
-void            CL_GetChallengePacket( void );
 void            CL_Vid_Restart_f( void );
 void            CL_Snd_Restart_f( void );
 void            CL_NextDemo( void );
@@ -485,23 +484,14 @@ demoState_t     CL_DemoState( void );
 sint             CL_DemoPos( void );
 void            CL_DemoName( valueType* buffer, sint size );
 
-void            CL_WriteWaveFilePacket();
-
 void            CL_InitDownloads( void );
 void            CL_NextDownload( void );
 
-void            CL_GetPing( sint n, valueType* buf, sint buflen, sint* pingtime );
-void            CL_GetPingInfo( sint n, valueType* buf, sint buflen );
-void            CL_ClearPing( sint n );
-sint             CL_GetPingQueueCount( void );
 
 void            CL_ShutdownRef( void );
 void            CL_InitRef( void );
 
-sint             CL_ServerStatus( valueType* serverAddress, valueType* serverStatusString, sint maxLen );
-
 void            CL_AddToLimboChat( pointer str );	// NERVE - SMF
-bool        CL_GetLimboString( sint index, valueType* buf );	// NERVE - SMF
 
 // NERVE - SMF - localization
 void            CL_InitTranslation();
@@ -574,16 +564,11 @@ void            CL_ClearKeys( void );
 void            CL_InitInput( void );
 void            CL_SendCmd( void );
 void            CL_ClearState( void );
-void            CL_ReadPackets( void );
 void            CL_WritePacket( void );
-//void			IN_CenterView (void);
 void            IN_Notebook( void );
 void            IN_Help( void );
-//----(SA) salute
-void            IN_Salute( void );
-//----(SA)
 float32           CL_KeyState( kbutton_t* key );
-sint             Key_StringToKeynum( valueType* str );
+sint             Key_StringToKeynum( pointer str );
 valueType*           Key_KeynumToString( sint keynum );
 
 extern sint      cl_connectedToPureServer;
@@ -591,18 +576,10 @@ extern sint      cl_connectedToPureServer;
 //====================================================================
 
 void            CL_UpdateInfoPacket( netadr_t from );	// DHM - Nerve
-void            CL_ServerInfoPacket( netadr_t from, msg_t* msg );
-void            CL_LocalServers_f( void );
-void            CL_GlobalServers_f( void );
-void            CL_FavoriteServers_f( void );
-void            CL_Ping_f( void );
-bool        CL_UpdateVisiblePings_f( sint source );
-void			CL_GenGuid( msg_t* msg );
 
 //
 // console
 //
-void            Con_DrawCharacter( sint cx, sint line, sint num );
 void            Con_CheckResize( void );
 void            Con_Init( void );
 void            Con_Clear_f( void );
@@ -617,8 +594,6 @@ void            Con_PageDown( void );
 void            Con_Top( void );
 void            Con_Bottom( void );
 void            Con_Close( void );
-void            CL_LoadConsoleHistory( void );
-void            CL_SaveConsoleHistory( void );
 pointer     Con_GetText( sint console );
 
 //
@@ -640,7 +615,6 @@ void            CIN_CloseAllVideos( void );
 
 // yuv->rgb will be used for Theora(ogm)
 void			ROQ_GenYUVTables( void );
-void			Frame_yuv_to_rgb24( const uchar8* y, const uchar8* u, const uchar8* v, sint width, sint height, sint y_stride, sint uv_stride, sint yWShift, sint uvWShift, sint yHShift, sint uvHShift, uint* output );
 
 //
 // cl_net_chan.c

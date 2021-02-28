@@ -91,8 +91,8 @@ void IN_MLookUp( void )
 
 void IN_KeyDown( kbutton_t* b )
 {
-    sint             k;
-    valueType*           c;
+    sint k;
+    pointer c;
     
     c = cmdSystem->Argv( 1 );
     if( c[0] )
@@ -138,9 +138,9 @@ void IN_KeyDown( kbutton_t* b )
 
 void IN_KeyUp( kbutton_t* b )
 {
-    sint             k;
-    valueType*           c;
-    uint        uptime;
+    sint k;
+    pointer c;
+    uint uptime;
     
     c = cmdSystem->Argv( 1 );
     if( c[0] )
@@ -1093,7 +1093,7 @@ void CL_FinishMove( usercmd_t* cmd )
     sint             i;
     
     // copy the state that the cgame is currently sending
-    cmd->weapon = cl.cgameUserCmdValue;
+    cmd->weapon = ( uchar8 )cl.cgameUserCmdValue;
     
     cmd->flags = cl.cgameFlags;
     
@@ -1247,7 +1247,7 @@ bool CL_ReadyToSendPacket( void )
     sint             delta;
     
     // don't send anything if playing back a demo
-    if( clc.demoplaying || cls.state == CA_CINEMATIC )
+    if( clc.demoplaying )
     {
         return false;
     }
@@ -1330,7 +1330,7 @@ void CL_WritePacket( void )
     sint             count, key;
     
     // don't send anything if playing back a demo
-    if( clc.demoplaying || cls.state == CA_CINEMATIC )
+    if( clc.demoplaying )
     {
         return;
     }

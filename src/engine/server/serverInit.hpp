@@ -47,10 +47,10 @@ public:
     virtual void UpdateConfigStrings( void );
     virtual void SetConfigstringNoUpdate( sint index, pointer val );
     virtual void SetConfigstring( sint index, pointer val );
-    virtual void GetConfigstring( sint index, valueType* buffer, sint bufferSize );
+    virtual void GetConfigstring( sint index, valueType* buffer, uint64 bufferSize );
     virtual void SetConfigstringRestrictions( sint index, const clientList_t* clientList );
     virtual void SetUserinfo( sint index, pointer val );
-    virtual void GetUserinfo( sint index, valueType* buffer, sint bufferSize );
+    virtual void GetUserinfo( sint index, valueType* buffer, uint64 bufferSize );
     virtual void SpawnServer( valueType* server, bool killBots );
     virtual void Init( void );
     virtual void Shutdown( valueType* finalmsg );

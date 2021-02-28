@@ -48,19 +48,19 @@ class idServerGameSystemLocal : public idServerGameSystem
 public:
     virtual void ShutdownGameProgs( void );
     virtual bool GameCommand( void );
-    virtual void LocateGameData( sharedEntity_t* gEnts, sint numGEntities, sint sizeofGEntity_t, playerState_t* clients, sint sizeofGameClient );
+    virtual void LocateGameData( sharedEntity_t* gEnts, uint64 numGEntities, sint sizeofGEntity_t, playerState_t* clients, uint64 sizeofGameClient );
     virtual void GameDropClient( sint clientNum, pointer reason, sint length );
     virtual void GameSendServerCommand( sint clientNum, pointer text );
     virtual bool EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t* gEnt, traceType_t type );
     virtual void SetBrushModel( sharedEntity_t* ent, pointer name );
     virtual bool inPVS( const vec3_t p1, const vec3_t p2 );
     virtual bool inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
-    virtual void GetServerinfo( valueType* buffer, sint bufferSize );
+    virtual void GetServerinfo( valueType* buffer, uint64 bufferSize );
     virtual void AdjustAreaPortalState( sharedEntity_t* ent, bool open );
     virtual void UpdateSharedConfig( uint port, pointer rconpass );
     virtual void GetUsercmd( sint clientNum, usercmd_t* cmd );
     virtual bool GetTag( sint clientNum, sint tagFileNumber, valueType* tagname, orientation_t* _or );
-    virtual bool GetEntityToken( valueType* buffer, sint bufferSize );
+    virtual bool GetEntityToken( valueType* buffer, uint64 bufferSize );
     virtual bool GameIsSinglePlayer( void );
     virtual sharedEntity_t* GentityNum( sint num );
     virtual svEntity_t* SvEntityForGentity( sharedEntity_t* gEnt );

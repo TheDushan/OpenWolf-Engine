@@ -60,7 +60,7 @@ typedef struct pack_s
     sint pure_checksum; // checksum for pure
     sint numfiles; // number of files in pk3
     sint referenced; // referenced file flags
-    sint hashSize; // hash table size (power of 2)
+    uint64 hashSize; // hash table size (power of 2)
     fileInPack_t** hashTable; // hash table
     fileInPack_t* buildBuffer; // buffer with the filenames etc.
 } pack_t;
@@ -74,7 +74,7 @@ public:
     virtual bool Initialized( void ) = 0;
     virtual bool PakIsPure( pack_t* pack ) = 0;
     virtual sint LoadStack( void ) = 0;
-    virtual sint32 HashFileName( pointer fname, sint hashSize ) = 0;
+    virtual sint32 HashFileName( pointer fname, uint64 hashSize ) = 0;
     virtual fileHandle_t HandleForFile( void ) = 0;
     virtual FILE* FileForHandle( fileHandle_t f ) = 0;
     virtual void ForceFlush( fileHandle_t f ) = 0;
@@ -121,17 +121,17 @@ public:
     virtual pack_t* LoadZipFile( pointer zipfile, pointer basename ) = 0;
     virtual sint ReturnPath( pointer zname, valueType* zpath, sint* depth ) = 0;
     virtual sint AddFileToList( valueType* name, valueType* list[MAX_FOUND_FILES], sint nfiles ) = 0;
-    virtual valueType** ListFilteredFiles( pointer path, pointer extension, valueType* filter, sint* numfiles ) = 0;
-    virtual valueType** ListFiles( pointer path, pointer extension, sint* numfiles ) = 0;
+    virtual valueType** ListFilteredFiles( pointer path, pointer extension, valueType* filter, uint64* numfiles ) = 0;
+    virtual valueType** ListFiles( pointer path, pointer extension, uint64* numfiles ) = 0;
     virtual void FreeFileList( valueType** list ) = 0;
-    virtual sint GetFileList( pointer path, pointer extension, valueType* listbuf, sint bufsize ) = 0;
+    virtual uint64 GetFileList( pointer path, pointer extension, valueType* listbuf, uint64 bufsize ) = 0;
     virtual uint CountFileList( valueType** list ) = 0;
     virtual valueType** ConcatenateFileLists( valueType** list0, valueType** list1, valueType** list2 ) = 0;
-    virtual sint GetModList( valueType* listbuf, sint bufsize ) = 0;
+    virtual uint64 GetModList( valueType* listbuf, uint64 bufsize ) = 0;
     virtual void ConvertPath( valueType* s ) = 0;
     virtual sint PathCmp( pointer s1, pointer s2 ) = 0;
-    virtual void SortFileList( valueType** filelist, sint numfiles ) = 0;
-    virtual bool IsExt( pointer filename, pointer ext, sint namelen ) = 0;
+    virtual void SortFileList( valueType** filelist, uint64 numfiles ) = 0;
+    virtual bool IsExt( pointer filename, pointer ext, uint64 namelen ) = 0;
     virtual bool idPak( valueType* pak, valueType* base ) = 0;
     virtual bool VerifyOfficialPaks( void ) = 0;
     virtual bool ComparePaks( valueType* neededpaks, sint len, bool dlstring ) = 0;

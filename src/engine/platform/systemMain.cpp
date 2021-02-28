@@ -209,7 +209,7 @@ bool idSystemLocal::WritePIDFile( void )
     if( ( f = fopen( pidFile, "r" ) ) != nullptr )
     {
         valueType  pidBuffer[ 64 ] = { 0 };
-        sint   pid;
+        uint64 pid;
         
         fread( pidBuffer, sizeof( valueType ), sizeof( pidBuffer ) - 1, f );
         fclose( f );
@@ -590,13 +590,6 @@ void idSystemLocal::SigHandler( sint signal )
 idSystemLocal::SnapVector
 ================
 */
-float32 idSystemLocal::roundfloat( float32 n )
-{
-#ifdef _WIN32
-    return ( n < 0.0f ) ? ceilf( n - 0.5f ) : floorf( n + 0.5f );
-#endif
-}
-
 void idSystemLocal::SysSnapVector( float32* v )
 {
 #ifdef _WIN32

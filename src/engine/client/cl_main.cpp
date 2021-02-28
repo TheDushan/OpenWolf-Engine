@@ -1105,7 +1105,7 @@ CL_UpdateGUID
 update cl_guid using ETKEY_FILE and optional prefix
 ====================
 */
-static void CL_UpdateGUID( pointer prefix, sint prefix_len )
+static void CL_UpdateGUID( pointer prefix, uint64 prefix_len )
 {
     fileHandle_t    f;
     sint             len;
@@ -4700,8 +4700,9 @@ CL_ReloadTranslation
 */
 void CL_ReloadTranslation()
 {
-    valueType**          fileList;
-    sint             numFiles, i;
+    sint i;
+    valueType** fileList;
+    uint64 numFiles;
     
     for( i = 0; i < FILE_HASH_SIZE; i++ )
     {
@@ -4729,8 +4730,9 @@ CL_InitTranslation
 */
 void CL_InitTranslation()
 {
-    valueType**          fileList;
-    sint             numFiles, i;
+    sint i;
+    uint64 numFiles;
+    valueType** fileList;
     
     memset( transTable, 0, sizeof( trans_t* ) * FILE_HASH_SIZE );
     CL_LoadTransTable( "scripts/translation.lang" );

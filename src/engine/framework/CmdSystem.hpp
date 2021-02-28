@@ -46,8 +46,7 @@ typedef void( *completionFunc_t )( valueType* args, sint argNum );
 
 typedef struct
 {
-    sint maxsize;
-    sint cursize;
+    uint64 maxsize, cursize;
     uchar8* data;
 } cmd_t;
 
@@ -154,9 +153,9 @@ public:
     virtual void SaveCmdContext( void );
     virtual void RestoreCmdContext( void );
     virtual valueType* FromNth( sint count );
-    virtual void ArgvBuffer( sint arg, valueType* buffer, sint bufferLength );
-    virtual void ArgsBuffer( valueType* buffer, sint bufferLength );
-    virtual void LiteralArgsBuffer( valueType* buffer, sint bufferLength );
+    virtual void ArgvBuffer( sint arg, valueType* buffer, uint64 bufferLength );
+    virtual void ArgsBuffer( valueType* buffer, uint64 bufferLength );
+    virtual void LiteralArgsBuffer( valueType* buffer, uint64 bufferLength );
     
     cmd_function_t* FindCommand( pointer cmdName );
     static void RunAlias( void );

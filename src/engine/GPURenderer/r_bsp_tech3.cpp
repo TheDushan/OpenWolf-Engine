@@ -2518,7 +2518,7 @@ void R_LoadEntities( lump_t* l )
 idRenderSystemLocal::GetEntityToken
 =================
 */
-bool idRenderSystemLocal::GetEntityToken( valueType* buffer, sint size )
+bool idRenderSystemLocal::GetEntityToken( valueType* buffer, uint64 size )
 {
     pointer	s;
     

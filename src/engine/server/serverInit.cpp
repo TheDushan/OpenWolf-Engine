@@ -74,7 +74,8 @@ given client
 */
 void idServerInitSystemLocal::SendConfigstring( client_t* client, sint index )
 {
-    sint maxChunkSize = MAX_STRING_CHARS - 24, len;
+    sint maxChunkSize = MAX_STRING_CHARS - 24;
+    uint64 len;
     
     if( sv.configstrings[index].restricted && Com_ClientListContains( &sv.configstrings[index].clientList, client - svs.clients ) )
     {
@@ -87,7 +88,8 @@ void idServerInitSystemLocal::SendConfigstring( client_t* client, sint index )
     
     if( len >= maxChunkSize )
     {
-        sint	sent = 0, remaining = len;
+        sint sent = 0;
+        uint64 remaining = len;
         valueType* cmd, buf[MAX_STRING_CHARS];
         
         while( remaining > 0 )
@@ -274,7 +276,7 @@ void idServerInitSystemLocal::SetConfigstring( sint index, pointer val )
 idServerInitSystemLocal::GetConfigstring
 ===============
 */
-void idServerInitSystemLocal::GetConfigstring( sint index, valueType* buffer, sint bufferSize )
+void idServerInitSystemLocal::GetConfigstring( sint index, valueType* buffer, uint64 bufferSize )
 {
     if( bufferSize < 1 )
     {
@@ -347,7 +349,7 @@ void idServerInitSystemLocal::SetUserinfo( sint index, pointer val )
 idServerInitSystemLocal::GetUserinfo
 ===============
 */
-void idServerInitSystemLocal::GetUserinfo( sint index, valueType* buffer, sint bufferSize )
+void idServerInitSystemLocal::GetUserinfo( sint index, valueType* buffer, uint64 bufferSize )
 {
     if( bufferSize < 1 )
     {

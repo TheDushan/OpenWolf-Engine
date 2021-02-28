@@ -47,11 +47,11 @@ class idClientGUISystem
 public:
     virtual void GetClientState( uiClientState_t* state ) = 0;
     virtual void GetGlconfig( vidconfig_t* config ) = 0;
-    virtual void GUIGetClipboardData( valueType* buf, sint buflen ) = 0;
-    virtual sint GetConfigString( sint index, valueType* buf, sint size ) = 0;
+    virtual void GUIGetClipboardData( valueType* buf, uint64 buflen ) = 0;
+    virtual bool GetConfigString( sint index, valueType* buf, uint64 size ) = 0;
     virtual bool GetNews( bool begin ) = 0;
-    virtual void KeynumToStringBuf( sint keynum, valueType* buf, sint buflen ) = 0;
-    virtual void GetBindingBuf( sint keynum, valueType* buf, sint buflen ) = 0;
+    virtual void KeynumToStringBuf( sint keynum, valueType* buf, uint64 buflen ) = 0;
+    virtual void GetBindingBuf( sint keynum, valueType* buf, uint64 buflen ) = 0;
     virtual sint GetCatcher( void ) = 0;
     virtual void SetCatcher( sint catcher ) = 0;
     virtual bool checkKeyExec( sint key ) = 0;

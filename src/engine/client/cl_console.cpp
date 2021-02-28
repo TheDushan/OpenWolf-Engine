@@ -700,11 +700,10 @@ If no console is visible, the text will appear at the top of the game window
 
 void CL_ConsolePrint( valueType* txt )
 {
-    sint             y;
-    sint             c, l;
-    sint             color;
-    bool        skipnotify = false;	// NERVE - SMF
-    sint             prev;		// NERVE - SMF
+    sint y, c, l;
+    valueType color;
+    bool skipnotify = false;	// NERVE - SMF
+    sint prev;		// NERVE - SMF
     
     // NERVE - SMF - work around for text that shows up in console but not in notify
     if( !Q_strncmp( txt, "[skipnotify]", 12 ) )

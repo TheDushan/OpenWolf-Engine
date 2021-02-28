@@ -60,7 +60,7 @@ idMD5SystemLocal::~idMD5SystemLocal( void )
 idMD5SystemLocal::MD5File
 ====================
 */
-valueType* idMD5SystemLocal::MD5File( pointer fn, sint length, pointer prefix, sint prefix_len )
+valueType* idMD5SystemLocal::MD5File( pointer fn, sint length, pointer prefix, uint64 prefix_len )
 {
     sint i, filelen = 0, r = 0, total = 0;
     static valueType final[33] = { "" };

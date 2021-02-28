@@ -316,7 +316,7 @@ idFileSystemLocal::HashFileName
 return a hash value for the filename
 ================
 */
-sint32 idFileSystemLocal::HashFileName( pointer fname, sint hashSize )
+sint32 idFileSystemLocal::HashFileName( pointer fname, uint64 hashSize )
 {
     sint i;
     sint32 hash;
@@ -1877,7 +1877,7 @@ idFileSystemLocal::Read
 */
 sint idFileSystemLocal::Read( void* buffer, sint len, fileHandle_t f )
 {
-    sint block, remaining, read, tries;
+    uint64 block, remaining, read, tries;
     uchar8* buf;
     
     if( !fs_searchpaths )
@@ -1919,11 +1919,6 @@ sint idFileSystemLocal::Read( void* buffer, sint len, fileHandle_t f )
                 }
             }
             
-            if( read == -1 )
-            {
-                Com_Error( ERR_FATAL, "idFileSystemLocal::Read: -1 bytes read" );
-            }
-            
             remaining -= read;
             buf += read;
         }
@@ -1944,7 +1939,8 @@ Properly handles partial writes
 */
 sint idFileSystemLocal::Write( const void* buffer, sint len, fileHandle_t h )
 {
-    sint block, remaining, written, tries;
+    uint64 block, remaining, written;
+    sint tries;
     uchar8* buf;
     FILE* f;
     
@@ -2420,7 +2416,8 @@ pack_t* idFileSystemLocal::LoadZipFile( pointer zipfile, pointer basename )
     fileInPack_t* buildBuffer;
     pack_t* pack;
     unzFile uf;
-    sint err, i, len, fs_numHeaderLongs, *fs_headerLongs, sizeOfHeaderLongs;
+    sint err, fs_numHeaderLongs, * fs_headerLongs, sizeOfHeaderLongs;
+    uint64 i, len;
     unz_global_info gi;
     valueType filename_inzip[MAX_ZPATH];
     unz_file_info file_info;
@@ -2611,9 +2608,10 @@ Returns a uniqued list of files that match the given criteria
 from all search paths
 ===============
 */
-valueType** idFileSystemLocal::ListFilteredFiles( pointer path, pointer extension, valueType* filter, sint* numfiles )
+valueType** idFileSystemLocal::ListFilteredFiles( pointer path, pointer extension, valueType* filter, uint64* numfiles )
 {
-    sint nfiles, i, pathLength, length, pathDepth, temp;
+    sint pathDepth;
+    uint64 nfiles, i, pathLength, length, temp;
     valueType** listCopy, *list[MAX_FOUND_FILES];
     searchpath_t* search;
     pack_t* pak;
@@ -2766,7 +2764,7 @@ valueType** idFileSystemLocal::ListFilteredFiles( pointer path, pointer extensio
 idFileSystemLocal::ListFiles
 =================
 */
-valueType** idFileSystemLocal::ListFiles( pointer path, pointer extension, sint* numfiles )
+valueType** idFileSystemLocal::ListFiles( pointer path, pointer extension, uint64* numfiles )
 {
     return ListFilteredFiles( path, extension, nullptr, numfiles );
 }
@@ -2803,9 +2801,9 @@ void idFileSystemLocal::FreeFileList( valueType** list )
 idFileSystemLocal::GetFileList
 ================
 */
-sint idFileSystemLocal::GetFileList( pointer path, pointer extension, valueType* listbuf, sint bufsize )
+uint64 idFileSystemLocal::GetFileList( pointer path, pointer extension, valueType* listbuf, uint64 bufsize )
 {
-    sint nFiles, i, nTotal, nLen;
+    uint64 nFiles, i, nTotal, nLen;
     valueType** pFiles = nullptr;
     
     *listbuf = 0;
@@ -2941,9 +2939,10 @@ A mod directory is a peer to baseq3 with a pk3 in it
 The directories are searched in base path, cd path and home path
 ================
 */
-sint idFileSystemLocal::GetModList( valueType* listbuf, sint bufsize )
+uint64 idFileSystemLocal::GetModList( valueType* listbuf, uint64 bufsize )
 {
-    sint nMods, i, j, nTotal, nLen, nPaks, nPotential, nDescLen;
+    sint i, j, nPaks, nPotential;
+    uint64 nLen, nDescLen, nTotal, nMods;
     valueType** pFiles = nullptr;
     valueType** pPaks = nullptr;
     valueType* name, *path;
@@ -3079,7 +3078,8 @@ void idFileSystemLocal::Dir_f( void )
     valueType* path;
     valueType* extension;
     valueType** dirnames;
-    sint ndirs, i;
+    sint i;
+    uint64 ndirs;
     
     if( cmdSystem->Argc() < 2 || cmdSystem->Argc() > 3 )
     {
@@ -3184,7 +3184,7 @@ sint idFileSystemLocal::PathCmp( pointer s1, pointer s2 )
 idFileSystemLocal::SortFileList
 ================
 */
-void idFileSystemLocal::SortFileList( valueType** filelist, sint numfiles )
+void idFileSystemLocal::SortFileList( valueType** filelist, uint64 numfiles )
 {
     sint i, j, k, numsortedfiles;
     valueType** sortedlist;
@@ -3225,7 +3225,7 @@ void idFileSystemLocal::NewDir_f( void )
 {
     valueType* filter;
     valueType** dirnames;
-    sint ndirs;
+    uint64 ndirs;
     sint i;
     
     if( cmdSystem->Argc() < 2 )
@@ -3451,9 +3451,9 @@ idFileSystemLocal::IsExt
 Return true if ext matches file extension filename
 ===========
 */
-bool idFileSystemLocal::IsExt( pointer filename, pointer ext, sint namelen )
+bool idFileSystemLocal::IsExt( pointer filename, pointer ext, uint64 namelen )
 {
-    sint extlen;
+    uint64 extlen;
     
     extlen = strlen( ext );
     
@@ -4856,8 +4856,8 @@ idFileSystemLocal::FOpenFileByMode
 */
 void idFileSystemLocal::FilenameCompletion( pointer dir, pointer ext, bool stripExt, void( *callback )( pointer s ) )
 {
+    uint64 i, nfiles;
     valueType** filenames;
-    sint i, nfiles;
     valueType filename[ MAX_STRING_CHARS ];
     
     filenames = ListFilteredFiles( dir, ext, nullptr, &nfiles );

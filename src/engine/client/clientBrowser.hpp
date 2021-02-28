@@ -63,8 +63,8 @@ public:
     static void ServerStatusResponse( netadr_t from, msg_t* msg );
     static void LocalServers( void );
     static void GlobalServers( void );
-    static void GetPing( sint n, valueType* buf, sint buflen, sint* pingtime );
-    static void GetPingInfo( sint n, valueType* buf, sint buflen );
+    static void GetPing( sint n, valueType* buf, uint64 buflen, sint* pingtime );
+    static void GetPingInfo( sint n, valueType* buf, uint64 buflen );
     static void ClearPing( sint n );
     static sint GetPingQueueCount( void );
     static ping_t* GetFreePing( void );

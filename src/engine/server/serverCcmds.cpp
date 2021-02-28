@@ -898,7 +898,8 @@ idServerCcmdsSystemLocal::Status_f
 */
 void idServerCcmdsSystemLocal::Status_f( void )
 {
-    sint i, j, l, ping;
+    sint i, j, ping;
+    uint64 l;
     client_t* cl;
     playerState_t* ps;
     pointer s;
@@ -1024,8 +1025,12 @@ void idServerCcmdsSystemLocal::ConSay_f( void )
     
     if( *p == '"' )
     {
-        p++;
-        p[strlen( p ) - 1] = 0;
+        Q_strcat( text, sizeof( text ), p + 1 );
+        text[strlen( text ) - 1] = '\0';
+    }
+    else
+    {
+        Q_strcat( text, sizeof( text ), p );
     }
     
     strcat( text, p );

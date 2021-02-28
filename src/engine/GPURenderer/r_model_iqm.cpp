@@ -213,7 +213,7 @@ bool R_LoadIQM( model_t* mod, void* buffer, sint filesize, pointer mod_name )
     sint			i, j, k;
     iqmTransform_t* transform;
     float32* mat, * matInv;
-    size_t			size, joint_names;
+    uint64			size, joint_names;
     uchar8* dataPtr;
     iqmData_t* iqmData;
     srfIQModel_t* surface;

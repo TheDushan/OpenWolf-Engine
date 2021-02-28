@@ -1269,7 +1269,7 @@ The interpreted versions use this because
 they can't have pointers returned to them
 ============
 */
-void idCmdSystemLocal::ArgvBuffer( sint arg, valueType* buffer, sint bufferLength )
+void idCmdSystemLocal::ArgvBuffer( sint arg, valueType* buffer, uint64 bufferLength )
 {
     Q_strncpyz( buffer, cmdSystemLocal.Argv( arg ), bufferLength );
 }
@@ -1340,7 +1340,7 @@ The interpreted versions use this because
 they can't have pointers returned to them
 ============
 */
-void idCmdSystemLocal::ArgsBuffer( valueType* buffer, sint bufferLength )
+void idCmdSystemLocal::ArgsBuffer( valueType* buffer, uint64 bufferLength )
 {
     Q_strncpyz( buffer, cmdSystemLocal.Args(), bufferLength );
 }
@@ -1353,7 +1353,7 @@ The interpreted versions use this because
 they can't have pointers returned to them
 ============
 */
-void idCmdSystemLocal::LiteralArgsBuffer( valueType* buffer, sint bufferLength )
+void idCmdSystemLocal::LiteralArgsBuffer( valueType* buffer, uint64 bufferLength )
 {
     Q_strncpyz( buffer, cmd.cmd, bufferLength );
 }

@@ -218,7 +218,7 @@ idCmdCompletionLocal::Complete
 */
 bool idCmdCompletionLocal::Complete( void )
 {
-    sint completionOffset;
+    sint64 completionOffset;
     
     if( matchCount == 0 )
     {
@@ -479,8 +479,8 @@ x, y, and width are in pixels
 void idCmdCompletionLocal::VariableSizeDraw( field_t* edit, sint x, sint y, sint size, bool showCursor, bool noColorEscape, float32 alpha )
 {
 #ifndef DEDICATED
-    sint i, len, drawLen, prestep, cursorChar;
-    valueType str[MAX_STRING_CHARS];
+    uint64 i, len, drawLen, prestep;
+    valueType cursorChar, str[MAX_STRING_CHARS];
     
     // - 1 so there is always a space for the cursor
     drawLen = edit->widthInChars - 1;
@@ -567,7 +567,7 @@ void idCmdCompletionLocal::VariableSizeDraw( field_t* edit, sint x, sint y, sint
         {
             str[0] = cursorChar;
             str[1] = 0;
-            clientScreenSystem->DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, false );
+            clientScreenSystem->DrawBigString( x + ( sint )( edit->cursor - prestep - i ) * size, y, str, 1.0, false );
             
         }
     }
@@ -602,7 +602,7 @@ idCmdCompletionLocal::Paste
 void idCmdCompletionLocal::Paste( field_t* edit )
 {
     valueType* cbd;
-    sint pasteLen, i;
+    uint64 pasteLen, i;
     
     cbd = idsystem->SysGetClipboardData();
     
@@ -635,7 +635,7 @@ Key events are used for non-printable characters, others are gotten from char ev
 void idCmdCompletionLocal::KeyDownEvent( field_t* edit, sint key )
 {
 #ifndef DEDICATED
-    sint len;
+    uint64 len;
     
     // shift-insert is paste
     if( ( ( key == K_INS ) || ( key == K_KP_INS ) ) && keys[K_SHIFT].down )
@@ -719,10 +719,10 @@ void idCmdCompletionLocal::KeyDownEvent( field_t* edit, sint key )
 idCmdCompletionLocal::CharEvent
 ==================
 */
-void idCmdCompletionLocal::CharEvent( field_t* edit, sint ch )
+void idCmdCompletionLocal::CharEvent( field_t* edit, valueType ch )
 {
 #ifndef DEDICATED
-    sint len;
+    uint64 len;
     
     // ctrl-v is paste
     if( ch == 'v' - 'a' + 1 )

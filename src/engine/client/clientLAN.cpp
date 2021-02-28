@@ -297,7 +297,7 @@ sint idClientLANSystemLocal::GetServerCount( sint source )
 idClientLANSystemLocal::GetLocalServerAddressString
 ====================
 */
-void idClientLANSystemLocal::GetServerAddressString( sint source, sint n, valueType* buf, sint buflen )
+void idClientLANSystemLocal::GetServerAddressString( sint source, sint n, valueType* buf, uint64 buflen )
 {
     switch( source )
     {
@@ -334,7 +334,7 @@ void idClientLANSystemLocal::GetServerAddressString( sint source, sint n, valueT
 idClientLANSystemLocal::GetServerInfo
 ====================
 */
-void idClientLANSystemLocal::GetServerInfo( sint source, sint n, valueType* buf, sint buflen )
+void idClientLANSystemLocal::GetServerInfo( sint source, sint n, valueType* buf, uint64 buflen )
 {
     valueType info[MAX_STRING_CHARS];
     serverInfo_t* server = nullptr;
@@ -616,7 +616,7 @@ void idClientLANSystemLocal::ClearPing( sint n )
 idClientLANSystemLocal::GetPing
 ====================
 */
-void idClientLANSystemLocal::GetPing( sint n, valueType* buf, sint buflen, sint* pingtime )
+void idClientLANSystemLocal::GetPing( sint n, valueType* buf, uint64 buflen, sint* pingtime )
 {
     idClientBrowserSystemLocal::GetPing( n, buf, buflen, pingtime );
 }
@@ -626,7 +626,7 @@ void idClientLANSystemLocal::GetPing( sint n, valueType* buf, sint buflen, sint*
 idClientLANSystemLocal::GetPingInfo
 ====================
 */
-void idClientLANSystemLocal::GetPingInfo( sint n, valueType* buf, sint buflen )
+void idClientLANSystemLocal::GetPingInfo( sint n, valueType* buf, uint64 buflen )
 {
     idClientBrowserSystemLocal::GetPingInfo( n, buf, buflen );
 }
@@ -745,7 +745,7 @@ bool idClientLANSystemLocal::UpdateVisiblePings( sint source )
 idClientLANSystemLocal::GetServerStatus
 ====================
 */
-sint idClientLANSystemLocal::GetServerStatus( valueType* serverAddress, valueType* serverStatus, sint maxLen )
+sint idClientLANSystemLocal::GetServerStatus( valueType* serverAddress, valueType* serverStatus, uint64 maxLen )
 {
     return idClientBrowserSystemLocal::ServerStatus( serverAddress, serverStatus, maxLen );
 }

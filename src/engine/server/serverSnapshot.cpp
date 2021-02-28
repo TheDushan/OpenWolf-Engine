@@ -711,7 +711,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot( client_t* client )
     }
     
     // grab the current playerState_t
-    ps = serverGameSystem->GameClientNum( client - svs.clients );
+    ps = serverGameSystem->GameClientNum( ARRAY_INDEX( svs.clients, client ) );
     frame->ps = *ps;
     
     // never send client's own entity, because it can

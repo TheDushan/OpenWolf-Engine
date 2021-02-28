@@ -110,7 +110,7 @@ Adds a \n to the text
 */
 void idCmdBufferSystemLocal::InsertText( pointer text )
 {
-    sint i, len;
+    uint64 i, len;
     
     len = strlen( text ) + 1;
     
@@ -121,9 +121,12 @@ void idCmdBufferSystemLocal::InsertText( pointer text )
     }
     
     // move the existing command text
-    for( i = cmd_text.cursize - 1; i >= 0; i-- )
+    if( cmd_text.cursize > 0U )
     {
-        cmd_text.data[i + len] = cmd_text.data[i];
+        for( i = cmd_text.cursize - 1; i > 0; i-- )
+        {
+            cmd_text.data[i + len] = cmd_text.data[i];
+        }
     }
     
     // copy the new text in

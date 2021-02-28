@@ -146,7 +146,7 @@ void idClientGUISystemLocal::GetGlconfig( vidconfig_t* config )
 idClientGUISystemLocal::GUIGetClipboarzdData
 ====================
 */
-void idClientGUISystemLocal::GUIGetClipboardData( valueType* buf, sint buflen )
+void idClientGUISystemLocal::GUIGetClipboardData( valueType* buf, uint64 buflen )
 {
     valueType* cbd;
     
@@ -168,7 +168,7 @@ void idClientGUISystemLocal::GUIGetClipboardData( valueType* buf, sint buflen )
 idClientGUISystemLocal::KeynumToStringBuf
 ====================
 */
-void idClientGUISystemLocal::KeynumToStringBuf( sint keynum, valueType* buf, sint buflen )
+void idClientGUISystemLocal::KeynumToStringBuf( sint keynum, valueType* buf, uint64 buflen )
 {
     Q_strncpyz( buf, Key_KeynumToString( keynum ), buflen );
 }
@@ -178,7 +178,7 @@ void idClientGUISystemLocal::KeynumToStringBuf( sint keynum, valueType* buf, sin
 idClientGUISystemLocal::GetBindingBuf
 ====================
 */
-void idClientGUISystemLocal::GetBindingBuf( sint keynum, valueType* buf, sint buflen )
+void idClientGUISystemLocal::GetBindingBuf( sint keynum, valueType* buf, uint64 buflen )
 {
     valueType* value;
     
@@ -227,9 +227,9 @@ void idClientGUISystemLocal::SetCatcher( sint catcher )
 idClientGUISystemLocal::GetConfigString
 ====================
 */
-sint idClientGUISystemLocal::GetConfigString( sint index, valueType* buf, sint size )
+bool idClientGUISystemLocal::GetConfigString( sint index, valueType* buf, uint64 size )
 {
-    sint offset;
+    uint64 offset;
     
     if( index < 0 || index >= MAX_CONFIGSTRINGS )
     {

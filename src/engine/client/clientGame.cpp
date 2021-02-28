@@ -300,8 +300,10 @@ idClientGameSystemLocal::ConfigstringModified
 */
 void idClientGameSystemLocal::ConfigstringModified( void )
 {
-    sint i, index, len;
-    valueType* old, *s, *dup;
+    sint i, index;
+    uint64 len;
+    valueType* old;
+    pointer s, dup;
     gameState_t oldGs;
     
     index = atoi( cmdSystem->Argv( 1 ) );
@@ -459,8 +461,7 @@ Set up argc/argv for the given command
 bool idClientGameSystemLocal::GetServerCommand( sint serverCommandNumber )
 {
     sint argc, i = 0;
-    valueType* s;
-    valueType* cmd;
+    pointer s, cmd;
     static valueType bigConfigString[BIG_INFO_STRING];
     
     // if we have irretrievably lost a reliable command, drop the connection

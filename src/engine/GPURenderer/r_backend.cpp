@@ -453,7 +453,7 @@ void RB_RenderDrawSurfList( drawSurf_t* drawSurfs, sint numDrawSurfs )
     bool depthRange, oldDepthRange, isCrosshair, wasCrosshair;
     sint i;
     drawSurf_t* drawSurf;
-    size_t oldSort;
+    uint oldSort;
     FBO_t* fbo = nullptr;
     float32 depth[2];
     
@@ -472,7 +472,7 @@ void RB_RenderDrawSurfList( drawSurf_t* drawSurfs, sint numDrawSurfs )
     oldDlighted = false;
     oldPshadowed = false;
     oldCubemapIndex = -1;
-    oldSort = -1;
+    oldSort = 0xFFFFFFFFu;
     
     depth[0] = 0.f;
     depth[1] = 1.f;

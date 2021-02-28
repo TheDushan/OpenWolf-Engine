@@ -564,7 +564,8 @@ idClientBrowserSystemLocal::ServerStatusResponse
 */
 void idClientBrowserSystemLocal::ServerStatusResponse( netadr_t from, msg_t* msg )
 {
-    sint i, l, score, ping, len;
+    sint i, l, score, ping;
+    uint64 len;
     valueType* s, info[MAX_INFO_STRING];
     serverStatus_t* serverStatus;
     
@@ -844,7 +845,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
 idClientBrowserSystemLocal::GetPing
 ==================
 */
-void idClientBrowserSystemLocal::GetPing( sint n, valueType* buf, sint buflen, sint* pingtime )
+void idClientBrowserSystemLocal::GetPing( sint n, valueType* buf, uint64 buflen, sint* pingtime )
 {
     sint time, maxPing;
     pointer str;
@@ -890,7 +891,7 @@ void idClientBrowserSystemLocal::GetPing( sint n, valueType* buf, sint buflen, s
 idClientBrowserSystemLocal::GetPingInfo
 ==================
 */
-void idClientBrowserSystemLocal::GetPingInfo( sint n, valueType* buf, sint buflen )
+void idClientBrowserSystemLocal::GetPingInfo( sint n, valueType* buf, uint64 buflen )
 {
     if( n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port )
     {

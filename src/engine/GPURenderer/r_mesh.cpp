@@ -199,7 +199,7 @@ sint R_ComputeLOD( trRefEntity_t* ent )
         {
             sint frameSize;
             mdr = ( mdrHeader_t* ) tr.currentModel->modelData;
-            frameSize = ( size_t )( &( ( mdrFrame_t* )0 )->bones[mdr->numBones] );
+            frameSize = ( uint64 )( &( ( mdrFrame_t* )0 )->bones[mdr->numBones] );
             
             mdrframe = ( mdrFrame_t* )( ( uchar8* ) mdr + mdr->ofsFrames + frameSize * ent->e.frame );
             

@@ -153,7 +153,7 @@ NET
 #endif
 #define	PACKET_MASK		(PACKET_BACKUP-1)
 
-#define MAX_PACKET_USERCMDS     32      // max number of usercmd_t in a packet
+#define MAX_PACKET_USERCMDS     512      // max number of usercmd_t in a packet
 
 #define PORT_ANY            -1
 
@@ -378,7 +378,7 @@ extern gameInfo_t com_gameInfo;
 valueType*           CopyString( pointer in );
 void            Info_Print( pointer s );
 
-void            Com_BeginRedirect( valueType* buffer, sint buffersize, void ( *flush )( valueType* ) );
+void            Com_BeginRedirect( valueType* buffer, uint64 buffersize, void ( *flush )( valueType* ) );
 void            Com_EndRedirect( void );
 
 void            Com_Quit_f( void );
@@ -494,13 +494,13 @@ void*           Z_TagMallocDebug( size_t size, memtag_t tag, valueType* label, v
 void*           Z_MallocDebug( size_t size, valueType* label, valueType* file, sint line );	// returns 0 filled memory
 void*           S_MallocDebug( size_t size, valueType* label, valueType* file, sint line );	// returns 0 filled memory
 #else
-void*           Z_TagMalloc( size_t size, memtag_t tag );	// NOT 0 filled memory
-void*           Z_Malloc( size_t size );	// returns 0 filled memory
-void*           S_Malloc( size_t size );	// NOT 0 filled memory only for small allocations
+void*           Z_TagMalloc( uint64 size, memtag_t tag );	// NOT 0 filled memory
+void*           Z_Malloc( uint64 size );	// returns 0 filled memory
+void*           S_Malloc( uint64 size );	// NOT 0 filled memory only for small allocations
 #endif
 void            Z_Free( void* ptr );
 void            Z_FreeTags( memtag_t tag );
-sint             Z_AvailableMemory( void );
+uint64 Z_AvailableMemory( void );
 void            Z_LogHeap( void );
 
 void            Hunk_Clear( void );
@@ -511,9 +511,9 @@ bool        Hunk_CheckMark( void );
 //void *Hunk_Alloc( sint size );
 // void *Hunk_Alloc( sint size, ha_pref preference );
 void            Hunk_ClearTempMemory( void );
-void*           Hunk_AllocateTempMemory( size_t size );
+void*           Hunk_AllocateTempMemory( uint64 size );
 void            Hunk_FreeTempMemory( void* buf );
-sint             Hunk_MemoryRemaining( void );
+uint64             Hunk_MemoryRemaining( void );
 void            Hunk_SmallLog( void );
 void            Hunk_Log( void );
 

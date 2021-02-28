@@ -54,8 +54,8 @@ public:
     virtual float32 VariableValue( pointer var_name );
     virtual sint VariableIntegerValue( pointer var_name );
     virtual valueType* VariableString( pointer var_name );
-    virtual void VariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize );
-    virtual void LatchedVariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize );
+    virtual void VariableStringBuffer( pointer var_name, valueType* buffer, uint64 bufsize );
+    virtual void LatchedVariableStringBuffer( pointer var_name, valueType* buffer, uint64 bufsize );
     virtual sint Flags( pointer var_name );
     virtual void CommandCompletion( void( *callback )( pointer s ) );
     virtual valueType* ClearForeignCharacters( pointer value );
@@ -81,7 +81,7 @@ public:
     static void Restart_f( void );
     virtual valueType* InfoString( sint bit );
     virtual valueType* InfoString_Big( sint bit );
-    virtual void InfoStringBuffer( sint bit, valueType* buff, sint buffsize );
+    virtual void InfoStringBuffer( sint bit, valueType* buff, uint64 buffsize );
     virtual void CheckRange( convar_t* var, float32 min, float32 max, bool integral );
     virtual void Register( vmConvar_t* vmCvar, pointer varName, pointer defaultValue, sint flags, pointer description );
     virtual void Update( vmConvar_t* vmCvar );

@@ -146,7 +146,7 @@ public:
     
     virtual valueType* DefaultHomePath( valueType* buffer, sint size );
     virtual sint Milliseconds( void );
-    virtual bool RandomBytes( uchar8* string, sint len );
+    virtual bool RandomBytes( uchar8* string, uint64 len );
     virtual valueType* GetCurrentUser( void );
     virtual bool LowPhysicalMemory( void );
     virtual bool Mkdir( pointer path );
@@ -205,7 +205,6 @@ public:
     static void ParseArgs( sint argc, valueType** argv );
     static pointer SignalToString( sint sig );
     static void SigHandler( sint signal );
-    static float32 roundfloat( float32 n );
     static void InitJoystick( void );
     static void ShutdownJoystick( void );
     static void JoyMove( sint eventTime );

@@ -646,7 +646,7 @@ gotnewcl:
     }
     newcl->cs_user = user;
     
-    clientNum = newcl - svs.clients;
+    clientNum = ARRAY_INDEX( svs.clients, newcl );
     ent = serverGameSystem->GentityNum( clientNum );
     newcl->gentity = ent;
     
@@ -814,14 +814,14 @@ void idServerClientSystemLocal::DropClient( client_t* drop, pointer reason )
     // call the prog function for removing a client
     // this will remove the body, among other things
 #ifndef UPDATE_SERVER
-    sgame->ClientDisconnect( drop - svs.clients );
+    sgame->ClientDisconnect( ARRAY_INDEX( svs.clients, drop ) );
 #endif
     
     // add the disconnect command
     serverMainSystem->SendServerCommand( drop, va( "disconnect \"%s\"", reason ) );
     
     // nuke user info
-    serverInitSystem->SetUserinfo( drop - svs.clients, "" );
+    serverInitSystem->SetUserinfo( ARRAY_INDEX( svs.clients, drop ), "" );
     
 #if !defined (UPDATE_SERVER)
     // OACS: Commit then reset the last interframe for this client
@@ -949,7 +949,7 @@ void idServerClientSystemLocal::SendClientGameState( client_t* client )
     
     MSG_WriteByte( &msg, svc_EOF );
     
-    MSG_WriteLong( &msg, client - svs.clients );
+    MSG_WriteLong( &msg, ARRAY_INDEX( svs.clients, client ) );
     
     // write the checksum feed
     MSG_WriteLong( &msg, sv.checksumFeed );
@@ -992,7 +992,7 @@ void idServerClientSystemLocal::ClientEnterWorld( client_t* client, usercmd_t* c
     serverInitSystem->UpdateConfigStrings();
     
     // set up the entity for the client
-    clientNum = client - svs.clients;
+    clientNum = ARRAY_INDEX( svs.clients, client );
     ent = serverGameSystem->GentityNum( clientNum );
     ent->s.number = clientNum;
     client->gentity = ent;
@@ -1004,16 +1004,16 @@ void idServerClientSystemLocal::ClientEnterWorld( client_t* client, usercmd_t* c
     client->nextSnapshotTime = svs.time; // generate a snapshot immediately
     if( cmd )
     {
-        memcpy( &client->lastUsercmd, cmd, sizeof( client->lastUsercmd ) );
+        ::memcpy( &client->lastUsercmd, cmd, sizeof( client->lastUsercmd ) );
     }
     else
     {
-        memset( &client->lastUsercmd, '\0', sizeof( client->lastUsercmd ) );
+        ::memset( &client->lastUsercmd, '\0', sizeof( client->lastUsercmd ) );
     }
     
     // call the game begin function
 #ifndef UPDATE_SERVER
-    sgame->ClientBegin( client - svs.clients );
+    sgame->ClientBegin( ARRAY_INDEX( svs.clients, client ) );
 #endif
 }
 
@@ -2318,7 +2318,7 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, b
             }
             
 #ifndef UPDATE_SERVER
-            sgame->ClientCommand( cl - svs.clients );
+            sgame->ClientCommand( ARRAY_INDEX( svs.clients, cl ) );
 #endif
         }
     }
@@ -2454,7 +2454,7 @@ void idServerClientSystemLocal::ClientThink( sint client, usercmd_t* cmd )
         UserinfoChanged( cl );
         
         // call prog code to allow overrides
-        sgame->ClientUserinfoChanged( cl - svs.clients );
+        sgame->ClientUserinfoChanged( ARRAY_INDEX( svs.clients, cl ) );
         
         // get the name out of the game and set it in the engine
         serverInitSystem->GetConfigstring( CS_PLAYERS + ( cl - svs.clients ), info, sizeof( info ) );

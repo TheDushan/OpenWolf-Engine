@@ -97,7 +97,7 @@ public:
     virtual void ModelBounds( qhandle_t model, vec3_t mins, vec3_t maxs ) = 0;
     virtual void RegisterFont( pointer fontName, sint pointSize, fontInfo_t* font ) = 0;
     virtual void RemapShader( pointer oldShader, pointer newShader, pointer offsetTime ) = 0;
-    virtual bool GetEntityToken( valueType* buffer, sint size ) = 0;
+    virtual bool GetEntityToken( valueType* buffer, uint64 size ) = 0;
     virtual bool inPVS( const vec3_t p1, const vec3_t p2 ) = 0;
     virtual void TakeVideoFrame( sint h, sint w, uchar8* captureBuffer, uchar8* encodeBuffer, bool motionJpeg ) = 0;
 };

@@ -339,7 +339,7 @@ local sint construct( struct huffman* h, schar16* length, sint n )
      */
     for( symbol = 0; symbol < n; symbol++ )
         if( length[symbol] != 0 )
-            h->symbol[offs[length[symbol]]++] = symbol;
+            h->symbol[offs[length[symbol]]++] = static_cast<schar16>( symbol );
             
     /* return zero for complete set, positive for incomplete set */
     return left;
@@ -441,7 +441,7 @@ local sint codes( struct state* s,
             if( s->out != nullptr )
             {
                 if( s->outcnt == s->outlen ) return 1;
-                s->out[s->outcnt] = symbol;
+                s->out[s->outcnt] = ( uchar8 )symbol;
             }
             s->outcnt++;
         }
@@ -636,10 +636,15 @@ local sint dynamic( struct state* s )
     schar16 lengths[MAXCODES];            /* descriptor code lengths */
     schar16 lencnt[MAXBITS + 1], lensym[MAXLCODES];       /* lencode memory */
     schar16 distcnt[MAXBITS + 1], distsym[MAXDCODES];     /* distcode memory */
-    struct huffman lencode = {lencnt, lensym};          /* length code */
-    struct huffman distcode = {distcnt, distsym};       /* distance code */
+    struct huffman lencode;          /* length code */
+    struct huffman distcode;       /* distance code */
     static const schar16 order[19] =      /* permutation of code length codes */
     {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+    
+    lencode.count = lencnt;
+    lencode.symbol = lensym;
+    distcode.count = distcnt;
+    distcode.symbol = distsym;
     
     /* get number of lengths in each table, check lengths */
     nlen = bits( s, 5 ) + 257;
@@ -650,7 +655,7 @@ local sint dynamic( struct state* s )
         
     /* read code length code lengths (really), missing lengths are zero */
     for( index = 0; index < ncode; index++ )
-        lengths[order[index]] = bits( s, 3 );
+        lengths[order[index]] = static_cast<schar16>( bits( s, 3 ) );
     for( ; index < 19; index++ )
         lengths[order[index]] = 0;
         
@@ -667,7 +672,7 @@ local sint dynamic( struct state* s )
         
         symbol = decode( s, &lencode );
         if( symbol < 16 )               /* length in 0..15 */
-            lengths[index++] = symbol;
+            lengths[index++] = static_cast<schar16>( symbol );
         else                            /* repeat instruction */
         {
             len = 0;                    /* assume repeating zeros */
@@ -684,7 +689,7 @@ local sint dynamic( struct state* s )
             if( index + symbol > nlen + ndist )
                 return -6;              /* too many lengths! */
             while( symbol-- )           /* repeat last or zero symbol times */
-                lengths[index++] = len;
+                lengths[index++] = static_cast<schar16>( len );
         }
     }
     

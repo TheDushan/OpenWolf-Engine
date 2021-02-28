@@ -4563,7 +4563,8 @@ static void LoadShaderFromBuffer( valueType* buff )
 
 static void ScanAndLoadShaderFiles( void )
 {
-    sint i, numShaderFiles;
+    sint i;
+    uint64 numShaderFiles;
     valueType filename[MAX_QPATH];
     valueType* buffer;
     valueType** shaderFiles;

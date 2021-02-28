@@ -235,7 +235,7 @@ typedef struct server_s
     // the game virtual machine will update these on init and changes
     
     sharedEntity_t* gentities;
-    sint             gentitySize;
+    uint64             gentitySize;
     sint             num_entities;	// current number, <= MAX_GENTITIES
     
     // demo recording
@@ -248,7 +248,7 @@ typedef struct server_s
     playerState_t	demoPlayerStates[MAX_CLIENTS];
     
     playerState_t*  gameClients;
-    sint             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
+    uint64             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
     
     sint             restartTime;
     sint             time;

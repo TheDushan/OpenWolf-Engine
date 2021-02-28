@@ -1406,13 +1406,13 @@ void CM_InitBoxHull( void )
         
         // planes
         p = &box_planes[i * 2];
-        p->type = i >> 1;
+        p->type = static_cast<uchar8>( i >> 1 );
         p->signbits = 0;
         VectorClear( p->normal );
         p->normal[i >> 1] = 1;
         
         p = &box_planes[i * 2 + 1];
-        p->type = 3 + ( i >> 1 );
+        p->type = static_cast<uchar8>( 3 + ( i >> 1 ) );
         p->signbits = 0;
         VectorClear( p->normal );
         p->normal[i >> 1] = -1;

@@ -98,11 +98,7 @@ idServerGameSystemLocal::NumForGentity
 */
 sint idServerGameSystemLocal::NumForGentity( sharedEntity_t* ent )
 {
-    sint num;
-    
-    num = ( ( uchar8* ) ent - ( uchar8* ) sv.gentities ) / sv.gentitySize;
-    
-    return num;
+    return ( sint )( ( ( uchar8* )ent - ( uchar8* )sv.gentities ) / sv.gentitySize );
 }
 
 /*
@@ -112,11 +108,7 @@ idServerGameSystemLocal::GentityNum
 */
 sharedEntity_t* idServerGameSystemLocal::GentityNum( sint num )
 {
-    sharedEntity_t* ent;
-    
-    ent = ( sharedEntity_t* )( ( uchar8* ) sv.gentities + sv.gentitySize * ( num ) );
-    
-    return ent;
+    return ( sharedEntity_t* )( ( uchar8* )sv.gentities + sv.gentitySize * num );
 }
 
 /*
@@ -126,11 +118,7 @@ idServerGameSystemLocal::GentityNum
 */
 playerState_t* idServerGameSystemLocal::GameClientNum( sint num )
 {
-    playerState_t*  ps;
-    
-    ps = ( playerState_t* )( ( uchar8* ) sv.gameClients + sv.gameClientSize * ( num ) );
-    
-    return ps;
+    return ( playerState_t* )( ( uchar8* )sv.gameClients + sv.gameClientSize * num );
 }
 
 /*
@@ -155,10 +143,7 @@ idServerGameSystemLocal::GEntityForSvEntity
 */
 sharedEntity_t* idServerGameSystemLocal::GEntityForSvEntity( svEntity_t* svEnt )
 {
-    sint num;
-    
-    num = svEnt - sv.svEntities;
-    return serverGameSystemLocal.GentityNum( num );
+    return GentityNum( ARRAY_INDEX( sv.svEntities, svEnt ) );
 }
 
 /*
@@ -370,7 +355,7 @@ bool idServerGameSystemLocal::EntityContact( const vec3_t mins, const vec3_t max
 idServerGameSystemLocal::GetServerinfo
 ===============
 */
-void idServerGameSystemLocal::GetServerinfo( valueType* buffer, sint bufferSize )
+void idServerGameSystemLocal::GetServerinfo( valueType* buffer, uint64 bufferSize )
 {
     if( bufferSize < 1 )
     {
@@ -385,7 +370,7 @@ void idServerGameSystemLocal::GetServerinfo( valueType* buffer, sint bufferSize 
 idServerGameSystemLocal::LocateGameData
 ===============
 */
-void idServerGameSystemLocal::LocateGameData( sharedEntity_t* gEnts, sint numGEntities, sint sizeofGEntity_t, playerState_t* clients, sint sizeofGameClient )
+void idServerGameSystemLocal::LocateGameData( sharedEntity_t* gEnts, uint64 numGEntities, sint sizeofGEntity_t, playerState_t* clients, uint64 sizeofGameClient )
 {
     sv.gentities = gEnts;
     sv.gentitySize = sizeofGEntity_t;
@@ -444,7 +429,7 @@ void idServerGameSystemLocal::UpdateSharedConfig( uint port, pointer rconpass )
 idServerGameSystemLocal::GetEntityToken
 ===============
 */
-bool idServerGameSystemLocal::GetEntityToken( valueType* buffer, sint bufferSize )
+bool idServerGameSystemLocal::GetEntityToken( valueType* buffer, uint64 bufferSize )
 {
     pointer s;
     

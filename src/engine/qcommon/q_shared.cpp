@@ -1251,7 +1251,7 @@ Com_QuoteStr
 pointer Com_QuoteStr( pointer str )
 {
     static valueType* buf = nullptr;
-    static uint32 buflen = 0;
+    static uint64 buflen = 0;
     
     uint32 length;
     valueType* ptr;
@@ -1260,7 +1260,7 @@ pointer Com_QuoteStr( pointer str )
 //	if (!strpbrk (str, "\";"))
 //		return str;
 
-    length = ( uint32 )::strlen( str );
+    length = ( uint64 )::strlen( str );
     
     if( buflen < 2 * length + 3 )
     {
@@ -1489,7 +1489,7 @@ void Q_strncpyz( valueType* dest, pointer src, sint destsize )
 {
     valueType* d;
     pointer s;
-    size_t n;
+    uint64 n;
     
 #ifdef _DEBUG
     if( !dest )
@@ -2613,7 +2613,7 @@ bool Q_CleanPlayerName( pointer in, valueType* out, sint outSize )
 
 valueType* Com_StringContains( valueType* str1, valueType* str2, sint casesensitive )
 {
-    sint len, i, j;
+    uint64 len, i, j;
     
     len = ( sint )::strlen( str1 ) - ( sint )::strlen( str2 );
     for( i = 0; i <= len; i++, str1++ )
@@ -2890,7 +2890,7 @@ void Q_strcpy_s( valueType* pDest, uint32 nDestSize, pointer pSrc )
     *pDest = 0;
 }
 
-sint Q_vsprintf_s( valueType* strDest, size_t destMax, size_t count, pointer format, ... )
+sint Q_vsprintf_s( valueType* strDest, uint64 destMax, uint64 count, pointer format, ... )
 {
     sint ret = 0;
     va_list arglist;

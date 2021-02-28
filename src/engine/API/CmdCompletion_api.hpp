@@ -46,9 +46,7 @@ Edit fields and command line history/completion
 #define MAX_EDIT_LINE   256
 typedef struct
 {
-    sint cursor;
-    sint scroll;
-    sint widthInChars;
+    uint64 cursor, scroll, widthInChars;
     valueType buffer[MAX_EDIT_LINE];
 } field_t;
 
@@ -71,7 +69,7 @@ public:
     virtual void Draw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape, float32 alpha ) = 0;
     virtual void BigDraw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape ) = 0;
     virtual void KeyDownEvent( field_t* edit, sint key ) = 0;
-    virtual void CharEvent( field_t* edit, sint ch ) = 0;
+    virtual void CharEvent( field_t* edit, valueType ch ) = 0;
 };
 
 extern idCmdCompletionSystem* cmdCompletionSystem;

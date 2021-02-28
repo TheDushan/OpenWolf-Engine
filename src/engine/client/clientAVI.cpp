@@ -75,8 +75,8 @@ idClientAVISystemLocal::WRITE_STRING
 */
 void idClientAVISystemLocal::WRITE_STRING( pointer s )
 {
-    ::memcpy( &buffer[bufIndex], s, strlen( s ) );
-    bufIndex += strlen( s );
+    ::memcpy( &buffer[bufIndex], s, ::strlen( s ) );
+    bufIndex += static_cast<sint>( ::strlen( s ) );
 }
 
 /*

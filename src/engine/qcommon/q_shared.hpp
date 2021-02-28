@@ -137,7 +137,7 @@ typedef sint clipHandle_t;
 
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 #define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
-#define PADP(base, alignment)	((void *) PAD((intptr_t) (base), (alignment)))
+#define PADP(base, alignment)	((void *) PAD((sint64) (base), (alignment)))
 
 #define STRING(s)			#s
 // expand constants before stringifying them
@@ -271,9 +271,9 @@ typedef enum
 
 #ifdef HUNK_DEBUG
 #define Hunk_Alloc( size, preference ) Hunk_AllocDebug( size, preference, # size, __FILE__, __LINE__ )
-void* Hunk_AllocDebug( size_t size, ha_pref preference, valueType* label, valueType* file, sint line );
+void* Hunk_AllocDebug( uint64 size, ha_pref preference, valueType* label, valueType* file, sint line );
 #else
-void* Hunk_Alloc( size_t size, ha_pref preference );
+void* Hunk_Alloc( uint64 size, ha_pref preference );
 #endif
 
 #define CIN_system  1
@@ -326,6 +326,7 @@ typedef sint     fixed16_t;
 #define M_ROOT3 1.732050808f
 #endif
 
+#define ARRAY_INDEX(arr, el)	((sint)( (el) - (arr) ))
 #define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
 
 // angle indexes
@@ -746,7 +747,7 @@ bool SkipBracedSection( valueType** program );
 bool SkipBracedSection_Depth( valueType** program, sint depth ); // start at given depth if already
 void SkipRestOfLine( valueType** data );
 
-sint Q_vsprintf_s( valueType* strDest, size_t destMax, size_t count, pointer format, ... );
+sint Q_vsprintf_s( valueType* strDest, uint64 destMax, uint64 count, pointer format, ... );
 void Q_vsprintf_s( valueType* pDest, uint32 nDestSize, pointer pFmt, va_list args );
 
 template< uint32 nDestSize >
@@ -810,10 +811,10 @@ ID_INLINE void Q_strcpy_s( valueType( &pDest )[nDestSize], pointer pSrc )
     Q_strcpy_s( pDest, nDestSize, pSrc );
 }
 
-sint Q_vsprintf_s( valueType* strDest, size_t destMax, size_t count, pointer format, ... );
+sint Q_vsprintf_s( valueType* strDest, uint64 destMax, uint64 count, pointer format, ... );
 
 template< uint32 nDestSize >
-ID_INLINE void Q_vsprintf_s( valueType( &strDest )[nDestSize], size_t destMax, size_t count, pointer format, ... )
+ID_INLINE void Q_vsprintf_s( valueType( &strDest )[nDestSize], uint64 destMax, uint64 count, pointer format, ... )
 {
     Q_vsprintf_s( strDest, destMax, count, format );
 }
@@ -997,9 +998,9 @@ typedef enum
 #define MAX_GAMESTATE_CHARS 16000
 typedef struct
 {
-    sint stringOffsets[MAX_CONFIGSTRINGS];
+    uint64 stringOffsets[MAX_CONFIGSTRINGS];
     valueType stringData[MAX_GAMESTATE_CHARS];
-    sint dataCount;
+    uint64 dataCount;
 } gameState_t;
 
 // xkan, 1/10/2003 - adapted from original SP

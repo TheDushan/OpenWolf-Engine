@@ -46,7 +46,7 @@ public:
     idMD5SystemLocal();
     ~idMD5SystemLocal();
     
-    virtual valueType* MD5File( pointer fn, sint length, pointer prefix, sint prefix_len );
+    virtual valueType* MD5File( pointer fn, sint length, pointer prefix, uint64 prefix_len );
 };
 
 extern idMD5SystemLocal MD5Local;

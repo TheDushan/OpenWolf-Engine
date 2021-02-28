@@ -225,7 +225,7 @@ valueType* idCVarSystemLocal::VariableString( pointer var_name )
 idCVarSystemLocal::VariableStringBuffer
 ============
 */
-void idCVarSystemLocal::VariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize )
+void idCVarSystemLocal::VariableStringBuffer( pointer var_name, valueType* buffer, uint64 bufsize )
 {
     convar_t* var;
     
@@ -245,7 +245,7 @@ void idCVarSystemLocal::VariableStringBuffer( pointer var_name, valueType* buffe
 idCVarSystemLocal::VariableStringBuffer
 ============
 */
-void idCVarSystemLocal::LatchedVariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize )
+void idCVarSystemLocal::LatchedVariableStringBuffer( pointer var_name, valueType* buffer, uint64 bufsize )
 {
     convar_t* var;
     
@@ -1501,7 +1501,7 @@ valueType* idCVarSystemLocal::InfoString_Big( sint bit )
 idCVarSystemLocal::InfoStringBuffer
 =====================
 */
-void idCVarSystemLocal::InfoStringBuffer( sint bit, valueType* buff, sint buffsize )
+void idCVarSystemLocal::InfoStringBuffer( sint bit, valueType* buff, uint64 buffsize )
 {
     Q_strncpyz( buff, InfoString( bit ), buffsize );
 }

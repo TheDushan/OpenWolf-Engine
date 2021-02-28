@@ -70,7 +70,7 @@ AllocWinding
 winding_t* AllocWinding( sint points )
 {
     winding_t*      w;
-    size_t          s;
+    uint64          s;
     
     c_winding_allocs++;
     c_winding_points += points;
@@ -310,7 +310,7 @@ CopyWinding
 */
 winding_t* CopyWinding( winding_t* w )
 {
-    size_t        size;
+    uint64        size;
     winding_t*      c;
     
     c = AllocWinding( w->numpoints );

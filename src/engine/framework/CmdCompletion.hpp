@@ -66,7 +66,7 @@ public:
     virtual void Draw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape, float32 alpha );
     virtual void BigDraw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape );
     virtual void KeyDownEvent( field_t* edit, sint key );
-    virtual void CharEvent( field_t* edit, sint ch );
+    virtual void CharEvent( field_t* edit, valueType ch );
     
     static void FindMatches( pointer s );
     static void PrintMatches( pointer s );

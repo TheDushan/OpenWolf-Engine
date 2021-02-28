@@ -319,7 +319,7 @@ bool idNetworkSystemLocal::StringToSockaddr( pointer s, struct sockaddr* sadr, s
 idNetworkSystemLocal::SockaddrToString
 =============
 */
-void idNetworkSystemLocal::SockaddrToString( valueType* dest, sint destlen, struct sockaddr* input )
+void idNetworkSystemLocal::SockaddrToString( valueType* dest, uint64 destlen, struct sockaddr* input )
 {
     socklen_t inputlen;
     
@@ -328,7 +328,7 @@ void idNetworkSystemLocal::SockaddrToString( valueType* dest, sint destlen, stru
     else
         inputlen = sizeof( struct sockaddr_in );
         
-    if( getnameinfo( input, inputlen, dest, destlen, nullptr, 0, NI_NUMERICHOST ) && destlen > 0 )
+    if( getnameinfo( input, inputlen, dest, ( uint )destlen, nullptr, 0, NI_NUMERICHOST ) && destlen > 0 )
         *dest = '\0';
 }
 
@@ -1255,8 +1255,7 @@ void idNetworkSystemLocal::OpenSocks( sint port )
     // do username/password authentication if needed
     if( buf[1] == 2 )
     {
-        sint		ulen;
-        sint		plen;
+        uint64 ulen, plen;
         
         // build the request
         ulen = strlen( net_socksUsername->string );
@@ -1275,7 +1274,7 @@ void idNetworkSystemLocal::OpenSocks( sint port )
         }
         
         // send it
-        if( send( socks_socket, ( valueType* )buf, 3 + ulen + plen, 0 ) == SOCKET_ERROR )
+        if( send( socks_socket, ( pointer )buf, ( sint )( 3 + ulen + plen ), 0 ) == SOCKET_ERROR )
         {
             err = socketError;
             Com_Printf( "idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString() );

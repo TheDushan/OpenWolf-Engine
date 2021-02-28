@@ -952,7 +952,7 @@ typedef enum
 
 typedef struct drawSurf_s
 {
-    uint64 sort;			// bit combination for fast compares
+    uint32 sort;			// bit combination for fast compares
     sint cubemapIndex;
     surfaceType_t* surface;		// any of surface*_t
 } drawSurf_t;
@@ -1239,7 +1239,7 @@ typedef struct
     valueType		name[MAX_QPATH];		// ie: maps/tim_dm2.bsp
     valueType		baseName[MAX_QPATH];	// ie: tim_dm2
     
-    sint			dataSize;
+    sint64			dataSize;
     
     sint			numShaders;
     dshader_t*	shaders;
@@ -2629,6 +2629,8 @@ uint32 RE_SaveJPGToBuffer( uchar8* buffer, uint32 bufSize, sint quality, sint im
 template<typename B, typename T>
 T GetCommandBuffer( B bytes, T type );
 
+void R_ShutdownCommandBuffers( void );
+
 //
 // idRenderSystemLocal
 //
@@ -2663,7 +2665,7 @@ public:
     virtual void ModelBounds( qhandle_t model, vec3_t mins, vec3_t maxs );
     virtual void RegisterFont( pointer fontName, sint pointSize, fontInfo_t* font );
     virtual void RemapShader( pointer oldShader, pointer newShader, pointer offsetTime );
-    virtual bool GetEntityToken( valueType* buffer, sint size );
+    virtual bool GetEntityToken( valueType* buffer, uint64 size );
     virtual bool inPVS( const vec3_t p1, const vec3_t p2 );
     virtual void TakeVideoFrame( sint h, sint w, uchar8* captureBuffer, uchar8* encodeBuffer, bool motionJpeg );
 public:

@@ -483,7 +483,7 @@ void idServerWorldSystemLocal::AreaEntities_r( worldSector_t* node, areaParms_t*
             return;
         }
         
-        ap->list[ap->count] = check - sv.svEntities;
+        ap->list[ap->count] = ARRAY_INDEX( sv.svEntities, check );
         ap->count++;
     }
     

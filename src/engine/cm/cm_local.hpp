@@ -63,9 +63,9 @@ typedef struct
 {
     sint		cluster;
     sint     area;
-    ptrdiff_t     firstLeafBrush;
+    sint64     firstLeafBrush;
     sint     numLeafBrushes;
-    ptrdiff_t     firstLeafSurface;
+    sint64     firstLeafSurface;
     sint     numLeafSurfaces;
 } cLeaf_t;
 

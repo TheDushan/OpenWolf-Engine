@@ -37,11 +37,11 @@
 #ifndef __CONSOLE_LOGGING_H__
 #define __CONSOLE_LOGGING_H__
 
-#define MAX_LOG 32768
+#define MAX_LOG 32768u
 
 static valueType consoleLog[MAX_LOG];
-static uint writePos = 0;
-static uint readPos = 0;
+static uint64 writePos = 0;
+static uint64 readPos = 0;
 
 //
 // idConsoleLoggingSystemLocal
@@ -52,11 +52,11 @@ public:
     idConsoleLoggingSystemLocal();
     ~idConsoleLoggingSystemLocal();
     
-    virtual uint LogWrite( pointer in );
-    virtual uint LogRead( valueType* out, uint outSize );
+    virtual uint64 LogWrite( pointer in );
+    virtual uint64 LogRead( valueType* out, uint64 outSize );
     
-    static uint LogSize( void );
-    static uint LogFree( void );
+    static uint64 LogSize( void );
+    static uint64 LogFree( void );
 private:
 };
 

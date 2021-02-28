@@ -78,8 +78,8 @@ void trap_Cvar_Register( vmConvar_t* cvar, pointer var_name, pointer value, sint
 void trap_Cvar_Update( vmConvar_t* cvar );
 void trap_Cvar_Set( pointer var_name, pointer value );
 float32 trap_Cvar_VariableValue( pointer var_name );
-void trap_Cvar_VariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize );
-void trap_Cvar_LatchedVariableStringBuffer( pointer var_name, valueType* buffer, sint bufsize );
+void trap_Cvar_VariableStringBuffer( pointer var_name, valueType* buffer, uint64 bufsize );
+void trap_Cvar_LatchedVariableStringBuffer( pointer var_name, valueType* buffer, uint64 bufsize );
 void trap_Cvar_SetValue( pointer var_name, float32 value );
 void trap_Cvar_Reset( pointer name );
 void trap_Cvar_Create( pointer var_name, pointer var_value, sint flags, pointer description );
@@ -128,7 +128,7 @@ void trap_Key_SetCatcher( sint catcher );
 void trap_GetClipboardData( valueType* buf, sint bufsize );
 void trap_GetClientState( uiClientState_t* state );
 void trap_GetGlconfig( vidconfig_t* glconfig );
-sint trap_GetConfigString( sint index, valueType* buff, sint buffsize );
+sint trap_GetConfigString( sint index, valueType* buff, uint64 buffsize );
 void trap_LAN_LoadCachedServers( void );
 void trap_LAN_SaveCachedServers( void );
 sint trap_LAN_AddServer( sint source, pointer name, pointer addr );
@@ -190,7 +190,7 @@ struct guiImports_t
     bool ( *GetOverstrikeMode )( void );
     void ( *SetOverstrikeMode )( bool state );
     void ( *ClearStates )( void );
-    sint( *Hunk_MemoryRemaining )( void );
+    uint64( *Hunk_MemoryRemaining )( void );
     sint( *RealTime )( qtime_t* qtime );
     sint( *PlayCinematic )( pointer arg0, sint xpos, sint ypos, sint width, sint height, sint bits );
     e_status( *StopCinematic )( sint handle );

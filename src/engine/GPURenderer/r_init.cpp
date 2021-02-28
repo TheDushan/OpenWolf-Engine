@@ -550,7 +550,7 @@ uchar8* RB_ReadPixels( sint x, sint y, sint width, sint height, uint32* offset, 
     // Allocate a few more bytes so that we can choose an alignment we like
     buffer = ( uchar8* )Hunk_AllocateTempMemory( padwidth * height + *offset + packAlign - 1 );
     
-    bufstart = ( uchar8* )PADP( ( intptr_t ) buffer + *offset, packAlign );
+    bufstart = ( uchar8* )PADP( ( sint64 ) buffer + *offset, packAlign );
     
     qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, bufstart );
     
@@ -987,8 +987,8 @@ const void* RB_TakeVideoFrameCmd( const void* data )
 {
     const videoFrameCommand_t*	cmd;
     uchar8*				cBuf;
-    uint32				memcount, linelen;
-    sint				padwidth, avipadwidth, padlen, avipadlen;
+    uint64				memcount, linelen;
+    uint64				padwidth, avipadwidth, padlen, avipadlen;
     sint packAlign;
     
     // finish any 2D drawing if needed
@@ -1124,7 +1124,7 @@ void R_PrintLongString( pointer string )
     sint size = strlen( string );
     
     p = string;
-    while( size > 0 )
+    while( p < &string[size] )
     {
         Q_strncpyz( buffer, p, sizeof( buffer ) );
         CL_RefPrintf( PRINT_ALL, "%s", buffer );
@@ -1508,7 +1508,7 @@ void R_Init( void )
     
 //	Swap_Init();
 
-    if( ( intptr_t )tess.xyz & 15 )
+    if( ( sint64 )tess.xyz & 15 )
     {
         CL_RefPrintf( PRINT_WARNING, "tess.xyz not 16 uchar8 aligned\n" );
     }
@@ -1637,6 +1637,7 @@ void idRenderSystemLocal::Shutdown( bool destroyWindow )
     // shut down platform specific OpenGL stuff
     if( destroyWindow )
     {
+        R_ShutdownCommandBuffers();
         GLimp_Shutdown();
         
         ::memset( &glConfig, 0, sizeof( glConfig ) );

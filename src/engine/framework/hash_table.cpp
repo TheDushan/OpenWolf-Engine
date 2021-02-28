@@ -251,7 +251,7 @@ Com_JenkinsHashKey
 uint Com_JenkinsHashKey( void* vkey )
 {
     uint hash = 0;
-    size_t i;
+    uint64 i;
     uchar8* key;
     sint key_len;
     

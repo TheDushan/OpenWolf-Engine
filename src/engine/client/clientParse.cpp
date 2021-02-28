@@ -749,7 +749,7 @@ void idClientParseSystemLocal::ParseGamestate( msg_t* msg )
         
         if( cmd == svc_configstring )
         {
-            sint             len;
+            uint64 len;
             
             i = MSG_ReadShort( msg );
             if( i < 0 || i >= MAX_CONFIGSTRINGS )

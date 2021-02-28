@@ -66,9 +66,9 @@ public:
     virtual void SaveCmdContext( void ) = 0;
     virtual void RestoreCmdContext( void ) = 0;
     virtual valueType* FromNth( sint count ) = 0;
-    virtual void ArgvBuffer( sint arg, valueType* buffer, sint bufferLength ) = 0;
-    virtual void ArgsBuffer( valueType* buffer, sint bufferLength ) = 0;
-    virtual void LiteralArgsBuffer( valueType* buffer, sint bufferLength ) = 0;
+    virtual void ArgvBuffer( sint arg, valueType* buffer, uint64 bufferLength ) = 0;
+    virtual void ArgsBuffer( valueType* buffer, uint64 bufferLength ) = 0;
+    virtual void LiteralArgsBuffer( valueType* buffer, uint64 bufferLength ) = 0;
 };
 
 extern idCmdSystem* cmdSystem;

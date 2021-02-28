@@ -614,7 +614,7 @@ the K_* names are matched up.
 to be configured even if they don't have defined names.
 ===================
 */
-sint Key_StringToKeynum( valueType* str )
+sint Key_StringToKeynum( pointer str )
 {
     keyname_t*   kn;
     
@@ -675,7 +675,7 @@ valueType* Key_KeynumToString( sint keynum )
     // check for printable ascii (don't use quote)
     if( keynum > 32 && keynum < 127 && keynum != '"' && keynum != ';' )
     {
-        tinystr[0] = keynum;
+        tinystr[0] = static_cast<valueType>( keynum );
         tinystr[1] = 0;
         return tinystr;
     }
@@ -695,8 +695,8 @@ valueType* Key_KeynumToString( sint keynum )
     
     tinystr[0] = '0';
     tinystr[1] = 'x';
-    tinystr[2] = i > 9 ? i - 10 + 'a' : i + '0';
-    tinystr[3] = j > 9 ? j - 10 + 'a' : j + '0';
+    tinystr[2] = static_cast<valueType>( i > 9 ? i - 10 + 'a' : i + '0' );
+    tinystr[3] = static_cast<valueType>( j > 9 ? j - 10 + 'a' : j + '0' );
     tinystr[4] = 0;
     
     return tinystr;

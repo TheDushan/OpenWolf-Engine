@@ -612,7 +612,8 @@ the simple info query.
 */
 void idServerMainSystemLocal::Status( netadr_t from )
 {
-    sint i, statusLength, playerLength;
+    sint i;
+    uint64 statusLength, playerLength;
     valueType player[1024], status[MAX_MSGLEN], infostring[MAX_INFO_STRING];
     client_t* cl;
     playerState_t* ps;

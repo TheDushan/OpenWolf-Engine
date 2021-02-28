@@ -158,7 +158,7 @@ public:
     virtual sint ConnectTCP( valueType* s_host_port );
     
     static valueType* ErrorString( void );
-    static void SockaddrToString( valueType* dest, sint destlen, struct sockaddr* input );
+    static void SockaddrToString( valueType* dest, uint64 destlen, struct sockaddr* input );
     static void NetadrToSockadr( netadr_t* a, struct sockaddr* s );
     static void SockadrToNetadr( struct sockaddr* s, netadr_t* a );
     static struct addrinfo* SearchAddrInfo( struct addrinfo* hints, sa_family_t family );

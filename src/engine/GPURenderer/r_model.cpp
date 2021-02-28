@@ -392,8 +392,8 @@ R_LoadMD3
 */
 static bool R_LoadMD3( model_t* mod, sint lod, void* buffer, sint bufferSize, pointer modName )
 {
-    sint             f, i, j;
-    
+    sint             f, i;
+    uint64 j;
     md3Header_t*    md3Model;
     md3Frame_t*     md3Frame;
     md3Surface_t*   md3Surf;
@@ -1306,7 +1306,7 @@ static mdvTag_t* R_GetTag( mdvModel_t* mod, sint frame, pointer _tagName )
 mdvTag_t* R_GetAnimTag( mdrHeader_t* mod, sint framenum, pointer tagName, mdvTag_t* dest )
 {
     sint				i, j, k;
-    sint				frameSize;
+    uint64 frameSize;
     mdrFrame_t*		frame;
     mdrTag_t*		tag;
     
@@ -1323,7 +1323,7 @@ mdvTag_t* R_GetAnimTag( mdrHeader_t* mod, sint framenum, pointer tagName, mdvTag
         {
             // uncompressed model...
             //
-            frameSize = ( intptr_t )( &( ( mdrFrame_t* )0 )->bones[ mod->numBones ] );
+            frameSize = ( sint64 )( &( ( mdrFrame_t* )0 )->bones[ mod->numBones ] );
             frame = ( mdrFrame_t* )( ( uchar8* )mod + mod->ofsFrames + framenum * frameSize );
             
             for( j = 0; j < 3; j++ )

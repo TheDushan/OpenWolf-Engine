@@ -414,7 +414,7 @@ void MSG_WriteString( msg_t* sb, pointer s )
     }
     else
     {
-        sint             l, i;
+        uint64 l, i;
         valueType            string[MAX_STRING_CHARS];
         
         l = strlen( s );
@@ -447,7 +447,7 @@ void MSG_WriteBigString( msg_t* sb, pointer s )
     }
     else
     {
-        sint             l, i;
+        uint64 l, i;
         valueType            string[BIG_INFO_STRING];
         
         l = strlen( s );
@@ -1039,13 +1039,13 @@ void MSG_ReportChangeVectors_f( void )
 typedef struct
 {
     pointer     name;
-    sint             offset;
+    uint64 offset;
     sint             bits;		// 0 = float32
     sint             used;
 } netField_t;
 
 // using the stringizing operator to save typing...
-#define	NETF(x) #x,(sint)(intptr_t)&((entityState_t*)0)->x
+#define	NETF(x) #x,offsetof(entityState_t, x)
 
 netField_t entityStateFields[] =
 {
@@ -1518,7 +1518,7 @@ player_state_t communication
 */
 
 // using the stringizing operator to save typing...
-#define	PSF(x) #x,(sint)(intptr_t)&((playerState_t*)0)->x
+#define	PSF(x) #x,offsetof(playerState_t, x)
 
 netField_t      playerStateFields[] =
 {
@@ -1740,7 +1740,7 @@ enitityShared_t communication
 */
 
 // using the stringizing operator to save typing...
-#define ESF( x ) # x,(sint)(intptr_t)&( (entityShared_t*)0 )->x
+#define	ESF(x) #x,offsetof(entityShared_t, x)
 
 netField_t	entitySharedFields[] =
 {

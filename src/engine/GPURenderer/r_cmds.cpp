@@ -737,3 +737,19 @@ void idRenderSystemLocal::TakeVideoFrame( sint width, sint height, uchar8* captu
     cmd->encodeBuffer = encodeBuffer;
     cmd->motionJpeg = motionJpeg;
 }
+
+/*
+====================
+R_ShutdownCommandBuffers
+====================
+*/
+void R_ShutdownCommandBuffers( void )
+{
+    // kill the rendering thread
+    if( glConfig.smpActive )
+    {
+        GLimp_WakeRenderer( nullptr );
+        glConfig.smpActive = false;
+        GLimp_FrontEndSleep();
+    }
+}

@@ -139,11 +139,11 @@ void            CIN_CloseAllVideos();
 //============================================================================
 
 static valueType*    rd_buffer;
-static sint      rd_buffersize;
+static uint64 rd_buffersize;
 static bool rd_flushing = false;
 static void ( *rd_flush )( valueType* buffer );
 
-void Com_BeginRedirect( valueType* buffer, sint buffersize, void ( *flush )( valueType* ) )
+void Com_BeginRedirect( valueType* buffer, uint64 buffersize, void ( *flush )( valueType* ) )
 {
     if( !buffer || !buffersize || !flush )
     {
@@ -654,10 +654,10 @@ bool Com_AddStartupCommands( void )
 
 void Info_Print( pointer s )
 {
-    valueType            key[BIG_INFO_VALUE];
-    valueType            value[BIG_INFO_VALUE];
-    valueType*           o;
-    sint             l;
+    valueType key[BIG_INFO_VALUE];
+    valueType value[BIG_INFO_VALUE];
+    valueType* o;
+    sint64 l;
     
     if( *s == '\\' )
     {
@@ -923,18 +923,18 @@ all big things are allocated on the hunk.
 
 typedef struct zonedebug_s
 {
-    valueType*           label;
-    valueType*           file;
-    sint             line;
-    sint             allocSize;
+    valueType* label;
+    valueType* file;
+    sint line;
+    uint64 allocSize;
 } zonedebug_t;
 
 typedef struct memblock_s
 {
-    sint             size;		// including the header and possibly tiny fragments
-    sint             tag;		// a tag of 0 is a free block
+    uint64 size;		// including the header and possibly tiny fragments
+    sint tag;		// a tag of 0 is a free block
     struct memblock_s* next, *prev;
-    sint             id;			// should be ZONEID
+    sint id;			// should be ZONEID
 #ifdef ZONE_DEBUG
     zonedebug_t     d;
 #endif
@@ -942,8 +942,8 @@ typedef struct memblock_s
 
 typedef struct
 {
-    sint             size;		// total bytes malloced, including header
-    sint             used;		// total bytes used
+    uint64 size;		// total bytes malloced, including header
+    uint64 used;		// total bytes used
     memblock_t      blocklist;	// start / end cap for linked list
     memblock_t*     rover;
 } memzone_t;
@@ -962,7 +962,7 @@ void            Z_CheckHeap( void );
 Z_ClearZone
 ========================
 */
-void Z_ClearZone( memzone_t* zone, sint size )
+void Z_ClearZone( memzone_t* zone, uint64 size )
 {
     memblock_t*     block;
     
@@ -1110,13 +1110,14 @@ Z_TagMalloc
 memblock_t*     debugblock;		// RF, jusy so we can track a block to find out when it's getting trashed
 
 #ifdef ZONE_DEBUG
-void*           Z_TagMallocDebug( size_t size, memtag_t tag, valueType* label, valueType* file, sint line )
+void*           Z_TagMallocDebug( uint64 size, memtag_t tag, valueType* label, valueType* file, sint line )
 {
 #else
-void*           Z_TagMalloc( size_t size, memtag_t tag )
+void*           Z_TagMalloc( uint64 size, memtag_t tag )
 {
 #endif
-    sint             extra, allocSize;
+    sint allocSize;
+    sint64 extra;
     memblock_t*     start, *rover, *_new, *base;
     memzone_t*      zone;
     
@@ -1141,7 +1142,7 @@ void*           Z_TagMalloc( size_t size, memtag_t tag )
     //
     size += sizeof( memblock_t );	// account for size of block header
     size += 4;					// space for memory trash tester
-    size = PAD( size, sizeof( intptr_t ) );	// align to 32/64 bit boundary
+    size = PAD( size, sizeof( sint64 ) );	// align to 32/64 bit boundary
     
     base = rover = zone->rover;
     start = base->prev;
@@ -1214,10 +1215,10 @@ Z_Malloc
 ========================
 */
 #ifdef ZONE_DEBUG
-void*           Z_MallocDebug( size_t size, valueType* label, valueType* file, sint line )
+void*           Z_MallocDebug( uint64 size, valueType* label, valueType* file, sint line )
 {
 #else
-void*           Z_Malloc( size_t size )
+void*           Z_Malloc( uint64 size )
 {
 #endif
     void*           buf;
@@ -1235,12 +1236,12 @@ void*           Z_Malloc( size_t size )
 }
 
 #ifdef ZONE_DEBUG
-void*           S_MallocDebug( size_t size, valueType* label, valueType* file, sint line )
+void*           S_MallocDebug( uint64 size, valueType* label, valueType* file, sint line )
 {
     return Z_TagMallocDebug( size, TAG_SMALL, label, file, line );
 }
 #else
-void*           S_Malloc( size_t size )
+void*           S_Malloc( uint64 size )
 {
     return Z_TagMalloc( size, TAG_SMALL );
 }
@@ -1289,7 +1290,8 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
 #endif
     memblock_t*     block;
     valueType            buf[4096];
-    sint             size, allocSize, numBlocks;
+    uint64 size, allocSize;
+    sint numBlocks;
     
     if( !logfile_ || !fileSystem->Initialized() )
     {
@@ -1343,13 +1345,9 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
 Z_AvailableZoneMemory
 ========================
 */
-static sint Z_AvailableZoneMemory( const memzone_t* zone )
+static uint64 Z_AvailableZoneMemory( const memzone_t* zone )
 {
-#ifdef USE_MULTI_SEGMENT
-    return zone->totalSize - zone->totalUsed;
-#else
     return zone->size - zone->used;
-#endif
 }
 
 /*
@@ -1357,7 +1355,7 @@ static sint Z_AvailableZoneMemory( const memzone_t* zone )
 Z_AvailableMemory
 ========================
 */
-sint Z_AvailableMemory( void )
+uint64 Z_AvailableMemory( void )
 {
     return Z_AvailableZoneMemory( mainzone );
 }
@@ -1495,20 +1493,20 @@ Goals:
 typedef struct
 {
     sint             magic;
-    size_t             size;
+    uint64             size;
 } hunkHeader_t;
 
 typedef struct
 {
-    sint             mark;
-    sint             permanent;
-    sint             temp;
-    sint             tempHighwater;
+    uint64             mark;
+    uint64             permanent;
+    uint64             temp;
+    uint64             tempHighwater;
 } hunkUsed_t;
 
 typedef struct hunkblock_s
 {
-    size_t             size;
+    uint64             size;
     uchar8            printed;
     struct hunkblock_s* next;
     valueType*           label;
@@ -1537,10 +1535,10 @@ static hunkUsed_t hunk_low, hunk_high;
 static hunkUsed_t* hunk_permanent, *hunk_temp;
 
 static uchar8*    s_hunkData = nullptr;
-static sint      s_hunkTotal;
+static uint64      s_hunkTotal;
 
-static sint      s_zoneTotal;
-static sint      s_smallZoneTotal;
+static uint64      s_zoneTotal;
+static uint64      s_smallZoneTotal;
 
 /*
 =================
@@ -1550,10 +1548,10 @@ Com_Meminfo_f
 void Com_Meminfo_f( void )
 {
     memblock_t*	block;
-    sint			zoneBytes, zoneBlocks;
-    sint			smallZoneBytes, smallZoneBlocks;
-    sint			botlibBytes, rendererBytes, otherBytes;
-    sint			staticBytes, generalBytes;
+    uint64			zoneBytes, zoneBlocks;
+    uint64			smallZoneBytes, smallZoneBlocks;
+    uint64			botlibBytes, rendererBytes, otherBytes;
+    uint64			staticBytes, generalBytes;
     
     zoneBytes = 0;
     botlibBytes = 0;
@@ -1666,8 +1664,8 @@ Touch all known used data to make sure it is paged in
 void Com_TouchMemory( void )
 {
     sint		start, end;
-    sint		i, j;
-    sint		sum;
+    uint64		i, j;
+    uint64		sum;
     memblock_t*	block;
     
     Z_CheckHeap();
@@ -1752,7 +1750,8 @@ void Hunk_Log( void )
 {
     hunkblock_t*	block;
     valueType		buf[4096];
-    sint size, numBlocks;
+    uint64 size;
+    sint numBlocks;
     
     if( !logfile_ || !fileSystem->Initialized() )
         return;
@@ -1784,7 +1783,8 @@ void Hunk_SmallLog( void )
 {
     hunkblock_t*	block, *block2;
     valueType		buf[4096];
-    sint size, locsize, numBlocks;
+    uint64 size, locsize;
+    sint numBlocks;
     
     if( !logfile_ || !fileSystem->Initialized() )
         return;
@@ -1884,7 +1884,7 @@ void Com_InitHunkMemory( void )
         Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunk.memSize / ( 1024 * 1024 ) );
     }
     // cacheline align
-    s_hunk.mem = ( uchar8* )( ( ( intptr_t )s_hunk.original + 63 ) & ~63 );
+    s_hunk.mem = ( uchar8* )( ( ( sint64 )s_hunk.original + 63 ) & ~63 );
     
     Hunk_Clear();
     
@@ -1922,7 +1922,7 @@ void Com_ReleaseMemory( void )
 Hunk_MemoryRemaining
 ====================
 */
-sint	Hunk_MemoryRemaining( void )
+uint64 Hunk_MemoryRemaining( void )
 {
     return s_hunk.memSize - s_hunk.permTop - s_hunk.tempTop;
 }
@@ -2016,10 +2016,10 @@ Allocate permanent (until the hunk is cleared) memory
 =================
 */
 #ifdef HUNK_DEBUG
-void* Hunk_AllocDebug( size_t size, ha_pref preference, valueType* label, valueType* file, sint line )
+void* Hunk_AllocDebug( uint64 size, ha_pref preference, valueType* label, valueType* file, sint line )
 {
 #else
-void* Hunk_Alloc( size_t size, ha_pref preference )
+void* Hunk_Alloc( uint64 size, ha_pref preference )
 {
 #endif
     void*	buf;
@@ -2086,7 +2086,7 @@ Multiple files can be loaded in temporary memory.
 When the files-in-use count reaches zero, all temp memory will be deleted
 =================
 */
-void* Hunk_AllocateTempMemory( size_t size )
+void* Hunk_AllocateTempMemory( uint64 size )
 {
     void*		buf;
     hunkHeader_t*	hdr;
@@ -2102,7 +2102,7 @@ void* Hunk_AllocateTempMemory( size_t size )
     
     Hunk_SwapBanks();
     
-    size = PAD( size, sizeof( intptr_t ) ) + sizeof( hunkHeader_t );
+    size = PAD( size, sizeof( sint64 ) ) + sizeof( hunkHeader_t );
     
     if( s_hunk.permTop + s_hunk.tempTop + size > s_hunk.memSize )
     {
@@ -2390,7 +2390,7 @@ sysEvent_t Com_GetSystemEvent( void )
     if( s )
     {
         valueType*  b;
-        sint   len;
+        uint64 len;
         
         len = strlen( s ) + 1;
         b = ( valueType* )Z_Malloc( len );
@@ -2404,7 +2404,7 @@ sysEvent_t Com_GetSystemEvent( void )
     if( networkSystem->GetPacket( &adr, &netmsg ) )
     {
         netadr_t*  buf;
-        sint       len;
+        uint64 len;
         
         // copy out to a seperate buffer for qeueing
         len = sizeof( netadr_t ) + netmsg.cursize;
