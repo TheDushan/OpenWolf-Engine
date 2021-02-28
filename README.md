@@ -49,7 +49,7 @@ Use cMake to generate your `make` or `Visual Studio 2019` solution.
 
 * Download and install `Visual Studio 2019 Community build` from https://www.visualstudio.microsoft.com/downloads/
 * Download and install `cMake` from https://cmake.org/download/
-    * Install necessary libraries for the windows building are already present in he `libs` folder in the repo
+    * Necessary libraries for the Windows building are already present in the `libs` folder in the repo
 * Generate Visual Studio 16 2019 solution.
     * NOTE: Only x64 build is supported.
 * Switch to the your `build` directory where `yourapp` file is located.
