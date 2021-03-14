@@ -92,7 +92,7 @@ valueType* idMD5SystemLocal::MD5File( pointer fn, sint length, pointer prefix, u
     
     if( prefix_len && *prefix )
     {
-        MD5_Update( &md5, ( uchar8* )prefix, prefix_len );
+        MD5_Update( &md5, prefix, prefix_len );
     }
     
     for( ;; )

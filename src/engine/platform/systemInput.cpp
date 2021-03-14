@@ -745,7 +745,7 @@ void idSystemLocal::JoyMove( sint eventTime )
         
         for( i = 0; i < total; i++ )
         {
-            ( ( uchar8* )&hats )[i] = SDL_JoystickGetHat( stick, i );
+            ( reinterpret_cast<uchar8*>( &hats ) )[i] = SDL_JoystickGetHat( stick, i );
         }
     }
     
@@ -754,10 +754,10 @@ void idSystemLocal::JoyMove( sint eventTime )
     {
         for( i = 0; i < 4; i++ )
         {
-            if( ( ( uchar8* )&hats )[i] != ( ( uchar8* )&stick_state.oldhats )[i] )
+            if( ( reinterpret_cast<uchar8*>( &hats ) )[i] != ( reinterpret_cast<uchar8*>( &stick_state.oldhats ) )[i] )
             {
                 // release event
-                switch( ( ( uchar8* )&stick_state.oldhats )[i] )
+                switch( ( reinterpret_cast<uchar8*>( &stick_state.oldhats ) )[i] )
                 {
                     case SDL_HAT_UP:
                         Com_QueueEvent( eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0, nullptr );
@@ -845,7 +845,7 @@ void idSystemLocal::JoyMove( sint eventTime )
             for( i = 0; i < total; i++ )
             {
                 schar16 axis = SDL_JoystickGetAxis( stick, i );
-                float32 f = ( ( float32 )abs( axis ) ) / 32767.0f;
+                float32 f = ( static_cast<float32>( abs( axis ) ) ) / 32767.0f;
                 
                 if( f < in_joystickThreshold->value )
                 {
@@ -870,7 +870,7 @@ void idSystemLocal::JoyMove( sint eventTime )
             {
                 schar16 axis = SDL_JoystickGetAxis( stick, i );
                 
-                float32 f = ( ( float32 )axis ) / 32767.0f;
+                float32 f = ( static_cast<float32>( axis ) ) / 32767.0f;
                 
                 if( f < -in_joystickThreshold->value )
                 {
@@ -992,7 +992,7 @@ void idSystemLocal::ProcessEvents( sint eventTime )
                         }
                         else
                         {
-                            Com_DPrintf( "Unrecognised UTF-8 lead byte: 0x%x\n", ( uint )*c );
+                            Com_DPrintf( "Unrecognised UTF-8 lead byte: 0x%x\n", static_cast<uint>( *c ) );
                             c++;
                         }
                         

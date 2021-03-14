@@ -310,7 +310,7 @@ uchar16 FloatToHalf( float32 in )
     
     f32.f = in;
     
-    f16.pack.exponent = CLAMP( ( sint )( f32.pack.exponent ) - 112, 0, 31 );
+    f16.pack.exponent = CLAMP( static_cast<sint>( f32.pack.exponent ) - 112, 0, 31 );
     f16.pack.fraction = f32.pack.fraction >> 13;
     f16.pack.sign     = f32.pack.sign;
     
@@ -324,7 +324,7 @@ float32 HalfToFloat( uchar16 in )
     
     f16.ui = in;
     
-    f32.pack.exponent = ( sint )( f16.pack.exponent ) + 112;
+    f32.pack.exponent = static_cast<sint>( f16.pack.exponent ) + 112;
     f32.pack.fraction = f16.pack.fraction << 13;
     f32.pack.sign = f16.pack.sign;
     

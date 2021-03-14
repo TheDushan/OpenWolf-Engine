@@ -199,15 +199,14 @@ sint R_ComputeLOD( trRefEntity_t* ent )
         {
             sint frameSize;
             mdr = ( mdrHeader_t* ) tr.currentModel->modelData;
-            frameSize = ( uint64 )( &( ( mdrFrame_t* )0 )->bones[mdr->numBones] );
+            frameSize = reinterpret_cast<uint64>( &( ( mdrFrame_t* )0 )->bones[mdr->numBones] );
             
-            mdrframe = ( mdrFrame_t* )( ( uchar8* ) mdr + mdr->ofsFrames + frameSize * ent->e.frame );
+            mdrframe = ( mdrFrame_t* )( reinterpret_cast<uchar8*>( mdr ) + mdr->ofsFrames + frameSize * ent->e.frame );
             
             radius = RadiusFromBounds( mdrframe->bounds[0], mdrframe->bounds[1] );
         }
         else
         {
-            //frame = ( md3Frame_t * ) ( ( ( uchar8 * ) tr.currentModel->md3[0] ) + tr.currentModel->md3[0]->ofsFrames );
             frame = tr.currentModel->mdv[0]->frames;
             
             frame += ent->e.frame;

@@ -118,7 +118,7 @@ static voidpf ZCALLBACK fopen64_file_func( voidpf opaque, const void* filename, 
 static uLong ZCALLBACK fread_file_func( voidpf opaque, voidpf stream, void* buf, uLong size )
 {
     uLong ret;
-    ret = ( uLong )fread( buf, 1, ( uint64 )size, ( FILE* )stream );
+    ret = ( uLong )fread( buf, 1, static_cast< uint64 >( size ), ( FILE* )stream );
     return ret;
 }
 

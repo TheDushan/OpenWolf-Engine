@@ -119,7 +119,7 @@ FT_Bitmap* R_RenderGlyph( FT_GlyphSlot glyph, glyphInfo_t* glyphOut )
         bit2->pitch      = pitch;
         bit2->pixel_mode = ft_pixel_mode_grays;
         //bit2->pixel_mode = ft_pixel_mode_mono;
-        bit2->buffer     = ( uchar8* )CL_RefMalloc( pitch * height );
+        bit2->buffer     = static_cast<uchar8*>( CL_RefMalloc( pitch * height ) );
         bit2->num_grays = 256;
         
         ::memset( bit2->buffer, 0, size );
@@ -150,7 +150,7 @@ void WriteTGA( valueType* filename, uchar8* data, sint width, sint height )
     uchar8*  flip;
     uchar8*  src, *dst;
     
-    buffer = ( uchar8* )CL_RefMalloc( width * height * 4 + 18 );
+    buffer = static_cast<uchar8*>( CL_RefMalloc( width * height * 4 + 18 ) );
     ::memset( buffer, 0, 18 );
     buffer[2] = 2;		// uncompressed type
     buffer[12] = width & 255;
@@ -170,7 +170,7 @@ void WriteTGA( valueType* filename, uchar8* data, sint width, sint height )
     }
     
     // flip upside down
-    flip = ( uchar8* )CL_RefMalloc( width * 4 );
+    flip = static_cast<uchar8*>( CL_RefMalloc( width * 4 ) );
     for( row = 0; row < height / 2; row++ )
     {
         src = buffer + 18 + row * 4 * width;
@@ -305,10 +305,10 @@ static glyphInfo_t* RE_ConstructGlyphInfo( uchar8* imageOut, sint* xOut, sint* y
         
         glyph.imageHeight = scaled_height;
         glyph.imageWidth = scaled_width;
-        glyph.s = ( float32 ) * xOut / 256;
-        glyph.t = ( float32 ) * yOut / 256;
-        glyph.s2 = glyph.s + ( float32 )scaled_width / 256;
-        glyph.t2 = glyph.t + ( float32 )scaled_height / 256;
+        glyph.s = static_cast<float32>( *xOut ) / 256;
+        glyph.t = static_cast<float32>( *yOut ) / 256;
+        glyph.s2 = glyph.s + static_cast<float32>( scaled_width ) / 256;
+        glyph.t2 = glyph.t + static_cast<float32>( scaled_height ) / 256;
         
         *xOut += scaled_width + 1;
         
@@ -406,7 +406,7 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
     {
         fileSystem->ReadFile( name, &faceData );
         fdOffset = 0;
-        fdFile = ( uchar8* )faceData;
+        fdFile = static_cast<uchar8*>( faceData );
         for( i = 0; i < GLYPHS_PER_FONT; i++ )
         {
             font->glyphs[i].height		= readInt();
@@ -421,7 +421,7 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
             font->glyphs[i].s2			= readFloat();
             font->glyphs[i].t2			= readFloat();
             font->glyphs[i].glyph		= readInt();
-            Q_strncpyz( font->glyphs[i].shaderName, ( pointer )&fdFile[fdOffset], sizeof( font->glyphs[i].shaderName ) );
+            Q_strncpyz( font->glyphs[i].shaderName, reinterpret_cast<pointer>( &fdFile[fdOffset] ), sizeof( font->glyphs[i].shaderName ) );
             fdOffset += sizeof( font->glyphs[i].shaderName );
         }
         font->glyphScale = readFloat();
@@ -473,7 +473,7 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
     // make a 256x256 image buffer, once it is full, register it, clean it and keep going
     // until all glyphs are rendered
     
-    out = ( uchar8* )CL_RefMalloc( 256 * 256 );
+    out = static_cast<uchar8*>( CL_RefMalloc( 256 * 256 ) );
     if( out == nullptr )
     {
         CL_RefPrintf( PRINT_WARNING, "idRenderSystemLocal::RegisterFont: CL_RefMalloc failure during output image creation.\n" );
@@ -485,7 +485,7 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
     
     for( i = GLYPH_START; i <= GLYPH_END; i++ )
     {
-        RE_ConstructGlyphInfo( out, &xOut, &yOut, &maxHeight, face, ( uchar8 )i, true );
+        RE_ConstructGlyphInfo( out, &xOut, &yOut, &maxHeight, face, static_cast<uchar8>( i ), true );
     }
     
     xOut = 0;
@@ -504,7 +504,7 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
         }
         else
         {
-            glyph = RE_ConstructGlyphInfo( out, &xOut, &yOut, &maxHeight, face, ( uchar8 )i, false );
+            glyph = RE_ConstructGlyphInfo( out, &xOut, &yOut, &maxHeight, face, static_cast<uchar8>( i ), false );
         }
     
         if( xOut == -1 || yOut == -1 )
@@ -515,7 +515,7 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
     
             scaledSize = 256 * 256;
             newSize = scaledSize * 4;
-            imageBuff = ( uchar8* )CL_RefMalloc( newSize );
+            imageBuff = static_cast<uchar8*>( CL_RefMalloc( newSize ) );
             left = 0;
             max = 0;
             for( k = 0; k < ( scaledSize ) ; k++ )
@@ -537,7 +537,7 @@ void idRenderSystemLocal::RegisterFont( pointer fontName, sint pointSize, fontIn
                 imageBuff[left++] = 255;
                 imageBuff[left++] = 255;
     
-                imageBuff[left++] = ( ( float32 )out[k] * max );
+                imageBuff[left++] = ( static_cast<float32>( out[k] ) * max );
             }
     
             Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "fonts/fontImage_%i_%i.tga", imageNumber++, pointSize );

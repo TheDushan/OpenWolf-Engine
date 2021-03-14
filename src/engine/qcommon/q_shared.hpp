@@ -313,6 +313,7 @@ typedef sint     fixed4_t;
 typedef sint     fixed8_t;
 typedef sint     fixed16_t;
 
+#undef M_PI
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
@@ -430,7 +431,7 @@ bool Q_IsColorString( pointer p );
 
 #define MAX_CCODES	62
 
-extern vec4_t	g_color_table[MAX_CCODES];
+extern vec4_t g_color_table[MAX_CCODES];
 
 #define MAKERGB( v, r, g, b ) v[0] = r; v[1] = g; v[2] = b
 #define MAKERGBA( v, r, g, b, a ) v[0] = r; v[1] = g; v[2] = b; v[3] = a
@@ -575,8 +576,8 @@ sint Q_isnan( float32 x );
 float32   Q_random( sint* seed );
 float32   Q_crandom( sint* seed );
 
-#define random()     ( ( rand() & 0x7FFF ) / ( ( float32 )0x8000 ) )
-#define crandom()   ( 2.0f * ( ( ( rand() & 0x7FFF ) / ( ( float32 )0x7FFF ) ) - 0.5f ) )
+#define random()     ( ( rand() & 0x7FFF ) / ( static_cast< float32>(0x8000 ) ))
+#define crandom()   ( 2.0f * ( ( ( rand() & 0x7FFF ) / ( static_cast< float32>(0x7FFF )) ) - 0.5f ) )
 
 void vectoangles( const vec3_t value1, vec3_t angles );
 
@@ -935,7 +936,7 @@ typedef enum
 #define ANIM_BITS       10
 
 #define ANGLE2SHORT( x )  ( (sint)( ( x ) * 65536 / 360 ) & 65535 )
-#define SHORT2ANGLE( x )  ( ( x ) * ( 360.0 / 65536 ) )
+#define SHORT2ANGLE( x )  ( ( x ) * ( 360.0f / 65536 ) )
 
 #define SNAPFLAG_RATE_DELAYED   1
 #define SNAPFLAG_NOT_ACTIVE     2   // snapshot used during connection and for zombies

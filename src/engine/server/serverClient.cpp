@@ -87,7 +87,7 @@ void idServerClientSystemLocal::GetChallenge( netadr_t from )
     sint i, oldest, oldestTime, oldestClientTime, clientChallenge, getChallengeCookie;
     challenge_t* challenge;
     bool wasfound = false, gameMismatch, isBanned = false;
-    valueType* guid, * c, *gameName;
+    valueType* guid, *gameName;
     
     // ignore if we are in single player
     if( serverGameSystem->GameIsSinglePlayer() )
@@ -338,7 +338,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     Com_DPrintf( "idServerClientSystemLocal::DirectConnect ()\n" );
     
     Q_strncpyz( userinfo, cmdSystem->Argv( 1 ), sizeof( userinfo ) );
-    oldInfoLen2 = ( sint )::strlen( userinfo );
+    oldInfoLen2 = static_cast<sint>( ::strlen( userinfo ) );
     challenge = ::atoi( Info_ValueForKey( userinfo, "challenge" ) );
     qport = ::atoi( Info_ValueForKey( userinfo, "qport" ) );
     
@@ -382,7 +382,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     }
     else
     {
-        ip = ( valueType* )networkSystem->AdrToString( from );
+        ip = const_cast<valueType*>( reinterpret_cast<const valueType*>( networkSystem->AdrToString( from ) ) );
     }
     
     if( !Info_SetValueForKey( userinfo, "ip", ip ) )
@@ -401,7 +401,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         // bombarded the server with connect packets.  That would result in very bad
         // server hitches.  We need to fix that.
         Info_RemoveKey( userinfo, "handicap" );
-        newInfoLen2 = ( sint )::strlen( userinfo );
+        newInfoLen2 = static_cast<sint>( ::strlen( userinfo ) );
         
         if( oldInfoLen2 == newInfoLen2 )
         {
@@ -418,10 +418,10 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
     }
     else
     {
-        ip = ( valueType* )networkSystem->AdrToString( from );
+        ip = const_cast<valueType*>( reinterpret_cast<const valueType*>( networkSystem->AdrToString( from ) ) );
     }
     
-    if( ( ( sint )::strlen( ip ) + ( sint )::strlen( userinfo ) + 4 ) >= MAX_INFO_STRING )
+    if( ( static_cast<sint>( ::strlen( ip ) ) + static_cast<sint>( ::strlen( userinfo ) ) + 4 ) >= MAX_INFO_STRING )
     {
         networkChainSystem->OutOfBandPrint( NS_SERVER, from,
                                             "print\nUserinfo string length exceeded.  "
@@ -960,7 +960,7 @@ void idServerClientSystemLocal::SendClientGameState( client_t* client )
     }
     
     // NERVE - SMF - debug info
-    Com_DPrintf( "Sending %i bytes in gamestate to client: %li\n", msg.cursize, ( sint32 )( client - svs.clients ) );
+    Com_DPrintf( "Sending %i bytes in gamestate to client: %li\n", msg.cursize, static_cast<sint32>( client - svs.clients ) );
     
     // deliver this to the client
     serverSnapshotSystem->SendMessageToClient( &msg, client );
@@ -1065,7 +1065,7 @@ void idServerClientSystemLocal::StopDownload_f( client_t* cl )
 {
     if( *cl->downloadName )
     {
-        Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", ( sint )( cl - svs.clients ), cl->downloadName );
+        Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", static_cast<sint>( cl - svs.clients ), cl->downloadName );
     }
     
     serverClientLocal.CloseDownload( cl );
@@ -1105,12 +1105,12 @@ void idServerClientSystemLocal::NextDownload_f( client_t* cl )
     
     if( block == cl->downloadClientBlock )
     {
-        Com_DPrintf( "clientDownload: %d : client acknowledge of block %d\n", ( sint )( cl - svs.clients ), block );
+        Com_DPrintf( "clientDownload: %d : client acknowledge of block %d\n", static_cast<sint>( cl - svs.clients ), block );
         
         // Find out if we are done.  A zero-length block indicates EOF
         if( cl->downloadBlockSize[cl->downloadClientBlock % MAX_DOWNLOAD_WINDOW] == 0 )
         {
-            Com_Printf( "clientDownload: %d : file \"%s\" completed\n", ( sint )( cl - svs.clients ), cl->downloadName );
+            Com_Printf( "clientDownload: %d : file \"%s\" completed\n", static_cast<sint>( cl - svs.clients ), cl->downloadName );
             serverClientLocal.CloseDownload( cl );
             return;
         }
@@ -1346,7 +1346,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
         if( cl->downloadnotify & DLNOTIFY_BEGIN )
         {
             cl->downloadnotify &= ~DLNOTIFY_BEGIN;
-            Com_Printf( "clientDownload: %d : beginning \"%s\"\n", ( sint )( cl - svs.clients ), cl->downloadName );
+            Com_Printf( "clientDownload: %d : beginning \"%s\"\n", static_cast<sint>( cl - svs.clients ), cl->downloadName );
         }
         
         idPack = fileSystem->idPak( cl->downloadName, BASEGAME );
@@ -1367,12 +1367,12 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
             }
             else if( idPack )
             {
-                Com_Printf( "clientDownload: %d : \"%s\" cannot download id pk3 files\n", ( sint )( cl - svs.clients ), cl->downloadName );
+                Com_Printf( "clientDownload: %d : \"%s\" cannot download id pk3 files\n", static_cast<sint>( cl - svs.clients ), cl->downloadName );
                 Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ), "Cannot autodownload official pk3 file \"%s\"", cl->downloadName );
             }
             else
             {
-                Com_Printf( "clientDownload: %d : \"%s\" download disabled", ( sint )( cl - svs.clients ), cl->downloadName );
+                Com_Printf( "clientDownload: %d : \"%s\" download disabled", static_cast<sint>( cl - svs.clients ), cl->downloadName );
                 
                 if( sv_pure->integer )
                 {
@@ -1476,7 +1476,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
         
         if( cl->downloadSize <= 0 )
         {
-            Com_Printf( "clientDownload: %d : \"%s\" file not found on server\n", ( sint )( cl - svs.clients ), cl->downloadName );
+            Com_Printf( "clientDownload: %d : \"%s\" file not found on server\n", static_cast<sint>( cl - svs.clients ), cl->downloadName );
             Q_vsprintf_s( errorMessage, sizeof( errorMessage ), sizeof( errorMessage ), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName );
             
             BadDownload( cl, msg );
@@ -1500,7 +1500,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
         
         if( !cl->downloadBlocks[curindex] )
         {
-            cl->downloadBlocks[curindex] = ( uchar8* )Z_Malloc( MAX_DOWNLOAD_BLKSIZE );
+            cl->downloadBlocks[curindex] = static_cast<uchar8*>( Z_Malloc( MAX_DOWNLOAD_BLKSIZE ) );
         }
         
         cl->downloadBlockSize[curindex] = fileSystem->Read( cl->downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE, cl->download );
@@ -1610,7 +1610,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
             MSG_WriteData( msg, cl->downloadBlocks[curindex], cl->downloadBlockSize[curindex] );
         }
         
-        Com_DPrintf( "clientDownload: %d : writing block %d\n", ( sint )( cl - svs.clients ), cl->downloadXmitBlock );
+        Com_DPrintf( "clientDownload: %d : writing block %d\n", static_cast<sint>( cl - svs.clients ), cl->downloadXmitBlock );
         
         // Move on to the next block
         // It will get sent with next snap shot.  The rate will keep us in line.
@@ -2209,7 +2209,7 @@ void idServerClientSystemLocal::ExecuteClientCommand( client_t* cl, pointer s, b
             {
                 if( strpbrk( cmdSystem->Argv( 1 ), ";\n\r" ) || strpbrk( cmdSystem->Argv( 2 ), ";\n\r" ) )
                 {
-                    Com_Printf( "Callvote from %s (client #%i, %s): %s\n", cl->name, ( sint )( cl - svs.clients ),
+                    Com_Printf( "Callvote from %s (client #%i, %s): %s\n", cl->name, static_cast<sint>( cl - svs.clients ),
                                 networkSystem->AdrToString( cl->netchan.remoteAddress ), cmdSystem->Args() );
                     return;
                 }
@@ -2761,7 +2761,7 @@ void idServerClientSystemLocal::ExecuteClientMessage( client_t* cl, msg_t* msg )
     }
     else if( c != clc_EOF )
     {
-        Com_Printf( "WARNING: bad command byte for client %i\n", ( sint )( cl - svs.clients ) );
+        Com_Printf( "WARNING: bad command byte for client %i\n", static_cast<sint>( cl - svs.clients ) );
     }
     
     //if ( msg->readcount != msg->cursize )

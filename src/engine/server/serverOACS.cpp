@@ -580,7 +580,7 @@ float64 idServerOACSSystemLocal::ExtendedRecordInterframeInitValue( sint client,
         case FEATURE_PLAYERID:
             // Set unique player id (we want this id to be completely generated serverside and without any means to tamper it clientside) - we don't care that the id change for the same player when he reconnects, since anyway the id will always link to the player's ip and guid using the playerstable
             //valueType tmp[MAX_STRING_CHARS] = ""; snprintf(tmp, MAX_STRING_CHARS, "%i%lu", rand_range(1, 99999), (uint32)time(nullptr));
-            return atof( va( "%i%lu", rand_range( 1, 99999 ), ( uint32 )time( nullptr ) ) ); // FIXME: use a real UUID/GUID here (for the moment we simply use the timestamp in seconds + a random number, this should be enough for now to ensure the uniqueness of all the players) - do NOT use ioquake3 GUID since it can be spoofed (there's no centralized authorization system!)
+            return atof( va( "%i%lu", rand_range( 1, 99999 ), static_cast<uint32>( ::time( nullptr ) ) ) ); // FIXME: use a real UUID/GUID here (for the moment we simply use the timestamp in seconds + a random number, this should be enough for now to ensure the uniqueness of all the players) - do NOT use ioquake3 GUID since it can be spoofed (there's no centralized authorization system!)
         case FEATURE_SVSTIME:
             // Server time (serverStatic_t time, which is always strictly increasing)
             return svs.time;
@@ -848,7 +848,7 @@ void idServerOACSSystemLocal::ExtendedRecordInterframeUpdateValues( sint client 
     // SPEEDRATIO
     if( ps->speed > 0 )
     {
-        ExtendedRecordSetFeatureValue( FEATURE_SPEEDRATIO, ( float64 )( abs( ps->velocity[0] ) +
+        ExtendedRecordSetFeatureValue( FEATURE_SPEEDRATIO, static_cast<float64>( abs( ps->velocity[0] ) +
                                        abs( ps->velocity[1] ) + abs( ps->velocity[2] ) ) / ps->speed, client );
     }
     else
@@ -1222,7 +1222,7 @@ sint idServerOACSSystemLocal::rand_range( sint min, sint max )
 {
     sint retval;
     
-    retval = ( ( float64 )rand() / ( float64 )RAND_MAX * ( max - min + 1 ) ) + min;
+    retval = ( static_cast<float64>( rand() ) / static_cast<float64>( RAND_MAX ) * ( max - min + 1 ) ) + min;
     
     return retval;
 }

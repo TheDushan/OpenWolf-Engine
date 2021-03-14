@@ -2401,8 +2401,6 @@ void CL_CheckForResend( void )
     sint             port, i;
     valueType            info[MAX_INFO_STRING];
     valueType            data[MAX_INFO_STRING];
-    valueType            pkt[1024 + 1];	// EVEN BALANCE - T.RAY
-    sint             pktlen;		// EVEN BALANCE - T.RAY
     
     // don't send anything if playing back a demo
     if( clc.demoplaying )
@@ -2461,7 +2459,7 @@ void CL_CheckForResend( void )
             data[9 + i] = '"';
             data[10 + i] = 0;
             
-            networkChainSystem->OutOfBandData( NS_CLIENT, clc.serverAddress, ( uchar8* )&data[0], i + 10 );
+            networkChainSystem->OutOfBandData( NS_CLIENT, clc.serverAddress, reinterpret_cast<uchar8*>( &data[0] ), i + 10 );
             // the most current userinfo has been sent, so watch for any
             // newer changes to userinfo variables
             cvar_modifiedFlags &= ~CVAR_USERINFO;
@@ -2537,7 +2535,7 @@ valueType* str_replace( pointer string, pointer substr, pointer replacement )
     while( ( tok = strstr( newstr, substr ) ) )
     {
         oldstr = newstr;
-        newstr = ( valueType* )malloc( strlen( oldstr ) - strlen( substr ) + strlen( replacement ) + 1 );
+        newstr = static_cast<valueType*>( malloc( strlen( oldstr ) - strlen( substr ) + strlen( replacement ) + 1 ) );
         /*failed to alloc mem, free old string and return nullptr */
         if( newstr == nullptr )
         {
@@ -2901,7 +2899,7 @@ void CL_PacketEvent( netadr_t from, msg_t* msg )
 {
     sint headerBytes;
     
-    if( msg->cursize >= 4 && *( sint* )msg->data == -1 )
+    if( msg->cursize >= 4 && *reinterpret_cast<sint*>( msg->data ) == -1 )
     {
         CL_ConnectionlessPacket( from, msg );
         return;
@@ -2942,7 +2940,7 @@ void CL_PacketEvent( netadr_t from, msg_t* msg )
     // track the last message received so it can be returned in
     // client messages, allowing the server to detect a dropped
     // gamestate
-    clc.serverMessageSequence = LittleLong( *( sint* )msg->data );
+    clc.serverMessageSequence = LittleLong( *reinterpret_cast<sint*>( msg->data ) );
     
     clc.lastPacketTime = cls.realtime;
     idClientParseSystemLocal::ParseServerMessage( msg );
@@ -3176,7 +3174,7 @@ void CL_Frame( sint msec )
             clientAVISystem->TakeVideoFrame();
             
             // fixed time for next frame'
-            msec = ( sint )ceil( ( 1000.0f / cl_aviFrameRate->value ) * com_timescale->value );
+            msec = static_cast<sint>( ceil( ( 1000.0f / cl_aviFrameRate->value ) * com_timescale->value ) );
             if( msec == 0 )
             {
                 msec = 1;
@@ -3194,7 +3192,7 @@ void CL_Frame( sint msec )
     
     if( cl_timegraph->integer )
     {
-        clientScreenSystem->DebugGraph( cls.realFrametime * 0.25, 0 );
+        clientScreenSystem->DebugGraph( cls.realFrametime * 0.25f, 0 );
     }
     
     // see if we need to update any userinfo
@@ -3362,7 +3360,7 @@ static void CL_Cache_EndGather_f( void )
     sint             i, j, handle, cachePass;
     valueType            filename[MAX_QPATH];
     
-    cachePass = ( sint )floor( ( float32 )cacheIndex * CACHE_HIT_RATIO );
+    cachePass = static_cast<sint>( floor( static_cast<float32>( cacheIndex ) * CACHE_HIT_RATIO ) );
     
     for( i = 0; i < CACHE_NUMGROUPS; i++ )
     {
@@ -4251,7 +4249,7 @@ static sint32 generateHashValue( pointer fname )
     while( fname[i] != '\0' )
     {
         letter = tolower( fname[i] );
-        hash += ( sint32 )( letter ) * ( i + 119 );
+        hash += static_cast<sint32>( letter ) * ( i + 119 );
         i++;
     }
     hash &= ( FILE_HASH_SIZE - 1 );
@@ -4423,7 +4421,7 @@ void CL_SaveTransTable( pointer fileName, bool newOnly )
     }
     
     Com_Printf( "Saved translation table.\nTotal = %i, Translated = %i, Untranslated = %i, aveblen = %2.2f, maxblen = %i\n",
-                transnum + untransnum, transnum, untransnum, ( float32 )avebucketlen / bucketnum, maxbucketlen );
+                transnum + untransnum, transnum, untransnum, static_cast<float32>( avebucketlen ) / bucketnum, maxbucketlen );
                 
     fileSystem->FCloseFile( f );
 }
@@ -4521,7 +4519,7 @@ void CL_LoadTransTable( pointer fileName )
     }
     
     // Gordon: shouldn't this be a z_malloc or something?
-    text = ( valueType* )malloc( len + 1 );
+    text = static_cast<valueType*>( malloc( len + 1 ) );
     if( !text )
     {
         return;

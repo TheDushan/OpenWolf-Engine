@@ -490,8 +490,8 @@ void R_TransformClipToWindow( const vec4_t clip, const viewParms_t* view, vec4_t
     window[1] = 0.5f * ( 1.0f + normalized[1] ) * view->viewportHeight;
     window[2] = normalized[2];
     
-    window[0] = ( sint )( window[0] + 0.5 );
-    window[1] = ( sint )( window[1] + 0.5 );
+    window[0] = static_cast<sint>( window[0] + 0.5f );
+    window[1] = static_cast<sint>( window[1] + 0.5f );
 }
 
 
@@ -1279,7 +1279,7 @@ static bool SurfIsOffscreen( const drawSurf_t* drawSurf, vec4_t clipDest[128] )
     vec4_t clip, eye;
     sint i;
     uint pointOr = 0;
-    uint pointAnd = ( uint )~0;
+    uint pointAnd = static_cast<uint>( ~0 );
     
     R_RotateForViewer();
     
@@ -1499,7 +1499,7 @@ static ID_INLINE void R_Radix( sint byte, sint size, drawSurf_t* source, drawSur
     uchar8* sortKey = nullptr;
     uchar8* end = nullptr;
     
-    sortKey = ( ( uchar8* )&source[ 0 ].sort ) + byte;
+    sortKey = ( reinterpret_cast<uchar8*>( &source[ 0 ].sort ) ) + byte;
     end = sortKey + ( size * sizeof( drawSurf_t ) );
     for( ; sortKey < end; sortKey += sizeof( drawSurf_t ) )
         ++count[ *sortKey ];
@@ -1509,7 +1509,7 @@ static ID_INLINE void R_Radix( sint byte, sint size, drawSurf_t* source, drawSur
     for( i = 1; i < 256; ++i )
         index[ i ] = index[ i - 1 ] + count[ i - 1 ];
         
-    sortKey = ( ( uchar8* )&source[ 0 ].sort ) + byte;
+    sortKey = ( reinterpret_cast<uchar8*>( &source[ 0 ].sort ) ) + byte;
     for( i = 0; i < size; ++i, sortKey += sizeof( drawSurf_t ) )
         dest[ index[ *sortKey ]++ ] = source[ i ];
 }
@@ -1556,7 +1556,7 @@ void R_AddDrawSurf( surfaceType_t* surface, shader_t* shader,
     // compared quickly during the qsorting process
     tr.refdef.drawSurfs[index].sort = ( shader->sortedIndex << QSORT_SHADERNUM_SHIFT )
                                       | tr.shiftedEntityNum | ( fogIndex << QSORT_FOGNUM_SHIFT )
-                                      | ( ( sint )pshadowMap << QSORT_PSHADOW_SHIFT ) | ( sint )dlightMap;
+                                      | ( static_cast<sint>( pshadowMap ) << QSORT_PSHADOW_SHIFT ) | static_cast<sint>( dlightMap );
     tr.refdef.drawSurfs[index].cubemapIndex = cubemap;
     tr.refdef.drawSurfs[index].surface = surface;
     tr.refdef.numDrawSurfs++;
@@ -2025,8 +2025,8 @@ void R_RenderPshadowMaps( const refdef_t* fd )
                 {
                     // FIXME: never actually tested this
                     mdrHeader_t* header = ( mdrHeader_t* )model->modelData;
-                    sint frameSize = ( uint64 )( &( ( mdrFrame_t* )0 )->bones[ header->numBones ] );
-                    mdrFrame_t* frame = ( mdrFrame_t* )( ( uchar8* ) header + header->ofsFrames + frameSize * ent->e.frame );
+                    sint frameSize = reinterpret_cast<uint64>( &( ( mdrFrame_t* )0 )->bones[ header->numBones ] );
+                    mdrFrame_t* frame = ( mdrFrame_t* )( reinterpret_cast<uchar8*>( header ) + header->ofsFrames + frameSize * ent->e.frame );
                     
                     radius = frame->radius;
                 }
@@ -2341,7 +2341,7 @@ void R_RenderSunShadowMaps( const refdef_t* fd, sint level )
     if( r_forceSun->integer == 2 )
     {
         sint scale = 32768;
-        float32 angle = ( fd->time % scale ) / ( float32 )scale * M_PI;
+        float32 angle = ( fd->time % scale ) / static_cast<float32>( scale ) * M_PI;
         lightDir[0] = cos( angle );
         lightDir[1] = sin( 35.0f * M_PI / 180.0f );
         lightDir[2] = sin( angle ) * cos( 35.0f * M_PI / 180.0f );
@@ -2398,7 +2398,7 @@ void R_RenderSunShadowMaps( const refdef_t* fd, sint level )
             break;
         case 3:
             splitZNear = viewZFar + splitBias;
-            splitZFar = viewZFar * 2.0;
+            splitZFar = viewZFar * 2.0f;
             //splitZNear = 896;
             //splitZFar  = 3072;
             break;

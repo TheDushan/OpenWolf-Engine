@@ -906,7 +906,7 @@ typedef struct
     sint			frameSceneNum;		// copied from tr.frameSceneNum
     sint			frameCount;			// copied from tr.frameCount
     cplane_t	portalPlane;		// clip anything behind this if mirroring
-    sint			viewportX, viewportY, viewportWidth, viewportHeight;
+    uint64			viewportX, viewportY, viewportWidth, viewportHeight;
     FBO_t*		targetFbo;
     sint         targetFboLayer;
     sint         targetFboCubemapIndex;
@@ -1670,7 +1670,7 @@ typedef struct
     float32 sunShaderScale;
     
     sint	numLightmaps;
-    sint	lightmapSize;
+    uint64	lightmapSize;
     image_t** lightmaps;
     image_t** deluxemaps;
     

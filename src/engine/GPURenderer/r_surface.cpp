@@ -325,10 +325,10 @@ static void RB_SurfacePolychain( srfPoly_t* p )
         VectorCopy( p->verts[i].xyz, tess.xyz[numv] );
         tess.texCoords[numv][0] = p->verts[i].st[0];
         tess.texCoords[numv][1] = p->verts[i].st[1];
-        tess.color[numv][0] = ( sint )p->verts[i].modulate[0] * 257;
-        tess.color[numv][1] = ( sint )p->verts[i].modulate[1] * 257;
-        tess.color[numv][2] = ( sint )p->verts[i].modulate[2] * 257;
-        tess.color[numv][3] = ( sint )p->verts[i].modulate[3] * 257;
+        tess.color[numv][0] = static_cast<sint>( p->verts[i].modulate[0] ) * 257;
+        tess.color[numv][1] = static_cast<sint>( p->verts[i].modulate[1] ) * 257;
+        tess.color[numv][2] = static_cast<sint>( p->verts[i].modulate[2] ) * 257;
+        tess.color[numv][3] = static_cast<sint>( p->verts[i].modulate[3] ) * 257;
         
         numv++;
     }
@@ -546,7 +546,7 @@ static void RB_SurfaceBeam( void )
     
     for( i = 0; i < NUM_BEAM_SEGS ; i++ )
     {
-        RotatePointAroundVector( start_points[i], normalized_direction, perpvec, ( 360.0 / NUM_BEAM_SEGS )*i );
+        RotatePointAroundVector( start_points[i], normalized_direction, perpvec, ( 360.0f / NUM_BEAM_SEGS )*i );
 //		VectorAdd( start_points[i], origin, start_points[i] );
         VectorAdd( start_points[i], direction, end_points[i] );
     }

@@ -334,10 +334,10 @@ void idServerCommunityServer::LoadUserFile( void )
         reg = fastParseLine( buffer );
         if( reg != nullptr )
         {
-            key = ( valueType* )::malloc( strlen( reg[SV_COMMUNITY_REGDATA] ) + 1 );
+            key = static_cast< valueType* >( ::malloc( strlen( reg[SV_COMMUNITY_REGDATA] ) + 1 ) );
             ::strcpy( key, reg[SV_COMMUNITY_REGDATA] );
             
-            dpos = ( sint32* )::malloc( sizeof( sint32 ) );
+            dpos = static_cast<sint32*>( ::malloc( sizeof( sint32 ) ) );
             *dpos = pos;
             switch( reg[SV_COMMUNITY_REGTYPE][0] )
             {
@@ -385,7 +385,7 @@ valueType** idServerCommunityServer::fastParseLine( void* userline )
     
     ::memset( reg, 0 , sizeof( reg ) );
     
-    reg[SV_COMMUNITY_REGTYPE] = ::strtok( ( valueType* )userline, ":" );
+    reg[SV_COMMUNITY_REGTYPE] = ::strtok( static_cast<valueType*>( userline ), ":" );
     
     if( reg[SV_COMMUNITY_REGTYPE] == nullptr || ::strlen( reg[SV_COMMUNITY_REGTYPE] ) > 1 )
     {
@@ -428,7 +428,7 @@ user_t* idServerCommunityServer::parseUserLine( pointer user_pass )
         return nullptr;
     }
     
-    if( ( dpos = ( sint32* )Com_FindHashData( hash_users, username ) ) == nullptr )
+    if( ( dpos = static_cast<sint32*>( Com_FindHashData( hash_users, username ) ) ) == nullptr )
     {
         Com_Printf( "User %s does not exist in DB\n", username );
         return nullptr;
@@ -582,7 +582,7 @@ void idServerCommunityServer::destroyLongData( void* data )
 {
     sint32* d;
     
-    d = ( sint32* )data;
+    d = static_cast<sint32*>( data );
     ::free( d );
 }
 
@@ -597,7 +597,7 @@ void idServerCommunityServer::UserInfo( valueType* name )
     user_t* user;
     user_clan_t* user_clan;
     
-    if( ( dpos = ( sint32* )Com_FindHashData( hash_users, name ) ) == nullptr )
+    if( ( dpos = static_cast<sint32*>( Com_FindHashData( hash_users, name ) ) ) == nullptr )
     {
         Com_Printf( "User %s does not exist in DB\n", cmdSystem->Argv( 1 ) );
         return;
@@ -991,12 +991,12 @@ void idServerCommunityServer::LoadBanFile( void )
         banuser = processBanLine( buffer );
         if( banuser != nullptr )
         {
-            banguid = ( valueType* )::malloc( 33 );
+            banguid = static_cast<valueType*>( ::malloc( 33 ) );
             
             ::memset( banguid, 0, 33 );
             ::strncpy( banguid, banuser->guid, 32 );
             
-            dfpos = ( sint32* )malloc( sizeof( sint32 ) );
+            dfpos = static_cast<sint32*>( ::malloc( sizeof( sint32 ) ) );
             *dfpos = fpos;
             
             Com_InsertIntoHash( hash_bans, banguid, dfpos );
@@ -1090,8 +1090,8 @@ void idServerCommunityServer::BanUser( client_t* cl )
     
     ::memset( &banuser, 0, sizeof( banuser_t ) );
     
-    dpos = ( sint32* )::malloc( sizeof( sint32 ) );
-    guid = ( valueType* )::malloc( 33 );
+    dpos = static_cast<sint32*>( ::malloc( sizeof( sint32 ) ) );
+    guid = static_cast<valueType*>( ::malloc( 33 ) );
     
     ::memset( guid, 0, 33 );
     
@@ -1172,7 +1172,7 @@ void idServerCommunityServer::showBanUsers( void )
     
     while( ( data = Com_HashIterationData( iter ) ) != nullptr )
     {
-        ::fseek( bansfile, *( ( sint32* )data ), SEEK_SET );
+        ::fseek( bansfile, *( static_cast<sint32*>( data ) ), SEEK_SET );
         ::fgets( buffer, sizeof( buffer ), bansfile );
         
         banuser = processBanLine( buffer );
@@ -1207,7 +1207,7 @@ void idServerCommunityServer::unbanUser( valueType* banlist_num )
     {
         if( unban_num == i )
         {
-            ::fseek( bansfile, *( ( sint32* )data ), SEEK_SET );
+            ::fseek( bansfile, *( static_cast<sint32*>( data ) ), SEEK_SET );
             ::fgets( buffer, sizeof( buffer ), bansfile );
             
             banuser = processBanLine( buffer );
@@ -1216,7 +1216,7 @@ void idServerCommunityServer::unbanUser( valueType* banlist_num )
             {
                 Com_Printf( "Unbanned: %s - %c Banned until %s", banuser->name, banuser->type, ::ctime( ( const time_t* ) & ( banuser->until ) ) );
                 
-                ::fseek( bansfile, *( ( sint32* )data ), SEEK_SET );
+                ::fseek( bansfile, *( static_cast<sint32*>( data ) ), SEEK_SET );
                 ::sprintf( buffer, "%s:%12d", banuser->name, 0 );
                 ::fwrite( buffer, strlen( buffer ), 1, bansfile );
                 ::fflush( bansfile );
@@ -1390,7 +1390,7 @@ sint idServerCommunityServer::ProcessServerCmd( valueType* message )
     static valueType statsbufferold [MAX_INFO_STRING * 4];
     valueType line[1024 * 15];
     
-    if( ::strstr( ( valueType* )message, "stats \"" ) )
+    if( ::strstr( static_cast<valueType*>( message ), "stats \"" ) )
     {
         ::sprintf( line, "%s", &( message[7] ) );
         line[::strlen( line ) - 1] = '\0';
@@ -1402,7 +1402,7 @@ sint idServerCommunityServer::ProcessServerCmd( valueType* message )
         ::memset( statsbufferold, 0, sizeof( statsbufferold ) );
         return 1;
     }
-    if( ::strstr( ( valueType* )message, "stats1 \"" ) )
+    if( ::strstr( static_cast<valueType*>( message ), "stats1 \"" ) )
     {
         ::sprintf( statsbufferold, "%s", &( message[8] ) );
         statsbufferold[::strlen( statsbufferold ) - 2] = '\0';
@@ -1632,7 +1632,7 @@ void idServerCommunityServer::ProcessGeneric( pointer* l_stats, valueType** toke
     
     while( l_stats[i_stat] != nullptr && tokens[i_token] != nullptr )
     {
-        if( GetDescValue( tokens[i_token], ( valueType* )l_stats[i_stat], val ) == 1 )
+        if( GetDescValue( tokens[i_token], const_cast<valueType*>( reinterpret_cast<const valueType*>( l_stats[i_stat] ) ), val ) == 1 )
         {
             i_stats[i_stat] = atoi( val );
             i_stat++;
@@ -1886,7 +1886,7 @@ void idServerCommunityServer::InitStatistics( void )
              sv_cs_ServerPort->integer,
              community_stats.game_id,
              sv_mapname->string,
-             ( sint )time( nullptr ),
+             static_cast<sint>( time( nullptr ) ),
              g_gameType->integer,
              match_in_progress );
     NETAddMsg( buffer );
@@ -2105,7 +2105,7 @@ void idServerCommunityServer::NET_Loop( void )
                              community_stats.game_date,
                              g_gameType->integer,
                              match_in_progress,
-                             ( sint )time( nullptr ),
+                             static_cast<sint>( time( nullptr ) ),
                              community_stats.server_stats.players,
                              community_stats.server_stats.cpu,
                              community_stats.server_stats.mem );

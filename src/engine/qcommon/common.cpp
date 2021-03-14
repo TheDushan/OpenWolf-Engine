@@ -968,7 +968,7 @@ void Z_ClearZone( memzone_t* zone, uint64 size )
     
     // set the entire zone to one free block
     
-    zone->blocklist.next = zone->blocklist.prev = block = ( memblock_t* )( ( uchar8* ) zone + sizeof( memzone_t ) );
+    zone->blocklist.next = zone->blocklist.prev = block = ( memblock_t* )( reinterpret_cast<uchar8*>( zone ) + sizeof( memzone_t ) );
     zone->blocklist.tag = 1;	// in use block
     zone->blocklist.id = 0;
     zone->blocklist.size = 0;
@@ -997,7 +997,7 @@ void Z_Free( void* ptr )
         Com_Error( ERR_DROP, "Z_Free: nullptr pointer" );
     }
     
-    block = ( memblock_t* )( ( uchar8* ) ptr - sizeof( memblock_t ) );
+    block = ( memblock_t* )( reinterpret_cast<uchar8*>( ptr ) - sizeof( memblock_t ) );
     if( block->id != ZONEID )
     {
         Com_Error( ERR_FATAL, "Z_Free: freed a pointer without ZONEID" );
@@ -1014,7 +1014,7 @@ void Z_Free( void* ptr )
     }
     
     // check the memory trash tester
-    if( *( sint* )( ( uchar8* ) block + block->size - 4 ) != ZONEID )
+    if( *reinterpret_cast<sint*>( ( reinterpret_cast<uchar8*>( block ) + block->size - 4 ) ) != ZONEID )
     {
         Com_Error( ERR_FATAL, "Z_Free: memory block wrote past end" );
     }
@@ -1093,7 +1093,7 @@ void Z_FreeTags( memtag_t tag )
         if( zone->rover->tag == tag )
         {
             count++;
-            Z_Free( ( void* )( zone->rover + 1 ) );
+            Z_Free( reinterpret_cast<memzone_t*>( zone->rover ) + 1 );
             continue;
         }
         zone->rover = zone->rover->next;
@@ -1178,7 +1178,7 @@ void*           Z_TagMalloc( uint64 size, memtag_t tag )
     if( extra > MINFRAGMENT )
     {
         // there will be a free fragment after the allocated block
-        _new = ( memblock_t* )( ( uchar8* ) base + size );
+        _new = ( memblock_t* )( reinterpret_cast<uchar8*>( base ) + size );
         _new->size = extra;
         _new->tag = 0;			// free block
         _new->prev = base;
@@ -1204,9 +1204,9 @@ void*           Z_TagMalloc( uint64 size, memtag_t tag )
 #endif
     
     // marker for memory trash testing
-    *( sint* )( ( uchar8* ) base + base->size - 4 ) = ZONEID;
+    * reinterpret_cast<sint*>( reinterpret_cast<uchar8*>( base ) + base->size - 4 ) = ZONEID;
     
-    return ( void* )( ( uchar8* ) base + sizeof( memblock_t ) );
+    return reinterpret_cast< void* >( reinterpret_cast<uchar8*>( base ) + sizeof( memblock_t ) );
 }
 
 /*
@@ -1262,7 +1262,7 @@ void Z_CheckHeap( void )
         {
             break;				// all blocks have been hit
         }
-        if( ( uchar8* ) block + block->size != ( uchar8* ) block->next )
+        if( reinterpret_cast<uchar8*>( block ) + block->size != reinterpret_cast<uchar8*>( block->next ) )
         {
             Com_Error( ERR_FATAL, "Z_CheckHeap: block size does not touch the next block\n" );
         }
@@ -1305,11 +1305,11 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
         if( block->tag )
         {
 #ifdef ZONE_DEBUG
-            ptr = ( ( valueType* )block ) + sizeof( memblock_t );
-            j = 0;
-            for( i = 0; i < 20 && i < block->d.allocSize; i++ )
-            {
-                if( ptr[i] >= 32 && ptr[i] < 127 )
+            ptr = ( static_cast < ( valueType* >( block ) ) + sizeof( memblock_t );
+                    j = 0;
+                    for( i = 0; i < 20 && i < block->d.allocSize; i++ )
+        {
+            if( ptr[i] >= 32 && ptr[i] < 127 )
                 {
                     dump[j++] = ptr[i];
                 }
@@ -1439,16 +1439,16 @@ valueType* CopyString( pointer in )
     
     if( !in[0] )
     {
-        return ( ( valueType* )&emptystring ) + sizeof( memblock_t );
+        return ( reinterpret_cast<valueType*>( &emptystring ) ) + sizeof( memblock_t );
     }
     else if( !in[1] )
     {
         if( in[0] >= '0' && in[0] <= '9' )
         {
-            return ( ( valueType* )&numberstring[in[0] - '0'] ) + sizeof( memblock_t );
+            return ( reinterpret_cast<valueType*>( &numberstring[in[0] - '0'] ) ) + sizeof( memblock_t );
         }
     }
-    out = ( valueType* )S_Malloc( strlen( in ) + 1 );
+    out = reinterpret_cast<valueType*>( S_Malloc( strlen( in ) + 1 ) );
     ::strcpy( out, in );
     return out;
 }
@@ -1595,7 +1595,7 @@ void Com_Meminfo_f( void )
         {
             break;			// all blocks have been hit
         }
-        if( ( uchar8* )block + block->size != ( uchar8* )block->next )
+        if( reinterpret_cast<uchar8*>( block ) + block->size != reinterpret_cast<uchar8*>( block->next ) )
         {
             Com_Printf( "ERROR: block size does not touch the next block\n" );
         }
@@ -1681,7 +1681,7 @@ void Com_TouchMemory( void )
             j = block->size >> 2;
             for( i = 0 ; i < j ; i += 64 )  				// only need to touch each page
             {
-                sum += ( ( sint* )block )[i];
+                sum += ( reinterpret_cast<sint*>( block ) )[i];
             }
         }
         if( block->next == &mainzone->blocklist )
@@ -1707,7 +1707,7 @@ void Com_InitSmallZoneMemory( void )
     smallzone = ( memzone_t* )calloc( s_smallZoneTotal, 1 );
     if( !smallzone )
     {
-        Com_Error( ERR_FATAL, "Small zone data failed to allocate %1.1f megs", ( float32 )s_smallZoneTotal / ( 1024 * 1024 ) );
+        Com_Error( ERR_FATAL, "Small zone data failed to allocate %1.1f megs", static_cast<float32>( s_smallZoneTotal ) / ( 1024 * 1024 ) );
     }
     Z_ClearZone( smallzone, s_smallZoneTotal );
     
@@ -1878,13 +1878,13 @@ void Com_InitHunkMemory( void )
     }
     
     // bk001205 - was malloc
-    s_hunk.original = ( uchar8* )calloc( s_hunk.memSize + 63, 1 );
+    s_hunk.original = static_cast<uchar8*>( calloc( s_hunk.memSize + 63, 1 ) );
     if( !s_hunk.original )
     {
         Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunk.memSize / ( 1024 * 1024 ) );
     }
     // cacheline align
-    s_hunk.mem = ( uchar8* )( ( ( sint64 )s_hunk.original + 63 ) & ~63 );
+    s_hunk.mem = reinterpret_cast<uchar8*>( ( ( sint64 )s_hunk.original + 63 ) & ~63 );
     
     Hunk_Clear();
     
@@ -2070,7 +2070,7 @@ void* Hunk_Alloc( uint64 size, ha_pref preference )
         block->line = line;
         block->next = s_hunk.blocks;
         s_hunk.blocks = block;
-        buf = ( ( uchar8* ) buf ) + sizeof( hunkblock_t );
+        buf = ( reinterpret_cast<uchar8*>( buf ) ) + sizeof( hunkblock_t );
     }
 #endif
     
@@ -2119,7 +2119,7 @@ void* Hunk_AllocateTempMemory( uint64 size )
         s_hunk.maxEver = s_hunk.permTop + s_hunk.tempTop;
         
     hdr = ( hunkHeader_t* )buf;
-    buf = ( void* )( hdr + 1 );
+    buf = reinterpret_cast<void*>( hdr + 1 );
     
     hdr->magic = HUNK_MAGIC;
     hdr->size = size;
@@ -2159,7 +2159,7 @@ void Hunk_FreeTempMemory( void* buf )
     
     // this only works if the files are freed in stack order,
     // otherwise the memory will stay around until Hunk_ClearTempMemory
-    if( ( uchar8* )hdr == s_hunk.mem + s_hunk.memSize - s_hunk.tempTop )
+    if( reinterpret_cast<uchar8*>( hdr ) == s_hunk.mem + s_hunk.memSize - s_hunk.tempTop )
     {
         s_hunk.tempTop -= hdr->size;
     }
@@ -2198,7 +2198,7 @@ static void Hunk_FrameInit( void )
         
     cb = 1024 * 1024 * megs;
     
-    s_frameStackBase = ( uchar8* )Hunk_Alloc( cb, h_low );
+    s_frameStackBase = static_cast<uchar8*>( Hunk_Alloc( cb, h_low ) );
     s_frameStackEnd = s_frameStackBase + cb;
     
     s_frameStackLoc = s_frameStackBase;
@@ -2393,7 +2393,7 @@ sysEvent_t Com_GetSystemEvent( void )
         uint64 len;
         
         len = strlen( s ) + 1;
-        b = ( valueType* )Z_Malloc( len );
+        b = static_cast<valueType*>( Z_Malloc( len ) );
         Q_strncpyz( b, s, len );
         Com_QueueEvent( 0, SYSE_CONSOLE, 0, 0, len, b );
     }
@@ -2667,13 +2667,13 @@ sint Com_EventLoop( void )
                 break;
             case SYSE_CONSOLE:
                 //cmdBufferSystem->AddText( "\n" );
-                if( ( ( valueType* )ev.evPtr )[0] == '\\' || ( ( valueType* )ev.evPtr )[0] == '/' )
+                if( ( static_cast<valueType*>( ev.evPtr ) )[0] == '\\' || ( static_cast<valueType*>( ev.evPtr ) )[0] == '/' )
                 {
-                    cmdBufferSystem->AddText( ( valueType* )ev.evPtr + 1 );
+                    cmdBufferSystem->AddText( static_cast<valueType*>( ev.evPtr ) + 1 );
                 }
                 else
                 {
-                    cmdBufferSystem->AddText( ( valueType* )ev.evPtr );
+                    cmdBufferSystem->AddText( static_cast<valueType*>( ev.evPtr ) );
                 }
                 break;
             case SYSE_PACKET:
@@ -2697,12 +2697,12 @@ sint Com_EventLoop( void )
                 // the event buffers are only large enough to hold the
                 // exact payload, but channel messages need to be large
                 // enough to hold fragment reassembly
-                if( ( uint )buf.cursize > buf.maxsize )
+                if( static_cast<uint>( buf.cursize ) > buf.maxsize )
                 {
                     Com_Printf( "Com_EventLoop: oversize packet\n" );
                     continue;
                 }
-                memcpy( buf.data, ( uchar8* )( ( netadr_t* ) ev.evPtr + 1 ), buf.cursize );
+                memcpy( buf.data, reinterpret_cast<uchar8*>( ( netadr_t* ) ev.evPtr + 1 ), buf.cursize );
                 if( com_sv_running->integer )
                 {
                     Com_RunAndTimeServerPacket( &evFrom, &buf );
@@ -3824,6 +3824,6 @@ void Com_RandomBytes( uchar8* string, sint len )
     
     for( i = 0; i < len; i++ )
     {
-        string[i] = ( uchar8 )( rand() % 255 );
+        string[i] = static_cast<uchar8>( rand() % 255 );
     }
 }

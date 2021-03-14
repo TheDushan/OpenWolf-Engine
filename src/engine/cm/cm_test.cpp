@@ -260,7 +260,7 @@ sint CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t** list, sint 
     VectorCopy( maxs, ll.bounds[1] );
     ll.count = 0;
     ll.maxcount = listsize;
-    ll.list = ( sint* )list;
+    ll.list = reinterpret_cast<sint*>( list );
     ll.storeLeafs = CM_StoreBrushes;
     ll.lastLeaf = 0;
     ll.overflowed = false;

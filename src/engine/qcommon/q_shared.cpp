@@ -146,7 +146,7 @@ pointer     COM_GetExtension( pointer name )
 {
     sint             length, i;
     
-    length = ( sint )::strlen( name ) - 1;
+    length = static_cast<sint>( ::strlen( name ) ) - 1;
     i = length;
     
     while( name[i] != '.' )
@@ -203,7 +203,7 @@ void COM_StripExtension3( pointer src, valueType* dest, sint destsize )
     
     Q_strncpyz( dest, src, destsize );
     
-    length = ( sint )::strlen( dest ) - 1;
+    length = static_cast<sint>( ::strlen( dest ) ) - 1;
     
     while( length > 0 && dest[length] != '.' )
     {
@@ -368,7 +368,7 @@ sint    LongSwap( sint l )
     b3 = ( l >> 16 ) & 255;
     b4 = ( l >> 24 ) & 255;
     
-    return ( ( sint )b1 << 24 ) + ( ( sint )b2 << 16 ) + ( ( sint )b3 << 8 ) + b4;
+    return ( static_cast<sint>( b1 ) << 24 ) + ( static_cast<sint>( b2 ) << 16 ) + ( static_cast<sint>( b3 ) << 8 ) + b4;
 }
 
 sint LongNoSwap( sint l )
@@ -668,7 +668,7 @@ valueType* COM_ParseExt( valueType** data_p, bool allowLineBreaks )
                     if( !c )
                     {
                         com_token[len] = 0;
-                        *data_p = ( valueType* ) data;
+                        *data_p = static_cast<valueType*>( data );
                         break;
                     }
                     if( ( c == '\\' && *( data ) == '\"' ) )
@@ -692,7 +692,7 @@ valueType* COM_ParseExt( valueType** data_p, bool allowLineBreaks )
             if( c == '\"' || !c )
             {
                 com_token[len] = 0;
-                *data_p = ( valueType* ) data;
+                *data_p = static_cast<valueType*>( data );
                 return com_token;
             }
             if( len < MAX_TOKEN_CHARS )
@@ -727,7 +727,7 @@ valueType* COM_ParseExt( valueType** data_p, bool allowLineBreaks )
     }
     com_token[len] = 0;
     
-    *data_p = ( valueType* ) data;
+    *data_p = static_cast<valueType*>( data );
     return com_token;
 }
 
@@ -827,7 +827,7 @@ valueType*           COM_ParseExt2( valueType** data_p, bool allowLineBreaks )
             else if( c == '\"' || !c )
             {
                 com_token[len] = 0;
-                *data_p = ( valueType* )data;
+                *data_p = static_cast<valueType*>( data );
                 return com_token;
             }
             else if( *data == '\n' )
@@ -905,7 +905,7 @@ valueType*           COM_ParseExt2( valueType** data_p, bool allowLineBreaks )
         }
         com_token[len] = 0;
         
-        *data_p = ( valueType* )data;
+        *data_p = static_cast<valueType*>( data );
         return com_token;
     }
     
@@ -950,7 +950,7 @@ valueType*           COM_ParseExt2( valueType** data_p, bool allowLineBreaks )
         }
         com_token[len] = 0;
         
-        *data_p = ( valueType* )data;
+        *data_p = static_cast<valueType*>( data );
         return com_token;
     }
     
@@ -960,7 +960,7 @@ valueType*           COM_ParseExt2( valueType** data_p, bool allowLineBreaks )
         sint             l;
         sint             j;
         
-        l = ( sint )::strlen( *punc );
+        l = static_cast<sint>( ::strlen( *punc ) );
         for( j = 0; j < l; j++ )
         {
             if( data[j] != ( *punc )[j] )
@@ -974,7 +974,7 @@ valueType*           COM_ParseExt2( valueType** data_p, bool allowLineBreaks )
             ::memcpy( com_token, *punc, l );
             com_token[l] = 0;
             data += l;
-            *data_p = ( valueType* )data;
+            *data_p = static_cast<valueType*>( data );
             return com_token;
         }
     }
@@ -983,7 +983,7 @@ valueType*           COM_ParseExt2( valueType** data_p, bool allowLineBreaks )
     com_token[0] = *data;
     com_token[1] = 0;
     data++;
-    *data_p = ( valueType* )data;
+    *data_p = static_cast<valueType*>( data );
     
     return com_token;
 }
@@ -1167,7 +1167,7 @@ void COM_Parse21DMatrix( valueType** buf_p, sint x, float32* m, bool checkBracke
     for( i = 0; i < x; i++ )
     {
         token = COM_Parse2( buf_p );
-        m[i] = ( float32 )::atof( token );
+        m[i] = static_cast<float32>( ::atof( token ) );
     }
     
     if( checkBrackets )
@@ -1260,13 +1260,13 @@ pointer Com_QuoteStr( pointer str )
 //	if (!strpbrk (str, "\";"))
 //		return str;
 
-    length = ( uint64 )::strlen( str );
+    length = static_cast<uint64>( ::strlen( str ) );
     
     if( buflen < 2 * length + 3 )
     {
         ::free( buf );
         buflen = 2 * length + 3;
-        buf = ( valueType* )::malloc( buflen );
+        buf = static_cast<valueType*>( ::malloc( buflen ) );
     }
     
     ptr = buf;
@@ -1309,9 +1309,9 @@ pointer Com_UnquoteStr( pointer str )
     // If it doesn't begin with '"', return quickly
     if( *str != '"' )
     {
-        length = ( uint32 )( end + 1 - str );
+        length = static_cast<uint32>( end + 1 - str );
         free( buf );
-        buf = ( valueType* )malloc( length + 1 );
+        buf = static_cast<valueType*>( malloc( length + 1 ) );
         strncpy( buf, str, length );
         buf[length] = 0;
         return buf;
@@ -1322,7 +1322,7 @@ pointer Com_UnquoteStr( pointer str )
         --end;
         
     free( buf );
-    buf = ( valueType* )malloc( end + 1 - str );
+    buf = static_cast<valueType*>( malloc( end + 1 - str ) );
     ptr = buf;
     
     // Copy, unquoting as we go
@@ -1415,9 +1415,9 @@ valueType* Q_strrchr( pointer string, sint c )
 {
     valueType cc = c;
     valueType* s;
-    valueType* sp = ( valueType* )0;
+    valueType* sp = static_cast<valueType*>( 0 );
     
-    s = ( valueType* )string;
+    s = ( const_cast<valueType*>( reinterpret_cast<const valueType*>( string ) ) );
     
     while( *s )
     {
@@ -1455,7 +1455,7 @@ bool Q_strtol( pointer s, sint32* outNum )
         return false;
     }
     
-    *outNum = ( sint32 )::strtod( s, &p );
+    *outNum = static_cast<sint32>( ::strtod( s, &p ) );
     
     return ( bool )( *p == '\0' );
 }
@@ -1468,7 +1468,7 @@ bool Q_strtoi( pointer s, sint* outNum )
         return false;
     }
     
-    *outNum = ( sint )::strtod( s, &p );
+    *outNum = static_cast<sint>( ::strtod( s, &p ) );
     
     return ( bool )( *p == '\0' );
 }
@@ -1619,12 +1619,10 @@ sint Q_strncmp( pointer s1, pointer s2, sint n )
     return 0;       // strings are equal
 }
 
-#ifndef Q3MAP2
 sint Q_stricmp( pointer s1, pointer s2 )
 {
     return ( s1 && s2 ) ? Q_stricmpn( s1, s2, 99999 ) : -1;
 }
-#endif
 
 valueType* Q_strlwr( valueType* s1 )
 {
@@ -1661,7 +1659,7 @@ void Q_strcat( valueType* dest, sint size, pointer src )
 {
     sint l1;
     
-    l1 = ( sint )::strlen( dest );
+    l1 = static_cast<sint>( ::strlen( dest ) );
     if( l1 >= size )
     {
         Com_Error( ERR_FATAL, "Q_strcat: already overflowed" );
@@ -1759,7 +1757,7 @@ bool Q_strreplace( valueType* dest, sint destsize, pointer find, pointer replace
     valueType*           s;
     valueType            backup[32000];	// big, but small enough to fit in PPC stack
     
-    lend = ( sint )::strlen( dest );
+    lend = static_cast<sint>( ::strlen( dest ) );
     if( lend >= destsize )
     {
         Com_Error( ERR_FATAL, "Q_strreplace: already overflowed" );
@@ -1773,9 +1771,9 @@ bool Q_strreplace( valueType* dest, sint destsize, pointer find, pointer replace
     else
     {
         Q_strncpyz( backup, dest, lend + 1 );
-        lstart = ( sint )( s - dest );
-        lfind = ( sint )::strlen( find );
-        lreplace = ( sint )::strlen( replace );
+        lstart = static_cast<sint>( s - dest );
+        lfind = static_cast<sint>( ::strlen( find ) );
+        lreplace = static_cast<sint>( ::strlen( replace ) );
         
         strncpy( s, replace, destsize - lstart - 1 );
         strncpy( s + lreplace, backup + lstart + lfind, destsize - lstart - lreplace - 1 );
@@ -2342,7 +2340,7 @@ void Info_SetValueForKey_Big( valueType* s, pointer key, pointer value )
         return;
     }
     
-    strcat( s, newi );
+    Q_strcat( s, MAX_INFO_STRING, newi );
 }
 
 /*
@@ -2420,7 +2418,6 @@ void Q_vsprintf_s( valueType* pDest, uint32 nDestSize, pointer pFmt, va_list arg
 #endif
 }
 
-#ifndef Q3MAP2
 bool StringContainsWord( pointer haystack, pointer needle )
 {
     if( !*needle )
@@ -2450,8 +2447,6 @@ bool StringContainsWord( pointer haystack, pointer needle )
     }
     return false;
 }
-#endif
-
 
 /*
 ============
@@ -2464,8 +2459,8 @@ bool COM_CompareExtension( pointer in, pointer ext )
 {
     sint inlen, extlen;
     
-    inlen = ( sint )::strlen( in );
-    extlen = ( sint )::strlen( ext );
+    inlen = static_cast<sint>( ::strlen( in ) );
+    extlen = static_cast<sint>( ::strlen( ext ) );
     
     if( extlen <= inlen )
     {
@@ -2488,8 +2483,8 @@ float32 flrand( float32 min, float32 max )
     float32	result;
     
     holdrand = ( holdrand * 214013L ) + 2531011L;
-    result = ( float32 )( holdrand >> 17 ); // 0 - 32767 range
-    result = ( ( result * ( max - min ) ) / ( float32 )QRAND_MAX ) + min;
+    result = static_cast<float32>( ( holdrand ) >> 17 ); // 0 - 32767 range
+    result = ( ( result * ( max - min ) ) / static_cast<float32>( QRAND_MAX ) ) + min;
     
     return( result );
 }
@@ -2615,7 +2610,7 @@ valueType* Com_StringContains( valueType* str1, valueType* str2, sint casesensit
 {
     uint64 len, i, j;
     
-    len = ( sint )::strlen( str1 ) - ( sint )::strlen( str2 );
+    len = static_cast<sint>( ::strlen( str1 ) ) - static_cast<sint>( ::strlen( str2 ) );
     for( i = 0; i <= len; i++, str1++ )
     {
         for( j = 0; str2[j]; j++ )
@@ -2661,7 +2656,7 @@ bool Q_isanumber( pointer s )
 
 bool Q_isintegral( float32 f )
 {
-    return ( sint )f == f;
+    return static_cast<sint>( f ) == f;
 }
 
 sint COM_CompressBracedSection( valueType** data_p, valueType** name, valueType** text, sint* nameLength, sint* textLength )

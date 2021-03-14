@@ -412,7 +412,7 @@ void CMod_LoadSubmodels( lump_t* l )
         
         // make a "leaf" just to hold the model's brushes and surfaces
         out->leaf.numLeafBrushes = LittleLong( in->numBrushes );
-        indexes = ( sint* )Hunk_Alloc( out->leaf.numLeafBrushes * 4, h_high );
+        indexes = static_cast<sint*>( Hunk_Alloc( out->leaf.numLeafBrushes * 4, h_high ) );
         out->leaf.firstLeafBrush = indexes - cm.leafbrushes;
         for( j = 0; j < out->leaf.numLeafBrushes; j++ )
         {
@@ -420,7 +420,7 @@ void CMod_LoadSubmodels( lump_t* l )
         }
         
         out->leaf.numLeafSurfaces = LittleLong( in->numSurfaces );
-        indexes = ( sint* )Hunk_Alloc( out->leaf.numLeafSurfaces * 4, h_high );
+        indexes = static_cast<sint*>( Hunk_Alloc( out->leaf.numLeafSurfaces * 4, h_high ) );
         out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;
         for( j = 0; j < out->leaf.numLeafSurfaces; j++ )
         {
@@ -574,7 +574,7 @@ void CMod_LoadLeafs( lump_t* l )
     }
     
     cm.areas = ( cArea_t* )Hunk_Alloc( cm.numAreas * sizeof( *cm.areas ), h_high );
-    cm.areaPortals = ( sint* )Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_high );
+    cm.areaPortals = static_cast<sint*>( Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_high ) );
 }
 
 /*
@@ -631,7 +631,7 @@ void CMod_LoadLeafBrushes( lump_t* l )
 {
     sint i, *out, *in, count;
     
-    in = ( sint* )( cmod_base + l->fileofs );
+    in = reinterpret_cast<sint*>( ( cmod_base + l->fileofs ) );
     if( l->filelen % sizeof( *in ) )
     {
         Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
@@ -639,7 +639,7 @@ void CMod_LoadLeafBrushes( lump_t* l )
     count = l->filelen / sizeof( *in );
     
     // ydnar: more than <count> brushes are stored in leafbrushes...
-    cm.leafbrushes = ( sint* )Hunk_Alloc( ( BOX_LEAF_BRUSHES + count ) * sizeof( *cm.leafbrushes ), h_high );
+    cm.leafbrushes = static_cast<sint*>( Hunk_Alloc( ( BOX_LEAF_BRUSHES + count ) * sizeof( *cm.leafbrushes ), h_high ) );
     cm.numLeafBrushes = count;
     
     out = cm.leafbrushes;
@@ -659,14 +659,14 @@ void CMod_LoadLeafSurfaces( lump_t* l )
 {
     sint i, *out, *in, count;
     
-    in = ( sint* )( cmod_base + l->fileofs );
+    in = reinterpret_cast<sint*>( ( cmod_base + l->fileofs ) );
     if( l->filelen % sizeof( *in ) )
     {
         Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
     }
     count = l->filelen / sizeof( *in );
     
-    cm.leafsurfaces = ( sint* )Hunk_Alloc( count * sizeof( *cm.leafsurfaces ), h_high );
+    cm.leafsurfaces = static_cast<sint*>( Hunk_Alloc( count * sizeof( *cm.leafsurfaces ), h_high ) );
     cm.numLeafSurfaces = count;
     
     out = cm.leafsurfaces;
@@ -892,7 +892,7 @@ void CMod_LoadEntityString( lump_t* l )
 {
     valueType* p, *token, keyname[MAX_TOKEN_CHARS], value[MAX_TOKEN_CHARS];
     
-    cm.entityString = ( valueType* )Hunk_Alloc( l->filelen, h_high );
+    cm.entityString = static_cast<valueType*>( Hunk_Alloc( l->filelen, h_high ) );
     cm.numEntityChars = l->filelen;
     ::memcpy( cm.entityString, cmod_base + l->fileofs, l->filelen );
     
@@ -963,16 +963,16 @@ void CMod_LoadVisibility( lump_t* l )
     if( !len )
     {
         cm.clusterBytes = ( cm.numClusters + 31 ) & ~31;
-        cm.visibility = ( uchar8* )Hunk_Alloc( cm.clusterBytes, h_high );
+        cm.visibility = static_cast<uchar8*>( Hunk_Alloc( cm.clusterBytes, h_high ) );
         ::memset( cm.visibility, 255, cm.clusterBytes );
         return;
     }
     buf = cmod_base + l->fileofs;
     
     cm.vised = true;
-    cm.visibility = ( uchar8* )Hunk_Alloc( len, h_high );
-    cm.numClusters = LittleLong( ( ( sint* )buf )[0] );
-    cm.clusterBytes = LittleLong( ( ( sint* )buf )[1] );
+    cm.visibility = static_cast<uchar8*>( Hunk_Alloc( len, h_high ) );
+    cm.numClusters = LittleLong( ( reinterpret_cast<sint*>( buf )[0] ) );
+    cm.clusterBytes = LittleLong( ( reinterpret_cast<sint*>( buf )[1] ) );
     ::memcpy( cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
 }
 
@@ -1011,7 +1011,7 @@ void CMod_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexesLump )
         Com_Error( ERR_DROP, "CMod_LoadSurfaces: funny lump size" );
     }
     
-    index = ( sint* )( cmod_base + indexesLump->fileofs );
+    index = reinterpret_cast<sint*>( ( cmod_base + indexesLump->fileofs ) );
     if( indexesLump->filelen % sizeof( *index ) )
     {
         Com_Error( ERR_DROP, "CMod_LoadSurfaces: funny lump size" );
@@ -1210,15 +1210,15 @@ void idCollisionModelManagerLocal::LoadMap( pointer name, bool clientload, sint*
     header = *( dheader_t* ) buf;
     for( i = 0; i < sizeof( dheader_t ) / 4; i++ )
     {
-        ( ( sint* )&header )[i] = LittleLong( ( ( sint* )&header )[i] );
+        ( reinterpret_cast<sint*>( &header ) )[i] = LittleLong( ( reinterpret_cast<sint*>( &header ) )[i] );
     }
     
-    //if( header.version != BSP_VERSION )
-    //{
-    //    Com_Error( ERR_DROP, "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i)", name, header.version, BSP_VERSION );
-    //}
+    if( header.version != BSP_VERSION )
+    {
+        Com_Error( ERR_DROP, "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i)", name, header.version, BSP_VERSION );
+    }
     
-    cmod_base = ( uchar8* ) buf;
+    cmod_base = reinterpret_cast<uchar8*>( buf );
     
     // load into heap
     CMod_LoadShaders( &header.lumps[LUMP_SHADERS] );

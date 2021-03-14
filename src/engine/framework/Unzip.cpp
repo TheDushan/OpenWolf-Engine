@@ -860,13 +860,13 @@ local void unz64local_DosDateToTmuDate( ZPOS64_T ulDosDate, tm_unz* ptm )
 {
     ZPOS64_T uDate;
     uDate = ( ZPOS64_T )( ulDosDate >> 16 );
-    ptm->tm_mday = ( uInt )( uDate & 0x1f ) ;
-    ptm->tm_mon = ( uInt )( ( ( ( uDate ) & 0x1E0 ) / 0x20 ) - 1 ) ;
-    ptm->tm_year = ( uInt )( ( ( uDate & 0x0FE00 ) / 0x0200 ) + 1980 ) ;
+    ptm->tm_mday = static_cast<uint>( uDate & 0x1f ) ;
+    ptm->tm_mon = static_cast<uint>( ( ( ( uDate ) & 0x1E0 ) / 0x20 ) - 1 ) ;
+    ptm->tm_year = static_cast<uint>( ( ( uDate & 0x0FE00 ) / 0x0200 ) + 1980 ) ;
     
-    ptm->tm_hour = ( uInt )( ( ulDosDate & 0xF800 ) / 0x800 );
-    ptm->tm_min = ( uInt )( ( ulDosDate & 0x7E0 ) / 0x20 ) ;
-    ptm->tm_sec = ( uInt )( 2 * ( ulDosDate & 0x1f ) ) ;
+    ptm->tm_hour = static_cast<uint>( ( ulDosDate & 0xF800 ) / 0x800 );
+    ptm->tm_min = static_cast<uint>( ( ulDosDate & 0x7E0 ) / 0x20 ) ;
+    ptm->tm_sec = static_cast<uint>( 2 * ( ulDosDate & 0x1f ) ) ;
 }
 
 /*
@@ -1464,15 +1464,15 @@ local int unz64local_CheckCurrentFileCoherencyHeader( unz64_s* s, uInt* piSizeVa
     else if( ( err == UNZ_OK ) && ( size_filename != s->cur_file_info.size_filename ) )
         err = UNZ_BADZIPFILE;
         
-    *piSizeVar += ( uInt )size_filename;
+    *piSizeVar += static_cast<uint>( size_filename );
     
     if( unz64local_getShort( &s->z_filefunc, s->filestream, &size_extra_field ) != UNZ_OK )
         err = UNZ_ERRNO;
     *poffset_local_extrafield = s->cur_file_info_internal.offset_curfile +
                                 SIZEZIPLOCALHEADER + size_filename;
-    *psize_local_extrafield = ( uInt )size_extra_field;
+    *psize_local_extrafield = static_cast<uint>( size_extra_field );
     
-    *piSizeVar += ( uInt )size_extra_field;
+    *piSizeVar += static_cast<uint>( size_extra_field );
     
     return err;
 }
@@ -1513,7 +1513,7 @@ extern int ZEXPORT unzOpenCurrentFile3( unzFile file, int* method,
     if( pfile_in_zip_read_info == nullptr )
         return UNZ_INTERNALERROR;
         
-    pfile_in_zip_read_info->read_buffer = ( char* )ALLOC( UNZ_BUFSIZE );
+    pfile_in_zip_read_info->read_buffer = reinterpret_cast<valueType*>( ALLOC( UNZ_BUFSIZE ) );
     pfile_in_zip_read_info->offset_local_extrafield = offset_local_extrafield;
     pfile_in_zip_read_info->size_local_extrafield = size_local_extrafield;
     pfile_in_zip_read_info->pos_local_extrafield = 0;
@@ -1625,7 +1625,7 @@ extern int ZEXPORT unzOpenCurrentFile3( unzFile file, int* method,
         s->cur_file_info_internal.offset_curfile + SIZEZIPLOCALHEADER +
         iSizeVar;
         
-    pfile_in_zip_read_info->stream.avail_in = ( uInt )0;
+    pfile_in_zip_read_info->stream.avail_in = static_cast<uint>( 0 );
     
     s->pfile_in_zip_read = pfile_in_zip_read_info;
     s->encrypted = 0;
@@ -1721,18 +1721,18 @@ extern int ZEXPORT unzReadCurrentFile( unzFile file, voidp buf, unsigned len )
         
     pfile_in_zip_read_info->stream.next_out = ( Bytef* )buf;
     
-    pfile_in_zip_read_info->stream.avail_out = ( uInt )len;
+    pfile_in_zip_read_info->stream.avail_out = static_cast<uint>( len );
     
     if( ( len > pfile_in_zip_read_info->rest_read_uncompressed ) &&
             ( !( pfile_in_zip_read_info->raw ) ) )
         pfile_in_zip_read_info->stream.avail_out =
-            ( uInt )pfile_in_zip_read_info->rest_read_uncompressed;
+            static_cast<uint>( pfile_in_zip_read_info->rest_read_uncompressed );
             
     if( ( len > pfile_in_zip_read_info->rest_read_compressed +
             pfile_in_zip_read_info->stream.avail_in ) &&
             ( pfile_in_zip_read_info->raw ) )
         pfile_in_zip_read_info->stream.avail_out =
-            ( uInt )pfile_in_zip_read_info->rest_read_compressed +
+            static_cast<uint>( pfile_in_zip_read_info->rest_read_compressed ) +
             pfile_in_zip_read_info->stream.avail_in;
             
     while( pfile_in_zip_read_info->stream.avail_out > 0 )
@@ -1742,7 +1742,7 @@ extern int ZEXPORT unzReadCurrentFile( unzFile file, voidp buf, unsigned len )
         {
             uInt uReadThis = UNZ_BUFSIZE;
             if( pfile_in_zip_read_info->rest_read_compressed < uReadThis )
-                uReadThis = ( uInt )pfile_in_zip_read_info->rest_read_compressed;
+                uReadThis = static_cast<uint>( pfile_in_zip_read_info->rest_read_compressed );
             if( uReadThis == 0 )
                 return UNZ_EOF;
             if( ZSEEK64( pfile_in_zip_read_info->z_filefunc,
@@ -1776,7 +1776,7 @@ extern int ZEXPORT unzReadCurrentFile( unzFile file, voidp buf, unsigned len )
             
             pfile_in_zip_read_info->stream.next_in =
                 ( Bytef* )pfile_in_zip_read_info->read_buffer;
-            pfile_in_zip_read_info->stream.avail_in = ( uInt )uReadThis;
+            pfile_in_zip_read_info->stream.avail_in = static_cast<uint>( uReadThis );
         }
         
         if( ( pfile_in_zip_read_info->compression_method == 0 ) || ( pfile_in_zip_read_info->raw ) )
@@ -1817,11 +1817,11 @@ extern int ZEXPORT unzReadCurrentFile( unzFile file, voidp buf, unsigned len )
             const Bytef* bufBefore;
             uLong uOutThis;
             
-            pfile_in_zip_read_info->bstream.next_in        = ( char* )pfile_in_zip_read_info->stream.next_in;
+            pfile_in_zip_read_info->bstream.next_in        = reinterpret_cast<valueType*>( pfile_in_zip_read_info->stream.next_in );
             pfile_in_zip_read_info->bstream.avail_in       = pfile_in_zip_read_info->stream.avail_in;
             pfile_in_zip_read_info->bstream.total_in_lo32  = pfile_in_zip_read_info->stream.total_in;
             pfile_in_zip_read_info->bstream.total_in_hi32  = 0;
-            pfile_in_zip_read_info->bstream.next_out       = ( char* )pfile_in_zip_read_info->stream.next_out;
+            pfile_in_zip_read_info->bstream.next_out       = reinterpret_cast<valueType*>( pfile_in_zip_read_info->stream.next_out );
             pfile_in_zip_read_info->bstream.avail_out      = pfile_in_zip_read_info->stream.avail_out;
             pfile_in_zip_read_info->bstream.total_out_lo32 = pfile_in_zip_read_info->stream.total_out;
             pfile_in_zip_read_info->bstream.total_out_hi32 = 0;
@@ -1836,9 +1836,9 @@ extern int ZEXPORT unzReadCurrentFile( unzFile file, voidp buf, unsigned len )
             
             pfile_in_zip_read_info->total_out_64 = pfile_in_zip_read_info->total_out_64 + uOutThis;
             
-            pfile_in_zip_read_info->crc32 = crc32( pfile_in_zip_read_info->crc32, bufBefore, ( uInt )( uOutThis ) );
+            pfile_in_zip_read_info->crc32 = crc32( pfile_in_zip_read_info->crc32, bufBefore, static_cast<uint>( uOutThis ) );
             pfile_in_zip_read_info->rest_read_uncompressed -= uOutThis;
-            iRead += ( uInt )( uTotalOutAfter - uTotalOutBefore );
+            iRead += static_cast<uint>( uTotalOutAfter ) - uTotalOutBefore;
             
             pfile_in_zip_read_info->stream.next_in   = ( Bytef* )pfile_in_zip_read_info->bstream.next_in;
             pfile_in_zip_read_info->stream.avail_in  = pfile_in_zip_read_info->bstream.avail_in;
@@ -1881,12 +1881,12 @@ extern int ZEXPORT unzReadCurrentFile( unzFile file, voidp buf, unsigned len )
             
             pfile_in_zip_read_info->crc32 =
                 crc32( pfile_in_zip_read_info->crc32, bufBefore,
-                       ( uInt )( uOutThis ) );
+                       static_cast<uint>( uOutThis ) );
                        
             pfile_in_zip_read_info->rest_read_uncompressed -=
                 uOutThis;
                 
-            iRead += ( uInt )( uTotalOutAfter - uTotalOutBefore );
+            iRead += static_cast<uint>( uTotalOutAfter ) - uTotalOutBefore;
             
             if( err == Z_STREAM_END )
                 return ( iRead == 0 ) ? UNZ_EOF : iRead;
@@ -1993,9 +1993,9 @@ extern int ZEXPORT unzGetLocalExtrafield( unzFile file, voidp buf, unsigned len 
         return ( int )size_to_read;
         
     if( len > size_to_read )
-        read_now = ( uInt )size_to_read;
+        read_now = static_cast<uint>( size_to_read );
     else
-        read_now = ( uInt )len ;
+        read_now = static_cast<uint>( len );
         
     if( read_now == 0 )
         return 0;

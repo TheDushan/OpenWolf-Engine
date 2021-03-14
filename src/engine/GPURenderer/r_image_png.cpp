@@ -365,7 +365,7 @@ static bool BufferedFileRewind( struct BufferedFile* BF, uint Offset )
      *  special trick to rewind to the beginning of the buffer
      */
     
-    if( Offset == ( uint ) - 1 )
+    if( Offset == static_cast<uint>( -1 ) )
     {
         BF->Ptr       = BF->Buffer;
         BF->BytesLeft = BF->Length;
@@ -632,7 +632,7 @@ static uint DecompressIDATs( struct BufferedFile* BF, uchar8** Buffer )
     
     BufferedFileRewind( BF, BytesToRewind );
     
-    CompressedData = ( uchar8* )CL_RefMalloc( CompressedDataLength );
+    CompressedData = static_cast<uchar8*>( CL_RefMalloc( CompressedDataLength ) );
     if( !CompressedData )
     {
         return( -1 );
@@ -684,7 +684,7 @@ static uint DecompressIDATs( struct BufferedFile* BF, uchar8** Buffer )
         {
             uchar8* OrigCompressedData;
             
-            OrigCompressedData = ( uchar8* )BufferedFileRead( BF, Length );
+            OrigCompressedData = static_cast<uchar8*>( BufferedFileRead( BF, Length ) );
             if( !OrigCompressedData )
             {
                 Z_Free( CompressedData );
@@ -734,7 +734,7 @@ static uint DecompressIDATs( struct BufferedFile* BF, uchar8** Buffer )
      *  Allocate the buffer for the uncompressed data.
      */
     
-    DecompressedData = ( uchar8* )CL_RefMalloc( puffDestLen );
+    DecompressedData = static_cast<uchar8*>( CL_RefMalloc( puffDestLen ) );
     if( !DecompressedData )
     {
         Z_Free( CompressedData );
@@ -799,10 +799,10 @@ static uchar8 PredictPaeth( uchar8 a, uchar8 b, uchar8 c )
     sint p;
     sint pa, pb, pc;
     
-    p  = ( ( sint ) a ) + ( ( sint ) b ) - ( ( sint ) c );
-    pa = abs( p - ( ( sint ) a ) );
-    pb = abs( p - ( ( sint ) b ) );
-    pc = abs( p - ( ( sint ) c ) );
+    p  = ( static_cast<sint>( a ) ) + ( static_cast<sint>( b ) ) - ( static_cast<sint>( c ) );
+    pa = abs( p - ( static_cast<sint>( a ) ) );
+    pb = abs( p - ( static_cast<sint>( b ) ) );
+    pc = abs( p - ( static_cast<sint>( c ) ) );
     
     if( ( pa <= pb ) && ( pa <= pc ) )
     {
@@ -948,7 +948,7 @@ static bool UnfilterImage( uchar8*  DecompressedData,
                     
                     case PNG_FilterType_Average :
                     {
-                        DecompPtr[p] += ( ( uchar8 )( ( ( ( uchar16 ) PixelLeft[p] ) + ( ( uchar16 ) PixelUp[p] ) ) / 2 ) );
+                        DecompPtr[p] += ( static_cast<uchar8>( ( ( static_cast<uchar16>( PixelLeft[p] ) ) + ( static_cast<uchar16>( PixelUp[p] ) ) ) / 2 ) );
                         
                         break;
                     }
@@ -1978,7 +1978,7 @@ void R_LoadPNG( pointer name, uchar8** pic, sint* width, sint* height )
      *  Read the siganture of the file.
      */
     
-    Signature = ( uchar8* )BufferedFileRead( ThePNG, PNG_Signature_Size );
+    Signature = static_cast<uchar8*>( BufferedFileRead( ThePNG, PNG_Signature_Size ) );
     if( !Signature )
     {
         CloseBufferedFile( ThePNG );
@@ -2164,7 +2164,7 @@ void R_LoadPNG( pointer name, uchar8** pic, sint* width, sint* height )
          *  Read the raw palette data
          */
         
-        InPal = ( uchar8* )BufferedFileRead( ThePNG, ChunkHeaderLength );
+        InPal = static_cast<uchar8*>( BufferedFileRead( ThePNG, ChunkHeaderLength ) );
         if( !InPal )
         {
             CloseBufferedFile( ThePNG );
@@ -2255,7 +2255,7 @@ void R_LoadPNG( pointer name, uchar8** pic, sint* width, sint* height )
          *  Read the transparency information.
          */
         
-        Trans = ( uchar8* )BufferedFileRead( ThePNG, ChunkHeaderLength );
+        Trans = static_cast<uchar8*>( BufferedFileRead( ThePNG, ChunkHeaderLength ) );
         if( !Trans )
         {
             CloseBufferedFile( ThePNG );
@@ -2407,7 +2407,7 @@ void R_LoadPNG( pointer name, uchar8** pic, sint* width, sint* height )
      *  Allocate output buffer.
      */
     
-    OutBuffer = ( uchar8* )CL_RefMalloc( IHDR_Width * IHDR_Height * Q3IMAGE_BYTESPERPIXEL );
+    OutBuffer = static_cast<uchar8*>( CL_RefMalloc( IHDR_Width * IHDR_Height * Q3IMAGE_BYTESPERPIXEL ) );
     if( !OutBuffer )
     {
         Z_Free( DecompressedData );

@@ -228,18 +228,6 @@ void Con_OpenConsole_f( void )
     }
 }
 
-pointer Con_GetText( sint console )
-{
-    if( console >= 0 && con.text )
-    {
-        return ( valueType* )con.text;
-    }
-    else
-    {
-        return nullptr;
-    }
-}
-
 /*
 ===================
 Con_ToggleMenu_f
@@ -794,7 +782,7 @@ void CL_ConsolePrint( valueType* txt )
                 y = con.current % con.totallines;
                 // rain - sign extension caused the character to carry over
                 // into the color info for high ascii chars; casting c to unsigned
-                con.text[y * con.linewidth + con.x] = ( color << 8 ) | ( uchar8 )c;
+                con.text[y * con.linewidth + con.x] = ( color << 8 ) | static_cast<uchar8>( c );
                 con.x++;
                 if( con.x >= con.linewidth )
                 {
@@ -1006,16 +994,16 @@ void Con_DrawSolidConsole( float32 frac )
     color[1] = scr_conColorGreen->value;
     color[2] = scr_conColorBlue->value;
     color[3] = frac * 2 * scr_conColorAlpha->value;
-    clientScreenSystem->FillRect( 10, 10, 620, 460 * scr_conHeight->integer * 0.01, color );
+    clientScreenSystem->FillRect( 10, 10, 620, 460 * scr_conHeight->integer * 0.01f, color );
     
     color[0] = scr_conBarColorRed->value;
     color[1] = scr_conBarColorGreen->value;
     color[2] = scr_conBarColorBlue->value;
     color[3] = frac * 2 * scr_conBarColorAlpha->value;
     clientScreenSystem->FillRect( 10, 10, 620, 1, color );	//top
-    clientScreenSystem->FillRect( 10, 460 * scr_conHeight->integer * 0.01 + 10, 621, 1, color );	//bottom
-    clientScreenSystem->FillRect( 10, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//left
-    clientScreenSystem->FillRect( 630, 10, 1, 460 * scr_conHeight->integer * 0.01, color );	//right
+    clientScreenSystem->FillRect( 10, 460 * scr_conHeight->integer * 0.01f + 10, 621, 1, color );	//bottom
+    clientScreenSystem->FillRect( 10, 10, 1, 460 * scr_conHeight->integer * 0.01f, color );	//left
+    clientScreenSystem->FillRect( 630, 10, 1, 460 * scr_conHeight->integer * 0.01f, color );	//right
     
     // draw the version number
     color[0] = 1.0f;
@@ -1179,14 +1167,14 @@ void Con_RunConsole( void )
     // scroll towards the destination height
     if( con.finalFrac < con.displayFrac )
     {
-        con.displayFrac -= con_conspeed->value * ( float32 )cls.realFrametime / 1000.0f;
+        con.displayFrac -= con_conspeed->value * static_cast<float32>( cls.realFrametime ) / 1000.0f;
         if( con.finalFrac > con.displayFrac )
             con.displayFrac = con.finalFrac;
             
     }
     else if( con.finalFrac > con.displayFrac )
     {
-        con.displayFrac += con_conspeed->value * ( float32 )cls.realFrametime / 1000.0f;
+        con.displayFrac += con_conspeed->value * static_cast<float32>( cls.realFrametime ) / 1000.0f;
         if( con.finalFrac < con.displayFrac )
             con.displayFrac = con.finalFrac;
     }

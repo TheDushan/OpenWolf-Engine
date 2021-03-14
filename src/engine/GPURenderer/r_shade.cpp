@@ -88,7 +88,7 @@ static void R_BindAnimatedImageToTMU( textureBundle_t* bundle, sint tmu )
     
     // it is necessary to do this messy calc to make sure animations line up
     // exactly with waveforms of the same frequency
-    i = ( sint )( tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
+    i = static_cast<sint>( tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
     i >>= FUNCTABLE_SIZE2;
     
     if( i < 0 )
@@ -444,7 +444,7 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
                    
     bool is2DDraw = backEnd.currentEntity == &backEnd.entity2D;
     
-    float32 overbright = ( isBlend || is2DDraw ) ? 1.0f : ( float32 )( 1 << tr.overbrightBits );
+    float32 overbright = ( isBlend || is2DDraw ) ? 1.0f : static_cast<float32>( 1 << tr.overbrightBits );
     
     fog_t* fog;
     
@@ -505,10 +505,10 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
         case CGEN_FOG:
             fog = tr.world->fogs + tess.fogNum;
             
-            baseColor[0] = ( ( uchar8* )( &fog->colorInt ) )[0] / 255.0f;
-            baseColor[1] = ( ( uchar8* )( &fog->colorInt ) )[1] / 255.0f;
-            baseColor[2] = ( ( uchar8* )( &fog->colorInt ) )[2] / 255.0f;
-            baseColor[3] = ( ( uchar8* )( &fog->colorInt ) )[3] / 255.0f;
+            baseColor[0] = ( reinterpret_cast<uchar8*>( &fog->colorInt ) )[0] / 255.0f;
+            baseColor[1] = ( reinterpret_cast<uchar8*>( &fog->colorInt ) )[1] / 255.0f;
+            baseColor[2] = ( reinterpret_cast<uchar8*>( &fog->colorInt ) )[2] / 255.0f;
+            baseColor[3] = ( reinterpret_cast<uchar8*>( &fog->colorInt ) )[3] / 255.0f;
             break;
         case CGEN_WAVEFORM:
             baseColor[0] =
@@ -518,19 +518,19 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
         case CGEN_ENTITY:
             if( backEnd.currentEntity )
             {
-                baseColor[0] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[0] / 255.0f;
-                baseColor[1] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[1] / 255.0f;
-                baseColor[2] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[2] / 255.0f;
-                baseColor[3] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
+                baseColor[0] = ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[0] / 255.0f;
+                baseColor[1] = ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[1] / 255.0f;
+                baseColor[2] = ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[2] / 255.0f;
+                baseColor[3] = ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[3] / 255.0f;
             }
             break;
         case CGEN_ONE_MINUS_ENTITY:
             if( backEnd.currentEntity )
             {
-                baseColor[0] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[0] / 255.0f;
-                baseColor[1] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[1] / 255.0f;
-                baseColor[2] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[2] / 255.0f;
-                baseColor[3] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
+                baseColor[0] = 1.0f - ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[0] / 255.0f;
+                baseColor[1] = 1.0f - ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[1] / 255.0f;
+                baseColor[2] = 1.0f - ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[2] / 255.0f;
+                baseColor[3] = 1.0f - ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[3] / 255.0f;
             }
             break;
         case CGEN_IDENTITY:
@@ -562,14 +562,14 @@ static void ComputeShaderColors( shaderStage_t* pStage, vec4_t baseColor, vec4_t
         case AGEN_ENTITY:
             if( backEnd.currentEntity )
             {
-                baseColor[3] = ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
+                baseColor[3] = ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[3] / 255.0f;
             }
             vertColor[3] = 0.0f;
             break;
         case AGEN_ONE_MINUS_ENTITY:
             if( backEnd.currentEntity )
             {
-                baseColor[3] = 1.0f - ( ( uchar8* )backEnd.currentEntity->e.shaderRGBA )[3] / 255.0f;
+                baseColor[3] = 1.0f - ( reinterpret_cast<uchar8*>( backEnd.currentEntity->e.shaderRGBA ) )[3] / 255.0f;
             }
             vertColor[3] = 0.0f;
             break;
@@ -987,10 +987,10 @@ static void RB_FogPass( void )
         GLSL_SetUniformFloat( sp, UNIFORM_TIME, tess.shaderTime );
     }
     
-    color[0] = ( ( uchar8* )( &fog->colorInt ) )[0] / 255.0f;
-    color[1] = ( ( uchar8* )( &fog->colorInt ) )[1] / 255.0f;
-    color[2] = ( ( uchar8* )( &fog->colorInt ) )[2] / 255.0f;
-    color[3] = ( ( uchar8* )( &fog->colorInt ) )[3] / 255.0f;
+    color[0] = ( reinterpret_cast<uchar8*>( &fog->colorInt ) )[0] / 255.0f;
+    color[1] = ( reinterpret_cast<uchar8*>( &fog->colorInt ) )[1] / 255.0f;
+    color[2] = ( reinterpret_cast<uchar8*>( &fog->colorInt ) )[2] / 255.0f;
+    color[3] = ( reinterpret_cast<uchar8*>( &fog->colorInt ) )[3] / 255.0f;
     GLSL_SetUniformVec4( sp, UNIFORM_COLOR, color );
     
     ComputeFogValues( fogDistanceVector, fogDepthVector, &eyeT );
@@ -1033,216 +1033,216 @@ static uint RB_CalcShaderVertexAttribs( shaderCommands_t* input )
 void RB_SetMaterialBasedProperties( shaderProgram_t* sp, shaderStage_t* pStage )
 {
     vec4_t local1;
-    float32	specularScale = 1.0;
-    float32	materialType = 0.0;
-    float32 parallaxScale = 1.0;
-    float32	cubemapScale = 0.0;
-    float32	isMetalic = 0.0;
+    float32	specularScale = 1.0f;
+    float32	materialType = 0.0f;
+    float32 parallaxScale = 1.0f;
+    float32	cubemapScale = 0.0f;
+    float32	isMetalic = 0.0f;
     
     if( pStage->isWater )
     {
-        specularScale = 1.5;
-        materialType = ( float32 )MATERIAL_WATER;
-        parallaxScale = 2.0;
+        specularScale = 1.5f;
+        materialType = static_cast<float32>( MATERIAL_WATER );
+        parallaxScale = 2.0f;
     }
     else
     {
         switch( tess.shader->surfaceFlags & MATERIAL_MASK )
         {
             case MATERIAL_WATER:			// 13			// light covering of water on a surface
-                specularScale = 1.0;
-                cubemapScale = 1.5;
-                materialType = ( float32 )MATERIAL_WATER;
-                parallaxScale = 2.0;
+                specularScale = 1.0f;
+                cubemapScale = 1.5f;
+                materialType = static_cast<float32>( MATERIAL_WATER );
+                parallaxScale = 2.0f;
                 break;
             case MATERIAL_SHORTGRASS:		// 5			// manicured lawn
-                specularScale = 0.53;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_SHORTGRASS;
-                parallaxScale = 2.5;
+                specularScale = 0.53f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_SHORTGRASS );
+                parallaxScale = 2.5f;
                 break;
             case MATERIAL_LONGGRASS:		// 6			// long jungle grass
-                specularScale = 0.5;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_LONGGRASS;
-                parallaxScale = 3.0;
+                specularScale = 0.5f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_LONGGRASS );
+                parallaxScale = 3.0f;
                 break;
             case MATERIAL_SAND:				// 8			// sandy beach
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_SAND;
-                parallaxScale = 2.5;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_SAND );
+                parallaxScale = 2.5f;
                 break;
             case MATERIAL_CARPET:			// 27			// lush carpet
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_CARPET;
-                parallaxScale = 2.5;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_CARPET );
+                parallaxScale = 2.5f;
                 break;
             case MATERIAL_GRAVEL:			// 9			// lots of small stones
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_GRAVEL;
-                parallaxScale = 3.0;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_GRAVEL );
+                parallaxScale = 3.0f;
                 break;
             case MATERIAL_ROCK:				// 23			//
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_ROCK;
-                parallaxScale = 3.0;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_ROCK );
+                parallaxScale = 3.0f;
                 break;
             case MATERIAL_TILES:			// 26			// tiled floor
-                specularScale = 0.86;
-                cubemapScale = 0.9;
-                materialType = ( float32 )MATERIAL_TILES;
-                parallaxScale = 2.5;
+                specularScale = 0.86f;
+                cubemapScale = 0.9f;
+                materialType = static_cast<float32>( MATERIAL_TILES );
+                parallaxScale = 2.5f;
                 break;
             case MATERIAL_SOLIDWOOD:		// 1			// freshly cut timber
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_SOLIDWOOD;
-                parallaxScale = 2.5;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_SOLIDWOOD );
+                parallaxScale = 2.5f;
                 break;
             case MATERIAL_HOLLOWWOOD:		// 2			// termite infested creaky wood
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_HOLLOWWOOD;
-                parallaxScale = 2.5;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_HOLLOWWOOD );
+                parallaxScale = 2.5f;
                 break;
             case MATERIAL_SOLIDMETAL:		// 3			// solid girders
-                specularScale = 0.92;
-                cubemapScale = 0.92;
-                materialType = ( float32 )MATERIAL_SOLIDMETAL;
-                parallaxScale = 0.005;
-                isMetalic = 1.0;
+                specularScale = 0.92f;
+                cubemapScale = 0.92f;
+                materialType = static_cast<float32>( MATERIAL_SOLIDMETAL );
+                parallaxScale = 0.005f;
+                isMetalic = 1.0f;
                 break;
             case MATERIAL_HOLLOWMETAL:		// 4			// hollow metal machines -- Used for weapons to force lower parallax...
-                specularScale = 0.92;
-                cubemapScale = 0.92;
-                materialType = ( float32 )MATERIAL_HOLLOWMETAL;
-                parallaxScale = 2.0;
-                isMetalic = 1.0;
+                specularScale = 0.92f;
+                cubemapScale = 0.92f;
+                materialType = static_cast<float32>( MATERIAL_HOLLOWMETAL );
+                parallaxScale = 2.0f;
+                isMetalic = 1.0f;
                 break;
             case MATERIAL_DRYLEAVES:		// 19			// dried up leaves on the floor
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_DRYLEAVES;
-                parallaxScale = 0.0;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_DRYLEAVES );
+                parallaxScale = 0.0f;
                 break;
             case MATERIAL_GREENLEAVES:		// 20			// fresh leaves still on a tree
-                specularScale = 0.75;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_GREENLEAVES;
-                parallaxScale = 0.0; // GreenLeaves should NEVER be parallaxed.. It's used for surfaces with an alpha channel and parallax screws it up...
+                specularScale = 0.75f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_GREENLEAVES );
+                parallaxScale = 0.0f; // GreenLeaves should NEVER be parallaxed.. It's used for surfaces with an alpha channel and parallax screws it up...
                 break;
             case MATERIAL_FABRIC:			// 21			// Cotton sheets
-                specularScale = 0.48;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_FABRIC;
-                parallaxScale = 2.5;
+                specularScale = 0.48f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_FABRIC );
+                parallaxScale = 2.5f;
                 break;
             case MATERIAL_CANVAS:			// 22			// tent material
-                specularScale = 0.45;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_CANVAS;
-                parallaxScale = 2.5;
+                specularScale = 0.45f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_CANVAS );
+                parallaxScale = 2.5f;
                 break;
             case MATERIAL_MARBLE:			// 12			// marble floors
-                specularScale = 0.86;
-                cubemapScale = 1.0;
-                materialType = ( float32 )MATERIAL_MARBLE;
-                parallaxScale = 2.0;
+                specularScale = 0.86f;
+                cubemapScale = 1.0f;
+                materialType = static_cast<float32>( MATERIAL_MARBLE );
+                parallaxScale = 2.0f;
                 break;
             case MATERIAL_SNOW:				// 14			// freshly laid snow
-                specularScale = 0.65;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_SNOW;
-                parallaxScale = 3.0;
+                specularScale = 0.65f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_SNOW );
+                parallaxScale = 3.0f;
                 break;
             case MATERIAL_MUD:				// 17			// wet soil
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_MUD;
-                parallaxScale = 3.0;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_MUD );
+                parallaxScale = 3.0f;
                 break;
             case MATERIAL_DIRT:				// 7			// hard mud
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_DIRT;
-                parallaxScale = 3.0;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_DIRT );
+                parallaxScale = 3.0f;
                 break;
             case MATERIAL_CONCRETE:			// 11			// hardened concrete pavement
                 specularScale = 0.3;
                 cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_CONCRETE;
+                materialType = static_cast<float32>( MATERIAL_CONCRETE );
                 parallaxScale = 3.0;
                 break;
             case MATERIAL_FLESH:			// 16			// hung meat, corpses in the world
-                specularScale = 0.2;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_FLESH;
-                parallaxScale = 1.0;
+                specularScale = 0.2f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_FLESH );
+                parallaxScale = 1.0f;
                 break;
             case MATERIAL_RUBBER:			// 24			// hard tire like rubber
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_RUBBER;
-                parallaxScale = 1.0;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_RUBBER );
+                parallaxScale = 1.0f;
                 break;
             case MATERIAL_PLASTIC:			// 25			//
-                specularScale = 0.88;
-                cubemapScale = 0.5;
-                materialType = ( float32 )MATERIAL_PLASTIC;
-                parallaxScale = 1.0;
+                specularScale = 0.88f;
+                cubemapScale = 0.5f;
+                materialType = static_cast<float32>( MATERIAL_PLASTIC );
+                parallaxScale = 1.0f;
                 break;
             case MATERIAL_PLASTER:			// 28			// drywall style plaster
-                specularScale = 0.4;
-                cubemapScale = 0.0;
-                materialType = ( float32 )MATERIAL_PLASTER;
-                parallaxScale = 2.0;
+                specularScale = 0.4f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( MATERIAL_PLASTER );
+                parallaxScale = 2.0f;
                 break;
             case MATERIAL_SHATTERGLASS:		// 29			// glass with the Crisis Zone style shattering
-                specularScale = 0.88;
-                cubemapScale = 1.0;
-                materialType = ( float32 )MATERIAL_SHATTERGLASS;
-                parallaxScale = 1.0;
+                specularScale = 0.88f;
+                cubemapScale = 1.0f;
+                materialType = static_cast<float32>( MATERIAL_SHATTERGLASS );
+                parallaxScale = 1.0f;
                 break;
             case MATERIAL_ARMOR:			// 30			// body armor
-                specularScale = 0.4;
-                cubemapScale = 2.0;
-                materialType = ( float32 )MATERIAL_ARMOR;
-                parallaxScale = 2.0;
-                isMetalic = 1.0;
+                specularScale = 0.4f;
+                cubemapScale = 2.0f;
+                materialType = static_cast<float32>( MATERIAL_ARMOR );
+                parallaxScale = 2.0f;
+                isMetalic = 1.0f;
                 break;
             case MATERIAL_ICE:				// 15			// packed snow/solid ice
-                specularScale = 0.9;
-                cubemapScale = 0.8;
-                parallaxScale = 2.0;
-                materialType = ( float32 )MATERIAL_ICE;
+                specularScale = 0.9f;
+                cubemapScale = 0.8f;
+                parallaxScale = 2.0f;
+                materialType = static_cast<float32>( MATERIAL_ICE );
                 break;
             case MATERIAL_GLASS:			// 10			//
-                specularScale = 0.95;
-                cubemapScale = 1.0;
-                materialType = ( float32 )MATERIAL_GLASS;
-                parallaxScale = 1.0;
+                specularScale = 0.95f;
+                cubemapScale = 1.0f;
+                materialType = static_cast<float32>( MATERIAL_GLASS );
+                parallaxScale = 1.0f;
                 break;
             case MATERIAL_BPGLASS:			// 18			// bulletproof glass
-                specularScale = 0.93;
-                cubemapScale = 0.93;
-                materialType = ( float32 )MATERIAL_BPGLASS;
-                parallaxScale = 1.0;
+                specularScale = 0.93f;
+                cubemapScale = 0.93f;
+                materialType = static_cast<float32>( MATERIAL_BPGLASS );
+                parallaxScale = 1.0f;
                 break;
             case MATERIAL_COMPUTER:			// 31			// computers/electronic equipment
-                specularScale = 0.92;
-                cubemapScale = 0.92;
-                materialType = ( float32 )MATERIAL_COMPUTER;
-                parallaxScale = 2.0;
+                specularScale = 0.92f;
+                cubemapScale = 0.92f;
+                materialType = static_cast<float32>( MATERIAL_COMPUTER );
+                parallaxScale = 2.0f;
                 break;
             default:
-                specularScale = 0.0;
-                cubemapScale = 0.0;
-                materialType = ( float32 )0.0;
-                parallaxScale = 1.0;
+                specularScale = 0.0f;
+                cubemapScale = 0.0f;
+                materialType = static_cast<float32>( 0.0f );
+                parallaxScale = 1.0f;
                 break;
         }
     }
@@ -1253,7 +1253,7 @@ void RB_SetMaterialBasedProperties( shaderProgram_t* sp, shaderStage_t* pStage )
         realNormalMap = true;
     }
     
-    VectorSet4( local1, parallaxScale, ( float32 )pStage->hasSpecular, specularScale, materialType );
+    VectorSet4( local1, parallaxScale, static_cast<float32>( pStage->hasSpecular ), specularScale, materialType );
     GLSL_SetUniformVec4( sp, UNIFORM_LOCAL1, local1 );
     
     //GLSL_SetUniformFloat(sp, UNIFORM_TIME, tess.shaderTime);
@@ -1415,7 +1415,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t* input )
             
             RB_SetMaterialBasedProperties( sp, pStage );
             
-            GLSL_SetUniformFloat( sp, UNIFORM_TIME, ( float32 )tess.shaderTime );
+            GLSL_SetUniformFloat( sp, UNIFORM_TIME, static_cast<float32>( tess.shaderTime ) );
         }
         
         RB_SetMaterialBasedProperties( sp, pStage );

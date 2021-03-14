@@ -68,15 +68,15 @@ static void LerpDrawVert( srfVert_t* a, srfVert_t* b, srfVert_t* out )
     out->tangent[1] = 0.5f * ( a->tangent[1] + b->tangent[1] );
     out->tangent[2] = 0.5f * ( a->tangent[2] + b->tangent[2] );
     
-    out->lightdir[0] = ( ( sint )a->lightdir[0] + ( sint )b->lightdir[0] ) >> 1;
-    out->lightdir[1] = ( ( sint )a->lightdir[1] + ( sint )b->lightdir[1] ) >> 1;
-    out->lightdir[2] = ( ( sint )a->lightdir[2] + ( sint )b->lightdir[2] ) >> 1;
-    out->lightdir[3] = ( ( sint )a->lightdir[3] + ( sint )b->lightdir[3] ) >> 1;
+    out->lightdir[0] = ( static_cast<sint>( a->lightdir[0] ) + static_cast<sint>( b->lightdir[0] ) ) >> 1;
+    out->lightdir[1] = ( static_cast<sint>( a->lightdir[1] ) + static_cast<sint>( b->lightdir[1] ) ) >> 1;
+    out->lightdir[2] = ( static_cast<sint>( a->lightdir[2] ) + static_cast<sint>( b->lightdir[2] ) ) >> 1;
+    out->lightdir[3] = ( static_cast<sint>( a->lightdir[3] ) + static_cast<sint>( b->lightdir[3] ) ) >> 1;
     
-    out->color[0] = ( ( sint )a->color[0] + ( sint )b->color[0] ) >> 1;
-    out->color[1] = ( ( sint )a->color[1] + ( sint )b->color[1] ) >> 1;
-    out->color[2] = ( ( sint )a->color[2] + ( sint )b->color[2] ) >> 1;
-    out->color[3] = ( ( sint )a->color[3] + ( sint )b->color[3] ) >> 1;
+    out->color[0] = ( static_cast<sint>( a->color[0] ) + static_cast<sint>( b->color[0] ) ) >> 1;
+    out->color[1] = ( static_cast<sint>( a->color[1] ) + static_cast<sint>( b->color[1] ) ) >> 1;
+    out->color[2] = ( static_cast<sint>( a->color[2] ) + static_cast<sint>( b->color[2] ) ) >> 1;
+    out->color[3] = ( static_cast<sint>( a->color[3] ) + static_cast<sint>( b->color[3] ) ) >> 1;
 }
 
 /*
@@ -446,14 +446,14 @@ void R_CreateSurfaceGridMesh( srfBspSurface_t* grid, sint width, sint height, sr
     ::memset( grid, 0, sizeof( *grid ) );
     
 #ifdef PATCH_STITCHING
-    grid->widthLodError = ( float32* )/*Hunk_Alloc*/ CL_RefMalloc( width * 4 );
+    grid->widthLodError = static_cast<float32*>( /*Hunk_Alloc*/ CL_RefMalloc( width * 4 ) );
     ::memcpy( grid->widthLodError, errorTable[0], width * 4 );
     
-    grid->heightLodError = ( float32* )/*Hunk_Alloc*/ CL_RefMalloc( height * 4 );
+    grid->heightLodError = static_cast<float32*>( /*Hunk_Alloc*/ CL_RefMalloc( height * 4 ) );
     ::memcpy( grid->heightLodError, errorTable[1], height * 4 );
     
     grid->numIndexes = numIndexes;
-    grid->indexes = ( uint* )CL_RefMalloc( grid->numIndexes * sizeof( uint ) );
+    grid->indexes = static_cast<uint*>( CL_RefMalloc( grid->numIndexes * sizeof( uint ) ) );
     ::memcpy( grid->indexes, indexes, numIndexes * sizeof( uint ) );
     
     grid->numVerts = ( width * height );

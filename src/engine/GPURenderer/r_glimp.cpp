@@ -106,8 +106,8 @@ static sint GLimp_CompareModes( const void* a, const void* b )
     const float32 ASPECT_EPSILON = 0.001f;
     SDL_Rect* modeA = ( SDL_Rect* )a;
     SDL_Rect* modeB = ( SDL_Rect* )b;
-    float32 aspectA = ( float32 )modeA->w / ( float32 )modeA->h;
-    float32 aspectB = ( float32 )modeB->w / ( float32 )modeB->h;
+    float32 aspectA = static_cast<float32>( modeA->w ) / static_cast<float32>( modeA->h );
+    float32 aspectB = static_cast<float32>( modeB->w ) / static_cast<float32>( modeB->h );
     sint areaA = modeA->w * modeA->h;
     sint areaB = modeB->w * modeB->h;
     float32 aspectDiffA = fabs( aspectA - displayAspect );
@@ -157,7 +157,7 @@ static void GLimp_DetectAvailableModes( void )
         return;
     }
     
-    modes = ( SDL_Rect* )SDL_calloc( ( uint64 )numSDLModes, sizeof( SDL_Rect ) );
+    modes = ( SDL_Rect* )SDL_calloc( static_cast<uint64>( numSDLModes ), sizeof( SDL_Rect ) );
     if( !modes )
     {
         Com_Error( ERR_FATAL, "Out of memory" );
@@ -203,7 +203,7 @@ static void GLimp_DetectAvailableModes( void )
     {
         pointer newModeString = va( "%ux%u ", modes[ i ].w, modes[ i ].h );
         
-        if( strlen( newModeString ) < ( sint )sizeof( buf ) - strlen( buf ) )
+        if( strlen( newModeString ) < static_cast<sint>( sizeof( buf ) ) - strlen( buf ) )
         {
             Q_strcat( buf, sizeof( buf ), newModeString );
         }
@@ -252,7 +252,7 @@ static bool GLimp_GetProcAddresses( bool fixedFunction )
         Com_Error( ERR_FATAL, "glGetString is nullptr" );
     }
     
-    version = ( pointer )qglGetString( GL_VERSION );
+    version = reinterpret_cast<pointer>( qglGetString( GL_VERSION ) );
     
     if( !version )
     {
@@ -424,7 +424,7 @@ static sint GLimp_SetMode( sint mode, bool fullscreen, bool noborder, bool fixed
     
     if( display >= 0 && SDL_GetDesktopDisplayMode( display, &desktopMode ) == 0 )
     {
-        displayAspect = ( float32 )desktopMode.w / ( float32 )desktopMode.h;
+        displayAspect = static_cast<float32>( desktopMode.w ) / static_cast<float32>( desktopMode.h );
         
         CL_RefPrintf( PRINT_ALL, "Display aspect: %.3f\n", displayAspect );
     }
@@ -452,7 +452,7 @@ static sint GLimp_SetMode( sint mode, bool fullscreen, bool noborder, bool fixed
             CL_RefPrintf( PRINT_ALL, "Cannot determine display resolution, assuming 640x480\n" );
         }
         
-        glConfig.windowAspect = ( float32 )glConfig.vidWidth / ( float32 )glConfig.vidHeight;
+        glConfig.windowAspect = static_cast<float32>( glConfig.vidWidth ) / static_cast<float32>( glConfig.vidHeight );
     }
     else if( !R_GetModeInfo( &glConfig.vidWidth, &glConfig.vidHeight, &glConfig.windowAspect, mode ) )
     {
@@ -701,7 +701,7 @@ static sint GLimp_SetMode( sint mode, bool fullscreen, bool noborder, bool fixed
                 
                 if( GLimp_GetProcAddresses( fixedFunction ) )
                 {
-                    renderer = ( pointer )qglGetString( GL_RENDERER );
+                    renderer = reinterpret_cast<pointer>( qglGetString( GL_RENDERER ) );
                 }
                 else
                 {
@@ -1026,7 +1026,7 @@ void GLimp_InitExtensions( void )
             {
                 sint glint = 16; //Dushan
                 qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &glint );
-                glConfig.numTextureUnits = ( sint )glint;
+                glConfig.numTextureUnits = static_cast<sint>( glint );
                 
                 if( glConfig.numTextureUnits > 1 )
                 {
@@ -1080,7 +1080,7 @@ void GLimp_InitExtensions( void )
     {
         if( r_ext_texture_filter_anisotropic->integer )
         {
-            qglGetIntegerv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, ( sint* )&glConfig.maxAnisotropy );
+            qglGetIntegerv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<sint*>( &glConfig.maxAnisotropy ) );
             if( glConfig.maxAnisotropy <= 0 )
             {
                 CL_RefPrintf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not properly supported!\n" );
@@ -1118,7 +1118,7 @@ void GLimp_Splash( void )
                                     
     // get splash image
     splashImage = SDL_CreateRGBSurfaceFrom(
-                      ( void* )splashData,
+                      static_cast<void*>( splashData ),
                       CLIENT_WINDOW_SPLASH.width,
                       CLIENT_WINDOW_SPLASH.height,
                       CLIENT_WINDOW_SPLASH.bytes_per_pixel * 8,
@@ -1449,7 +1449,7 @@ void* GLimp_RendererSleep( void )
         while( !smpDataReady )
             SDL_CondWait( renderCommandsEvent, smpMutex );
             
-        data = ( void* )smpData;
+        data = ( const_cast<void*>( smpData ) );
     }
     SDL_UnlockMutex( smpMutex );
     

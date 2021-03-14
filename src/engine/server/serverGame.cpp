@@ -98,7 +98,7 @@ idServerGameSystemLocal::NumForGentity
 */
 sint idServerGameSystemLocal::NumForGentity( sharedEntity_t* ent )
 {
-    return ( sint )( ( ( uchar8* )ent - ( uchar8* )sv.gentities ) / sv.gentitySize );
+    return static_cast<sint>( ( reinterpret_cast<uchar8*>( ent ) - reinterpret_cast<uchar8*>( sv.gentities ) ) / sv.gentitySize );
 }
 
 /*
@@ -108,7 +108,7 @@ idServerGameSystemLocal::GentityNum
 */
 sharedEntity_t* idServerGameSystemLocal::GentityNum( sint num )
 {
-    return ( sharedEntity_t* )( ( uchar8* )sv.gentities + sv.gentitySize * num );
+    return reinterpret_cast< sharedEntity_t* >( reinterpret_cast<uchar8*>( sv.gentities ) + sv.gentitySize * num );
 }
 
 /*
@@ -118,7 +118,7 @@ idServerGameSystemLocal::GentityNum
 */
 playerState_t* idServerGameSystemLocal::GameClientNum( sint num )
 {
-    return ( playerState_t* )( ( uchar8* )sv.gameClients + sv.gameClientSize * num );
+    return reinterpret_cast< playerState_t* >( reinterpret_cast<uchar8*>( sv.gameClients ) + sv.gameClientSize * num );
 }
 
 /*
@@ -176,7 +176,7 @@ void idServerGameSystemLocal::GameSendServerCommand( sint clientNum, pointer tex
                 continue;
             }
             
-            serverMainSystem->AddServerCommand( client, ( valueType* )text );
+            serverMainSystem->AddServerCommand( client, const_cast<valueType*>( reinterpret_cast<const valueType*>( text ) ) );
         }
     }
     else

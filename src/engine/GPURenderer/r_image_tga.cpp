@@ -128,7 +128,7 @@ void R_LoadTGA( pointer name, uchar8** pic, sint* width, sint* height )
     }
     
     
-    targa_rgba = ( uchar8* )CL_RefMalloc( numPixels );
+    targa_rgba = static_cast<uchar8*>( CL_RefMalloc( numPixels ) );
     
     if( targa_header.id_length != 0 )
     {
@@ -300,7 +300,7 @@ breakOut:
     // bit 5 set => top-down
     if( targa_header.attributes & 0x20 )
     {
-        uchar8* flip = ( uchar8* )malloc( columns * 4 );
+        uchar8* flip = static_cast<uchar8*>( malloc( columns * 4 ) );
         uchar8* src, *dst;
         
         for( row = 0; row < rows / 2; row++ )

@@ -73,7 +73,7 @@ void Snd_Memset( void* dest, const sint val, const uint32 count )
         return;
     }
     iterate = count / sizeof( sint );
-    pDest = ( sint* )dest;
+    pDest = static_cast< sint* >( dest );
     for( i = 0; i < iterate; i++ )
     {
         pDest[i] = val;
@@ -189,12 +189,12 @@ static void SNDDMA_PrintAudiospec( pointer str, const SDL_AudioSpec* spec )
     }
     else
     {
-        Com_Printf( "  Format:   " S_COLOR_RED "UNKNOWN (%d)\n", ( sint )spec->format );
+        Com_Printf( "  Format:   " S_COLOR_RED "UNKNOWN (%d)\n", static_cast<sint>( spec->format ) );
     }
     
-    Com_Printf( "  Freq:     %d\n", ( sint )spec->freq );
-    Com_Printf( "  Samples:  %d\n", ( sint )spec->samples );
-    Com_Printf( "  Channels: %d\n", ( sint )spec->channels );
+    Com_Printf( "  Freq:     %d\n", static_cast<sint>( spec->freq ) );
+    Com_Printf( "  Samples:  %d\n", static_cast<sint>( spec->samples ) );
+    Com_Printf( "  Channels: %d\n", static_cast<sint>( spec->channels ) );
 }
 
 /*
@@ -256,7 +256,7 @@ bool SNDDMA_Init( sint sampleFrequencyInKHz )
     ::memset( &desired, '\0', sizeof( desired ) );
     ::memset( &obtained, '\0', sizeof( obtained ) );
     
-    tmp = ( ( sint )s_sdlBits->value );
+    tmp = ( static_cast<sint>( s_sdlBits->value ) );
     if( ( tmp != 16 ) && ( tmp != 8 ) )
         tmp = 16;
         
@@ -280,7 +280,7 @@ bool SNDDMA_Init( sint sampleFrequencyInKHz )
             desired.samples = 2048;	// (*shrug*)
     }
     
-    desired.channels = ( sint )s_sdlChannels->value;
+    desired.channels = static_cast<sint>( s_sdlChannels->value );
     desired.callback = SNDDMA_AudioCallback;
     
     dev = SDL_OpenAudioDevice( nullptr, 0, &desired, &obtained, 0 );
@@ -317,7 +317,7 @@ bool SNDDMA_Init( sint sampleFrequencyInKHz )
     dma.submission_chunk = 1;
     dma.speed = obtained.freq;
     dmasize = ( dma.samples * ( dma.samplebits / 8 ) );
-    dma.buffer = ( uchar8* )calloc( 1, dmasize );
+    dma.buffer = static_cast<uchar8*>( calloc( 1, dmasize ) );
     
     if( !dma.buffer )
     {

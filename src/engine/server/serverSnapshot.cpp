@@ -318,8 +318,8 @@ sint idServerSnapshotSystemLocal::QsortEntityNumbers( const void* a, const void*
 {
     sint* ea, *eb;
     
-    ea = ( sint* )a;
-    eb = ( sint* )b;
+    ea = const_cast<sint*>( reinterpret_cast<const sint*>( a ) );
+    eb = const_cast<sint*>( reinterpret_cast<const sint*>( b ) );
     
     if( *ea == *eb )
     {
@@ -653,7 +653,7 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint( vec3_t origin, cl
                 vec3_t dir;
                 
                 VectorSubtract( ent->s.origin, origin, dir );
-                if( VectorLengthSquared( dir ) > ( float32 ) ent->s.generic1 * ent->s.generic1 )
+                if( VectorLengthSquared( dir ) > static_cast<float32>( ent->s.generic1 ) * ent->s.generic1 )
                 {
                     continue;
                 }
@@ -766,7 +766,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot( client_t* client )
     // all of them to make it a mask vector, which is what the renderer wants
     for( i = 0; i < MAX_MAP_AREA_BYTES / 4; i++ )
     {
-        ( ( sint* )frame->areabits )[i] = ( ( sint* )frame->areabits )[i] ^ -1;
+        frame->areabits[i] = frame->areabits[i] ^ -1;
     }
     
     // copy the entity states out
@@ -845,7 +845,7 @@ sint idServerSnapshotSystemLocal::RateMsec( client_t* client, sint messageSize )
             rate = maxRate;
         }
     }
-    rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / ( ( sint )( rate * com_timescale->value ) );
+    rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / ( static_cast<sint>( rate * com_timescale->value ) );
     
     return rateMsec;
 }
@@ -882,7 +882,7 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
     // added sv_lanForceRate check
     if( client->netchan.remoteAddress.type == NA_LOOPBACK || ( sv_lanForceRate->integer && networkSystem->IsLANAddress( client->netchan.remoteAddress ) ) )
     {
-        client->nextSnapshotTime = svs.time + ( ( int )( 1000.0 / sv_fps->integer * com_timescale->value ) );
+        client->nextSnapshotTime = svs.time + ( static_cast<sint>( 1000.0 / sv_fps->integer * com_timescale->value ) );
         return;
     }
     
@@ -904,7 +904,7 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
         client->rateDelayed = true;
     }
     
-    client->nextSnapshotTime = svs.time + ( ( sint )( rateMsec * com_timescale->value ) );
+    client->nextSnapshotTime = svs.time + ( static_cast<sint>( rateMsec * com_timescale->value ) );
     
     // don't pile up empty snapshots while connecting
     if( client->state != CS_ACTIVE )
@@ -912,9 +912,9 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
         // a gigantic connection message may have already put the nextSnapshotTime
         // more than a second away, so don't shorten it
         // do shorten if client is downloading
-        if( !*client->downloadName && client->nextSnapshotTime < svs.time + ( ( int )( 1000.0 * com_timescale->value ) ) )
+        if( !*client->downloadName && client->nextSnapshotTime < svs.time + ( static_cast<sint>( 1000.0 * com_timescale->value ) ) )
         {
-            client->nextSnapshotTime = svs.time + ( ( sint )( 1000 * com_timescale->value ) );
+            client->nextSnapshotTime = svs.time + ( static_cast<sint>( 1000 * com_timescale->value ) );
         }
     }
 }
@@ -1147,15 +1147,15 @@ void idServerSnapshotSystemLocal::SendClientMessages( void )
             
             sv.bpsWindowSteps = 0;
             
-            ave = ( ave / ( float32 )MAX_BPS_WINDOW );
-            uave = ( uave / ( float32 )MAX_BPS_WINDOW );
+            ave = ( ave / static_cast<float32>( MAX_BPS_WINDOW ) );
+            uave = ( uave / static_cast<float32>( MAX_BPS_WINDOW ) );
             
             comp_ratio = ( 1 - ave / uave ) * 100.f;
             sv.ucompAve += comp_ratio;
             sv.ucompNum++;
             
             Com_DPrintf( "bpspc(%2.0f) bps(%2.0f) pk(%i) ubps(%2.0f) upk(%i) cr(%2.2f) acr(%2.2f)\n",
-                         ave / ( float32 )numclients, ave, sv.bpsMaxBytes, uave, sv.ubpsMaxBytes, comp_ratio,
+                         ave / static_cast<float32>( numclients ), ave, sv.bpsMaxBytes, uave, sv.ubpsMaxBytes, comp_ratio,
                          sv.ucompAve / sv.ucompNum );
         }
     }

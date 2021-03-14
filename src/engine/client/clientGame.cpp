@@ -605,17 +605,17 @@ void idClientGameSystemLocal::SetExpectedHunkUsage( pointer mapname )
     if( len >= 0 )
     {
         // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
-        buf = ( valueType* )Z_Malloc( len + 1 );
+        buf = static_cast<valueType*>( Z_Malloc( len + 1 ) );
         ::memset( buf, 0, len + 1 );
         
-        fileSystem->Read( ( void* )buf, len, handle );
+        fileSystem->Read( static_cast<void*>( buf ), len, handle );
         fileSystem->FCloseFile( handle );
         
         // now parse the file, filtering out the current map
         buftrav = buf;
         while( ( token = COM_Parse( &buftrav ) ) != nullptr && token[0] )
         {
-            if( !Q_stricmp( token, ( valueType* )mapname ) )
+            if( !Q_stricmp( token, ( const_cast<valueType*>( reinterpret_cast<const valueType*>( mapname ) ) ) ) )
             {
                 // found a match
                 token = COM_Parse( &buftrav );	// read the size
@@ -777,13 +777,13 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage( void )
     if( len >= 0 )
     {
         // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
-        buf = ( valueType* )Z_Malloc( len + 1 );
+        buf = static_cast< valueType*>( Z_Malloc( len + 1 ) );
         ::memset( buf, 0, len + 1 );
         
-        outbuf = ( valueType* )Z_Malloc( len + 1 );
+        outbuf = static_cast<valueType*>( Z_Malloc( len + 1 ) );
         ::memset( outbuf, 0, len + 1 );
         
-        fileSystem->Read( ( void* )buf, len, handle );
+        fileSystem->Read( static_cast<void*>( buf ), len, handle );
         fileSystem->FCloseFile( handle );
         
         // now parse the file, filtering out the current map
@@ -836,7 +836,7 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage( void )
         // input file is parsed, now output to the new file
         len = strlen( outbuf );
         
-        if( fileSystem->Write( ( void* )outbuf, len, handle ) != len )
+        if( fileSystem->Write( static_cast<void*>( outbuf ), len, handle ) != len )
         {
             Com_Error( ERR_DROP, "cannot write to %s\n", memlistfile );
         }

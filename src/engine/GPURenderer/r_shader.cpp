@@ -83,7 +83,7 @@ static sint32 generateHashValue( pointer fname, const sint size )
         if( letter == '.' ) break;				// don't include extension
         if( letter == '\\' ) letter = '/';		// damn path names
         if( letter == PATH_SEP ) letter = '/';		// damn path names
-        hash += ( sint32 )( letter ) * ( i + 119 );
+        hash += static_cast<sint32>( letter ) * ( i + 119 );
         i++;
     }
     hash = ( hash ^ ( hash >> 10 ) ^ ( hash >> 20 ) );
@@ -1102,7 +1102,7 @@ static bool ParseStage( shaderStage_t* stage, valueType** text )
             exponent = atof( token );
             
             if( r_pbr->integer )
-                stage->specularScale[0] = 1.0f - powf( 2.0f / ( exponent + 2.0 ), 0.25 );
+                stage->specularScale[0] = 1.0f - powf( 2.0f / ( exponent + 2.0f ), 0.25f );
             else
             {
                 // Change shininess to gloss
@@ -2396,7 +2396,7 @@ static bool ParseShader( pointer name, valueType** text )
             }
             else if( fogvar > 1 )  // distance "linear" fog
             {
-                Q_vsprintf_s( fogString, sizeof( fogString ), sizeof( fogString ), "0 %d 1.1 %f %f %f 200", ( sint )fogvar, watercolor[0], watercolor[1], watercolor[2] );
+                Q_vsprintf_s( fogString, sizeof( fogString ), sizeof( fogString ), "0 %d 1.1 %f %f %f 200", static_cast<sint>( fogvar ), watercolor[0], watercolor[1], watercolor[2] );
                 //				R_SetFog(FOG_WATER, 0, fogvar, watercolor[0], watercolor[1], watercolor[2], 1.1);
             }
             else                        // density "exp" fog
@@ -3303,7 +3303,7 @@ static void FixRenderCommandList( sint newShader )
                         if( sortedIndex >= newShader )
                         {
                             sortedIndex = shader->sortedIndex;
-                            drawSurf->sort = ( sortedIndex << QSORT_SHADERNUM_SHIFT ) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( ( sint )pshadowMap << QSORT_PSHADOW_SHIFT ) | ( sint )dlightMap;
+                            drawSurf->sort = ( sortedIndex << QSORT_SHADERNUM_SHIFT ) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( static_cast<sint>( pshadowMap ) << QSORT_PSHADOW_SHIFT ) | static_cast<sint>( dlightMap );
                         }
                     }
                     curCmd = ( const void* )( ds_cmd + 1 );
@@ -3792,7 +3792,7 @@ static shader_t* FinishShader( void )
     //
     // if we are in r_vertexLight mode, never use a lightmap texture
     //
-    if( stage > 1 && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) )
+    if( stage > 1 && ( r_vertexLight->integer && !r_uiFullScreen->integer ) )
     {
         VertexLightingCollapse();
         hasLightmapStage = false;

@@ -255,9 +255,9 @@ uint Com_JenkinsHashKey( void* vkey )
     uchar8* key;
     sint key_len;
     
-    key = ( uchar8* )vkey;
+    key = static_cast< uchar8*>( vkey );
     
-    key_len = strlen( ( pointer )key );
+    key_len = ::strlen( reinterpret_cast< pointer >( key ) );
     
     for( i = 0; i < key_len; i++ )
     {
@@ -281,7 +281,7 @@ unsigned int hashcode( void* st )
     valueType* p;
     valueType* s;
     
-    s = ( valueType* )st;
+    s = static_cast<valueType*>( st );
     uint h = 0, g = 0;
     for( p = s; *p != '\0'; p = p + 1 )
     {
@@ -304,8 +304,8 @@ Com_
 sint Com_StrCmp( const void* a1, const void* a2 )
 {
     valueType* s1, *s2;
-    s1 = ( valueType* )a1;
-    s2 = ( valueType* )a2;
+    s1 = ( const_cast<valueType*>( reinterpret_cast<const valueType*>( a1 ) ) );
+    s2 = ( const_cast<valueType*>( reinterpret_cast<const valueType*>( a2 ) ) );
     
     if( strcmp( s1, s2 ) < 0 ) return -1;
     if( strcmp( s1, s2 ) == 0 ) return 0;
@@ -340,7 +340,7 @@ Com_DestroyStringKey
 */
 void Com_DestroyStringKey( void* s )
 {
-    free( ( valueType* )s );
+    free( static_cast< valueType*>( s ) );
 }
 
 /*

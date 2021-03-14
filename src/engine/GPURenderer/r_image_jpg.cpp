@@ -200,7 +200,7 @@ void R_LoadJPG( pointer filename, uchar8** pic, sint* width, sint* height )
     memcount = pixelcount * 4;
     row_stride = cinfo.output_width * cinfo.output_components;
     
-    out = ( uchar8* )CL_RefMalloc( memcount );
+    out = static_cast<uchar8*>( CL_RefMalloc( memcount ) );
     
     *width = cinfo.output_width;
     *height = cinfo.output_height;
@@ -466,7 +466,7 @@ void RE_SaveJPG( valueType* filename, sint quality, sint image_width, sint image
     uint32 bufSize;
     
     bufSize = image_width * image_height * 3;
-    out = ( uchar8* )Hunk_AllocateTempMemory( bufSize );
+    out = static_cast<uchar8*>( Hunk_AllocateTempMemory( bufSize ) );
     
     bufSize = RE_SaveJPGToBuffer( out, bufSize, quality, image_width, image_height, image_buffer, padding );
     fileSystem->WriteFile( filename, out, bufSize );

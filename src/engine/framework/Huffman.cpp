@@ -461,7 +461,7 @@ void idHuffmanSystemLocal::transmit( huff_t* huff, sint ch, uchar8* fout )
         transmit( huff, NYT, fout );
         for( i = 7; i >= 0; i-- )
         {
-            add_bit( ( valueType )( ( ch >> i ) & 0x1 ), fout );
+            add_bit( static_cast<valueType >( ( ch >> i ) & 0x1 ), fout );
         }
     }
     else
@@ -524,7 +524,7 @@ void idHuffmanSystemLocal::DynDecompress( msg_t* mbuf, sint offset )
         
         seq[j] = ch;			/* Write symbol */
         
-        addRef( &huff, ( uchar8 ) ch );	/* Increment node */
+        addRef( &huff, static_cast<uchar8>( ch ) );	/* Increment node */
     }
     mbuf->cursize = cch + offset;
     ::memcpy( mbuf->data + offset, seq, cch );
@@ -563,7 +563,7 @@ void idHuffmanSystemLocal::DynCompress( msg_t* mbuf, sint offset )
     {
         ch = buffer[i];
         transmit( &huff, ch, seq );	/* Transmit symbol */
-        addRef( &huff, ( uchar8 ) ch );	/* Do update */
+        addRef( &huff, static_cast<uchar8>( ch ) );	/* Do update */
     }
     
     bloc += 8;					// next byte
@@ -591,21 +591,21 @@ void idHuffmanSystemLocal::WriteBit( sint bit, uchar8* buffer, sint bitIndex )
 
 sint idHuffmanSystemLocal::ReadSymbol( sint* symbol, uchar8* buffer, sint bitIndex )
 {
-    const uchar16 code = ( ( *( const uint* )( buffer + ( bitIndex >> 3 ) ) ) >> ( ( uint )bitIndex & 7 ) ) & 0x7FF;
+    const uchar16 code = ( ( *( const uint* )( buffer + ( bitIndex >> 3 ) ) ) >> ( static_cast<uint>( bitIndex ) & 7 ) ) & 0x7FF;
     const uchar16 entry = huff_decodeTable[code];
     
-    *symbol = ( sint )( entry & 0xFF );
+    *symbol = static_cast<sint>( entry & 0xFF );
     
-    return ( sint )( entry >> 8 );
+    return static_cast<sint>( entry >> 8 );
 }
 
 
 sint idHuffmanSystemLocal::WriteSymbol( sint symbol, uchar8* buffer, sint bitIndex )
 {
     const uchar16 entry = huff_encodeTable[symbol];
-    const sint bitCount = ( sint )( entry & 15 );
-    const sint code = ( sint )( ( entry >> 4 ) & 0x7FF );
-    sint bits = ( sint )code;
+    const sint bitCount = static_cast<sint>( entry & 15 );
+    const sint code = static_cast<sint>( ( entry >> 4 ) & 0x7FF );
+    sint bits = static_cast<sint>( code );
     
     for( sint i = 0; i < bitCount; i++ )
     {

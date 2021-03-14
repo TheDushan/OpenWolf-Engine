@@ -96,7 +96,7 @@ void idParseSystemLocal::CreatePunctuationTable( script_t* script, punctuation_t
         lastp = nullptr;
         
         //sort the punctuations in this table entry on length (longer punctuations first)
-        for( p = script->punctuationtable[( uint ) newp->p[0]]; p; p = p->next )
+        for( p = script->punctuationtable[static_cast<uint>( newp->p[0] )]; p; p = p->next )
         {
             if( ::strlen( p->p ) < ::strlen( newp->p ) )
             {
@@ -108,7 +108,7 @@ void idParseSystemLocal::CreatePunctuationTable( script_t* script, punctuation_t
                 }
                 else
                 {
-                    script->punctuationtable[( uint )newp->p[0]] = newp;
+                    script->punctuationtable[static_cast<uint>( newp->p[0] )] = newp;
                 }
                 break;
             }
@@ -126,7 +126,7 @@ void idParseSystemLocal::CreatePunctuationTable( script_t* script, punctuation_t
             }
             else
             {
-                script->punctuationtable[( uint )newp->p[0]] = newp;
+                script->punctuationtable[static_cast<uint>( newp->p[0] )] = newp;
             }
         }
     }
@@ -604,18 +604,18 @@ void idParseSystemLocal::NumberValue( valueType* string, sint subtype, uint32* i
             
             if( dotfound )
             {
-                *floatvalue = *floatvalue + ( float64 )( *string - '0' ) / ( float64 ) dotfound;
+                *floatvalue = *floatvalue + static_cast< float64 >( *string - '0' ) / static_cast<float64>( dotfound );
                 dotfound *= 10;
             }
             else
             {
-                *floatvalue = *floatvalue * 10.0 + ( float64 )( *string - '0' );
+                *floatvalue = *floatvalue * 10.0 + static_cast<float64>( *string - '0' );
             }
             
             string++;
         }
         
-        *intvalue = ( uint32 ) * floatvalue;
+        *intvalue = static_cast<uint32>( *floatvalue );
     }
     else if( subtype & TT_DECIMAL )
     {
@@ -820,10 +820,10 @@ sint idParseSystemLocal::ReadPunctuation( script_t* script, token_t* token )
     valueType* p;
     punctuation_t* punc;
     
-    for( punc = script->punctuationtable[( uint ) * script->script_p]; punc; punc = punc->next )
+    for( punc = script->punctuationtable[static_cast<uint>( *script->script_p )]; punc; punc = punc->next )
     {
         p = punc->p;
-        len = ( sint )::strlen( p );
+        len = static_cast<sint>( ::strlen( p ) );
         
         //if the script contains at least as much characters as the punctuation
         if( script->script_p + len <= script->end_p )
@@ -1030,7 +1030,7 @@ script_t* idParseSystemLocal::LoadScriptFile( pointer filename )
     script = ( script_t* ) buffer;
     ::memset( script, 0, sizeof( script_t ) );
     Q_strcpy_s( script->filename, filename );
-    script->buffer = ( valueType* ) buffer + sizeof( script_t );
+    script->buffer = static_cast<valueType*>( buffer ) + sizeof( script_t );
     script->buffer[length] = 0;
     script->length = length;
     
@@ -1077,7 +1077,7 @@ script_t* idParseSystemLocal::LoadScriptMemory( valueType* ptr, sint length, val
     script = ( script_t* ) buffer;
     ::memset( script, 0, sizeof( script_t ) );
     Q_strcpy_s( script->filename, name );
-    script->buffer = ( valueType* ) buffer + sizeof( script_t );
+    script->buffer = static_cast<valueType*>( buffer ) + sizeof( script_t );
     script->buffer[length] = 0;
     script->length = length;
     
@@ -1658,7 +1658,7 @@ sint idParseSystemLocal::ExpandBuiltinDefine( source_t* source, token_t* deftoke
         {
             Q_strcpy_s( token->string, source->scriptstack->filename );
             token->type = TT_NAME;
-            token->subtype = ( sint )::strlen( token->string );
+            token->subtype = static_cast<sint>( ::strlen( token->string ) );
             *firsttoken = token;
             *lasttoken = token;
             break;
@@ -1673,7 +1673,7 @@ sint idParseSystemLocal::ExpandBuiltinDefine( source_t* source, token_t* deftoke
             ::strcat( token->string, "\"" );
             ::free( curtime );
             token->type = TT_NAME;
-            token->subtype = ( sint )::strlen( token->string );
+            token->subtype = static_cast<sint>( ::strlen( token->string ) );
             *firsttoken = token;
             *lasttoken = token;
             break;
@@ -1687,7 +1687,7 @@ sint idParseSystemLocal::ExpandBuiltinDefine( source_t* source, token_t* deftoke
             ::strcat( token->string, "\"" );
             ::free( curtime );
             token->type = TT_NAME;
-            token->subtype = ( sint )::strlen( token->string );
+            token->subtype = static_cast<sint>( ::strlen( token->string ) );
             *firsttoken = token;
             *lasttoken = token;
             break;
@@ -2154,7 +2154,7 @@ sint idParseSystemLocal::EvaluateTokens( source_t* source, token_t* tokens, sint
                 
                 if( negativevalue )
                 {
-                    v->intvalue = - ( sint ) t->intvalue;
+                    v->intvalue = -static_cast<sint>( t->intvalue );
                     v->floatvalue = - t->floatvalue;
                 }
                 else
@@ -3310,7 +3310,7 @@ sint idParseSystemLocal::DollarDirective_evalfloat( source_t* source )
     ::sprintf( token.string, "%1.2f", fabs( value ) );
     token.type = TT_NUMBER;
     token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
-    token.intvalue = ( uint32 ) value;
+    token.intvalue = static_cast<uint32>( value );
     token.floatvalue = value;
     
     UnreadSourceToken( source, &token );
@@ -3554,7 +3554,7 @@ sint idParseSystemLocal::Directive_define( source_t* source )
     define = ( define_t* )Z_Malloc( sizeof( define_t ) + ::strlen( token.string ) + 1 );
     ::memset( define, 0, sizeof( define_t ) );
     
-    define->name = ( valueType* ) define + sizeof( define_t );
+    define->name = reinterpret_cast<valueType*>( define ) + sizeof( define_t );
     ::strcpy( define->name, token.string );
     
     //add the define to the source
@@ -4017,7 +4017,7 @@ define_t* idParseSystemLocal::DefineFromString( valueType* string )
     token_t* t;
     define_t* def;
     
-    script = LoadScriptMemory( string, ( sint )::strlen( string ), "*extern" );
+    script = LoadScriptMemory( string, static_cast<sint>( ::strlen( string ) ), "*extern" );
     
     //create a new source
     ::memset( &src, 0, sizeof( source_t ) );
@@ -4144,7 +4144,7 @@ define_t* idParseSystemLocal::CopyDefine( source_t* source, define_t* define )
     newdefine = ( define_t* )Z_Malloc( sizeof( define_t ) + ::strlen( define->name ) + 1 );
     
     //copy the define name
-    newdefine->name = ( valueType* ) newdefine + sizeof( define_t );
+    newdefine->name = reinterpret_cast<valueType*>( newdefine ) + sizeof( define_t );
     ::strcpy( newdefine->name, define->name );
     newdefine->flags = define->flags;
     newdefine->builtin = define->builtin;

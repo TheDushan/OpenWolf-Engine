@@ -1924,7 +1924,7 @@ void CM_TraceCapsuleThroughCapsule( traceWork_t* tw, clipHandle_t model )
     // calculate top and bottom of the capsule spheres to collide with
     for( i = 0; i < 3; i++ )
     {
-        offset[i] = ( mins[i] + maxs[i] ) * 0.5;
+        offset[i] = ( mins[i] + maxs[i] ) * 0.5f;
         symetricSize[0][i] = mins[i] - offset[i];
         symetricSize[1][i] = maxs[i] - offset[i];
     }
@@ -1975,7 +1975,7 @@ void CM_TraceBoundingBoxThroughCapsule( traceWork_t* tw, clipHandle_t model )
     // offset for capsule center
     for( i = 0; i < 3; i++ )
     {
-        offset[i] = ( mins[i] + maxs[i] ) * 0.5;
+        offset[i] = ( mins[i] + maxs[i] ) * 0.5f;
         size[0][i] = mins[i] - offset[i];
         size[1][i] = maxs[i] - offset[i];
         tw->start[i] -= offset[i];
@@ -2181,7 +2181,7 @@ static void CM_Trace( trace_t* results, const vec3_t start, const vec3_t end, co
     // bmodels
     for( i = 0; i < 3; i++ )
     {
-        offset[i] = ( mins[i] + maxs[i] ) * 0.5;
+        offset[i] = ( mins[i] + maxs[i] ) * 0.5f;
         tw.size[0][i] = mins[i] - offset[i];
         tw.size[1][i] = maxs[i] - offset[i];
         tw.start[i] = start[i] + offset[i];
@@ -2440,7 +2440,7 @@ void idCollisionModelManagerLocal::TransformedBoxTrace( trace_t* results, const 
     // bmodels
     for( i = 0; i < 3; i++ )
     {
-        offset[i] = ( mins[i] + maxs[i] ) * 0.5;
+        offset[i] = ( mins[i] + maxs[i] ) * 0.5f;
         symetricSize[0][i] = mins[i] - offset[i];
         symetricSize[1][i] = maxs[i] - offset[i];
         start_l[i] = start[i] + offset[i];

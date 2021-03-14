@@ -128,16 +128,16 @@ local sint bits( struct state* s, sint need )
     while( s->bitcnt < need )
     {
         if( s->incnt == s->inlen ) longjmp( s->env, 1 ); /* out of input */
-        val |= ( sint )( s->in[s->incnt++] ) << s->bitcnt; /* load eight bits */
+        val |= static_cast<sint>( s->in[s->incnt++] ) << s->bitcnt; /* load eight bits */
         s->bitcnt += 8;
     }
     
     /* drop need bits and update buffer, always zero to seven bits left */
-    s->bitbuf = ( sint )( val >> need );
+    s->bitbuf = static_cast<sint>( val >> need );
     s->bitcnt -= need;
     
     /* return need bits, zeroing the bits above that */
-    return ( sint )( val & ( ( 1L << need ) - 1 ) );
+    return static_cast<sint>( val & ( ( 1L << need ) - 1 ) );
 }
 
 /*
@@ -441,7 +441,7 @@ local sint codes( struct state* s,
             if( s->out != nullptr )
             {
                 if( s->outcnt == s->outlen ) return 1;
-                s->out[s->outcnt] = ( uchar8 )symbol;
+                s->out[s->outcnt] = static_cast<uchar8>( symbol );
             }
             s->outcnt++;
         }

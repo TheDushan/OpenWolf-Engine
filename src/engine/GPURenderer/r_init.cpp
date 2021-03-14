@@ -463,7 +463,7 @@ bool R_GetModeInfo( sint* width, sint* height, float32* windowAspect, sint mode 
     if( mode == -2 )
     {
         // Must set width and height to display size before calling this function!
-        *windowAspect = ( float32 ) * width / *height;
+        *windowAspect = static_cast<float32>( *width ) / static_cast<float32>( *height );
     }
     else if( mode == -1 )
     {
@@ -476,7 +476,7 @@ bool R_GetModeInfo( sint* width, sint* height, float32* windowAspect, sint mode 
         
         *width = vm->width;
         *height = vm->height;
-        *windowAspect = ( float32 ) vm->width / ( vm->height * vm->pixelAspect );
+        *windowAspect = static_cast<float32>( vm->width ) / ( vm->height * vm->pixelAspect );
     }
     
     return true;
@@ -548,9 +548,9 @@ uchar8* RB_ReadPixels( sint x, sint y, sint width, sint height, uint32* offset, 
     padwidth = PAD( linelen, packAlign );
     
     // Allocate a few more bytes so that we can choose an alignment we like
-    buffer = ( uchar8* )Hunk_AllocateTempMemory( padwidth * height + *offset + packAlign - 1 );
+    buffer = static_cast<uchar8*>( Hunk_AllocateTempMemory( padwidth * height + *offset + packAlign - 1 ) );
     
-    bufstart = ( uchar8* )PADP( ( sint64 ) buffer + *offset, packAlign );
+    bufstart = static_cast<uchar8*>( PADP( reinterpret_cast< sint64 >( buffer ) + *offset, packAlign ) );
     
     qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, bufstart );
     
@@ -763,7 +763,7 @@ void R_LevelShot( void )
     allsource = RB_ReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, &offset, &padlen );
     source = allsource + offset;
     
-    buffer = ( uchar8* )Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
+    buffer = static_cast<uchar8*>( Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 ) );
     ::memset( buffer, 0, 18 );
     buffer[2] = 2;		// uncompressed type
     buffer[12] = 128;
@@ -782,8 +782,8 @@ void R_LevelShot( void )
             {
                 for( xx = 0 ; xx < 4 ; xx++ )
                 {
-                    src = source + ( 3 * glConfig.vidWidth + padlen ) * ( sint )( ( y * 3 + yy ) * yScale ) +
-                          3 * ( sint )( ( x * 4 + xx ) * xScale );
+                    src = source + ( 3 * glConfig.vidWidth + padlen ) * static_cast<sint>( ( y * 3 + yy ) * yScale ) +
+                          3 * static_cast<sint>( ( x * 4 + xx ) * xScale );
                     r += src[0];
                     g += src[1];
                     b += src[2];
@@ -1008,7 +1008,7 @@ const void* RB_TakeVideoFrameCmd( const void* data )
     avipadwidth = PAD( linelen, AVI_LINE_PADDING );
     avipadlen = avipadwidth - linelen;
     
-    cBuf = ( uchar8* )PADP( cmd->captureBuffer, packAlign );
+    cBuf = static_cast<uchar8*>( PADP( cmd->captureBuffer, packAlign ) );
     
     qglReadPixels( 0, 0, cmd->width, cmd->height, GL_RGB,
                    GL_UNSIGNED_BYTE, cBuf );
@@ -1198,18 +1198,12 @@ void GfxInfo_f( void )
     CL_RefPrintf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
     CL_RefPrintf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
     CL_RefPrintf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
-    if( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 )
+    
+    if( r_vertexLight->integer )
     {
         CL_RefPrintf( PRINT_ALL, "HACK: using vertex lightmap approximation\n" );
     }
-    if( glConfig.hardwareType == GLHW_RAGEPRO )
-    {
-        CL_RefPrintf( PRINT_ALL, "HACK: ragePro approximations\n" );
-    }
-    if( glConfig.hardwareType == GLHW_RIVA128 )
-    {
-        CL_RefPrintf( PRINT_ALL, "HACK: riva128 approximations\n" );
-    }
+    
     if( r_finish->integer )
     {
         CL_RefPrintf( PRINT_ALL, "Forcing glFinish\n" );
@@ -1264,7 +1258,7 @@ void R_Register( void )
     r_customheight = cvarSystem->Get( "r_customheight", "1050", CVAR_ARCHIVE | CVAR_LATCH, "Sets the custom vertical resolution when r_mode -1" );
     r_simpleMipMaps = cvarSystem->Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE | CVAR_LATCH, "Toggle the use of simple mip mapping. used to dumb - down resoluiton displays for slower machines" );
     r_vertexLight = cvarSystem->Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enable vertex lighting (faster, lower quality than lightmap) removes lightmaps, forces every shader to only use a single rendering pass, no layered transparancy, environment mapping, world lighting is completely static, and there is no dynamic lighting when in vertex lighting mode. (recommend dynamiclight 0 and this 1) direct FPS benefit" );
-    r_uiFullScreen = cvarSystem->Get( "r_uifullscreen", "0", 0, "Sets the User Interface(UI) running fullscreen." );
+    r_uiFullScreen = cvarSystem->Get( "r_uifullscreen", "1", 0, "Sets the User Interface(UI) running fullscreen." );
     r_subdivisions = cvarSystem->Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH, "Patch mesh/curve sub divisions, sets number of subdivisions of curves, increasing makes curves into straights." );
     r_stereoEnabled = cvarSystem->Get( "r_stereoEnabled", "0", CVAR_CHEAT, "Enables stereo separation, for 3D effects" );
     r_greyscale = cvarSystem->Get( "r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH, "Enables greyscaling of everything" );
@@ -1508,9 +1502,9 @@ void R_Init( void )
     
 //	Swap_Init();
 
-    if( ( sint64 )tess.xyz & 15 )
+    if( reinterpret_cast<sint64>( tess.xyz ) & 15 )
     {
-        CL_RefPrintf( PRINT_WARNING, "tess.xyz not 16 uchar8 aligned\n" );
+        CL_RefPrintf( PRINT_WARNING, "tess.xyz not 16 byte aligned\n" );
     }
     //::memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
     
@@ -1521,16 +1515,16 @@ void R_Init( void )
     //
     for( i = 0; i < FUNCTABLE_SIZE; i++ )
     {
-        tr.sinTable[i]		= sin( DEG2RAD( i * 360.0f / ( ( float32 )( FUNCTABLE_SIZE - 1 ) ) ) );
+        tr.sinTable[i]		= sin( DEG2RAD( i * 360.0f / ( static_cast<float32>( FUNCTABLE_SIZE - 1 ) ) ) );
         tr.squareTable[i]	= ( i < FUNCTABLE_SIZE / 2 ) ? 1.0f : -1.0f;
-        tr.sawToothTable[i] = ( float32 )i / FUNCTABLE_SIZE;
+        tr.sawToothTable[i] = static_cast<float32>( i ) / FUNCTABLE_SIZE;
         tr.inverseSawToothTable[i] = 1.0f - tr.sawToothTable[i];
         
         if( i < FUNCTABLE_SIZE / 2 )
         {
             if( i < FUNCTABLE_SIZE / 4 )
             {
-                tr.triangleTable[i] = ( float32 ) i / ( FUNCTABLE_SIZE / 4 );
+                tr.triangleTable[i] = static_cast<float32>( i ) / ( FUNCTABLE_SIZE / 4 );
             }
             else
             {
@@ -1555,10 +1549,10 @@ void R_Init( void )
     if( max_polyverts < MAX_POLYVERTS )
         max_polyverts = MAX_POLYVERTS;
         
-    ptr = ( uchar8* )( Hunk_Alloc( sizeof( *backEndData ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low ) );
+    ptr = static_cast<uchar8*>( Hunk_Alloc( sizeof( *backEndData ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low ) );
     backEndData = ( backEndData_t* )ptr;
-    backEndData->polys = ( srfPoly_t* )( ( valueType* )( ptr ) + sizeof( *backEndData ) );
-    backEndData->polyVerts = ( polyVert_t* )( ( valueType* )( ptr ) + sizeof( *backEndData ) + sizeof( srfPoly_t ) * max_polys );
+    backEndData->polys = ( srfPoly_t* )( reinterpret_cast< valueType*>( ptr ) + sizeof( *backEndData ) );
+    backEndData->polyVerts = ( polyVert_t* )( reinterpret_cast<valueType*>( ptr ) + sizeof( *backEndData ) + sizeof( srfPoly_t ) * max_polys );
     
     R_InitNextFrame();
     

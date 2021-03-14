@@ -181,37 +181,12 @@ typedef enum
 {
     GLDRV_UNKNOWN = -1,
     GLDRV_ICD,					// driver is integrated with window system
-    // WARNING: there are tests that check for
-    // > GLDRV_ICD for minidriverness, so this
-    // should always be the lowest value in this
-    // enum set
-    GLDRV_STANDALONE,			// driver is a non-3Dfx standalone driver
-    GLDRV_VOODOO,				// driver is a 3Dfx standalone driver
-    
-// XreaL BEGIN
-    GLDRV_OPENGL3,				// new driver system
-    GLDRV_MESA,					// crap
-// XreaL END
-
 } glDriverType_t;
 
 typedef enum
 {
     GLHW_UNKNOWN = -1,
     GLHW_GENERIC,				// where everthing works the way it should
-    GLHW_3DFX_2D3D,				// Voodoo Banshee or Voodoo3, relevant since if this is
-    // the hardware type then there can NOT exist a secondary
-    // display adapter
-    GLHW_RIVA128,				// where you can't interpolate alpha
-    GLHW_RAGEPRO,				// where you can't modulate alpha on alpha textures
-    GLHW_PERMEDIA2,				// where you don't have src*dst
-    
-// XreaL BEGIN
-    GLHW_ATI,					// where you don't have proper GLSL support
-    GLHW_ATI_DX10,				// ATI Radeon HD series DX10 hardware
-    GLHW_NV_DX10				// Geforce 8/9 class DX10 hardware
-// XreaL END
-
 } glHardwareType_t;
 
 typedef struct

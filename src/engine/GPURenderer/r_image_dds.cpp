@@ -269,7 +269,7 @@ void R_LoadDDS( pointer filename, uchar8** pic, sint* width, sint* height, uint*
     //
     // reject files that don't start with "DDS "
     //
-    if( *( ( uint* )( buffer.b ) ) != EncodeFourCC( "DDS " ) )
+    if( *( reinterpret_cast<uint*>( ( buffer.b ) ) ) != EncodeFourCC( "DDS " ) )
     {
         CL_RefPrintf( PRINT_ALL, "File %s is not a DDS file.\n", filename );
         fileSystem->FreeFile( buffer.v );
@@ -453,7 +453,7 @@ void R_LoadDDS( pointer filename, uchar8** pic, sint* width, sint* height, uint*
         }
     }
     
-    *pic = ( uchar8* )CL_RefMalloc( len );
+    *pic = static_cast<uchar8*>( CL_RefMalloc( len ) );
     ::memcpy( *pic, data, len );
     
     fileSystem->FreeFile( buffer.v );
@@ -470,7 +470,7 @@ void R_SaveDDS( pointer filename, uchar8* pic, sint width, sint height, sint dep
         
     picSize = width * height * depth * 4;
     size = 4 + sizeof( *ddsHeader ) + picSize;
-    data = ( uchar8* )CL_RefMalloc( size );
+    data = static_cast<uchar8*>( CL_RefMalloc( size ) );
     
     data[0] = 'D';
     data[1] = 'D';

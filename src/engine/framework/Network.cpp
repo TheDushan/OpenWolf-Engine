@@ -187,7 +187,7 @@ void idNetworkSystemLocal::NetadrToSockadr( netadr_t* a, struct sockaddr* s )
     else if( a->type == NA_IP )
     {
         ( ( struct sockaddr_in* )s )->sin_family = AF_INET;
-        ( ( struct sockaddr_in* )s )->sin_addr.s_addr = *( sint* )&a->ip;
+        ( ( struct sockaddr_in* )s )->sin_addr.s_addr = *reinterpret_cast<sint*>( &a->ip );
         ( ( struct sockaddr_in* )s )->sin_port = a->port;
     }
     else if( a->type == NA_IP6 )
@@ -215,7 +215,7 @@ void idNetworkSystemLocal::SockadrToNetadr( struct sockaddr* s, netadr_t* a )
     if( s->sa_family == AF_INET )
     {
         a->type = NA_IP;
-        *( sint* )&a->ip = ( ( struct sockaddr_in* )s )->sin_addr.s_addr;
+        *reinterpret_cast<sint*>( &a->ip ) = ( ( struct sockaddr_in* )s )->sin_addr.s_addr;
         a->port = ( ( struct sockaddr_in* )s )->sin_port;
     }
     else if( s->sa_family == AF_INET6 )
@@ -328,7 +328,7 @@ void idNetworkSystemLocal::SockaddrToString( valueType* dest, uint64 destlen, st
     else
         inputlen = sizeof( struct sockaddr_in );
         
-    if( getnameinfo( input, inputlen, dest, ( uint )destlen, nullptr, 0, NI_NUMERICHOST ) && destlen > 0 )
+    if( getnameinfo( input, inputlen, dest, static_cast<uint>( destlen ), nullptr, 0, NI_NUMERICHOST ) && destlen > 0 )
         *dest = '\0';
 }
 
@@ -385,16 +385,16 @@ bool idNetworkSystemLocal::CompareBaseAdrMask( netadr_t a, netadr_t b, sint netm
         
     if( a.type == NA_IP )
     {
-        addra = ( uchar8* ) &a.ip;
-        addrb = ( uchar8* ) &b.ip;
+        addra = reinterpret_cast<uchar8*>( &a.ip );
+        addrb = reinterpret_cast<uchar8*>( &b.ip );
         
         if( netmask < 0 || netmask > 32 )
             netmask = 32;
     }
     else if( a.type == NA_IP6 )
     {
-        addra = ( uchar8* ) &a.ip6;
-        addrb = ( uchar8* ) &b.ip6;
+        addra = reinterpret_cast<uchar8*>( &a.ip6 );
+        addrb = reinterpret_cast<uchar8*>( &b.ip6 );
         
         if( netmask < 0 || netmask > 128 )
             netmask = 128;
@@ -586,7 +586,7 @@ bool idNetworkSystemLocal::GetPacket( netadr_t* net_from, msg_t* net_message )
     if( ip_socket != INVALID_SOCKET )
     {
         fromlen = sizeof( from );
-        ret = recvfrom( ip_socket, ( valueType* )net_message->data, net_message->maxsize, 0, ( struct sockaddr* ) &from, &fromlen );
+        ret = recvfrom( ip_socket, reinterpret_cast<valueType*>( net_message->data ), net_message->maxsize, 0, ( struct sockaddr* ) &from, &fromlen );
         
         if( ret == SOCKET_ERROR )
         {
@@ -611,7 +611,7 @@ bool idNetworkSystemLocal::GetPacket( netadr_t* net_from, msg_t* net_message )
                 net_from->ip[1] = net_message->data[5];
                 net_from->ip[2] = net_message->data[6];
                 net_from->ip[3] = net_message->data[7];
-                net_from->port = *( schar16* )&net_message->data[8];
+                net_from->port = *reinterpret_cast<schar16*>( &net_message->data[8] );
                 net_message->readcount = 10;
             }
             else
@@ -634,7 +634,7 @@ bool idNetworkSystemLocal::GetPacket( netadr_t* net_from, msg_t* net_message )
     if( ip6_socket != INVALID_SOCKET )
     {
         fromlen = sizeof( from );
-        ret = recvfrom( ip6_socket, ( valueType* )net_message->data, net_message->maxsize, 0, ( struct sockaddr* ) &from, &fromlen );
+        ret = recvfrom( ip6_socket, reinterpret_cast<valueType*>( net_message->data ), net_message->maxsize, 0, ( struct sockaddr* ) &from, &fromlen );
         
         if( ret == SOCKET_ERROR )
         {
@@ -662,7 +662,7 @@ bool idNetworkSystemLocal::GetPacket( netadr_t* net_from, msg_t* net_message )
     if( multicast6_socket != INVALID_SOCKET && multicast6_socket != ip6_socket )
     {
         fromlen = sizeof( from );
-        ret = recvfrom( multicast6_socket, ( valueType* )net_message->data, net_message->maxsize, 0, ( struct sockaddr* ) &from, &fromlen );
+        ret = recvfrom( multicast6_socket, reinterpret_cast<valueType*>( net_message->data ), net_message->maxsize, 0, ( struct sockaddr* ) &from, &fromlen );
         
         if( ret == SOCKET_ERROR )
         {
@@ -724,17 +724,17 @@ void idNetworkSystemLocal::SendPacket( sint length, const void* data, netadr_t t
         socksBuf[1] = 0;
         socksBuf[2] = 0;	// fragment (not fragmented)
         socksBuf[3] = 1;	// address type: IPV4
-        *( sint* )&socksBuf[4] = ( ( struct sockaddr_in* )&addr )->sin_addr.s_addr;
-        *( schar16* )&socksBuf[8] = ( ( struct sockaddr_in* )&addr )->sin_port;
+        *reinterpret_cast<sint*>( &socksBuf[4] ) = ( ( struct sockaddr_in* )&addr )->sin_addr.s_addr;
+        *reinterpret_cast<schar16*>( &socksBuf[8] ) = ( ( struct sockaddr_in* )&addr )->sin_port;
         memcpy( &socksBuf[10], data, length );
         ret = sendto( ip_socket, socksBuf, length + 10, 0, &socksRelayAddr, sizeof( socksRelayAddr ) );
     }
     else
     {
         if( addr.ss_family == AF_INET )
-            ret = sendto( ip_socket, ( pointer )data, length, 0, ( struct sockaddr* ) &addr, sizeof( struct sockaddr_in ) );
+            ret = sendto( ip_socket, reinterpret_cast<pointer>( data ), length, 0, ( struct sockaddr* ) &addr, sizeof( struct sockaddr_in ) );
         else if( addr.ss_family == AF_INET6 )
-            ret = sendto( ip6_socket, ( pointer )data, length, 0, ( struct sockaddr* ) &addr, sizeof( struct sockaddr_in6 ) );
+            ret = sendto( ip6_socket, reinterpret_cast<pointer>( data ), length, 0, ( struct sockaddr* ) &addr, sizeof( struct sockaddr_in6 ) );
     }
     if( ret == SOCKET_ERROR )
     {
@@ -805,8 +805,8 @@ bool idNetworkSystemLocal::IsLANAddress( netadr_t adr )
         {
             if( adr.type == NA_IP )
             {
-                compareip = ( uchar8* ) & ( ( struct sockaddr_in* ) &localIP[index].addr )->sin_addr.s_addr;
-                comparemask = ( uchar8* ) & ( ( struct sockaddr_in* ) &localIP[index].netmask )->sin_addr.s_addr;
+                compareip = reinterpret_cast<uchar8*>( & ( ( struct sockaddr_in* ) &localIP[index].addr )->sin_addr.s_addr );
+                comparemask = reinterpret_cast<uchar8*>( & ( ( struct sockaddr_in* ) &localIP[index].netmask )->sin_addr.s_addr );
                 compareadr = adr.ip;
                 
                 addrsize = sizeof( adr.ip );
@@ -815,8 +815,8 @@ bool idNetworkSystemLocal::IsLANAddress( netadr_t adr )
             {
                 // TODO? should we check the scope_id here?
                 
-                compareip = ( uchar8* ) & ( ( struct sockaddr_in6* ) &localIP[index].addr )->sin6_addr;
-                comparemask = ( uchar8* ) & ( ( struct sockaddr_in6* ) &localIP[index].netmask )->sin6_addr;
+                compareip = reinterpret_cast<uchar8*>( & ( ( struct sockaddr_in6* ) &localIP[index].addr )->sin6_addr );
+                comparemask = reinterpret_cast<uchar8*>( & ( ( struct sockaddr_in6* ) &localIP[index].netmask )->sin6_addr );
                 compareadr = adr.ip6;
                 
                 addrsize = sizeof( adr.ip6 );
@@ -901,7 +901,7 @@ SOCKET idNetworkSystemLocal::IPSocket( valueType* net_interface, sint port, sint
     }
     
     // make it broadcast capable
-    if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, ( valueType* ) &i, sizeof( i ) ) == SOCKET_ERROR )
+    if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<valueType*>( &i ), sizeof( i ) ) == SOCKET_ERROR )
     {
         Com_Printf( "WARNING: idNetworkSystemLocal::IPSocket: setsockopt SO_BROADCAST: %s\n", ErrorString() );
     }
@@ -985,7 +985,7 @@ SOCKET idNetworkSystemLocal::IP6Socket( valueType* net_interface, sint port, str
         sint i = 1;
         
         // ipv4 addresses should not be allowed to connect via this socket.
-        if( setsockopt( newsocket, IPPROTO_IPV6, IPV6_V6ONLY, ( valueType* ) &i, sizeof( i ) ) == SOCKET_ERROR )
+        if( setsockopt( newsocket, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<valueType*>( &i ), sizeof( i ) ) == SOCKET_ERROR )
         {
             // win32 systems don't seem to support this anyways.
             Com_DPrintf( "WARNING: idNetworkSystemLocal::IP6Socket: setsockopt IPV6_V6ONLY: %s\n", ErrorString() );
@@ -1098,7 +1098,7 @@ void idNetworkSystemLocal::JoinMulticast6( void )
     if( curgroup.ipv6mr_interface )
     {
         if( setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_MULTICAST_IF,
-                        ( valueType* ) &curgroup.ipv6mr_interface, sizeof( curgroup.ipv6mr_interface ) ) < 0 )
+                        reinterpret_cast<valueType*>( &curgroup.ipv6mr_interface ), sizeof( curgroup.ipv6mr_interface ) ) < 0 )
         {
             Com_Printf( "idNetworkSystemLocal::JoinMulticast6: Couldn't set scope on multicast socket: %s\n", ErrorString() );
             
@@ -1111,7 +1111,7 @@ void idNetworkSystemLocal::JoinMulticast6( void )
         }
     }
     
-    if( setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP, ( valueType* ) &curgroup, sizeof( curgroup ) ) )
+    if( setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<valueType*>( &curgroup ), sizeof( curgroup ) ) )
     {
         Com_Printf( "idNetworkSystemLocal::JoinMulticast6: Couldn't join multicast group: %s\n", ErrorString() );
         
@@ -1139,7 +1139,7 @@ void idNetworkSystemLocal::LeaveMulticast6( void )
         }
         else
         {
-            setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_LEAVE_GROUP, ( valueType* )&curgroup, sizeof( curgroup ) );
+            setsockopt( multicast6_socket, IPPROTO_IPV6, IPV6_LEAVE_GROUP, reinterpret_cast<valueType*>( &curgroup ), sizeof( curgroup ) );
         }
         
         multicast6_socket = INVALID_SOCKET;
@@ -1184,7 +1184,7 @@ void idNetworkSystemLocal::OpenSocks( sint port )
         return;
     }
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = *( sint* )h->h_addr_list[0];
+    address.sin_addr.s_addr = *reinterpret_cast<sint*>( h->h_addr_list[0] );
     address.sin_port = htons( ( schar16 )net_socksPort->integer );
     
     if( connect( socks_socket, ( struct sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
@@ -1221,7 +1221,7 @@ void idNetworkSystemLocal::OpenSocks( sint port )
     {
         buf[2] = 2;		// method #2 - method id #02: username/password
     }
-    if( send( socks_socket, ( valueType* )buf, len, 0 ) == SOCKET_ERROR )
+    if( send( socks_socket, reinterpret_cast<valueType*>( buf ), len, 0 ) == SOCKET_ERROR )
     {
         err = socketError;
         Com_Printf( "idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString() );
@@ -1229,7 +1229,7 @@ void idNetworkSystemLocal::OpenSocks( sint port )
     }
     
     // get the response
-    len = recv( socks_socket, ( valueType* )buf, 64, 0 );
+    len = recv( socks_socket, reinterpret_cast<valueType*>( buf ), 64, 0 );
     if( len == SOCKET_ERROR )
     {
         err = socketError;
@@ -1274,7 +1274,7 @@ void idNetworkSystemLocal::OpenSocks( sint port )
         }
         
         // send it
-        if( send( socks_socket, ( pointer )buf, ( sint )( 3 + ulen + plen ), 0 ) == SOCKET_ERROR )
+        if( send( socks_socket, reinterpret_cast<pointer>( buf ), static_cast<sint>( 3 + ulen + plen ), 0 ) == SOCKET_ERROR )
         {
             err = socketError;
             Com_Printf( "idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString() );
@@ -1282,7 +1282,7 @@ void idNetworkSystemLocal::OpenSocks( sint port )
         }
         
         // get the response
-        len = recv( socks_socket, ( valueType* )buf, 64, 0 );
+        len = recv( socks_socket, reinterpret_cast<valueType*>( buf ), 64, 0 );
         if( len == SOCKET_ERROR )
         {
             err = socketError;
@@ -1306,9 +1306,9 @@ void idNetworkSystemLocal::OpenSocks( sint port )
     buf[1] = 3;		// command: UDP associate
     buf[2] = 0;		// reserved
     buf[3] = 1;		// address type: IPV4
-    *( sint* )&buf[4] = INADDR_ANY;
-    *( schar16* )&buf[8] = htons( ( schar16 )port );		// port
-    if( send( socks_socket, ( valueType* )buf, 10, 0 ) == SOCKET_ERROR )
+    *reinterpret_cast<sint*>( &buf[4] ) = INADDR_ANY;
+    *reinterpret_cast<schar16*>( &buf[8] ) = htons( ( schar16 )port );		// port
+    if( send( socks_socket, reinterpret_cast<valueType*>( buf ), 10, 0 ) == SOCKET_ERROR )
     {
         err = socketError;
         Com_Printf( "idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString() );
@@ -1316,7 +1316,7 @@ void idNetworkSystemLocal::OpenSocks( sint port )
     }
     
     // get the response
-    len = recv( socks_socket, ( valueType* )buf, 64, 0 );
+    len = recv( socks_socket, reinterpret_cast<valueType*>( buf ), 64, 0 );
     if( len == SOCKET_ERROR )
     {
         err = socketError;
@@ -1340,8 +1340,8 @@ void idNetworkSystemLocal::OpenSocks( sint port )
         return;
     }
     ( ( struct sockaddr_in* )&socksRelayAddr )->sin_family = AF_INET;
-    ( ( struct sockaddr_in* )&socksRelayAddr )->sin_addr.s_addr = *( sint* )&buf[4];
-    ( ( struct sockaddr_in* )&socksRelayAddr )->sin_port = *( schar16* )&buf[8];
+    ( ( struct sockaddr_in* )&socksRelayAddr )->sin_addr.s_addr = *reinterpret_cast<sint*>( &buf[4] );
+    ( ( struct sockaddr_in* )&socksRelayAddr )->sin_port = *reinterpret_cast<schar16*>( &buf[8] );
     memset( ( ( struct sockaddr_in* )&socksRelayAddr )->sin_zero, 0, 8 );
     
     usingSocks = true;
@@ -1879,7 +1879,7 @@ sint idNetworkSystemLocal::ConnectTCP( valueType* s_host_port )
     }
     
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = *( sint* )h->h_addr_list[0];
+    address.sin_addr.s_addr = *reinterpret_cast<sint*>( h->h_addr_list[0] );
     address.sin_port = htons( atoi( s_port ) );
     
     if( connect( sock, ( struct sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )

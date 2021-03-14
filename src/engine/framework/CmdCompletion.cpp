@@ -540,7 +540,7 @@ void idCmdCompletionLocal::VariableSizeDraw( field_t* edit, sint x, sint y, sint
     // draw the cursor
     if( showCursor )
     {
-        if( ( sint )( cls.realtime >> 8 ) & 1 )
+        if( static_cast<sint>( cls.realtime >> 8 ) & 1 )
         {
             // off blink
             return;
@@ -567,7 +567,7 @@ void idCmdCompletionLocal::VariableSizeDraw( field_t* edit, sint x, sint y, sint
         {
             str[0] = cursorChar;
             str[1] = 0;
-            clientScreenSystem->DrawBigString( x + ( sint )( edit->cursor - prestep - i ) * size, y, str, 1.0, false );
+            clientScreenSystem->DrawBigString( x + static_cast<sint>( edit->cursor - prestep - i ) * size, y, str, 1.0f, false );
             
         }
     }

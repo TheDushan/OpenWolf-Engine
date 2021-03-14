@@ -583,10 +583,10 @@ void idServerInitSystemLocal::SetExpectedHunkUsage( valueType* mapname )
     len = fileSystem->FOpenFileByMode( memlistfile, &handle, FS_READ );
     if( len >= 0 ) // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
     {
-        buf = ( valueType* )Z_Malloc( len + 1 );
+        buf = static_cast< valueType* >( Z_Malloc( len + 1 ) );
         ::memset( buf, 0, len + 1 );
         
-        fileSystem->Read( ( void* )( buf ), len, handle );
+        fileSystem->Read( reinterpret_cast<void*>( buf ), len, handle );
         fileSystem->FCloseFile( handle );
         
         // now parse the file, filtering out the current map
@@ -773,7 +773,7 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     
     // get a new checksum feed and restart the file system
     srand( idsystem->Milliseconds() );
-    sv.checksumFeed = ( ( ( sint )rand() << 16 ) ^ rand() ) ^ idsystem->Milliseconds();
+    sv.checksumFeed = ( ( rand() << 16 ) ^ rand() ) ^ idsystem->Milliseconds();
     
     // DO_LIGHT_DEDICATED
     // only comment out when you need a new pure checksum string and it's associated random feed
@@ -843,7 +843,7 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
             }
             
             // connect the client again
-            denied = ( valueType* )( sgame->ClientConnect( i, false ) ); // firstTime = false
+            denied = static_cast<valueType*>( sgame->ClientConnect( i, false ) ); // firstTime = false
             if( denied )
             {
                 // this generally shouldn't happen, because the client
@@ -964,10 +964,10 @@ void idServerInitSystemLocal::ParseVersionMapping( void )
     // the file exists
     if( len >= 0 )
     {
-        buf = ( valueType* )Z_Malloc( len + 1 );
+        buf = static_cast<valueType*>( Z_Malloc( len + 1 ) );
         memset( buf, 0, len + 1 );
         
-        fileSystem->Read( ( void* )buf, len, handle );
+        fileSystem->Read( reinterpret_cast<void*>( buf ), len, handle );
         fileSystem->FCloseFile( handle );
         
         // now parse the file, setting the version table info

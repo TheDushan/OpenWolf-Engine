@@ -121,7 +121,7 @@ uchar8 MuLawEncode( short s )
         s = -s;
     }
     
-    adjusted = ( sint32 )s << ( 16 - sizeof( schar16 ) * 8 );
+    adjusted = static_cast<sint32>( s ) << ( 16 - sizeof( schar16 ) * 8 );
     adjusted += 128L + 4L;
     
     if( adjusted > 32767 )
@@ -168,7 +168,7 @@ void encodeWavelet( sfx_t* sfx, schar16* packets )
     {
         for( i = 0; i < 256; i++ )
         {
-            mulawToShort[i] = ( float32 )MuLawDecode( ( uchar8 )i );
+            mulawToShort[i] = static_cast<float32>( MuLawDecode( static_cast< uchar8 >( i ) ) );
         }
         madeTable = true;
     }
@@ -209,7 +209,7 @@ void encodeWavelet( sfx_t* sfx, schar16* packets )
         }
         
         wt1( wksp, size, 1 );
-        out = ( uchar8* )chunk->sndChunk;
+        out = reinterpret_cast<uchar8*>( chunk->sndChunk );
         
         for( i = 0; i < size; i++ )
         {
@@ -240,7 +240,7 @@ void decodeWavelet( sndBuffer* chunk, schar16* to )
     
     sint size = chunk->size;
     
-    out = ( uchar8* )chunk->sndChunk;
+    out = reinterpret_cast<uchar8*>( chunk->sndChunk );
     
     for( i = 0; i < size; i++ )
     {
@@ -271,7 +271,7 @@ void encodeMuLaw( sfx_t* sfx, schar16* packets )
     {
         for( i = 0; i < 256; i++ )
         {
-            mulawToShort[i] = ( float32 )MuLawDecode( ( uchar8 )i );
+            mulawToShort[i] = static_cast<float32>( MuLawDecode( static_cast<uchar8>( i ) ) );
         }
         madeTable = true;
     }
@@ -300,7 +300,7 @@ void encodeMuLaw( sfx_t* sfx, schar16* packets )
         }
         
         chunk = newchunk;
-        out = ( uchar8* )chunk->sndChunk;
+        out = reinterpret_cast<uchar8*>( chunk->sndChunk );
         
         for( i = 0; i < size; i++ )
         {
@@ -332,7 +332,7 @@ void decodeMuLaw( sndBuffer* chunk, schar16* to )
     
     sint size = chunk->size;
     
-    out = ( uchar8* )chunk->sndChunk;
+    out = reinterpret_cast<uchar8*>( chunk->sndChunk );
     
     for( i = 0; i < size; i++ )
     {

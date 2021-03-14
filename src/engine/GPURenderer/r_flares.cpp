@@ -283,7 +283,7 @@ void RB_AddDlightFlares( void )
         else
             j = 0;
             
-        RB_AddFlare( ( void* )l, j, l->origin, l->color, nullptr );
+        RB_AddFlare( static_cast<void*>( l ), j, l->origin, l->color, nullptr );
     }
 }
 
@@ -402,7 +402,7 @@ void RB_RenderFlare( flare_t* f )
      * The coefficient flareCoeff will determine the falloff speed with increasing distance.
      */
     
-    factor = distance + size * ( float32 )sqrt( ( float32 )flareCoeff );
+    factor = distance + size * static_cast<float32>( sqrtf( flareCoeff ) );
     
     intensity = flareCoeff * size * size / ( factor * factor );
     

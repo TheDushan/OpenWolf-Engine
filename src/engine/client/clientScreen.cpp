@@ -152,8 +152,8 @@ void idClientScreenSystemLocal::DrawChar( sint x, sint y, float32 size, sint ch 
         return;
     }
     
-    ax = ( float32 )x;
-    ay = ( float32 )y;
+    ax = static_cast<float32>( x );
+    ay = static_cast<float32>( y );
     aw = size;
     ah = size;
     
@@ -178,17 +178,17 @@ void idClientScreenSystemLocal::DrawConsoleFontChar( float32 x, float32 y, sint 
 {
     fontInfo_t* font = &cls.consoleFont;
     glyphInfo_t* glyph = &font->glyphs[ch];
-    float32 yadj = ( float32 )glyph->top;
+    float32 yadj = static_cast<float32>( glyph->top );
     float32 xadj = ( ConsoleFontCharWidth( ch ) - glyph->xSkip ) / 2.0f;
     
     if( cls.useLegacyConsoleFont )
     {
-        DrawSmallChar( ( sint ) x, ( sint ) y, ch );
+        DrawSmallChar( static_cast<sint>( x ), static_cast<sint>( y ), ch );
         return;
     }
     
     if( ch == ' ' ) return;
-    renderSystem->DrawStretchPic( x + xadj, y - yadj, ( float32 )glyph->imageWidth, ( float32 )glyph->imageHeight, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph );
+    renderSystem->DrawStretchPic( x + xadj, y - yadj, static_cast<float32>( glyph->imageWidth ), static_cast<float32>( glyph->imageHeight ), glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph );
 }
 
 /*
@@ -222,7 +222,7 @@ void idClientScreenSystemLocal::DrawSmallChar( sint x, sint y, sint ch )
     fcol = col * 0.0625f;
     size = 0.0625f;
     
-    renderSystem->DrawStretchPic( ( float32 )x, ( float32 )y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, fcol, frow, fcol + size, frow + size, cls.charSetShader );
+    renderSystem->DrawStretchPic( static_cast<float32>( x ), static_cast<float32>( y ), SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, fcol, frow, fcol + size, frow + size, cls.charSetShader );
 }
 
 /*
@@ -257,7 +257,7 @@ void idClientScreenSystemLocal::DrawStringExt( sint x, sint y, float32 size, poi
         
         DrawChar( xx + 2, y + 2, size, *s );
         
-        xx += ( sint )size;
+        xx += static_cast<sint>( size );
         s++;
     }
     
@@ -296,7 +296,7 @@ void idClientScreenSystemLocal::DrawStringExt( sint x, sint y, float32 size, poi
         
         idClientScreenSystemLocal::DrawChar( xx, y, size, *s );
         
-        xx += ( sint )size;
+        xx += static_cast<sint>( size );
         s++;
     }
     
@@ -336,7 +336,7 @@ void idClientScreenSystemLocal::DrawSmallStringExt( sint x, sint y, pointer stri
     
     // draw the colored text
     s = string;
-    xx = ( float32 )x;
+    xx = static_cast<float32>( x );
     renderSystem->SetColor( setColor );
     while( *s )
     {
@@ -364,7 +364,7 @@ void idClientScreenSystemLocal::DrawSmallStringExt( sint x, sint y, pointer stri
             }
         }
         
-        DrawConsoleFontChar( xx, ( float32 )y, *s );
+        DrawConsoleFontChar( xx, static_cast<float32>( y ), *s );
         
         xx += ConsoleFontCharWidth( *s );
         s++;
@@ -444,7 +444,7 @@ void idClientScreenSystemLocal::DrawDebugGraph( void )
     y = cls.glconfig.vidHeight;
     
     renderSystem->SetColor( g_color_table[0] );
-    renderSystem->DrawStretchPic( ( float32 )x, ( float32 )( y - cl_graphheight->integer ), ( float32 )w, cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
+    renderSystem->DrawStretchPic( static_cast<float32>( x ), static_cast<float32>( y - cl_graphheight->integer ), static_cast<float32>( w ), cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
     renderSystem->SetColor( NULL );
     
     for( a = 0; a < w; a++ )
@@ -456,12 +456,12 @@ void idClientScreenSystemLocal::DrawDebugGraph( void )
         
         if( v < 0 )
         {
-            v += cl_graphheight->integer * ( 1 + ( sint )( -v / cl_graphheight->integer ) );
+            v += cl_graphheight->integer * ( 1 + static_cast<sint>( -v / cl_graphheight->integer ) );
         }
         
-        h = ( sint )v % cl_graphheight->integer;
+        h = static_cast<sint>( v ) % cl_graphheight->integer;
         
-        renderSystem->DrawStretchPic( x + ( float32 )( w - 1 - a ), ( float32 )( y - h ), 1, ( float32 )h, 0, 0, 0, 0, cls.whiteShader );
+        renderSystem->DrawStretchPic( x + static_cast<float32>( w - 1 - a ), static_cast<float32>( y - h ), 1, static_cast<float32>( h ), 0, 0, 0, 0, cls.whiteShader );
     }
 }
 
@@ -508,7 +508,7 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
         if( cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640 )
         {
             renderSystem->SetColor( g_color_table[0] );
-            renderSystem->DrawStretchPic( 0, 0, ( float32 )cls.glconfig.vidWidth, ( float32 )cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
+            renderSystem->DrawStretchPic( 0, 0, static_cast<float32>( cls.glconfig.vidWidth ), static_cast<float32>( cls.glconfig.vidHeight ), 0, 0, 0, 0, cls.whiteShader );
             renderSystem->SetColor( NULL );
         }
     }
@@ -690,7 +690,7 @@ float32 idClientScreenSystemLocal::ConsoleFontStringWidth( pointer s, sint len )
     
     if( cls.useLegacyConsoleFont )
     {
-        return ( float32 )( len * SMALLCHAR_WIDTH );
+        return static_cast<float32>( len ) * SMALLCHAR_WIDTH;
     }
     
     for( i = 0; i < len; i++ )

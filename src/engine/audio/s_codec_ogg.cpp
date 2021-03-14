@@ -123,7 +123,7 @@ sint S_OGG_Callback_seek( void* datasource, ogg_int64_t offset, sint whence )
         case SEEK_SET :
         {
             // set the file position in the actual file with the Q3 function
-            retVal = fileSystem->Seek( stream->file, ( sint32 ) offset, FS_SEEK_SET );
+            retVal = fileSystem->Seek( stream->file, static_cast< sint32 >( offset ), FS_SEEK_SET );
             
             // something has gone wrong, so we return here
             if( !( retVal == 0 ) )
@@ -132,14 +132,14 @@ sint S_OGG_Callback_seek( void* datasource, ogg_int64_t offset, sint whence )
             }
             
             // keep track of file position
-            stream->pos = ( sint ) offset;
+            stream->pos = static_cast<sint>( offset );
             break;
         }
         
         case SEEK_CUR :
         {
             // set the file position in the actual file with the Q3 function
-            retVal = fileSystem->Seek( stream->file, ( sint32 ) offset, FS_SEEK_CUR );
+            retVal = fileSystem->Seek( stream->file, static_cast<sint32>( offset ), FS_SEEK_CUR );
             
             // something has gone wrong, so we return here
             if( !( retVal == 0 ) )
@@ -148,7 +148,7 @@ sint S_OGG_Callback_seek( void* datasource, ogg_int64_t offset, sint whence )
             }
             
             // keep track of file position
-            stream->pos += ( sint ) offset;
+            stream->pos += static_cast<sint>( offset );
             break;
         }
         
@@ -158,7 +158,7 @@ sint S_OGG_Callback_seek( void* datasource, ogg_int64_t offset, sint whence )
             // so we use the file length and FS_SEEK_SET
             
             // set the file position in the actual file with the Q3 function
-            retVal = fileSystem->Seek( stream->file, ( sint32 ) stream->length + ( sint32 ) offset, FS_SEEK_SET );
+            retVal = fileSystem->Seek( stream->file, static_cast<sint32>( stream->length ) + static_cast<sint32>( offset ), FS_SEEK_SET );
             
             // something has gone wrong, so we return here
             if( !( retVal == 0 ) )
@@ -167,7 +167,7 @@ sint S_OGG_Callback_seek( void* datasource, ogg_int64_t offset, sint whence )
             }
             
             // keep track of file position
-            stream->pos = stream->length + ( sint ) offset;
+            stream->pos = stream->length + static_cast<sint>( offset );
             break;
         }
         
@@ -204,7 +204,7 @@ sint32 S_OGG_Callback_tell( void* datasource )
     }
     
     // we keep track of the file position in stream->pos
-    return ( sint32 )( ( ( snd_stream_t* ) datasource ) -> pos );
+    return static_cast<sint32>( ( ( snd_stream_t* ) datasource ) -> pos );
 }
 
 // the callback structure

@@ -136,7 +136,7 @@ static sint32 CM_GenerateHashValue( vec4_t plane )
 {
     sint32 hash;
     
-    hash = ( sint )fabs( plane[3] ) / 8;
+    hash = static_cast<sint>( fabs( plane[3] ) ) / 8;
     hash &= ( PLANE_HASHES - 1 );
     
     return hash;

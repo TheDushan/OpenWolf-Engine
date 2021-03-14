@@ -426,7 +426,7 @@ bool idNetworkChainSystemLocal::Process( netchan_t* chan, msg_t* msg )
         // copy the full message over the partial fragment
         
         // make sure the sequence number is still there
-        *( sint* )msg->data = LittleLong( sequence );
+        *reinterpret_cast<sint*>( msg->data ) = LittleLong( sequence );
         
         ::memcpy( msg->data + 4, chan->fragmentBuffer, chan->fragmentLength );
         msg->cursize = chan->fragmentLength + 4;
@@ -507,11 +507,11 @@ void idNetworkChainSystemLocal::QueuePacket( sint length, const void* data, neta
         offset = 999;
         
     _new = ( packetQueue_t* )S_Malloc( sizeof( packetQueue_t ) );
-    _new->data = ( uchar8* )S_Malloc( length );
+    _new->data = static_cast<uchar8*>( S_Malloc( length ) );
     ::memcpy( _new->data, data, length );
     _new->length = length;
     _new->to = to;
-    _new->release = idsystem->Milliseconds() + ( sint )( ( float32 )offset / com_timescale->value );
+    _new->release = idsystem->Milliseconds() + static_cast<sint>( static_cast<float32>( offset ) / com_timescale->value );
     _new->next = nullptr;
     
     if( !packetQueue )
@@ -551,7 +551,7 @@ void idNetworkChainSystemLocal::FlushPacketQueue( void )
 void idNetworkChainSystemLocal::SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to )
 {
     // sequenced packets are shown in netchan, so just show oob
-    if( showpackets->integer && *( sint* )data == -1 )
+    if( showpackets->integer && *const_cast<sint*>( reinterpret_cast<const sint*>( data ) ) == -1 )
     {
         Com_Printf( "send packet %4i\n", length );
     }

@@ -86,10 +86,10 @@ idClientAVISystemLocal::WRITE_4BYTES
 */
 void idClientAVISystemLocal::WRITE_4BYTES( sint x )
 {
-    buffer[bufIndex + 0] = ( uchar8 )( ( x >> 0 ) & 0xFF );
-    buffer[bufIndex + 1] = ( uchar8 )( ( x >> 8 ) & 0xFF );
-    buffer[bufIndex + 2] = ( uchar8 )( ( x >> 16 ) & 0xFF );
-    buffer[bufIndex + 3] = ( uchar8 )( ( x >> 24 ) & 0xFF );
+    buffer[bufIndex + 0] = static_cast<uchar8>( ( x >> 0 ) & 0xFF );
+    buffer[bufIndex + 1] = static_cast<uchar8>( ( x >> 8 ) & 0xFF );
+    buffer[bufIndex + 2] = static_cast<uchar8>( ( x >> 16 ) & 0xFF );
+    buffer[bufIndex + 3] = static_cast<uchar8>( ( x >> 24 ) & 0xFF );
     bufIndex += 4;
 }
 
@@ -100,8 +100,8 @@ idClientAVISystemLocal::WRITE_2BYTES
 */
 void idClientAVISystemLocal::WRITE_2BYTES( sint x )
 {
-    buffer[bufIndex + 0] = ( uchar8 )( ( x >> 0 ) & 0xFF );
-    buffer[bufIndex + 1] = ( uchar8 )( ( x >> 8 ) & 0xFF );
+    buffer[bufIndex + 0] = static_cast<uchar8>( ( x >> 0 ) & 0xFF );
+    buffer[bufIndex + 1] = static_cast<uchar8>( ( x >> 8 ) & 0xFF );
     bufIndex += 2;
 }
 
@@ -348,7 +348,7 @@ bool idClientAVISystemLocal::OpenAVIForWriting( pointer fileName )
     Q_strncpyz( afd.fileName, fileName, MAX_QPATH );
     
     afd.frameRate = cl_aviFrameRate->integer;
-    afd.framePeriod = ( sint )( 1000000.0f / afd.frameRate );
+    afd.framePeriod = static_cast<sint>( ( 1000000.0f / afd.frameRate ) );
     afd.width = cls.glconfig.vidWidth;
     afd.height = cls.glconfig.vidHeight;
     
@@ -365,9 +365,9 @@ bool idClientAVISystemLocal::OpenAVIForWriting( pointer fileName )
     // Allocate a bit more space for the capture buffer to account for possible
     // padding at the end of pixel lines, and padding for alignment
 #define MAX_PACK_LEN 16
-    afd.cBuffer = ( uchar8* )Z_Malloc( ( afd.width * 3 + MAX_PACK_LEN - 1 ) * afd.height + MAX_PACK_LEN - 1 );
+    afd.cBuffer = static_cast<uchar8*>( Z_Malloc( ( afd.width * 3 + MAX_PACK_LEN - 1 ) * afd.height + MAX_PACK_LEN - 1 ) );
     // raw avi files have pixel lines start on 4-uchar8 boundaries
-    afd.eBuffer = ( uchar8* )Z_Malloc( PAD( afd.width * 3, AVI_LINE_PADDING ) * afd.height );
+    afd.eBuffer = static_cast<uchar8*>( Z_Malloc( PAD( afd.width * 3, AVI_LINE_PADDING ) * afd.height ) );
     
     afd.a.rate = dma.speed;
     afd.a.format = WAV_FORMAT_PCM;
@@ -545,7 +545,7 @@ void idClientAVISystemLocal::WriteAVIAudioFrame( const uchar8* pcmBuffer, sint s
     bytesInBuffer += size;
     
     // Only write if we have a frame's worth of audio
-    if( bytesInBuffer >= ( sint )ceil( ( float32 )afd.a.rate / ( float32 )afd.frameRate ) * afd.a.sampleSize )
+    if( bytesInBuffer >= static_cast<sint>( ceil( static_cast<float32>( afd.a.rate ) / static_cast<float32>( afd.frameRate ) ) * afd.a.sampleSize ) )
     {
         sint chunkOffset = afd.fileSize - afd.moviOffset - 8;
         sint chunkSize = 8 + bytesInBuffer;

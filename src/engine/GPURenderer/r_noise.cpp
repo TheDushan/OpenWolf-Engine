@@ -41,7 +41,7 @@ static sint s_noise_perm[NOISE_SIZE];
 
 static float32 GetNoiseValue( sint x, sint y, sint z, sint t )
 {
-    sint index = INDEX( ( sint ) x, ( sint ) y, ( sint ) z, ( sint ) t );
+    sint index = INDEX( static_cast<sint>( x ), static_cast<sint>( y ), static_cast<sint>( z ), static_cast<sint>( t ) );
     
     return s_noise_table[index];
 }
@@ -52,8 +52,8 @@ void R_NoiseInit( void )
     
     for( i = 0; i < NOISE_SIZE; i++ )
     {
-        s_noise_table[i] = ( float32 )( ( ( rand() / ( float32 ) RAND_MAX ) * 2.0 - 1.0 ) );
-        s_noise_perm[i] = ( uchar8 )( rand() / ( float32 ) RAND_MAX * 255 );
+        s_noise_table[i] = static_cast<float32>( ( ( rand() / static_cast<float32>( RAND_MAX ) ) * 2.0f - 1.0f ) );
+        s_noise_perm[i] = static_cast<uchar8>( rand() / static_cast<float32>( RAND_MAX ) * 255 );
     }
 }
 
@@ -66,13 +66,13 @@ float32 R_NoiseGet4f( float32 x, float32 y, float32 z, float64 t )
     float32 back[4];
     float32 fvalue, bvalue, value[2], finalvalue;
     
-    ix = ( sint ) floor( x );
+    ix = static_cast<sint>( floor( x ) );
     fx = x - ix;
-    iy = ( sint ) floor( y );
+    iy = static_cast<sint>( floor( y ) );
     fy = y - iy;
-    iz = ( sint ) floor( z );
+    iz = static_cast<sint>( floor( z ) );
     fz = z - iz;
-    it = ( sint ) floor( t );
+    it = static_cast<sint>( floor( t ) );
     ft = t - it;
     
     for( i = 0; i < 2; i++ )

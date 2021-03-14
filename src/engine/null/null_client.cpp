@@ -123,12 +123,6 @@ void Key_ClearStates( void )
 {
 }
 
-// Dushan
-pointer Con_GetText( sint console )
-{
-    return nullptr;
-}
-
 /*
 ===============
 idSystemLocal::Init

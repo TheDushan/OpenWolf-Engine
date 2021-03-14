@@ -52,7 +52,7 @@ void R_PerformanceCounters( void )
         CL_RefPrintf( PRINT_ALL, "%i/%i/%i shaders/batches/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
                       backEnd.pc.c_shaders, backEnd.pc.c_surfBatches, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes,
                       backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3,
-                      R_SumOfUsedImages() / ( 1000000.0f ), backEnd.pc.c_overDraw / ( float32 )( glConfig.vidWidth * glConfig.vidHeight ) );
+                      R_SumOfUsedImages() / ( 1000000.0f ), backEnd.pc.c_overDraw / static_cast<float32>( glConfig.vidWidth ) * static_cast<float32>( glConfig.vidHeight ) );
     }
     else if( r_speeds->integer == 2 )
     {
@@ -109,7 +109,7 @@ void R_IssueRenderCommands( bool runPerformanceCounters )
     assert( cmdList );
     
     // add an end-of-list command
-    *( sint* )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
+    *reinterpret_cast<sint*>( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
     
     // clear it out, in case this is a sync and not a buffer flip
     cmdList->used = 0;
@@ -560,11 +560,11 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
         
         if( stereoFrame == STEREO_LEFT )
         {
-            cmd->buffer = ( sint )GL_BACK_LEFT;
+            cmd->buffer = static_cast<sint>( GL_BACK_LEFT );
         }
         else if( stereoFrame == STEREO_RIGHT )
         {
-            cmd->buffer = ( sint )GL_BACK_RIGHT;
+            cmd->buffer = static_cast<sint>( GL_BACK_RIGHT );
         }
         else
         {
@@ -654,9 +654,9 @@ void idRenderSystemLocal::BeginFrame( stereoFrame_t stereoFrame )
             }
             
             if( !Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) )
-                cmd->buffer = ( sint )GL_FRONT;
+                cmd->buffer = static_cast<sint>( GL_FRONT );
             else
-                cmd->buffer = ( sint )GL_BACK;
+                cmd->buffer = static_cast<sint>( GL_BACK );
         }
     }
     

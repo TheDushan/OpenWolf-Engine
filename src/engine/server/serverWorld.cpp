@@ -652,10 +652,10 @@ void idServerWorldSystemLocal::ClipMoveToEntities( moveclip_t* clip )
         }
         
         collisionModelManager->TransformedBoxTrace( &trace,
-                ( float32* )clip->start,
-                ( float32* )clip->end,
-                ( float32* )clip->mins,
-                ( float32* )clip->maxs,
+                ( const_cast<float32*>( reinterpret_cast<const float32*>( clip->start ) ) ),
+                ( const_cast<float32*>( reinterpret_cast<const float32*>( clip->end ) ) ),
+                ( const_cast<float32*>( reinterpret_cast<const float32*>( clip->mins ) ) ),
+                ( const_cast<float32*>( reinterpret_cast<const float32*>( clip->maxs ) ) ),
                 clipHandle,
                 clip->contentmask,
                 origin, angles,
@@ -683,7 +683,7 @@ void idServerWorldSystemLocal::ClipMoveToEntities( moveclip_t* clip )
             
             trace.entityNum = touch->s.number;
             clip->trace = trace;
-            clip->trace.startsolid = ( bool )( ( uint )clip->trace.startsolid | ( uint )oldStart );
+            clip->trace.startsolid = static_cast<uint>( clip->trace.startsolid ) | static_cast<uint>( oldStart );
         }
         
         // Reset contents to default

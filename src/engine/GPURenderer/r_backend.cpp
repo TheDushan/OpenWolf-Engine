@@ -530,7 +530,7 @@ void RB_RenderDrawSurfList( drawSurf_t* drawSurfs, sint numDrawSurfs )
                 backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
                 
                 // FIXME: e.shaderTime must be passed as sint to avoid fp-precision loss issues
-                backEnd.refdef.floatTime = originalTime - ( float64 )backEnd.currentEntity->e.shaderTime;
+                backEnd.refdef.floatTime = originalTime - static_cast<float64>( backEnd.currentEntity->e.shaderTime );
                 
                 // we have to reset the shaderTime as well otherwise image animations start
                 // from the wrong frame
@@ -688,7 +688,7 @@ void	RB_SetGL2D( void )
     qglViewport( 0, 0, width, height );
     qglScissor( 0, 0, width, height );
     
-    Mat4Ortho( 0, width, height, 0, 0, 1, matrix );
+    Mat4Ortho( 0, static_cast<float32>( width ), static_cast<float32>( height ), 0, 0, 1, matrix );
     GL_SetProjectionMatrix( matrix );
     Mat4Identity( matrix );
     GL_SetModelviewMatrix( matrix );
@@ -771,10 +771,10 @@ void idRenderSystemLocal::DrawStretchRaw( sint x, sint y, sint w, sint h, sint c
     
     RB_SetGL2D();
     
-    VectorSet4( quadVerts[0], x,     y,     0.0f, 1.0f );
-    VectorSet4( quadVerts[1], x + w, y,     0.0f, 1.0f );
-    VectorSet4( quadVerts[2], x + w, y + h, 0.0f, 1.0f );
-    VectorSet4( quadVerts[3], x,     y + h, 0.0f, 1.0f );
+    VectorSet4( quadVerts[0], static_cast<float32>( x ), static_cast<float32>( y ),     0.0f, 1.0f );
+    VectorSet4( quadVerts[1], static_cast<float32>( x + w ), static_cast<float32>( y ),     0.0f, 1.0f );
+    VectorSet4( quadVerts[2], static_cast<float32>( x + w ), static_cast<float32>( y + h ), 0.0f, 1.0f );
+    VectorSet4( quadVerts[3], static_cast<float32>( x ), static_cast<float32>( y + h ), 0.0f, 1.0f );
     
     VectorSet2( texCoords[0], 0.5f / cols,          0.5f / rows );
     VectorSet2( texCoords[1], ( cols - 0.5f ) / cols, 0.5f / rows );
@@ -838,10 +838,10 @@ const void*	RB_SetColor( const void* data )
     
     cmd = ( const setColorCommand_t* )data;
     
-    backEnd.color2D[0] = cmd->color[0] * 255;
-    backEnd.color2D[1] = cmd->color[1] * 255;
-    backEnd.color2D[2] = cmd->color[2] * 255;
-    backEnd.color2D[3] = cmd->color[3] * 255;
+    backEnd.color2D[0] = static_cast<uchar8>( ( cmd->color[0] * 255 ) );
+    backEnd.color2D[1] = static_cast<uchar8>( ( cmd->color[1] * 255 ) );
+    backEnd.color2D[2] = static_cast<uchar8>( ( cmd->color[2] * 255 ) );
+    backEnd.color2D[3] = static_cast<uchar8>( ( cmd->color[3] * 255 ) );
     
     return ( const void* )( cmd + 1 );
 }
@@ -981,14 +981,14 @@ static const void* RB_PrefilterEnvMap( const void* data )
     
     for( sint level = 1; level <= r_cubemapSize->integer; level++ )
     {
-        width = width / 2.0;
-        height = height / 2.0;
+        width = static_cast<sint>( width / 2.0f );
+        height = static_cast<sint>( height / 2.0f );
         qglViewport( 0, 0, width, height );
         qglScissor( 0, 0, width, height );
         for( sint cubemapSide = 0; cubemapSide < 6; cubemapSide++ )
         {
             vec4_t viewInfo;
-            VectorSet4( viewInfo, cubemapSide, level, r_cubemapSize->integer, ( level / ( float32 )r_cubemapSize->integer ) );
+            VectorSet4( viewInfo, static_cast<float32>( cubemapSide ), level, r_cubemapSize->integer, static_cast<float32>( level ) / static_cast<float32>( r_cubemapSize->integer ) );
             GLSL_SetUniformVec4( &tr.prefilterEnvMapShader, UNIFORM_VIEWINFO, viewInfo );
             RB_InstantQuad2( quadVerts, texCoords );
             qglCopyTexSubImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + cubemapSide, level, 0, 0, 0, 0, width, height );
@@ -1072,18 +1072,18 @@ const void* RB_DrawSurfs( const void* data )
                 
                 FBO_Bind( tr.screenShadowFbo );
                 
-                box[0] = backEnd.viewParms.viewportX * tr.screenShadowFbo->width / ( float32 )glConfig.vidWidth;
-                box[1] = backEnd.viewParms.viewportY * tr.screenShadowFbo->height / ( float32 )glConfig.vidHeight;
-                box[2] = backEnd.viewParms.viewportWidth * tr.screenShadowFbo->width / ( float32 )glConfig.vidWidth;
-                box[3] = backEnd.viewParms.viewportHeight * tr.screenShadowFbo->height / ( float32 )glConfig.vidHeight;
+                box[0] = backEnd.viewParms.viewportX * tr.screenShadowFbo->width / static_cast<float32>( glConfig.vidWidth );
+                box[1] = backEnd.viewParms.viewportY * tr.screenShadowFbo->height / static_cast<float32>( glConfig.vidHeight );
+                box[2] = backEnd.viewParms.viewportWidth * tr.screenShadowFbo->width / static_cast<float32>( glConfig.vidWidth );
+                box[3] = backEnd.viewParms.viewportHeight * tr.screenShadowFbo->height / static_cast<float32>( glConfig.vidHeight );
                 
-                qglViewport( box[0], box[1], box[2], box[3] );
-                qglScissor( box[0], box[1], box[2], box[3] );
+                qglViewport( static_cast<sint>( box[0] ), static_cast<sint>( box[1] ), static_cast<sint>( box[2] ), static_cast<sint>( box[3] ) );
+                qglScissor( static_cast<sint>( box[0] ), static_cast<sint>( box[1] ), static_cast<sint>( box[2] ), static_cast<sint>( box[3] ) );
                 
-                box[0] = backEnd.viewParms.viewportX / ( float32 )glConfig.vidWidth;
-                box[1] = backEnd.viewParms.viewportY / ( float32 )glConfig.vidHeight;
-                box[2] = box[0] + backEnd.viewParms.viewportWidth / ( float32 )glConfig.vidWidth;
-                box[3] = box[1] + backEnd.viewParms.viewportHeight / ( float32 )glConfig.vidHeight;
+                box[0] = backEnd.viewParms.viewportX / static_cast<float32>( glConfig.vidWidth );
+                box[1] = backEnd.viewParms.viewportY / static_cast<float32>( glConfig.vidHeight );
+                box[2] = box[0] + backEnd.viewParms.viewportWidth / static_cast<float32>( glConfig.vidWidth );
+                box[3] = box[1] + backEnd.viewParms.viewportHeight / static_cast<float32>( glConfig.vidHeight );
                 
                 texCoords[0][0] = box[0];
                 texCoords[0][1] = box[3];
@@ -1133,8 +1133,8 @@ const void* RB_DrawSurfs( const void* data )
                     vec3_t viewVector;
                     
                     float32 zmax = backEnd.viewParms.zFar;
-                    float32 ymax = zmax * tan( backEnd.viewParms.fovY * M_PI / 360.0f );
-                    float32 xmax = zmax * tan( backEnd.viewParms.fovX * M_PI / 360.0f );
+                    float32 ymax = zmax * tanf( backEnd.viewParms.fovY * M_PI / 360.0f );
+                    float32 xmax = zmax * tanf( backEnd.viewParms.fovX * M_PI / 360.0f );
                     
                     VectorScale( backEnd.refdef.viewaxis[0], zmax, viewVector );
                     GLSL_SetUniformVec3( &tr.shadowmaskShader, UNIFORM_VIEWFORWARD, viewVector );
@@ -1150,8 +1150,8 @@ const void* RB_DrawSurfs( const void* data )
                 
                 if( r_shadowBlur->integer )
                 {
-                    viewInfo[2] = 1.0f / ( float32 )( tr.screenScratchFbo->width );
-                    viewInfo[3] = 1.0f / ( float32 )( tr.screenScratchFbo->height );
+                    viewInfo[2] = 1.0f / static_cast<float32>( ( tr.screenScratchFbo->width ) );
+                    viewInfo[3] = 1.0f / static_cast<float32>( ( tr.screenScratchFbo->height ) );
                     
                     FBO_Bind( tr.screenScratchFbo );
                     
@@ -1182,9 +1182,9 @@ const void* RB_DrawSurfs( const void* data )
                 vec4_t quadVerts[4];
                 vec2_t texCoords[4];
                 
-                viewInfo[2] = 1.0f / ( ( float32 )( tr.quarterImage[0]->width ) * tan( backEnd.viewParms.fovX * M_PI / 360.0f ) * 2.0f );
-                viewInfo[3] = 1.0f / ( ( float32 )( tr.quarterImage[0]->height ) * tan( backEnd.viewParms.fovY * M_PI / 360.0f ) * 2.0f );
-                viewInfo[3] *= ( float32 )backEnd.viewParms.viewportHeight / ( float32 )backEnd.viewParms.viewportWidth;
+                viewInfo[2] = 1.0f / ( static_cast<float32>( ( tr.quarterImage[0]->width ) ) * tanf( backEnd.viewParms.fovX * M_PI / 360.0f ) * 2.0f );
+                viewInfo[3] = 1.0f / ( static_cast<float32>( ( tr.quarterImage[0]->height ) ) * tanf( backEnd.viewParms.fovY * M_PI / 360.0f ) * 2.0f );
+                viewInfo[3] *= static_cast<float32>( backEnd.viewParms.viewportHeight ) / static_cast<float32>( backEnd.viewParms.viewportWidth );
                 
                 FBO_Bind( tr.quarterFbo[0] );
                 
@@ -1216,8 +1216,8 @@ const void* RB_DrawSurfs( const void* data )
                 RB_InstantQuad2( quadVerts, texCoords ); //, color, shaderProgram, invTexRes);
                 
                 
-                viewInfo[2] = 1.0f / ( float32 )( tr.quarterImage[0]->width );
-                viewInfo[3] = 1.0f / ( float32 )( tr.quarterImage[0]->height );
+                viewInfo[2] = 1.0f / static_cast<float32>( tr.quarterImage[0]->width );
+                viewInfo[3] = 1.0f / static_cast<float32>( tr.quarterImage[0]->height );
                 
                 FBO_Bind( tr.quarterFbo[1] );
                 
@@ -1287,7 +1287,7 @@ const void* RB_DrawSurfs( const void* data )
                 qglBeginQuery( GL_SAMPLES_PASSED, tr.sunFlareQuery[tr.sunFlareQueryIndex] );
             }
             
-            RB_DrawSun( 0.3, tr.sunFlareShader );
+            RB_DrawSun( 0.3f, tr.sunFlareShader );
             
             if( glRefConfig.occlusionQuery )
             {
@@ -1377,8 +1377,8 @@ void RB_ShowImages( void )
     {
         image = tr.images[i];
         
-        w = glConfig.vidWidth / 20;
-        h = glConfig.vidHeight / 15;
+        w = static_cast<float32>( glConfig.vidWidth ) / 20;
+        h = static_cast<float32>( glConfig.vidHeight ) / 15;
         x = i % 20 * w;
         y = i / 20 * h;
         
@@ -1506,7 +1506,7 @@ const void*	RB_SwapBuffers( const void* data )
         sint32 sum = 0;
         uchar8* stencilReadback = nullptr;
         
-        stencilReadback = ( uchar8* )Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );
+        stencilReadback = static_cast<uchar8*>( Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight ) );
         qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
         
         for( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ )
@@ -1618,10 +1618,10 @@ const void* RB_PostProcess( const void* data )
     
     if( r_ssao->integer )
     {
-        srcBox[0] = backEnd.viewParms.viewportX      * tr.screenSsaoImage->width  / ( float32 )glConfig.vidWidth;
-        srcBox[1] = backEnd.viewParms.viewportY      * tr.screenSsaoImage->height / ( float32 )glConfig.vidHeight;
-        srcBox[2] = backEnd.viewParms.viewportWidth  * tr.screenSsaoImage->width  / ( float32 )glConfig.vidWidth;
-        srcBox[3] = backEnd.viewParms.viewportHeight * tr.screenSsaoImage->height / ( float32 )glConfig.vidHeight;
+        srcBox[0] = backEnd.viewParms.viewportX * tr.screenSsaoImage->width / glConfig.vidWidth;
+        srcBox[1] = backEnd.viewParms.viewportY * tr.screenSsaoImage->height / glConfig.vidHeight;
+        srcBox[2] = backEnd.viewParms.viewportWidth * tr.screenSsaoImage->width / glConfig.vidWidth;
+        srcBox[3] = backEnd.viewParms.viewportHeight * tr.screenSsaoImage->height / glConfig.vidHeight;
         
         FBO_Blit( tr.screenSsaoFbo, srcBox, nullptr, srcFbo, dstBox, nullptr, nullptr, GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO );
     }
@@ -1765,7 +1765,7 @@ const void* RB_PostProcess( const void* data )
             
             color[0] =
                 color[1] =
-                    color[2] = pow( 2, r_cameraExposure->value ); //exp2(r_cameraExposure->value);
+                    color[2] = powf( 2.0f, r_cameraExposure->value ); //exp2(r_cameraExposure->value);
             color[3] = 1.0f;
             
             FBO_Blit( srcFbo, srcBox, nullptr, nullptr, dstBox, nullptr, color, 0 );
@@ -1781,7 +1781,7 @@ const void* RB_PostProcess( const void* data )
         
     RB_Contrast( nullptr, srcBox, nullptr, dstBox );
     
-#if 0
+#if 1
     if( 0 )
     {
         vec4_t quadVerts[4];
@@ -1797,10 +1797,10 @@ const void* RB_PostProcess( const void* data )
             
         FBO_FastBlit( nullptr, nullptr, tr.quarterFbo[0], nullptr, GL_COLOR_BUFFER_BIT, GL_LINEAR );
         
-        iQtrBox[0] = backEnd.viewParms.viewportX      * tr.quarterImage[0]->width / ( float32 )glConfig.vidWidth;
-        iQtrBox[1] = backEnd.viewParms.viewportY      * tr.quarterImage[0]->height / ( float32 )glConfig.vidHeight;
-        iQtrBox[2] = backEnd.viewParms.viewportWidth  * tr.quarterImage[0]->width / ( float32 )glConfig.vidWidth;
-        iQtrBox[3] = backEnd.viewParms.viewportHeight * tr.quarterImage[0]->height / ( float32 )glConfig.vidHeight;
+        iQtrBox[0] = backEnd.viewParms.viewportX      * tr.quarterImage[0]->width / static_cast<float32>( glConfig.vidWidth );
+        iQtrBox[1] = backEnd.viewParms.viewportY      * tr.quarterImage[0]->height / static_cast<float32>( glConfig.vidHeight );
+        iQtrBox[2] = backEnd.viewParms.viewportWidth  * tr.quarterImage[0]->width / static_cast<float32>( glConfig.vidWidth );
+        iQtrBox[3] = backEnd.viewParms.viewportHeight * tr.quarterImage[0]->height / static_cast<float32>( glConfig.vidHeight );
         
         qglViewport( iQtrBox[0], iQtrBox[1], iQtrBox[2], iQtrBox[3] );
         qglScissor( iQtrBox[0], iQtrBox[1], iQtrBox[2], iQtrBox[3] );
@@ -1825,11 +1825,10 @@ const void* RB_PostProcess( const void* data )
         
         GL_State( GLS_DEPTHTEST_DISABLE );
         
-        
         VectorSet4( viewInfo, backEnd.viewParms.zFar / r_znear->value, backEnd.viewParms.zFar, 0.0, 0.0 );
         
-        viewInfo[2] = scale / ( float32 )( tr.quarterImage[0]->width );
-        viewInfo[3] = scale / ( float32 )( tr.quarterImage[0]->height );
+        viewInfo[2] = scale / static_cast<float32>( tr.quarterImage[0]->width );
+        viewInfo[3] = scale / static_cast<float32>( tr.quarterImage[0]->height );
         
         FBO_Bind( tr.quarterFbo[1] );
         GLSL_BindProgram( &tr.depthBlurShader[2] );
@@ -1940,7 +1939,7 @@ const void* RB_ExportCubemaps( const void* data )
     {
         FBO_t* oldFbo = glState.currentFBO;
         sint sideSize = r_cubemapSize->integer * r_cubemapSize->integer * 4;
-        uchar8* cubemapPixels = ( uchar8* )CL_RefMalloc( sideSize * 6 );
+        uchar8* cubemapPixels = static_cast<uchar8*>( CL_RefMalloc( sideSize * 6 ) );
         sint i, j;
         
         FBO_Bind( tr.renderCubeFbo );

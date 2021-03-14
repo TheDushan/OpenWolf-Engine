@@ -147,9 +147,9 @@ void dmaHD_FreeOldestSound( void )
         g_dmaHD_allocatedsoundmemory = 0;
     }
     
-    if( ( buffer = ( schar16* )sfx->soundData ) != nullptr )
+    if( ( buffer = reinterpret_cast< schar16* >( sfx->soundData ) ) != nullptr )
     {
-        free( buffer );
+        ::free( buffer );
     }
     
     sfx->inMemory = false;
@@ -179,7 +179,7 @@ schar16* dmaHD_AllocateSoundBuffer( sint samples )
     
     do
     {
-        if( ( buffer = ( schar16* )malloc( bytes ) ) != nullptr )
+        if( ( buffer = static_cast<schar16*>( malloc( bytes ) ) ) != nullptr )
         {
             break;
         }
@@ -235,12 +235,12 @@ static float32 dmaHD_NormalizeSamplePosition( float32 t, sint samples )
     
     while( t < 0.0 )
     {
-        t += ( float32 )samples;
+        t += static_cast<float32>( samples );
     }
     
-    while( t >= ( float32 )samples )
+    while( t >= static_cast<float32>( samples ) )
     {
-        t -= ( float32 )samples;
+        t -= static_cast<float32>( samples );
     }
     
     return t;
@@ -257,7 +257,7 @@ static sint dmaHD_GetSampleRaw_8bitMono( sint index, sint samples, uchar8* data 
         index -= samples;
     }
     
-    return ( sint )( ( ( uchar8 )( data[index] ) - 128 ) << 8 );
+    return static_cast<sint>( ( static_cast< uchar8 >( data[index] ) - 128 ) << 8 );
 }
 
 static sint dmaHD_GetSampleRaw_16bitMono( sint index, sint samples, uchar8* data )
@@ -271,7 +271,7 @@ static sint dmaHD_GetSampleRaw_16bitMono( sint index, sint samples, uchar8* data
         index -= samples;
     }
     
-    return ( sint )LittleShort( ( ( schar16* )data )[index] );
+    return static_cast<sint>( LittleShort( ( reinterpret_cast<schar16*>( data ) )[index] ) );
 }
 static sint dmaHD_GetSampleRaw_8bitStereo( sint index, sint samples, uchar8* data )
 {
@@ -286,8 +286,8 @@ static sint dmaHD_GetSampleRaw_8bitStereo( sint index, sint samples, uchar8* dat
         index -= samples;
     }
     
-    left = ( sint )( ( ( uchar8 )( data[index * 2] ) - 128 ) << 8 );
-    right = ( sint )( ( ( uchar8 )( data[index * 2 + 1] ) - 128 ) << 8 );
+    left = static_cast<sint>( ( static_cast<uchar8>( data[index * 2] ) - 128 ) << 8 );
+    right = static_cast<sint>( ( static_cast<uchar8>( data[index * 2 + 1] ) - 128 ) << 8 );
     
     return ( left + right ) / 2;
 }
@@ -303,8 +303,8 @@ static sint dmaHD_GetSampleRaw_16bitStereo( sint index, sint samples, uchar8* da
     {
         index -= samples;
     }
-    left = ( sint )LittleShort( ( ( schar16* )data )[index * 2] );
-    right = ( sint )LittleShort( ( ( schar16* )data )[index * 2 + 1] );
+    left = static_cast<sint>( LittleShort( ( reinterpret_cast<schar16*>( data ) )[index * 2] ) );
+    right = static_cast<sint>( LittleShort( ( reinterpret_cast<schar16*>( data ) )[index * 2 + 1] ) );
     
     return ( left + right ) / 2;
 }
@@ -320,15 +320,15 @@ static sint dmaHD_GetInterpolatedSampleHermite4pt3oX( float32 t, sint samples, u
     t = dmaHD_NormalizeSamplePosition( t, samples );
     
     // Get points
-    x = ( sint )t;
+    x = static_cast<sint>( t );
     
     // Interpolate
-    val = ( sint )dmaHD_InterpolateHermite4pt3oX(
-              ( float32 )dmaHD_GetSampleRaw( x - 1, samples, data ),
-              ( float32 )dmaHD_GetSampleRaw( x, samples, data ),
-              ( float32 )dmaHD_GetSampleRaw( x + 1, samples, data ),
-              ( float32 )dmaHD_GetSampleRaw( x + 2, samples, data ), FLOAT_DECIMAL_PART( t ) );
-              
+    val = static_cast<sint>( dmaHD_InterpolateHermite4pt3oX(
+                                 static_cast<float32>( dmaHD_GetSampleRaw( x - 1, samples, data ) ),
+                                 static_cast<float32>( dmaHD_GetSampleRaw( x, samples, data ) ),
+                                 static_cast<float32>( dmaHD_GetSampleRaw( x + 1, samples, data ) ),
+                                 static_cast<float32>( dmaHD_GetSampleRaw( x + 2, samples, data ) ), FLOAT_DECIMAL_PART( t ) ) );
+                                 
     // Clamp
     return SMPCLAMP( val );
 }
@@ -341,15 +341,15 @@ static sint dmaHD_GetInterpolatedSampleCubic( float32 t, sint samples, uchar8* d
     t = dmaHD_NormalizeSamplePosition( t, samples );
     
     // Get points
-    x = ( sint )t;
+    x = static_cast<sint>( t );
     
     // Interpolate
-    val = ( sint )dmaHD_InterpolateCubic(
-              ( float32 )dmaHD_GetSampleRaw( x - 1, samples, data ),
-              ( float32 )dmaHD_GetSampleRaw( x, samples, data ),
-              ( float32 )dmaHD_GetSampleRaw( x + 1, samples, data ),
-              ( float32 )dmaHD_GetSampleRaw( x + 2, samples, data ), FLOAT_DECIMAL_PART( t ) );
-              
+    val = static_cast<sint>( dmaHD_InterpolateCubic(
+                                 static_cast<float32>( dmaHD_GetSampleRaw( x - 1, samples, data ) ),
+                                 static_cast<float32>( dmaHD_GetSampleRaw( x, samples, data ) ),
+                                 static_cast<float32>( dmaHD_GetSampleRaw( x + 1, samples, data ) ),
+                                 static_cast<float32>( dmaHD_GetSampleRaw( x + 2, samples, data ) ), FLOAT_DECIMAL_PART( t ) ) );
+                                 
     // Clamp
     return SMPCLAMP( val );
 }
@@ -363,12 +363,12 @@ static sint dmaHD_GetInterpolatedSampleLinear( float32 t, sint samples, uchar8* 
     t = dmaHD_NormalizeSamplePosition( t, samples );
     
     // Get points
-    x = ( sint )t;
+    x = static_cast<sint>( t );
     
-    c0 = ( float32 )dmaHD_GetSampleRaw( x, samples, data );
-    c1 = ( float32 )dmaHD_GetSampleRaw( x + 1, samples, data );
+    c0 = static_cast<float32>( dmaHD_GetSampleRaw( x, samples, data ) );
+    c1 = static_cast<float32>( dmaHD_GetSampleRaw( x + 1, samples, data ) );
     
-    val = ( sint )( ( ( c1 - c0 ) * FLOAT_DECIMAL_PART( t ) ) + c0 );
+    val = static_cast<sint>( ( ( ( c1 - c0 ) * FLOAT_DECIMAL_PART( t ) ) + c0 ) );
     
     // No need to clamp for linear
     return val;
@@ -382,9 +382,9 @@ static sint dmaHD_GetNoInterpolationSample( float32 t, sint samples, uchar8* dat
     t = dmaHD_NormalizeSamplePosition( t, samples );
     
     // Get points
-    x = ( sint )t;
+    x = static_cast<sint>( t );
     
-    if( FLOAT_DECIMAL_PART( t ) > 0.5 )
+    if( FLOAT_DECIMAL_PART( t ) > 0.5f )
     {
         x++;
     }
@@ -409,8 +409,8 @@ void dmaHD_ResampleSfx( sfx_t* sfx, sint channels, sint inrate, sint inwidth, uc
     float32 lp_inva, lp_a, hp_a, lp_data, lp_last, hp_data, hp_last, hp_lastsample;
     sint outcount, idx_hp, idx_lp;
     
-    stepscale = ( float32 )inrate / ( float32 )dma.speed;
-    outcount = ( sint )( ( float32 )sfx->soundLength / stepscale );
+    stepscale = static_cast<float32>( inrate ) / static_cast<float32>( dma.speed );
+    outcount = static_cast<sint>( ( static_cast<float32>( sfx->soundLength ) / stepscale ) );
     
     // Create secondary buffer for bass sound while performing lowpass filter;
     buffer = dmaHD_AllocateSoundBuffer( outcount * 2 );
@@ -460,7 +460,7 @@ void dmaHD_ResampleSfx( sfx_t* sfx, sint channels, sint inrate, sint inwidth, uc
         hp_lastsample = sample;
         
         // Low pass.
-        lp_data = lp_a * ( float32 )bsample + lp_inva * lp_last;
+        lp_data = lp_a * static_cast<float32>( bsample ) + lp_inva * lp_last;
         buffer[idx_lp++] = SMPCLAMP( lp_data );
         lp_last = lp_data;
     }
@@ -576,12 +576,12 @@ static void dmaHD_PaintChannelFrom16_HHRTF( channel_t* ch, const sfx_t* sc, sint
     if( chs->bassvol > 0 )
     {
         // Select bass frequency offset (just after high frequency)
-        samples = &( ( schar16* )sc->soundData )[sc->soundLength];
+        samples = &( reinterpret_cast<schar16*>( sc->soundData ) )[sc->soundLength];
         
         // Calculate volumes.
         vol = chs->bassvol * dmaHD_snd_vol;
         tsamples = &samples[so];
-        out = ( sint* )samp;
+        out = reinterpret_cast<sint*>( samp );
         if( chan == 1 )
         {
             out++;
@@ -600,12 +600,12 @@ static void dmaHD_PaintChannelFrom16_HHRTF( channel_t* ch, const sfx_t* sc, sint
     if( chs->vol > 0 )
     {
         // Select high frequency offset.
-        samples = ( schar16* )sc->soundData;
+        samples = reinterpret_cast<schar16*>( sc->soundData );
         
         // Calculate volumes.
         vol = chs->vol * dmaHD_snd_vol;
         tsamples = &samples[so];
-        out = ( sint* )samp;
+        out = reinterpret_cast<sint*>( samp );
         
         if( chan == 1 )
         {
@@ -656,12 +656,12 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, sin
     // Process low frequency.
     if( ch->l.bassvol > 0 )
     {
-        samples = &( ( schar16* )sc->soundData )[sc->soundLength]; // Select bass frequency offset (just after high frequency)
+        samples = &( reinterpret_cast<schar16*>( sc->soundData ) )[sc->soundLength]; // Select bass frequency offset (just after high frequency)
         
         // Calculate volumes.
         lvol = ch->l.bassvol * dmaHD_snd_vol;
         tsamples = &samples[so];
-        out = ( sint* )samp;
+        out = reinterpret_cast<sint*>( samp );
         for( i = 0; i < count; i++ )
         {
             data = ( *tsamples * lvol ) >> 8;
@@ -677,7 +677,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, sin
     if( ch->l.vol > 0 || ch->r.vol > 0 )
     {
         // Select high frequency offset.
-        samples = ( schar16* )sc->soundData;
+        samples = reinterpret_cast<schar16*>( sc->soundData );
         
         // Calculate volumes.
         lvol = ch->l.vol * dmaHD_snd_vol;
@@ -697,7 +697,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, sin
         }
         
         tsamples = &samples[so];
-        out = ( sint* )samp;
+        out = reinterpret_cast<sint*>( samp );
         for( i = 0; i < count; i++ )
         {
             *out += ( *tsamples * lvol ) >> 8;
@@ -712,7 +712,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, sin
     if( ch->l.reverbvol > 0 || ch->r.reverbvol > 0 )
     {
         // Select high frequency offset.
-        samples = ( schar16* )sc->soundData;
+        samples = reinterpret_cast<schar16*>( sc->soundData );
         so = sampleOffset - ch->l.reverboffset;
         if( so < 0 )
         {
@@ -730,7 +730,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX2( channel_t* ch, const sfx_t* sc, sin
         lvol = ch->l.reverbvol * dmaHD_snd_vol;
         rvol = ch->r.reverbvol * dmaHD_snd_vol;
         tsamples = &samples[so];
-        out = ( sint* )samp;
+        out = reinterpret_cast<sint*>( samp );
         
         for( i = 0; i < count; i++ )
         {
@@ -774,8 +774,8 @@ static void dmaHD_PaintChannelFrom16_dmaEX( channel_t* ch, const sfx_t* sc, sint
         return;
     }
     
-    samples = &( ( schar16* )sc->soundData )[so]; // Select high frequency offset.
-    bsamples = &( ( schar16* )sc->soundData )[sc->soundLength + so]; // Select bass frequency offset (just after high frequency)
+    samples = &( reinterpret_cast<schar16*>( sc->soundData ) )[so]; // Select high frequency offset.
+    bsamples = &( reinterpret_cast<schar16*>( sc->soundData ) )[sc->soundLength + so]; // Select bass frequency offset (just after high frequency)
     
     // Calculate volumes.
     lvol = ch->l.vol * dmaHD_snd_vol;
@@ -793,7 +793,7 @@ static void dmaHD_PaintChannelFrom16_dmaEX( channel_t* ch, const sfx_t* sc, sint
             rvol = -rvol;
         }
     }
-    out = ( sint* )samp;
+    out = reinterpret_cast<sint*>( samp );
     for( i = 0; i < count; i++ )
     {
         *out += ( ( *samples * lvol ) >> 8 ) + ( ( *bsamples * lvol ) >> 8 );
@@ -1047,8 +1047,8 @@ void dmaHD_SpatializeOrigin_HHRTF( vec3_t so, channel_t* ch )
     
     VectorNormalize( ch->sodrot );
     // Calculate length of sound origin direction vector.
-    distl = ( sint )VectorNormalize( sodl ); // left
-    distr = ( sint )VectorNormalize( sodr ); // right
+    distl = static_cast<sint>( VectorNormalize( sodl ) ); // left
+    distr = static_cast<sint>( VectorNormalize( sodr ) ); // right
     
     // Close enough to be at full volume?
     if( distl < 80 )
@@ -1082,13 +1082,13 @@ void dmaHD_SpatializeOrigin_HHRTF( vec3_t so, channel_t* ch )
         // Sound originating from inside head of left ear (i.e. from right)
         if( ch->sodrot[1] < 0 )
         {
-            ch->l.vol *= ( 1.0 + ( ch->sodrot[1] * 0.7f ) );
+            ch->l.vol *= ( 1.0f + ( ch->sodrot[1] * 0.7f ) );
         }
         
         // Sound originating from inside head of right ear (i.e. from left)
         if( ch->sodrot[1] > 0 )
         {
-            ch->r.vol *= ( 1.0 - ( ch->sodrot[1] * 0.7f ) );
+            ch->r.vol *= ( 1.0f - ( ch->sodrot[1] * 0.7f ) );
         }
         
         // Calculate HRTF function (lowpass filter) parameters
@@ -1097,8 +1097,8 @@ void dmaHD_SpatializeOrigin_HHRTF( vec3_t so, channel_t* ch )
             // Sound originating from behind viewer
             if( ch->sodrot[0] < 0 )
             {
-                ch->l.vol *= ( 1.0 + ( ch->sodrot[0] * 0.05f ) );
-                ch->r.vol *= ( 1.0 + ( ch->sodrot[0] * 0.05f ) );
+                ch->l.vol *= ( 1.0f + ( ch->sodrot[0] * 0.05f ) );
+                ch->r.vol *= ( 1.0f + ( ch->sodrot[0] * 0.05f ) );
                 
                 // 2ms max
                 //t = -ch->sodrot[0] * 0.04f; if (t > 0.005f) t = 0.005f;
@@ -1112,20 +1112,20 @@ void dmaHD_SpatializeOrigin_HHRTF( vec3_t so, channel_t* ch )
         {
             // Sound originating from above viewer (decrease bass)
             // Sound originating from below viewer (increase bass)
-            ch->l.bassvol *= ( ( 1 - ch->sodrot[2] ) * 0.5 );
-            ch->r.bassvol *= ( ( 1 - ch->sodrot[2] ) * 0.5 );
+            ch->l.bassvol *= ( ( 1 - ch->sodrot[2] ) * 0.5f );
+            ch->r.bassvol *= ( ( 1 - ch->sodrot[2] ) * 0.5f );
         }
     }
     
     // Normalize volume
-    ch->l.vol *= 0.5;
-    ch->r.vol *= 0.5;
+    ch->l.vol *= 0.5f;
+    ch->r.vol *= 0.5f;
     
     if( dmaHD_inwater )
     {
         // Keep bass in water.
-        ch->l.vol *= 0.2;
-        ch->r.vol *= 0.2;
+        ch->l.vol *= 0.2f;
+        ch->r.vol *= 0.2f;
     }
 }
 
@@ -1155,7 +1155,7 @@ void dmaHD_SpatializeOrigin_dmaEX2( vec3_t so, channel_t* ch )
     
     VectorNormalize( ch->sodrot );
     // Calculate length of sound origin direction vector.
-    dist = ( sint )VectorNormalize( sod ); // left
+    dist = static_cast<sint>( VectorNormalize( sod ) ); // left
     
     // Close enough to be at full volume?
     if( dist < 0 )
@@ -1182,8 +1182,8 @@ void dmaHD_SpatializeOrigin_dmaEX2( vec3_t so, channel_t* ch )
     ch->l.bassvol = vol;
     
     dot = -ch->sodrot[1];
-    ch->l.vol *= 0.5 * ( 1.0 - dot );
-    ch->r.vol *= 0.5 * ( 1.0 + dot );
+    ch->l.vol *= 0.5f * ( 1.0f - dot );
+    ch->r.vol *= 0.5f * ( 1.0f + dot );
     
     // Calculate HRTF function (lowpass filter) parameters
     if( ch->fixed_origin )
@@ -1194,14 +1194,14 @@ void dmaHD_SpatializeOrigin_dmaEX2( vec3_t so, channel_t* ch )
         vol = CALCVOL( dist );
         ch->l.reverbvol = vol;
         ch->r.reverbvol = vol;
-        ch->l.reverbvol *= 0.5 * ( 1.0 + dot );
-        ch->r.reverbvol *= 0.5 * ( 1.0 - dot );
+        ch->l.reverbvol *= 0.5f * ( 1.0f + dot );
+        ch->r.reverbvol *= 0.5f * ( 1.0f - dot );
         
         // Sound originating from behind viewer: decrease treble + reverb
         if( ch->sodrot[0] < 0 )
         {
-            ch->l.vol *= ( 1.0 + ( ch->sodrot[0] * 0.5 ) );
-            ch->r.vol *= ( 1.0 + ( ch->sodrot[0] * 0.5 ) );
+            ch->l.vol *= ( 1.0f + ( ch->sodrot[0] * 0.5f ) );
+            ch->r.vol *= ( 1.0f + ( ch->sodrot[0] * 0.5f ) );
         }
         else // from front...
         {
@@ -1218,19 +1218,19 @@ void dmaHD_SpatializeOrigin_dmaEX2( vec3_t so, channel_t* ch )
         
         // Sound originating from above viewer (decrease bass)
         // Sound originating from below viewer (increase bass)
-        ch->l.bassvol *= ( ( 1 - ch->sodrot[2] ) * 0.5 );
+        ch->l.bassvol *= ( ( 1 - ch->sodrot[2] ) * 0.5f );
     }
     else
     {
         // Reduce base volume by half to keep overall valume.
-        ch->l.bassvol *= 0.5;
+        ch->l.bassvol *= 0.5f;
     }
     
     if( dmaHD_inwater )
     {
         // Keep bass in water.
-        ch->l.vol *= 0.2;
-        ch->r.vol *= 0.2;
+        ch->l.vol *= 0.2f;
+        ch->r.vol *= 0.2f;
     }
 }
 
@@ -1267,8 +1267,8 @@ void dmaHD_SpatializeOrigin_dmaEX( vec3_t origin, channel_t* ch )
     // DMAEX - Multiply by the stereo separation CVAR.
     dot *= dmaEX_StereoSeparation->value;
     
-    rscale = 0.5 * ( 1.0 + dot );
-    lscale = 0.5 * ( 1.0 - dot );
+    rscale = 0.5f * ( 1.0f + dot );
+    lscale = 0.5f * ( 1.0f - dot );
     if( rscale < 0 )
     {
         rscale = 0;
@@ -1280,7 +1280,7 @@ void dmaHD_SpatializeOrigin_dmaEX( vec3_t origin, channel_t* ch )
     }
     
     // add in distance effect
-    scale = ( 1.0 - dist ) * rscale;
+    scale = ( 1.0f - dist ) * rscale;
     tmp = ( ch->master_vol * scale );
     if( tmp < 0 )
     {
@@ -1288,7 +1288,7 @@ void dmaHD_SpatializeOrigin_dmaEX( vec3_t origin, channel_t* ch )
     }
     ch->r.vol = tmp;
     
-    scale = ( 1.0 - dist ) * lscale;
+    scale = ( 1.0f - dist ) * lscale;
     tmp = ( ch->master_vol * scale );
     if( tmp < 0 ) tmp = 0;
     ch->l.vol = tmp;
@@ -1440,8 +1440,8 @@ void dmaHD_Respatialize( sint entityNum, const vec3_t head, vec3_t axis[3], sint
                 case 21:
                     if( dmaHD_inwater )
                     {
-                        ch->l.vol *= 0.2;
-                        ch->r.vol *= 0.2;
+                        ch->l.vol *= 0.2f;
+                        ch->r.vol *= 0.2f;
                     }
                     break;
             }
@@ -1512,8 +1512,8 @@ void dmaHD_Update_Mix( void )
         // ms since last mix (cap to 8ms @ 125fps)
         sane = 8;
     }
-    op = ( sint )( ( float32 )( dma.speed * sane ) * 0.001 ); // samples to mix based on last mix time
-    mixahead = ( sint )( ( float32 )dma.speed * s_mixahead->value );
+    op = static_cast<sint>( ( static_cast<float32>( ( dma.speed ) * sane ) * 0.001f ) ); // samples to mix based on last mix time
+    mixahead = static_cast<sint>( ( static_cast<float32>( dma.speed ) * s_mixahead->value ) );
     
     if( mixahead < op )
     {
@@ -1588,7 +1588,7 @@ void dmaHD_SoundInfo( void )
         Com_Printf( " %d ch / %d Hz / %d bps\n", dma.channels, dma.speed, dma.samplebits );
         if( s_numSfx > 0 || g_dmaHD_allocatedsoundmemory > 0 )
         {
-            Com_Printf( " %d sounds in %.2f MiB\n", s_numSfx, ( float32 )g_dmaHD_allocatedsoundmemory / 1048576.0f );
+            Com_Printf( " %d sounds in %.2f MiB\n", s_numSfx, static_cast<float32>( g_dmaHD_allocatedsoundmemory ) / 1048576.0f );
         }
         else
         {
@@ -1610,9 +1610,9 @@ void dmaHD_SoundList( void )
     {
         for( sfx = s_knownSfx, i = 0; i < s_numSfx; i++, sfx++ )
         {
-            Com_Printf( " %s %.2f KiB %s\n", sfx->soundName, ( float32 )sfx->soundLength / 1024.0f, ( sfx->inMemory ? "" : "!" ) );
+            Com_Printf( " %s %.2f KiB %s\n", sfx->soundName, static_cast<float32>( sfx->soundLength ) / 1024.0f, ( sfx->inMemory ? "" : "!" ) );
         }
-        Com_Printf( " %d sounds in %.2f MiB\n", s_numSfx, ( float32 )g_dmaHD_allocatedsoundmemory / 1048576.0f );
+        Com_Printf( " %d sounds in %.2f MiB\n", s_numSfx, static_cast<float32>( g_dmaHD_allocatedsoundmemory ) / 1048576.0f );
     }
     else
     {

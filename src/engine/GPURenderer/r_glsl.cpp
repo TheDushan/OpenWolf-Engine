@@ -339,8 +339,8 @@ static void GLSL_GetShaderHeader( uint shaderType, pointer extra, valueType* des
                   GL_ADD,
                   GL_REPLACE ) );
                   
-    fbufWidthScale = 1.0f / ( ( float32 )glConfig.vidWidth );
-    fbufHeightScale = 1.0f / ( ( float32 )glConfig.vidHeight );
+    fbufWidthScale = 1.0f / ( static_cast<float32>( glConfig.vidWidth ) );
+    fbufHeightScale = 1.0f / ( static_cast<float32>( glConfig.vidHeight ) );
     Q_strcat( dest, size,
               va( "#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale ) );
               
@@ -366,7 +366,7 @@ static void GLSL_GetShaderHeader( uint shaderType, pointer extra, valueType* des
     
     if( r_horizonFade->integer )
     {
-        float32 fade = 1 + ( 0.1 * r_horizonFade->integer );
+        float32 fade = 1 + ( 0.1f * r_horizonFade->integer );
         Q_strcat( dest, size, va( "#define HORIZON_FADE float(%f)\n", fade ) );
     }
     
@@ -388,7 +388,7 @@ static sint GLSL_CompileGPUShader( uint program, uint* prevShader, pointer buffe
     
     shader = qglCreateShader( shaderType );
     
-    qglShaderSource( shader, 1, ( pointer* )&buffer, &size );
+    qglShaderSource( shader, 1, reinterpret_cast<pointer*>( &buffer ), &size );
     
     // compile shader
     qglCompileShader( shader );
@@ -472,6 +472,7 @@ static void GLSL_LinkProgram( uint program )
     }
 }
 
+#ifdef _DEBUG
 static void GLSL_ValidateProgram( uint program )
 {
     sint           validated;
@@ -485,6 +486,7 @@ static void GLSL_ValidateProgram( uint program )
         Com_Error( ERR_DROP, "shaders failed to validate" );
     }
 }
+#endif
 
 static void GLSL_ShowProgramUniforms( uint program )
 {
@@ -690,7 +692,9 @@ void GLSL_InitUniforms( shaderProgram_t* program )
 
 void GLSL_FinishGPUShader( shaderProgram_t* program )
 {
-    //GLSL_ValidateProgram(program->program);
+#ifdef _DEBUG
+    GLSL_ValidateProgram( program->program );
+#endif
     GLSL_ShowProgramUniforms( program->program );
     GL_CheckErrors();
 }
@@ -698,7 +702,7 @@ void GLSL_FinishGPUShader( shaderProgram_t* program )
 void GLSL_SetUniformInt( shaderProgram_t* program, sint uniformNum, sint value )
 {
     sint* uniforms = program->uniforms;
-    sint* compare = ( sint* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    sint* compare = reinterpret_cast<sint*>( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -722,7 +726,7 @@ void GLSL_SetUniformInt( shaderProgram_t* program, sint uniformNum, sint value )
 void GLSL_SetUniformFloat( shaderProgram_t* program, sint uniformNum, float32 value )
 {
     sint* uniforms = program->uniforms;
-    float32* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    float32* compare = reinterpret_cast<float32*>( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -746,7 +750,7 @@ void GLSL_SetUniformFloat( shaderProgram_t* program, sint uniformNum, float32 va
 void GLSL_SetUniformVec2( shaderProgram_t* program, sint uniformNum, const vec2_t v )
 {
     sint* uniforms = program->uniforms;
-    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    vec_t* compare = reinterpret_cast<float32*>( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -771,7 +775,7 @@ void GLSL_SetUniformVec2( shaderProgram_t* program, sint uniformNum, const vec2_
 void GLSL_SetUniformVec3( shaderProgram_t* program, sint uniformNum, const vec3_t v )
 {
     sint* uniforms = program->uniforms;
-    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    vec_t* compare = reinterpret_cast<float32*>( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -795,7 +799,7 @@ void GLSL_SetUniformVec3( shaderProgram_t* program, sint uniformNum, const vec3_
 void GLSL_SetUniformVec4( shaderProgram_t* program, sint uniformNum, const vec4_t v )
 {
     sint* uniforms = program->uniforms;
-    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    vec_t* compare = reinterpret_cast<float32*>( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -819,7 +823,7 @@ void GLSL_SetUniformVec4( shaderProgram_t* program, sint uniformNum, const vec4_
 void GLSL_SetUniformFloat5( shaderProgram_t* program, sint uniformNum, const vec5_t v )
 {
     sint* uniforms = program->uniforms;
-    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    vec_t* compare = reinterpret_cast<float32*>( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -843,7 +847,7 @@ void GLSL_SetUniformFloat5( shaderProgram_t* program, sint uniformNum, const vec
 void GLSL_SetUniformMat4( shaderProgram_t* program, sint uniformNum, const mat4_t matrix )
 {
     sint* uniforms = program->uniforms;
-    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    vec_t* compare = reinterpret_cast<float32*>( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
         return;
@@ -867,7 +871,7 @@ void GLSL_SetUniformMat4( shaderProgram_t* program, sint uniformNum, const mat4_
 void GLSL_SetUniformMat4BoneMatrix( shaderProgram_t* program, sint uniformNum, /*const*/ mat4_t* matrix, sint numMatricies )
 {
     GLint* uniforms = program->uniforms;
-    vec_t* compare = ( float32* )( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
+    vec_t* compare = reinterpret_cast<float32*>( program->uniformBuffer + program->uniformBufferOffsets[uniformNum] );
     
     if( uniforms[uniformNum] == -1 )
     {
@@ -2084,8 +2088,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     
     {
         vec2_t screensize;
-        screensize[0] = ( float32 )glConfig.vidWidth;
-        screensize[1] = ( float32 )glConfig.vidHeight;
+        screensize[0] = static_cast<float32>( glConfig.vidWidth );
+        screensize[1] = static_cast<float32>( glConfig.vidHeight );
         
         GLSL_SetUniformVec2( &tr.waterShader, UNIFORM_DIMENSIONS, screensize );
     }
@@ -2121,8 +2125,8 @@ void idRenderSystemLocal::InitGPUShaders( void )
     
     {
         vec2_t screensize;
-        screensize[0] = ( float32 )glConfig.vidWidth;
-        screensize[1] = ( float32 )glConfig.vidHeight;
+        screensize[0] = static_cast<float32>( glConfig.vidWidth );
+        screensize[1] = static_cast<float32>( glConfig.vidHeight );
         
         GLSL_SetUniformVec2( &tr.underWaterShader, UNIFORM_DIMENSIONS, screensize );
     }

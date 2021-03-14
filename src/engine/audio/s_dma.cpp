@@ -233,7 +233,7 @@ static sint32 S_HashSFXName( pointer name )
             letter = '/';
         }
         
-        hash += ( sint32 )( letter ) * ( i + 119 );
+        hash += static_cast<sint32>( letter ) * ( i + 119 );
         i++;
     }
     hash &= ( LOOP_HASH - 1 );
@@ -481,13 +481,13 @@ void S_SpatializeOrigin( vec3_t origin, sint master_vol, sint* left_vol, sint* r
     if( dma.channels == 1 )
     {
         // no attenuation = no spatialization
-        rscale = 1.0;
-        lscale = 1.0;
+        rscale = 1.0f;
+        lscale = 1.0f;
     }
     else
     {
-        rscale = 0.5 * ( 1.0 + dot );
-        lscale = 0.5 * ( 1.0 - dot );
+        rscale = 0.5f * ( 1.0f + dot );
+        lscale = 0.5f * ( 1.0f - dot );
         
         if( rscale < 0 )
         {
@@ -509,7 +509,7 @@ void S_SpatializeOrigin( vec3_t origin, sint master_vol, sint* left_vol, sint* r
         *right_vol = 0;
     }
     
-    scale = ( 1.0 - dist ) * lscale;
+    scale = ( 1.0f - dist ) * lscale;
     *left_vol = ( master_vol * scale );
     
     if( *left_vol < 0 )
@@ -1057,7 +1057,7 @@ void S_ByteSwapRawSamples( sint samples, sint width, sint s_channels, const ucha
     }
     for( i = 0 ; i < samples ; i++ )
     {
-        ( ( schar16* )data )[i] = LittleShort( ( ( schar16* )data )[i] );
+        ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[i] = LittleShort( ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[i] );
     }
 }
 
@@ -1093,7 +1093,7 @@ void S_Base_RawSamples( sint samples, sint rate, sint width, sint s_channels, co
         s_rawend = s_soundtime;
     }
     
-    scale = ( float32 )rate / dma.speed;
+    scale = static_cast<float32>( rate ) / dma.speed;
     
 //Com_Printf ("%i < %i < %i\n", s_soundtime, s_paintedtime, s_rawend);
     if( s_channels == 2 && width == 2 )
@@ -1105,8 +1105,8 @@ void S_Base_RawSamples( sint samples, sint rate, sint width, sint s_channels, co
             {
                 dst = s_rawend & ( MAX_RAW_SAMPLES - 1 );
                 s_rawend++;
-                s_rawsamples[dst].left = ( ( schar16* )data )[i * 2] * intVolume;
-                s_rawsamples[dst].right = ( ( schar16* )data )[i * 2 + 1] * intVolume;
+                s_rawsamples[dst].left = ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[i * 2] * intVolume;
+                s_rawsamples[dst].right = ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[i * 2 + 1] * intVolume;
             }
         }
         else
@@ -1120,8 +1120,8 @@ void S_Base_RawSamples( sint samples, sint rate, sint width, sint s_channels, co
                 }
                 dst = s_rawend & ( MAX_RAW_SAMPLES - 1 );
                 s_rawend++;
-                s_rawsamples[dst].left = ( ( schar16* )data )[src * 2] * intVolume;
-                s_rawsamples[dst].right = ( ( schar16* )data )[src * 2 + 1] * intVolume;
+                s_rawsamples[dst].left = ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[src * 2] * intVolume;
+                s_rawsamples[dst].right = ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[src * 2 + 1] * intVolume;
             }
         }
     }
@@ -1136,8 +1136,8 @@ void S_Base_RawSamples( sint samples, sint rate, sint width, sint s_channels, co
             }
             dst = s_rawend & ( MAX_RAW_SAMPLES - 1 );
             s_rawend++;
-            s_rawsamples[dst].left = ( ( schar16* )data )[src] * intVolume;
-            s_rawsamples[dst].right = ( ( schar16* )data )[src] * intVolume;
+            s_rawsamples[dst].left = ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[src] * intVolume;
+            s_rawsamples[dst].right = ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[src] * intVolume;
         }
     }
     else if( s_channels == 2 && width == 1 )
@@ -1153,8 +1153,8 @@ void S_Base_RawSamples( sint samples, sint rate, sint width, sint s_channels, co
             }
             dst = s_rawend & ( MAX_RAW_SAMPLES - 1 );
             s_rawend++;
-            s_rawsamples[dst].left = ( ( valueType* )data )[src * 2] * intVolume;
-            s_rawsamples[dst].right = ( ( valueType* )data )[src * 2 + 1] * intVolume;
+            s_rawsamples[dst].left = ( data )[src * 2] * intVolume;
+            s_rawsamples[dst].right = ( data )[src * 2 + 1] * intVolume;
         }
     }
     else if( s_channels == 1 && width == 1 )
@@ -1170,8 +1170,8 @@ void S_Base_RawSamples( sint samples, sint rate, sint width, sint s_channels, co
             }
             dst = s_rawend & ( MAX_RAW_SAMPLES - 1 );
             s_rawend++;
-            s_rawsamples[dst].left = ( ( ( uchar8* )data )[src] - 128 ) * intVolume;
-            s_rawsamples[dst].right = ( ( ( uchar8* )data )[src] - 128 ) * intVolume;
+            s_rawsamples[dst].left = ( data[src] - 128 ) * intVolume;
+            s_rawsamples[dst].right = ( data[src] - 128 ) * intVolume;
         }
     }
     
@@ -1355,7 +1355,7 @@ void S_GetSoundtime( void )
     
     if( clientAVISystem->VideoRecording( ) )
     {
-        s_soundtime += ( sint )ceil( dma.speed / cl_aviFrameRate->value );
+        s_soundtime += static_cast<sint>( ceil( dma.speed / cl_aviFrameRate->value ) );
         return;
     }
     
@@ -1730,7 +1730,8 @@ sint idSoundSystemLocal::GetSoundLength( sfxHandle_t sfxHandle )
         Com_DPrintf( S_COLOR_YELLOW "idSoundSystemLocal::GetSoundLength: handle %i out of range\n", sfxHandle );
         return -1;
     }
-    return ( sint )( ( float32 )s_knownSfx[sfxHandle].soundLength / dma.speed * 1000.0 );
+    
+    return static_cast<sint>( static_cast<float32>( s_knownSfx[sfxHandle].soundLength ) / dma.speed * 1000.0f );
 }
 
 /*

@@ -274,7 +274,7 @@ void idRenderSystemLocal::FBOInit( void )
         multisample = 0;
         
     if( multisample != r_ext_framebuffer_multisample->integer )
-        cvarSystem->SetValue( "r_ext_framebuffer_multisample", ( float32 )multisample );
+        cvarSystem->SetValue( "r_ext_framebuffer_multisample", static_cast<float32>( multisample ) );
         
     //
     // Generic FBO...
@@ -660,10 +660,10 @@ void FBO_Blit( FBO_t* src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t* dst, ive
     
     if( inSrcBox )
     {
-        srcTexCorners[0] =  inSrcBox[0]                / ( float32 )src->width;
-        srcTexCorners[1] = ( inSrcBox[1] + inSrcBox[3] ) / ( float32 )src->height;
-        srcTexCorners[2] = ( inSrcBox[0] + inSrcBox[2] ) / ( float32 )src->width;
-        srcTexCorners[3] =  inSrcBox[1]                / ( float32 )src->height;
+        srcTexCorners[0] =  inSrcBox[0]                / static_cast<float32>( src->width );
+        srcTexCorners[1] = ( inSrcBox[1] + inSrcBox[3] ) / static_cast<float32>( src->height );
+        srcTexCorners[2] = ( inSrcBox[0] + inSrcBox[2] ) / static_cast<float32>( src->width );
+        srcTexCorners[3] =  inSrcBox[1]                / static_cast<float32>( src->height );
     }
     else
     {

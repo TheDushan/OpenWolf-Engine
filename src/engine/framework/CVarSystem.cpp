@@ -99,7 +99,7 @@ sint32 idCVarSystemLocal::generateHashValue( pointer fname )
     while( fname[i] != '\0' )
     {
         letter = tolower( fname[i] );
-        hash += ( sint32 )( letter ) * ( i + 119 );
+        hash += static_cast<sint32>( letter ) * ( i + 119 );
         i++;
     }
     
@@ -320,8 +320,7 @@ valueType* idCVarSystemLocal::ClearForeignCharacters( pointer value )
     
     for( i = 0; value[i] != '\0'; i++ )
     {
-        //if( !(value[i] & 128) )
-        if( ( ( uchar8* ) value )[i] != 0xFF && ( ( ( uchar8* ) value )[i] <= 127 || ( ( uchar8* ) value )[i] >= 161 ) )
+        if( ( value )[i] != 0xFF && ( ( value )[i] <= 127 || ( value )[i] >= 161 ) )
         {
             clean[j] = value[i];
             j++;
@@ -367,7 +366,7 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
                     Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s' must be integral", var->name );
                 }
                 
-                valuef = ( int )valuef;
+                valuef = static_cast<sint>( valuef );
                 changed = true;
             }
         }
@@ -398,7 +397,7 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
             
             if( Q_isintegral( var->min ) )
             {
-                Com_Printf( " out of range (min %d)", ( int )var->min );
+                Com_Printf( " out of range (min %d)", static_cast<sint>( var->min ) );
             }
             else
             {
@@ -424,7 +423,7 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
             
             if( Q_isintegral( var->max ) )
             {
-                Com_Printf( " out of range (max %d)", ( int )var->max );
+                Com_Printf( " out of range (max %d)", static_cast<sint>( var->max ) );
             }
             else
             {
@@ -440,11 +439,11 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
     {
         if( Q_isintegral( valuef ) )
         {
-            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%d", ( int )valuef );
+            Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%d", static_cast<sint>( valuef ) );
             
             if( warn )
             {
-                Com_Printf( ", setting to %d\n", ( int )valuef );
+                Com_Printf( ", setting to %d\n", static_cast<sint>( valuef ) );
             }
         }
         else
@@ -826,9 +825,9 @@ void idCVarSystemLocal::SetValue( pointer var_name, float32 value )
 {
     valueType val[32];
     
-    if( value == ( sint )value )
+    if( value == static_cast<sint>( value ) )
     {
-        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", ( sint )value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", static_cast<sint>( value ) );
     }
     else
     {
@@ -847,9 +846,9 @@ void idCVarSystemLocal::SetValueSafe( pointer var_name, float32 value )
 {
     valueType    val[32];
     
-    if( value == ( sint )value )
+    if( value == static_cast<sint>( value ) )
     {
-        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", ( sint )value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", static_cast<sint>( value ) );
     }
     else
     {
@@ -868,9 +867,9 @@ void idCVarSystemLocal::SetValueLatched( pointer var_name, float32 value )
 {
     valueType val[32];
     
-    if( value == ( sint )value )
+    if( value == static_cast<sint>( value ) )
     {
-        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", ( sint )value );
+        Q_vsprintf_s( val, sizeof( val ), sizeof( val ), "%i", static_cast<sint>( value ) );
     }
     else
     {
@@ -1566,9 +1565,9 @@ void idCVarSystemLocal::Update( vmConvar_t* vmCvar )
     // bk
     assert( vmCvar );
     
-    if( ( uint )vmCvar->handle >= cvar_numIndexes )
+    if( static_cast< uint >( vmCvar->handle ) >= cvar_numIndexes )
     {
-        Com_Error( ERR_DROP, "idCVarSystemLocal::Update: handle %d out of range", ( uint )vmCvar->handle );
+        Com_Error( ERR_DROP, "idCVarSystemLocal::Update: handle %d out of range", static_cast<uint>( vmCvar->handle ) );
     }
     
     cv = cvar_indexes + vmCvar->handle;
@@ -1589,7 +1588,8 @@ void idCVarSystemLocal::Update( vmConvar_t* vmCvar )
     // bk001129 - mismatches.
     if( strlen( cv->string ) + 1 > MAX_CVAR_VALUE_STRING )
     {
-        Com_Error( ERR_DROP, "idCVarSystemLocal::Update: src %s length %lu exceeds MAX_CVAR_VALUE_STRING(%lu)", cv->string, ( uint32 )strlen( cv->string ), ( uint32 )sizeof( vmCvar->string ) );
+        Com_Error( ERR_DROP, "idCVarSystemLocal::Update: src %s length %lu exceeds MAX_CVAR_VALUE_STRING(%lu)", cv->string, static_cast<uint32>( ::strlen( cv->string ) ),
+                   static_cast<uint32>( sizeof( vmCvar->string ) ) );
     }
     // bk001212 - Q_strncpyz guarantees zero padding and dest[MAX_CVAR_VALUE_STRING-1]==0
     // bk001129 - paranoia. Never trust the destination string.

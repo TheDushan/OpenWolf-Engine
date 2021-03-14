@@ -277,7 +277,7 @@ vao_t* R_CreateVao2( pointer name, sint numVertexes, srfVert_t* verts, sint numI
     
     // create VBO
     dataSize *= numVertexes;
-    data = ( uchar8* )Hunk_AllocateTempMemory( dataSize );
+    data = static_cast<uchar8*>( Hunk_AllocateTempMemory( dataSize ) );
     dataOfs = 0;
     
     for( i = 0; i < numVertexes; i++ )

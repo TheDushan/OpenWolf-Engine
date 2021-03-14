@@ -53,9 +53,10 @@
 #endif // !GAMEDLL
 
 // *INDENT-OFF*
-#if !defined (Q3MAP2) || defined (_WIN32)
+#if defined (_WIN32)
 vec3_t vec3_origin = {0, 0, 0};
 #endif
+
 vec3_t axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
 matrix_t matrixIdentity = {	1, 0, 0, 0,
@@ -242,12 +243,12 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 float32 Q_random( sint* seed )
 {
-    return ( ( rand() & 0x7FFF ) / ( ( float32 )0x8000 ) );
+    return ( ( rand() & 0x7FFF ) / ( static_cast<float32>( 0x8000 ) ) );
 }
 
 float32 Q_crandom( sint* seed )
 {
-    return ( 2.0f * ( ( ( rand() & 0x7FFF ) / ( ( float32 )0x7FFF ) ) - 0.5f ) );
+    return ( 2.0f * ( ( ( rand() & 0x7FFF ) / ( static_cast<float32>( 0x7FFF ) ) ) - 0.5f ) );
 }
 
 
@@ -332,10 +333,10 @@ uint ColorBytes4( float32 r, float32 g, float32 b, float32 a )
 {
     uint        i;
     
-    ( ( uchar8* ) & i )[0] = ( uchar8 )( r * 255 );
-    ( ( uchar8* ) & i )[1] = ( uchar8 )( g * 255 );
-    ( ( uchar8* ) & i )[2] = ( uchar8 )( b * 255 );
-    ( ( uchar8* ) & i )[3] = ( uchar8 )( a * 255 );
+    ( reinterpret_cast<uchar8*>( & i ) )[0] = static_cast<uchar8>( r * 255 );
+    ( reinterpret_cast<uchar8*>( & i ) )[1] = static_cast<uchar8>( g * 255 );
+    ( reinterpret_cast<uchar8*>( & i ) )[2] = static_cast<uchar8>( b * 255 );
+    ( reinterpret_cast<uchar8*>( & i ) )[3] = static_cast<uchar8>( a * 255 );
     
     return i;
 }
@@ -525,7 +526,6 @@ RotatePointAroundVector
 This is not implemented very well...
 ===============
 */
-#ifndef Q3MAP2
 void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, float32 degrees )
 {
     float32           m[3][3];
@@ -589,7 +589,6 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, 
         dst[i] = rot[i][0] * point[0] + rot[i][1] * point[1] + rot[i][2] * point[2];
     }
 }
-#endif
 
 /*
 ===============
@@ -676,7 +675,7 @@ sint Q_isnan( float32 x )
     t.i &= 0x7FFFFFFF;
     t.i = 0x7F800000 - t.i;
     
-    return ( sint )( ( uint )t.i >> 31 );
+    return static_cast<sint>( static_cast<uint>( t.i ) >> 31 );
 }
 
 void vectoangles( const vec3_t value1, vec3_t angles )
@@ -689,37 +688,37 @@ void vectoangles( const vec3_t value1, vec3_t angles )
         yaw = 0;
         if( value1[2] > 0 )
         {
-            pitch = 90;
+            pitch = 90.0f;
         }
         else
         {
-            pitch = 270;
+            pitch = 270.0f;
         }
     }
     else
     {
         if( value1[0] )
         {
-            yaw = ( atan2f( value1[1], value1[0] ) * 180 / M_PI );
+            yaw = ( atan2f( value1[1], value1[0] ) * 180.0f / M_PI );
         }
         else if( value1[1] > 0 )
         {
-            yaw = 90;
+            yaw = 90.0f;
         }
         else
         {
-            yaw = 270;
+            yaw = 270.0f;
         }
         if( yaw < 0 )
         {
-            yaw += 360;
+            yaw += 360.0f;
         }
         
         forward = sqrt( value1[0] * value1[0] + value1[1] * value1[1] );
-        pitch = ( atan2f( value1[2], forward ) * 180 / M_PI );
+        pitch = ( atan2f( value1[2], forward ) * 180.0f / M_PI );
         if( pitch < 0 )
         {
-            pitch += 360;
+            pitch += 360.0f;
         }
     }
     
@@ -880,7 +879,7 @@ void AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 )
 
 float32 AngleMod( float32 a )
 {
-    return ( ( 360.0f / 65536 ) * ( ( sint )( a * ( 65536 / 360.0f ) ) & 65535 ) );
+    return ( ( 360.0f / 65536 ) * ( static_cast<sint>( a * ( 65536 / 360.0f ) ) & 65535 ) );
 }
 
 /*
@@ -904,7 +903,7 @@ returns angle normalized to the range [0 <= angle < 360]
 */
 float32 AngleNormalize360( float32 angle )
 {
-    return ( 360.0f / 65536 ) * ( ( sint )( angle * ( 65536 / 360.0f ) ) & 65535 );
+    return ( 360.0f / 65536 ) * ( static_cast<sint>( angle * ( 65536 / 360.0f ) ) & 65535 );
 }
 
 
@@ -1014,13 +1013,11 @@ void ZeroBounds( vec3_t mins, vec3_t maxs )
     maxs[0] = maxs[1] = maxs[2] = 0;
 }
 
-#ifndef Q3MAP2
 void ClearBounds( vec3_t mins, vec3_t maxs )
 {
     mins[0] = mins[1] = mins[2] = 99999;
     maxs[0] = maxs[1] = maxs[2] = -99999;
 }
-#endif
 
 void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs )
 {
@@ -1148,8 +1145,6 @@ bool BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t or
     return true;
 }
 
-
-#ifndef Q3MAP2
 sint VectorCompare( const vec3_t v1, const vec3_t v2 )
 {
     if( v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] )
@@ -1159,7 +1154,6 @@ sint VectorCompare( const vec3_t v1, const vec3_t v2 )
     
     return 1;
 }
-#endif
 
 vec_t VectorNormalize( vec3_t v )
 {
@@ -1284,12 +1278,10 @@ void CrossProduct( const vec3_t v1, const vec3_t v2, vec3_t cross )
     cross[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
-#ifndef Q3MAP2
 vec_t VectorLength( const vec3_t v )
 {
     return sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );
 }
-#endif
 
 vec_t VectorLengthSquared( const vec3_t v )
 {
@@ -1312,14 +1304,12 @@ vec_t DistanceSquared( const vec3_t p1, const vec3_t p2 )
     return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
 }
 
-#ifndef Q3MAP2
 void VectorInverse( vec3_t v )
 {
     v[0] = -v[0];
     v[1] = -v[1];
     v[2] = -v[2];
 }
-#endif
 
 void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out )
 {
@@ -1369,11 +1359,11 @@ float32 Q_acos( float32 c )
     
     if( angle > M_PI )
     {
-        return ( float32 )M_PI;
+        return static_cast<float32>( M_PI );
     }
     if( angle < -M_PI )
     {
-        return ( float32 )M_PI;
+        return static_cast<float32>( M_PI );
     }
     return angle;
 }
@@ -1423,15 +1413,15 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up 
     
     // static to help MS compiler fp bugs
     
-    angle = angles[YAW] * ( M_PI * 2 / 360 );
+    angle = angles[YAW] * ( M_PI * 2 / 360.0f );
     sy = sin( angle );
     cy = cos( angle );
     
-    angle = angles[PITCH] * ( M_PI * 2 / 360 );
+    angle = angles[PITCH] * ( M_PI * 2 / 360.0f );
     sp = sin( angle );
     cp = cos( angle );
     
-    angle = angles[ROLL] * ( M_PI * 2 / 360 );
+    angle = angles[ROLL] * ( M_PI * 2 / 360.0f );
     sr = sin( angle );
     cr = cos( angle );
     

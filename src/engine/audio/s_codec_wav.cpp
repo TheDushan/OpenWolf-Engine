@@ -140,7 +140,7 @@ static void S_ByteSwapRawSamples( sint samples, sint width, sint s_channels, con
     
     for( i = 0 ; i < samples ; i++ )
     {
-        ( ( schar16* )data )[i] = LittleShort( ( ( schar16* )data )[i] );
+        ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[i] = LittleShort( ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[i] );
     }
 }
 

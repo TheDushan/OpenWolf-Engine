@@ -96,7 +96,7 @@ sint idDownloadSystemLocal::Progress( void* clientp, float64 dltotal, float64 dl
     // cl_downloadSize and cl_downloadTime are set by the Q3 protocol...
     // and it would probably be expensive to verify them here.
     
-    cvarSystem->SetValue( "cl_downloadCount", ( float32 )dlnow );
+    cvarSystem->SetValue( "cl_downloadCount", static_cast<float32>( dlnow ) );
     return 0;
 }
 
@@ -184,7 +184,7 @@ sint idDownloadSystemLocal::BeginDownload( pointer localName, pointer remoteName
     curl_easy_setopt( dl_request, CURLOPT_REFERER, referer );
     curl_easy_setopt( dl_request, CURLOPT_URL, remoteName );
     curl_easy_setopt( dl_request, CURLOPT_WRITEFUNCTION, FWriteFile );
-    curl_easy_setopt( dl_request, CURLOPT_WRITEDATA, ( void* )dl_file );
+    curl_easy_setopt( dl_request, CURLOPT_WRITEDATA, static_cast<void*>( dl_file ) );
     curl_easy_setopt( dl_request, CURLOPT_PROGRESSFUNCTION, Progress );
     curl_easy_setopt( dl_request, CURLOPT_NOPROGRESS, 0 );
     curl_easy_setopt( dl_request, CURLOPT_FAILONERROR, 1 );

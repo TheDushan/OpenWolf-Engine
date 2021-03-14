@@ -342,7 +342,7 @@ static void S_AL_BufferLoad( sfxHandle_t sfx )
         // We have no data to buffer, so buffer silence
         uchar8 dummyData[ 2 ] = { 0 };
         
-        alBufferData( knownSfx[sfx].buffer, AL_FORMAT_MONO16, ( void* )dummyData, 2, 22050 );
+        alBufferData( knownSfx[sfx].buffer, AL_FORMAT_MONO16, static_cast< void* >( dummyData ), 2, 22050 );
     }
     else
     {
@@ -1135,8 +1135,8 @@ static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx, const vec3_
     {
         curSource->local = false;
         
-        alSourcefv( curSource->alSource, AL_POSITION, ( float32* )sent->origin );
-        alSourcefv( curSource->alSource, AL_VELOCITY, ( float32* )velocity );
+        alSourcefv( curSource->alSource, AL_POSITION, static_cast<float32*>( sent->origin ) );
+        alSourcefv( curSource->alSource, AL_VELOCITY, ( const_cast<float32*>( reinterpret_cast<const float32*>( velocity ) ) ) );
         
     }
     
@@ -1412,7 +1412,7 @@ static void S_AL_RawSamples( sint samples, sint rate, sint width, sint channels,
     
     // Create a buffer, and stuff the data into it
     alGenBuffers( 1, &buffer );
-    alBufferData( buffer, format, ( void* )data, ( samples * width * channels ), rate );
+    alBufferData( buffer, format, ( const_cast<void*>( reinterpret_cast<const void*>( data ) ) ), ( samples * width * channels ), rate );
     
     // Shove the data onto the streamSource
     alSourceQueueBuffers( streamSource, 1, &buffer );
@@ -1650,7 +1650,7 @@ static void S_AL_MusicProcess( uint b )
         // We have no data to buffer, so buffer silence
         uchar8 dummyData[ 2 ] = { 0 };
         
-        alBufferData( b, AL_FORMAT_MONO16, ( void* )dummyData, 2, 22050 );
+        alBufferData( b, AL_FORMAT_MONO16, static_cast<void*>( dummyData ), 2, 22050 );
     }
     else
     {
@@ -1841,7 +1841,7 @@ static void S_AL_Respatialize( sint entityNum, const vec3_t origin, vec3_t axis[
     VectorCopy( sorigin, lastListenerOrigin );
     
     // Set OpenAL listener paramaters
-    alListenerfv( AL_POSITION, ( float32* )sorigin );
+    alListenerfv( AL_POSITION, static_cast<float32*>( sorigin ) );
     alListenerfv( AL_VELOCITY, velocity );
     alListenerfv( AL_ORIENTATION, orientation );
 }

@@ -202,9 +202,9 @@ valueType* idSystemLocal::SysGetClipboardData( void )
         
         if( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 )
         {
-            if( ( cliptext = ( valueType* )GlobalLock( hClipboardData ) ) != 0 )
+            if( ( cliptext = reinterpret_cast<valueType*>( GlobalLock( hClipboardData ) ) ) != 0 )
             {
-                data = ( valueType* )Z_Malloc( GlobalSize( hClipboardData ) + 1 );
+                data = ( const_cast<valueType*>( reinterpret_cast<const valueType*>( Z_Malloc( GlobalSize( hClipboardData ) ) ) ) + 1 );
                 Q_strncpyz( data, cliptext, GlobalSize( hClipboardData ) );
                 GlobalUnlock( hClipboardData );
                 
@@ -613,7 +613,7 @@ idSystemLocal::OpenUrl
 */
 bool idSystemLocal::OpenUrl( pointer url )
 {
-    return ( ( sint )ShellExecute( nullptr, nullptr, url, nullptr, nullptr, SW_SHOWNORMAL ) > 32 ) ? true : false;
+    return ( reinterpret_cast<sint>( ShellExecute( nullptr, nullptr, url, nullptr, nullptr, SW_SHOWNORMAL ) ) > 32 ) ? true : false;
 }
 
 /*

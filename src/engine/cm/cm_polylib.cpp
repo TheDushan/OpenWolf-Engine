@@ -93,11 +93,12 @@ FreeWinding
 */
 void FreeWinding( winding_t* w )
 {
-    if( *( uint* )w == 0xdeaddead )
+    if( *reinterpret_cast<uint*>( w ) == 0xdeaddead )
     {
         Com_Error( ERR_FATAL, "FreeWinding: freed a freed winding" );
     }
-    *( uint* )w = 0xdeaddead;
+    
+    *reinterpret_cast<uint*>( w ) = 0xdeaddead;
     
     c_active_windings--;
     Z_Free( w );
@@ -175,7 +176,7 @@ vec_t WindingArea( winding_t* w )
         VectorSubtract( w->p[i - 1], w->p[0], d1 );
         VectorSubtract( w->p[i], w->p[0], d2 );
         CrossProduct( d1, d2, cross );
-        total += 0.5 * VectorLength( cross );
+        total += 0.5f * VectorLength( cross );
     }
     return total;
 }

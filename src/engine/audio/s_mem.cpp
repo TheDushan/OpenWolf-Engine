@@ -132,7 +132,7 @@ static sint ResampleSfx( sfx_t* sfx, sint channels, sint inrate, sint inwidth, s
     sint part;
     sndBuffer*	chunk;
     
-    stepscale = ( float32 )inrate / dma.speed;	// this is usually 0.5, 1, or 2
+    stepscale = static_cast< float32>( inrate ) / dma.speed;	// this is usually 0.5, 1, or 2
     
     outcount = samples / stepscale;
     
@@ -148,11 +148,11 @@ static sint ResampleSfx( sfx_t* sfx, sint channels, sint inrate, sint inwidth, s
         {
             if( inwidth == 2 )
             {
-                sample = ( ( ( schar16* )data )[srcsample + j] );
+                sample = ( ( reinterpret_cast<schar16*>( data ) )[srcsample + j] );
             }
             else
             {
-                sample = ( sint )( ( uchar8 )( data[srcsample + j] ) - 128 ) << 8;
+                sample = static_cast<sint>( ( static_cast<uchar8>( data[srcsample + j] ) - 128 ) << 8 );
             }
             part = ( i * channels + j ) & ( SND_CHUNK_SIZE - 1 );
             if( part == 0 )
@@ -192,7 +192,7 @@ static sint ResampleSfxRaw( schar16* sfx, sint channels, sint inrate, sint inwid
     sint i, j;
     sint sample, samplefrac, fracstep;
     
-    stepscale = ( float32 )inrate / dma.speed;	// this is usually 0.5, 1, or 2
+    stepscale = static_cast<float32>( inrate ) / dma.speed;	// this is usually 0.5, 1, or 2
     
     outcount = samples / stepscale;
     
@@ -207,11 +207,11 @@ static sint ResampleSfxRaw( schar16* sfx, sint channels, sint inrate, sint inwid
         {
             if( inwidth == 2 )
             {
-                sample = LittleShort( ( ( schar16* )data )[srcsample + j] );
+                sample = LittleShort( ( reinterpret_cast<schar16*>( data ) )[srcsample + j] );
             }
             else
             {
-                sample = ( sint )( ( uchar8 )( data[srcsample + j] ) - 128 ) << 8;
+                sample = static_cast<sint>( ( static_cast<uchar8>( data[srcsample + j] ) - 128 ) << 8 );
             }
             sfx[i * channels + j] = sample;
         }

@@ -129,13 +129,13 @@ static bool CM_NeedsSubdivision( vec3_t a, vec3_t b, vec3_t c )
     // calculate the linear midpoint
     for( i = 0; i < 3; i++ )
     {
-        lmid[i] = 0.5 * ( a[i] + c[i] );
+        lmid[i] = 0.5f * ( a[i] + c[i] );
     }
     
     // calculate the exact curve midpoint
     for( i = 0; i < 3; i++ )
     {
-        cmid[i] = 0.5 * ( 0.5 * ( a[i] + b[i] ) + 0.5 * ( b[i] + c[i] ) );
+        cmid[i] = 0.5f * ( 0.5f * ( a[i] + b[i] ) + 0.5f * ( b[i] + c[i] ) );
     }
     
     // see if the curve is far enough away from the linear mid
@@ -159,9 +159,9 @@ static void CM_Subdivide( vec3_t a, vec3_t b, vec3_t c, vec3_t out1, vec3_t out2
     
     for( i = 0; i < 3; i++ )
     {
-        out1[i] = 0.5 * ( a[i] + b[i] );
-        out3[i] = 0.5 * ( b[i] + c[i] );
-        out2[i] = 0.5 * ( out1[i] + out3[i] );
+        out1[i] = 0.5f * ( a[i] + b[i] );
+        out3[i] = 0.5f * ( b[i] + c[i] );
+        out2[i] = 0.5f * ( out1[i] + out3[i] );
     }
 }
 
@@ -1350,7 +1350,7 @@ cSurfaceCollide_t* CM_GeneratePatchCollide( sint width, sint height, vec3_t* poi
     
     if( width <= 2 || height <= 2 || !points )
     {
-        Com_Error( ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %p)", width, height, ( void* )points );
+        Com_Error( ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %p)", width, height, static_cast<void*>( points ) );
     }
     
     if( !( width & 1 ) || !( height & 1 ) )

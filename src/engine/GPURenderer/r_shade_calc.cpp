@@ -129,7 +129,7 @@ void RB_CalcDeformVertexes( deformStage_t* ds )
     sint i;
     vec3_t	offset;
     float32	scale;
-    float32*	xyz = ( float32* ) tess.xyz;
+    float32*	xyz = reinterpret_cast<float32*>( tess.xyz );
     schar16*	normal = tess.normal[0];
     float32*	table;
     
@@ -179,7 +179,7 @@ void RB_CalcDeformNormals( deformStage_t* ds )
 {
     sint i;
     float32	scale;
-    float32*	xyz = ( float32* ) tess.xyz;
+    float32*	xyz = reinterpret_cast<float32*>( tess.xyz );
     schar16* normal = tess.normal[0];
     
     for( i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4 )
@@ -219,7 +219,7 @@ void RB_CalcBulgeVertexes( deformStage_t* ds )
 {
     sint i;
     const float32* st = ( const float32* ) tess.texCoords[0];
-    float32*		xyz = ( float32* ) tess.xyz;
+    float32*		xyz = reinterpret_cast<float32*>( tess.xyz );
     schar16*	normal = tess.normal[0];
     
     float64 now = backEnd.refdef.time * 0.001 * ds->bulgeSpeed;
@@ -232,7 +232,7 @@ void RB_CalcBulgeVertexes( deformStage_t* ds )
         
         R_VaoUnpackNormal( fNormal, normal );
         
-        off = ( float32 )( FUNCTABLE_SIZE / ( M_PI * 2 ) ) * ( st[0] * ds->bulgeWidth + now );
+        off = static_cast<float32>( FUNCTABLE_SIZE / ( M_PI * 2 ) ) * ( st[0] * ds->bulgeWidth + now );
         
         scale = tr.sinTable[ off & FUNCTABLE_MASK ] * ds->bulgeHeight;
         
@@ -267,7 +267,7 @@ void RB_CalcMoveVertexes( deformStage_t* ds )
                        
     VectorScale( ds->moveVector, scale, offset );
     
-    xyz = ( float32* ) tess.xyz;
+    xyz = reinterpret_cast<float32*>( tess.xyz );
     for( i = 0; i < tess.numVertexes; i++, xyz += 4 )
     {
         VectorAdd( xyz, offset, xyz );
@@ -717,7 +717,7 @@ void RB_CalcModulateColorsByFog( uchar8* colors )
     
     for( i = 0; i < tess.numVertexes; i++, colors += 4 )
     {
-        float32 f = 1.0 - R_FogFactor( texCoords[i][0], texCoords[i][1] );
+        float32 f = 1.0f - R_FogFactor( texCoords[i][0], texCoords[i][1] );
         colors[0] *= f;
         colors[1] *= f;
         colors[2] *= f;
@@ -798,7 +798,7 @@ void RB_CalcFogTexCoords( float32* st )
         eyeOutside = false;
     }
     
-    fogDistanceVector[3] += 1.0 / 512;
+    fogDistanceVector[3] += 1.0f / 512;
     
     // calculate density for each point
     for( i = 0, v = tess.xyz[0] ; i < tess.numVertexes ; i++, v += 4 )
@@ -931,7 +931,7 @@ bool ShaderRequiresCPUDeforms( const shader_t* shader )
             case DEFORM_WAVE:
             case DEFORM_BULGE:
                 // need CPU deforms at high level-times to avoid floating point percision loss
-                return ( backEnd.refdef.floatTime != ( float32 )backEnd.refdef.floatTime );
+                return ( backEnd.refdef.floatTime != static_cast<float32>( backEnd.refdef.floatTime ) );
                 
             default:
                 return true;

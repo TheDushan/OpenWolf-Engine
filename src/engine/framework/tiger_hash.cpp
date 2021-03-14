@@ -694,7 +694,7 @@ extern uint64_t table[4 * 256];
 /* The compress function is a function. Requires smaller cache?    */
 void tiger_compress( uint64* str, uint64 state[3] )
 {
-    tiger_compress_macro( ( ( uint64* )str ), ( ( uint64* )state ) );
+    tiger_compress_macro( ( reinterpret_cast<uint64*>( str ) ), ( reinterpret_cast<uint64*>( state ) ) );
 }
 
 #ifdef OPTIMIZE_FOR_ALPHA
@@ -718,8 +718,8 @@ void tiger( uint64* str, uint64 length, uint64 res[3] )
     {
 #ifdef BIG_ENDIAN
         for( j = 0; j < 64; j++ )
-            temp[j ^ 7] = ( ( uchar8* )str )[j];
-        tiger_compress( ( ( uint64* )temp ), res );
+            temp[j ^ 7] = ( reinterpret_cast<uchar8*>( str ) )[j];
+        tiger_compress( ( reinterpret_cast<uint64*>( temp ) ), res );
 #else
         tiger_compress( str, res );
 #endif
@@ -728,7 +728,7 @@ void tiger( uint64* str, uint64 length, uint64 res[3] )
     
 #ifdef BIG_ENDIAN
     for( j = 0; j < i; j++ )
-        temp[j ^ 7] = ( ( uchar8* )str )[j];
+        temp[j ^ 7] = ( reinterpret_cast<uchar8*>( str ) )[j];
         
     temp[j ^ 7] = 0x01;
     j++;
@@ -736,7 +736,7 @@ void tiger( uint64* str, uint64 length, uint64 res[3] )
         temp[j ^ 7] = 0;
 #else
     for( j = 0; j < i; j++ )
-        temp[j] = ( ( uchar8* )str )[j];
+        temp[j] = ( reinterpret_cast<uchar8*>( str ) )[j];
         
     temp[j++] = 0x01;
     for( ; j & 7; j++ )
@@ -746,14 +746,14 @@ void tiger( uint64* str, uint64 length, uint64 res[3] )
     {
         for( ; j < 64; j++ )
             temp[j] = 0;
-        tiger_compress( ( ( uint64* )temp ), res );
+        tiger_compress( ( reinterpret_cast<uint64*>( temp ) ), res );
         j = 0;
     }
     
     for( ; j < 56; j++ )
         temp[j] = 0;
-    ( ( uint64* )( &( temp[56] ) ) )[0] = ( ( uint64 )length ) << 3;
-    tiger_compress( ( ( uint64* )temp ), res );
+    ( reinterpret_cast<uint64*>( ( &( temp[56] ) ) ) )[0] = ( static_cast<uint64>( length ) ) << 3;
+    tiger_compress( ( reinterpret_cast<uint64*>( temp ) ), res );
 }
 
 /*
@@ -766,15 +766,15 @@ char* Com_GetTigerHash( char* str )
     static char cHash[49];
     uint64 res[3];
     
-    tiger( ( uint64* )str, strlen( str ), res );
+    tiger( reinterpret_cast<uint64*>( str ), ::strlen( str ), res );
     
     sprintf( cHash, "%08X%08X%08X%08X%08X%08X",
-             ( uint32 )( res[0] >> 32 ),
-             ( uint32 )( res[0] ),
-             ( uint32 )( res[1] >> 32 ),
-             ( uint32 )( res[1] ),
-             ( uint32 )( res[2] >> 32 ),
-             ( uint32 )( res[2] ) );
+             static_cast<uint32>( res[0] >> 32 ),
+             static_cast<uint32>( res[0] ),
+             static_cast<uint32>( res[1] >> 32 ),
+             static_cast<uint32>( res[1] ),
+             static_cast<uint32>( res[2] >> 32 ),
+             static_cast<uint32>( res[2] ) );
     return cHash;
 }
 

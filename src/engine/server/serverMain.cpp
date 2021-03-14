@@ -245,12 +245,12 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... 
     client_t* client;
     
     va_start( argptr, fmt );
-    Q_vsprintf_s( ( valueType* )message, sizeof( message ), fmt, argptr );
+    Q_vsprintf_s( reinterpret_cast<valueType*>( message ), sizeof( message ), fmt, argptr );
     va_end( argptr );
     
     // do not forward server command messages that would be too big to clients
     // ( q3infoboom / q3msgboom stuff )
-    if( ::strlen( ( valueType* )message ) > 1022 )
+    if( ::strlen( reinterpret_cast<valueType*>( message ) ) > 1022 )
     {
         return;
     }
@@ -258,30 +258,30 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... 
     if( cl != nullptr )
     {
     
-        if( idServerCommunityServer::ProcessServerCmd( ( char* )message ) )
+        if( idServerCommunityServer::ProcessServerCmd( reinterpret_cast<valueType*>( message ) ) )
         {
             return;
         }
         
-        AddServerCommand( cl, ( valueType* )message );
+        AddServerCommand( cl, reinterpret_cast<valueType*>( message ) );
         return;
     }
     
-    if( ::strstr( ( char* )message, "limit hit" ) || strstr( ( char* )message, "hit the" ) )
+    if( ::strstr( reinterpret_cast<valueType*>( message ), "limit hit" ) || strstr( reinterpret_cast<valueType*>( message ), "hit the" ) )
     {
         community_stats.mapstatus = 2;
     }
     
     // hack to echo broadcast prints to console
-    if( com_dedicated->integer && !strncmp( ( valueType* )message, "print", 5 ) )
+    if( com_dedicated->integer && !strncmp( reinterpret_cast<valueType*>( message ), "print", 5 ) )
     {
-        Com_Printf( "broadcast: %s\n", ExpandNewlines( ( valueType* )message ) );
+        Com_Printf( "broadcast: %s\n", ExpandNewlines( reinterpret_cast<valueType*>( message ) ) );
     }
     
     // save broadcasts to demo
     if( sv.demoState == DS_RECORDING )
     {
-        serverDemoSystem->DemoWriteServerCommand( ( valueType* )message );
+        serverDemoSystem->DemoWriteServerCommand( reinterpret_cast<valueType*>( message ) );
     }
     
     // send the data to all relevent clients
@@ -299,7 +299,7 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... 
         }
         // done.
         
-        AddServerCommand( client, ( valueType* )message );
+        AddServerCommand( client, reinterpret_cast<valueType*>( message ) );
     }
 }
 
@@ -1165,7 +1165,7 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
     if( !( cs_authorized == CS_OK || ( cs_authorized == CS_CHECK && ::strcmp( cmdSystem->Argv( 1 ), sv_rconPassword->string ) == 0 ) ) || cs_authorized == CS_ERROR )
     {
         // MaJ - If the rconpassword is bad and one just happned recently, don't spam the log file, just die.
-        if( ( uint )( time - lasttime ) < 500u )
+        if( static_cast<uint>( ( time ) - lasttime < 500u ) )
         {
             return;
         }
@@ -1177,7 +1177,7 @@ void idServerMainSystemLocal::RemoteCommand( netadr_t from, msg_t* msg )
     else
     {
         // MaJ - If the rconpassword is good, allow it much sooner than a bad one.
-        if( ( uint )( time - lasttime ) < 200u )
+        if( static_cast<uint>( ( time ) - lasttime < 200u ) )
         {
             return;
         }
@@ -1282,7 +1282,7 @@ void idServerMainSystemLocal::ConnectionlessPacket( netadr_t from, msg_t* msg )
     MSG_BeginReadingOOB( msg );
     MSG_ReadLong( msg );			// skip the -1 marker
     
-    if( !Q_strncmp( "connect", ( valueType* )&msg->data[4], 7 ) )
+    if( !Q_strncmp( "connect", reinterpret_cast<valueType*>( &msg->data[4] ), 7 ) )
     {
         idHuffmanSystemLocal::DynDecompress( msg, 12 );
     }
@@ -1382,7 +1382,7 @@ void idServerMainSystemLocal::PacketEvent( netadr_t from, msg_t* msg )
     client_t* cl;
     
     // check for connectionless packet (0xffffffff) first
-    if( msg->cursize >= 4 && *( sint* )msg->data == -1 )
+    if( msg->cursize >= 4 && *reinterpret_cast<sint*>( msg->data ) == -1 )
     {
         ConnectionlessPacket( from, msg );
         return;
@@ -1685,7 +1685,7 @@ void idServerMainSystemLocal::Frame( sint msec )
     valueType mapname[MAX_QPATH];
     
     start = idsystem->Milliseconds();
-    svs.stats.idle += ( float64 )( start - end ) / 1000;
+    svs.stats.idle += static_cast<float64>( ( start ) - end ) / 1000;
     
     // the menu kills the server with this cvar
     if( sv_killserver->integer )
@@ -1953,7 +1953,7 @@ void idServerMainSystemLocal::Frame( sint msec )
                 
                 averageFrameTime = totalTime / SERVER_PERFORMANCECOUNTER_SAMPLES;
                 
-                svs.serverLoad = ( averageFrameTime / ( float32 )frameMsec ) * 100;
+                svs.serverLoad = ( averageFrameTime / static_cast<float32>( frameMsec ) ) * 100;
             }
             
             //Com_Printf( "serverload: %i (%i/%i)\n", svs.serverLoad, averageFrameTime, frameMsec );
@@ -1969,7 +1969,7 @@ void idServerMainSystemLocal::Frame( sint msec )
     
     // collect timing statistics
     end = idsystem->Milliseconds();
-    svs.stats.active += ( ( float64 )( end - start ) ) / 1000;
+    svs.stats.active += ( static_cast<float64>( ( end ) - start ) ) / 1000;
     
     if( ++svs.stats.count == STATFRAMES )
     {

@@ -174,7 +174,7 @@ void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, float
                 vec2_t blurTexScale;
                 float32 subblur;
                 
-                subblur = ( ( blur - 2.0f ) / 2.0f ) / 3.0f * ( float32 )( i + 1 );
+                subblur = ( ( blur - 2.0f ) / 2.0f ) / 3.0f * static_cast<float32>( i + 1 );
                 
                 blurTexScale[0] =
                     blurTexScale[1] = subblur;
@@ -208,7 +208,7 @@ void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, float
                 vec2_t blurTexScale;
                 float32 subblur;
         
-                subblur = ( blur - 1.0f ) / 2.0f * ( float32 )( i + 1 );
+                subblur = ( blur - 1.0f ) / 2.0f * static_cast<float32>( i + 1 );
         
                 blurTexScale[0] =
                     blurTexScale[1] = subblur;
@@ -324,7 +324,7 @@ void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox )
         
     float32 dist;
     
-    dist = backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
+    dist = backEnd.viewParms.zFar / 1.75f;		// div sqrt(3)
     
     VectorScale( tr.sunDirection, dist, pos );
     
@@ -541,10 +541,10 @@ void RB_Anamorphic( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox
             color[2] = pow( 2, r_cameraExposure->value );
     color[3] = 1.0f;
     
-    halfBox[0] = backEnd.viewParms.viewportX      * tr.anamorphicRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
-    halfBox[1] = backEnd.viewParms.viewportY      * tr.anamorphicRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
-    halfBox[2] = backEnd.viewParms.viewportWidth  * tr.anamorphicRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
-    halfBox[3] = backEnd.viewParms.viewportHeight * tr.anamorphicRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
+    halfBox[0] = backEnd.viewParms.viewportX      * tr.anamorphicRenderFBOImage[0]->width / static_cast<float32>( glConfig.vidWidth );
+    halfBox[1] = backEnd.viewParms.viewportY      * tr.anamorphicRenderFBOImage[0]->height / static_cast<float32>( glConfig.vidHeight );
+    halfBox[2] = backEnd.viewParms.viewportWidth  * tr.anamorphicRenderFBOImage[0]->width / static_cast<float32>( glConfig.vidWidth );
+    halfBox[3] = backEnd.viewParms.viewportHeight * tr.anamorphicRenderFBOImage[0]->height / static_cast<float32>( glConfig.vidHeight );
     
     //
     // Darken to VBO...
@@ -1140,10 +1140,10 @@ void RB_Bloom( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
             color[2] = pow( 2, r_cameraExposure->value );
     color[3] = 1.0f;
     
-    halfBox[0] = backEnd.viewParms.viewportX      * tr.bloomRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
-    halfBox[1] = backEnd.viewParms.viewportY      * tr.bloomRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
-    halfBox[2] = backEnd.viewParms.viewportWidth  * tr.bloomRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
-    halfBox[3] = backEnd.viewParms.viewportHeight * tr.bloomRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
+    halfBox[0] = backEnd.viewParms.viewportX      * tr.bloomRenderFBOImage[0]->width / static_cast<float32>( glConfig.vidWidth );
+    halfBox[1] = backEnd.viewParms.viewportY      * tr.bloomRenderFBOImage[0]->height / static_cast<float32>( glConfig.vidHeight );
+    halfBox[2] = backEnd.viewParms.viewportWidth  * tr.bloomRenderFBOImage[0]->width / static_cast<float32>( glConfig.vidWidth );
+    halfBox[3] = backEnd.viewParms.viewportHeight * tr.bloomRenderFBOImage[0]->height / static_cast<float32>( glConfig.vidHeight );
     
     //
     // Darken to VBO...
@@ -1307,10 +1307,10 @@ void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox )
         texHalfScale[0] = texHalfScale[1] = texScale[0] / 8.0;
         texDoubleScale[0] = texDoubleScale[1] = texScale[0] * 8.0;
         
-        halfBox[0] = backEnd.viewParms.viewportX * tr.anamorphicRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
-        halfBox[1] = backEnd.viewParms.viewportY * tr.anamorphicRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
-        halfBox[2] = backEnd.viewParms.viewportWidth * tr.anamorphicRenderFBOImage[0]->width / ( float32 )glConfig.vidWidth;
-        halfBox[3] = backEnd.viewParms.viewportHeight * tr.anamorphicRenderFBOImage[0]->height / ( float32 )glConfig.vidHeight;
+        halfBox[0] = backEnd.viewParms.viewportX * tr.anamorphicRenderFBOImage[0]->width / static_cast<float32>( glConfig.vidWidth );
+        halfBox[1] = backEnd.viewParms.viewportY * tr.anamorphicRenderFBOImage[0]->height / static_cast<float32>( glConfig.vidHeight );
+        halfBox[2] = backEnd.viewParms.viewportWidth * tr.anamorphicRenderFBOImage[0]->width / static_cast<float32>( glConfig.vidWidth );
+        halfBox[3] = backEnd.viewParms.viewportHeight * tr.anamorphicRenderFBOImage[0]->height / static_cast<float32>( glConfig.vidHeight );
         
         //
         // Darken to VBO...
@@ -1801,12 +1801,12 @@ void RB_Underwater( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox
     
     GLSL_SetUniformMat4( &tr.underWaterShader, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection );
     
-    GLSL_SetUniformFloat( &tr.underWaterShader, UNIFORM_TIME, ( float32 )( backEnd.refdef.floatTime * 5.0f )/*tr.refdef.floatTime*/ );
+    GLSL_SetUniformFloat( &tr.underWaterShader, UNIFORM_TIME, static_cast<float32>( backEnd.refdef.floatTime ) * 5.0f/*tr.refdef.floatTime*/ );
     
     {
         vec2_t screensize;
-        screensize[0] = ( float32 )glConfig.vidWidth;
-        screensize[1] = ( float32 )glConfig.vidHeight;
+        screensize[0] = static_cast<float32>( glConfig.vidWidth );
+        screensize[1] = static_cast<float32>( glConfig.vidHeight );
         
         GLSL_SetUniformVec2( &tr.underWaterShader, UNIFORM_DIMENSIONS, screensize );
     }

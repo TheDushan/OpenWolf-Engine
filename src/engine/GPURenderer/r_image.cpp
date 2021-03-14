@@ -73,7 +73,7 @@ static sint32 generateHashValue( pointer fname )
         letter = tolower( fname[i] );
         if( letter == '.' ) break;				// don't include extension
         if( letter == '\\' ) letter = '/';		// damn path names
-        hash += ( sint32 )( letter ) * ( i + 119 );
+        hash += static_cast<sint32>( letter ) * ( i + 119 );
         i++;
     }
     hash &= ( FILE_HASH_SIZE - 1 );
@@ -97,15 +97,6 @@ void GL_TextureMode( pointer string )
             break;
         }
     }
-    
-    // hack to prevent trilinear from being set on voodoo,
-    // because their driver freaks...
-    if( i == 5 && glConfig.hardwareType == GLHW_3DFX_2D3D )
-    {
-        CL_RefPrintf( PRINT_ALL, "Refusing to set trilinear on a voodoo.\n" );
-        i = 3;
-    }
-    
     
     if( i == 6 )
     {
@@ -369,8 +360,8 @@ static void ResampleTexture( uchar8* in, sint inwidth, sint inheight, uchar8* ou
     
     for( i = 0 ; i < outheight ; i++ )
     {
-        inrow = in + 4 * inwidth * ( sint )( ( i + 0.25 ) * inheight / outheight );
-        inrow2 = in + 4 * inwidth * ( sint )( ( i + 0.75 ) * inheight / outheight );
+        inrow = in + 4 * inwidth * static_cast<sint>( ( i + 0.25f ) * inheight / outheight );
+        inrow2 = in + 4 * inwidth * static_cast<sint>( ( i + 0.75f ) * inheight / outheight );
         for( j = 0 ; j < outwidth ; j++ )
         {
             pix1 = inrow + p1[j];
@@ -1178,7 +1169,7 @@ static void FillInNormalizedZ( const uchar8* in, uchar8* out, sint width, sint h
             fny = OffsetByteToFloat( ny );
             fll = 1.0f - fnx * fnx - fny * fny;
             if( fll >= 0.0f )
-                fnz = ( float32 )sqrt( fll );
+                fnz = static_cast<float32>( sqrt( fll ) );
             else
                 fnz = 0.0f;
                 
@@ -1379,7 +1370,7 @@ static void R_MipMapsRGB( uchar8* in, sint inWidth, sint inHeight )
             {
                 total  = ( downmipSrgbLookup[*( in )] + downmipSrgbLookup[*( in + 4 )] ) * 2.0f;
                 
-                *out++ = ( uchar8 )( powf( total, 1.0f / 2.2f ) * 255.0f );
+                *out++ = static_cast<uchar8>( powf( total, 1.0f / 2.2f ) * 255.0f );
             }
             *out++ = ( *( in ) + * ( in + 4 ) ) >> 1;
             in += 5;
@@ -1402,7 +1393,7 @@ static void R_MipMapsRGB( uchar8* in, sint inWidth, sint inHeight )
                 total = downmipSrgbLookup[*( in )]  + downmipSrgbLookup[*( in + 4 )]
                         + downmipSrgbLookup[*( in2 )] + downmipSrgbLookup[*( in2 + 4 )];
                         
-                *out++ = ( uchar8 )( powf( total, 1.0f / 2.2f ) * 255.0f );
+                *out++ = static_cast<uchar8>( powf( total, 1.0f / 2.2f ) * 255.0f );
             }
             
             *out++ = ( *( in ) + * ( in + 4 ) + * ( in2 ) + * ( in2 + 4 ) ) >> 2;
@@ -1588,7 +1579,7 @@ static bool RawImage_ScaleToPower2( uchar8** data, sint* inout_width, sint* inou
             finalheight >>= 1;
         }
         
-        *resampledBuffer = ( uchar8* )Hunk_AllocateTempMemory( finalwidth * finalheight * 4 );
+        *resampledBuffer = static_cast<uchar8*>( Hunk_AllocateTempMemory( finalwidth * finalheight * 4 ) );
         
         if( scaled_width != width || scaled_height != height )
             ResampleTexture( *data, width, height, *resampledBuffer, scaled_width, scaled_height );
@@ -1621,7 +1612,7 @@ static bool RawImage_ScaleToPower2( uchar8** data, sint* inout_width, sint* inou
     {
         if( data && resampledBuffer )
         {
-            *resampledBuffer = ( uchar8* )Hunk_AllocateTempMemory( scaled_width * scaled_height * 4 );
+            *resampledBuffer = static_cast<uchar8*>( Hunk_AllocateTempMemory( scaled_width * scaled_height * 4 ) );
             ResampleTexture( *data, width, height, *resampledBuffer, scaled_width, scaled_height );
             *data = *resampledBuffer;
         }
@@ -1912,7 +1903,7 @@ static void RawImage_UploadToRgtc2Texture( uint texture, sint miplevel, sint x, 
     hBlocks = ( height + 3 ) / 4;
     size = wBlocks * hBlocks * 16;
     
-    p = compressedData = ( uchar8* )Hunk_AllocateTempMemory( size );
+    p = compressedData = static_cast<uchar8*>( Hunk_AllocateTempMemory( size ) );
     for( iy = 0; iy < height; iy += 4 )
     {
         sint oh = MIN( 4, height - iy );
@@ -2034,7 +2025,7 @@ static void RawImage_UploadTexture( uint texture, uchar8* data, sint x, sint y, 
         else
         {
             if( rgba8 && miplevel != 0 && r_colorMipLevels->integer )
-                R_BlendOverTexture( ( uchar8* )data, width * height, mipBlendColors[miplevel] );
+                R_BlendOverTexture( static_cast<uchar8*>( data ), width * height, mipBlendColors[miplevel] );
                 
             if( rgba8 && rgtc )
                 RawImage_UploadToRgtc2Texture( texture, miplevel, x, y, width, height, data );
@@ -2291,7 +2282,7 @@ image_t* R_CreateImage2( pointer name, uchar8* pic, sint width, sint height, uin
         
     if( glConfig.textureFilterAnisotropic && !cubemap )
         qglTextureParameteriEXT( image->texnum, textureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT,
-                                 mipmap ? ( sint )Com_Clamp( 1, glConfig.maxAnisotropy, r_ext_max_anisotropy->integer ) : 1 );
+                                 mipmap ? static_cast<sint>( Com_Clamp( 1, glConfig.maxAnisotropy, r_ext_max_anisotropy->integer ) ) : 1 );
                                  
     switch( internalFormat )
     {
@@ -2542,7 +2533,7 @@ image_t*	R_FindImageFile( pointer name, imgType_t type, sint/*imgFlags_t*/ flags
             
             normalWidth = width;
             normalHeight = height;
-            normalPic = ( uchar8* )CL_RefMalloc( width * height * 4 );
+            normalPic = static_cast<uchar8*>( CL_RefMalloc( width * height * 4 ) );
             RGBAtoNormal( pic, normalPic, width, height, flags & IMGFLAG_CLAMPTOEDGE );
             
 #if 1
@@ -2678,7 +2669,7 @@ static void R_CreateDlightImage( void )
             data[y][x][3] = 255;
         }
     }
-    tr.dlightImage = R_CreateImage( "*dlight", ( uchar8* )data, DLIGHT_SIZE, DLIGHT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
+    tr.dlightImage = R_CreateImage( "*dlight", reinterpret_cast<uchar8*>( data ), DLIGHT_SIZE, DLIGHT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
 }
 
 
@@ -2697,7 +2688,7 @@ void R_InitFogTable( void )
     
     for( i = 0 ; i < FOG_TABLE_SIZE ; i++ )
     {
-        d = pow( ( float32 )i / ( FOG_TABLE_SIZE - 1 ), exp );
+        d = pow( static_cast<float32>( i ) / ( FOG_TABLE_SIZE - 1 ), exp );
         
         tr.fogTable[i] = d;
     }
@@ -2716,16 +2707,16 @@ float32	R_FogFactor( float32 s, float32 t )
 {
     float32	d;
     
-    s -= 1.0 / 512;
+    s -= 1.0f / 512;
     if( s < 0 )
     {
         return 0;
     }
-    if( t < 1.0 / 32 )
+    if( t < 1.0f / 32.0f )
     {
         return 0;
     }
-    if( t < 31.0 / 32 )
+    if( t < 31.0f / 32.0f )
     {
         s *= ( t - 1.0f / 32.0f ) / ( 30.0f / 32.0f );
     }
@@ -2738,7 +2729,7 @@ float32	R_FogFactor( float32 s, float32 t )
         s = 1.0;
     }
     
-    d = tr.fogTable[( sint )( s * ( FOG_TABLE_SIZE - 1 ) ) ];
+    d = tr.fogTable[static_cast<sint>( s * ( FOG_TABLE_SIZE - 1 ) ) ];
     
     return d;
 }
@@ -2756,7 +2747,7 @@ static void R_CreateFogImage( void )
     uchar8*	data = nullptr;
     float32	d;
     
-    data = ( uchar8* )Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
+    data = static_cast<uchar8*>( Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 ) );
     
     // S is distance, T is depth
     for( x = 0 ; x < FOG_S ; x++ )
@@ -2771,7 +2762,7 @@ static void R_CreateFogImage( void )
             data[( y * FOG_S + x ) * 4 + 3] = 255 * d;
         }
     }
-    tr.fogImage = R_CreateImage( "*fog", ( uchar8* )data, FOG_S, FOG_T, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
+    tr.fogImage = R_CreateImage( "*fog", reinterpret_cast<uchar8*>( data ), FOG_S, FOG_T, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
     Hunk_FreeTempMemory( data );
 }
 
@@ -2790,7 +2781,6 @@ static void R_CreateEnvBrdfLUT( void )
         
     sint		x, y;
     uint16_t	data[LUT_WIDTH][LUT_HEIGHT][4];
-    sint		b;
     
     float32 const MATH_PI = 3.14159f;
     uint const sampleNum = 1024;
@@ -2813,8 +2803,8 @@ static void R_CreateEnvBrdfLUT( void )
             
             for( uint i = 0; i < sampleNum; ++i )
             {
-                float32 const e1 = ( float32 )i / sampleNum;
-                float32 const e2 = ( float32 )( ( float64 )ReverseBits( i ) / ( float64 )0x100000000LL );
+                float32 const e1 = static_cast<float32>( i ) / sampleNum;
+                float32 const e2 = static_cast<float32>( static_cast<float64>( ReverseBits( i ) ) / static_cast<float64>( 0x100000000LL ) );
                 
                 float32 const phi = 2.0f * MATH_PI * e1;
                 float32 const cosPhi = cosf( phi );
@@ -2855,7 +2845,7 @@ static void R_CreateEnvBrdfLUT( void )
         }
     }
     
-    tr.envBrdfImage = R_CreateImage( "*envBrdfLUT", ( uchar8* )data, 128, 128, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA16F );
+    tr.envBrdfImage = R_CreateImage( "*envBrdfLUT", reinterpret_cast<uchar8*>( data ), 128, 128, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA16F );
     return;
 }
 
@@ -2898,7 +2888,7 @@ static bool R_BuildDefaultImage( pointer format )
         return false;
     }
     
-    len = ( sint )strlen( format );
+    len = static_cast<sint>( ::strlen( format ) );
     if( len <= 0 || len > 6 )
     {
         return false;
@@ -2942,7 +2932,7 @@ static bool R_BuildDefaultImage( pointer format )
         }
     }
     
-    tr.defaultImage = R_CreateImage( "*default", ( uchar8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
+    tr.defaultImage = R_CreateImage( "*default", reinterpret_cast<uchar8*>( data ), DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
     
     return true;
 }
@@ -2997,7 +2987,7 @@ static void R_CreateDefaultImage( void )
                     data[x][DEFAULT_SIZE - 1][3] = 255;
     }
     
-    tr.defaultImage = R_CreateImage( "*default", ( uchar8* )data, DEFAULT_IMG_SIZE, DEFAULT_IMG_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
+    tr.defaultImage = R_CreateImage( "*default", reinterpret_cast<uchar8*>( data ), DEFAULT_IMG_SIZE, DEFAULT_IMG_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0 );
 }
 
 
@@ -3015,7 +3005,7 @@ void R_CreateBuiltinImages( void )
     
     // we use a solid white image instead of disabling texturing
     ::memset( data, 255, sizeof( data ) );
-    tr.whiteImage = R_CreateImage( "*white", ( uchar8* )data, 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0 );
+    tr.whiteImage = R_CreateImage( "*white", reinterpret_cast<uchar8*>( data ), 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0 );
     
     if( r_dlightMode->integer >= 2 )
     {
@@ -3038,13 +3028,13 @@ void R_CreateBuiltinImages( void )
         }
     }
     
-    tr.identityLightImage = R_CreateImage( "*identityLight", ( uchar8* )data, 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0 );
+    tr.identityLightImage = R_CreateImage( "*identityLight", reinterpret_cast<uchar8*>( data ), 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0 );
     
     
     for( x = 0; x < 32; x++ )
     {
         // scratchimage is usually used for cinematic drawing
-        tr.scratchImage[x] = R_CreateImage( "*scratch", ( uchar8* )data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_PICMIP | IMGFLAG_CLAMPTOEDGE, 0 );
+        tr.scratchImage[x] = R_CreateImage( "*scratch", reinterpret_cast<uchar8*>( data ), DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_PICMIP | IMGFLAG_CLAMPTOEDGE, 0 );
     }
     
     R_CreateDlightImage();
@@ -3105,7 +3095,7 @@ void R_CreateBuiltinImages( void )
             data[0][0][1] = 0.45f * 255;
             data[0][0][2] = 255;
             data[0][0][3] = 255;
-            p = ( uchar8* )data;
+            p = reinterpret_cast<uchar8*>( data );
             
             tr.calcLevelsImage =   R_CreateImage( "*calcLevels",    p, 1, 1, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );
             tr.targetLevelsImage = R_CreateImage( "*targetLevels",  p, 1, 1, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat );

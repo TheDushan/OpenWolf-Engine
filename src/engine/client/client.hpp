@@ -594,7 +594,6 @@ void            Con_PageDown( void );
 void            Con_Top( void );
 void            Con_Bottom( void );
 void            Con_Close( void );
-pointer     Con_GetText( sint console );
 
 //
 // cl_cin.c

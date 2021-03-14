@@ -175,14 +175,14 @@ void ColorToRGBM( const vec3_t color, uchar8 rgbm[4] )
     maxComponent = MAX( maxComponent, sample[2] );
     maxComponent = CLAMP( maxComponent, 1.0f / 255.0f, 1.0f );
     
-    rgbm[3] = ( uchar8 ) ceil( maxComponent * 255.0f );
+    rgbm[3] = static_cast<uchar8>( ceil( maxComponent * 255.0f ) );
     maxComponent = 255.0f / rgbm[3];
     
     VectorScale( sample, maxComponent, sample );
     
-    rgbm[0] = ( uchar8 )( sample[0] * 255 );
-    rgbm[1] = ( uchar8 )( sample[1] * 255 );
-    rgbm[2] = ( uchar8 )( sample[2] * 255 );
+    rgbm[0] = static_cast<uchar8>( ( sample[0] * 255 ) );
+    rgbm[1] = static_cast<uchar8>( ( sample[1] * 255 ) );
+    rgbm[2] = static_cast<uchar8>( ( sample[2] * 255 ) );
 }
 
 void ColorToRGB16( const vec3_t color, uchar16 rgb16[3] )
@@ -247,7 +247,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
         }
     }
     
-    image = ( uchar8* )CL_RefMalloc( tr.lightmapSize * tr.lightmapSize * 4 * 2 );
+    image = static_cast<uchar8*>( CL_RefMalloc( tr.lightmapSize * tr.lightmapSize * 4 * 2 ) );
     
     if( tr.worldDeluxeMapping )
         numLightmaps >>= 1;
@@ -360,10 +360,10 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
                 buf_p = p;
                 
 #if 0 // HDRFILE_RGBE
-                if( ( sint )( end - hdrLightmap ) != tr.lightmapSize * tr.lightmapSize * 4 )
+                if( static_cast<sint>( end - hdrLightmap ) != tr.lightmapSize * tr.lightmapSize * 4 )
                     Com_Error( ERR_DROP, "Bad size for %s (%i)!", filename, size );
 #else // HDRFILE_FLOAT
-                if( ( sint )( end - hdrLightmap ) != tr.lightmapSize * tr.lightmapSize * 12 )
+                if( static_cast<sint>( end - hdrLightmap ) != tr.lightmapSize * tr.lightmapSize * 12 )
                     Com_Error( ERR_DROP, "Bad size for %s (%i)!", filename, size );
 #endif
             }
@@ -397,8 +397,8 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
                     
                     R_ColorShiftLightingFloats( color, color );
                     
-                    ColorToRGB16( color, ( uchar16* )( &image[j * 8] ) );
-                    ( ( uchar16* )( &image[j * 8] ) )[3] = 65535;
+                    ColorToRGB16( color, reinterpret_cast< uchar16* >( &image[j * 8] ) );
+                    ( reinterpret_cast<uchar16*>( &image[j * 8] ) )[3] = 65535;
                 }
                 else if( textureInternalFormat == GL_RGBA16 )
                 {
@@ -422,8 +422,8 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
                     
                     R_ColorShiftLightingFloats( color, color );
                     
-                    ColorToRGB16( color, ( uchar16* )( &image[j * 8] ) );
-                    ( ( uchar16* )( &image[j * 8] ) )[3] = 65535;
+                    ColorToRGB16( color, reinterpret_cast<uchar16*>( &image[j * 8] ) );
+                    ( reinterpret_cast<uchar16*>( &image[j * 8] ) )[3] = 65535;
                 }
                 else
                 {
@@ -503,7 +503,7 @@ static	void R_LoadLightmaps( lump_t* l, lump_t* surfs )
     
     if( r_lightmap->integer == 2 )
     {
-        CL_RefPrintf( PRINT_ALL, "Brightest lightmap value: %d\n", ( sint )( maxIntensity * 255 ) );
+        CL_RefPrintf( PRINT_ALL, "Brightest lightmap value: %d\n", static_cast<sint>( maxIntensity * 255 ) );
     }
     
     Z_Free( image );
@@ -521,7 +521,7 @@ static float32 FatPackU( float32 input, sint lightmapnum )
     if( tr.fatLightmapCols > 0 )
     {
         lightmapnum %= ( tr.fatLightmapCols * tr.fatLightmapRows );
-        return ( input + ( lightmapnum % tr.fatLightmapCols ) ) / ( float32 )( tr.fatLightmapCols );
+        return ( input + ( lightmapnum % tr.fatLightmapCols ) ) / static_cast<float32>( tr.fatLightmapCols );
     }
     
     return input;
@@ -538,7 +538,7 @@ static float32 FatPackV( float32 input, sint lightmapnum )
     if( tr.fatLightmapCols > 0 )
     {
         lightmapnum %= ( tr.fatLightmapCols * tr.fatLightmapRows );
-        return ( input + ( lightmapnum / tr.fatLightmapCols ) ) / ( float32 )( tr.fatLightmapRows );
+        return ( input + ( lightmapnum / tr.fatLightmapCols ) ) / static_cast<float32>( tr.fatLightmapRows );
     }
     
     return input;
@@ -589,8 +589,8 @@ static	void R_LoadVisibility( lump_t* l )
     }
     buf = fileBase + l->fileofs;
     
-    s_worldData.numClusters = LittleLong( ( ( sint* )buf )[0] );
-    s_worldData.clusterBytes = LittleLong( ( ( sint* )buf )[1] );
+    s_worldData.numClusters = LittleLong( ( reinterpret_cast<sint*>( buf ) )[0] );
+    s_worldData.clusterBytes = LittleLong( ( reinterpret_cast<sint*>( buf ) )[1] );
     
     // CM_Load should have given us the vis data to share, so
     // we don't need to allocate another copy
@@ -627,7 +627,7 @@ static shader_t* ShaderForShaderNum( sint shaderNum, sint lightmapNum )
     }
     dsh = &s_worldData.shaders[ _shaderNum ];
     
-    if( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 )
+    if( r_vertexLight->integer )
     {
         lightmapNum = LIGHTMAP_BY_VERTEX;
     }
@@ -1817,7 +1817,7 @@ static	void R_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexLump )
     if( verts->filelen % sizeof( *dv ) )
         Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name );
         
-    indexes = ( sint* )( fileBase + indexLump->fileofs );
+    indexes = reinterpret_cast<sint*>( fileBase + indexLump->fileofs );
     if( indexLump->filelen % sizeof( *indexes ) )
         Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name );
         
@@ -1844,7 +1844,7 @@ static	void R_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexLump )
         {
             //CL_RefPrintf(PRINT_ALL, "Found!\n");
             if( size != sizeof( float32 ) * 3 * ( verts->filelen / sizeof( *dv ) ) )
-                Com_Error( ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, ( sint )( ( sizeof( float32 ) ) * 3 * ( verts->filelen / sizeof( *dv ) ) ) );
+                Com_Error( ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, static_cast<sint>( ( sizeof( float32 ) ) * 3 * ( verts->filelen / sizeof( *dv ) ) ) );
         }
     }
     
@@ -2113,7 +2113,7 @@ static	void R_LoadMarksurfaces( lump_t* l )
     sint*		in;
     sint*     out = nullptr;
     
-    in = ( sint* )( fileBase + l->fileofs );
+    in = reinterpret_cast<sint*>( fileBase + l->fileofs );
     if( l->filelen % sizeof( *in ) )
         Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name );
     count = l->filelen / sizeof( *in );
@@ -2225,7 +2225,7 @@ static	void R_LoadFogs( lump_t* l, lump_t* brushesLump, lump_t* sidesLump )
     {
         out->originalBrushNumber = LittleLong( fogs->brushNum );
         
-        if( ( uint )out->originalBrushNumber >= brushesCount )
+        if( static_cast<uint>( out->originalBrushNumber ) >= brushesCount )
         {
             Com_Error( ERR_DROP, "fog brushNumber out of range" );
         }
@@ -2233,7 +2233,7 @@ static	void R_LoadFogs( lump_t* l, lump_t* brushesLump, lump_t* sidesLump )
         
         firstSide = LittleLong( brush->firstSide );
         
-        if( ( uint )firstSide > sidesCount - 6 )
+        if( static_cast<uint>( firstSide ) > sidesCount - 6 )
         {
             Com_Error( ERR_DROP, "fog brush sideNumber out of range" );
         }
@@ -2285,7 +2285,7 @@ static	void R_LoadFogs( lump_t* l, lump_t* brushesLump, lump_t* sidesLump )
         else
         {
             sint sideOffset = firstSide + sideNum;
-            if( ( sint )sideOffset >= sidesCount )
+            if( sideOffset >= sidesCount )
             {
                 CL_RefPrintf( PRINT_WARNING, "bad fog side offset %i\n", sideOffset );
                 out->hasSurface = false;
@@ -2344,7 +2344,7 @@ void R_LoadLightGrid( lump_t* l )
     }
     
     w->lightGridData = reinterpret_cast<uchar8*>( Hunk_Alloc( l->filelen, h_low ) );
-    ::memcpy( w->lightGridData, ( void* )( fileBase + l->fileofs ), l->filelen );
+    ::memcpy( w->lightGridData, reinterpret_cast<void*>( fileBase + l->fileofs ), l->filelen );
     
     // deal with overbright bits
     for( i = 0 ; i < numGridPoints ; i++ )
@@ -2370,7 +2370,7 @@ void R_LoadLightGrid( lump_t* l )
             //CL_RefPrintf(PRINT_ALL, "found!\n");
             
             if( size != sizeof( float32 ) * 6 * numGridPoints )
-                Com_Error( ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, ( sint )( sizeof( float32 ) ) * 6 * numGridPoints );
+                Com_Error( ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, static_cast<sint>( sizeof( float32 ) ) * 6 * numGridPoints );
                 
             w->lightGrid16 = reinterpret_cast<uchar16*>( Hunk_Alloc( sizeof( w->lightGrid16 ) * 6 * numGridPoints, h_low ) );
             
@@ -2488,26 +2488,40 @@ void R_LoadEntities( lump_t* l )
         if( !Q_strncmp( keyname, "remapshader", strlen( "remapshader" ) ) )
         {
             s = strchr( value, ';' );
+            
             if( !s )
             {
                 CL_RefPrintf( PRINT_WARNING, "WARNING: no semi colon in shaderremap '%s'\n", value );
                 break;
             }
+            
             *s++ = 0;
+            
             renderSystemLocal.RemapShader( value, s, "0" );
+            
             continue;
         }
         // check for a different grid size
         if( !Q_stricmp( keyname, "gridsize" ) )
         {
-            sscanf( value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
+            if( sscanf( value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] ) != 3 )
+            {
+                CL_RefPrintf( PRINT_WARNING, "WARNING: invalid argument count for gridsize '%s'", value );
+                VectorSet( w->lightGridSize, 64.0f, 64.0f, 128.0f );
+            }
+            
             continue;
         }
         
         // check for auto exposure
         if( !Q_stricmp( keyname, "autoExposureMinMax" ) )
         {
-            sscanf( value, "%f %f", &tr.autoExposureMinMax[0], &tr.autoExposureMinMax[1] );
+            vec2_t tmp = { 0.0f };
+            if( sscanf( value, "%f %f", &tr.autoExposureMinMax[0], &tr.autoExposureMinMax[1] ) != 2 )
+            {
+                CL_RefPrintf( PRINT_WARNING, "WARNING: invalid argument count for autoExposureMinMax '%s'", value );
+            }
+            
             continue;
         }
     }
@@ -2953,7 +2967,7 @@ void idRenderSystemLocal::LoadWorld( pointer name )
         uchar8* b;
         void* v;
     } buffer;
-    sint	startMarker = 0;
+    uchar8* startMarker;
     
     if( tr.worldMapLoaded )
     {
@@ -3004,23 +3018,23 @@ void idRenderSystemLocal::LoadWorld( pointer name )
     Q_strncpyz( s_worldData.baseName, SkipPath( s_worldData.baseName ), sizeof( s_worldData.name ) );
     COM_StripExtension2( s_worldData.baseName, s_worldData.baseName, sizeof( s_worldData.baseName ) );
     
-    startMarker = ( sint )Hunk_Alloc( 0, h_low );
+    startMarker = ( uchar8* )Hunk_Alloc( 0, h_low );
     c_gridVerts = 0;
     
     header = ( dheader_t* )buffer.b;
-    fileBase = ( uchar8* )header;
+    fileBase = reinterpret_cast<uchar8*>( header );
     
     i = LittleLong( header->version );
     
-    //if( i != BSP_VERSION )
-    //{
-    //    Com_Error( ERR_DROP, "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i)", name, i, BSP_VERSION );
-    //}
+    if( i != BSP_VERSION )
+    {
+        Com_Error( ERR_DROP, "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i)", name, i, BSP_VERSION );
+    }
     
     // swap all the lumps
     for( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ )
     {
-        ( ( sint* )header )[i] = LittleLong( ( ( sint* )header )[i] );
+        ( reinterpret_cast<sint*>( header ) )[i] = LittleLong( ( reinterpret_cast<sint*>( header ) )[i] );
     }
     
     // load into heap
@@ -3050,7 +3064,7 @@ void idRenderSystemLocal::LoadWorld( pointer name )
         w = &s_worldData;
         
         lightGridSize = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
-        primaryLightGrid = ( uchar8* )CL_RefMalloc( lightGridSize * sizeof( *primaryLightGrid ) );
+        primaryLightGrid = static_cast<uchar8*>( CL_RefMalloc( lightGridSize * sizeof( *primaryLightGrid ) ) );
         
         memset( primaryLightGrid, 0, lightGridSize * sizeof( *primaryLightGrid ) );
         
@@ -3096,7 +3110,7 @@ void idRenderSystemLocal::LoadWorld( pointer name )
         if( 0 )
         {
             sint i;
-            uchar8* buffer = ( uchar8* )CL_RefMalloc( w->lightGridBounds[0] * w->lightGridBounds[1] * 3 + 18 );
+            uchar8* buffer = static_cast<uchar8*>( CL_RefMalloc( w->lightGridBounds[0] * w->lightGridBounds[1] * 3 + 18 ) );
             uchar8* out;
             uchar8* in;
             valueType fileName[MAX_QPATH];
@@ -3243,7 +3257,7 @@ void idRenderSystemLocal::LoadWorld( pointer name )
         }
     }
     
-    s_worldData.dataSize = ( sint )Hunk_Alloc( 0, h_low ) - startMarker;
+    s_worldData.dataSize = static_cast<sint>( ( uchar8* )Hunk_Alloc( 0, h_low ) - startMarker );
     
     CL_RefPrintf( PRINT_ALL, "total world data size: %d.%02d MB\n", s_worldData.dataSize / ( 1024 * 1024 ),
                   ( s_worldData.dataSize % ( 1024 * 1024 ) ) * 100 / ( 1024 * 1024 ) );

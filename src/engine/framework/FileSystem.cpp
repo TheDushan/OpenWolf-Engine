@@ -340,7 +340,7 @@ sint32 idFileSystemLocal::HashFileName( pointer fname, uint64 hashSize )
         {
             letter = '/'; // damn path names
         }
-        hash += ( sint32 )( letter ) * ( i + 119 );
+        hash += static_cast<sint32>( letter ) * ( i + 119 );
         i++;
     }
     
@@ -556,7 +556,7 @@ void idFileSystemLocal::FSCopyFile( valueType* fromOSPath, valueType* toOSPath )
     len = ftell( f );
     fseek( f, 0, SEEK_SET );
     
-    buf = ( uchar8* )Z_Malloc( len );
+    buf = static_cast< uchar8* >( Z_Malloc( len ) );
     
     if( fread( buf, 1, len, f ) != len )
     {
@@ -1145,7 +1145,7 @@ valueType* idFileSystemLocal::ShiftedStrStr( pointer string, pointer substring, 
     }
     buf[i] = '\0';
     
-    return ( valueType* )strstr( string, buf );
+    return const_cast<valueType*>( reinterpret_cast<const valueType*>( strstr( string, buf ) ) );
 }
 
 /*
@@ -1586,7 +1586,7 @@ bool idFileSystemLocal::CL_ExtractFromPakFile( pointer base, pointer gamedir, po
         
         if( destLength > 0 )
         {
-            destData = ( uchar8* )Z_Malloc( destLength );
+            destData = static_cast<uchar8*>( Z_Malloc( destLength ) );
             
             fread( destData, destLength, 1, destHandle );
             
@@ -1890,7 +1890,7 @@ sint idFileSystemLocal::Read( void* buffer, sint len, fileHandle_t f )
         return 0;
     }
     
-    buf = ( uchar8* )buffer;
+    buf = static_cast<uchar8*>( buffer );
     fs_readCount += len;
     
     if( fsh[f].zipFile == false )
@@ -1961,7 +1961,7 @@ sint idFileSystemLocal::Write( const void* buffer, sint len, fileHandle_t h )
     }
     
     f = FileForHandle( h );
-    buf = ( uchar8* )buffer;
+    buf = const_cast<uchar8*>( reinterpret_cast<const uchar8*>( buffer ) );
     
     remaining = len;
     tries = 0;
@@ -2259,8 +2259,7 @@ sint idFileSystemLocal::ReadFile( pointer qpath, void** buffer )
                 return len;
             }
             
-            //buf = ( uchar8* )Hunk_AllocateTempMemory( len + 1 );
-            buf = ( uchar8* )Z_Malloc( len + 1 );
+            buf = static_cast<uchar8*>( Z_Malloc( len + 1 ) );
             buf[len] = '\0';	// because we're not calling Z_Malloc with optional trailing 'bZeroIt' bool
             *buffer = buf;
             
@@ -2315,7 +2314,7 @@ sint idFileSystemLocal::ReadFile( pointer qpath, void** buffer )
         return len;
     }
     
-    buf = ( uchar8* )Hunk_AllocateTempMemory( len + 1 );
+    buf = static_cast<uchar8*>( Hunk_AllocateTempMemory( len + 1 ) );
     *buffer = buf;
     
     Read( buf, len, h );
@@ -2456,8 +2455,8 @@ pack_t* idFileSystemLocal::LoadZipFile( pointer zipfile, pointer basename )
     }
     
     buildBuffer = ( fileInPack_t* )Z_Malloc( ( gi.number_entry * sizeof( fileInPack_t ) ) + len );
-    namePtr = ( ( valueType* ) buildBuffer ) + gi.number_entry * sizeof( fileInPack_t );
-    fs_headerLongs = ( sint* )Z_Malloc( ( gi.number_entry + 1 ) * sizeof( sint ) );
+    namePtr = reinterpret_cast<valueType*>( buildBuffer ) + gi.number_entry * sizeof( fileInPack_t );
+    fs_headerLongs = static_cast<sint*>( Z_Malloc( ( gi.number_entry + 1 ) * sizeof( sint ) ) );
     fs_headerLongs[ fs_numHeaderLongs++ ] = LittleLong( fs_checksumFeed );
     
     // get the hash table size from the number of files in the zip
@@ -2472,7 +2471,7 @@ pack_t* idFileSystemLocal::LoadZipFile( pointer zipfile, pointer basename )
     
     pack = ( pack_t* )Z_Malloc( sizeof( pack_t ) + i * sizeof( fileInPack_t* ) );
     pack->hashSize = i;
-    pack->hashTable = ( fileInPack_t** )( ( ( valueType* ) pack ) + sizeof( pack_t ) );
+    pack->hashTable = ( fileInPack_t** )( reinterpret_cast<valueType*>( pack ) + sizeof( pack_t ) );
     
     for( i = 0; i < pack->hashSize; i++ )
     {
@@ -4194,7 +4193,7 @@ pointer idFileSystemLocal::LoadedPakPureChecksums( void )
         Q_strcat( info, sizeof( info ), va( "%i ", search->pack->pure_checksum ) );
     }
     
-    len = ( sint )::strlen( info );
+    len = static_cast<sint>( ::strlen( info ) );
     if( len > 1 )
     {
         info[len - 1] = 0;
@@ -4825,14 +4824,14 @@ uint idFileSystemLocal::ChecksumOSPath( valueType* OSPath )
     f = fopen( OSPath, "rb" );
     if( !f )
     {
-        return ( uint ) - 1;
+        return static_cast<uint>( -1 );
     }
     
     fseek( f, 0, SEEK_END );
     len = ftell( f );
     fseek( f, 0, SEEK_SET );
     
-    buf = ( uchar8* )malloc( len );
+    buf = static_cast<uchar8*>( malloc( len ) );
     
     if( fread( buf, 1, len, f ) != len )
     {

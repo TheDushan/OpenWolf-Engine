@@ -718,7 +718,7 @@ static sint32 generateHashValue( pointer fname )
     i = 0;
     while( fname[i] != '\0' )
     {
-        hash += ( sint32 )( fname[i] ) * ( i + 119 );
+        hash += static_cast<sint32>( fname[i] ) * ( i + 119 );
         i++;
     }
     hash &= ( BIND_HASH_SIZE - 1 );
@@ -935,8 +935,8 @@ void Key_EditBind_f( void )
     
     binding = Key_GetBinding( b );
     
-    keyq = ( valueType* )Com_QuoteStr( key ); // <- static buffer
-    buf = ( valueType* )malloc( 8 + strlen( keyq ) + strlen( binding ) );
+    keyq = ( const_cast<valueType*>( reinterpret_cast<const valueType*>( Com_QuoteStr( key ) ) ) ); // <- static buffer
+    buf = reinterpret_cast< valueType*>( malloc( 8 + strlen( keyq ) + strlen( binding ) ) );
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "/bind %s %s", keyq, binding );
     
     Con_OpenConsole_f();
@@ -1521,7 +1521,7 @@ void CL_CharEvent( sint key )
     // fretn - this should be fixed in Com_EventLoop
     // but I can't be arsed to leave this as is
     
-    if( key == ( uchar8 ) '`' || key == ( uchar8 ) '~' || key == ( uchar8 ) '¬' )
+    if( key == static_cast<uchar8>( '`' ) || key == static_cast<uchar8>( '~' ) || key == static_cast<uchar8>( '¬' ) )
     {
         return;
     }

@@ -917,7 +917,7 @@ void idCmdSystemLocal::Random( void )
         v1 = atoi( cmdSystemLocal.Argv( 2 ) );
         v2 = atoi( cmdSystemLocal.Argv( 3 ) );
         
-        cvarSystem->SetValueLatched( cmdSystemLocal.Argv( 1 ), ( sint )( rand() / ( float32 )RAND_MAX * ( MAX( v1, v2 ) - MIN( v1, v2 ) ) + MIN( v1, v2 ) ) );
+        cvarSystem->SetValueLatched( cmdSystemLocal.Argv( 1 ), static_cast<sint>( rand() / static_cast<float32>( RAND_MAX ) * ( MAX( v1, v2 ) - MIN( v1, v2 ) ) + MIN( v1, v2 ) ) );
     }
     else
     {
@@ -1255,7 +1255,7 @@ valueType* idCmdSystemLocal::Argv( sint arg )
 {
     if( arg >= cmd.argc )
     {
-        return ( valueType* )"\0";
+        return static_cast<valueType*>( "\0" );
     }
     
     return cmd.argv[arg];
@@ -2178,11 +2178,10 @@ void idCmdSystemLocal::Init( void )
     AddCommand( "random", &idCmdSystemLocal::Random, "Give a random integer" );
 }
 
-
 /*
-* idCmdSystemLocal::Shutdown
-*
-* Reads in all archived cvars
+============
+idCmdSystemLocal::Shutdown
+============
 */
 void idCmdSystemLocal::Shutdown( void )
 {
@@ -2207,4 +2206,5 @@ void idCmdSystemLocal::Shutdown( void )
     RemoveCommand( "undelay" );
     RemoveCommand( "undelayAll" );
     RemoveCommand( "random" );
+    RemoveCommand( "userinfo" );
 }

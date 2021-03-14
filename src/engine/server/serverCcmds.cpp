@@ -295,11 +295,11 @@ void idServerCcmdsSystemLocal::Map_f( void )
             cvarSystem->Set( "savegame_filename", savemap );
             
             // the mapname is at the very start of the savegame file
-            Q_strncpyz( savemap, ( valueType* )( buffer + sizeof( sint ) ), sizeof( savemap ) );	// skip the version
+            Q_strncpyz( savemap, reinterpret_cast< valueType*>( buffer ) + sizeof( sint ), sizeof( savemap ) );	// skip the version
             Q_strncpyz( smapname, savemap, sizeof( smapname ) );
             map = smapname;
             
-            savegameTime = *( sint* )( buffer + sizeof( sint ) + MAX_QPATH );
+            savegameTime = *reinterpret_cast<sint*>( buffer + sizeof( sint ) + MAX_QPATH );
             
             if( savegameTime >= 0 )
             {
@@ -595,7 +595,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
         fileSystem->ReadFile( savemap, ( void** )&buffer );
         
         // the mapname is at the very start of the savegame file
-        savegameTime = *( sint* )( buffer + sizeof( sint ) + MAX_QPATH );
+        savegameTime = *reinterpret_cast<sint*>( buffer + sizeof( sint ) + MAX_QPATH );
         
         if( savegameTime >= 0 )
         {
@@ -690,7 +690,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
         serverMainSystem->AddServerCommand( client, "map_restart\n" );
         
         // connect the client again, without the firstTime flag
-        denied = ( valueType* )sgame->ClientConnect( i, false );
+        denied = static_cast<valueType*>( sgame->ClientConnect( i, false ) );
         if( denied )
         {
             // this generally shouldn't happen, because the client
@@ -782,7 +782,7 @@ void idServerCcmdsSystemLocal::LoadGame_f( void )
     // use '/' instead of '\\' for directories
     while( strstr( filename, "\\" ) )
     {
-        *( valueType* )strstr( filename, "\\" ) = '/';
+        *static_cast<valueType*>( ::strstr( filename, "\\" ) ) = '/';
     }
     
     size = fileSystem->ReadFile( filename, nullptr );
@@ -796,7 +796,7 @@ void idServerCcmdsSystemLocal::LoadGame_f( void )
     fileSystem->ReadFile( filename, ( void** )&buffer );
     
     // read the mapname, if it is the same as the current map, then do a fast load
-    Q_strncpyz( mapname, ( pointer )( buffer + sizeof( sint ) ), sizeof( mapname ) );
+    Q_strncpyz( mapname, reinterpret_cast<pointer>( buffer ) + sizeof( sint ), sizeof( mapname ) );
     
     if( com_sv_running->integer && ( com_frameTime != sv.serverId ) )
     {
@@ -913,17 +913,17 @@ void idServerCcmdsSystemLocal::Status_f( void )
     }
     
     // Dushan
-    cpu = ( uchar8 )( svs.stats.latched_active + svs.stats.latched_idle );
+    cpu = static_cast<uchar8>( svs.stats.latched_active + svs.stats.latched_idle );
     
     if( cpu )
     {
-        cpu = ( uchar8 )( 100 * svs.stats.latched_active / cpu );
+        cpu = static_cast<uchar8>( 100 * svs.stats.latched_active / cpu );
     }
     
-    avg = ( uchar8 )( 1000 * svs.stats.latched_active / STATFRAMES );
+    avg = static_cast<uchar8>( 1000 * svs.stats.latched_active / STATFRAMES );
     
-    Com_Printf( "cpu utilization  : %3i%%\n", ( sint )cpu );
-    Com_Printf( "avg response time: %i ms\n", ( sint )avg );
+    Com_Printf( "cpu utilization  : %3i%%\n", static_cast<sint>( cpu ) );
+    Com_Printf( "avg response time: %i ms\n", static_cast<sint>( avg ) );
     
     Com_Printf( "map: %s\n", sv_mapname->string );
     Com_Printf( "Game ID: %s\n", community_stats.game_id );
@@ -958,7 +958,7 @@ void idServerCcmdsSystemLocal::Status_f( void )
         }
         
         Com_Printf( "%s", cl->name );
-        l = 16 - ( sint )::strlen( cl->name );
+        l = 16 - static_cast<sint>( ::strlen( cl->name ) );
         for( j = 0; j < l; j++ )
         {
             Com_Printf( " " );
@@ -968,7 +968,7 @@ void idServerCcmdsSystemLocal::Status_f( void )
         
         s = networkSystem->AdrToString( cl->netchan.remoteAddress );
         Com_Printf( "%s", s );
-        l = 22 - ( sint )::strlen( s );
+        l = 22 - static_cast<sint>( ::strlen( s ) );
         for( j = 0; j < l; j++ )
         {
             Com_Printf( " " );

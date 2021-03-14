@@ -227,7 +227,7 @@ float32 CL_KeyState( kbutton_t* key )
     }
 #endif
     
-    val = ( float32 )msec / frame_msec;
+    val = static_cast<float32>( msec ) / frame_msec;
     if( val < 0 )
     {
         val = 0;
@@ -637,11 +637,11 @@ void CL_AdjustAngles( void )
     
     if( kb[KB_SPEED].active )
     {
-        speed = ( ( float32 )cls.frametime / 1000.0f ) * cls.frametime * cl_anglespeedkey->value;
+        speed = ( static_cast<float32>( cls.frametime ) / 1000.0f ) * cls.frametime * cl_anglespeedkey->value;
     }
     else
     {
-        speed = ( float32 )cls.frametime / 1000.0f;
+        speed = static_cast<float32>( cls.frametime ) / 1000.0f;
     }
     
     if( !kb[KB_STRAFE].active )
@@ -847,11 +847,11 @@ void CL_JoystickMove( usercmd_t* cmd )
     
     if( kb[KB_SPEED].active )
     {
-        anglespeed = ( ( float32 )cls.frametime / 1000.0f ) * cls.frametime * cl_anglespeedkey->value;
+        anglespeed = ( static_cast<float32>( cls.frametime ) / 1000.0f ) * cls.frametime * cl_anglespeedkey->value;
     }
     else
     {
-        anglespeed = ( float32 )cls.frametime / 1000.0f;
+        anglespeed = static_cast<float32>( cls.frametime ) / 1000.0f;
     }
     
 #ifdef __MACOS__
@@ -860,26 +860,26 @@ void CL_JoystickMove( usercmd_t* cmd )
     if( !kb[KB_STRAFE].active )
     {
         cl.viewangles[YAW] += anglespeed * j_yaw->value * cl.joystickAxis[j_yaw_axis->integer];
-        cmd->rightmove = ClampChar( cmd->rightmove + ( sint )( j_side->value * cl.joystickAxis[j_side_axis->integer] ) );
+        cmd->rightmove = ClampChar( cmd->rightmove + static_cast<sint>( j_side->value * cl.joystickAxis[j_side_axis->integer] ) );
     }
     else
     {
         cl.viewangles[YAW] += anglespeed * j_side->value * cl.joystickAxis[j_side_axis->integer];
-        cmd->rightmove = ClampChar( cmd->rightmove + ( sint )( j_yaw->value * cl.joystickAxis[j_yaw_axis->integer] ) );
+        cmd->rightmove = ClampChar( cmd->rightmove + static_cast<sint>( j_yaw->value * cl.joystickAxis[j_yaw_axis->integer] ) );
     }
 #endif
     if( kb[KB_MLOOK].active )
     {
         cl.viewangles[PITCH] += anglespeed * j_forward->value * cl.joystickAxis[j_forward_axis->integer];
-        cmd->forwardmove = ClampChar( cmd->forwardmove + ( sint )( j_pitch->value * cl.joystickAxis[j_pitch_axis->integer] ) );
+        cmd->forwardmove = ClampChar( cmd->forwardmove + static_cast<sint>( j_pitch->value * cl.joystickAxis[j_pitch_axis->integer] ) );
     }
     else
     {
         cl.viewangles[PITCH] += anglespeed * j_pitch->value * cl.joystickAxis[j_pitch_axis->integer];
-        cmd->forwardmove = ClampChar( cmd->forwardmove + ( sint )( j_forward->value * cl.joystickAxis[j_forward_axis->integer] ) );
+        cmd->forwardmove = ClampChar( cmd->forwardmove + static_cast<sint>( j_forward->value * cl.joystickAxis[j_forward_axis->integer] ) );
     }
     
-    cmd->upmove = ClampChar( cmd->upmove + ( sint )( j_up->value * cl.joystickAxis[j_up_axis->integer] ) );
+    cmd->upmove = ClampChar( cmd->upmove + static_cast<sint>( j_up->value * cl.joystickAxis[j_up_axis->integer] ) );
 }
 
 /*
@@ -956,7 +956,7 @@ void CL_MouseMove( usercmd_t* cmd )
             float32 accelSensitivity;
             float32 rate;
             
-            rate = sqrt( mx * mx + my * my ) / ( float32 ) frame_msec;
+            rate = sqrt( mx * mx + my * my ) / static_cast<float32>( frame_msec );
             
             accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
             mx *= accelSensitivity;
@@ -975,8 +975,8 @@ void CL_MouseMove( usercmd_t* cmd )
             // cl_mouseAccelOffset is the rate for which the acceleration will have doubled the non accelerated amplification
             // NOTE: decouple the config cvars for independent acceleration setup along X and Y?
             
-            rate[0] = fabs( mx ) / ( float32 ) frame_msec;
-            rate[1] = fabs( my ) / ( float32 ) frame_msec;
+            rate[0] = fabs( mx ) / static_cast<float32>( frame_msec );
+            rate[1] = fabs( my ) / static_cast<float32>( frame_msec );
             power[0] = powf( rate[0] / cl_mouseAccelOffset->value, cl_mouseAccel->value );
             power[1] = powf( rate[1] / cl_mouseAccelOffset->value, cl_mouseAccel->value );
             
@@ -1093,7 +1093,7 @@ void CL_FinishMove( usercmd_t* cmd )
     sint             i;
     
     // copy the state that the cgame is currently sending
-    cmd->weapon = ( uchar8 )cl.cgameUserCmdValue;
+    cmd->weapon = static_cast<uchar8>( cl.cgameUserCmdValue );
     
     cmd->flags = cl.cgameFlags;
     

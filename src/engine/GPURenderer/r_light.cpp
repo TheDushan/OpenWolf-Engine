@@ -235,7 +235,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t* ent, world_t* world )
         
         if( world->lightGrid16 )
         {
-            uchar16* data16 = world->lightGrid16 + ( sint )( data - world->lightGridData ) / 8 * 6;
+            uchar16* data16 = world->lightGrid16 + static_cast<sint>( data - world->lightGridData ) / 8 * 6;
             if( !( data16[0] + data16[1] + data16[2] + data16[3] + data16[4] + data16[5] ) )
             {
                 continue;	// ignore samples in walls
@@ -268,7 +268,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t* ent, world_t* world )
         if( world->lightGrid16 )
         {
             // FIXME: this is hideous
-            uchar16* data16 = world->lightGrid16 + ( sint )( data - world->lightGridData ) / 8 * 6;
+            uchar16* data16 = world->lightGrid16 + static_cast<sint>( data - world->lightGridData ) / 8 * 6;
         
             ent->ambientLight[0] += factor * data16[0] / 257.0f;
             ent->ambientLight[1] += factor * data16[1] / 257.0f;
@@ -549,10 +549,10 @@ void R_SetupEntityLighting( const trRefdef_t* refdef, trRefEntity_t* ent )
     }
     
     // save out the uchar8 packet version
-    ( ( uchar8* )&ent->ambientLightInt )[0] = static_cast<sint>( ent->ambientLight[0] );
-    ( ( uchar8* )&ent->ambientLightInt )[1] = static_cast<sint>( ent->ambientLight[1] );
-    ( ( uchar8* )&ent->ambientLightInt )[2] = static_cast<sint>( ent->ambientLight[2] );
-    ( ( uchar8* )&ent->ambientLightInt )[3] = 0xff;
+    ( reinterpret_cast<uchar8*>( &ent->ambientLightInt ) )[0] = static_cast<sint>( ent->ambientLight[0] );
+    ( reinterpret_cast<uchar8*>( &ent->ambientLightInt ) )[1] = static_cast<sint>( ent->ambientLight[1] );
+    ( reinterpret_cast<uchar8*>( &ent->ambientLightInt ) )[2] = static_cast<sint>( ent->ambientLight[2] );
+    ( reinterpret_cast<uchar8*>( &ent->ambientLightInt ) )[3] = 0xff;
     
     // transform the direction to local space
     VectorNormalize( lightDir );
@@ -613,7 +613,7 @@ sint R_CubemapForPoint( vec3_t point )
     if( r_cubeMapping->integer && tr.numCubemaps )
     {
         sint i;
-        vec_t shortest = ( float32 )WORLD_SIZE * ( float32 )WORLD_SIZE;
+        vec_t shortest = static_cast<float32>( WORLD_SIZE ) * static_cast<float32>( WORLD_SIZE );
         
         for( i = 0; i < tr.numCubemaps; i++ )
         {

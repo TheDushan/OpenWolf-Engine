@@ -99,7 +99,7 @@ void idServerNetChanSystemLocal::NetchanEncode( client_t* client, msg_t* msg, va
     msg->bit = sbit;
     msg->readcount = srdc;
     
-    string = ( uchar8* ) client->lastClientCommandString;
+    string = reinterpret_cast<uchar8*>( client->lastClientCommandString );
     index = 0;
     
     // xor the client challenge with the netchan sequence number
