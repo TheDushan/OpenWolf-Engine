@@ -2651,8 +2651,8 @@ bool Q_isanumber( pointer s )
     
     if( *s == '\0' )
     {
+        return false;
     }
-    return false;
     
     d = strtod( s, &p );
     
