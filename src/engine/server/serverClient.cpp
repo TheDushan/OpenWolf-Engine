@@ -375,24 +375,6 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         }
     }
     
-    // don't let "ip" overflow userinfo string
-    if( networkSystem->IsLocalAddress( from ) )
-    {
-        ip = "localhost";
-    }
-    else
-    {
-        ip = const_cast<valueType*>( reinterpret_cast<const valueType*>( networkSystem->AdrToString( from ) ) );
-    }
-    
-    if( !Info_SetValueForKey( userinfo, "ip", ip ) )
-    {
-        networkChainSystem->OutOfBandPrint( NS_SERVER, from,
-                                            "print\nUserinfo string length exceeded.  "
-                                            "Try removing setu cvars from your config.\n" );
-        return;
-    }
-    
     // See comment made in idServerClientSystemLocal::UserinfoChanged() regarding handicap.
     while( true )
     {
@@ -412,6 +394,7 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         oldInfoLen2 = newInfoLen2;
     }
     
+    // don't let "ip" overflow userinfo string
     if( networkSystem->IsLocalAddress( from ) )
     {
         ip = "localhost";
@@ -443,7 +426,8 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
             {
                 if( challenge == svs.challenges[i].challenge )
                 {
-                    break; // good
+                    // good
+                    break;
                 }
             }
         }
@@ -499,9 +483,6 @@ void idServerClientSystemLocal::DirectConnect( netadr_t from )
         
         Com_Printf( "Client %i connecting with %i challenge ping\n", i, ping );
         challengeptr->connected = true;
-        
-        Q_strncpyz( guid, svs.challenges[i].guid, sizeof( guid ) );
-        authed = svs.challenges[i].authenticated;
     }
     else
     {
