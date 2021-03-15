@@ -3529,6 +3529,7 @@ void CL_CheckAutoUpdate( void )
     // Only check once per session
     if( autoupdateChecked )
     {
+        Com_DPrintf( "Updated checked already.." );
         return;
     }
     
