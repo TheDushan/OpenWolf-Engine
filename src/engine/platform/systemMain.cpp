@@ -666,6 +666,7 @@ Q_EXPORT sint engineMain( sint argc, valueType * *argv )
     
     if( _setjmp( sys_exitframe ) )
     {
+#ifdef _WIN32
         __try
         {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
@@ -677,7 +678,22 @@ Q_EXPORT sint engineMain( sint argc, valueType * *argv )
         {
             Com_ReleaseMemory();
         }
-        
+#else
+        try
+        {
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
+            soundSystem->Shutdown();
+            CL_ShutdownRef();
+#endif
+        }
+
+        catch (...)
+        {
+            Com_ReleaseMemory();
+        }
+
+        Com_ReleaseMemory();
+#endif
         return sys_retcode;
     }
     
