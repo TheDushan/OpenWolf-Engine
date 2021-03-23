@@ -457,7 +457,7 @@ void idConsoleCursesLocal::Init( void )
     
 #ifndef _WIN32
     // Catch window resizes
-    signal( SIGWINCH, static_cast<void*>( Resize ) );
+    signal( SIGWINCH, static_cast<void*>( reinterpret_cast<void *&>( Resize ) ) );
 #endif
     
     curses_on = true;

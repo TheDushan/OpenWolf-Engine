@@ -53,9 +53,7 @@
 #endif // !GAMEDLL
 
 // *INDENT-OFF*
-#if defined (_WIN32)
 vec3_t vec3_origin = {0, 0, 0};
-#endif
 
 vec3_t axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
