@@ -1305,11 +1305,11 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
         if( block->tag )
         {
 #ifdef ZONE_DEBUG
-            ptr = ( static_cast < ( valueType* >( block ) ) + sizeof( memblock_t );
-                    j = 0;
-                    for( i = 0; i < 20 && i < block->d.allocSize; i++ )
-        {
-            if( ptr[i] >= 32 && ptr[i] < 127 )
+            ptr = ( reinterpret_cast<valueType*>( block ) + sizeof( memblock_t ) );
+            j = 0;
+            for( i = 0; i < 20 && i < block->d.allocSize; i++ )
+            {
+                if( ptr[i] >= 32 && ptr[i] < 127 )
                 {
                     dump[j++] = ptr[i];
                 }
