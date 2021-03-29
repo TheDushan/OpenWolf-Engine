@@ -1592,6 +1592,22 @@ sint Q_stricmpn( pointer s1, pointer s2, sint n )
 {
     sint c1, c2;
     
+    if( s1 == nullptr )
+    {
+        if( s2 == nullptr )
+        {
+            return 0;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+    else if( s2 == nullptr )
+    {
+        return 1;
+    }
+    
     do
     {
         c1 = *s1++;
@@ -1599,7 +1615,8 @@ sint Q_stricmpn( pointer s1, pointer s2, sint n )
         
         if( !n-- )
         {
-            return 0;       // strings are equal until end point
+            // strings are equal until end point
+            return 0;
         }
         
         if( c1 != c2 )
@@ -1620,7 +1637,8 @@ sint Q_stricmpn( pointer s1, pointer s2, sint n )
     }
     while( c1 );
     
-    return 0;       // strings are equal
+    // strings are equal
+    return 0;
 }
 
 sint Q_strncmp( pointer s1, pointer s2, sint n )
