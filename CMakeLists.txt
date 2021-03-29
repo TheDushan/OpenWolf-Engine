@@ -355,24 +355,36 @@ set( CLIENTLIST_SOURCES
 )
 
 set( AUDIO_HEADERS
-	${MOUNT_DIR}/audio/s_codec.hpp
-	${MOUNT_DIR}/audio/s_dmahd.hpp
-	${MOUNT_DIR}/audio/s_local.hpp
-	${MOUNT_DIR}/API/sound_api.hpp
+	${MOUNT_DIR}/soundSystem/sndSystem_codec.hpp
+	${MOUNT_DIR}/soundSystem/sndSystem_local.hpp
+	${MOUNT_DIR}/API/soundSystem_api.hpp
 )
 
 set( AUDIO_SOURCES
-	${MOUNT_DIR}/audio/s_adpcm.cpp
-	${MOUNT_DIR}/audio/s_codec.cpp
-	${MOUNT_DIR}/audio/s_codec_wav.cpp
-	${MOUNT_DIR}/audio/s_codec_ogg.cpp
-	${MOUNT_DIR}/audio/s_dma.cpp
-	${MOUNT_DIR}/audio/s_dmahd.cpp
-	${MOUNT_DIR}/audio/s_main.cpp
-	${MOUNT_DIR}/audio/s_mem.cpp
-	${MOUNT_DIR}/audio/s_mix.cpp
-	${MOUNT_DIR}/audio/s_openal.cpp
-	${MOUNT_DIR}/audio/s_wavelet.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_adpcm.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_codec.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_codec_wav.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_codec_ogg.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_dma.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_load.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_mem.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_mix.cpp
+	${MOUNT_DIR}/soundSystem/sndSystem_wavelet.cpp
+)
+
+set( AUDIO_OPENAL_HEADERS
+	${MOUNT_DIR}/API/soundSystem_api.hpp
+	${MOUNT_DIR}/soundSystemAL/qal.hpp
+	${MOUNT_DIR}/soundSystemAL/sndSystemAL_local.hpp
+)
+
+set( AUDIO_OPENAL_SOURCES
+  ${MOUNT_DIR}/soundSystemAL/qal.cpp
+  ${MOUNT_DIR}/soundSystemAL/sndSystemAL_buffers.cpp
+  ${MOUNT_DIR}/soundSystemAL/sndSystemAL_main.cpp
+  ${MOUNT_DIR}/soundSystemAL/sndSystemAL_music.cpp
+  ${MOUNT_DIR}/soundSystemAL/sndSystemAL_sources.cpp
+  ${MOUNT_DIR}/soundSystemAL/sndSystemAL_stream.cpp
 )
 
 set( PLATFORMLIST_SOURCES
@@ -508,6 +520,41 @@ endif()
 
 
 ################
+# Build OpenAL #
+################
+
+	find_package( SDL REQUIRED )
+	find_package( OpenAL REQUIRED )
+
+	# Dushan - This is how visual studio directories (or filters) are generated
+	if( WIN32 )
+		SOURCE_GROUP( Header\ Files\\SharedList                               FILES ${SHAREDLIST_HEADERS} )
+		SOURCE_GROUP( Header\ Files\\AudioOpenAL                              FILES ${AUDIO_OPENAL_HEADERS} )
+		SOURCE_GROUP( Source\ Files\\SharedList                               FILES ${SHAREDLIST_SOURCES} )
+		SOURCE_GROUP( Source\ Files\\AudioOpenAL                              FILES ${AUDIO_OPENAL_SOURCES} )
+	endif( WIN32 )
+
+	add_library( soundSystemAL SHARED ${SHAREDLIST_HEADERS} ${AUDIO_OPENAL_HEADERS} ${SHAREDLIST_SOURCES} ${AUDIO_OPENAL_SOURCES} ${MOUNT_DIR}/soundSystemAL/sndSystemAL_precompiled.hpp ${MOUNT_DIR}/soundSystemAL/sndSystemAL_precompiled.cpp )
+
+	TARGET_INCLUDE_DIRECTORIES( soundSystemAL PRIVATE ${OPENAL_INCLUDE_DIR} ${MOUNT_DIR} ${SDL2_INCLUDE_DIR} )
+	target_link_libraries( soundSystemAL ${OPENAL_LIBRARY} ${SDL2_LIBRARY} ${CMAKE_DL_LIBS} )
+
+	if( MSVC )
+		SET_TARGET_PROPERTIES( soundSystemAL PROPERTIES LINK_FLAGS "/DEF:\"${MOUNT_DIR}/soundSystemAL/sndSystemAL.def" )
+	endif(MSVC)
+			
+	target_precompile_headers( soundSystemAL PRIVATE "${MOUNT_DIR}/soundSystemAL/sndSystemAL_precompiled.hpp" )
+
+	set_property( TARGET soundSystemAL PROPERTY COMPILE_DEFINITIONS )
+	if(WIN32)
+		set_property( TARGET soundSystemAL APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG _WINDOWS HAVE_CONFIG_H __STDC_CONSTANT_MACROS AL_NO_PROTOTYPES OALAUDIO )
+	elseif( UNIX )
+		set_property( TARGET soundSystemAL APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX HAVE_CONFIG_H  __STDC_CONSTANT_MACROS AL_NO_PROTOTYPES OALAUDIO )
+	endif()
+	
+	set_target_properties( soundSystemAL PROPERTIES OUTPUT_NAME "soundSystemAL.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
+
+################
 # Build Client #
 ################
 
@@ -541,7 +588,7 @@ if( BUILD_CLIENT )
 
 	add_library( engine SHARED ${SHAREDLIST_HEADERS} ${GPURENDERER_HEADERS} ${FRAMEWORKS_HEADERS} ${QCOMMONLIST_HEADERS} ${SERVERLIST_HEADERS} ${COLLISIONMODEL_HEADERS} ${CLIENTLIST_HEADERS} ${AUDIO_HEADERS} ${SHAREDLIST_SOURCES} ${GPURENDERER_SOURCES} ${SERVERLIST_SOURCES} ${COLLISIONMODEL_SOURCES} ${QCOMMONLIST_SOURCES} ${CLIENTLIST_SOURCES} ${AUDIO_SOURCES} ${FRAMEWORKS_SOURCES} ${PLATFORMLIST} ${SDLLIST} ${PLATFORMLIST_SOURCES} ${PLATFORMLIST_HEADERS} ${MOUNT_DIR}/framework/precompiled.hpp ${MOUNT_DIR}/framework/precompiled.cpp ${DOWNLOADLIST_HEADERS} ${DOWNLOADLIST_SOURCES} )
 	
-	if( MSVC )
+if( MSVC )
 	SET_TARGET_PROPERTIES( engine PROPERTIES LINK_FLAGS "/DEF:\"${MOUNT_DIR}/platform/engineMain.def" )
 endif(MSVC)
 	    
@@ -578,7 +625,7 @@ endif()
 
 	TARGET_INCLUDE_DIRECTORIES( engine PRIVATE ${OPENSSL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PNG_INCLUDE_DIR} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} ${JPEG_INCLUDE_DIR} ${BZ2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR} ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR} )
 
-	TARGET_LINK_LIBRARIES( engine ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY}  ${FREETYPE_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PNG_LIBRARIES} ${PDCURSES_LIBRARY} ${JPEG_LIBRARIES} ${LINK_LIBRARY} ${BZ2_LIBRARY} ${OPENAL_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARY} )
+	TARGET_LINK_LIBRARIES( engine ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PNG_LIBRARIES} ${PDCURSES_LIBRARY} ${JPEG_LIBRARIES} ${LINK_LIBRARY} ${BZ2_LIBRARY} ${OPENAL_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARY} )
 
 	if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 		link_directories( /opt/local/lib )
