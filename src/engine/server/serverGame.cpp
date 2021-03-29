@@ -524,7 +524,7 @@ void idServerGameSystemLocal::ShutdownGameProgs( void )
     if( sv_newGameShlib->string[0] )
     {
         fileSystem->Rename( sv_newGameShlib->string, "sgameAMD64" DLL_EXT );
-        cvarSystem->Set( "sv_newGameShlib", "" );
+        cvarSystem->Set( "sv_newGameShlib", "Replace game module library after map restart." );
     }
 }
 

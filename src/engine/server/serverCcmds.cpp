@@ -1801,18 +1801,18 @@ void idServerCcmdsSystemLocal::AddOperatorCommands( void )
     cmdSystem->AddCommand( "cheater", &idServerOACSSystemLocal::ExtendedRecordSetCheater_f, "Server-side command to set a client's cheater label cheater <client> <label> where label is 0 for honest players, and >= 1 for cheaters" );
     
     cmdSystem->AddCommand( "userinfo", &idServerCcmdsSystemLocal::UserInfo_f, "List user information" );
-    cmdSystem->AddCommand( "startmatch", &idServerCcmdsSystemLocal::StartMatch_f, "" );
-    cmdSystem->AddCommand( "stopmatch", &idServerCcmdsSystemLocal::StopMatch_f, "" );
-    cmdSystem->AddCommand( "addclanmatch", &idServerCcmdsSystemLocal::AddClanMatch_f, "" );
-    cmdSystem->AddCommand( "addusermatch", &idServerCcmdsSystemLocal::AddUserMatch_f, "" );
-    cmdSystem->AddCommand( "addrefereematch", &idServerCcmdsSystemLocal::AddRefereeMatch_f, "" );
-    cmdSystem->AddCommand( "matchinfo", &idServerCcmdsSystemLocal::MatchInfo_f, "" );
-    cmdSystem->AddCommand( "addip", &idServerCcmdsSystemLocal::AddIP_f, "" );
-    cmdSystem->AddCommand( "banlist", &idServerCcmdsSystemLocal::BanList_f, "" );
-    cmdSystem->AddCommand( "unban", &idServerCcmdsSystemLocal::UnBan_f, "" );
+    cmdSystem->AddCommand( "startmatch", &idServerCcmdsSystemLocal::StartMatch_f, "Starts a the match." );
+    cmdSystem->AddCommand( "stopmatch", &idServerCcmdsSystemLocal::StopMatch_f, "Stops the match." );
+    cmdSystem->AddCommand( "addclanmatch", &idServerCcmdsSystemLocal::AddClanMatch_f, "Adding a clan match." );
+    cmdSystem->AddCommand( "addusermatch", &idServerCcmdsSystemLocal::AddUserMatch_f, "Adding a user in the match." );
+    cmdSystem->AddCommand( "addrefereematch", &idServerCcmdsSystemLocal::AddRefereeMatch_f, "Adding a referee in the match." );
+    cmdSystem->AddCommand( "matchinfo", &idServerCcmdsSystemLocal::MatchInfo_f, "Match information" );
+    cmdSystem->AddCommand( "addip", &idServerCcmdsSystemLocal::AddIP_f, "Banning a user IP and user GUID." );
+    cmdSystem->AddCommand( "banlist", &idServerCcmdsSystemLocal::BanList_f, "Banning a user." );
+    cmdSystem->AddCommand( "unban", &idServerCcmdsSystemLocal::UnBan_f, "Unbanning a user" );
     
-    cmdSystem->AddCommand( "csstats_players", &idServerCcmdsSystemLocal::StatsPlayers_f, "" );
-    cmdSystem->AddCommand( "csstats_player", &idServerCcmdsSystemLocal::StatsPlayer_f, "" );
+    cmdSystem->AddCommand( "csstats_players", &idServerCcmdsSystemLocal::StatsPlayers_f, "Statistics for the players." );
+    cmdSystem->AddCommand( "csstats_player", &idServerCcmdsSystemLocal::StatsPlayer_f, "Statistics for the one specific player." );
     
     
     if( com_dedicated->integer )

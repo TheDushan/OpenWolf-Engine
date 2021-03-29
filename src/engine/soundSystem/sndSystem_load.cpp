@@ -129,10 +129,10 @@ static bool S_InitModule( void )
 {
     valueType			fn[1024];
     
-    s_module = cvarSystem->Get( "s_module", "AL", CVAR_ARCHIVE, "" );
+    s_module = cvarSystem->Get( "s_module", "AL", CVAR_ARCHIVE, "Name of the sound system module." );
     Com_Printf( "using sound module %s\n", s_module->string );
     
-    sprintf( fn, "%s/soundSystem%s." ARCH_STRING DLL_EXT, idsystem->Cwd(), s_module->string );
+    ::sprintf( fn, "%s/soundSystem%s." ARCH_STRING DLL_EXT, idsystem->Cwd(), s_module->string );
     
     if( ( openALModule = SDL_LoadObject( fn ) ) == 0 )
     {
@@ -189,7 +189,7 @@ void idSoundSystemLocal::Init( void )
     
     Com_Printf( "------ Initializing Sound -----\n" );
     
-    cv = cvarSystem->Get( "s_initsound", "1", 0, "Toggle weather sound is initialized or not (on next game)	" );
+    cv = cvarSystem->Get( "s_initsound", "1", 0, "Toggle weather sound is initialized or not (on next game)" );
     if( !cv->integer )
     {
         Com_Printf( "not initializing.\n" );
@@ -199,7 +199,8 @@ void idSoundSystemLocal::Init( void )
     
     codec_init();
     
-    cv = cvarSystem->Get( "s_usemodule", "1", CVAR_ARCHIVE, "" );
+    cv = cvarSystem->Get( "s_usemodule", "1", CVAR_ARCHIVE, "Toggle using a sound system module." );
+    
     if( !cv->integer )
     {
         useBuiltin = true;
@@ -207,6 +208,7 @@ void idSoundSystemLocal::Init( void )
     else
     {
         useBuiltin = false;
+        
         if( !S_InitModule() )
         {
             useBuiltin = true;

@@ -834,7 +834,7 @@ void idServerCommunityServer::addMatchUser( valueType* user_name )
         return;
     }
     
-    user_p = ( user_t* )Com_FindHashData( hash_users, user_name );
+    user_p = static_cast< user_t* >( Com_FindHashData( hash_users, user_name ) );
     
     if( user_p == nullptr )
     {
@@ -883,7 +883,7 @@ void idServerCommunityServer::addMatchReferee( valueType* user_name )
         return;
     }
     
-    user_p = ( user_t* )Com_FindHashData( hash_users, user_name );
+    user_p = static_cast< user_t* >( Com_FindHashData( hash_users, user_name ) );
     
     if( user_p == nullptr )
     {
