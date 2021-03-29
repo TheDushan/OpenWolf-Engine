@@ -1085,7 +1085,7 @@ redump:
             if( !cinTable[currentHandle].silent )
             {
                 ssize = RllDecodeMonoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, static_cast<uchar16>( cinTable[currentHandle].roq_flags ) );
-                soundSystem->RawSamples( ssize, 22050, 2, 1, reinterpret_cast<uchar8*>( sbuf ), 1.0f );
+                soundSystem->RawSamples( 0, ssize, 22050, 2, 1, reinterpret_cast<uchar8*>( sbuf ), 1.0f, 1.0f );
                 cinTable[currentHandle].sound = 1;
             }
             break;
@@ -1099,7 +1099,7 @@ redump:
                     s_rawend = s_soundtime;         //DAJ added
                 }
                 ssize = RllDecodeStereoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, static_cast<uchar16>( cinTable[currentHandle].roq_flags ) );
-                soundSystem->RawSamples( ssize, 22050, 2, 2, reinterpret_cast<uchar8*>( sbuf ), 1.0f );
+                soundSystem->RawSamples( 0, ssize, 22050, 2, 2, reinterpret_cast<uchar8*>( sbuf ), 1.0f, 1.0f );
                 cinTable[currentHandle].sound = 1;
             }
             break;

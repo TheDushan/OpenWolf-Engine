@@ -1094,7 +1094,6 @@ Called before parsing a gamestate
 */
 void CL_ClearState( void )
 {
-    soundSystem->StopAllSounds();
     ::memset( &cl, 0, sizeof( cl ) );
 }
 
@@ -1570,7 +1569,7 @@ void CL_Disconnect_f( void )
         {
             valueType reason[MAX_STRING_CHARS] = { 0 };
             Q_strncpyz( reason, cmdSystem->Argv( 1 ), sizeof( reason ) );
-            Q_strstrip( reason, "\r\n;\"", NULL );
+            Q_strstrip( reason, "\r\n;\"", nullptr );
             CL_Disconnect( true, reason );
         }
         else

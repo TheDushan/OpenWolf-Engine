@@ -708,7 +708,7 @@ void tiger_compress( uint64* str, uint64 state[3] )
 void tiger( uint64* str, uint64 length, uint64 res[3] )
 {
     register uint64 i, j;
-    unsigned char temp[64];
+    uchar8 temp[64];
     
     res[0] = 0x0123456789ABCDEFLL;
     res[1] = 0xFEDCBA9876543210LL;

@@ -48,6 +48,8 @@
 #include <cgame/cgame_precompiled.hpp>
 #elif GAMEDLL
 #include <sgame/sgame_precompiled.hpp>
+#elif defined (OALAUDIO)
+#include <API/soundSystem_api.hpp>
 #else
 #include <framework/precompiled.hpp>
 #endif // !GAMEDLL

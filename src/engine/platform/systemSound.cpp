@@ -199,7 +199,7 @@ static void SNDDMA_PrintAudiospec( pointer str, const SDL_AudioSpec* spec )
 
 /*
 ===============
-SNDDMA_Init
+SNDDMA_ExpandSampleFrequencyKHzToHz
 ===============
 */
 static sint SNDDMA_ExpandSampleFrequencyKHzToHz( sint khz )

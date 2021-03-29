@@ -45,6 +45,8 @@
 #include <cgame/cgame_precompiled.hpp>
 #elif defined GAMEDLL
 #include <sgame/sgame_precompiled.hpp>
+#elif defined (OALAUDIO)
+#include <API/soundSystem_api.hpp>
 #else
 #include <framework/precompiled.hpp>
 #endif
@@ -463,7 +465,9 @@ void COM_ParseError( valueType* format, ... )
     Q_vsprintf_s( string, sizeof( string ), format, argptr );
     va_end( argptr );
     
+#ifndef OALAUDIO
     Com_Printf( S_COLOR_RED "ERROR: %s, line %d: %s\n", com_parsename, com_lines, string );
+#endif
 }
 
 void COM_ParseWarning( valueType* format, ... )
@@ -475,7 +479,9 @@ void COM_ParseWarning( valueType* format, ... )
     Q_vsprintf_s( string, sizeof( string ), format, argptr );
     va_end( argptr );
     
+#ifndef OALAUDIO
     Com_Printf( "WARNING: %s, line %d: %s\n", com_parsename, com_lines, string );
+#endif
 }
 
 /*
@@ -748,7 +754,9 @@ valueType*           COM_ParseExt2( valueType** data_p, bool allowLineBreaks )
     
     if( !data_p )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_FATAL, "COM_ParseExt: nullptr data_p" );
+#endif
     }
     
     data = *data_p;
@@ -1002,7 +1010,9 @@ void COM_MatchToken( valueType** buf_p, valueType* match )
     token = COM_Parse( buf_p );
     if( strcmp( token, match ) )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "MatchToken: %s != %s", token, match );
+#endif
     }
 }
 
@@ -1116,13 +1126,17 @@ sint COM_Parse2Infos( valueType* buf, sint max, valueType infos[][MAX_INFO_STRIN
         }
         if( strcmp( token, "{" ) )
         {
+#ifndef OALAUDIO
             Com_Printf( "Missing { in info file\n" );
+#endif
             break;
         }
         
         if( count == max )
         {
+#ifndef OALAUDIO
             Com_Printf( "Max infos exceeded\n" );
+#endif
             break;
         }
         
@@ -1132,7 +1146,9 @@ sint COM_Parse2Infos( valueType* buf, sint max, valueType infos[][MAX_INFO_STRIN
             token = COM_Parse( &buf );
             if( !token[0] )
             {
+#ifndef OALAUDIO
                 Com_Printf( "Unexpected end of info file\n" );
+#endif
                 break;
             }
             if( !strcmp( token, "}" ) )
@@ -1494,29 +1510,41 @@ void Q_strncpyz( valueType* dest, pointer src, sint destsize )
 #ifdef _DEBUG
     if( !dest )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "Q_strncpyz: nullptr dest (%s, %i)", file, line );
+#endif
     }
     if( !src )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "Q_strncpyz: nullptr src (%s, %i)", file, line );
+#endif
     }
     if( destsize < 1 )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "Q_strncpyz: destsize < 1 (%s, %i)", file, line );
+#endif
     }
 #else
     if( !dest )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_FATAL, "Q_strncpyz: nullptr dest" );
+#endif
     }
     
     if( !src )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_FATAL, "Q_strncpyz: nullptr src" );
+#endif
     }
     if( destsize < 1 )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_FATAL, "Q_strncpyz: destsize < 1" );
+#endif
     }
 #endif
     
@@ -1662,7 +1690,9 @@ void Q_strcat( valueType* dest, sint size, pointer src )
     l1 = static_cast<sint>( ::strlen( dest ) );
     if( l1 >= size )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_FATAL, "Q_strcat: already overflowed" );
+#endif
     }
     Q_strncpyz( dest + l1, src,  size - l1 );
 }
@@ -1760,7 +1790,9 @@ bool Q_strreplace( valueType* dest, sint destsize, pointer find, pointer replace
     lend = static_cast<sint>( ::strlen( dest ) );
     if( lend >= destsize )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_FATAL, "Q_strreplace: already overflowed" );
+#endif
     }
     
     s = strstr( dest, find );
@@ -1962,7 +1994,9 @@ valueType* Info_ValueForKey( pointer s, pointer key )
     
     if( strlen( s ) >= BIG_INFO_STRING )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring [%s] [%s]", s, key );
+#endif
     }
     
     valueindex ^= 1;
@@ -2084,7 +2118,9 @@ void Info_RemoveKey( valueType* s, pointer key )
     
     if( strlen( s ) >= MAX_INFO_STRING )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring [%s] [%s]", s, key );
+#endif
     }
     
     if( strchr( key, '\\' ) )
@@ -2150,7 +2186,9 @@ void Info_RemoveKey_Big( valueType* s, pointer key )
     
     if( strlen( s ) >= BIG_INFO_STRING )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring [%s] [%s]", s, key );
+#endif
     }
     
     if( strchr( key, '\\' ) )
@@ -2240,24 +2278,32 @@ bool Info_SetValueForKey( valueType* s, pointer key, pointer value )
     
     if( strlen( s ) >= MAX_INFO_STRING )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "SetValueForKey: oversize infostring [%s] [%s] [%s]", s, key, value );
+#endif
     }
     
     if( strchr( key, '\\' ) || strchr( value, '\\' ) )
     {
+#ifndef OALAUDIO
         Com_Printf( "SetValueForKey: Can't use keys or values with a \\\n" );
+#endif
         return false;
     }
     
     if( strchr( key, ';' ) || strchr( value, ';' ) )
     {
+#ifndef OALAUDIO
         Com_Printf( "SetValueForKey: Can't use keys or values with a semicolon\n" );
+#endif
         return false;
     }
     
     if( strlen( key ) > MAX_INFO_KEY - 1 || strlen( value ) > MAX_INFO_KEY - 1 )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "SetValueForKey: keys and values must be < %i characters.\n", MAX_INFO_KEY );
+#endif
         return false;
     }
     
@@ -2271,7 +2317,9 @@ bool Info_SetValueForKey( valueType* s, pointer key, pointer value )
     
     if( strlen( newi ) + strlen( s ) > maxsize )
     {
+#ifndef OALAUDIO
         Com_Printf( "SetValueForKey: Info string length exceeded: %s\n", s );
+#endif
         return true;
     }
     
@@ -2305,24 +2353,32 @@ void Info_SetValueForKey_Big( valueType* s, pointer key, pointer value )
     
     if( strlen( s ) >= BIG_INFO_STRING )
     {
+#ifndef OALAUDIO
         Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring [%s] [%s] [%s]", s, key, value );
+#endif
     }
     
     if( strchr( key, '\\' ) || strchr( value, '\\' ) )
     {
+#ifndef OALAUDIO
         Com_Printf( "Can't use keys or values with a \\\n" );
+#endif
         return;
     }
     
     if( strchr( key, ';' ) || strchr( value, ';' ) )
     {
+#ifndef OALAUDIO
         Com_Printf( "Can't use keys or values with a semicolon\n" );
+#endif
         return;
     }
     
     if( strchr( key, '\"' ) || strchr( value, '\"' ) )
     {
+#ifndef OALAUDIO
         Com_Printf( "Can't use keys or values with a \"\n" );
+#endif
         return;
     }
     
@@ -2336,7 +2392,9 @@ void Info_SetValueForKey_Big( valueType* s, pointer key, pointer value )
     
     if( strlen( newi ) + strlen( s ) > BIG_INFO_STRING )
     {
+#ifndef OALAUDIO
         Com_Printf( "Info_SetValueForKey_Big: Info string length exceeded: %s\n", s );
+#endif
         return;
     }
     

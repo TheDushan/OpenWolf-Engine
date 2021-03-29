@@ -20,7 +20,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   s_wvelet.cpp
+// File name:   sndSystem_wvelet.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -30,17 +30,19 @@
 
 #include <framework/precompiled.hpp>
 
-sint32 myftol( float32 f );
-
 #define C0 0.4829629131445341
 #define C1 0.8365163037378079
 #define C2 0.2241438680420134
 #define C3 -0.1294095225512604
 
+/*
+===============
+daub4
+===============
+*/
 void daub4( float32 b[], uint32 n, sint isign )
 {
-    float32 wksp[4097];
-    float32* a = b - 1; // numerical recipies so a[1] = b[0]
+    float32 wksp[4097], *a = b - 1; // numerical recipies so a[1] = b[0]
     
     uint32 nh, nh1, i, j;
     
@@ -76,6 +78,11 @@ void daub4( float32 b[], uint32 n, sint isign )
     }
 }
 
+/*
+===============
+wt1
+===============
+*/
 void wt1( float32 a[], uint32 n, sint isign )
 {
     uint32 nn;
@@ -85,7 +92,6 @@ void wt1( float32 a[], uint32 n, sint isign )
     {
         return;
     }
-    
     if( isign >= 0 )
     {
         for( nn = n; nn >= inverseStartLength; nn >>= 1 ) daub4( a, nn, isign );
@@ -109,7 +115,12 @@ static uchar8 numBits[] =
     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 };
 
-uchar8 MuLawEncode( short s )
+/*
+===============
+MuLawEncode
+===============
+*/
+uchar8 MuLawEncode( schar16 s )
 {
     uint32 adjusted;
     uchar8 sign, exponent, mantissa;
@@ -134,6 +145,11 @@ uchar8 MuLawEncode( short s )
     return ~( sign | ( exponent << 4 ) | mantissa );
 }
 
+/*
+===============
+MuLawDecode
+===============
+*/
 schar16 MuLawDecode( uchar8 uLaw )
 {
     sint32 adjusted;
@@ -152,11 +168,21 @@ static bool madeTable = false;
 
 static sint NXStreamCount;
 
+/*
+===============
+NXPutc
+===============
+*/
 void NXPutc( uchar8* stream, valueType out )
 {
     stream[NXStreamCount++] = out;
 }
 
+/*
+===============
+encodeWavelet
+===============
+*/
 void encodeWavelet( sfx_t* sfx, schar16* packets )
 {
     float32 wksp[4097], temp;
@@ -224,7 +250,7 @@ void encodeWavelet( sfx_t* sfx, schar16* packets )
                 temp = -32768;
             }
             
-            out[i] = MuLawEncode( ( short )temp );
+            out[i] = MuLawEncode( static_cast< schar16 >( temp ) );
         }
         
         chunk->size = size;
@@ -232,6 +258,11 @@ void encodeWavelet( sfx_t* sfx, schar16* packets )
     }
 }
 
+/*
+===============
+decodeWavelet
+===============
+*/
 void decodeWavelet( sndBuffer* chunk, schar16* to )
 {
     float32 wksp[4097];
@@ -260,7 +291,11 @@ void decodeWavelet( sndBuffer* chunk, schar16* to )
     }
 }
 
-
+/*
+===============
+encodeMuLaw
+===============
+*/
 void encodeMuLaw( sfx_t* sfx, schar16* packets )
 {
     sint  i, samples, size, grade, poop;
@@ -325,6 +360,11 @@ void encodeMuLaw( sfx_t* sfx, schar16* packets )
     }
 }
 
+/*
+===============
+decodeMuLaw
+===============
+*/
 void decodeMuLaw( sndBuffer* chunk, schar16* to )
 {
     sint	i;

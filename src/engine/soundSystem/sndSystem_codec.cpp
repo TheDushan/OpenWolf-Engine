@@ -20,7 +20,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   s_codec.cpp
+// File name:   sndSystem_codec.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -34,23 +34,20 @@ static snd_codec_t* codecs;
 
 /*
 =================
-S_FileExtension
+findExtension
+Searching
 =================
 */
-static valueType* S_FileExtension( pointer fni )
+valueType* findExtension( pointer fni )
 {
-    // we should search from the ending to the last '/'
-    valueType* fn = const_cast<valueType*>( fni + ::strlen( fni ) - 1 );
+    valueType* fn = const_cast<valueType*>( fni );
     valueType* eptr = nullptr;
     
-    while( *fn != '/' && fn != fni )
+    while( *fn )
     {
         if( *fn == '.' )
-        {
             eptr = fn;
-        }
-        
-        fn--;
+        fn++;
     }
     
     return eptr;
@@ -58,14 +55,12 @@ static valueType* S_FileExtension( pointer fni )
 
 /*
 =================
-S_FindCodecForFile
-
-Select an appropriate codec for a file based on its extension
+findCodec
 =================
 */
-static snd_codec_t* S_FindCodecForFile( pointer filename )
+static snd_codec_t* findCodec( pointer filename )
 {
-    valueType* ext = S_FileExtension( filename );
+    valueType* ext = findExtension( filename );
     snd_codec_t* codec = codecs;
     
     if( !ext )
@@ -75,9 +70,8 @@ static snd_codec_t* S_FindCodecForFile( pointer filename )
         {
             valueType fn[MAX_QPATH];
             
-            // there is no extension so we do not need to subtract 4 chars
-            Q_strncpyz( fn, filename, MAX_QPATH );
-            COM_DefaultExtension( fn, MAX_QPATH, codec->ext );
+            Q_strncpyz( fn, filename, sizeof( fn ) - 4 );
+            COM_DefaultExtension( fn, sizeof( fn ), codec->ext );
             
             // Check it exists
             if( fileSystem->ReadFile( fn, nullptr ) != -1 )
@@ -107,32 +101,33 @@ static snd_codec_t* S_FindCodecForFile( pointer filename )
 
 /*
 =================
-S_CodecInit
+codec_init
+Codec management
 =================
 */
-void S_CodecInit( void )
+void codec_init( void )
 {
     codecs = nullptr;
-    S_CodecRegister( &wav_codec );
-    S_CodecRegister( &ogg_codec );
+    codec_register( &wav_codec );
+    codec_register( &ogg_codec );
 }
 
 /*
 =================
-S_CodecShutdown
+codec_shutdown
 =================
 */
-void S_CodecShutdown( void )
+void codec_shutdown()
 {
     codecs = nullptr;
 }
 
 /*
 =================
-S_CodecRegister
+codec_register
 =================
 */
-void S_CodecRegister( snd_codec_t* codec )
+void codec_register( snd_codec_t* codec )
 {
     codec->next = codecs;
     codecs = codec;
@@ -140,15 +135,15 @@ void S_CodecRegister( snd_codec_t* codec )
 
 /*
 =================
-S_CodecLoad
+idSoundSystemLocal::codec_load
 =================
 */
-void* S_CodecLoad( pointer filename, snd_info_t* info )
+void* idSoundSystemLocal::codec_load( pointer filename, snd_info_t* info )
 {
     snd_codec_t* codec;
     valueType fn[MAX_QPATH];
     
-    codec = S_FindCodecForFile( filename );
+    codec = findCodec( filename );
     if( !codec )
     {
         Com_Printf( "Unknown extension for %s\n", filename );
@@ -163,15 +158,15 @@ void* S_CodecLoad( pointer filename, snd_info_t* info )
 
 /*
 =================
-S_CodecOpenStream
+codec_open
 =================
 */
-snd_stream_t* S_CodecOpenStream( pointer filename )
+snd_stream_t* idSoundSystemLocal::codec_open( pointer filename )
 {
     snd_codec_t* codec;
     valueType fn[MAX_QPATH];
     
-    codec = S_FindCodecForFile( filename );
+    codec = findCodec( filename );
     if( !codec )
     {
         Com_Printf( "Unknown extension for %s\n", filename );
@@ -184,25 +179,33 @@ snd_stream_t* S_CodecOpenStream( pointer filename )
     return codec->open( fn );
 }
 
-void S_CodecCloseStream( snd_stream_t* stream )
+/*
+=================
+idSoundSystemLocal::codec_close
+=================
+*/
+void idSoundSystemLocal::codec_close( snd_stream_t* stream )
 {
     stream->codec->close( stream );
 }
 
-sint S_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer )
+/*
+=================
+codec_read
+=================
+*/
+sint idSoundSystemLocal::codec_read( snd_stream_t* stream, sint bytes, void* buffer )
 {
     return stream->codec->read( stream, bytes, buffer );
 }
 
-//=======================================================================
-// Util functions (used by codecs)
-
 /*
 =================
-S_CodecUtilOpen
+codec_util_open
+Util functions (used by codecs)
 =================
 */
-snd_stream_t* S_CodecUtilOpen( pointer filename, snd_codec_t* codec )
+snd_stream_t* codec_util_open( pointer filename, snd_codec_t* codec )
 {
     snd_stream_t* stream;
     fileHandle_t hnd;
@@ -217,7 +220,7 @@ snd_stream_t* S_CodecUtilOpen( pointer filename, snd_codec_t* codec )
     }
     
     // Allocate a stream
-    stream = static_cast<snd_stream_t*>( Z_Malloc( sizeof( snd_stream_t ) ) );
+    stream = static_cast<snd_stream_t*>( calloc( 1, sizeof( snd_stream_t ) ) );
     if( !stream )
     {
         fileSystem->FCloseFile( hnd );
@@ -233,11 +236,11 @@ snd_stream_t* S_CodecUtilOpen( pointer filename, snd_codec_t* codec )
 
 /*
 =================
-S_CodecUtilClose
+codec_util_close
 =================
 */
-void S_CodecUtilClose( snd_stream_t* stream )
+void codec_util_close( snd_stream_t* stream )
 {
     fileSystem->FCloseFile( stream->file );
-    Z_Free( stream );
+    free( stream );
 }

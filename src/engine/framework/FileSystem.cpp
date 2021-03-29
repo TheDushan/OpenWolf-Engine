@@ -1372,7 +1372,7 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
                     {
                         // open a new file on the pakfile
                         fsh[*file].handleFiles.file.z = unzOpen( pak->pakFilename );
-                        if( fsh[*file].handleFiles.file.z == NULL )
+                        if( fsh[*file].handleFiles.file.z == nullptr )
                         {
                             Com_Error( ERR_FATAL, "Couldn't reopen %s", pak->pakFilename );
                         }

@@ -20,7 +20,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   s_codec.hpp
+// File name:   sndSystem_codec.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -70,31 +70,35 @@ struct snd_codec_s
     snd_codec_t* next;
 };
 
-// Codec management
-void S_CodecInit( void );
-void S_CodecShutdown( void );
-void S_CodecRegister( snd_codec_t* codec );
-void* S_CodecLoad( pointer filename, snd_info_t* info );
-snd_stream_t* S_CodecOpenStream( pointer filename );
-void S_CodecCloseStream( snd_stream_t* stream );
-sint S_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer );
+/*
+* Codec management
+*/
+void codec_init( void );
+void codec_shutdown( void );
+void codec_register( snd_codec_t* codec );
 
-// Util functions (used by codecs)
-snd_stream_t* S_CodecUtilOpen( pointer filename, snd_codec_t* codec );
-void S_CodecUtilClose( snd_stream_t* stream );
+/*
+ * Util functions (used by codecs)
+ */
+snd_stream_t* codec_util_open( pointer filename, snd_codec_t* codec );
+void codec_util_close( snd_stream_t* stream );
 
-// WAV Codec
+/*
+ * WAV Codec
+ */
 extern snd_codec_t wav_codec;
-void* S_WAV_CodecLoad( pointer filename, snd_info_t* info );
-snd_stream_t* S_WAV_CodecOpenStream( pointer filename );
-void S_WAV_CodecCloseStream( snd_stream_t* stream );
-sint S_WAV_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer );
+void* codec_wav_load( pointer filename, snd_info_t* info );
+snd_stream_t* codec_wav_open( pointer filename );
+void codec_wav_close( snd_stream_t* stream );
+sint codec_wav_read( snd_stream_t* stream, sint bytes, void* buffer );
 
-// Ogg Vorbis codec
+/*
+ * Ogg Vorbis codec
+ */
 extern snd_codec_t ogg_codec;
-void* S_OGG_CodecLoad( pointer filename, snd_info_t* info );
-snd_stream_t* S_OGG_CodecOpenStream( pointer filename );
-void S_OGG_CodecCloseStream( snd_stream_t* stream );
-sint S_OGG_CodecReadStream( snd_stream_t* stream, sint bytes, void* buffer );
+void* codec_ogg_load( pointer filename, snd_info_t* info );
+snd_stream_t* codec_ogg_open( pointer filename );
+void codec_ogg_close( snd_stream_t* stream );
+sint codec_ogg_read( snd_stream_t* stream, sint bytes, void* buffer );
 
 #endif // !__SND_CODEC_H__

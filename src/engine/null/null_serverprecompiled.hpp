@@ -113,7 +113,8 @@
 #include <cm/cm_patch.hpp>
 #include <GPURenderer/r_types.hpp>
 #include <API/renderer_api.hpp>
-#include <API/sound_api.hpp>
+#include <soundSystem/sndSystem_codec.hpp>
+#include <API/soundSystem_api.hpp>
 #include <API/FileSystem_api.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <API/download_api.hpp>

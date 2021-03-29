@@ -490,9 +490,9 @@ temp file loading
 #define Z_TagMalloc( size, tag )          Z_TagMallocDebug( size, tag, # size, __FILE__, __LINE__ )
 #define Z_Malloc( size )                  Z_MallocDebug( size, # size, __FILE__, __LINE__ )
 #define S_Malloc( size )                  S_MallocDebug( size, # size, __FILE__, __LINE__ )
-void*           Z_TagMallocDebug( size_t size, memtag_t tag, valueType* label, valueType* file, sint line );	// NOT 0 filled memory
-void*           Z_MallocDebug( size_t size, valueType* label, valueType* file, sint line );	// returns 0 filled memory
-void*           S_MallocDebug( size_t size, valueType* label, valueType* file, sint line );	// returns 0 filled memory
+void*           Z_TagMallocDebug( uint64 size, memtag_t tag, valueType* label, valueType* file, sint line );	// NOT 0 filled memory
+void*           Z_MallocDebug( uint64 size, valueType* label, valueType* file, sint line );	// returns 0 filled memory
+void*           S_MallocDebug( uint64 size, valueType* label, valueType* file, sint line );	// returns 0 filled memory
 #else
 void*           Z_TagMalloc( uint64 size, memtag_t tag );	// NOT 0 filled memory
 void*           Z_Malloc( uint64 size );	// returns 0 filled memory

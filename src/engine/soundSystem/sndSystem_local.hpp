@@ -39,14 +39,14 @@
 
 typedef struct
 {
-    sint left; // the final values will be clamped to +/- 0x00ffff00 and shifted down
-    sint	right;
+    sint left;	// the final values will be clamped to +/- 0x00ffff00 and shifted down
+    sint right;
 } portable_samplepair_t;
 
 typedef struct adpcm_state
 {
     schar16	sample; /* Previous output value */
-    valueType index;	/* Index into stepsize table */
+    valueType index; /* Index into stepsize table */
 } adpcm_state_t;
 
 typedef	struct sndBuffer_s
@@ -65,11 +65,10 @@ typedef struct sfx_s
     bool soundCompressed; // not in Memory
     sint soundCompressionMethod;
     sint soundLength;
-    sint soundChannels;
-    valueType soundName[MAX_QPATH];
+    valueType  soundName[MAX_QPATH];
     sint lastTimeUsed;
+    sint duration;
     struct sfx_s* next;
-    bool weaponsound;
 } sfx_t;
 
 typedef struct
@@ -84,8 +83,6 @@ typedef struct
 } dma_t;
 
 #define START_SAMPLE_IMMEDIATE	0x7fffffff
-
-#define MAX_DOPPLER_SCALE 50.0f //arbitrary
 
 typedef struct loopSound_s
 {
@@ -103,20 +100,12 @@ typedef struct loopSound_s
 
 typedef struct
 {
-    sint vol; // Must be first member due to union (see channel_t)
-    sint offset;
-    sint bassvol;
-    sint bassoffset;
-    sint reverbvol;
-    sint reverboffset;
-} ch_side_t;
-
-typedef struct
-{
     sint allocTime;
     sint startSample; // START_SAMPLE_IMMEDIATE = set immediately on next mix
     sint entnum; // to allow overriding a specific sound
     sint entchannel; // to allow overriding a specific sound
+    sint leftvol; // 0-255 volume after spatialization
+    sint rightvol; // 0-255 volume after spatialization
     sint master_vol; // 0-255 volume before spatialization
     float32 dopplerScale;
     float32 oldDopplerScale;
@@ -124,17 +113,6 @@ typedef struct
     bool fixed_origin; // use origin instead of fetching entnum's origin
     sfx_t* thesfx; // sfx structure
     bool doppler;
-    union
-    {
-        sint leftvol; // 0-255 volume after spatialization
-        ch_side_t l;
-    };
-    union
-    {
-        sint rightvol; // 0-255 volume after spatialization
-        ch_side_t r;
-    };
-    vec3_t sodrot;
 } channel_t;
 
 #define	WAV_FORMAT_PCM		1
@@ -149,30 +127,6 @@ typedef struct
     sint dataofs; // chunk starts this many bytes from file start
 } wavinfo_t;
 
-// Interface between Q3 sound "api" and the sound backend
-typedef struct
-{
-    void ( *Shutdown )( void );
-    void ( *StartSound )( vec3_t origin, sint entnum, sint entchannel, sfxHandle_t sfx );
-    void ( *StartLocalSound )( sfxHandle_t sfx, sint channelNum );
-    void ( *StartBackgroundTrack )( pointer intro, pointer loop );
-    void ( *StopBackgroundTrack )( void );
-    void ( *RawSamples )( sint samples, sint rate, sint width, sint channels, const uchar8* data, float32 volume );
-    void ( *StopAllSounds )( void );
-    void ( *ClearLoopingSounds )( bool killall );
-    void ( *AddLoopingSound )( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
-    void ( *AddRealLoopingSound )( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
-    void ( *StopLoopingSound )( sint entityNum );
-    void ( *Respatialize )( sint entityNum, const vec3_t origin, vec3_t axis[3], sint inwater );
-    void ( *UpdateEntityPosition )( sint entityNum, const vec3_t origin );
-    void ( *Update )( void );
-    void ( *DisableSounds )( void );
-    void ( *BeginRegistration )( void );
-    sfxHandle_t ( *RegisterSound )( pointer sample, bool compressed );
-    void ( *ClearSoundBuffer )( void );
-    void ( *SoundInfo )( void );
-    void ( *SoundList )( void );
-} soundInterface_t;
 
 /*
 ====================================================================
@@ -181,10 +135,6 @@ typedef struct
 
 ====================================================================
 */
-
-// initializes cycling through a DMA buffer and returns information on it
-bool SNDDMA_Init( sint sampleFrequencyInKHz );
-bool SNDDMAHD_DevList( void );
 
 // gets the current DMA position
 sint SNDDMA_GetDMAPos( void );
@@ -211,17 +161,22 @@ extern vec3_t listener_right;
 extern vec3_t listener_up;
 extern dma_t dma;
 
+extern uchar8 s_entityTalkAmplitude[MAX_CLIENTS];
+
 #define	MAX_RAW_SAMPLES	16384
 extern	portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 
 extern convar_t* s_volume;
-extern convar_t* s_musicVolume;
-extern convar_t* s_doppler;
+extern convar_t* s_nosound;
+extern convar_t* s_khz;
+extern convar_t* s_show;
+extern convar_t* s_mixahead;
+
 extern convar_t* s_testsound;
+extern convar_t* s_separation;
 
 bool S_LoadSound( sfx_t* sfx );
 
-void SND_shutdown( void );
 void SND_free( sndBuffer* v );
 sndBuffer* SND_malloc( void );
 void SND_setup( void );
@@ -233,6 +188,8 @@ portable_samplepair_t* S_GetRawSamplePointer( void );
 
 // spatializes a channel
 void S_Spatialize( channel_t* ch );
+
+sint S_GetVoiceAmplitude( sint entityNum );
 
 // adpcm functions
 sint  S_AdpcmMemoryNeeded( const wavinfo_t* info );
@@ -254,23 +211,37 @@ extern schar16 mulawToShort[256];
 
 extern schar16* sfxScratchBuffer;
 extern sfx_t* sfxScratchPointer;
-extern sint sfxScratchIndex;
+extern sint	sfxScratchIndex;
 
-bool S_Base_Init( soundInterface_t* si );
+extern idAudioOpenALSystem* soundOpenALSystem;
 
-// OpenAL stuff
-typedef enum
-{
-    SRCPRI_AMBIENT = 0,	// Ambient sound effects
-    SRCPRI_ENTITY, // Entity sound effects
-    SRCPRI_ONESHOT,	// One-shot sounds
-    SRCPRI_LOCAL, // Local sounds
-    SRCPRI_STREAM // Streams (music, cutscenes)
-} alSrcPriority_t;
+void SOrig_Init( void );
+void SOrig_Shutdown( void );
+void SOrig_StartSound( vec3_t origin, sint entnum, sint entchannel, sfxHandle_t sfx );
+void SOrig_StartLocalSound( sfxHandle_t sfx, sint channelNum );
+void SOrig_StartBackgroundTrack( pointer intro, pointer loop );
+void SOrig_StopBackgroundTrack( void );
+void SOrig_RawSamples( sint stream, sint samples, sint rate, sint width, sint s_channels, const uchar8* data, float32 volume, sint entityNum );
+void SOrig_StopAllSounds( void );
+void SOrig_ClearLoopingSounds( bool killall );
+void SOrig_AddLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
+void SOrig_AddRealLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
+void SOrig_StopLoopingSound( sint entityNum );
+void SOrig_Respatialize( sint entityNum, const vec3_t origin, vec3_t axis[3], sint inwater );
+void SOrig_UpdateEntityPosition( sint entityNum, const vec3_t origin );
+void SOrig_Update( void );
+void SOrig_DisableSounds( void );
+void SOrig_BeginRegistration( void );
+sfxHandle_t SOrig_RegisterSound( pointer sample, bool compressed );
+void SOrig_ClearSoundBuffer( void );
+sint SOrig_SoundDuration( sfxHandle_t handle );
+sint SOrig_GetVoiceAmplitude( sint entnum );
+sint SOrig_GetSoundLength( sfxHandle_t sfxHandle );
 
-typedef sint srcHandle_t;
+sint SOrig_GetCurrentSoundTime( void );
 
-bool S_AL_Init( soundInterface_t* si );
+// initializes cycling through a DMA buffer and returns information on it
+bool SNDDMA_Init( sint sampleFrequencyInKHz );
 
 //
 // idSoundSystemLocal
@@ -287,7 +258,7 @@ public:
     virtual void StopBackgroundTrack( void );
     // cinematics and voice-over-network will send raw samples
     // 1.0 volume will be direct output of source samples
-    virtual void RawSamples( sint samples, sint rate, sint width, sint channels, const uchar8* data, float32 volume );
+    virtual void RawSamples( sint stream, sint samples, sint rate, sint width, sint channels, const uchar8* data, float32 volume, sint entityNum );
     // stop all sounds and the background track
     virtual void StopAllSounds( void );
     // all continuous looping sounds must be added before calling S_Update
@@ -312,8 +283,13 @@ public:
     virtual sint SoundDuration( sfxHandle_t handle );
     virtual sint GetSoundLength( sfxHandle_t sfxHandle );
     virtual void Reload( void );
+    virtual sint GetVoiceAmplitude( sint entnum );
+    virtual sint GetCurrentSoundTime( void );
     
-    static void S_StopAllSounds( void );
+    virtual void* codec_load( pointer filename, snd_info_t* info );
+    virtual snd_stream_t* codec_open( pointer filename );
+    virtual void codec_close( snd_stream_t* stream );
+    virtual sint codec_read( snd_stream_t* stream, sint bytes, void* buffer );
 };
 
 extern idSoundSystemLocal soundSystemLocal;

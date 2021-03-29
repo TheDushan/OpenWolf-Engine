@@ -180,13 +180,13 @@ public:
     virtual void SysSnapVector( float32* v );
     virtual void Init( void* windowData );
     virtual void Shutdown( void );
+    virtual valueType* Cwd( void );
     
     static void SetBinaryPath( pointer path );
     static void SetFloatEnv( void );
     static pointer TempPath( void );
     static pointer Basename( valueType* path );
     static pointer Dirname( valueType* path );
-    static valueType* Cwd( void );
     static void ListFilteredFiles( pointer basedir, valueType* subdirs, valueType* filter, valueType** list, sint* numfiles );
     static void ErrorDialog( pointer error );
     static void resetTime( void );

@@ -83,7 +83,7 @@ typedef enum
     W_LOCKBLOB_LAUNCHER
 } weapon_name_e;
 
-#define WEAPONS_MNEMONICS "$BL", "$MC", "$PS", "$SH", "$LG", "$MD", "$CG", "$PR", "$FL", "$LC", "$GR", "$LL", NULL
+#define WEAPONS_MNEMONICS "$BL", "$MC", "$PS", "$SH", "$LG", "$MD", "$CG", "$PR", "$FL", "$LC", "$GR", "$LL", nullptr
 
 // Must be the same long as weapon_stats_e
 #define WEAPON_STATS 18
@@ -110,7 +110,7 @@ typedef enum
     WS_DAMAGE_TAKEN_ARMS
 } weapon_stats_e;
 
-#define WEAPONS_STATS_MNEMONICS "WFD", "WFH", "WFT", "WFM", "WK", "WD", "WDD", "WTT", "WHH", "WHT", "WHL", "WHA", "WDN", "WTN", "WDH", "WDT", "WDL", "WDA", NULL
+#define WEAPONS_STATS_MNEMONICS "WFD", "WFH", "WFT", "WFM", "WK", "WD", "WDD", "WTT", "WHH", "WHT", "WHL", "WHA", "WDN", "WTN", "WDH", "WDT", "WDL", "WDA", nullptr
 
 #define MELEE_STATS 8
 
@@ -126,7 +126,7 @@ typedef enum
     alevel4_kills
 } melee_stats_e;
 
-#define MELEE_STATS_MNEMONICS "MKK", NULL
+#define MELEE_STATS_MNEMONICS "MKK", nullptr
 
 #define EXPLOSIONS_STATS 10
 typedef enum
@@ -134,7 +134,7 @@ typedef enum
     ES_GRANADE_KILLS
 } explosions_stats_e;
 
-#define EXPLOSIONS_STATS_MNEMONICS "EGK", NULL
+#define EXPLOSIONS_STATS_MNEMONICS "EGK", nullptr
 
 #define MISC_STATS 5
 typedef enum
@@ -143,7 +143,7 @@ typedef enum
     MIS_SUICIDES
 } misc_stats_e;
 
-#define MISC_STATS_MNEMONICS "IED", "ISD", NULL
+#define MISC_STATS_MNEMONICS "IED", "ISD", nullptr
 
 typedef enum
 {

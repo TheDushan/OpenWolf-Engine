@@ -1402,7 +1402,7 @@ void idNetworkSystemLocal::GetLocalAddress( void )
 #else
     valueType hostname[256];
     struct addrinfo	hint;
-    struct addrinfo* res = NULL;
+    struct addrinfo* res = nullptr;
 #endif
     
     numIP = 0;
@@ -1440,7 +1440,7 @@ void idNetworkSystemLocal::GetLocalAddress( void )
     hint.ai_family = AF_UNSPEC;
     hint.ai_socktype = SOCK_DGRAM;
     
-    if( !getaddrinfo( hostname, NULL, &hint, &res ) )
+    if( !getaddrinfo( hostname, nullptr, &hint, &res ) )
     {
         struct sockaddr_in mask4;
         struct sockaddr_in6 mask6;

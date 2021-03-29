@@ -1163,8 +1163,8 @@ void idServerInitSystemLocal::Init( void )
     sv_dl_maxRate = cvarSystem->Get( "sv_dl_maxRate", "60000", CVAR_ARCHIVE, "Sets the maximum speed clients can download files from the server" );
 #endif
     
-    sv_minimumAgeGuid = cvarSystem->Get( "sv_minimumAgeGuid", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "" );
-    sv_maximumAgeGuid = cvarSystem->Get( "sv_maximumAgeGuid", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "" );
+    sv_minimumAgeGuid = cvarSystem->Get( "sv_minimumAgeGuid", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Min guid age to enter a server" );
+    sv_maximumAgeGuid = cvarSystem->Get( "sv_maximumAgeGuid", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Max guid age to enter a server" );
     
     sv_wwwDownload = cvarSystem->Get( "sv_wwwDownload", "0", CVAR_ARCHIVE, "Toggles enabling www download redirect" );
     sv_wwwBaseURL = cvarSystem->Get( "sv_wwwBaseURL", "", CVAR_ARCHIVE, "Sets the location of www download redirect" );

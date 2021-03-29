@@ -621,7 +621,7 @@ gotnewcl:
     *newcl = temp;
     
     // Adding Community server Data
-    if( newcl->cs_user != NULL )
+    if( newcl->cs_user != nullptr )
     {
         idServerCommunityServer::destroyUserData( newcl->cs_user );
     }
@@ -1614,7 +1614,7 @@ void idServerClientSystemLocal::Disconnect_f( client_t* cl )
     {
         valueType reason[MAX_STRING_CHARS] = { 0 };
         Q_strncpyz( reason, cmdSystem->Argv( 1 ), sizeof( reason ) );
-        Q_strstrip( reason, "\r\n;\"", NULL );
+        Q_strstrip( reason, "\r\n;\"", nullptr );
         serverClientLocal.DropClient( cl, "disconnected" );
         ( cl, va( "disconnected: %s", reason ) );
     }

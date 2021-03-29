@@ -87,13 +87,13 @@ client_t* idServerCcmdsSystemLocal::GetPlayerByHandle( void )
     // make sure server is running
     if( !com_sv_running->integer )
     {
-        return NULL;
+        return nullptr;
     }
     
     if( cmdSystem->Argc() < 2 )
     {
         Com_Printf( "No player specified.\n" );
-        return NULL;
+        return nullptr;
     }
     
     s = cmdSystem->Argv( 1 );
@@ -1371,7 +1371,7 @@ void idServerCcmdsSystemLocal::StatsPlayers_f( void )
 {
     sint i;
     
-    char bigbuffer[MAX_INFO_STRING * 2];
+    valueType bigbuffer[MAX_INFO_STRING * 2];
     
     // make sure server is running
     if( !com_sv_running->integer )
@@ -1800,7 +1800,7 @@ void idServerCcmdsSystemLocal::AddOperatorCommands( void )
     
     cmdSystem->AddCommand( "cheater", &idServerOACSSystemLocal::ExtendedRecordSetCheater_f, "Server-side command to set a client's cheater label cheater <client> <label> where label is 0 for honest players, and >= 1 for cheaters" );
     
-    cmdSystem->AddCommand( "userinfo", &idServerCcmdsSystemLocal::UserInfo_f, "" );
+    cmdSystem->AddCommand( "userinfo", &idServerCcmdsSystemLocal::UserInfo_f, "List user information" );
     cmdSystem->AddCommand( "startmatch", &idServerCcmdsSystemLocal::StartMatch_f, "" );
     cmdSystem->AddCommand( "stopmatch", &idServerCcmdsSystemLocal::StopMatch_f, "" );
     cmdSystem->AddCommand( "addclanmatch", &idServerCcmdsSystemLocal::AddClanMatch_f, "" );

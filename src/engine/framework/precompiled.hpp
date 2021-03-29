@@ -130,7 +130,6 @@ extern "C"
 #include <cm/cm_patch.hpp>
 #include <GPURenderer/r_types.hpp>
 #include <API/renderer_api.hpp>
-#include <API/sound_api.hpp>
 #include <API/FileSystem_api.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <API/download_api.hpp>
@@ -152,10 +151,6 @@ extern "C"
 #include <client/clientAVI.hpp>
 #include <client/clientGame.hpp>
 
-#include <audio/s_local.hpp>
-#include <audio/s_codec.hpp>
-#include <audio/s_dmahd.hpp>
-
 #include <cm/cm_local.hpp>
 
 #include <API/download_api.hpp>
@@ -175,6 +170,9 @@ extern "C"
 
 #include <API/Parse_api.hpp>
 #include <framework/Parse.hpp>
+#include <soundSystem/sndSystem_codec.hpp>
+#include <API/soundSystem_api.hpp>
+#include <soundSystem/sndSystem_local.hpp>
 #include <API/cgame_api.hpp>
 #include <API/gui_api.hpp>
 #include <client/client.hpp>

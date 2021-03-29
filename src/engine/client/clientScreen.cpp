@@ -125,7 +125,7 @@ void idClientScreenSystemLocal::FillRect( float32 x, float32 y, float32 width, f
     AdjustFrom640( &x, &y, &width, &height );
     renderSystem->DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
     
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
 }
 
 /*
@@ -300,7 +300,7 @@ void idClientScreenSystemLocal::DrawStringExt( sint x, sint y, float32 size, poi
         s++;
     }
     
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
 }
 
 /*
@@ -370,7 +370,7 @@ void idClientScreenSystemLocal::DrawSmallStringExt( sint x, sint y, pointer stri
         s++;
     }
     
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
 }
 
 /*
@@ -445,7 +445,7 @@ void idClientScreenSystemLocal::DrawDebugGraph( void )
     
     renderSystem->SetColor( g_color_table[0] );
     renderSystem->DrawStretchPic( static_cast<float32>( x ), static_cast<float32>( y - cl_graphheight->integer ), static_cast<float32>( w ), cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
-    renderSystem->SetColor( NULL );
+    renderSystem->SetColor( nullptr );
     
     for( a = 0; a < w; a++ )
     {
@@ -509,7 +509,7 @@ void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
         {
             renderSystem->SetColor( g_color_table[0] );
             renderSystem->DrawStretchPic( 0, 0, static_cast<float32>( cls.glconfig.vidWidth ), static_cast<float32>( cls.glconfig.vidHeight ), 0, 0, 0, 0, cls.whiteShader );
-            renderSystem->SetColor( NULL );
+            renderSystem->SetColor( nullptr );
         }
     }
     
@@ -632,7 +632,7 @@ void idClientScreenSystemLocal::UpdateScreen( void )
     }
     else
     {
-        renderSystem->EndFrame( NULL, NULL );
+        renderSystem->EndFrame( nullptr, nullptr );
     }
     
     recursive = 0;

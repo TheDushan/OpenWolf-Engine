@@ -728,7 +728,7 @@ void idClientBrowserSystemLocal::LocalServers( void )
         // can nicely run multiple servers
         for( j = 0; j < NUM_SERVER_PORTS; j++ )
         {
-            to.port = BigShort( ( short )( PORT_SERVER + j ) );
+            to.port = BigShort( ( schar16 )( PORT_SERVER + j ) );
             
             to.type = NA_BROADCAST;
             networkChainSystem->SendPacket( NS_CLIENT, strlen( message ), message, to );

@@ -54,21 +54,16 @@ static sint stepsizeTable[89] =
     15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
 };
 
-
+/*
+=================
+S_AdpcmEncode
+=================
+*/
 void S_AdpcmEncode( schar16 indata[], valueType outdata[], sint len, struct adpcm_state* state )
 {
-    schar16* inp; /* Input buffer pointer */
-    schar8* outp; /* output buffer pointer */
-    sint val; /* Current input sample value */
-    sint sign; /* Current adpcm sign bit */
-    sint delta; /* Current adpcm output value */
-    sint diff; /* Difference between val and sample */
-    sint step; /* Stepsize */
-    sint valpred; /* Predicted output value */
-    sint vpdiff; /* Current change to valpred */
-    sint index; /* Current step change index */
-    sint outputbuffer; /* place to keep previous 4-bit value */
-    sint bufferstep; /* toggle between outputbuffer/output */
+    schar16* inp;
+    schar8* outp;
+    sint val, sign, delta, diff, step, valpred, vpdiff, index, outputbuffer, bufferstep;
     
     outp = reinterpret_cast<schar8*>( outdata );
     inp = indata;
@@ -184,19 +179,15 @@ void S_AdpcmEncode( schar16 indata[], valueType outdata[], sint len, struct adpc
     state->index = index;
 }
 
-
+/*
+=================
+S_AdpcmDecode
+=================
+*/
 void S_AdpcmDecode( const valueType indata[], schar16* outdata, sint len, struct adpcm_state* state )
 {
-    schar8* inp; /* Input buffer pointer */
-    sint outp; /* output buffer pointer */
-    sint sign; /* Current adpcm sign bit */
-    sint delta; /* Current adpcm output value */
-    sint step; /* Stepsize */
-    sint valpred; /* Predicted value */
-    sint vpdiff; /* Current change to valpred */
-    sint index; /* Current step change index */
-    sint inputbuffer; /* place to keep next 4-bit value */
-    sint bufferstep; /* toggle between inputbuffer/input */
+    schar8* inp;
+    sint outp, sign, delta, step, valpred, vpdiff, index, inputbuffer, bufferstep;
     
     outp = 0;
     inp = const_cast<schar8*>( reinterpret_cast<const schar8*>( indata ) );
@@ -291,21 +282,16 @@ void S_AdpcmDecode( const valueType indata[], schar16* outdata, sint len, struct
     state->index = index;
 }
 
-
 /*
 ====================
 S_AdpcmMemoryNeeded
-
 Returns the amount of memory (in bytes) needed to store the samples in out internal adpcm format
 ====================
 */
 sint S_AdpcmMemoryNeeded( const wavinfo_t* info )
 {
     float32	scale;
-    sint	scaledSampleCount;
-    sint	sampleMemory;
-    sint	blockCount;
-    sint	headerMemory;
+    sint scaledSampleCount, sampleMemory, blockCount, headerMemory;
     
     // determine scale to convert from input sampling rate to desired sampling rate
     scale = static_cast< float32 >( info->rate ) / dma.speed;
@@ -339,13 +325,13 @@ S_AdpcmGetSamples
 void S_AdpcmGetSamples( sndBuffer* chunk, schar16* to )
 {
     adpcm_state_t state;
-    schar8*	out;
+    uchar8* out;
     
     // get the starting state from the block header
     state.index = chunk->adpcm.index;
     state.sample = chunk->adpcm.sample;
     
-    out = reinterpret_cast<schar8*>( chunk->sndChunk );
+    out = reinterpret_cast<uchar8*>( chunk->sndChunk );
     
     // get samples
     S_AdpcmDecode( reinterpret_cast<valueType*>( out ), to, SND_CHUNK_SIZE_BYTE * 2, &state );
@@ -360,11 +346,9 @@ S_AdpcmEncodeSound
 void S_AdpcmEncodeSound( sfx_t* sfx, schar16* samples )
 {
     adpcm_state_t state;
-    sint inOffset;
-    sint count;
-    sint n;
+    sint inOffset, count, n;
     sndBuffer* newchunk, *chunk;
-    schar8* out;
+    uchar8*  out;
     
     inOffset = 0;
     count = sfx->soundLength;
@@ -393,10 +377,10 @@ void S_AdpcmEncodeSound( sfx_t* sfx, schar16* samples )
         chunk = newchunk;
         
         // output the header
-        chunk->adpcm.index  = state.index;
+        chunk->adpcm.index = state.index;
         chunk->adpcm.sample = state.sample;
         
-        out = ( schar8* )chunk->sndChunk;
+        out = reinterpret_cast< uchar8*>( chunk->sndChunk );
         
         // encode the samples
         S_AdpcmEncode( samples + inOffset, reinterpret_cast<valueType*>( out ), n, &state );

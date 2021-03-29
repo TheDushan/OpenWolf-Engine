@@ -878,6 +878,18 @@ typedef struct
 
 //----(SA) end
 
+typedef struct assImpHeader_s
+{
+    sint				ident;
+    sint				version;
+    valueType			name[MAX_QPATH];	// model name
+    sint				flags;
+    sint				numFrames;
+    sint				numTags;
+    sint				numSurfaces;
+    sint				numSkins;
+} assImpHeader_t;
+
 /*
 ==============================================================================
 
