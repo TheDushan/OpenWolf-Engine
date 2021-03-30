@@ -601,25 +601,23 @@ idCmdCompletionLocal::Paste
 */
 void idCmdCompletionLocal::Paste( field_t* edit )
 {
-    valueType* cbd;
+    valueType* pasteBuffer;
     uint64 pasteLen, i;
     
-    cbd = idsystem->SysGetClipboardData();
+    pasteBuffer = idsystem->SysGetClipboardData();
     
-    if( !cbd )
+    if( !pasteBuffer )
     {
         return;
     }
     
     // send as if typed, so insert / overstrike works properly
-    pasteLen = ::strlen( cbd );
+    pasteLen = ::strlen( pasteBuffer );
     
     for( i = 0; i < pasteLen; i++ )
     {
-        cmdCompletionSystem->CharEvent( edit, cbd[i] );
+        cmdCompletionSystem->CharEvent( edit, pasteBuffer[i] );
     }
-    
-    Z_Free( cbd );
 }
 
 /*
@@ -722,7 +720,7 @@ idCmdCompletionLocal::CharEvent
 void idCmdCompletionLocal::CharEvent( field_t* edit, valueType ch )
 {
 #ifndef DEDICATED
-    uint64 len;
+    sint len;
     
     // ctrl-v is paste
     if( ch == 'v' - 'a' + 1 )
