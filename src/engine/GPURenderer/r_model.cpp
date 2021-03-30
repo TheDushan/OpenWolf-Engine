@@ -76,6 +76,13 @@ qhandle_t R_RegisterMD3( pointer name, model_t* mod )
             Q_vsprintf_s( namebuf, sizeof( namebuf ), sizeof( namebuf ), "%s.%s", filename, fext );
             
         size = fileSystem->ReadFile( namebuf, &buf.v );
+        
+        // We want to know when something is missing
+        if( !lod && !buf.u )
+        {
+            Com_Printf( "Could not find MD3 model file %s\n", namebuf );
+        }
+        
         if( !buf.u )
             continue;
             
