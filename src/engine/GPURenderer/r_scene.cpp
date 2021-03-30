@@ -154,7 +154,14 @@ void idRenderSystemLocal::AddPolyToScene( qhandle_t hShader, sint numVerts, cons
             since we don't plan on changing the const and making for room for those effects
             simply cut this message to developer only
             */
-            CL_RefPrintf( PRINT_DEVELOPER, "WARNING: idRenderSystemLocal::AddPolyToScene: r_max_polys or r_max_polyverts reached\n" );
+            static sint lastWarning = 0;
+            
+            if( tr.refdef.time / 1000 > lastWarning )
+            {
+                lastWarning = tr.refdef.time / 1000;
+                CL_RefPrintf( PRINT_DEVELOPER, "WARNING: idRenderSystemLocal::AddPolyToScene: r_max_polys or r_max_polyverts reached\n" );
+            }
+            
             return;
         }
         
