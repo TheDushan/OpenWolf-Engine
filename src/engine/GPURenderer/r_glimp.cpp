@@ -538,7 +538,12 @@ static sint GLimp_SetMode( sint mode, bool fullscreen, bool noborder, bool fixed
                     }
                     break;
                 case 1:
-                    if( depthBits == 24 )
+                    if( depthBits == 32 )
+                    {
+                        depthBits = 24;
+                    }
+                    else if( depthBits == 24 )
+                    
                     {
                         depthBits = 16;
                     }

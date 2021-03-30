@@ -290,8 +290,10 @@ void SOrig_Shutdown( void )
     }
     
     SNDDMA_Shutdown();
+    SND_shutdown();
     
     s_soundStarted = 0;
+    s_numSfx = 0;
     
     cmdSystem->RemoveCommand( "play" );
     cmdSystem->RemoveCommand( "music" );

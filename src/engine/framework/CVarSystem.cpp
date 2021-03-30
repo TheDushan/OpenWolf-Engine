@@ -1133,6 +1133,7 @@ void idCVarSystemLocal::Set_f( void )
     }
     
     cvarSystemLocal.GetSet2( cmdSystem->Argv( 1 ), Com_UnquoteStr( value ), false );
+    free( value );
 }
 
 /*

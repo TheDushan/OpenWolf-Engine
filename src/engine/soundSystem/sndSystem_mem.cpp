@@ -84,6 +84,12 @@ redo:
     return v;
 }
 
+void SND_shutdown( void )
+{
+    free( sfxScratchBuffer );
+    free( buffer );
+}
+
 /*
 ===============
 SND_setup
