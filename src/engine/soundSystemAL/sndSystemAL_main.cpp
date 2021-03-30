@@ -42,6 +42,24 @@ idAudioOpenALSystem* soundOpenALSystem = &soundOpenALSystemLocal;
 static openALImports_t* imports;
 
 /*
+===============
+idSoundSystemLocal::idSoundSystemLocal
+===============
+*/
+idAudioOpenALSystemLocal::idAudioOpenALSystemLocal( void )
+{
+}
+
+/*
+===============
+idSystemLocal::~idSystemLocal
+===============
+*/
+idAudioOpenALSystemLocal::~idAudioOpenALSystemLocal( void )
+{
+}
+
+/*
 =================
 idAudioOpenALSystemLocal::format
 =================

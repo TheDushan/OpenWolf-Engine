@@ -249,6 +249,14 @@ bool SNDDMA_Init( sint sampleFrequencyInKHz );
 class idSoundSystemLocal : public idSoundSystem
 {
 public:
+    /*
+    ===============
+    idSystemLocal::idSystemLocal
+    ===============
+    */
+    idSoundSystemLocal( void );
+    ~idSoundSystemLocal( void );
+    
     virtual void Init( void );
     virtual void Shutdown( void );
     // if origin is nullptr, the sound will be dynamically sourced from the entity
@@ -290,6 +298,8 @@ public:
     virtual snd_stream_t* codec_open( pointer filename );
     virtual void codec_close( snd_stream_t* stream );
     virtual sint codec_read( snd_stream_t* stream, sint bytes, void* buffer );
+    
+    static void S_StopAllSounds( void );
 };
 
 extern idSoundSystemLocal soundSystemLocal;

@@ -100,6 +100,24 @@ portable_samplepair_t s_rawsamples[MAX_RAW_SAMPLES];
 // ====================================================================
 
 /*
+===============
+idSoundSystemLocal::idSoundSystemLocal
+===============
+*/
+idSoundSystemLocal::idSoundSystemLocal( void )
+{
+}
+
+/*
+===============
+idSystemLocal::~idSystemLocal
+===============
+*/
+idSoundSystemLocal::~idSoundSystemLocal( void )
+{
+}
+
+/*
 =================
 S_SoundInfo_f
 =================
@@ -139,6 +157,19 @@ void S_SoundInfo_f( void )
 }
 
 /*
+===============
+idSoundSystemLocal::S_StopAllSounds
+
+I had a problem with AddCommand and pointing to the class member so this is one way of doing
+pointing to a function that is a class member
+===============
+*/
+void idSoundSystemLocal::S_StopAllSounds( void )
+{
+    static_cast<idSoundSystemLocal*>( soundSystem )->StopAllSounds();
+}
+
+/*
 ================
 S_Init
 ================
@@ -162,7 +193,7 @@ void SOrig_Init( void )
     cmdSystem->AddCommand( "music", S_Music_f, "Plays specified music file (music music)" );
     cmdSystem->AddCommand( "s_list", S_SoundList_f, "Display paths and filenames of all sound files as they are played. (replaced soundlist command)" );
     cmdSystem->AddCommand( "s_info", S_SoundInfo_f, "Display information about sound system (replaced soundinfo command)" );
-    cmdSystem->AddCommand( "s_stop", SOrig_StopAllSounds, "Stop whatever sound that is currently playing from playing. (Replaced stopsound command)" );
+    cmdSystem->AddCommand( "s_stop", soundSystemLocal.S_StopAllSounds, "Stop whatever sound that is currently playing from playing. (Replaced stopsound command)" );
     
     r = SNDDMA_Init( s_khz->integer );
     

@@ -73,6 +73,9 @@ typedef sint srcHandle_t;
 class idAudioOpenALSystemLocal : public idAudioOpenALSystem
 {
 public:
+    idAudioOpenALSystemLocal( void );
+    ~idAudioOpenALSystemLocal( void );
+    
     virtual bool Init( void );
     virtual void Shutdown( void );
     virtual void StartSound( vec3_t origin, sint entnum, sint entchannel, sfxHandle_t sfx );
