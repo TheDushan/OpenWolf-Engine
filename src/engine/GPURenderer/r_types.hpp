@@ -80,7 +80,7 @@ typedef struct poly_s
     polyVert_t*			verts;
 } poly_t;
 
-typedef enum
+enum refEntityType_t
 {
     RT_MODEL,
     RT_POLY,
@@ -92,7 +92,7 @@ typedef enum
     RT_PORTALSURFACE,		// doesn't draw anything, just info for portals
     
     RT_MAX_REF_ENTITY_TYPE
-} refEntityType_t;
+};
 
 typedef struct
 {
@@ -154,12 +154,12 @@ typedef struct
 } refdef_t;
 
 
-typedef enum
+enum stereoFrame_t
 {
     STEREO_CENTER,
     STEREO_LEFT,
     STEREO_RIGHT
-} stereoFrame_t;
+};
 
 
 /*
@@ -169,25 +169,26 @@ typedef enum
 ** being run right now.  These are constant once the OpenGL
 ** subsystem is initialized.
 */
-typedef enum
+
+enum textureCompression_t
 {
     TC_NONE,
     TC_S3TC,  // this is for the GL_S3_s3tc extension.
     TC_S3TC_ARB,  // this is for the GL_EXT_texture_compression_s3tc extension.
     TC_EXT_COMP_S3TC
-} textureCompression_t;
+};
 
-typedef enum
+enum glDriverType_t
 {
     GLDRV_UNKNOWN = -1,
     GLDRV_ICD,					// driver is integrated with window system
-} glDriverType_t;
+};
 
-typedef enum
+enum glHardwareType_t
 {
     GLHW_UNKNOWN = -1,
     GLHW_GENERIC,				// where everthing works the way it should
-} glHardwareType_t;
+};
 
 typedef struct
 {

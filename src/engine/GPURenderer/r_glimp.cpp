@@ -32,7 +32,7 @@
 sint qglMajorVersion, qglMinorVersion;
 sint qglesMajorVersion, qglesMinorVersion;
 
-typedef enum
+enum rserr_t
 {
     RSERR_OK,
     
@@ -40,7 +40,7 @@ typedef enum
     RSERR_INVALID_MODE,
     
     RSERR_UNKNOWN
-} rserr_t;
+};
 
 SDL_Window* SDL_window = nullptr;
 static SDL_GLContext SDL_glContext = nullptr;

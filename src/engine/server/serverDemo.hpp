@@ -38,7 +38,7 @@
 #define __SERVERDEMO_H__
 
 // Headers for demo messages
-typedef enum
+enum demo_ops_e
 {
     demo_endFrame,
     demo_serverCommand,
@@ -48,7 +48,7 @@ typedef enum
     demo_playerState,
     demo_endDemo,
     demo_EOF
-} demo_ops_e;
+};
 
 // Big fat buffer to store all our stuff
 static uchar8 buf[0x400000];

@@ -516,7 +516,7 @@ typedef struct
     bool        wasPressed;	// set when down, not cleared when up
 } kbutton_t;
 
-typedef enum
+enum kbuttons_t
 {
     KB_LEFT,
     KB_RIGHT,
@@ -557,7 +557,7 @@ typedef enum
     KB_MLOOK,
     // Dushan
     NUM_BUTTONS
-} kbuttons_t;
+};
 
 
 void            CL_ClearKeys( void );

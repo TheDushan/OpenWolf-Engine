@@ -33,7 +33,7 @@
 // these are the key numbers that should be passed to KeyEvent
 // normal keys should be passed as lowercased ascii
 
-typedef enum
+enum keyNum_t
 {
     K_NONE = -1,
     K_TAB = 9,
@@ -293,7 +293,7 @@ typedef enum
     K_CONSOLE,
     
     MAX_KEYS
-} keyNum_t;
+};
 
 // MAX_KEYS replaces K_LAST_KEY, however some mods may have used K_LAST_KEY
 // in detecting binds, so we leave it defined to the old hardcoded value

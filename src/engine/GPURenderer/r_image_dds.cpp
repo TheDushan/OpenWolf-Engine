@@ -91,7 +91,7 @@ ddsHeaderDxt10_t;
 
 // dxgiFormat
 // from http://msdn.microsoft.com/en-us/library/windows/desktop/bb173059%28v=vs.85%29.aspx
-typedef enum DXGI_FORMAT
+enum DXGI_FORMAT
 {
     DXGI_FORMAT_UNKNOWN = 0,
     DXGI_FORMAT_R32G32B32A32_TYPELESS = 1,
@@ -210,7 +210,7 @@ typedef enum DXGI_FORMAT
     DXGI_FORMAT_A8P8 = 114,
     DXGI_FORMAT_B4G4R4A4_UNORM = 115,
     DXGI_FORMAT_FORCE_UINT = 0xffffffffUL
-} DXGI_FORMAT;
+};
 
 #define EncodeFourCC(x) ((((uint)((x)[0]))      ) | \
                          (((uint)((x)[1])) << 8 ) | \

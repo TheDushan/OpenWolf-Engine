@@ -33,15 +33,15 @@
 
 #if !defined ( DEDICATED ) && !defined ( UPDATE_SERVER )
 
-typedef enum
+enum imgType_t
 {
     IMGTYPE_COLORALPHA, // for color, lightmap, diffuse, and specular
     IMGTYPE_NORMAL,
     IMGTYPE_NORMALHEIGHT,
     IMGTYPE_DELUXE, // normals are swizzled, deluxe are not
-} imgType_t;
+};
 
-typedef enum
+enum imgFlags_t
 {
     IMGFLAG_NONE           = 0x0000,
     IMGFLAG_MIPMAP         = 0x0001,
@@ -53,7 +53,7 @@ typedef enum
     IMGFLAG_GENNORMALMAP   = 0x0100,
     IMGFLAG_MUTABLE        = 0x0200,
     IMGFLAG_SRGB           = 0x0400,
-} imgFlags_t;
+};
 
 #define MIP_RAW_IMAGE ( IMGFLAG_MIPMAP | IMGFLAG_PICMIP )
 

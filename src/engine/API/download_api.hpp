@@ -38,19 +38,19 @@
 #ifndef __DOWNLOAD_API_H__
 #define __DOWNLOAD_API_H__
 
-typedef enum
+enum dlStatus_t
 {
     DL_CONTINUE,
     DL_DONE,
     DL_FAILED
-} dlStatus_t;
+};
 
 // bitmask
-typedef enum
+enum dlFlags_t
 {
     DL_FLAG_DISCON = 0,
     DL_FLAG_URL
-} dlFlags_t;
+};
 
 //
 // idDownloadSystem

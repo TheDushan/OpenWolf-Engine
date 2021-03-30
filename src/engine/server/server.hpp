@@ -67,7 +67,7 @@ typedef struct
 } user_t;
 
 #define WEAPONS 12
-typedef enum
+enum weapon_name_e
 {
     W_BLASTER,
     W_MACHINEGUN,
@@ -81,14 +81,14 @@ typedef enum
     W_LUCIFER_CANNON,
     W_GRENADE,
     W_LOCKBLOB_LAUNCHER
-} weapon_name_e;
+};
 
 #define WEAPONS_MNEMONICS "$BL", "$MC", "$PS", "$SH", "$LG", "$MD", "$CG", "$PR", "$FL", "$LC", "$GR", "$LL", nullptr
 
 // Must be the same long as weapon_stats_e
 #define WEAPON_STATS 18
 
-typedef enum
+enum weapon_stats_e
 {
     WS_FIRED,
     WS_FIRED_HIT,
@@ -108,13 +108,13 @@ typedef enum
     WS_DAMAGE_TAKEN_TORSO,
     WS_DAMAGE_TAKEN_LEGS,
     WS_DAMAGE_TAKEN_ARMS
-} weapon_stats_e;
+};
 
 #define WEAPONS_STATS_MNEMONICS "WFD", "WFH", "WFT", "WFM", "WK", "WD", "WDD", "WTT", "WHH", "WHT", "WHL", "WHA", "WDN", "WTN", "WDH", "WDT", "WDL", "WDA", nullptr
 
 #define MELEE_STATS 8
 
-typedef enum
+enum melee_stats_e
 {
     alevel0_kills,
     alevel1_kills,
@@ -124,32 +124,32 @@ typedef enum
     alevel3_kills,
     alevel3_upg_kills,
     alevel4_kills
-} melee_stats_e;
+};
 
 #define MELEE_STATS_MNEMONICS "MKK", nullptr
 
 #define EXPLOSIONS_STATS 10
-typedef enum
+enum explosions_stats_e
 {
     ES_GRANADE_KILLS
-} explosions_stats_e;
+};
 
 #define EXPLOSIONS_STATS_MNEMONICS "EGK", nullptr
 
 #define MISC_STATS 5
-typedef enum
+enum misc_stats_e
 {
     MIS_ENVIRONMENTAL_DEATHS,
     MIS_SUICIDES
-} misc_stats_e;
+};
 
 #define MISC_STATS_MNEMONICS "IED", "ISD", nullptr
 
-typedef enum
+enum user_type_e
 {
     CS_USER,
     CS_GUID
-} user_type_e;
+};
 
 typedef struct user_stats_s
 {
@@ -197,12 +197,12 @@ typedef struct statistics_tmp
     struct statistics_tmp* next;
 } statistics_t;
 
-typedef enum serverState_s
+enum serverState_t
 {
     SS_DEAD,    // no map loaded
     SS_LOADING, // spawning level entities
     SS_GAME     // actively running
-} serverState_t;
+};
 
 typedef struct configString_s
 {
@@ -288,14 +288,14 @@ typedef struct clientSnapshot_s
     sint             messageSize;	// used to rate drop packets
 } clientSnapshot_t;
 
-typedef enum
+enum clientState_t
 {
     CS_FREE,					// can be reused for a new connection
     CS_ZOMBIE,					// client has been disconnected, but don't reuse connection for a couple seconds
     CS_CONNECTED,				// has been assigned to a client_t, but no gamestate yet
     CS_PRIMED,					// gamestate has been sent, but client hasn't sent a usercmd
     CS_ACTIVE					// client is fully in game
-} clientState_t;
+};
 
 typedef struct netchan_buffer_s
 {

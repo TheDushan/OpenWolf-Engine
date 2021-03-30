@@ -150,13 +150,12 @@ static uniformInfo_t uniformsInfo[] =
     { "u_Texture3",				GLSL_INT },
 };
 
-typedef enum
+enum glslPrintLog_t
 {
     GLSL_PRINTLOG_PROGRAM_INFO,
     GLSL_PRINTLOG_SHADER_INFO,
     GLSL_PRINTLOG_SHADER_SOURCE
-}
-glslPrintLog_t;
+};
 
 static void GLSL_PrintLog( uint programOrShader, glslPrintLog_t type, bool developerOnly )
 {

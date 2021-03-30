@@ -51,7 +51,7 @@
 // You can add here your own features
 //
 // ACC (accumulators) and INARROW (actually the same thing as an accumulator) features are differential + counter features (meaning that it continues to increment as long as the difference of the feature it's based upon changes value)
-typedef enum
+enum interframeIndex_t
 {
     FEATURE_PLAYERID,
     FEATURE_TIMESTAMP,
@@ -99,11 +99,11 @@ typedef enum
     FEATURE_FRAMEREPEAT, // Do not modify: this frame counts the number of times an interframe is repeated. This feature is necessary to keep storage space.
     LABEL_CHEATER, // Not a feature: this is used as the label Y for the features. Usually, this will be set at 0 for everyone, and set to 1 only by using the /cheater command for development purposes or to generate a dataset when you are using a cheating system.
     FEATURES_COUNT // Important: always place this at the very end! This is used to count the total number of features
-} interframeIndex_t;
+};
 
 // List of features types
 // You should not modify this unless you know what you do (you'll have to code a new input parser inside OACS)
-typedef enum
+enum featureType_t
 {
     FEATURE_ID,			// Identifier features
     FEATURE_HUMAN,			// Human-specific features
@@ -112,7 +112,7 @@ typedef enum
     FEATURE_METADATA,                   // Feature containing meta data that are useful for other features or just for post-analysis but are not to be used for the learning nor detection process unless post-processed into higher order features (such as svtime)
     FEATURE_METAINTERFRAME,           // Feature containing meta data about the interframe (like the framerepeat, which should be used as a ponderation factor for all the others features)
     FEATURE_LABEL // Not a feature, this is a label for the data
-} featureType_t;
+};
 
 // Structure of one feature
 typedef struct feature_s

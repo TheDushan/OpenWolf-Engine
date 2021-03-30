@@ -29,22 +29,22 @@
 #ifndef __SYSTEM_API_H__
 #define __SYSTEM_API_H__
 
-typedef enum
+enum dialogResult_t
 {
     DR_YES = 0,
     DR_NO = 1,
     DR_OK = 0,
     DR_CANCEL = 1
-} dialogResult_t;
+};
 
-typedef enum
+enum dialogType_t
 {
     DT_INFO,
     DT_WARNING,
     DT_ERROR,
     DT_YES_NO,
     DT_OK_CANCEL
-} dialogType_t;
+};
 
 //
 // idServerSnapshotSystem

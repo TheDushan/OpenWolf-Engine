@@ -93,11 +93,11 @@ static void* steamLibrary = nullptr;
 
 #define MAX_CONSOLE_KEYS 16
 
-typedef enum
+enum keyType_t
 {
     QUAKE_KEY,
     CHARACTER
-} keyType_t;
+};
 
 // We translate axes movement into keypresses
 static sint joy_keys[16] =

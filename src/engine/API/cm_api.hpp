@@ -69,7 +69,7 @@ typedef struct
     vec3_t axis[3];
 } orientation_t;
 
-typedef enum
+enum traceType_t
 {
     TT_NONE,
     
@@ -78,7 +78,7 @@ typedef enum
     TT_BISPHERE,
     
     TT_NUM_TRACE_TYPES
-} traceType_t;
+};
 
 //
 // idCollisionModelManager

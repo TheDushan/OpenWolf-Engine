@@ -182,21 +182,21 @@ typedef sint clipHandle_t;
 
 #define MAX_SAY_TEXT        150
 
-typedef enum messageStatus_e
+enum messageStatus_t
 {
     MESSAGE_EMPTY = 0,
     MESSAGE_WAITING,        // rate/packet limited
     MESSAGE_WAITING_OVERFLOW,   // packet too large with message
-} messageStatus_t;
+};
 
 // paramters for command buffer stuffing
-typedef enum cbufExec_e
+enum cbufExec_t
 {
     EXEC_NOW,           // don't return until completed, a VM should NEVER use this,
     // because some commands might cause the VM to be unloaded...
     EXEC_INSERT,        // insert at current position, but don't run yet
     EXEC_APPEND         // add to end of the command buffer (normal case)
-} cbufExec_t;
+};
 
 
 //
@@ -206,27 +206,27 @@ typedef enum cbufExec_e
 
 
 // print levels from renderer (FIXME: set up for game / cgame?)
-typedef enum printParm_e
+enum printParm_t
 {
     PRINT_ALL,
     PRINT_DEVELOPER,        // only print when "developer 1"
     PRINT_WARNING,
     PRINT_ERROR
-} printParm_t;
+};
 
 #ifdef  ERR_FATAL
 #undef  ERR_FATAL               // this is be defined in malloc.h
 #endif
 
 // parameters to the main Error routine
-typedef enum
+enum errorParm_t
 {
     ERR_FATAL,                  // exit the entire game with a popup window
     ERR_VID_FATAL,              // exit the entire game with a popup window and doesn't delete profile.pid
     ERR_DROP,                   // print to console and disconnect from game
     ERR_SERVERDISCONNECT,       // don't kill server
     ERR_AUTOUPDATE
-} errorParm_t;
+};
 
 // font rendering values used by ui and cgame
 
@@ -262,12 +262,12 @@ typedef enum
 #define HUNK_DEBUG
 #endif
 
-typedef enum
+enum ha_pref
 {
     h_high,
     h_low,
     h_dontcare
-} ha_pref;
+};
 
 #ifdef HUNK_DEBUG
 #define Hunk_Alloc( size, preference ) Hunk_AllocDebug( size, preference, # size, __FILE__, __LINE__ )
@@ -758,7 +758,7 @@ ID_INLINE void Q_vsprintf_s( valueType( &pDest )[nDestSize], pointer pFmt, va_li
 }
 
 // mode parm for FS_FOpenFile
-typedef enum
+enum fsMode_t
 {
     FS_READ,
     FS_WRITE,
@@ -766,14 +766,14 @@ typedef enum
     FS_APPEND_SYNC,
     FS_READ_DIRECT,
     FS_UPDATE
-} fsMode_t;
+};
 
-typedef enum
+enum fsOrigin_t
 {
     FS_SEEK_CUR,
     FS_SEEK_END,
     FS_SEEK_SET
-} fsOrigin_t;
+};
 
 sint Com_HexStrToInt( pointer str );
 
@@ -912,7 +912,7 @@ void Com_DPrintf( pointer msg, ... ) _attribute( ( format( printf, 1, 2 ) ) );
 // sound channels
 // channel 0 never willingly overrides
 // other channels will allways override a playing sound on that channel
-typedef enum
+enum soundChannel_t
 {
     CHAN_AUTO,
     CHAN_LOCAL,     // menu sounds, etc
@@ -923,7 +923,7 @@ typedef enum
     CHAN_LOCAL_SOUND,   // chat messages, etc
     CHAN_ANNOUNCER,     // announcer voices, etc
     CHAN_VOICE_BG,  // xkan - background sound for voice (radio static, etc.)
-} soundChannel_t;
+};
 
 
 /*
@@ -1005,7 +1005,7 @@ typedef struct
 } gameState_t;
 
 // xkan, 1/10/2003 - adapted from original SP
-typedef enum
+enum aistateEnum_t
 {
     AISTATE_RELAXED,
     AISTATE_QUERY,
@@ -1013,7 +1013,7 @@ typedef enum
     AISTATE_COMBAT,
     
     MAX_AISTATES
-} aistateEnum_t;
+};
 
 #define REF_FORCE_DLIGHT    ( 1 << 31 ) // RF, passed in through overdraw parameter, force this dlight under all conditions
 #define REF_JUNIOR_DLIGHT   ( 1 << 30 ) // (SA) this dlight does not light surfaces.  it only affects dynamic light grid
@@ -1258,7 +1258,7 @@ typedef struct playerState_s
 // then BUTTON_WALKING should be set
 
 // Arnout: doubleTap buttons - DT_NUM can be max 8
-typedef enum
+enum dtType_t
 {
     DT_NONE,
     DT_MOVELEFT,
@@ -1269,7 +1269,7 @@ typedef enum
     DT_LEANRIGHT,
     DT_UP,
     DT_NUM
-} dtType_t;
+};
 
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s
@@ -1294,7 +1294,7 @@ typedef struct usercmd_s
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
 #define SOLID_BMODEL    0xffffff
 
-typedef enum
+enum trType_t
 {
     TR_STATIONARY,
     TR_INTERPOLATE,				// non-parametric, but interpolate between snapshots
@@ -1304,7 +1304,7 @@ typedef enum
     TR_SINE,					// value = base + sin( time / duration ) * delta
     TR_GRAVITY,
     TR_BUOYANCY
-} trType_t;
+};
 
 typedef struct
 {
@@ -1330,7 +1330,7 @@ typedef struct
 //
 // entityState_t->eType
 //
-typedef enum
+enum entityType_t
 {
     ET_GENERAL,
     ET_PLAYER,
@@ -1360,7 +1360,7 @@ typedef enum
     ET_EVENTS       // any of the EV_* events can be added freestanding
     // by setting eType to ET_EVENTS + eventNum
     // this avoids having to set eFlags and eventNum
-} entityType_t;
+};
 
 typedef struct entityState_s
 {
@@ -1432,7 +1432,7 @@ typedef struct entityState_s
     sint	weaponAnim;		// mask off ANIM_TOGGLEBIT
 } entityState_t;
 
-typedef enum
+enum connstate_t
 {
     CA_UNINITIALIZED,
     CA_DISCONNECTED,    // not talking to a server
@@ -1444,7 +1444,7 @@ typedef enum
     CA_PRIMED,          // got gamestate, waiting for first frame
     CA_ACTIVE,          // game views should be displayed
     CA_CINEMATIC        // playing a cinematic or a static pic, not connected to a server
-} connstate_t;
+};
 
 typedef struct lineInfo_t
 {
@@ -1460,7 +1460,7 @@ typedef struct lineInfo_t
     float32		defaultColor[4];
 } lineInfo_t;
 
-typedef enum
+enum textAlign_e
 {
     TEXT_ALIGN_LEFT = 0,
     TEXT_ALIGN_CENTER = 1,
@@ -1470,7 +1470,7 @@ typedef enum
     TEXT_ALIGN_NOCLIP = 0x0080,
 } textAlign_e;
 
-typedef enum
+enum textStyle_e
 {
     TEXT_STYLE_SHADOWED = 2,
     TEXT_STYLE_OUTLINED = 4,
@@ -1506,7 +1506,7 @@ typedef struct qtime_s
 
 
 // cinematic states
-typedef enum
+enum e_status
 {
     FMV_IDLE,
     FMV_PLAY,       // play
@@ -1515,19 +1515,19 @@ typedef enum
     FMV_ID_IDLE,
     FMV_LOOPED,
     FMV_ID_WAIT
-} e_status;
+};
 
-typedef enum _flag_status
+enum flagStatus_t
 {
     FLAG_ATBASE = 0,
     FLAG_TAKEN,         // CTF
     FLAG_TAKEN_RED,     // One Flag CTF
     FLAG_TAKEN_BLUE,    // One Flag CTF
     FLAG_DROPPED
-} flagStatus_t;
+};
 
 // Dushan - Tremulous
-typedef enum
+enum demoState_t
 {
     DS_NONE,
     
@@ -1535,8 +1535,7 @@ typedef enum
     DS_RECORDING,
     
     DS_NUM_DEMO_STATES
-} demoState_t;
-
+};
 
 #define MAX_GLOBAL_SERVERS          4096
 #define MAX_OTHER_SERVERS           128
@@ -1544,17 +1543,17 @@ typedef enum
 #define MAX_SERVERSTATUSREQUESTS    16
 
 // NERVE - SMF - localization
-typedef enum
+enum languages_t
 {
     LANGUAGE_FRENCH = 0,
     LANGUAGE_GERMAN,
     LANGUAGE_ITALIAN,
     LANGUAGE_SPANISH,
     MAX_LANGUAGES
-} languages_t;
+};
 
 // NERVE - SMF - wolf server/game states
-typedef enum
+enum gamestate_t
 {
     GS_INITIALIZE = -1,
     GS_PLAYING,
@@ -1563,7 +1562,7 @@ typedef enum
     GS_INTERMISSION,
     GS_WAITING_FOR_PLAYERS,
     GS_RESET
-} gamestate_t;
+};
 
 // Dushan - Tremulous
 #define GENTITYNUM_MASK		(MAX_GENTITIES - 1)
@@ -1601,12 +1600,12 @@ void Com_ClientListParse( clientList_t* list, pointer s );
 #define SQR( a ) ( ( a ) * ( a ) )
 
 #ifndef BSPC
-typedef enum
+enum cullType_t
 {
     CT_FRONT_SIDED,
     CT_BACK_SIDED,
     CT_TWO_SIDED
-} cullType_t;
+};
 #endif
 
 #define LERP( a, b, w ) ( ( a ) * ( 1.0f - ( w ) ) + ( b ) * ( w ) )
@@ -1639,13 +1638,13 @@ void Com_Parse3DMatrix( pointer( *buf_p ), sint z, sint y, sint x, float32* m );
 #endif
 
 // demo commands
-typedef enum
+enum demoCommand_t
 {
     DC_SERVER_COMMAND = -1,
     DC_CLIENT_SET = 0,
     DC_CLIENT_REMOVE,
     DC_SET_STAGE
-} demoCommand_t;
+};
 
 void Com_BeginParseSession( pointer filename );
 void Com_EndParseSession( void );

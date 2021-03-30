@@ -3239,14 +3239,16 @@ typedef struct
     sint             hits;
     sint             lastSetIndex;
 } cacheItem_t;
-typedef enum
+
+enum cacheGroup_t
 {
     CACHE_SOUNDS,
     CACHE_MODELS,
     CACHE_IMAGES,
     
     CACHE_NUMGROUPS
-} cacheGroup_t;
+};
+
 static cacheItem_t cacheGroups[CACHE_NUMGROUPS] =
 {
     {{'s', 'o', 'u', 'n', 'd', 0}, CACHE_SOUNDS},

@@ -664,14 +664,15 @@ Display a *nix dialog box
 */
 dialogResult_t idSystemLocal::Dialog( dialogType_t type, pointer message, pointer title )
 {
-    typedef enum
+    enum dialogCommandType_t
     {
         NONE = 0,
         ZENITY,
         KDIALOG,
         XMESSAGE,
         NUM_DIALOG_PROGRAMS
-    } dialogCommandType_t;
+    };
+    
     typedef sint( *dialogCommandBuilder_t )( dialogType_t, pointer, pointer );
     
     pointer              session = getenv( "DESKTOP_SESSION" );

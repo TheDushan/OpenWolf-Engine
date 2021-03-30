@@ -147,11 +147,11 @@ typedef struct
 // Ensure this is >= the ATTR_INDEX_COUNT enum below
 #define VAO_MAX_ATTRIBS 16
 
-typedef enum
+enum vaoUsage_t
 {
     VAO_USAGE_STATIC,
     VAO_USAGE_DYNAMIC
-} vaoUsage_t;
+};
 
 typedef struct vaoAttrib_s
 {
@@ -182,7 +182,7 @@ typedef struct vao_s
 
 //===============================================================================
 
-typedef enum
+enum shaderSort_t
 {
     SS_BAD,
     SS_PORTAL,			// mirrors, portals, viewscreens
@@ -208,12 +208,11 @@ typedef enum
     SS_ALMOST_NEAREST,	// gun smoke puffs
     
     SS_NEAREST			// blood blobs
-} shaderSort_t;
-
+};
 
 #define MAX_SHADER_STAGES 8
 
-typedef enum
+enum genFunc_t
 {
     GF_NONE,
     
@@ -224,11 +223,9 @@ typedef enum
     GF_INVERSE_SAWTOOTH,
     
     GF_NOISE
-    
-} genFunc_t;
+};
 
-
-typedef enum
+enum deform_t
 {
     DEFORM_NONE,
     DEFORM_WAVE,
@@ -246,10 +243,10 @@ typedef enum
     DEFORM_TEXT5,
     DEFORM_TEXT6,
     DEFORM_TEXT7
-} deform_t;
+};
 
 // deformVertexes types that can be handled by the GPU
-typedef enum
+enum deformGen_t
 {
     // do not edit: same as genFunc_t
     
@@ -265,9 +262,9 @@ typedef enum
     
     DGEN_BULGE,
     DGEN_MOVE
-} deformGen_t;
+};
 
-typedef enum
+enum alphaGen_t
 {
     AGEN_IDENTITY,
     AGEN_SKIP,
@@ -279,9 +276,9 @@ typedef enum
     AGEN_WAVEFORM,
     AGEN_PORTAL,
     AGEN_CONST,
-} alphaGen_t;
+};
 
-typedef enum
+enum colorGen_t
 {
     CGEN_BAD,
     CGEN_IDENTITY_LIGHTING,	// tr.identityLight
@@ -297,9 +294,9 @@ typedef enum
     CGEN_LIGHTING_DIFFUSE,
     CGEN_FOG,				// standard fog
     CGEN_CONST				// fixed color
-} colorGen_t;
+};
 
-typedef enum
+enum texCoordGen_t
 {
     TCGEN_BAD,
     TCGEN_IDENTITY,			// clear to 0,0
@@ -308,17 +305,17 @@ typedef enum
     TCGEN_ENVIRONMENT_MAPPED,
     TCGEN_FOG,
     TCGEN_VECTOR			// S and T from world coordinates
-} texCoordGen_t;
+};
 
-typedef enum
+enum acff_t
 {
     ACFF_NONE,
     ACFF_MODULATE_RGB,
     ACFF_MODULATE_RGBA,
     ACFF_MODULATE_ALPHA
-} acff_t;
+};
 
-typedef struct
+struct waveForm_t
 {
     genFunc_t	func;
     
@@ -326,11 +323,11 @@ typedef struct
     float32 amplitude;
     float32 phase;
     float32 frequency;
-} waveForm_t;
+};
 
 #define TR_MAX_TEXMODS 4
 
-typedef enum
+enum texMod_t
 {
     TMOD_NONE,
     TMOD_TRANSFORM,
@@ -340,7 +337,7 @@ typedef enum
     TMOD_STRETCH,
     TMOD_ROTATE,
     TMOD_ENTITY_TRANSLATE
-} texMod_t;
+};
 
 #define	MAX_SHADER_DEFORMS	3
 typedef struct
@@ -421,7 +418,7 @@ enum
     NUM_TEXTURE_BUNDLES = 9
 };
 
-typedef enum
+enum stageType_t
 {
     // material shader stage types
     ST_COLORMAP = 0,			// vanilla Q3A style shader treatening
@@ -430,7 +427,7 @@ typedef enum
     ST_NORMALPARALLAXMAP,
     ST_SPECULARMAP,
     ST_GLSL
-} stageType_t;
+};
 
 typedef struct
 {
@@ -463,12 +460,12 @@ typedef struct
 
 struct shaderCommands_s;
 
-typedef enum
+enum fogPass_t
 {
     FP_NONE,		// surface is translucent and will just be adjusted properly
     FP_EQUAL,		// surface is opaque but possibly alpha tested
     FP_LE			// surface is trnaslucent, but still needs a fog pass (fog surface)
-} fogPass_t;
+};
 
 typedef struct
 {
@@ -661,7 +658,7 @@ enum
     GLSL_MAT16_BONEMATRIX
 };
 
-typedef enum
+enum uniform_t
 {
     UNIFORM_DIFFUSEMAP = 0,
     UNIFORM_LIGHTMAP,
@@ -775,7 +772,7 @@ typedef enum
     UNIFORM_TEXTURE3,
     
     UNIFORM_COUNT
-} uniform_t;
+};
 
 // shaderProgram_t represents a pair of one
 // GLSL vertex and one GLSL fragment shader
@@ -882,7 +879,7 @@ typedef struct
     float32		surface[4];
 } fog_t;
 
-typedef enum
+enum viewParmFlags_t
 {
     VPF_NONE            = 0x00,
     VPF_NOVIEWMODEL     = 0x01,
@@ -893,7 +890,7 @@ typedef enum
     VPF_USESUNLIGHT     = 0x20,
     VPF_FARPLANEFRUSTUM = 0x40,
     VPF_NOCUBEMAPS      = 0x80
-} viewParmFlags_t;
+};
 
 typedef struct
 {
@@ -930,7 +927,7 @@ SURFACES
 typedef uchar8 color4ub_t[4];
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
-typedef enum
+enum surfaceType_t
 {
     SF_BAD,
     SF_SKIP,				// ignore
@@ -948,7 +945,7 @@ typedef enum
     
     SF_NUM_SURFACE_TYPES,
     SF_MAX = 0x7fffffff			// ensures that sizeof( surfaceType_t ) == sizeof( sint )
-} surfaceType_t;
+};
 
 typedef struct drawSurf_s
 {
@@ -1360,14 +1357,14 @@ typedef struct mdvModel_s
 
 //======================================================================
 
-typedef enum
+enum modtype_t
 {
     MOD_BAD,
     MOD_BRUSH,
     MOD_MESH,
     MOD_MDR,
     MOD_IQM
-} modtype_t;
+};
 
 typedef struct model_s
 {
@@ -1477,19 +1474,19 @@ typedef struct
     mat4_t		invEyeProjection;
 } glstate_t;
 
-typedef enum
+enum memInfo_t
 {
     MI_NONE,
     MI_NVX,
     MI_ATI
-} memInfo_t;
+};
 
-typedef enum
+enum textureCompressionRef_t
 {
     TCR_NONE = 0x0000,
     TCR_RGTC = 0x0001,
     TCR_BPTC = 0x0002,
-} textureCompressionRef_t;
+};
 
 // We can't change glConfig_t without breaking DLL/vms compatibility, so
 // store extensions we have here.
@@ -2568,7 +2565,7 @@ typedef struct
     sint commandId;
 } exportCubemapsCommand_t;
 
-typedef enum
+enum renderCommand_t
 {
     RC_END_OF_LIST,
     RC_SET_COLOR,
@@ -2584,7 +2581,7 @@ typedef enum
     RC_CONVOLVECUBEMAP,
     RC_POSTPROCESS,
     RC_EXPORT_CUBEMAPS
-} renderCommand_t;
+};
 
 
 // these are sort of arbitrary limits.

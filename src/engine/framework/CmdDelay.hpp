@@ -43,11 +43,11 @@
 #define CMD_DELAY_FRAME_FIRE 1
 #define CMD_DELAY_UNUSED 0
 
-typedef enum
+enum cmdDelayType_t
 {
     CMD_DELAY_MSEC,
     CMD_DELAY_FRAME
-} cmdDelayType_t;
+};
 
 typedef struct
 {

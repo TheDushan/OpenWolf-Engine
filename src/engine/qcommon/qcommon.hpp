@@ -167,7 +167,7 @@ NET
 //#define   MAX_RELIABLE_COMMANDS   128         // max string commands buffered for restransmit
 #define MAX_RELIABLE_COMMANDS   256	// bigger!
 
-typedef enum
+enum netadrtype_t
 {
     NA_BAD = 0,                 // an address lookup failed
     NA_BOT,
@@ -177,13 +177,13 @@ typedef enum
     NA_IP6,
     NA_MULTICAST6,
     NA_UNSPEC
-} netadrtype_t;
+};
 
-typedef enum
+enum netsrc_t
 {
     NS_CLIENT,
     NS_SERVER
-} netsrc_t;
+};
 
 #define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
 typedef struct
@@ -453,7 +453,7 @@ extern bool com_errorEntered;
 extern fileHandle_t com_journalFile;
 extern fileHandle_t com_journalDataFile;
 
-typedef enum
+enum memtag_t
 {
     TAG_FREE,
     TAG_GENERAL,
@@ -461,7 +461,7 @@ typedef enum
     TAG_RENDERER,
     TAG_SMALL,
     TAG_STATIC
-} memtag_t;
+};
 
 /*
 
@@ -618,7 +618,7 @@ NON-PORTABLE SYSTEM SERVICES
 
 #define MAX_JOYSTICK_AXIS 16
 #if !defined ( BSPC )
-typedef enum
+enum sysEventType_t
 {
     // bk001129 - make sure SE_NONE is zero
     SYSE_NONE = 0,				// evTime is still valid
@@ -628,7 +628,7 @@ typedef enum
     SYSE_JOYSTICK_AXIS,			// evValue is an axis number and evValue2 is the current state (-127 to 127)
     SYSE_CONSOLE,				// evPtr is a valueType*
     SYSE_PACKET					// evPtr is a netadr_t followed by data bytes to evPtrLength
-} sysEventType_t;
+};
 
 typedef struct sysEvent_s
 {

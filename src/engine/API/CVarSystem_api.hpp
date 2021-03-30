@@ -48,7 +48,7 @@ default values.
 */
 
 //Dushan
-typedef enum cvar_flags_s
+enum cvar_flags_t
 {
     CVAR_ARCHIVE                   = BIT( 0 ),    // set to cause it to be saved to vars.rc
     // used for system variables, not for player
@@ -73,7 +73,7 @@ typedef enum cvar_flags_s
     CVAR_SERVERINFO_NOUPDATE       = BIT( 13 ),   // gordon: WONT automatically send this to clients, but server browsers will see it
     CVAR_SHADER                    = BIT( 14 ),   // tell renderer to recompile shaders.
     CVAR_NONEXISTENT	           = 0xFFFFFFFF   // Cvar doesn't exist.
-} cvar_flags_t;
+};
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct convar_s
