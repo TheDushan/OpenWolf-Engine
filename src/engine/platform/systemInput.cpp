@@ -1095,9 +1095,11 @@ void idSystemLocal::ProcessEvents( sint eventTime )
                     }
                     break;
                     
+                    case SDL_WINDOWEVENT_HIDDEN:
                     case SDL_WINDOWEVENT_MINIMIZED:
                         cvarSystem->SetValue( "com_minimized", 1 );
                         break;
+                    case SDL_WINDOWEVENT_SHOWN:
                     case SDL_WINDOWEVENT_RESTORED:
                     case SDL_WINDOWEVENT_MAXIMIZED:
                         cvarSystem->SetValue( "com_minimized", 0 );
