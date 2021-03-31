@@ -214,6 +214,12 @@ void idServerCcmdsSystemLocal::Map_f( void )
         return;
     }
     
+    if( ::strchr( map, '\\' ) )
+    {
+        Com_Printf( "Can't have mapnames with a \\\n" );
+        return;
+    }
+    
     if( !com_gameInfo.spEnabled )
     {
         if( !Q_stricmp( cmdSystem->Argv( 0 ), "spdevmap" ) || !Q_stricmp( cmdSystem->Argv( 0 ), "spmap" ) )
@@ -223,7 +229,7 @@ void idServerCcmdsSystemLocal::Map_f( void )
         }
     }
     
-    buildScript = ( bool )cvarSystem->VariableIntegerValue( "com_buildScript" );
+    buildScript = static_cast< bool >( cvarSystem->VariableIntegerValue( "com_buildScript" ) );
     
     if( serverGameSystem->GameIsSinglePlayer() )
     {
