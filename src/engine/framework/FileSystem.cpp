@@ -1211,6 +1211,22 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
         Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: Filesystem call made without initialization\n" );
     }
     
+    if( filename == nullptr )
+    {
+        Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed" );
+    }
+    
+    if( !filename[0] )
+    {
+        if( file == nullptr )
+        {
+            return false;
+        }
+        
+        *file = 0;
+        return -1;
+    }
+    
     // TTimo - NOTE
     // when checking for file existence, it's probably safer to use idFileSystemLocal::FileExists, as I'm not
     // sure this chunk of code is really up to date with everything
@@ -1272,9 +1288,20 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
         return false;
     }
     
-    if( !filename )
+    if( filename = nullptr )
     {
         Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed\n" );
+    }
+    
+    if( !filename[0] )
+    {
+        if( file == nullptr )
+        {
+            return false;
+        }
+        
+        *file = 0;
+        return -1;
     }
     
     //Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".dm_%d",PROTOCOL_VERSION );
