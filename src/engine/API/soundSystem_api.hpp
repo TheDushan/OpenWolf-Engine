@@ -40,6 +40,12 @@
 
 #define SND_API_VERSION 1
 
+#if defined (GAMEDLL) || defined (CGAMEDLL) || defined (GUI)
+typedef struct snd_info_s snd_info_t;
+typedef struct snd_codec_s snd_codec_t;
+typedef struct snd_stream_s snd_stream_t;
+#endif
+
 //
 // idSoundSystem
 //
@@ -136,7 +142,7 @@ typedef struct openALImports_s
     void* ( *Malloc )( uint64 size );
     void ( *Free )( void* buf );
     
-#if !defined (DEDICATED)
+#if !defined (DEDICATED) || !defined (GAMEDLL) || !defined (CGAMEDLL) || !defined (GUI)
     idAudioOpenALSystem* soundOpenALSystem;
     idSoundSystem* soundSystem;
     idFileSystem* fileSystem;
@@ -148,4 +154,3 @@ typedef struct openALImports_s
 } openALImports_t;
 
 #endif // !__SOUND_API_H__
-

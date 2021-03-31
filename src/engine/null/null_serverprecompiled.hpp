@@ -113,8 +113,6 @@
 #include <cm/cm_patch.hpp>
 #include <GPURenderer/r_types.hpp>
 #include <API/renderer_api.hpp>
-#include <soundSystem/sndSystem_codec.hpp>
-#include <API/soundSystem_api.hpp>
 #include <API/FileSystem_api.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <API/download_api.hpp>
@@ -127,11 +125,13 @@
 #include <API/CmdSystem_api.hpp>
 #include <API/serverDemo_api.hpp>
 #include <API/system_api.hpp>
+#include <API/Parse_api.hpp>
+#include <framework/Parse.hpp>
+#include <soundSystem/sndSystem_codec.hpp>
+#include <API/soundSystem_api.hpp>
 
 #include <cm/cm_local.hpp>
 
-#include <API/Parse_api.hpp>
-#include <framework/Parse.hpp>
 #include <API/download_api.hpp>
 #include <download/downloadLocal.hpp>
 #include <API/clientLAN_api.hpp>
