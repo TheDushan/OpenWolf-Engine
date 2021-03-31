@@ -727,7 +727,7 @@ void CMod_LoadBrushSides( lump_t* l )
         out->shaderNum = LittleLong( in->shaderNum );
         if( out->shaderNum < 0 || out->shaderNum >= cm.numShaders )
         {
-            Com_Error( ERR_DROP, "CMod_LoadBrushSides: bad shaderNum: %i", out->shaderNum );
+            Com_Error( ERR_DROP, "CMod_LoadBrushSides: bad shaderNum: %i, expected less than: %i", out->shaderNum, cm.numShaders );
         }
         out->surfaceFlags = cm.shaders[out->shaderNum].surfaceFlags;
     }
@@ -1034,7 +1034,7 @@ void CMod_LoadSurfaces( lump_t* surfs, lump_t* verts, lump_t* indexesLump )
             numVertexes = width * height;
             if( numVertexes > MAX_PATCH_VERTS )
             {
-                Com_Error( ERR_DROP, "CMod_LoadSurfaces: MAX_PATCH_VERTS" );
+                Com_Error( ERR_DROP, "CMod_LoadSurfaces: MAX_PATCH_VERTS ( %i )", MAX_PATCH_VERTS );
             }
             
             dv_p = dv + LittleLong( in->firstVert );
