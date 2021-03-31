@@ -1316,6 +1316,14 @@ void CL_KeyEvent( sint key, sint down, sint time )
     // escape is always handled special
     if( key == K_ESCAPE && down )
     {
+        //If console is active then ESC should close console
+        if( cls.keyCatchers & KEYCATCH_CONSOLE )
+        {
+            Con_ToggleConsole_f();
+            Key_ClearStates();
+            return;
+        }
+        
         if( cls.keyCatchers & KEYCATCH_MESSAGE )
         {
             // clear message mode
