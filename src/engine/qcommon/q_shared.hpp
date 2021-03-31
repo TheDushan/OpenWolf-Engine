@@ -1468,7 +1468,7 @@ enum textAlign_e
     TEXT_ALIGN_JUSTIFY = 3,
     
     TEXT_ALIGN_NOCLIP = 0x0080,
-} textAlign_e;
+};
 
 enum textStyle_e
 {
@@ -1476,8 +1476,7 @@ enum textStyle_e
     TEXT_STYLE_OUTLINED = 4,
     TEXT_STYLE_BLINK = 8,
     TEXT_STYLE_ITALIC = 16,
-    
-} textStyle_e;
+};
 
 #define Square( x ) ( ( x ) * ( x ) )
 
