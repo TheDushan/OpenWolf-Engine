@@ -1023,8 +1023,7 @@ idSystemLocal::IsNumLockDown
 */
 bool idSystemLocal::IsNumLockDown( void )
 {
-    // Dushan : FIX ME for Linux
-    return false;
+        return (SDL_GetModState() & KMOD_NUM) == KMOD_NUM;
 }
 
 #ifdef MACOS_X
