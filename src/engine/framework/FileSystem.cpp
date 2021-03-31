@@ -1288,22 +1288,6 @@ sint idFileSystemLocal::FOpenFileRead( pointer filename, fileHandle_t* file, boo
         return false;
     }
     
-    if( filename = nullptr )
-    {
-        Com_Error( ERR_FATAL, "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed\n" );
-    }
-    
-    if( !filename[0] )
-    {
-        if( file == nullptr )
-        {
-            return false;
-        }
-        
-        *file = 0;
-        return -1;
-    }
-    
     //Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".dm_%d",PROTOCOL_VERSION );
     // qpaths are not supposed to have a leading slash
     if( filename[0] == '/' || filename[0] == '\\' )
