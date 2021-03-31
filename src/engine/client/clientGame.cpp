@@ -474,16 +474,28 @@ bool idClientGameSystemLocal::GetServerCommand( sint serverCommandNumber )
             return false;
         }
         
-        while( i < MAX_RELIABLE_COMMANDS )
+        // avoid spamming the console
+        static sint lastTimeCrash = 0;
+        sint nowHappened = idsystem->Milliseconds();
+        
+        if( !lastTimeCrash || nowHappened - lastTimeCrash >= 1000 )
         {
-            if( clc.reliableCommands[i][0] )
+            lastTimeCrash = nowHappened;
+            
+            while( i < MAX_RELIABLE_COMMANDS )
             {
-                Com_Printf( "%i: %s\n", i, clc.reliableCommands[i] );
+                if( clc.reliableCommands[i][0] )
+                {
+                    Com_Printf( "%i: %s\n", i, clc.reliableCommands[i] );
+                }
+
+                i++;
             }
-            i++;
+            
+            Com_Printf( "^idClientGameSystemLocal::GetServerCommand: a reliable command was cycled out. Auto-reconnecting.^7\n" );
+            cmdBufferSystem->ExecuteText( EXEC_NOW, "reconnect\n" );
         }
         
-        Com_Error( ERR_DROP, "idClientGameSystemLocal::GetServerCommand: a reliable command was cycled out" );
         return false;
     }
     
