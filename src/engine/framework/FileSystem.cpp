@@ -715,6 +715,11 @@ fileHandle_t idFileSystemLocal::SV_FOpenFileWrite( pointer filename )
     Com_DPrintf( "idFileSystemLocal::SV_FOpenFileWrite: writing to: %s\n", ospath );
     fsh[f].handleFiles.file.o = fopen( ospath, "wb" );
     
+    if( !fsh[f].handleFiles.file.o )
+    {
+        Com_Printf( "idFileSystemLocal::SV_FOpenFileWrite:(%s) failed to open for writing\n", ospath );
+    }
+    
     Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
     
     fsh[f].handleSync = false;
@@ -942,6 +947,11 @@ fileHandle_t idFileSystemLocal::FOpenFileWrite( pointer filename )
     fsh[f].handleFiles.file.o = fopen( ospath, "wb" );
     
     Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
+    
+    if( !fsh[f].handleFiles.file.o )
+    {
+        Com_Printf( "idFileSystemLocal::FOpenFileWrite(%s) failed to open for writing\n", ospath );
+    }
     
     fsh[f].handleSync = false;
     
