@@ -3931,6 +3931,11 @@ void idFileSystemLocal::Shutdown( bool closemfp )
     {
         fclose( missingFiles );
     }
+    
+    if( closemfp )
+    {
+        cmdSystem->RemoveCommand( "fs_restart" );
+    }
 }
 
 /*
@@ -4552,6 +4557,16 @@ void idFileSystemLocal::InitFilesystem( void )
     Q_strncpyz( lastValidGame, fs_gamedirvar->string, sizeof( lastValidGame ) );
 }
 
+/*
+=================
+FS_Restart_f
+Console command to restart filesystem.
+=================
+*/
+void idFileSystemLocal::Restart_f( void )
+{
+    fileSystemLocal.Restart( fs_checksumFeed );
+}
 
 /*
 ================
@@ -4568,6 +4583,8 @@ void idFileSystemLocal::Restart( sint checksumFeed )
     
     // clear pak references
     ClearPakReferences( 0 );
+    
+    cmdSystem->AddCommand( "fs_restart", Restart_f, "Restarts the filesystem" );
     
     // try to start up normally
     Startup( BASEGAME );

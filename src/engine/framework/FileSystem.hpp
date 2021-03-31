@@ -254,6 +254,8 @@ public:
     virtual pointer GetGameDir( void );
     virtual bool IsFileEmpty( valueType* filename );
     virtual valueType* GetFullGamePath( valueType* filename );
+    
+    static void Restart_f( void );
 };
 
 extern idFileSystemLocal fileSystemLocal;

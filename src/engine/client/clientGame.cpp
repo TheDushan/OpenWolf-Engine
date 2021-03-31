@@ -488,7 +488,7 @@ bool idClientGameSystemLocal::GetServerCommand( sint serverCommandNumber )
                 {
                     Com_Printf( "%i: %s\n", i, clc.reliableCommands[i] );
                 }
-
+                
                 i++;
             }
             
