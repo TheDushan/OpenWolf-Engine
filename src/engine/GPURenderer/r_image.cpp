@@ -2504,7 +2504,7 @@ image_t*	R_FindImageFile( pointer name, imgType_t type, sint/*imgFlags_t*/ flags
     R_LoadImage( name, &pic, &width, &height, &picFormat, &picNumMips );
     if( pic == nullptr )
     {
-        Com_Printf( "R_FindImageFile(%s, %i, %i) failed\n", name, type, flags );
+        CL_RefPrintf( PRINT_DEVELOPER, "R_FindImageFile(%s, %i, %i) failed\n", name, type, flags );
         return nullptr;
     }
     

@@ -80,7 +80,7 @@ qhandle_t R_RegisterMD3( pointer name, model_t* mod )
         // We want to know when something is missing
         if( !lod && !buf.u )
         {
-            Com_Printf( "Could not find MD3 model file %s\n", namebuf );
+            CL_RefPrintf( PRINT_DEVELOPER, "Could not find MD3 model file %s\n", namebuf );
         }
         
         if( !buf.u )
