@@ -116,7 +116,7 @@
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
 #include <API/system_api.hpp>
-#include <API/cvarSystem_api.hpp>
+#include <API/CVarSystem_api.hpp>
 #include <API/CmdSystem_api.hpp>
 #include <API/FileSystem_api.hpp>
 #include <API/Parse_api.hpp>
