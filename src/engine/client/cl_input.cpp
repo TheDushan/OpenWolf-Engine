@@ -1053,7 +1053,7 @@ void CL_CmdButtons( usercmd_t* cmd )
         kb[KB_BUTTONS0 + i].wasPressed = false;
     }
     
-    for( i = 0; i < 16; i++ )
+    for( i = 0; i < 8; i++ )
     {
         // Arnout: this was i < 7, but there are 8 wbuttons
         if( kb[KB_WBUTTONS0 + i].active || kb[KB_WBUTTONS0 + i].wasPressed )
