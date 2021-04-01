@@ -1,0 +1,6 @@
+2021-04-01 Dusan Jocic <dusanjocic@msn.com>
+	* [Engine] Changed protocol version to 1001, 
+	* [Engine] Changed port for the master server to 12950
+	* [Engine] Changed port for the dedicated server to 12960
+	* [Engine] Changed port for the authorize server to 12952
+	* [Engine] Changed port for the message of the day server to 12950

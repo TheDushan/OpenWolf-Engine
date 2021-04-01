@@ -1646,7 +1646,7 @@ void idServerCcmdsSystemLocal::Demo_Record_f( void )
     
     if( cmdSystem->Argc() == 2 )
     {
-        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s.svdm_%d", cmdSystem->Argv( 1 ), ETPROTOCOL_VERSION );
+        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s.svdm_%d", cmdSystem->Argv( 1 ), PROTOCOL_VERSION );
     }
     else
     {
@@ -1654,7 +1654,7 @@ void idServerCcmdsSystemLocal::Demo_Record_f( void )
         // scan for a free demo name
         for( number = 0; number >= 0; number++ )
         {
-            Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%d.svdm_%d", number, ETPROTOCOL_VERSION );
+            Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%d.svdm_%d", number, PROTOCOL_VERSION );
             if( !fileSystem->FileExists( sv.demoName ) )
                 break;	// file doesn't exist
         }
@@ -1704,10 +1704,10 @@ void idServerCcmdsSystemLocal::Demo_Play_f( void )
     
     // check for an extension .svdm_?? (?? is protocol)
     arg = cmdSystem->Argv( 1 );
-    if( !strcmp( arg + strlen( arg ) - 6, va( ".svdm_%d", ETPROTOCOL_VERSION ) ) )
+    if( !strcmp( arg + strlen( arg ) - 6, va( ".svdm_%d", PROTOCOL_VERSION ) ) )
         Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s", arg );
     else
-        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s.svdm_%d", arg, ETPROTOCOL_VERSION );
+        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s.svdm_%d", arg, PROTOCOL_VERSION );
         
     fileSystem->FOpenFileRead( sv.demoName, &sv.demoFile, true );
     if( !sv.demoFile )
@@ -1754,7 +1754,7 @@ void idServerCcmdsSystemLocal::CompleteDemoName( valueType* args, sint argNum )
     {
         valueType demoExt[16];
         
-        Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".svdm_%d", ETPROTOCOL_VERSION );
+        Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".svdm_%d", PROTOCOL_VERSION );
         cmdCompletionSystem->CompleteFilename( "svdemos", demoExt, true );
     }
 }

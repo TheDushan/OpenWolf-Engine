@@ -259,10 +259,10 @@ You or the server may be running older versions of the game. Press the auto-upda
 #define GAMENAME_STRING GAMENAME_FOR_MASTER
 
 #ifndef PRE_RELEASE_DEMO
-#define ETPROTOCOL_VERSION    1
+#define PROTOCOL_VERSION    1001
 #else
 // the demo uses a different protocol version for independant browsing
-#define ETPROTOCOL_VERSION    1
+#define PROTOCOL_VERSION    1000
 #endif
 
 // NERVE - SMF - wolf multiplayer master servers
@@ -297,10 +297,10 @@ You or the server may be running older versions of the game. Press the auto-upda
 #define AUTOUPDATE_SERVER5_NAME   AUTOUPDATE_SERVER_NAME
 #endif
 
-#define PORT_MASTER         27950
-#define PORT_MOTD           27950
-#define PORT_AUTHORIZE      27952
-#define PORT_SERVER         27960
+#define PORT_MASTER         12950
+#define PORT_MOTD           12950
+#define PORT_AUTHORIZE      12952
+#define PORT_SERVER         12960
 #define NUM_SERVER_PORTS    4	// broadcast scan this many ports after
 // PORT_SERVER so a single machine can
 // run multiple servers

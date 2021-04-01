@@ -1054,7 +1054,7 @@ void idServerInitSystemLocal::Init( void )
     cvarSystem->Get( "timelimit", "0", CVAR_SERVERINFO, "Sets the amount of time before a game will end if fraglimit is not reached or set. Setting to 0 disables timelimit. " );
     
     cvarSystem->Get( "sv_keywords", "", CVAR_SERVERINFO, "Variable holds the search string entered in the internet connection menu" );
-    cvarSystem->Get( "protocol", va( "%i", ETPROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "Display network protocol version. Useful for backward compatibility with servers with otherwise incompatible versions." );
+    cvarSystem->Get( "protocol", va( "%i", PROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "Display network protocol version. Useful for backward compatibility with servers with otherwise incompatible versions." );
     sv_mapname = cvarSystem->Get( "mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM, "Display the name of the current map being used" );
     sv_privateClients = cvarSystem->Get( "sv_privateClients", "0", CVAR_SERVERINFO, "The number of spots, out of sv_maxclients, reserved for players with the server password (sv_privatePassword)" );
     sv_hostname = cvarSystem->Get( "sv_hostname", "OpenWolf Host", CVAR_SERVERINFO | CVAR_ARCHIVE, "The name of the server in server browsers." );
