@@ -426,6 +426,8 @@ idAudioOpenALSystemLocal::BeginRegistration
 */
 void idAudioOpenALSystemLocal::BeginRegistration( void )
 {
+    // Initialize buffers
+    buf_init();
 }
 
 /*
@@ -435,6 +437,8 @@ idAudioOpenALSystemLocal::ClearSoundBuffer
 */
 void idAudioOpenALSystemLocal::ClearSoundBuffer( void )
 {
+    src_shutdown();
+    src_init();
 }
 
 idSoundSystem* soundSystem;

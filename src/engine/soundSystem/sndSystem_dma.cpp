@@ -791,7 +791,7 @@ void SOrig_StartSound( vec3_t origin, sint entityNum, sint entchannel, sfxHandle
 
 /*
 ==================
-S_StartLocalSound
+SOrig_StartLocalSound
 ==================
 */
 void SOrig_StartLocalSound( sfxHandle_t sfxHandle, sint channelNum )
@@ -813,7 +813,7 @@ void SOrig_StartLocalSound( sfxHandle_t sfxHandle, sint channelNum )
 
 /*
 ==================
-S_ClearSoundBuffer
+SOrig_ClearSoundBuffer
 
 If we are about to perform file access, clear the buffer
 so sound doesn't stutter.

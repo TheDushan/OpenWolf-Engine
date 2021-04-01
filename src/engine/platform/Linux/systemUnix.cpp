@@ -1023,7 +1023,7 @@ idSystemLocal::IsNumLockDown
 */
 bool idSystemLocal::IsNumLockDown( void )
 {
-        return (SDL_GetModState() & KMOD_NUM) == KMOD_NUM;
+    return ( SDL_GetModState() & KMOD_NUM ) == KMOD_NUM;
 }
 
 #ifdef MACOS_X
