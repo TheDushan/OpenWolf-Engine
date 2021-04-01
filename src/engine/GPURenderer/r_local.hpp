@@ -1881,6 +1881,7 @@ extern	convar_t*	r_lightmap;					// render lightmaps only
 extern	convar_t*	r_vertexLight;					// vertex lighting mode for better performance
 extern	convar_t*	r_uiFullScreen;				// ui is running fullscreen
 
+extern convar_t* r_verbose;
 extern	convar_t*	r_logFile;						// number of frames to emit GL logs
 extern	convar_t*	r_showtris;					// enables wireframe rendering of the world
 extern	convar_t*	r_showsky;						// forces sky in front of all surfaces

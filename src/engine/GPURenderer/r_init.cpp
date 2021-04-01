@@ -162,6 +162,7 @@ convar_t*  r_shadowCascadeZBias;
 convar_t*  r_ignoreDstAlpha;
 
 convar_t*	r_ignoreGLErrors;
+convar_t* r_verbose;
 convar_t*	r_logFile;
 
 convar_t*	r_stencilbits;
@@ -1151,6 +1152,11 @@ void GfxInfo_f( void )
         "fullscreen"
     };
     
+    if( !r_verbose->integer )
+    {
+        return;
+    }
+    
     CL_RefPrintf( PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
     CL_RefPrintf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
     CL_RefPrintf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
@@ -1429,6 +1435,7 @@ void R_Register( void )
     r_novis = cvarSystem->Get( "r_novis", "0", CVAR_CHEAT, "Toggles the option to ignore vis data when drawing the map. 0=disables;1=enables" );
     r_showcluster = cvarSystem->Get( "r_showcluster", "0", CVAR_CHEAT, "Toggles display of clusters by number as the player enters them on the currently loaded map. 0=disables;1=enables." );
     r_speeds = cvarSystem->Get( "r_speeds", "0", CVAR_CHEAT, "Toggles the display of map geometry data. 0=disables,1=enables." );
+    r_verbose = cvarSystem->Get( "r_verbose", "0", CVAR_CHEAT, "Used for verbose debug spew." );
     r_logFile = cvarSystem->Get( "r_logFile", "0", CVAR_CHEAT, "Toggles the writing of GL.LOG in the same binary directory which records all OpenGL commands used in a game session. 0=disables;1=enable" );
     r_debugSurface = cvarSystem->Get( "r_debugSurface", "0", CVAR_CHEAT, "Sets the size of the debug surface grid for curved surfaces when r_debugsurface is 1." );
     r_showtris = cvarSystem->Get( "r_showtris", "0", CVAR_CHEAT, "Toggles the drawing of polygon triangles. See also r_shownormals. 0=disables,1=enables." );
