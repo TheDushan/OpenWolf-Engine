@@ -3284,6 +3284,11 @@ void idFileSystemLocal::Path_f( void )
     searchpath_t* s;
     sint i;
     
+    if( !fs_debug->integer )
+    {
+        return;
+    }
+    
     Com_Printf( "Current search path:\n" );
     
     for( s = fs_searchpaths; s; s = s->next )
@@ -4081,7 +4086,7 @@ void idFileSystemLocal::Startup( pointer gameName )
     ReorderPurePaks();
     
     //print the current search paths
-    //idFileSystemLocal::Path_f();
+    idFileSystemLocal::Path_f();
     
     fs_gamedirvar->modified = false; // We just loaded, it's not modified
     
