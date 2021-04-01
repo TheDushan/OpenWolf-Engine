@@ -2444,7 +2444,7 @@ void CL_CheckForResend( void )
             port = cvarSystem->VariableValue( "net_qport" );
             
             Q_strncpyz( info, cvarSystem->InfoString( CVAR_USERINFO ), sizeof( info ) );
-            Info_SetValueForKey( info, "protocol", va( "%i", ETPROTOCOL_VERSION ) );
+            Info_SetValueForKey( info, "protocol", va( "%i", PROTOCOL_VERSION ) );
             Info_SetValueForKey( info, "qport", va( "%i", port ) );
             Info_SetValueForKey( info, "challenge", va( "%i", clc.challenge ) );
             
