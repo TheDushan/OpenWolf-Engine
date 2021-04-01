@@ -363,7 +363,7 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
             {
                 if( warn )
                 {
-                    Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s' must be integral", var->name );
+                    Com_Printf( S_COLOR_YELLOW "'%s' must be integral", var->name );
                 }
                 
                 valuef = static_cast<sint>( valuef );
@@ -375,7 +375,7 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
     {
         if( warn )
         {
-            Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s' must be numeric", var->name );
+            Com_Printf( S_COLOR_YELLOW "'%s' must be numeric", var->name );
         }
         
         valuef = atof( var->resetString );
@@ -392,16 +392,16 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
             }
             else
             {
-                Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s'", var->name );
+                Com_Printf( S_COLOR_YELLOW "Attempted to set '%s'", var->name );
             }
             
             if( Q_isintegral( var->min ) )
             {
-                Com_Printf( " out of range (min %d)", static_cast<sint>( var->min ) );
+                Com_Printf( " out of range (min %d)\n", static_cast<sint>( var->min ) );
             }
             else
             {
-                Com_Printf( " out of range (min %f)", var->min );
+                Com_Printf( " out of range (min %f)\n", var->min );
             }
         }
         
@@ -418,16 +418,16 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
             }
             else
             {
-                Com_Printf( S_COLOR_YELLOW "WARNING: cvar '%s'", var->name );
+                Com_Printf( S_COLOR_YELLOW "Attempted to set '%s'", var->name );
             }
             
             if( Q_isintegral( var->max ) )
             {
-                Com_Printf( " out of range (max %d)", static_cast<sint>( var->max ) );
+                Com_Printf( " out of range (max %d)\n", static_cast<sint>( var->max ) );
             }
             else
             {
-                Com_Printf( " out of range (max %f)", var->max );
+                Com_Printf( " out of range (max %f)\n", var->max );
             }
         }
         
@@ -440,20 +440,10 @@ const valueType* idCVarSystemLocal::Validate( convar_t* var, pointer value, bool
         if( Q_isintegral( valuef ) )
         {
             Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%d", static_cast<sint>( valuef ) );
-            
-            if( warn )
-            {
-                Com_Printf( ", setting to %d\n", static_cast<sint>( valuef ) );
-            }
         }
         else
         {
             Q_vsprintf_s( s, sizeof( s ), sizeof( s ), "%f", valuef );
-            
-            if( warn )
-            {
-                Com_Printf( ", setting to %f\n", valuef );
-            }
         }
         
         return s;
