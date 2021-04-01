@@ -50,7 +50,7 @@ public:
     ~idClientParseSystemLocal();
     
     static void ParseServerMessage( msg_t* msg );
-    static void ShowNet( msg_t* msg, valueType* s );
+    static void ShowNet( const msg_t* msg, pointer s );
     static bool isEntVisible( entityState_t* ent );
     static void DeltaEntity( msg_t* msg, clSnapshot_t* frame, sint newnum, entityState_t* old, bool unchanged );
     static void ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* newframe );

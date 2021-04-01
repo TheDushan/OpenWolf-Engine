@@ -57,7 +57,7 @@ idClientParseSystemLocal::~idClientParseSystemLocal( void )
 {
 }
 
-valueType* svc_strings[256] =
+constexpr pointer svc_strings[256] =
 {
     "svc_bad",
     
@@ -72,7 +72,12 @@ valueType* svc_strings[256] =
     "svc_EOF"
 };
 
-void idClientParseSystemLocal::ShowNet( msg_t* msg, valueType* s )
+/*
+===============
+idClientParseSystemLocal::ShowNet
+===============
+*/
+void idClientParseSystemLocal::ShowNet( const msg_t* msg, pointer s )
 {
     if( cl_shownet->integer >= 2 )
     {

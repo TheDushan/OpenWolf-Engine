@@ -100,7 +100,7 @@ enum keyType_t
 };
 
 // We translate axes movement into keypresses
-static sint joy_keys[16] =
+static constexpr sint joy_keys[16] =
 {
     K_LEFTARROW, K_RIGHTARROW,
     K_UPARROW, K_DOWNARROW,
@@ -114,7 +114,7 @@ static sint joy_keys[16] =
 
 // translate hat events into keypresses
 // the 4 highest buttons are used for the first hat ...
-static sint hat_keys[16] =
+static constexpr sint hat_keys[16] =
 {
     K_JOY29, K_JOY30,
     K_JOY31, K_JOY32,
