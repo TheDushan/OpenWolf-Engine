@@ -215,6 +215,7 @@ typedef struct
     // normal screens should be 4/3, but wide aspect monitors may be 16/9
     float32					windowAspect;
     float32					displayAspect;
+    float32					displayScale;
     
     sint						displayFrequency;
     

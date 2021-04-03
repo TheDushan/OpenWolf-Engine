@@ -1152,14 +1152,10 @@ void GfxInfo_f( void )
         "fullscreen"
     };
     
-    if( !r_verbose->integer )
-    {
-        return;
-    }
-    
     CL_RefPrintf( PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
     CL_RefPrintf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
     CL_RefPrintf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
+    
 #ifdef _DEBUG
     if( qglGetStringi )
     {
@@ -1181,6 +1177,7 @@ void GfxInfo_f( void )
     CL_RefPrintf( PRINT_ALL, "GL_MAX_TEXTURE_IMAGE_UNITS: %d\n", glConfig.numTextureUnits );
     CL_RefPrintf( PRINT_ALL, "PIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
     CL_RefPrintf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
+    
     if( glConfig.displayFrequency )
     {
         CL_RefPrintf( PRINT_ALL, "%d\n", glConfig.displayFrequency );
@@ -1189,6 +1186,9 @@ void GfxInfo_f( void )
     {
         CL_RefPrintf( PRINT_ALL, "N/A\n" );
     }
+    
+    CL_RefPrintf( PRINT_ALL, "Display Scale: %d%%\n", ( sint )glConfig.displayScale * 100 );
+    
     if( glConfig.deviceSupportsGamma )
     {
         CL_RefPrintf( PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits );
@@ -1592,7 +1592,11 @@ void R_Init( void )
         CL_RefPrintf( PRINT_ALL, "glGetError() = 0x%x\n", err );
         
     // print info
-    GfxInfo_f();
+    if( !r_verbose )
+    {
+        GfxInfo_f();
+    }
+    
     CL_RefPrintf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
 

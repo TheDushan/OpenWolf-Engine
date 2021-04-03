@@ -128,7 +128,6 @@ static sint GLimp_CompareModes( const void* a, const void* b )
     }
 }
 
-
 /*
 ===============
 GLimp_DetectAvailableModes
@@ -149,6 +148,7 @@ static void GLimp_DetectAvailableModes( void )
         CL_RefPrintf( PRINT_WARNING, "Couldn't get window display index, no resolutions detected: %s\n", SDL_GetError() );
         return;
     }
+    
     numSDLModes = SDL_GetNumDisplayModes( display );
     
     if( SDL_GetWindowDisplayMode( SDL_window, &windowMode ) < 0 || numSDLModes <= 0 )
@@ -385,6 +385,39 @@ static void GLimp_ClearProcAddresses( void )
     qglUnlockArraysEXT = nullptr;
     
 #undef GLE
+}
+
+/*
+===============
+GLimp_GetDPIScale
+===============
+*/
+static float32 GLimp_GetDPIScale( sint display )
+{
+    float32 scale = 1.0f;
+    
+    pointer driver = SDL_GetCurrentVideoDriver();
+    
+    if( !::strcmp( driver, "windows" ) )
+    {
+        float32 ddpi;
+        
+        if( !SDL_GetDisplayDPI( display, &ddpi, nullptr, nullptr ) )
+        {
+            scale = ddpi / 96.0f;
+        }
+    }
+    else if( !::strcmp( driver, "x11" ) )
+    {
+        float32 ddpi;
+        
+        if( !SDL_GetDisplayDPI( display, &ddpi, nullptr, nullptr ) )
+        {
+            scale = ::roundf( ddpi / 96.0f );
+        }
+    }
+
+    return scale;
 }
 
 /*
@@ -679,6 +712,8 @@ static sint GLimp_SetMode( sint mode, bool fullscreen, bool noborder, bool fixed
             }
         }
         
+        glConfig.displayScale = GLimp_GetDPIScale( display );
+        
         SDL_SetWindowIcon( SDL_window, icon );
         
         if( !fixedFunction )
@@ -786,7 +821,6 @@ static sint GLimp_SetMode( sint mode, bool fullscreen, bool noborder, bool fixed
         return RSERR_UNKNOWN;
     }
     
-    
     if( !SDL_window )
     {
         CL_RefPrintf( PRINT_ALL, "Couldn't get a visual\n" );
@@ -810,15 +844,6 @@ static bool GLimp_StartDriverAndSetMode( sint mode, bool fullscreen, bool nobord
 {
     rserr_t err;
     SDL_DisplayMode modeSDL;
-    sint num_displays, dpy;
-    
-    if( fullscreen && cvarSystem->VariableIntegerValue( "in_nograb" ) )
-    {
-        CL_RefPrintf( PRINT_DEVELOPER, "Fullscreen not allowed with in_nograb 1\n" );
-        cvarSystem->Set( "r_fullscreen", "0" );
-        r_fullscreen->modified = false;
-        fullscreen = false;
-    }
     
     if( !SDL_WasInit( SDL_INIT_VIDEO ) )
     {
@@ -835,62 +860,12 @@ static bool GLimp_StartDriverAndSetMode( sint mode, bool fullscreen, bool nobord
         cvarSystem->Set( "r_sdlDriver", driverName );
     }
     
-    num_displays = SDL_GetNumVideoDisplays();
-    
-    CL_RefPrintf( PRINT_DEVELOPER, "See %d displays.\n", num_displays );
-    
-    for( dpy = 0; dpy < num_displays; dpy++ )
+    if( fullscreen && cvarSystem->VariableIntegerValue( "in_nograb" ) )
     {
-        const sint num_modes = SDL_GetNumDisplayModes( dpy );
-        SDL_Rect rect = { 0, 0, 0, 0 };
-        float32 ddpi, hdpi, vdpi;
-        sint m;
-        
-        SDL_GetDisplayBounds( dpy, &rect );
-        CL_RefPrintf( PRINT_DEVELOPER, "%d: \"%s\" (%dx%d, (%d, %d)), %d modes.\n", dpy, SDL_GetDisplayName( dpy ), rect.w, rect.h, rect.x, rect.y, num_modes );
-        
-        if( SDL_GetDisplayDPI( dpy, &ddpi, &hdpi, &vdpi ) == -1 )
-        {
-            Com_Error( ERR_DROP, " DPI: failed to query (%s)\n", SDL_GetError() );
-        }
-        else
-        {
-            CL_RefPrintf( PRINT_DEVELOPER, "DPI: ddpi=%f; hdpi=%f; vdpi=%f\n", ddpi, hdpi, vdpi );
-        }
-        
-        if( SDL_GetCurrentDisplayMode( dpy, &modeSDL ) == -1 )
-        {
-            Com_Error( ERR_DROP, " CURRENT: failed to query (%s)\n", SDL_GetError() );
-        }
-        else
-        {
-            CL_RefPrintf( PRINT_DEVELOPER, "CURRENT", &modeSDL );
-        }
-        
-        if( SDL_GetDesktopDisplayMode( dpy, &modeSDL ) == -1 )
-        {
-            Com_Error( ERR_DROP, " DESKTOP: failed to query (%s)\n", SDL_GetError() );
-        }
-        else
-        {
-            CL_RefPrintf( PRINT_DEVELOPER, "DESKTOP", &modeSDL );
-        }
-        
-        for( m = 0; m < num_modes; m++ )
-        {
-            if( SDL_GetDisplayMode( dpy, m, &modeSDL ) == -1 )
-            {
-                Com_Error( ERR_DROP, " MODE %d: failed to query (%s)\n", m, SDL_GetError() );
-            }
-            else
-            {
-                valueType prefix[64];
-                snprintf( prefix, sizeof( prefix ), " MODE %d", m );
-                CL_RefPrintf( PRINT_DEVELOPER, prefix, &modeSDL );
-            }
-        }
-        
-        CL_RefPrintf( PRINT_DEVELOPER, "\n" );
+        CL_RefPrintf( PRINT_DEVELOPER, "Fullscreen not allowed with in_nograb 1\n" );
+        cvarSystem->Set( "r_fullscreen", "0" );
+        r_fullscreen->modified = false;
+        fullscreen = false;
     }
     
     if( r_stereoEnabled->integer )
