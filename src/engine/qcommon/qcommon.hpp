@@ -265,20 +265,6 @@ You or the server may be running older versions of the game. Press the auto-upda
 #define PROTOCOL_VERSION    1000
 #endif
 
-// NERVE - SMF - wolf multiplayer master servers
-#ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME      "127.0.0.1"
-#endif
-#define MOTD_SERVER_NAME        "127.0.0.1"//"etmotd.idsoftware.com" // ?.?.?.?
-
-#define AUTHORIZE_SERVER_NAME   "127.0.0.1"
-
-// TTimo: override autoupdate server for testing
-#ifndef AUTOUPDATE_SERVER_NAME
-#define AUTOUPDATE_SERVER_NAME "127.0.0.1"
-//#define AUTOUPDATE_SERVER_NAME "au2rtcw2.activision.com"
-#endif
-
 // TTimo: allow override for easy dev/testing..
 // FIXME: not planning to support more than 1 auto update server
 // see cons -- update_server=myhost
