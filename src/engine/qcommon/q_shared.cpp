@@ -53,6 +53,27 @@
 
 /*
 ============
+Com_Clampi
+============
+*/
+sint Com_Clampi( sint min, sint max, sint value )
+{
+    if( value < min )
+    {
+        return min;
+    }
+    
+    if( value > max )
+    {
+        return max;
+    }
+    
+    return value;
+}
+
+
+/*
+============
 Com_Clamp
 ============
 */

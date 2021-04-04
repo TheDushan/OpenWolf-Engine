@@ -680,6 +680,8 @@ void            MatrixTransformPoint( const matrix_t m, const vec3_t in, vec3_t 
 
 //=============================================
 
+//Dushan same as Com_Clamp just for integers
+sint Com_Clampi( sint min, sint max, sint value );
 float32 Com_Clamp( float32 min, float32 max, float32 value );
 
 valueType* Com_SkipTokens( valueType* s, sint numTokens, valueType* sep );

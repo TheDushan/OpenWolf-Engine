@@ -1204,38 +1204,25 @@ void idClientGameSystemLocal::SetCGameTime( void )
     }
     else
     {
-        // cl_timeNudge is a user adjustable cvar that allows more
+        // cl_timeNudge is a user adjustable convar that allows more
         // or less latency to be added in the interest of better
         // smoothness or better responsiveness.
-        sint             tn;
+        sint timeNudge;
         
-        tn = cl_timeNudge->integer;
-        if( tn < 0 && ( cl.snapServer.ps.pm_type == PM_SPECTATOR || cl.snapServer.ps.pm_flags & PMF_FOLLOW || clc.demoplaying ) )
+        timeNudge = cl_timeNudge->integer;
+        if( timeNudge < 0 && ( cl.snapServer.ps.pm_type == PM_SPECTATOR || cl.snapServer.ps.pm_flags & PMF_FOLLOW || clc.demoplaying ) )
         {
-            tn = 0;
+            // disable negative timeNudge when spectating
+            timeNudge = 0;
         }
         
-#if 1//def _DEBUG
-        if( tn < -900 )
-        {
-            tn = -900;
-        }
-        else if( tn > 900 )
-        {
-            tn = 900;
-        }
+#ifdef _DEBUG
+        timeNudge = Com_Clampi( -900, 900, timeNudge );
 #else
-        if( tn < -2000 )
-        {
-            tn = -2000;
-        }
-        else if( tn > 2000 )
-        {
-            tn = 2000;
-        }
+        timeNudge = Com_Clampi( -2000, 2000, timeNudge );
 #endif
         
-        cl.serverTime = cls.realtime + cl.serverTimeDelta - tn;
+        cl.serverTime = cls.realtime + cl.serverTimeDelta - timeNudge;
         
         // guarantee that time will never flow backwards, even if
         // serverTimeDelta made an adjustment or cl_timeNudge was changed

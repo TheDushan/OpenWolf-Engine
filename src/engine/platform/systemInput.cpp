@@ -475,7 +475,7 @@ void idSystemLocal::GobbleMotionEvents( void )
     
     if( val < 0 )
     {
-        Com_Printf( "IN_GobbleMotionEvents failed: %s\n", SDL_GetError() );
+        Com_Printf( "idSystemLocal::GobbleMotionEvents failed: %s\n", SDL_GetError() );
     }
 }
 
