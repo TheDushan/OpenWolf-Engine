@@ -421,7 +421,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket( netadr_t from, msg_t* msg )
     {
         if( info[::strlen( info ) - 1] != '\n' )
         {
-            ::strncat( info, "\n", sizeof( info ) );
+            Q_strcat( info, sizeof( info ), "\n" );
         }
         
         Com_Printf( "%s: %s", networkSystem->AdrToStringwPort( from ), info );
@@ -789,7 +789,7 @@ void idClientBrowserSystemLocal::GlobalServers( void )
     
     if( !*masteraddress )
     {
-        Com_Printf( "idClientBrowserSystemLocal::GlobalServers: Error: No master server address given.\n" );
+        Com_Printf( "idClientBrowserSystemLocal::GlobalServers: Error: No master server address given for %s.\n", command );
         return;
     }
     

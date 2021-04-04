@@ -5,6 +5,8 @@
 	* [SoundSystem] Don't play any sound if while application is minimized
 	* [SoundSystem] Don't play any sound if while application is unfocused
 	* [Engine] Allow sending "userinfo" while the menu is open
+	* [Filesystem] Changed fs_debug logging option
+	* [Client] Small fixes
 	
 2021-04-03 Dusan Jocic <dusanjocic@msn>
 	* [RenderSystem} Addressed the problem with DPI inside the engine
