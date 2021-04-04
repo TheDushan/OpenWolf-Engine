@@ -832,6 +832,9 @@ static sint GLimp_SetMode( sint mode, bool fullscreen, bool noborder, bool fixed
     glstring = ( valueType* )qglGetString( GL_RENDERER );
     CL_RefPrintf( PRINT_ALL, "GL_RENDERER: %s\n", glstring );
     
+    SDL_MinimizeWindow( SDL_window );
+    SDL_RestoreWindow( SDL_window );
+    
     return RSERR_OK;
 }
 

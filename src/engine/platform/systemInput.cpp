@@ -486,8 +486,16 @@ idSystemLocal::ActivateMouse
 */
 void idSystemLocal::ActivateMouse( void )
 {
+    static connstate_t lastState = CA_UNINITIALIZED;
+    
     if( !mouseAvailable || !SDL_WasInit( SDL_INIT_VIDEO ) )
     {
+        return;
+    }
+    
+    if( cls.state != lastState )
+    {
+        lastState = cls.state;
         return;
     }
     
