@@ -257,6 +257,11 @@ idSoundSystemLocal::StartSound
 */
 void idSoundSystemLocal::StartSound( vec3_t origin, sint entnum, sint entchannel, sfxHandle_t sfx )
 {
+    if( com_minimized->integer )
+    {
+        return;
+    }
+    
     if( useBuiltin )
     {
         SOrig_StartSound( origin, entnum, entchannel, sfx );
