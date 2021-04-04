@@ -15,6 +15,10 @@ include( CMakeDependentOption )
 set( GAME_APP_NAME "" CACHE            STRING "The Application name")
 set( GAME_APP_VERSION "" CACHE         STRING "The Application version")
 set( GAME_APP_STAGE "" CACHE           STRING "The Application stage")
+set( URL_MASTER_SERVER "" CACHE        STRING "The URL for the Master Server")
+set( URL_MOTD_SERVER "" CACHE          STRING "The URL for the MOTD Server")
+set( URL_AUTHORIZE_SERVER "" CACHE     STRING "The URL for the Authorize Server")
+set( URL_AUTOUPDATE_SERVER "" CACHE    STRING "The URL for the Autoupdate Server")
 
 string( REPLACE " " "" GAME_APP_NAME_UPPER ${GAME_APP_NAME} )
 string( TOLOWER ${GAME_APP_NAME} GAME_APP_NAME_LOWER )
@@ -29,6 +33,22 @@ endif()
 
 if("${GAME_APP_STAGE}" STREQUAL "")
 	message(FATAL_ERROR "Please set GAME_APP_STAGE first")
+endif()
+
+if("${URL_MASTER_SERVER}" STREQUAL "")
+	message(FATAL_ERROR "Please set URL_MASTER_SERVER first")
+endif()
+
+if("${URL_MOTD_SERVER}" STREQUAL "")
+	message(FATAL_ERROR "Please set URL_MOTD_SERVER first")
+endif()
+
+if("${URL_AUTHORIZE_SERVER}" STREQUAL "")
+	message(FATAL_ERROR "Please set URL_AUTHORIZE_SERVER first")
+endif()
+
+if("${URL_AUTOUPDATE_SERVER}" STREQUAL "")
+	message(FATAL_ERROR "Please set URL_AUTOUPDATE_SERVER first")
 endif()
 
 # This line has to appear before 'PROJECT' in order to be able to disable incremental linking
