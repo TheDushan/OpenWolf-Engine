@@ -117,6 +117,10 @@ convar_t*         cl_notebook;
 convar_t*         com_hunkused;	// Ridah
 convar_t*         com_protocol;
 
+#ifndef DEDICATED
+convar_t* con_autochat;
+#endif
+
 // com_speeds times
 sint             time_game;
 sint             time_frontend;	// renderer frontend time
@@ -3278,6 +3282,10 @@ void Com_Init( valueType* commandLine )
     s = va( "%s %s %s %s", PRODUCT_NAME, OS_STRING, OS_STRING, __DATE__ );
     com_version = cvarSystem->Get( "version", s, CVAR_ROM | CVAR_SERVERINFO, "Records all info about the application version: build number, build date, win/linux etc" );
     com_protocol = cvarSystem->Get( "protocol", va( "%i", PROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "Returns the current protocol (changes with patches)." );
+    
+#ifndef DEDICATED
+    con_autochat = cvarSystem->Get( "con_autochat", "1", CVAR_ARCHIVE, "Set to 0 to disable sending console input text as chat when there is not a slash at the beginning." );
+#endif
     
     idsystem->Init();
     

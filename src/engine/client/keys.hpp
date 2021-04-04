@@ -58,6 +58,7 @@ extern field_t  chatField;
 extern sint      anykeydown;
 extern bool chat_team;
 extern bool chat_buddy;
+extern bool commandMode;
 
 void            Key_WriteBindings( fileHandle_t f );
 void            Key_SetBinding( sint keynum, pointer binding );

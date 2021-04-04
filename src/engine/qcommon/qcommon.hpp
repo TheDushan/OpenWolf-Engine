@@ -392,6 +392,9 @@ extern convar_t*  com_crashed;
 extern convar_t*  com_ignorecrash;	//bani
 
 extern convar_t*  com_protocol;
+#ifndef DEDICATED
+extern  convar_t* con_autochat;
+#endif
 extern convar_t*  com_pid;		//bani
 
 extern convar_t*  com_developer;

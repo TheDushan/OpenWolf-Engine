@@ -7,6 +7,8 @@
 	* [Engine] Allow sending "userinfo" while the menu is open
 	* [Filesystem] Changed fs_debug logging option
 	* [Client] Small fixes
+	* [Client] Fixed floating-point errors in pitch angle
+	* [Console] Implemented console tabs
 	
 2021-04-03 Dusan Jocic <dusanjocic@msn>
 	* [RenderSystem} Addressed the problem with DPI inside the engine

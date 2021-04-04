@@ -1658,4 +1658,6 @@ float32 Q_flrand( float32 min, float32 max );
 bool Q_CleanPlayerName( pointer in, valueType* out, sint outSize );
 sint COM_CompressBracedSection( valueType** data_p, valueType** name, valueType** text, sint* nameLength, sint* textLength );
 
+#define KEYBOARDCTRL(a) ((a)-'a'+1)
+
 #endif //!__Q_SHARED_H__

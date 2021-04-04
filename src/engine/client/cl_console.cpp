@@ -41,37 +41,27 @@ sint g_console_field_width = 78;
 
 #define CONSOLE_COLOR '7'
 #define DEFAULT_CONSOLE_WIDTH   78
-#define NUM_CON_TIMES 4
-#define CON_TEXTSIZE 65536
 
-typedef struct
+pointer conTabsNames[NUMBER_TABS] =
 {
-    bool        initialized;
-    
-    schar16         text[CON_TEXTSIZE];
-    sint         current;	// line where next message will be printed
-    sint         x;			// offset in current line for next print
-    sint         display;	// bottom of console displays this line
-    
-    sint         linewidth;	// characters across screen
-    sint         totallines;	// total lines in console scrollback
-    
-    float32         xadjust;	// for wide aspect screens
-    
-    float32         displayFrac;	// aproaches finalFrac at scr_conspeed
-    float32         finalFrac;	// 0.0 to 1.0 lines of console to display
-    float32         desiredFrac;	// ydnar: for variable console heights
-    
-    sint         vislines;	// in scanlines
-    
-    sint         times[NUM_CON_TIMES];	// cls.realtime time the line was generated
-    // for transparent notify lines
-    vec4_t      color;
-    
-    sint          acLength;	// Arnout: autocomplete buffer length
-} console_t;
+    "All Chat",
+    "System Chat",
+    "Player Chat",
+    "Team Chat"
+};
 
-console_t       con;
+// color indexes in g_color_table
+const sint consoleColors[] =
+{
+    1,
+    3,
+    2,
+    5,
+    6
+};
+
+console_t	con[NUMBER_TABS];
+console_t* activeCon = con;
 
 convar_t*         con_debug;
 convar_t*         con_conspeed;
@@ -100,6 +90,133 @@ convar_t*         con_restricted;
 
 vec4_t          console_highlightcolor = { 0.5, 0.5, 0.2, 0.45 };
 
+/*
+================
+Con_LineAccept
+
+When the user enters a command in the console
+================
+*/
+void Con_LineAccept( void )
+{
+    // for commandMode, always use sys-console
+    sint conNum = commandMode ? CON_SYS : activeCon - con;
+    bool isChat = CON_ISCHAT( conNum );
+    
+    // reset if commandMode
+    if( commandMode )
+    {
+        cls.keyCatchers & ~KEYCATCH_CONSOLE;
+        commandMode = false;
+    }
+    
+    // if in sys-console or not in the game explicitly prepend a slash if needed
+    if( ( cls.state != CA_ACTIVE || conNum == CON_SYS ) &&
+            con_autochat->integer &&
+            g_consoleField.buffer[0] &&
+            g_consoleField.buffer[0] != '\\' &&
+            g_consoleField.buffer[0] != '/' )
+    {
+        valueType temp[MAX_EDIT_LINE - 1];
+        
+        Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
+        Q_vsprintf_s( g_consoleField.buffer, sizeof( g_consoleField.buffer ), sizeof( g_consoleField.buffer ), "\\%s", temp );
+        g_consoleField.cursor++;
+    }
+    
+    // print prompts for non-chat consoles
+    if( !isChat )
+    {
+        Com_Printf( "]%s\n", g_consoleField.buffer );
+    }
+    
+    // leading slash is an explicit command (for non-chat consoles)
+    if( !isChat && ( g_consoleField.buffer[0] == '\\' || g_consoleField.buffer[0] == '/' ) )
+    {
+        cmdBufferSystem->ExecuteText( EXEC_NOW, "reconnect\n" );
+        // valid command
+        cmdBufferSystem->AddText( g_consoleField.buffer + 1 );
+        cmdBufferSystem->AddText( "\n" );
+    }
+    else
+    {
+        // other text will be chat messages if in all-console with con_autochat
+        // or when in chat-console
+        if( !g_consoleField.buffer[0] )
+        {
+            // empty lines just scroll the console without adding to history
+            return;
+        }
+        else
+        {
+            if( ( con_autochat->integer && conNum == CON_ALL ) || conNum == CON_CHAT )
+            {
+                cmdBufferSystem->AddText( "cmd say \"" );
+                cmdBufferSystem->AddText( g_consoleField.buffer );
+                cmdBufferSystem->AddText( "\"" );
+            }
+            else if( conNum == CON_TCHAT )
+            {
+                cmdBufferSystem->AddText( "cmd say_team " );
+                cmdBufferSystem->AddText( g_consoleField.buffer );
+                cmdBufferSystem->AddText( "\"" );
+            }
+            else
+            {
+                cmdBufferSystem->AddText( g_consoleField.buffer );
+                cmdBufferSystem->AddText( "\n" );
+            }
+        }
+    }
+    
+    cmdCompletionSystem->Clear( &g_consoleField );
+    
+    g_consoleField.widthInChars = g_console_field_width;
+    
+    consoleHistorySystem->Save();
+    
+    if( cls.state == CA_DISCONNECTED )
+    {
+        // force an update, because the command may take some time
+        clientScreenSystem->UpdateScreen();
+    }
+}
+
+/*
+================
+Con_ConsoleSwitch
+
+Change to console number n
+================
+*/
+void Con_ConsoleSwitch( sint n )
+{
+    con[n].displayFrac = activeCon->displayFrac;
+    con[n].finalFrac = activeCon->finalFrac;
+    
+    if( n < 0 || n >= NUMBER_TABS )
+    {
+        Com_Printf( "Invalid console number %i\n", n );
+    }
+    else
+    {
+        activeCon = &con[n];
+    }
+}
+
+/*
+================
+Con_ConsoleNext
+
+Change to console n steps relative to current console, will wrap around, n can
+be negative in which case it will switch backwards
+================
+*/
+void Con_ConsoleNext( sint n )
+{
+    Con_ConsoleSwitch( ( NUMBER_TABS + activeCon - con + n ) % NUMBER_TABS );
+}
+
 
 /*
 ================
@@ -108,10 +225,17 @@ Con_ToggleConsole_f
 */
 void Con_ToggleConsole_f( void )
 {
-    con.acLength = 0;
+    activeCon->acLength = 0;
     
     if( con_restricted->integer && ( !keys[K_CTRL].down || !keys[K_SHIFT].down ) )
     {
+        return;
+    }
+    
+    // if in command mode, switch to regular console
+    if( commandMode )
+    {
+        commandMode = false;
         return;
     }
     
@@ -126,11 +250,14 @@ void Con_ToggleConsole_f( void )
     
     Con_ClearNotify();
     
+    // change to all-console
+    activeCon = &con[CON_ALL];
+    
     // ydnar: multiple console size support
     if( cls.keyCatchers & KEYCATCH_CONSOLE )
     {
         cls.keyCatchers &= ~KEYCATCH_CONSOLE;
-        con.desiredFrac = 0.0;
+        activeCon->desiredFrac = 0.0;
     }
     else
     {
@@ -139,17 +266,17 @@ void Con_ToggleConsole_f( void )
         // schar16 console
         if( keys[K_CTRL].down )
         {
-            con.desiredFrac = ( 5.0 * SMALLCHAR_HEIGHT ) / cls.glconfig.vidHeight;
+            activeCon->desiredFrac = ( 5.0 * SMALLCHAR_HEIGHT ) / cls.glconfig.vidHeight;
         }
         // full console
         else if( keys[K_ALT].down )
         {
-            con.desiredFrac = 1.0;
+            activeCon->desiredFrac = 1.0;
         }
         // normal half-screen console
         else
         {
-            con.desiredFrac = 0.5;
+            activeCon->desiredFrac = 0.5;
         }
     }
 }
@@ -220,6 +347,18 @@ void Con_MessageMode3_f( void )
     cls.keyCatchers ^= KEYCATCH_MESSAGE;
 }
 
+/*
+================
+Con_CommandMode_f
+================
+*/
+void Con_CommandMode_f( void )
+{
+    cmdCompletionSystem->Clear( &g_consoleField );
+    commandMode = true;
+    cls.keyCatchers ^= KEYCATCH_CONSOLE;
+}
+
 void Con_OpenConsole_f( void )
 {
     if( !( cls.keyCatchers & KEYCATCH_CONSOLE ) )
@@ -250,7 +389,7 @@ void Con_Clear_f( void )
     
     for( i = 0; i < CON_TEXTSIZE; i++ )
     {
-        con.text[i] = ( ColorIndex( CONSOLE_COLOR ) << 8 ) | ' ';
+        activeCon->text[i] = ( ColorIndex( CONSOLE_COLOR ) << 8 ) | ' ';
     }
     
     Con_Bottom();				// go to end
@@ -320,33 +459,33 @@ void Con_Dump_f( void )
     }
     
     // skip empty lines
-    for( l = con.current - con.totallines + 1; l <= con.current; l++ )
+    for( l = activeCon->current - activeCon->totallines + 1; l <= activeCon->current; l++ )
     {
-        line = con.text + ( l % con.totallines ) * con.linewidth;
-        for( x = 0; x < con.linewidth; x++ )
+        line = activeCon->text + ( l % activeCon->totallines ) * activeCon->linewidth;
+        for( x = 0; x < activeCon->linewidth; x++ )
             if( ( line[x] & 0xff ) != ' ' )
                 break;
-        if( x != con.linewidth )
+        if( x != activeCon->linewidth )
             break;
     }
     
 #ifdef _WIN32
-    bufferlen = con.linewidth + 3 * sizeof( valueType );
+    bufferlen = activeCon->linewidth + 3 * sizeof( valueType );
 #else
-    bufferlen = con.linewidth + 2 * sizeof( valueType );
+    bufferlen = activeCon->linewidth + 2 * sizeof( valueType );
 #endif
     
     buffer = static_cast<valueType*>( Hunk_AllocateTempMemory( bufferlen ) );
     
     // write the remaining lines
     buffer[bufferlen - 1] = 0;
-    for( ; l <= con.current; l++ )
+    for( ; l <= activeCon->current; l++ )
     {
-        line = con.text + ( l % con.totallines ) * con.linewidth;
-        for( i = 0; i < con.linewidth; i++ )
+        line = activeCon->text + ( l % activeCon->totallines ) * activeCon->linewidth;
+        for( i = 0; i < activeCon->linewidth; i++ )
             buffer[i] = line[i] & 0xff;
-        buffer[con.linewidth] = '\0';
-        for( x = con.linewidth - 1; x >= 0; x-- )
+        buffer[activeCon->linewidth] = '\0';
+        for( x = activeCon->linewidth - 1; x >= 0; x-- )
         {
             if( buffer[x] == ' ' )
                 buffer[x] = 0;
@@ -398,13 +537,13 @@ void Con_Search_f( void )
     }
     
     // check the lines
-    buffer[con.linewidth] = 0;
-    for( l = con.display - 1 + direction; l <= con.current && con.current - l < con.totallines; l += direction )
+    buffer[activeCon->linewidth] = 0;
+    for( l = activeCon->display - 1 + direction; l <= activeCon->current && activeCon->current - l < activeCon->totallines; l += direction )
     {
-        line = con.text + ( l % con.totallines ) * con.linewidth;
-        for( i = 0; i < con.linewidth; i++ )
+        line = activeCon->text + ( l % activeCon->totallines ) * activeCon->linewidth;
+        for( i = 0; i < activeCon->linewidth; i++ )
             buffer[i] = line[i] & 0xff;
-        for( x = con.linewidth - 1 ; x >= 0 ; x-- )
+        for( x = activeCon->linewidth - 1 ; x >= 0 ; x-- )
         {
             if( buffer[x] == ' ' )
                 buffer[x] = 0;
@@ -416,9 +555,9 @@ void Con_Search_f( void )
         {
             if( Q_stristr( buffer, cmdSystem->Argv( i ) ) )
             {
-                con.display = l + 1;
-                if( con.display > con.current )
-                    con.display = con.current;
+                activeCon->display = l + 1;
+                if( activeCon->display > activeCon->current )
+                    activeCon->display = activeCon->current;
                 return;
             }
         }
@@ -450,25 +589,25 @@ void Con_Grep_f( void )
     }
     
     // skip empty lines
-    for( l = con.current - con.totallines + 1 ; l <= con.current ; l++ )
+    for( l = activeCon->current - activeCon->totallines + 1 ; l <= activeCon->current ; l++ )
     {
-        line = con.text + ( l % con.totallines ) * con.linewidth;
-        for( x = 0 ; x < con.linewidth ; x++ )
+        line = activeCon->text + ( l % activeCon->totallines ) * activeCon->linewidth;
+        for( x = 0 ; x < activeCon->linewidth ; x++ )
             if( ( line[x] & 0xff ) != ' ' )
                 break;
-        if( x != con.linewidth )
+        if( x != activeCon->linewidth )
             break;
     }
     
     // check the remaining lines
-    buffer[con.linewidth] = 0;
+    buffer[activeCon->linewidth] = 0;
     search = cmdSystem->Argv( 1 );
     printbuf[0] = '\0';
     lastcolor = 7;
-    for( ; l <= con.current ; l++ )
+    for( ; l <= activeCon->current ; l++ )
     {
-        line = con.text + ( l % con.totallines ) * con.linewidth;
-        for( i = 0, x = 0; i < con.linewidth; i++ )
+        line = activeCon->text + ( l % activeCon->totallines ) * activeCon->linewidth;
+        for( i = 0, x = 0; i < activeCon->linewidth; i++ )
         {
             if( line[i] >> 8 != lastcolor )
             {
@@ -478,7 +617,7 @@ void Con_Grep_f( void )
             }
             buffer[x++] = line[i] & 0xff;
         }
-        for( x = con.linewidth - 1 ; x >= 0 ; x-- )
+        for( x = activeCon->linewidth - 1 ; x >= 0 ; x-- )
         {
             if( buffer[x] == ' ' )
                 buffer[x] = 0;
@@ -512,7 +651,7 @@ void Con_ClearNotify( void )
     
     for( i = 0; i < NUM_CON_TIMES; i++ )
     {
-        con.times[i] = 0;
+        activeCon->times[i] = 0;
     }
 }
 
@@ -525,7 +664,7 @@ Con_CheckResize
 If the line width has changed, reformat the buffer.
 ================
 */
-void Con_CheckResize( void )
+static void Con_CheckResize( console_t* con )
 {
     sint i, j, width, oldwidth, oldtotallines, numlines, numchars;
     schar16	tbuf[CON_TEXTSIZE];
@@ -541,51 +680,51 @@ void Con_CheckResize( void )
         width = 0;
     }
     
-    if( width == con.linewidth )
+    if( width == con->linewidth )
         return;
         
-    if( con.linewidth < 1 )			// video hasn't been initialized yet
+    if( con->linewidth < 1 )			// video hasn't been initialized yet
     {
         width = DEFAULT_CONSOLE_WIDTH;
-        con.linewidth = width;
-        con.totallines = CON_TEXTSIZE / con.linewidth;
+        con->linewidth = width;
+        con->totallines = CON_TEXTSIZE / con->linewidth;
         for( i = 0; i < CON_TEXTSIZE; i++ )
         
-            con.text[i] = ( ColorIndex( COLOR_WHITE ) << 8 ) | ' ';
+            con->text[i] = ( ColorIndex( COLOR_WHITE ) << 8 ) | ' ';
     }
     else
     {
-        oldwidth = con.linewidth;
-        con.linewidth = width;
-        oldtotallines = con.totallines;
-        con.totallines = CON_TEXTSIZE / con.linewidth;
+        oldwidth = con->linewidth;
+        con->linewidth = width;
+        oldtotallines = con->totallines;
+        con->totallines = CON_TEXTSIZE / con->linewidth;
         numlines = oldtotallines;
         
-        if( con.totallines < numlines )
-            numlines = con.totallines;
+        if( con->totallines < numlines )
+            numlines = con->totallines;
             
         numchars = oldwidth;
         
-        if( con.linewidth < numchars )
-            numchars = con.linewidth;
+        if( con->linewidth < numchars )
+            numchars = con->linewidth;
             
-        ::memcpy( tbuf, con.text, CON_TEXTSIZE * sizeof( schar16 ) );
+        ::memcpy( tbuf, con->text, CON_TEXTSIZE * sizeof( schar16 ) );
         for( i = 0; i < CON_TEXTSIZE; i++ )
         {
-            con.text[i] = ( ColorIndex( COLOR_WHITE ) << 8 ) | ' ';
+            con->text[i] = ( ColorIndex( COLOR_WHITE ) << 8 ) | ' ';
         }
         
         for( i = 0 ; i < numlines ; i++ )
         {
             for( j = 0 ; j < numchars ; j++ )
             {
-                con.text[( con.totallines - 1 - i ) * con.linewidth + j] = tbuf[( ( con.current - i + oldtotallines ) % oldtotallines ) * oldwidth + j];
+                con->text[( con->totallines - 1 - i ) * con->linewidth + j] = tbuf[( ( con->current - i + oldtotallines ) % oldtotallines ) * oldwidth + j];
             }
         }
     }
     
-    con.current = con.totallines - 1;
-    con.display = con.current;
+    con->current = con->totallines - 1;
+    con->display = con->current;
 }
 
 
@@ -637,6 +776,7 @@ void Con_Init( void )
     cmdSystem->AddCommand( "clMessageMode", Con_MessageMode_f, "^1(global chat), without the convenient pop-up box. Also: ‘say’." );
     cmdSystem->AddCommand( "clMessageMode2", Con_MessageMode2_f, "^1(teamchat), without the convenient pop-up box. Also: ‘say_team’." );
     cmdSystem->AddCommand( "clMessageMode3", Con_MessageMode3_f, "^1(fireteam chat), without the convenient pop-up box." );
+    cmdSystem->AddCommand( "commandMode", Con_CommandMode_f, "" );
     
     Com_Printf( "Console initialized.\n" );
 }
@@ -647,47 +787,63 @@ void Con_Init( void )
 Con_Linefeed
 ===============
 */
-void Con_Linefeed( bool skipnotify )
+void Con_Linefeed( console_t* con, bool skipnotify )
 {
     sint             i;
     
     // mark time for transparent overlay
-    if( con.current >= 0 )
+    if( con->current >= 0 )
     {
         if( skipnotify )
         {
-            con.times[con.current % NUM_CON_TIMES] = 0;
+            con->times[con->current % NUM_CON_TIMES] = 0;
         }
         else
         {
-            con.times[con.current % NUM_CON_TIMES] = cls.realtime;
+            con->times[con->current % NUM_CON_TIMES] = cls.realtime;
         }
     }
     
-    con.x = 0;
-    if( con.display == con.current )
+    con->x = 0;
+    if( con->display == con->current )
     {
-        con.display++;
+        con->display++;
     }
-    con.current++;
-    for( i = 0; i < con.linewidth; i++ )
-        con.text[( con.current % con.totallines ) * con.linewidth + i] = ( ColorIndex( CONSOLE_COLOR ) << 8 ) | ' ';
+    con->current++;
+    for( i = 0; i < con->linewidth; i++ )
+        con->text[( con->current % con->totallines ) * con->linewidth + i] = ( ColorIndex( CONSOLE_COLOR ) << 8 ) | ' ';
 }
 
-/*
-================
-CL_ConsolePrint
-
-Handles cursor positioning, line wrapping, etc
-All console printing must go through this in order to be logged to disk
-If no console is visible, the text will appear at the top of the game window
-================
-*/
 #if defined( _WIN32 ) && defined( NDEBUG )
 #pragma optimize( "g", off )	// SMF - msvc totally screws this function up with optimize on
 #endif
 
-void CL_ConsolePrint( valueType* txt )
+/*
+================
+CL_ConsoleTabsInit
+================
+*/
+static void CL_ConsoleTabsInit( void )
+{
+    sint i;
+    for( i = 0; i < NUMBER_TABS; ++i )
+    {
+        if( !con[i].initialized )
+        {
+            con[i].color[0] = con[i].color[1] = con[i].color[2] = con[i].color[3] = 1.0f;
+            con[i].linewidth = -1;
+            Con_CheckResize( &con[i] );
+            con[i].initialized = true;
+        }
+    }
+}
+
+/*
+================
+CL_ConsolePrintToTabs
+================
+*/
+static void CL_ConsolePrintToTabs( valueType* txt, console_t* con )
 {
     sint y, c, l;
     valueType color;
@@ -713,12 +869,9 @@ void CL_ConsolePrint( valueType* txt )
         return;
     }
     
-    if( !con.initialized )
+    if( !con->initialized )
     {
-        con.color[0] = con.color[1] = con.color[2] = con.color[3] = 1.0f;
-        con.linewidth = -1;
-        Con_CheckResize();
-        con.initialized = true;
+        CL_ConsoleTabsInit();
     }
     
     if( !skipnotify && !( cls.keyCatchers & KEYCATCH_CONSOLE ) && strncmp( txt, "EXCL: ", 6 ) )
@@ -749,7 +902,7 @@ void CL_ConsolePrint( valueType* txt )
         }
         
         // count word length
-        for( l = 0; l < con.linewidth; l++ )
+        for( l = 0; l < con->linewidth; l++ )
         {
             if( txt[l] <= ' ' && txt[l] >= 0 )
             {
@@ -763,9 +916,9 @@ void CL_ConsolePrint( valueType* txt )
         }
         
         // word wrap
-        if( l != con.linewidth && ( con.x + l >= con.linewidth ) )
+        if( l != con->linewidth && ( con->x + l >= con->linewidth ) )
         {
-            Con_Linefeed( skipnotify );
+            Con_Linefeed( con, skipnotify );
             
         }
         
@@ -774,44 +927,77 @@ void CL_ConsolePrint( valueType* txt )
         switch( c )
         {
             case '\n':
-                Con_Linefeed( skipnotify );
+                Con_Linefeed( con, skipnotify );
                 break;
             case '\r':
-                con.x = 0;
+                con->x = 0;
                 break;
             default:			// display character and advance
-                y = con.current % con.totallines;
+                y = con->current % con->totallines;
                 // rain - sign extension caused the character to carry over
                 // into the color info for high ascii chars; casting c to unsigned
-                con.text[y * con.linewidth + con.x] = ( color << 8 ) | static_cast<uchar8>( c );
-                con.x++;
-                if( con.x >= con.linewidth )
+                con->text[y * con->linewidth + con->x] = ( color << 8 ) | static_cast<uchar8>( c );
+                con->x++;
+                if( con->x >= con->linewidth )
                 {
-                    Con_Linefeed( skipnotify );
+                    Con_Linefeed( con, skipnotify );
                 }
                 break;
         }
     }
     
     // mark time for transparent overlay
-    if( con.current >= 0 )
+    if( con->current >= 0 )
     {
         // NERVE - SMF
         if( skipnotify )
         {
-            prev = con.current % NUM_CON_TIMES - 1;
+            prev = con->current % NUM_CON_TIMES - 1;
             if( prev < 0 )
             {
                 prev = NUM_CON_TIMES - 1;
             }
-            con.times[prev] = 0;
+            con->times[prev] = 0;
         }
         else
         {
             // -NERVE - SMF
-            con.times[con.current % NUM_CON_TIMES] = cls.realtime;
+            con->times[activeCon->current % NUM_CON_TIMES] = cls.realtime;
         }
     }
+}
+
+/*
+================
+CL_ConsolePrint
+
+Handles cursor positioning, line wrapping, etc
+All console printing must go through this in order to be logged to disk
+If no console is visible, the text will appear at the top of the game window
+================
+*/
+void CL_ConsolePrint( valueType* txt )
+{
+    sint cmdNum = clc.lastExecutedServerCommand;
+    valueType* cmdStr = clc.serverCommands[cmdNum % MAX_RELIABLE_COMMANDS];
+    sint conNum = CON_SYS;
+    static sint lastCmdNum;
+    
+    if( cmdNum > lastCmdNum )
+    {
+        if( Q_strncmp( cmdStr, "chat \"\x19", sizeof "chat \"\x19" - 1 ) == 0 )
+        {
+            conNum = CON_CHAT;
+        }
+        else if( Q_strncmp( cmdStr, "say_team", sizeof "say_team" - 1 ) == 0 )
+        {
+            conNum = CON_TCHAT;
+        }
+    }
+    lastCmdNum = cmdNum;
+    
+    CL_ConsolePrintToTabs( txt, &con[CON_ALL] );
+    CL_ConsolePrintToTabs( txt, &con[conNum] );
 }
 
 #if defined( _WIN32 ) && defined( NDEBUG )
@@ -848,19 +1034,19 @@ void Con_DrawInput( void )
     
     Com_RealTime( &realtime );
     
-    y = con.vislines - ( clientScreenSystem->ConsoleFontCharHeight() * 2 ) + 2 ;
+    y = activeCon->vislines - ( clientScreenSystem->ConsoleFontCharHeight() * 2 ) + 2 ;
     
     Q_vsprintf_s( prompt, sizeof( prompt ), sizeof( prompt ), "^0[^3%02d%c%02d^0]^7 %s", realtime.tm_hour, ( realtime.tm_sec & 1 ) ? ':' : ' ', realtime.tm_min, cl_consolePrompt->string );
     
     color[0] = 1.0f;
     color[1] = 1.0f;
     color[2] = 1.0f;
-    color[3] = con.displayFrac * 2.0f;
+    color[3] = activeCon->displayFrac * 2.0f;
     
-    clientScreenSystem->DrawSmallStringExt( con.xadjust + cl_conXOffset->integer, y + 10, prompt, color, false, false );
+    clientScreenSystem->DrawSmallStringExt( activeCon->xadjust + cl_conXOffset->integer, y + 10, prompt, color, false, false );
     
     Q_CleanStr( prompt );
-    cmdCompletionSystem->Draw( &g_consoleField, con.xadjust + cl_conXOffset->integer + clientScreenSystem->ConsoleFontStringWidth( prompt, ::strlen( prompt ) ), y + 10, true, true, color[3] );
+    cmdCompletionSystem->Draw( &g_consoleField, activeCon->xadjust + cl_conXOffset->integer + clientScreenSystem->ConsoleFontStringWidth( prompt, ::strlen( prompt ) ), y + 10, true, true, color[3] );
 }
 
 
@@ -883,14 +1069,14 @@ void Con_DrawNotify( void )
     currentColor = 7;
     renderSystem->SetColor( g_color_table[currentColor] );
     
-    v = 0;
-    for( i = con.current - NUM_CON_TIMES + 1; i <= con.current; i++ )
+    v = 2;
+    for( i = activeCon->current - NUM_CON_TIMES + 1; i <= activeCon->current; i++ )
     {
         if( i < 0 )
         {
             continue;
         }
-        time = con.times[i % NUM_CON_TIMES];
+        time = activeCon->times[i % NUM_CON_TIMES];
         if( time == 0 )
         {
             continue;
@@ -900,14 +1086,14 @@ void Con_DrawNotify( void )
         {
             continue;
         }
-        text = con.text + ( i % con.totallines ) * con.linewidth;
+        text = activeCon->text + ( i % activeCon->totallines ) * activeCon->linewidth;
         
         if( cl.snapServer.ps.pm_type != PM_INTERMISSION && cls.keyCatchers & ( KEYCATCH_UI | KEYCATCH_CGAME ) )
         {
             continue;
         }
         
-        for( x = 0; x < con.linewidth; x++ )
+        for( x = 0; x < activeCon->linewidth; x++ )
         {
             if( ( text[x] & 0xff ) == ' ' )
             {
@@ -918,7 +1104,7 @@ void Con_DrawNotify( void )
                 currentColor = ( text[x] >> 8 ) & COLOR_BITS;
                 renderSystem->SetColor( g_color_table[currentColor] );
             }
-            clientScreenSystem->DrawSmallChar( cl_conXOffset->integer + con.xadjust + ( x + 1 ) * SMALLCHAR_WIDTH, v, text[x] & 0xff );
+            clientScreenSystem->DrawSmallChar( cl_conXOffset->integer + activeCon->xadjust + ( x + 1 ) * SMALLCHAR_WIDTH, v, text[x] & 0xff );
         }
         
         v += SMALLCHAR_HEIGHT;
@@ -944,7 +1130,7 @@ void Con_DrawNotify( void )
         }
         else if( chat_buddy )
         {
-            valueType            buf[128];
+            valueType buf[128];
             
             CL_TranslateString( "say_fireteam:", buf );
             clientScreenSystem->DrawBigString( 8, v, buf, 1.0f, false );
@@ -963,7 +1149,11 @@ void Con_DrawNotify( void )
         
         v += BIGCHAR_HEIGHT;
     }
-    
+    else if( cls.keyCatchers & KEYCATCH_CONSOLE && commandMode )
+    {
+        clientScreenSystem->DrawBigString( 8, v, "]", 1.0f, false );
+        cmdCompletionSystem->BigDraw( &g_consoleField, 8 + BIGCHAR_WIDTH, v, SCREEN_WIDTH - BIGCHAR_WIDTH, true );
+    }
 }
 
 /*
@@ -987,9 +1177,9 @@ void Con_DrawSolidConsole( float32 frac )
     
     lines = cls.glconfig.vidHeight * frac;
     
-    con.xadjust = 15;
+    activeCon->xadjust = 15;
     
-    clientScreenSystem->AdjustFrom640( &con.xadjust, nullptr, nullptr, nullptr );
+    clientScreenSystem->AdjustFrom640( &activeCon->xadjust, nullptr, nullptr, nullptr );
     
     color[0] = scr_conColorRed->value;
     color[1] = scr_conColorGreen->value;
@@ -1006,6 +1196,28 @@ void Con_DrawSolidConsole( float32 frac )
     clientScreenSystem->FillRect( 10, 10, 1, 460 * scr_conHeight->integer * 0.01f, color );	//left
     clientScreenSystem->FillRect( 630, 10, 1, 460 * scr_conHeight->integer * 0.01f, color );	//right
     
+    sint tabWidth;
+    sint horOffset = SMALLCHAR_WIDTH + 30, vertOffset = lines - SMALLCHAR_HEIGHT + 19;
+    
+    // draw the tabs
+    for( x = 0; x < NUMBER_TABS; x++ )
+    {
+        pointer name = conTabsNames[x];
+        
+        tabWidth = SMALLCHAR_WIDTH + 10 * ( ::strlen( name ) ) + 3;
+        
+        if( &con[x] == activeCon )
+        {
+            clientScreenSystem->DrawSmallStringExt( horOffset + SMALLCHAR_WIDTH, vertOffset, name, g_color_table[0], false, true );
+        }
+        else
+        {
+            clientScreenSystem->DrawSmallStringExt( horOffset + SMALLCHAR_WIDTH, vertOffset, name, g_color_table[consoleColors[x]], false, true );
+        }
+        
+        horOffset += tabWidth;
+    }
+    
     // draw the version number
     color[0] = 1.0f;
     color[1] = 1.0f;
@@ -1014,7 +1226,7 @@ void Con_DrawSolidConsole( float32 frac )
     renderSystem->SetColor( color );
     
     // version string
-    i = strlen( PRODUCT_VERSION );
+    i = ::strlen( PRODUCT_VERSION );
     totalwidth = clientScreenSystem->ConsoleFontStringWidth( PRODUCT_VERSION, i ) + cl_conXOffset->integer;
     totalwidth += 30;
     
@@ -1025,7 +1237,7 @@ void Con_DrawSolidConsole( float32 frac )
     }
     
     // engine string
-    i = strlen( ENGINE_NAME );
+    i = ::strlen( ENGINE_NAME );
     totalwidth = clientScreenSystem->ConsoleFontStringWidth( ENGINE_NAME, i ) + cl_conXOffset->integer;
     totalwidth += 30;
     
@@ -1037,7 +1249,7 @@ void Con_DrawSolidConsole( float32 frac )
     }
     
     // draw the text
-    con.vislines = lines;
+    activeCon->vislines = lines;
     
     // rows of text to draw
     rows = ( lines ) / clientScreenSystem->ConsoleFontCharHeight() - 3;
@@ -1046,7 +1258,7 @@ void Con_DrawSolidConsole( float32 frac )
     y = lines - ( clientScreenSystem->ConsoleFontCharHeight() * 3 ) + 10;
     
     // draw from the bottom up
-    if( con.display != con.current )
+    if( activeCon->display != activeCon->current )
     {
         // draw arrows to show the buffer is backscrolled
         color[0] = 1.0f;
@@ -1054,15 +1266,15 @@ void Con_DrawSolidConsole( float32 frac )
         color[2] = 0.0f;
         color[3] = frac * 2.0f;
         renderSystem->SetColor( color );
-        for( x = 0 ; x < con.linewidth - 4; x += 4 )
-            clientScreenSystem->DrawConsoleFontChar( con.xadjust + ( x + 1 ) * clientScreenSystem->ConsoleFontCharWidth( '^' ), y, '^' );
+        for( x = 0 ; x < activeCon->linewidth - 4; x += 4 )
+            clientScreenSystem->DrawConsoleFontChar( activeCon->xadjust + ( x + 1 ) * clientScreenSystem->ConsoleFontCharWidth( '^' ), y, '^' );
         y -= clientScreenSystem->ConsoleFontCharHeight();
         rows--;
     }
     
-    row = con.display;
+    row = activeCon->display;
     
-    if( con.x == 0 )
+    if( activeCon->x == 0 )
     {
         row--;
     }
@@ -1080,15 +1292,15 @@ void Con_DrawSolidConsole( float32 frac )
         
         if( row < 0 )
             break;
-        if( con.current - row >= con.totallines )
+        if( activeCon->current - row >= activeCon->totallines )
         {
             // past scrollback wrap point
             continue;
         }
         
-        text = con.text + ( row % con.totallines ) * con.linewidth;
+        text = activeCon->text + ( row % activeCon->totallines ) * activeCon->linewidth;
         
-        for( x = 0 ; x < con.linewidth ; x++ )
+        for( x = 0 ; x < activeCon->linewidth ; x++ )
         {
             if( ( ( text[x] >> 8 ) & 31 ) != currentColor )
             {
@@ -1100,7 +1312,7 @@ void Con_DrawSolidConsole( float32 frac )
                 renderSystem->SetColor( color );
             }
             
-            clientScreenSystem->DrawConsoleFontChar( con.xadjust + currentWidthLocation, y, text[x] & 0xff );
+            clientScreenSystem->DrawConsoleFontChar( activeCon->xadjust + currentWidthLocation, y, text[x] & 0xff );
             currentWidthLocation += clientScreenSystem->ConsoleFontCharWidth( text[x] & 0xff );
         }
     }
@@ -1110,6 +1322,7 @@ void Con_DrawSolidConsole( float32 frac )
     
     renderSystem->SetColor( nullptr );
 }
+
 extern convar_t*  con_drawnotify;
 
 /*
@@ -1120,7 +1333,7 @@ Con_DrawConsole
 void Con_DrawConsole( void )
 {
     // check for console width changes from a vid mode change
-    Con_CheckResize();
+    Con_CheckResize( activeCon );
     
     // if disconnected, render console full screen
     if( cls.state == CA_DISCONNECTED )
@@ -1132,9 +1345,9 @@ void Con_DrawConsole( void )
         }
     }
     
-    if( con.displayFrac )
+    if( activeCon->displayFrac )
     {
-        Con_DrawSolidConsole( con.displayFrac );
+        Con_DrawSolidConsole( activeCon->displayFrac );
     }
     else
     {
@@ -1158,26 +1371,26 @@ Scroll it up or down
 void Con_RunConsole( void )
 {
     // decide on the destination height of the console
-    if( cls.keyCatchers & KEYCATCH_CONSOLE )
+    if( cls.keyCatchers & KEYCATCH_CONSOLE && !commandMode )
     {
-        con.finalFrac = 0.5f;
+        activeCon->finalFrac = 0.5f;
     }
     else
-        con.finalFrac = 0.0f;				// none visible
+        activeCon->finalFrac = 0.0f;				// none visible
         
     // scroll towards the destination height
-    if( con.finalFrac < con.displayFrac )
+    if( activeCon->finalFrac < activeCon->displayFrac )
     {
-        con.displayFrac -= con_conspeed->value * static_cast<float32>( cls.realFrametime ) / 1000.0f;
-        if( con.finalFrac > con.displayFrac )
-            con.displayFrac = con.finalFrac;
+        activeCon->displayFrac -= con_conspeed->value * static_cast<float32>( cls.realFrametime ) / 1000.0f;
+        if( activeCon->finalFrac > activeCon->displayFrac )
+            activeCon->displayFrac = activeCon->finalFrac;
             
     }
-    else if( con.finalFrac > con.displayFrac )
+    else if( activeCon->finalFrac > activeCon->displayFrac )
     {
-        con.displayFrac += con_conspeed->value * static_cast<float32>( cls.realFrametime ) / 1000.0f;
-        if( con.finalFrac < con.displayFrac )
-            con.displayFrac = con.finalFrac;
+        activeCon->displayFrac += con_conspeed->value * static_cast<float32>( cls.realFrametime ) / 1000.0f;
+        if( activeCon->finalFrac < activeCon->displayFrac )
+            activeCon->displayFrac = activeCon->finalFrac;
     }
     
 }
@@ -1185,34 +1398,34 @@ void Con_RunConsole( void )
 
 void Con_PageUp( void )
 {
-    con.display -= 2;
-    if( con.current - con.display >= con.totallines )
+    activeCon->display -= 2;
+    if( activeCon->current - activeCon->display >= activeCon->totallines )
     {
-        con.display = con.current - con.totallines + 1;
+        activeCon->display = activeCon->current - activeCon->totallines + 1;
     }
 }
 
 void Con_PageDown( void )
 {
-    con.display += 2;
-    if( con.display > con.current )
+    activeCon->display += 2;
+    if( activeCon->display > activeCon->current )
     {
-        con.display = con.current;
+        activeCon->display = activeCon->current;
     }
 }
 
 void Con_Top( void )
 {
-    con.display = con.totallines;
-    if( con.current - con.display >= con.totallines )
+    activeCon->display = activeCon->totallines;
+    if( activeCon->current - activeCon->display >= activeCon->totallines )
     {
-        con.display = con.current - con.totallines + 1;
+        activeCon->display = activeCon->current - activeCon->totallines + 1;
     }
 }
 
 void Con_Bottom( void )
 {
-    con.display = con.current;
+    activeCon->display = activeCon->current;
 }
 
 
@@ -1222,9 +1435,13 @@ void Con_Close( void )
     {
         return;
     }
-    cmdCompletionSystem->Clear( &g_consoleField );
+    
     Con_ClearNotify();
+    
     cls.keyCatchers &= ~KEYCATCH_CONSOLE;
-    con.finalFrac = 0;			// none visible
-    con.displayFrac = 0;
+    commandMode = false;
+    // none visible
+    activeCon->finalFrac = 0;
+    activeCon->displayFrac = 0;
 }
+

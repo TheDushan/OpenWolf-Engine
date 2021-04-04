@@ -57,8 +57,6 @@ static sint vidRestartTime = 0;
 
 static SDL_Window* SDL_window = nullptr;
 
-#define KEYBOARDCTRL(a) ((a)-'a'+1)
-
 /*
 ===============
 idSystemLocal::PrintKey
@@ -456,6 +454,43 @@ keyNum_t idSystemLocal::TranslateSDLToQ3Key( SDL_Keysym* keysym, bool down )
     
     return key;
 }
+
+/*
+================
+idSystemLocal::TranslateKeyToCtrlChar
+
+Translate key to ASCII Control character, return -1 if no conversation could be
+made
+================
+*/
+sint idSystemLocal::TranslateCtrlCharToKey( sint key )
+{
+    switch( key )
+    {
+        case '-':
+            // fallthrough
+        case '/':
+            // fallthrough
+        case '7':
+            return KEYBOARDCTRL( '_' );
+        case '8':
+            // fallthrough
+        case K_BACKSPACE:
+            return KEYBOARDCTRL( 'h' );
+        case K_TAB:
+            return '\t';
+        case K_ESCAPE:
+            return '\x1B';
+    }
+    
+    if( ( key >= '@' && key < '_' ) || ( key >= 'a' && key <= 'z' ) )
+    {
+        return KEYBOARDCTRL( key );
+    }
+    
+    return -1;
+}
+
 
 /*
 ===============
@@ -945,9 +980,14 @@ void idSystemLocal::ProcessEvents( sint eventTime )
                     Com_QueueEvent( eventTime, SYSE_KEY, key, true, 0, nullptr );
                 }
                 
-                if( key == K_BACKSPACE )
+                if( key == K_BACKSPACE || key == K_TAB || key == K_ESCAPE || keys[K_CTRL].down )
                 {
-                    Com_QueueEvent( eventTime, SYSE_CHAR, KEYBOARDCTRL( 'h' ), 0, 0, nullptr );
+                    sint k = TranslateCtrlCharToKey( key );
+                    
+                    if( k != -1 )
+                    {
+                        Com_QueueEvent( eventTime, SYSE_CHAR, k, 0, 0, nullptr );
+                    }
                 }
                 else if( keys[K_CTRL].down && key >= 'a' && key <= 'z' )
                 {

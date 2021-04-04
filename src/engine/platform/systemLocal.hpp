@@ -223,6 +223,7 @@ public:
     static sint ZenityCommand( dialogType_t type, pointer message, pointer title );
     static sint KdialogCommand( dialogType_t type, pointer message, pointer title );
     static sint XmessageCommand( dialogType_t type, pointer message, pointer title );
+    static sint TranslateCtrlCharToKey( sint key );
 };
 
 extern idSystemLocal systemLocal;

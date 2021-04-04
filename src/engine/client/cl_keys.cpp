@@ -45,9 +45,7 @@ field_t g_consoleField;
 field_t chatField;
 bool chat_team;
 bool chat_buddy;
-//Dushan
-bool chat_irc;
-
+bool commandMode;
 bool key_overstrikeMode;
 
 sint anykeydown;
@@ -341,75 +339,27 @@ static void CompleteCommand( void )
 
 /*
 ====================
-Console_Key
+Console_DownEventKey
 
 Handles history and console scrollback
 ====================
 */
-void Console_Key( sint key )
+void Console_DownEventKey( sint key )
 {
-    // ctrl-L clears screen
-    if( key == 'l' && keys[K_CTRL].down )
+    sint conNum = activeCon - con;
+    bool isChat = CON_ISCHAT( conNum );
+    
+    if( key == K_ESCAPE )
     {
-        cmdBufferSystem->AddText( "clear\n" );
+        cls.keyCatchers ^= KEYCATCH_CONSOLE;
+        commandMode = false;
         return;
     }
     
     // enter finishes the line
     if( key == K_ENTER || key == K_KP_ENTER )
     {
-        // if not in the game explicitly prepend a slash if needed
-        if( cls.state != CA_ACTIVE &&
-                g_consoleField.buffer[0] &&
-                g_consoleField.buffer[0] != '\\' &&
-                g_consoleField.buffer[0] != '/' )
-        {
-            valueType temp[MAX_STRING_CHARS];
-            
-            Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
-            Q_vsprintf_s( g_consoleField.buffer, sizeof( g_consoleField.buffer ), sizeof( g_consoleField.buffer ), "\\%s", temp );
-            g_consoleField.cursor++;
-        }
-        
-        Com_Printf( "]%s\n", g_consoleField.buffer );
-        
-        
-        // leading slash is an explicit command
-        if( g_consoleField.buffer[0] == '\\' || g_consoleField.buffer[0] == '/' )
-        {
-            cmdBufferSystem->AddText( g_consoleField.buffer + 1 );    // valid command
-            cmdBufferSystem->AddText( "\n" );
-        }
-        else
-        {
-            // other text will be chat messages
-            if( !g_consoleField.buffer[0] )
-            {
-                return; // empty lines just scroll the console without adding to history
-            }
-            else
-            {
-                cmdBufferSystem->AddText( "cmd say " );
-                cmdBufferSystem->AddText( g_consoleField.buffer );
-                cmdBufferSystem->AddText( "\n" );
-            }
-        }
-        
-        // copy line to history buffer
-        consoleHistorySystem->Add( g_consoleField.buffer );
-        if( cls.state == CA_DISCONNECTED )
-        {
-            clientScreenSystem->UpdateScreen();     // force an update, because the command
-        }                           // may take some time
-        cmdCompletionSystem->Clear( &g_consoleField );
-        return;
-    }
-    
-    // command completion
-    
-    if( key == K_TAB )
-    {
-        CompleteCommand();
+        Con_LineAccept();
         return;
     }
     
@@ -419,9 +369,6 @@ void Console_Key( sint key )
             ( key >= K_KP_SLASH && key <= K_KP_PLUS ) || ( key >= K_KP_STAR && key <= K_KP_EQUALS ) )
     {
     }
-    
-    
-    // command history (ctrl-p ctrl-n for unix style)
     
     //----(SA)	added some mousewheel functionality to the console
     if( ( key == K_MWHEELUP && keys[K_SHIFT].down ) || ( key == K_UPARROW ) || ( key == K_KP_UPARROW ) ||
@@ -466,53 +413,75 @@ void Console_Key( sint key )
         return;
     }
     
-    // console scrolling
-    if( key == K_PGUP || key == K_KP_PGUP )
+    // console scroll only if not using commandMode
+    if( !commandMode )
     {
-        Con_PageUp();
-        return;
-    }
-    
-    if( key == K_PGDN || key == K_KP_PGDN )
-    {
-        Con_PageDown();
-        return;
-    }
-    
-    if( key == K_MWHEELUP )      //----(SA)	added some mousewheel functionality to the console
-    {
-        Con_PageUp();
-        if( keys[K_CTRL].down )    // hold <ctrl> to accelerate scrolling
+        // console tab switching
+        if( key == K_LEFTARROW && keys[K_ALT].down )
+        {
+            Con_ConsoleNext( -1 );
+            return;
+        }
+        else if( key == K_RIGHTARROW && keys[K_ALT].down )
+        {
+            Con_ConsoleNext( 1 );
+            return;
+        }
+        
+        // console scrolling
+        if( key == K_PGUP )
         {
             Con_PageUp();
-            Con_PageUp();
+            return;
         }
-        return;
-    }
-    
-    if( key == K_MWHEELDOWN )    //----(SA)	added some mousewheel functionality to the console
-    {
-        Con_PageDown();
-        if( keys[K_CTRL].down )    // hold <ctrl> to accelerate scrolling
+        
+        if( key == K_PGDN )
         {
             Con_PageDown();
-            Con_PageDown();
+            return;
         }
-        return;
-    }
-    
-    // ctrl-home = top of console
-    if( ( key == K_HOME || key == K_KP_HOME ) && keys[K_CTRL].down )
-    {
-        Con_Top();
-        return;
-    }
-    
-    // ctrl-end = bottom of console
-    if( ( key == K_END || key == K_KP_END ) && keys[K_CTRL].down )
-    {
-        Con_Bottom();
-        return;
+        
+        if( key == K_MWHEELUP )
+        {
+            Con_PageUp();
+            
+            // hold <ctrl> to accelerate scrolling
+            if( keys[K_CTRL].down )
+            {
+                Con_PageUp();
+                Con_PageUp();
+            }
+            
+            return;
+        }
+        
+        if( key == K_MWHEELDOWN )
+        {
+            Con_PageDown();
+            
+            // hold <ctrl> to accelerate scrolling
+            if( keys[K_CTRL].down )
+            {
+                Con_PageDown();
+                Con_PageDown();
+            }
+            
+            return;
+        }
+        
+        // ctrl-home = top of console
+        if( key == K_HOME && keys[K_CTRL].down )
+        {
+            Con_Top();
+            return;
+        }
+        
+        // ctrl-end = bottom of console
+        if( key == K_END && keys[K_CTRL].down )
+        {
+            Con_Bottom();
+            return;
+        }
     }
     
     // pass to the normal editline routine
@@ -1446,7 +1415,7 @@ void CL_KeyEvent( sint key, sint down, sint time )
     {
         if( !onlybinds )
         {
-            Console_Key( key );
+            Console_DownEventKey( key );
         }
     }
     else if( cls.keyCatchers & ( KEYCATCH_UI | KEYCATCH_BUG ) )
@@ -1481,7 +1450,7 @@ void CL_KeyEvent( sint key, sint down, sint time )
     {
         if( !onlybinds )
         {
-            Console_Key( key );
+            Console_DownEventKey( key );
         }
     }
     else
@@ -1514,6 +1483,63 @@ void CL_KeyEvent( sint key, sint down, sint time )
 
 
 /*
+==================
+CL_KeyCharEvents
+==================
+*/
+static void CL_KeyCharEvents( sint ch )
+{
+    // ctrl-L clears screen
+    if( ch == KEYBOARDCTRL( 'l' ) )
+    {
+        cmdBufferSystem->AddText( "clear\n" );
+        return;
+    }
+    
+    // alt-n, alt-p switches console
+    if( keys[K_ALT].down )
+    {
+        switch( ch )
+        {
+            case 'p':
+            case 'P':
+                Con_ConsoleNext( -1 );
+                return;
+            case 'n':
+            case 'N':
+                Con_ConsoleNext( 1 );
+                return;
+        }
+    }
+    
+    // tab completes command or switches console
+    if( ch == '\t' )
+    {
+        if( keys[K_SHIFT].down )
+        {
+            Con_ConsoleNext( -1 );
+        }
+        else if( keys[K_CTRL].down )
+        {
+            Con_ConsoleNext( 1 );
+        }
+        else
+        {
+            sint conNum = activeCon - con;
+            
+            // autocomplete only for non-chat consoles
+            if( conNum != CON_CHAT && conNum != CON_TCHAT )
+                CompleteCommand();
+        }
+        return;
+    }
+    
+    // pass to the normal editline routine
+    cmdCompletionSystem->CharEvent( &g_consoleField, ch );
+}
+
+
+/*
 ===================
 CL_CharEvent
 
@@ -1537,7 +1563,7 @@ void CL_CharEvent( sint key )
     // distribute the key down event to the apropriate handler
     if( cls.keyCatchers & KEYCATCH_CONSOLE )
     {
-        cmdCompletionSystem->CharEvent( &g_consoleField, key );
+        CL_KeyCharEvents( key );
     }
     else if( cls.keyCatchers & ( KEYCATCH_UI | KEYCATCH_BUG ) )
     {

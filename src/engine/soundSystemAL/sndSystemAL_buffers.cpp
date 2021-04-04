@@ -51,7 +51,7 @@ static bool al_buffer_inited = false;
  */
 #define MAX_SFX 4096
 static sfx_t knownSfx[MAX_SFX];
-static int numSfx;
+static sint numSfx;
 
 static sfxHandle_t default_sfx;
 
@@ -62,7 +62,7 @@ idAudioOpenALSystemLocal::buf_find_free
 */
 sfxHandle_t idAudioOpenALSystemLocal::buf_find_free( void )
 {
-    int i;
+    sint i;
     
     for( i = 0; i < MAX_SFX; i++ )
     {

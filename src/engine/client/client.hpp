@@ -580,7 +580,8 @@ void            CL_UpdateInfoPacket( netadr_t from );	// DHM - Nerve
 //
 // console
 //
-void            Con_CheckResize( void );
+void Con_ConsoleNext( sint n );
+void Con_LineAccept( void );
 void            Con_Init( void );
 void            Con_Clear_f( void );
 void            Con_ToggleConsole_f( void );
@@ -627,5 +628,46 @@ bool            CL_Netchan_Process( netchan_t* chan, msg_t* msg );
 //
 void            CL_WriteDemoMessage( msg_t* msg, sint headerBytes );
 void            CL_RequestMotd( void );
+
+#define	NUMBER_TABS 4
+#define CON_ALL 0
+#define CON_SYS 1
+#define CON_CHAT 2
+#define CON_TCHAT 3
+
+// check if this is a chat console
+#define CON_ISCHAT(conNum) (conNum >= CON_CHAT)
+
+#define NUM_CON_TIMES 4
+#define CON_TEXTSIZE 65536
+typedef struct
+{
+    bool        initialized;
+    
+    schar16         text[CON_TEXTSIZE];
+    sint         current;	// line where next message will be printed
+    sint         x;			// offset in current line for next print
+    sint         display;	// bottom of console displays this line
+    
+    sint         linewidth;	// characters across screen
+    sint         totallines;	// total lines in console scrollback
+    
+    float32         xadjust;	// for wide aspect screens
+    
+    float32         displayFrac;	// aproaches finalFrac at scr_conspeed
+    float32         finalFrac;	// 0.0 to 1.0 lines of console to display
+    float32         desiredFrac;	// ydnar: for variable console heights
+    
+    sint         vislines;	// in scanlines
+    
+    sint         times[NUM_CON_TIMES];	// cls.realtime time the line was generated
+    // for transparent notify lines
+    vec4_t      color;
+    
+    sint          acLength;	// Arnout: autocomplete buffer length
+} console_t;
+
+extern console_t	con[NUMBER_TABS];
+extern console_t* activeCon;
 
 #endif //!__CLIENT_H__
