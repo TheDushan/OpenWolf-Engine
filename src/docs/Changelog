@@ -4,9 +4,10 @@
 	* [Engine] Implemented Com_Clampi and simplified timeNudge
 	* [SoundSystem] Don't play any sound if while application is minimized
 	* [SoundSystem] Don't play any sound if while application is unfocused
+	* [Engine] Allow sending "userinfo" while the menu is open
 	
 2021-04-03 Dusan Jocic <dusanjocic@msn>
-	* [RendererSystem} Addressed the problem with DPI inside the engine
+	* [RenderSystem} Addressed the problem with DPI inside the engine
 
 2021-04-01 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Changed protocol version to 1001, 

@@ -2999,11 +2999,13 @@ void CL_CheckUserinfo( void )
     {
         return;
     }
-    // don't overflow the reliable command buffer when paused
-    if( cl_paused->integer )
+    
+    // don't overflow the reliable command buffer when paused on a local server
+    if( cl_paused->integer && sv_paused->integer && com_sv_running->integer )
     {
         return;
     }
+    
     // send a reliable userinfo update if needed
     if( cvar_modifiedFlags & CVAR_USERINFO )
     {
