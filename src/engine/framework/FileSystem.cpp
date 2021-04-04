@@ -4086,7 +4086,10 @@ void idFileSystemLocal::Startup( pointer gameName )
     ReorderPurePaks();
     
     //print the current search paths
-    idFileSystemLocal::Path_f();
+    if( fs_debug->integer )
+    {
+        idFileSystemLocal::Path_f();
+    }
     
     fs_gamedirvar->modified = false; // We just loaded, it's not modified
     

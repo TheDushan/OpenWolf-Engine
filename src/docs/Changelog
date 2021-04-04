@@ -1,3 +1,9 @@
+2021-04-04 Dusan Jocic <dusanjocic@msn.com>
+	* [Filesystem] Changed fs_debug logging option
+	
+2021-04-03 Dusan Jocic <dusanjocic@msn>
+	* [RendererSystem} Addressed the problem with DPI inside the engine
+
 2021-04-01 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Changed protocol version to 1001, 
 	* [Engine] Changed port for the master server to 12950

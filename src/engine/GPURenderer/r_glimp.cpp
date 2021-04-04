@@ -416,7 +416,7 @@ static float32 GLimp_GetDPIScale( sint display )
             scale = ::roundf( ddpi / 96.0f );
         }
     }
-
+    
     return scale;
 }
 
