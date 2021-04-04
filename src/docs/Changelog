@@ -3,6 +3,7 @@
 	* [Engine] Fix mouse locking issues when the mouse would lock at the center of your screen
 	* [Engine] Implemented Com_Clampi and simplified timeNudge
 	* [SoundSystem] Don't play any sound if while application is minimized
+	* [SoundSystem] Don't play any sound if while application is unfocused
 	
 2021-04-03 Dusan Jocic <dusanjocic@msn>
 	* [RendererSystem} Addressed the problem with DPI inside the engine
