@@ -1019,14 +1019,43 @@ void CL_MouseMove( usercmd_t* cmd )
     
     // add mouse X/Y movement to cmd
     if( kb[KB_STRAFE].active )
+    {
         cmd->rightmove = ClampChar( cmd->rightmove + m_side->value * mx );
+    }
     else
+    {
         cl.viewangles[YAW] -= m_yaw->value * mx;
-        
+        // limit yaw between -180 and 180 to avoid accumulating
+        // floating-point precision errors
+        while( cl.viewangles[YAW] < -180.0f )
+        {
+            cl.viewangles[YAW] += 360.0f;
+        }
+        while( cl.viewangles[YAW] > 180.0f )
+        {
+            cl.viewangles[YAW] -= 360.0f;
+        }
+    }
+    
     if( ( kb[KB_MLOOK].active || cl_freelook->integer ) && !kb[KB_STRAFE].active )
+    {
         cl.viewangles[PITCH] += m_pitch->value * my;
+        
+        // limit pitch between -180 and 180 to avoid accumulating
+        // floating-point precision errors
+        while( cl.viewangles[PITCH] < -180.0f )
+        {
+            cl.viewangles[PITCH] = -180.0f;
+        }
+        while( cl.viewangles[PITCH] > 180.0f )
+        {
+            cl.viewangles[PITCH] = 180.0f;
+        }
+    }
     else
+    {
         cmd->forwardmove = ClampChar( cmd->forwardmove - m_forward->value * my );
+    }
 }
 
 
