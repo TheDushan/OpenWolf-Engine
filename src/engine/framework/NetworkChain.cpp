@@ -246,7 +246,6 @@ void idNetworkChainSystemLocal::Transmit( netchan_t* chan, sint length, const uc
     chan->lastSentTime = idsystem->Milliseconds();
     chan->lastSentSize = send.cursize;
     
-    
     if( showpackets->integer )
     {
         Com_Printf( "%s send %4i : s=%i ack=%i\n"

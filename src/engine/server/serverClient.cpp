@@ -1558,10 +1558,7 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
         if( cl->downloadXmitBlock == cl->downloadCurrentBlock )
         {
             // We have transmitted the complete window, should we start resending?
-            
-            //FIXME:  This uses a hardcoded one second timeout for lost blocks
-            //the timeout should be based on client rate somehow
-            if( svs.time - cl->downloadSendTime > 1000 )
+            if( svs.time - cl->downloadSendTime > MAX_DOWNLOAD_BLKSIZE * 1000 / rate )
             {
                 cl->downloadXmitBlock = cl->downloadClientBlock;
             }
@@ -1602,6 +1599,84 @@ void idServerClientSystemLocal::WriteDownloadToClient( client_t* cl, msg_t* msg 
 }
 
 /*
+==================
+idServerClientSystemLocal::SendQueuedMessages
+
+Send one round of fragments, or queued messages to all clients that have data pending.
+Return the shortest time interval for sending next packet to client
+==================
+*/
+sint idServerClientSystemLocal::SendQueuedMessages( void )
+{
+    sint i, retVal = -1, nextFragTime;
+    client_t* cl;
+    
+    for( i = 0; i < sv_maxclients->integer; i++ )
+    {
+        cl = &svs.clients[i];
+        
+        if( cl->state && cl->netchan.unsentFragments )
+        {
+            nextFragTime = serverMainSystem->RateMsec( cl );
+            
+            if( !nextFragTime )
+            {
+                networkChainSystem->TransmitNextFragment( &cl->netchan );
+                nextFragTime = serverMainSystem->RateMsec( cl );
+            }
+            
+            if( nextFragTime >= 0 && ( retVal == -1 || retVal > nextFragTime ) )
+            {
+                retVal = nextFragTime;
+            }
+        }
+    }
+    
+    return retVal;
+}
+
+
+/*
+==================
+idServerClientSystemLocal::SendDownloadMessages
+
+Send one round of download messages to all clients
+==================
+*/
+sint idServerClientSystemLocal::SendDownloadMessages( void )
+{
+    sint i, numDownloads = 0;
+    client_t* client;
+    msg_t message;
+    uchar8 messageBuffer[MAX_MSGLEN];
+    
+    for( i = 0; i < sv_maxclients->integer; i++ )
+    {
+        client = &svs.clients[i];
+        
+        if( client->state && *client->downloadName )
+        {
+            sint basesize;
+            
+            MSG_Init( &message, messageBuffer, sizeof( messageBuffer ) );
+            MSG_WriteLong( &message, client->lastClientCommand );
+            
+            basesize = message.cursize;
+            serverClientLocal.WriteDownloadToClient( client, &message );
+            
+            if( message.cursize != basesize )
+            {
+                serverSnapshotSystem->SendMessageToClient( &message, client );
+                numDownloads++;
+            }
+        }
+    }
+    
+    return numDownloads;
+}
+
+
+/*
 =================
 idServerClientSystemLocal::Disconnect_f
 
@@ -1613,9 +1688,12 @@ void idServerClientSystemLocal::Disconnect_f( client_t* cl )
     if( cmdSystem->Argc() > 1 )
     {
         valueType reason[MAX_STRING_CHARS] = { 0 };
+        
         Q_strncpyz( reason, cmdSystem->Argv( 1 ), sizeof( reason ) );
         Q_strstrip( reason, "\r\n;\"", nullptr );
+        
         serverClientLocal.DropClient( cl, "disconnected" );
+        
         ( cl, va( "disconnected: %s", reason ) );
     }
     else

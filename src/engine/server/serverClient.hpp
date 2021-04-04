@@ -58,6 +58,8 @@ public:
     virtual void DirectConnect( netadr_t from );
     virtual void ExecuteClientMessage( client_t* cl, msg_t* msg );
     virtual void AuthorizeIpPacket( netadr_t from );
+    virtual sint SendQueuedMessages( void );
+    virtual sint SendDownloadMessages( void );
     
 public:
     static valueType* isClientBanned( valueType* ip, valueType* password );

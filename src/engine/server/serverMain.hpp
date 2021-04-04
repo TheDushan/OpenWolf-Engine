@@ -60,24 +60,35 @@ public:
     virtual void PacketEvent( netadr_t from, msg_t* msg );
     virtual void Frame( sint msec );
     virtual sint LoadTag( pointer mod_name );
+    virtual sint RateMsec( client_t* client );
+    virtual sint SendQueuedPackets( void );
+    
 public:
+
+    idServerMainSystemLocal();
+    ~idServerMainSystemLocal();
+    
     static void IntegerOverflowShutDown( valueType* msg );
-    valueType* ExpandNewlines( valueType* in );
-    void MasterHeartbeat( pointer hbname );
-    bool VerifyChallenge( valueType* challenge );
-    void Status( netadr_t from );
-    void GameCompleteStatus( netadr_t from );
-    void Info( netadr_t from );
-    bool CheckDRDoS( netadr_t from );
-    void RemoteCommand( netadr_t from, msg_t* msg );
-    void ConnectionlessPacket( netadr_t from, msg_t* msg );
-    void CalcPings( void );
-    void CheckTimeouts( void );
-    bool CheckPaused( void );
-    void GetUpdateInfo( netadr_t from );
-    void CheckCvars( void );
+    static valueType* ExpandNewlines( valueType* in );
+    static void MasterHeartbeat( pointer hbname );
+    static bool VerifyChallenge( valueType* challenge );
+    static void Status( netadr_t from );
+    static void GameCompleteStatus( netadr_t from );
+    static void Info( netadr_t from );
+    static bool CheckDRDoS( netadr_t from );
+    static void RemoteCommand( netadr_t from, msg_t* msg );
+    static void ConnectionlessPacket( netadr_t from, msg_t* msg );
+    static void CalcPings( void );
+    static void CheckTimeouts( void );
+    static bool CheckPaused( void );
+    static void GetUpdateInfo( netadr_t from );
+    static void CheckCvars( void );
     
     static void FlushRedirect( valueType* outputbuf );
+    
+private:
+    static const sint IPUDP_HEADER_SIZE = 28;
+    static const sint IP6UDP_HEADER_SIZE = 48;
 };
 
 extern idServerMainSystemLocal serverMainSystemLocal;

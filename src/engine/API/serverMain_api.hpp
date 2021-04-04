@@ -58,6 +58,8 @@ public:
     virtual void PacketEvent( netadr_t from, msg_t* msg ) = 0;
     virtual void Frame( sint msec ) = 0;
     virtual sint LoadTag( pointer mod_name ) = 0;
+    virtual sint RateMsec( client_t* client ) = 0;
+    virtual sint SendQueuedPackets( void ) = 0;
 };
 
 extern idServerMainSystem* serverMainSystem;

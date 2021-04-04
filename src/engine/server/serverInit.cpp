@@ -1069,6 +1069,7 @@ void idServerInitSystemLocal::Init( void )
     sv_maxRate = cvarSystem->Get( "sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Option to force all clients to play with a max rate. This can be used to limit the advantage of low pings, or to cap bandwidth utilization for a server. Note that rate is ignored for clients that are on the same LAN." );
     sv_minPing = cvarSystem->Get( "sv_minPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Set the minimum ping aloud on the server to keep low pings out" );
     sv_maxPing = cvarSystem->Get( "sv_maxPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Set the maximum ping allowed on the server to keep high pings out" );
+    sv_dlRate = cvarSystem->Get( "sv_dlRate", "100", CVAR_ARCHIVE | CVAR_SERVERINFO, "Bandwidth allotted to PK3 file downloads via UDP, in kbyte / s" );
     sv_floodProtect = cvarSystem->Get( "sv_floodProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, "Whether or not to use flood protection, preventing clients from sending numerous consecutive commands to the server." );
     sv_allowAnonymous = cvarSystem->Get( "sv_allowAnonymous", "0", CVAR_SERVERINFO, "Allow anonymous connections in the server" );
     sv_friendlyFire = cvarSystem->Get( "g_friendlyFire", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, "Toggles wether players can damage their teammates" );	// NERVE - SMF

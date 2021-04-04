@@ -548,6 +548,7 @@ extern convar_t*  sv_mapname;
 extern convar_t*  sv_mapChecksum;
 extern convar_t*  sv_serverid;
 extern convar_t*  sv_maxRate;
+extern convar_t* sv_dlRate;
 extern convar_t*  sv_minPing;
 extern convar_t*  sv_maxPing;
 

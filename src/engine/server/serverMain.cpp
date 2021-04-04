@@ -75,6 +75,7 @@ convar_t* sv_serverid;
 convar_t* sv_maxRate;
 convar_t* sv_minPing;
 convar_t* sv_maxPing;
+convar_t* sv_dlRate;
 
 //convar_t    *sv_gametype;
 convar_t* sv_pure;
@@ -146,6 +147,25 @@ EVENT MESSAGES
 
 idServerMainSystemLocal serverMainSystemLocal;
 idServerMainSystem* serverMainSystem = &serverMainSystemLocal;
+
+
+/*
+===============
+idServerMainSystemLocal::idServerMainSystemLocal
+===============
+*/
+idServerMainSystemLocal::idServerMainSystemLocal( void )
+{
+}
+
+/*
+===============
+idServerMainSystemLocal::~idServerMainSystemLocal
+===============
+*/
+idServerMainSystemLocal::~idServerMainSystemLocal( void )
+{
+}
 
 /*
 ===============
@@ -1761,11 +1781,14 @@ void idServerMainSystemLocal::Frame( sint msec )
     
     sv.timeResidual += msec;
     
-    if( com_dedicated->integer && sv.timeResidual < frameMsec )
+    if( com_dedicated->integer && sv.timeResidual < frameMsec && ( !com_timescale || com_timescale->value >= 1 ) )
     {
+        // first check if we need to send any pending packets
+        sint timeVal = serverMainSystem->SendQueuedPackets();
+        
         // networkSystem->Sleep will give the OS time slices until either get a packet
         // or time enough for a server frame has gone by
-        networkSystem->Sleep( frameMsec - sv.timeResidual );
+        networkSystem->Sleep( Q_min( frameMsec - sv.timeResidual, timeVal ) );
         return;
     }
     
@@ -2064,4 +2087,134 @@ sint idServerMainSystemLocal::LoadTag( pointer mod_name )
     
     fileSystem->FreeFile( buffer );
     return ++sv.num_tagheaders;
+}
+
+/*
+====================
+idServerMainSystemLocal::RateMsec
+
+Return the number of msec until another message can be sent to
+a client based on its rate settings
+====================
+*/
+sint idServerMainSystemLocal::RateMsec( client_t* client )
+{
+    sint rate, rateMsec, messageSize;
+    
+    messageSize = client->netchan.lastSentSize;
+    rate = client->rate;
+    
+    if( sv_maxRate->integer )
+    {
+        if( sv_maxRate->integer < 1000 )
+        {
+            cvarSystem->Set( "sv_MaxRate", "1000" );
+        }
+        
+        if( sv_maxRate->integer < rate )
+        {
+            rate = sv_maxRate->integer;
+        }
+    }
+    
+    messageSize += IPUDP_HEADER_SIZE;
+    
+    rateMsec = messageSize * 1000 / ( ( sint )( rate * com_timescale->value ) );
+    rate = idsystem->Milliseconds() - client->netchan.lastSentTime;
+    
+    if( rate > rateMsec )
+    {
+        return 0;
+    }
+    else
+    {
+        return rateMsec - rate;
+    }
+}
+
+/*
+====================
+idServerMainSystemLocal::SendQueuedPackets
+
+Send download messages and queued packets in the time that we're idle, i.e.
+not computing a server frame or sending client snapshots.
+Return the time in msec until we expect to be called next
+====================
+*/
+sint idServerMainSystemLocal::SendQueuedPackets( void )
+{
+    sint numBlocks, dlStart, deltaT, delayT, timeVal = INT_MAX;
+    static sint dlNextRound = 0;
+    
+    // Send out fragmented packets now that we're idle
+    delayT = serverClientSystem->SendQueuedMessages();
+    if( delayT >= 0 )
+    {
+        timeVal = delayT;
+    }
+    
+    if( sv_dlRate->integer )
+    {
+        // Rate limiting. This is very imprecise for high
+        // download rates due to millisecond timedelta resolution
+        dlStart = idsystem->Milliseconds();
+        deltaT = dlNextRound - dlStart;
+        
+        if( deltaT > 0 )
+        {
+            if( deltaT < timeVal )
+            {
+                timeVal = deltaT + 1;
+            }
+        }
+        else
+        {
+            numBlocks = serverClientSystem->SendDownloadMessages();
+            
+            if( numBlocks )
+            {
+                // There are active downloads
+                deltaT = idsystem->Milliseconds() - dlStart;
+                
+                delayT = 1000 * numBlocks * MAX_DOWNLOAD_BLKSIZE;
+                delayT /= sv_dlRate->integer * 1024;
+                
+                if( delayT <= deltaT + 1 )
+                {
+                    // Sending the last round of download messages
+                    // took too long for given rate, don't wait for
+                    // next round, but always enforce a 1ms delay
+                    // between DL message rounds so we don't hog
+                    // all of the bandwidth. This will result in an
+                    // effective maximum rate of 1MB/s per user, but the
+                    // low download window size limits this anyways.
+                    if( timeVal > 2 )
+                    {
+                        timeVal = 2;
+                    }
+                    
+                    dlNextRound = dlStart + deltaT + 1;
+                }
+                else
+                {
+                    dlNextRound = dlStart + delayT;
+                    delayT -= deltaT;
+                    
+                    if( delayT < timeVal )
+                    {
+                        timeVal = delayT;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if( serverClientSystem->SendDownloadMessages() )
+        {
+            timeVal = 0;
+        }
+    }
+    
+    return timeVal;
 }
