@@ -1,3 +1,6 @@
+2021-04-05 Dusan Jocic <dusanjocic@msn>
+	* [Console] We are not using for a long time TTY console
+
 2021-04-04 Dusan Jocic <dusanjocic@msn.com>
 	* [Filesystem] Changed fs_debug logging option
 	* [Engine] Fix mouse locking issues when the mouse would lock at the center of your screen

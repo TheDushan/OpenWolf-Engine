@@ -330,13 +330,6 @@ void idConsoleCursesLocal::Init( void )
     signal( SIGTTOU, SIG_IGN );
 #endif
     
-    // Make sure we're on a tty
-    if( !isatty( STDIN_FILENO ) || !isatty( STDOUT_FILENO ) )
-    {
-        Init();
-        return;
-    }
-    
     // Initialize curses and set up the root window
     if( !curses_on )
     {
