@@ -27,7 +27,7 @@ Use cMake to generate your `make` or `Visual Studio 2019` solution.
     - `sudo apt install cmake-qt-gui`
     - `sudo apt install g++`
     - `sudo apt install libsdl2-dev`
-    - `sudo apt install libjpeg-dev`
+    - `sudo apt install libjpeg-turbo8-dev`
     - `sudo apt install libcurl4-openssl-dev`
     - `sudo apt install libpng-dev`
     - `sudo apt install libopenal-dev`
