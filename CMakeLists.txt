@@ -221,7 +221,6 @@ set( SERVERLIST_HEADERS
 	${MOUNT_DIR}/server/serverNetChan.hpp
 	${MOUNT_DIR}/server/serverInit.hpp
 	${MOUNT_DIR}/server/serverMain.hpp
-	${MOUNT_DIR}/server/serverDemo.hpp
 	${MOUNT_DIR}/server/serverOACS.hpp
 	${MOUNT_DIR}/server/serverWallhack.hpp
 	${MOUNT_DIR}/API/sgame_api.hpp
@@ -232,7 +231,6 @@ set( SERVERLIST_HEADERS
 	${MOUNT_DIR}/API/serverNetChan_api.hpp
 	${MOUNT_DIR}/API/serverInit_api.hpp
 	${MOUNT_DIR}/API/serverMain_api.hpp
-	${MOUNT_DIR}/API/serverDemo_api.hpp
 
 )
 
@@ -246,7 +244,6 @@ set( SERVERLIST_SOURCES
 	${MOUNT_DIR}/server/serverNetChan.cpp
 	${MOUNT_DIR}/server/serverInit.cpp
 	${MOUNT_DIR}/server/serverMain.cpp
-	${MOUNT_DIR}/server/serverDemo.cpp
 	${MOUNT_DIR}/server/serverOACS.cpp
 	${MOUNT_DIR}/server/serverWallhack.cpp
 )
