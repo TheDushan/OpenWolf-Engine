@@ -656,7 +656,7 @@ void SOrig_StartSound( vec3_t origin, sint entityNum, sint entchannel, sfxHandle
         return;
     }
     
-    if( com_minimized->integer )
+    if( com_minimized->integer || com_unfocused->integer )
     {
         return;
     }

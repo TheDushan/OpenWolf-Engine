@@ -2,6 +2,7 @@
 	* [Console] Fixed problems with console tab and input
 	* [Console] Specify console tab to dump in the log file
 	* [SoundSystem] Don't play sound while minimized
+	* [SoundSystem] Don't play sound even if application is unfocused
 
 2021-04-10 Dusan Jocic <dusanjocic@msn>
 	* [Libraries] Cleaning
