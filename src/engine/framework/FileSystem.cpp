@@ -609,6 +609,58 @@ void idFileSystemLocal::HomeRemove( pointer homePath )
 }
 
 /*
+===========
+idFileSystemLocal::Rmdir
+
+Removes a directory, optionally deleting all files under it
+===========
+*/
+void idFileSystemLocal::Rmdir( pointer osPath, bool recursive )
+{
+    if( recursive )
+    {
+        sint numfiles;
+        sint i;
+        valueType** filesToRemove = idsystem->ListFiles( osPath, "", nullptr, &numfiles, false );
+        for( i = 0; i < numfiles; i++ )
+        {
+            valueType fileOsPath[MAX_OSPATH];
+            Q_vsprintf_s( fileOsPath, sizeof( fileOsPath ), sizeof( fileOsPath ), "%s/%s", osPath, filesToRemove[i] );
+            Remove( fileOsPath );
+        }
+        
+        FreeFileList( filesToRemove );
+        
+        valueType** directoriesToRemove = idsystem->ListFiles( osPath, "/", nullptr, &numfiles, false );
+        for( i = 0; i < numfiles; i++ )
+        {
+            if( !Q_stricmp( directoriesToRemove[i], "." ) || !Q_stricmp( directoriesToRemove[i], ".." ) )
+            {
+                continue;
+            }
+            valueType directoryOsPath[MAX_OSPATH];
+            Q_vsprintf_s( directoryOsPath, sizeof( directoryOsPath ), sizeof( directoryOsPath ), "%s/%s", osPath, directoriesToRemove[i] );
+            Rmdir( directoryOsPath, true );
+        }
+        FreeFileList( directoriesToRemove );
+    }
+    
+    rmdir( osPath );
+}
+
+/*
+===========
+idFileSystemLocal::HomeRmdir
+
+Removes a directory, optionally deleting all files under it
+===========
+*/
+void idFileSystemLocal::HomeRmdir( pointer homePath, bool recursive )
+{
+    Rmdir( BuildOSPath( fs_homepath->string, fs_gamedir, homePath ), recursive );
+}
+
+/*
 ================
 idFileSystemLocal::FileExists
 

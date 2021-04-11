@@ -161,6 +161,8 @@ public:
     virtual pointer GetGameDir( void ) = 0;
     virtual bool IsFileEmpty( valueType* filename ) = 0;
     virtual valueType* GetFullGamePath( valueType* filename ) = 0;
+    virtual void Rmdir( pointer osPath, bool recursive ) = 0;
+    virtual void HomeRmdir( pointer homePath, bool recursive ) = 0;
 };
 
 extern idFileSystem* fileSystem;

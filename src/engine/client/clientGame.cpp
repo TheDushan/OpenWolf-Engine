@@ -724,9 +724,6 @@ void idClientGameSystemLocal::CreateExportTable( void )
 {
     exports.Print = Com_Printf;
     
-    exports.DemoState = CL_DemoState;
-    exports.DemoPos = CL_DemoPos;
-    
     exports.AddReliableCommand = CL_AddReliableCommand;
     
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
@@ -748,7 +745,6 @@ void idClientGameSystemLocal::CreateExportTable( void )
     exports.Key_GetBindingByString = Key_GetBindingByString;
     exports.CL_TranslateString = CL_TranslateString;
     exports.Com_GetHunkInfo = Com_GetHunkInfo;
-    exports.CL_DemoName = CL_DemoName;
     exports.UI_LimboChat = CL_AddToLimboChat;
     
     exports.clientGameSystem = clientGameSystem;

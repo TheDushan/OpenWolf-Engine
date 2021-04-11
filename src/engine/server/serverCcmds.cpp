@@ -75,7 +75,7 @@ These commands can only be entered from stdin or by a remote operator datagram
 ==================
 idServerCcmdsSystemLocal::GetPlayerByHandle
 
-Returns the player with player id or name from Cmd_Argv(1)
+Returns the player with player id or name from cmdSystem->Argv(1)
 ==================
 */
 client_t* idServerCcmdsSystemLocal::GetPlayerByHandle( void )
@@ -376,17 +376,6 @@ void idServerCcmdsSystemLocal::Map_f( void )
         killBots = false;
     }
     
-    // stop any demos
-    if( sv.demoState == DS_RECORDING )
-    {
-        serverDemoSystem->DemoStopRecord();
-    }
-    
-    if( sv.demoState == DS_PLAYBACK )
-    {
-        serverDemoSystem->DemoStopPlayback();
-    }
-    
     // save the map name here cause on a map restart we reload the q3config.cfg
     // and thus nuke the arguments of the map command
     Q_strncpyz( mapname, map, sizeof( mapname ) );
@@ -612,16 +601,7 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
     }
     // done.
     
-    // stop any demos
-    if( sv.demoState == DS_RECORDING )
-    {
-        serverDemoSystem->DemoStopRecord();
-    }
-    
-    if( sv.demoState == DS_PLAYBACK )
-    {
-        serverDemoSystem->DemoStopPlayback();
-    }
+    StopAutoRecordDemos();
     
     // toggle the server bit so clients can detect that a
     // map_restart has happened
@@ -631,6 +611,8 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
     sv.restartedServerId = sv.serverId;
     sv.serverId = com_frameTime;
     cvarSystem->Set( "sv_serverid", va( "%i", sv.serverId ) );
+    
+    time( &sv.realMapTimeStarted );
     
     // if a map_restart occurs while a client is changing maps, we need
     // to give them the correct time so that when they finish loading
@@ -730,6 +712,8 @@ void idServerCcmdsSystemLocal::MapRestart_f( void )
     svs.time += FRAMETIME;
     
     cvarSystem->Set( "sv_serverRestarting", "0" );
+    
+    BeginAutoRecordDemos();
 }
 
 /*
@@ -1549,6 +1533,431 @@ void idServerCcmdsSystemLocal::KillServer_f( void )
 
 /*
 =================
+idServerCcmdsSystemLocal::WriteDemoMessage
+=================
+*/
+void idServerCcmdsSystemLocal::WriteDemoMessage( client_t* cl, msg_t* msg, sint headerBytes )
+{
+    sint len, swlen;
+    
+    // write the packet sequence
+    len = cl->netchan.outgoingSequence;
+    swlen = LittleLong( len );
+    fileSystem->Write( &swlen, 4, cl->demo.demofile );
+    
+    // skip the packet sequencing information
+    len = msg->cursize - headerBytes;
+    swlen = LittleLong( len );
+    fileSystem->Write( &swlen, 4, cl->demo.demofile );
+    fileSystem->Write( msg->data + headerBytes, len, cl->demo.demofile );
+}
+
+/*
+=================
+idServerCcmdsSystemLocal::StopRecordDemo
+=================
+*/
+void idServerCcmdsSystemLocal::StopRecordDemo( client_t* cl )
+{
+    sint len;
+    
+    if( !cl->demo.demorecording )
+    {
+        Com_Printf( "Client %d is not recording a demo.\n", cl - svs.clients );
+        return;
+    }
+    
+    // finish up
+    len = -1;
+    fileSystem->Write( &len, 4, cl->demo.demofile );
+    fileSystem->Write( &len, 4, cl->demo.demofile );
+    fileSystem->FCloseFile( cl->demo.demofile );
+    cl->demo.demofile = 0;
+    cl->demo.demorecording = false;
+    Com_Printf( "Stopped demo for client %d.\n", cl - svs.clients );
+}
+
+/*
+=================
+idServerCcmdsSystemLocal::StopAutoRecordDemos
+
+stops all recording demos
+=================
+*/
+void idServerCcmdsSystemLocal::StopAutoRecordDemos( void )
+{
+    if( svs.clients && sv_autoRecDemo->integer )
+    {
+        for( client_t* client = svs.clients; client - svs.clients < sv_maxclients->integer; client++ )
+        {
+            if( client->demo.demorecording )
+            {
+                StopRecordDemo( client );
+            }
+        }
+    }
+}
+
+/*
+====================
+idServerCcmdsSystemLocal::StopRecording_f
+
+stop recording a demo
+====================
+*/
+void idServerCcmdsSystemLocal::StopRecord_f( void )
+{
+    sint i;
+    
+    client_t* cl = nullptr;
+    if( cmdSystem->Argc() == 2 )
+    {
+        sint clIndex = atoi( cmdSystem->Argv( 1 ) );
+        if( clIndex < 0 || clIndex >= sv_maxclients->integer )
+        {
+            Com_Printf( "Unknown client number %d.\n", clIndex );
+            return;
+        }
+        cl = &svs.clients[clIndex];
+    }
+    else
+    {
+        for( i = 0; i < sv_maxclients->integer; i++ )
+        {
+            if( svs.clients[i].demo.demorecording )
+            {
+                cl = &svs.clients[i];
+                break;
+            }
+        }
+        if( cl == nullptr )
+        {
+            Com_Printf( "No demo being recorded.\n" );
+            return;
+        }
+    }
+    
+    if( !cl->demo.demorecording )
+    {
+        Com_Printf( "Client %d is not recording a demo.\n", cl - svs.clients );
+        return;
+    }
+    
+    StopRecordDemo( cl );
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::DemoFilename
+==================
+*/
+void idServerCcmdsSystemLocal::DemoFilename( valueType* buf, sint bufSize )
+{
+    time_t rawtime;
+    valueType timeStr[32] = { 0 }; // should really only reach ~19 chars
+    
+    time( &rawtime );
+    strftime( timeStr, sizeof( timeStr ), "%Y-%m-%d_%H-%M-%S", localtime( &rawtime ) ); // or gmtime
+    
+    Q_vsprintf_s( buf, bufSize, bufSize, "demo%s", timeStr );
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::RecordDemo
+==================
+*/
+void idServerCcmdsSystemLocal::RecordDemo( client_t* cl, valueType* demoName )
+{
+    valueType		name[MAX_OSPATH];
+    uchar8		bufData[MAX_MSGLEN];
+    msg_t		msg;
+    sint			len;
+    
+    if( cl->demo.demorecording )
+    {
+        Com_Printf( "Already recording.\n" );
+        return;
+    }
+    
+    if( cl->state != CS_ACTIVE )
+    {
+        Com_Printf( "Client is not active.\n" );
+        return;
+    }
+    
+    // open the demo file
+    Q_strncpyz( cl->demo.demoName, demoName, sizeof( cl->demo.demoName ) );
+    Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", cl->demo.demoName, PROTOCOL_VERSION );
+    
+    Com_Printf( "recording to %s.\n", name );
+    
+    cl->demo.demofile = fileSystem->FOpenFileWrite( name );
+    if( !cl->demo.demofile )
+    {
+        Com_Printf( "ERROR: couldn't open.\n" );
+        return;
+    }
+    cl->demo.demorecording = true;
+    
+    // don't start saving messages until a non-delta compressed message is received
+    cl->demo.demowaiting = true;
+    
+    cl->demo.isBot = ( cl->netchan.remoteAddress.type == NA_BOT ) ? true : false;
+    cl->demo.botReliableAcknowledge = cl->reliableSent;
+    
+    // write out the gamestate message
+    MSG_Init( &msg, bufData, sizeof( bufData ) );
+    
+    // NOTE, MRE: all server->client messages now acknowledge
+    sint tmp = cl->reliableSent;
+    idServerClientSystemLocal::CreateClientGameStateMessage( cl, &msg );
+    cl->reliableSent = tmp;
+    
+    // finished writing the client packet
+    MSG_WriteByte( &msg, svc_EOF );
+    
+    // write it to the demo file
+    len = LittleLong( cl->netchan.outgoingSequence - 1 );
+    fileSystem->Write( &len, 4, cl->demo.demofile );
+    
+    len = LittleLong( msg.cursize );
+    fileSystem->Write( &len, 4, cl->demo.demofile );
+    fileSystem->Write( msg.data, msg.cursize, cl->demo.demofile );
+    
+    // the rest of the demo file will be copied from net messages
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::AutoRecordDemo
+==================
+*/
+void idServerCcmdsSystemLocal::AutoRecordDemo( client_t* cl )
+{
+    valueType demoName[MAX_OSPATH];
+    valueType demoFolderName[MAX_OSPATH];
+    valueType demoFileName[MAX_OSPATH];
+    valueType* demoNames[] = { demoFolderName, demoFileName };
+    valueType date[MAX_OSPATH];
+    valueType folderDate[MAX_OSPATH];
+    valueType folderTreeDate[MAX_OSPATH];
+    valueType demoPlayerName[MAX_NAME_LENGTH];
+    time_t rawtime;
+    struct tm* timeinfo;
+    
+    ::time( &rawtime );
+    timeinfo = ::localtime( &rawtime );
+    ::strftime( date, sizeof( date ), "%Y-%m-%d_%H-%M-%S", timeinfo );
+    
+    timeinfo = ::localtime( &sv.realMapTimeStarted );
+    
+    ::strftime( folderDate, sizeof( folderDate ), "%Y-%m-%d_%H-%M-%S", timeinfo );
+    ::strftime( folderTreeDate, sizeof( folderTreeDate ), "%Y/%m/%d", timeinfo );
+    
+    Q_strncpyz( demoPlayerName, cl->name, sizeof( demoPlayerName ) );
+    
+    Q_CleanStr( demoPlayerName );
+    
+    Q_vsprintf_s( demoFileName, sizeof( demoFileName ), sizeof( demoFileName ), "%s %s", cvarSystem->VariableString( "mapname" ), date );
+    Q_vsprintf_s( demoFolderName, sizeof( demoFolderName ), sizeof( demoFolderName ), "%s %s", cvarSystem->VariableString( "mapname" ), folderDate );
+    
+    // sanitize filename
+    for( valueType** start = demoNames; start - demoNames < static_cast<sint32>( ARRAY_LEN( demoNames ) ); start++ )
+    {
+        Q_strstrip( *start, "\n\r;:.?*<>|\\/\"", nullptr );
+    }
+    
+    Q_vsprintf_s( demoName, sizeof( demoName ), sizeof( demoName ), "autorecord/%s/%s/%s", folderTreeDate, demoFolderName, demoFileName );
+    
+    RecordDemo( cl, demoName );
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::ExtractTimeFromDemoFolder
+==================
+*/
+time_t idServerCcmdsSystemLocal::ExtractTimeFromDemoFolder( valueType* folder )
+{
+    sint timeLen = strlen( "0000-00-00_00-00-00" );
+    if( strlen( folder ) < timeLen )
+    {
+        return 0;
+    }
+    struct tm timeinfo;
+    timeinfo.tm_isdst = 0;
+    sint numMatched = sscanf( folder + ( strlen( folder ) - timeLen ), "%4d-%2d-%2d_%2d-%2d-%2d",
+                              &timeinfo.tm_year, &timeinfo.tm_mon, &timeinfo.tm_mday, &timeinfo.tm_hour, &timeinfo.tm_min, &timeinfo.tm_sec );
+    if( numMatched < 6 )
+    {
+        // parsing failed
+        return 0;
+    }
+    timeinfo.tm_year -= 1900;
+    return mktime( &timeinfo );
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::DemoFolderTimeComparator
+==================
+*/
+sint QDECL idServerCcmdsSystemLocal::DemoFolderTimeComparator( const void* arg1, const void* arg2 )
+{
+    valueType* folder1 = ( valueType* )arg1;
+    valueType* folder2 = ( valueType* )arg2;
+    return ExtractTimeFromDemoFolder( ( valueType* )arg2 ) - ExtractTimeFromDemoFolder( ( valueType* )arg1 );
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::BeginAutoRecordDemos
+
+starts demo recording on all active clients
+==================
+*/
+void idServerCcmdsSystemLocal::BeginAutoRecordDemos( void )
+{
+    if( sv_autoRecDemo->integer )
+    {
+        for( client_t* client = svs.clients; client - svs.clients < sv_maxclients->integer; client++ )
+        {
+            if( client->state == CS_ACTIVE && !client->demo.demorecording )
+            {
+                if( client->netchan.remoteAddress.type != NA_BOT || sv_autoRecDemoBots->integer )
+                {
+                    AutoRecordDemo( client );
+                }
+            }
+        }
+        if( sv_autoRecDemoMaxMaps->integer > 0 )
+        {
+            valueType fileList[MAX_QPATH * 500];
+            valueType autorecordDirList[500][MAX_QPATH];
+            sint autorecordDirListCount = 0;
+            valueType* fileName;
+            sint i;
+            sint len;
+            sint numFiles = fileSystem->GetFileList( "demos", "/", fileList, sizeof( fileList ) );
+            
+            fileName = fileList;
+            for( i = 0; i < numFiles; i++ )
+            {
+                if( Q_stricmp( fileName, "." ) && Q_stricmp( fileName, ".." ) )
+                {
+                    Q_strncpyz( autorecordDirList[autorecordDirListCount++], fileName, MAX_QPATH );
+                }
+                fileName += strlen( fileName ) + 1;
+            }
+            qsort( autorecordDirList, autorecordDirListCount, sizeof( autorecordDirList[0] ), DemoFolderTimeComparator );
+            for( i = sv_autoRecDemoMaxMaps->integer; i < autorecordDirListCount; i++ )
+            {
+                fileSystem->HomeRmdir( va( "demos/autorecord/%s", autorecordDirList[i] ), true );
+            }
+        }
+    }
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::Record_f
+
+Code is a merge of the cl_main.cpp function of the same name
+and idServerCcmdsSystemLocal::SendClientGameState in serverClient.cpp
+==================
+*/
+void idServerCcmdsSystemLocal::Record_f( void )
+{
+    valueType demoName[MAX_OSPATH], name[MAX_OSPATH];
+    sint i, start, len;
+    valueType* s;
+    
+    if( svs.clients == nullptr )
+    {
+        Com_Printf( "cannot record server demo - null svs.clients\n" );
+        return;
+    }
+    
+    if( cmdSystem->Argc() > 3 )
+    {
+        Com_Printf( "record <demoname> <clientnum>\n" );
+        return;
+    }
+    
+    client_t* cl;
+    
+    if( cmdSystem->Argc() == 3 )
+    {
+        sint clIndex = atoi( cmdSystem->Argv( 1 ) );
+        if( clIndex < 0 || clIndex >= sv_maxclients->integer )
+        {
+            Com_Printf( "Unknown client number %d.\n", clIndex );
+            return;
+        }
+        cl = &svs.clients[clIndex];
+    }
+    else
+    {
+        for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ )
+        {
+            if( !cl->state )
+            {
+                continue;
+            }
+            
+            if( cl->demo.demorecording )
+            {
+                continue;
+            }
+            
+            if( cl->state == CS_ACTIVE )
+            {
+                break;
+            }
+        }
+    }
+    
+    if( cl - svs.clients >= sv_maxclients->integer )
+    {
+        Com_Printf( "No active client could be found.\n" );
+        return;
+    }
+    
+    if( cl->demo.demorecording )
+    {
+        Com_Printf( "Already recording.\n" );
+        return;
+    }
+    
+    if( cl->state != CS_ACTIVE )
+    {
+        Com_Printf( "Client is not active.\n" );
+        return;
+    }
+    
+    if( cmdSystem->Argc() >= 2 )
+    {
+        s = cmdSystem->Argv( 1 );
+        Q_strncpyz( demoName, s, sizeof( demoName ) );
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
+    }
+    else
+    {
+        DemoFilename( demoName, sizeof( demoName ) );
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
+        if( fileSystem->FileExists( name ) )
+        {
+            Com_Printf( "Record: Couldn't create a file\n" );
+            return;
+        }
+    }
+    
+    RecordDemo( cl, demoName );
+}
+
+/*
+=================
 idServerCcmdsSystemLocal::GameCompleteStatus_f
 
 NERVE - SMF
@@ -1613,137 +2022,6 @@ void idServerCcmdsSystemLocal::StartRedirect_f( void )
 }
 
 /*
-=================
-idServerCcmdsSystemLocal::Demo_Record_f
-=================
-*/
-void idServerCcmdsSystemLocal::Demo_Record_f( void )
-{
-    // make sure server is running
-    if( !com_sv_running->integer )
-    {
-        Com_Printf( "Server is not running.\n" );
-        return;
-    }
-    
-    if( cmdSystem->Argc() > 2 )
-    {
-        Com_Printf( "Usage: demo_record <demoname>\n" );
-        return;
-    }
-    
-    if( sv.demoState != DS_NONE )
-    {
-        Com_Printf( "A demo is already being recorded/played.\n" );
-        return;
-    }
-    
-    if( sv_maxclients->integer == MAX_CLIENTS )
-    {
-        Com_Printf( "Too many slots, reduce sv_maxclients.\n" );
-        return;
-    }
-    
-    if( cmdSystem->Argc() == 2 )
-    {
-        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s.svdm_%d", cmdSystem->Argv( 1 ), PROTOCOL_VERSION );
-    }
-    else
-    {
-        sint	number;
-        // scan for a free demo name
-        for( number = 0; number >= 0; number++ )
-        {
-            Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%d.svdm_%d", number, PROTOCOL_VERSION );
-            if( !fileSystem->FileExists( sv.demoName ) )
-                break;	// file doesn't exist
-        }
-        if( number < 0 )
-        {
-            Com_Printf( "Couldn't generate a filename for the demo, try deleting some old ones.\n" );
-            return;
-        }
-    }
-    
-    sv.demoFile = fileSystem->FOpenFileWrite( sv.demoName );
-    if( !sv.demoFile )
-    {
-        Com_Printf( "ERROR: Couldn't open %s for writing.\n", sv.demoName );
-        return;
-    }
-    
-    serverDemoSystem->DemoStartRecord();
-}
-
-/*
-====================
-idServerCcmdsSystemLocal::Demo_Play_f
-====================
-*/
-void idServerCcmdsSystemLocal::Demo_Play_f( void )
-{
-    valueType* arg;
-    
-    if( cmdSystem->Argc() != 2 )
-    {
-        Com_Printf( "Usage: demo_play <demoname>\n" );
-        return;
-    }
-    
-    if( sv.demoState != DS_NONE )
-    {
-        Com_Printf( "A demo is already being recorded/played.\n" );
-        return;
-    }
-    
-    //if( sv_democlients->integer <= 0 )
-    //{
-    //    Com_Printf( "You need to set sv_democlients to a value greater than 0.\n" );
-    //    return;
-    //}
-    
-    // check for an extension .svdm_?? (?? is protocol)
-    arg = cmdSystem->Argv( 1 );
-    if( !strcmp( arg + strlen( arg ) - 6, va( ".svdm_%d", PROTOCOL_VERSION ) ) )
-        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s", arg );
-    else
-        Q_vsprintf_s( sv.demoName, sizeof( sv.demoName ), sizeof( sv.demoName ), "svdemos/%s.svdm_%d", arg, PROTOCOL_VERSION );
-        
-    fileSystem->FOpenFileRead( sv.demoName, &sv.demoFile, true );
-    if( !sv.demoFile )
-    {
-        Com_Printf( "ERROR: Couldn't open %s for reading.\n", sv.demoName );
-        return;
-    }
-    
-    serverDemoSystem->DemoStartPlayback();
-}
-
-/*
-====================
-idServerCcmdsSystemLocal::Demo_Stop_f
-====================
-*/
-void idServerCcmdsSystemLocal::Demo_Stop_f( void )
-{
-    if( sv.demoState == DS_NONE )
-    {
-        Com_Printf( "No demo is currently being recorded or played.\n" );
-        return;
-    }
-    
-    // Close the demo file
-    if( sv.demoState == DS_PLAYBACK )
-    {
-        serverDemoSystem->DemoStopPlayback();
-    }
-    else
-    {
-        serverDemoSystem->DemoStopRecord();
-    }
-}
-
-/*
 ====================
 idServerCcmdsSystemLocal::CompleteDemoName
 ====================
@@ -1799,10 +2077,6 @@ void idServerCcmdsSystemLocal::AddOperatorCommands( void )
     cmdSystem->AddCommand( "killserver", &idServerCcmdsSystemLocal::KillServer_f, "Command for terminating the server, but leaving application running." );
     cmdSystem->AddCommand( "startRedirect", &idServerCcmdsSystemLocal::StartRedirect_f, "Redirecting clients" );
     cmdSystem->AddCommand( "endRedirect", Com_EndRedirect, "End of the cient redirection" );
-    cmdSystem->AddCommand( "demo_record", &idServerCcmdsSystemLocal::Demo_Record_f, "Recording a demo" );
-    cmdSystem->AddCommand( "demo_play", &idServerCcmdsSystemLocal::Demo_Play_f, "Playing a demo file" );
-    cmdSystem->SetCommandCompletionFunc( "demo_play", &idServerCcmdsSystemLocal::CompleteDemoName );
-    cmdSystem->AddCommand( "demo_stop", &idServerCcmdsSystemLocal::Demo_Stop_f, "Stopping a demo file" );
     
     cmdSystem->AddCommand( "cheater", &idServerOACSSystemLocal::ExtendedRecordSetCheater_f, "Server-side command to set a client's cheater label cheater <client> <label> where label is 0 for honest players, and >= 1 for cheaters" );
     
@@ -1819,6 +2093,9 @@ void idServerCcmdsSystemLocal::AddOperatorCommands( void )
     
     cmdSystem->AddCommand( "csstats_players", &idServerCcmdsSystemLocal::StatsPlayers_f, "Statistics for the players." );
     cmdSystem->AddCommand( "csstats_player", &idServerCcmdsSystemLocal::StatsPlayer_f, "Statistics for the one specific player." );
+    
+    cmdSystem->AddCommand( "svrecord", &idServerCcmdsSystemLocal::Record_f, "" );
+    cmdSystem->AddCommand( "svstoprecord", &idServerCcmdsSystemLocal::StopRecord_f, "" );
     
     
     if( com_dedicated->integer )

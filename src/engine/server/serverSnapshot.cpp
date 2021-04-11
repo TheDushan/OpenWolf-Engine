@@ -172,11 +172,19 @@ idServerSnapshotSystemLocal::WriteSnapshotToClient
 */
 void idServerSnapshotSystemLocal::WriteSnapshotToClient( client_t* client, msg_t* msg )
 {
-    sint lastframe, i, snapFlags;
+    sint lastframe, i, snapFlags, deltaMessage;
     clientSnapshot_t* frame, *oldframe;
     
     // this is the snapshot we are creating
     frame = &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
+    
+    // bots never acknowledge, but it doesn't matter since the only use case is for serverside demos
+    // in which case we can delta against the very last message every time
+    deltaMessage = client->deltaMessage;
+    if( client->demo.isBot )
+    {
+        client->deltaMessage = client->netchan.outgoingSequence;
+    }
     
     // try to use a previous frame as the source for delta compressing the snapshot
     if( client->deltaMessage <= 0 || client->state != CS_ACTIVE )
@@ -189,6 +197,20 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient( client_t* client, msg_t
     {
         // client hasn't gotten a good message through in a long time
         Com_DPrintf( "%s: Delta request from out of date packet.\n", client->name );
+        oldframe = nullptr;
+        lastframe = 0;
+    }
+    else if( client->demo.demorecording && client->demo.demowaiting )
+    {
+        // demo is waiting for a non-delta-compressed frame for this client, so don't delta compress
+        oldframe = nullptr;
+        lastframe = 0;
+    }
+    else if( client->demo.minDeltaFrame > deltaMessage )
+    {
+        // we saved a non-delta frame to the demo and sent it to the client, but the client didn't ack it
+        // we can't delta against an old frame that's not in the demo without breaking the demo.  so send
+        // non-delta frames until the client acks.
         oldframe = nullptr;
         lastframe = 0;
     }
@@ -205,6 +227,16 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient( client_t* client, msg_t
             oldframe = nullptr;
             lastframe = 0;
         }
+    }
+    
+    if( oldframe == nullptr )
+    {
+        if( client->demo.demowaiting )
+        {
+            // this is a non-delta frame, so we can delta against it in the demo
+            client->demo.minDeltaFrame = client->netchan.outgoingSequence;
+        }
+        client->demo.demowaiting = false;
     }
     
     MSG_WriteByte( msg, svc_snapshot );
@@ -290,7 +322,8 @@ idServerSnapshotSystemLocal::UpdateServerCommandsToClient
 */
 void idServerSnapshotSystemLocal::UpdateServerCommandsToClient( client_t* client, msg_t* msg )
 {
-    sint i;
+    sint i, reliableAcknowledge;
+    
     
     // write any unacknowledged serverCommands
     for( i = client->reliableAcknowledge + 1; i <= client->reliableSequence; i++ )
@@ -872,6 +905,23 @@ void idServerSnapshotSystemLocal::SendMessageToClient( msg_t* msg, client_t* cli
     client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;
     client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageAcked = -1;
     
+    // save the message to demo.  this must happen before sending over network as that encodes the backing databuf
+    if( client->demo.demorecording && !client->demo.demowaiting )
+    {
+        msg_t msgcopy = *msg;
+        MSG_WriteByte( &msgcopy, svc_EOF );
+        idServerCcmdsSystemLocal::WriteDemoMessage( client, &msgcopy, 0 );
+    }
+    
+    // bots need to have their snapshots built, but
+    // they query them directly without needing to be sent
+    if( client->demo.isBot )
+    {
+        client->netchan.outgoingSequence++;
+        client->demo.botReliableAcknowledge = client->reliableSent;
+        return;
+    }
+    
     // send the datagram
     serverNetChanSystem->NetchanTransmit( client, msg );
     
@@ -1004,9 +1054,18 @@ void idServerSnapshotSystemLocal::SendClientSnapshot( client_t* client )
     // build the snapshot
     BuildClientSnapshot( client );
     
-    // bots need to have their snapshots build, but
-    // the query them directly without needing to be sent
+    if( sv_autoRecDemo->integer && !client->demo.demorecording )
+    {
+        if( client->netchan.remoteAddress.type != NA_BOT || sv_autoRecDemoBots->integer )
+        {
+            idServerCcmdsSystemLocal::BeginAutoRecordDemos();
+        }
+    }
+    
+    // bots need to have their snapshots built, but
+    // they query them directly without needing to be sent
     if( client->gentity && client->gentity->r.svFlags & SVF_BOT )
+        //if( client->netchan.remoteAddress.type == NA_BOT && !client->demo.demorecording )
     {
         return;
     }

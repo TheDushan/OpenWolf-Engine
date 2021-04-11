@@ -32,7 +32,7 @@
 #define CGAME_IMPORT_API_VERSION 5
 #define CAM_PRIMARY 0
 
-#define CMD_BACKUP 64
+#define CMD_BACKUP 512
 #define CMD_MASK ( CMD_BACKUP - 1 )
 // allow a lot of command backups for very fast systems
 // multiple commands may be combined into a single packet, so this
@@ -85,11 +85,7 @@ struct cgameImports_t
     void ( *AddReliableCommand )( pointer cmd );
     void ( *Cvar_LatchedVariableStringBuffer )( pointer var_name, valueType* buffer, uint64 bufsize );
     void ( *CL_TranslateString )( pointer string, valueType* dest_buffer );
-    void ( *CL_DemoName )( valueType* buffer, sint size );
     void ( *Com_GetHunkInfo )( sint* hunkused, sint* hunkexpected );
-    sint( *DemoPos )( void );
-    void ( *DemoName )( valueType* buffer, sint size );
-    demoState_t ( *DemoState )( void );
     uint64( *Hunk_MemoryRemaining )( void );
     void ( *Key_GetBindingByString )( pointer binding, sint* key1, sint* key2 );
     void ( *Key_SetBinding )( sint keynum, pointer binding );

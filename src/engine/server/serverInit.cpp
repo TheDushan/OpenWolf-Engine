@@ -672,6 +672,8 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     pointer p;
     bool isBot;
     
+    idServerCcmdsSystemLocal::StopAutoRecordDemos();
+    
     svs.queryDone = 0;
     
     // ydnar: broadcast a level change to all connected clients
@@ -795,6 +797,8 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     sv.restartedServerId = sv.serverId;
     sv.checksumFeedServerId = sv.serverId;
     cvarSystem->Set( "sv_serverid", va( "%i", sv.serverId ) );
+    
+    time( &sv.realMapTimeStarted );
     
     // media configstring setting should be done during
     // the loading stage, so connected clients don't have
@@ -941,6 +945,18 @@ void idServerInitSystemLocal::SpawnServer( valueType* server, bool killBots )
     UpdateConfigStrings();
     
     cvarSystem->Set( "sv_serverRestarting", "0" );
+    
+    for( client_t* client = svs.clients; client - svs.clients < sv_maxclients->integer; client++ )
+    {
+        // bots will not request gamestate, so it must be manually sent
+        // cannot do this above where it says it will because mapname is not set at that time
+        if( client->netchan.remoteAddress.type == NA_BOT && client->demo.demorecording )
+        {
+            idServerClientSystemLocal::SendClientGameState( client );
+        }
+    }
+    
+    idServerCcmdsSystemLocal::BeginAutoRecordDemos();
     
     Com_Printf( "-----------------------------------\n" );
 }
@@ -1219,6 +1235,10 @@ void idServerInitSystemLocal::Init( void )
     
     sv_wh_check_fov = cvarSystem->Get( "sv_wh_check_fov", "0", CVAR_ARCHIVE, "Enable wallhack protection only when players are in their respective FOV." );
     
+    sv_autoRecDemo = cvarSystem->Get( "sv_autoRecDemo", "0", CVAR_ARCHIVE, "Toggle (default off) auto demo recording of human players." );
+    sv_autoRecDemoBots = cvarSystem->Get( "sv_autoRecDemoBots", "0", CVAR_ARCHIVE, "If above is turned on, also record bots." );
+    sv_autoRecDemoMaxMaps = cvarSystem->Get( "sv_autoRecDemoMaxMaps", "0", CVAR_ARCHIVE, " Adjust how many maps, demos will be kept (default 0, probably should set if turning auto record on)." );
+    
 #if !defined (UPDATE_SERVER)
     idServerWallhackSystemLocal::InitWallhack();
 #endif
@@ -1337,17 +1357,6 @@ void idServerInitSystemLocal::Shutdown( valueType* finalmsg )
     serverMainSystem->MasterShutdown();
     serverGameSystem->ShutdownGameProgs();
     svs.gameStarted = false;
-    
-    // stop any demos
-    if( sv.demoState == DS_RECORDING )
-    {
-        serverDemoSystem->DemoStopRecord();
-    }
-    
-    if( sv.demoState == DS_PLAYBACK )
-    {
-        serverDemoSystem->DemoStopPlayback();
-    }
     
     // OACS: commit any remaining interframe
     idServerOACSSystemLocal::ExtendedRecordShutdown();

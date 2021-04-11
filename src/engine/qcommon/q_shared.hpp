@@ -1527,17 +1527,6 @@ enum flagStatus_t
     FLAG_DROPPED
 };
 
-// Dushan - Tremulous
-enum demoState_t
-{
-    DS_NONE,
-    
-    DS_PLAYBACK,
-    DS_RECORDING,
-    
-    DS_NUM_DEMO_STATES
-};
-
 #define MAX_GLOBAL_SERVERS          4096
 #define MAX_OTHER_SERVERS           128
 #define MAX_PINGREQUESTS            16
@@ -1637,15 +1626,6 @@ void Com_Parse3DMatrix( pointer( *buf_p ), sint z, sint y, sint x, float32* m );
 #define CHECK_NAN
 #define CHECK_NAN_VEC
 #endif
-
-// demo commands
-enum demoCommand_t
-{
-    DC_SERVER_COMMAND = -1,
-    DC_CLIENT_SET = 0,
-    DC_CLIENT_REMOVE,
-    DC_SET_STAGE
-};
 
 void Com_BeginParseSession( pointer filename );
 void Com_EndParseSession( void );

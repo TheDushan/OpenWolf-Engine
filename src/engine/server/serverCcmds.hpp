@@ -80,10 +80,18 @@ public:
     static void CompleteMapName( valueType* args, sint argNum );
     static void ClientRedirect( valueType* outputbuf );
     static void StartRedirect_f( void );
-    static void Demo_Record_f( void );
-    static void Demo_Play_f( void );
-    static void Demo_Stop_f( void );
     static void CompleteDemoName( valueType* args, sint argNum );
+    static void WriteDemoMessage( client_t* cl, msg_t* msg, sint headerBytes );
+    static void StopRecord_f( void );
+    static void DemoFilename( valueType* buf, sint bufSize );
+    static void Record_f( void );
+    static void StopRecordDemo( client_t* cl );
+    static void StopAutoRecordDemos( void );
+    static void RecordDemo( client_t* cl, valueType* demoName );
+    static void AutoRecordDemo( client_t* cl );
+    static time_t ExtractTimeFromDemoFolder( valueType* folder );
+    static sint DemoFolderTimeComparator( const void* arg1, const void* arg2 );
+    static void BeginAutoRecordDemos( void );
 };
 
 extern idServerCcmdsSystemLocal serverCcmdsLocal;

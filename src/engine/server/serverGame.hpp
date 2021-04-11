@@ -69,7 +69,6 @@ public:
     virtual sharedEntity_t* GEntityForSvEntity( svEntity_t* svEnt );
     virtual void RestartGameProgs( void );
     virtual playerState_t* GameClientNum( sint num );
-    virtual sint DemoWriteCommand( sint cmd, pointer str );
 public:
     idServerGameSystemLocal();
     ~idServerGameSystemLocal();

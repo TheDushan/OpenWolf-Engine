@@ -78,7 +78,7 @@ struct gameImports_t
     idServerMainSystem* serverMainSystem;
     idCmdBufferSystem* cmdBufferSystem;
     idCmdSystem* cmdSystem;
-    idServerDemoSystem* serverDemoSystem;
+    
     idSystem* idsystem;
     idParseSystem* parseSystem;
 };
@@ -139,7 +139,6 @@ sfxHandle_t trap_RegisterSound( pointer sample );
 sint trap_GetSoundLength( sfxHandle_t sfxHandle );
 sfxHandle_t trap_S_RegisterSound( pointer sample );
 sint trap_S_SoundDuration( sfxHandle_t handle );
-void trap_DemoCommand( demoCommand_t cmd, pointer string );
 
 //
 // idGame
@@ -158,7 +157,6 @@ public:
     virtual void RunFrame( sint levelTime ) = 0;
     virtual bool ConsoleCommand( void ) = 0;
     virtual bool SnapshotCallback( sint entityNum, sint clientNum ) = 0;
-    virtual void GameDemoCommand( sint arg0 ) = 0;
 };
 
 extern idSGame* sgame;

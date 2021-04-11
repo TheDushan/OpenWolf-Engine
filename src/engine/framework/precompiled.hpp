@@ -139,7 +139,6 @@ extern "C"
 #include <API/serverInit_api.hpp>
 #include <API/CmdBuffer_api.hpp>
 #include <API/CmdSystem_api.hpp>
-#include <API/serverDemo_api.hpp>
 #include <API/system_api.hpp>
 #include <API/clientScreen_api.hpp>
 #include <client/clientScreen.hpp>
@@ -271,7 +270,6 @@ extern "C"
 #include <framework/NetworkChain.hpp>
 #include <API/Network_api.hpp>
 #include <framework/Network.hpp>
-#include <server/serverDemo.hpp>
 #include <server/serverOACS.hpp>
 #include <server/serverWallhack.hpp>
 

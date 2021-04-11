@@ -327,15 +327,19 @@ void CL_StopRecord_f( void )
 CL_DemoFilename
 ==================
 */
-void CL_DemoFilename( sint number, valueType* fileName )
+void CL_DemoFilename( valueType* buf, sint bufSize )
 {
-    if( number < 0 || number > 9999 )
-    {
-        Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "demo9999" );	// fretn - removed .tga
-        return;
-    }
+    time_t rawtime;
     
-    Q_vsprintf_s( fileName, MAX_OSPATH, MAX_OSPATH, "demo%04i", number );
+    // should really only reach ~19 chars
+    valueType timeStr[32] = { 0 };
+    
+    ::time( &rawtime );
+    
+    // or gmtime
+    ::strftime( timeStr, sizeof( timeStr ), "%Y-%m-%d_%H-%M-%S", localtime( &rawtime ) );
+    
+    Q_vsprintf_s( buf, bufSize, bufSize, "demo%s", timeStr );
 }
 
 /*
@@ -351,7 +355,7 @@ Begins recording a demo from the current position
 static valueType     demoName[MAX_QPATH];	// compiler bug workaround
 void CL_Record_f( void )
 {
-    valueType            name[MAX_OSPATH];
+    valueType            name[MAX_OSPATH], extension[32];
     sint             len;
     valueType*           s;
     
@@ -373,7 +377,6 @@ void CL_Record_f( void )
         return;
     }
     
-    
     // ATVI Wolfenstein Misc #479 - changing this to a warning
     // sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
     if( networkSystem->IsLocalAddress( clc.serverAddress ) && !cvarSystem->VariableValue( "g_synchronousClients" ) )
@@ -385,23 +388,19 @@ void CL_Record_f( void )
     {
         s = cmdSystem->Argv( 1 );
         Q_strncpyz( demoName, s, sizeof( demoName ) );
-        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", demoName, com_protocol->integer );
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "dm_%d", PROTOCOL_VERSION );
     }
     else
     {
-        sint             number;
+        // timestamp the file
+        CL_DemoFilename( demoName, sizeof( demoName ) );
         
-        // scan for a free demo name
-        for( number = 0; number <= 9999; number++ )
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.%s", demoName, extension );
+        
+        if( fileSystem->FileExists( name ) )
         {
-            CL_DemoFilename( number, demoName );
-            Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", demoName, com_protocol->integer );
-            
-            len = fileSystem->ReadFile( name, nullptr );
-            if( len <= 0 )
-            {
-                break;			// file doesn't exist
-            }
+            Com_Printf( "Record: Couldn't create a file\n" );
+            return;
         }
     }
     
@@ -532,7 +531,9 @@ void CL_DemoCompleted( void )
         clc.waverecording = false;
     }
     
-    CL_Disconnect( true, "Demo completed" );
+    CL_Disconnect_f();
+    soundSystem->StopAllSounds();
+    
     CL_NextDemo();
     
 }
@@ -682,7 +683,7 @@ static void CL_WriteWaveHeader( void )
 }
 
 static valueType     wavName[MAX_QPATH];	// compiler bug workaround
-void CL_WriteWaveOpen()
+void CL_WriteWaveOpen( void )
 {
     // we will just save it as a 16bit stereo 22050kz pcm file
     
@@ -749,7 +750,7 @@ void CL_WriteWaveOpen()
     cvarSystem->Set( "cl_waveoffset", "0" );
 }
 
-void CL_WriteWaveClose()
+void CL_WriteWaveClose( void )
 {
     Com_Printf( "Stopped recording\n" );
     
@@ -777,12 +778,10 @@ static void CL_CompleteDemoName( valueType* args, sint argNum )
     {
         valueType demoExt[ 16 ];
         
-        Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".dm_%d", com_protocol->integer );
+        Q_vsprintf_s( demoExt, sizeof( demoExt ), sizeof( demoExt ), ".dm_%d", PROTOCOL_VERSION );
         cmdCompletionSystem->CompleteFilename( "demos", demoExt, true );
     }
 }
-
-
 
 /*
 ====================
@@ -796,36 +795,35 @@ void CL_PlayDemo_f( void )
     sint prot_ver;
     valueType name[MAX_OSPATH], extension[32], *arg;
     
-    if( cmdSystem->Argc() != 2 )
+    if( cmdSystem->Argc() < 2 )
     {
-        Com_Printf( "playdemo <demoname>\n" );
+        Com_Printf( "playdemo <demo name>\n" );
         return;
     }
     
     // make sure a local server is killed
     cvarSystem->Set( "sv_killserver", "1" );
     
+    arg = cmdSystem->Args();
+    
     CL_Disconnect( true, "Playing demo" );
     
     //CL_FlushMemory();   //----(SA)  MEM NOTE: in missionpack, this is moved to CL_DownloadsComplete
     
     // open the demo file
-    arg = cmdSystem->Argv( 1 );
-    prot_ver = com_protocol->integer - 1;
-    while( prot_ver <= com_protocol->integer && !clc.demofile )
+    Q_vsprintf_s( extension, sizeof( extension ), sizeof( extension ), ".dm_%d", PROTOCOL_VERSION );
+    
+    if( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) )
     {
-        Q_vsprintf_s( extension, sizeof( extension ), sizeof( extension ), ".dm_%d", prot_ver );
-        if( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) )
-        {
-            Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s", arg );
-        }
-        else
-        {
-            Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", arg, prot_ver );
-        }
-        fileSystem->FOpenFileRead( name, &clc.demofile, true );
-        prot_ver++;
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s", arg );
     }
+    else
+    {
+        Q_vsprintf_s( name, sizeof( name ), sizeof( name ), "demos/%s.dm_%d", arg, PROTOCOL_VERSION );
+    }
+    
+    fileSystem->FOpenFileRead( name, &clc.demofile, true );
+    
     if( !clc.demofile )
     {
         Com_Error( ERR_DROP, "couldn't open %s", name );
@@ -857,62 +855,6 @@ void CL_PlayDemo_f( void )
 //      CL_WriteWaveClose();
 //      clc.waverecording = false;
 //  }
-}
-
-/*
-====================
-CL_StartDemoLoop
-
-Closing the main menu will restart the demo loop
-====================
-*/
-void CL_StartDemoLoop( void )
-{
-    // start the demo loop again
-    cmdBufferSystem->AddText( "d1\n" );
-    clientGUISystem->SetCatcher( 0 );
-}
-
-/*
-==================
-CL_DemoState
-
-Returns the current state of the demo system
-==================
-*/
-demoState_t CL_DemoState( void )
-{
-    if( clc.demoplaying )
-    {
-        return DS_PLAYBACK;
-    }
-    else if( clc.demorecording )
-    {
-        return DS_RECORDING;
-    }
-    else
-    {
-        return DS_NONE;
-    }
-}
-
-/*
-==================
-CL_DemoPos
-
-Returns the current position of the demo
-==================
-*/
-sint CL_DemoPos( void )
-{
-    if( clc.demoplaying || clc.demorecording )
-    {
-        return fileSystem->FTell( clc.demofile );
-    }
-    else
-    {
-        return 0;
-    }
 }
 
 /*

@@ -449,28 +449,6 @@ bool idServerGameSystemLocal::GetEntityToken( valueType* buffer, uint64 bufferSi
 
 /*
 ====================
-idServerGameSystemLocal::DemoWriteCommand
-====================
-*/
-sint idServerGameSystemLocal::DemoWriteCommand( sint cmd, pointer str )
-{
-    if( sv.demoState == DS_RECORDING )
-    {
-        if( cmd == -1 )
-        {
-            serverDemoSystem->DemoWriteServerCommand( str );
-        }
-        else
-        {
-            serverDemoSystem->DemoWriteGameCommand( cmd, str );
-        }
-    }
-    
-    return 0;
-}
-
-/*
-====================
 idServerGameSystemLocal::InitExportTable
 ====================
 */

@@ -121,6 +121,9 @@ convar_t*         com_protocol;
 convar_t* con_autochat;
 #endif
 
+convar_t* com_renderfps;
+convar_t* cl_commandsize;//Loda - FPS UNLOCK ENGINE
+
 // com_speeds times
 sint             time_game;
 sint             time_frontend;	// renderer frontend time
@@ -3286,6 +3289,9 @@ void Com_Init( valueType* commandLine )
 #ifndef DEDICATED
     con_autochat = cvarSystem->Get( "con_autochat", "1", CVAR_ARCHIVE, "Set to 0 to disable sending console input text as chat when there is not a slash at the beginning." );
 #endif
+    
+    com_renderfps = cvarSystem->Get( "com_renderfps", "0", CVAR_ARCHIVE, "" );
+    cl_commandsize = cvarSystem->Get( "cl_commandsize", "64", CVAR_ARCHIVE, "" ); //Loda - FPS UNLOCK ENGINE
     
     idsystem->Init();
     

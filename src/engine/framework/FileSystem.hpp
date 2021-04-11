@@ -254,6 +254,8 @@ public:
     virtual pointer GetGameDir( void );
     virtual bool IsFileEmpty( valueType* filename );
     virtual valueType* GetFullGamePath( valueType* filename );
+    virtual void Rmdir( pointer osPath, bool recursive );
+    virtual void HomeRmdir( pointer homePath, bool recursive );
     
     static void Restart_f( void );
 };

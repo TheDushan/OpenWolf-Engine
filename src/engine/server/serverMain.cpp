@@ -137,6 +137,10 @@ convar_t* sv_cs_PrivateOnlyMSG;
 convar_t* sv_cs_stats;
 convar_t* sv_cs_ServerPort;
 
+convar_t* sv_autoRecDemo;
+convar_t* sv_autoRecDemoBots;
+convar_t* sv_autoRecDemoMaxMaps;
+
 #define LL( x ) x = LittleLong( x )
 
 /*
@@ -296,12 +300,6 @@ void idServerMainSystemLocal::SendServerCommand( client_t* cl, pointer fmt, ... 
     if( com_dedicated->integer && !strncmp( reinterpret_cast<valueType*>( message ), "print", 5 ) )
     {
         Com_Printf( "broadcast: %s\n", ExpandNewlines( reinterpret_cast<valueType*>( message ) ) );
-    }
-    
-    // save broadcasts to demo
-    if( sv.demoState == DS_RECORDING )
-    {
-        serverDemoSystem->DemoWriteServerCommand( reinterpret_cast<valueType*>( message ) );
     }
     
     // send the data to all relevent clients
@@ -1899,15 +1897,6 @@ void idServerMainSystemLocal::Frame( sint msec )
         // let everything in the world think and move
 #if !defined (UPDATE_SERVER)
         sgame->RunFrame( sv.time );
-        
-        if( sv.demoState == DS_RECORDING )
-        {
-            serverDemoSystem->DemoWriteFrame();
-        }
-        else if( sv.demoState == DS_PLAYBACK )
-        {
-            serverDemoSystem->DemoReadFrame();
-        }
 #endif
         
         if( sv_oacsEnable->integer == 1 )

@@ -238,11 +238,6 @@ typedef struct server_s
     uint64             gentitySize;
     sint             num_entities;	// current number, <= MAX_GENTITIES
     
-    // demo recording
-    fileHandle_t	demoFile;
-    demoState_t		demoState;
-    valueType			demoName[MAX_QPATH];
-    
     // previous frame for delta compression
     sharedEntity_t	demoEntities[MAX_GENTITIES];
     playerState_t	demoPlayerStates[MAX_CLIENTS];
@@ -272,6 +267,7 @@ typedef struct server_s
     
     sint             num_tagheaders;
     sint             num_tags;
+    time_t			realMapTimeStarted;
 } server_t;
 
 typedef struct clientSnapshot_s
@@ -296,6 +292,17 @@ enum clientState_t
     CS_PRIMED,					// gamestate has been sent, but client hasn't sent a usercmd
     CS_ACTIVE					// client is fully in game
 };
+
+typedef struct
+{
+    valueType demoName[MAX_OSPATH];
+    bool demorecording;
+    bool demowaiting;
+    bool isBot;
+    sint minDeltaFrame;
+    fileHandle_t demofile;
+    sint botReliableAcknowledge;
+} demoInfo_t;
 
 typedef struct netchan_buffer_s
 {
@@ -382,6 +389,7 @@ typedef struct client_s
     sint lastUserInfoCount;
     sint oldServerTime;
     user_t* cs_user;
+    demoInfo_t demo;
 } client_t;
 
 //=============================================================================
@@ -615,6 +623,10 @@ extern convar_t* sv_cs_UnknownColor;
 extern convar_t* sv_cs_PrivateOnlyMSG;
 extern convar_t* sv_cs_stats;
 extern convar_t* sv_cs_ServerPort;
+
+extern convar_t* sv_autoRecDemo;
+extern convar_t* sv_autoRecDemoBots;
+extern convar_t* sv_autoRecDemoMaxMaps;
 
 #define CS_OK 1
 #define CS_ERROR 0

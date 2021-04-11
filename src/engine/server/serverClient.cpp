@@ -812,6 +812,11 @@ void idServerClientSystemLocal::DropClient( client_t* drop, pointer reason )
     Com_DPrintf( "Going to CS_ZOMBIE for %s\n", drop->name );
     drop->state = CS_ZOMBIE; // become free in a few seconds
     
+    if( drop->demo.demorecording )
+    {
+        idServerCcmdsSystemLocal::StopRecordDemo( drop );
+    }
+    
     // if this was the last client on the server, send a heartbeat
     // to the master so it is known the server is empty
     // send a heartbeat now so the master will get up to date info
@@ -857,12 +862,84 @@ It will be resent if the client acknowledges a later message but has
 the wrong gamestate.
 ================
 */
+void idServerClientSystemLocal::CreateClientGameStateMessage( client_t* client, msg_t* msg )
+{
+    sint start;
+    entityState_t* base, nullstate;
+    
+    // NOTE, MRE: all server->client messages now acknowledge
+    // let the client know which reliable clientCommands we have received
+    MSG_WriteLong( msg, client->lastClientCommand );
+    
+    // send any server commands waiting to be sent first.
+    // we have to do this cause we send the client->reliableSequence
+    // with a gamestate and it sets the clc.serverCommandSequence at
+    // the client side
+    serverSnapshotSystem->UpdateServerCommandsToClient( client, msg );
+    
+    // send the gamestate
+    MSG_WriteByte( msg, svc_gamestate );
+    MSG_WriteLong( msg, client->reliableSequence );
+    
+    // write the configstrings
+    for( start = 0; start < MAX_CONFIGSTRINGS; start++ )
+    {
+        if( sv.configstrings[start].s[0] )
+        {
+            MSG_WriteByte( msg, svc_configstring );
+            MSG_WriteShort( msg, start );
+            MSG_WriteBigString( msg, sv.configstrings[start].s );
+        }
+    }
+    
+    // write the baselines
+    ::memset( &nullstate, 0, sizeof( nullstate ) );
+    for( start = 0; start < MAX_GENTITIES; start++ )
+    {
+        base = &sv.svEntities[start].baseline;
+        if( !base->number )
+        {
+            continue;
+        }
+        MSG_WriteByte( msg, svc_baseline );
+        MSG_WriteDeltaEntity( msg, &nullstate, base, true );
+    }
+    
+    MSG_WriteByte( msg, svc_EOF );
+    
+    MSG_WriteLong( msg, ARRAY_INDEX( svs.clients, client ) );
+    
+    // write the checksum feed
+    MSG_WriteLong( msg, sv.checksumFeed );
+    
+    if( msg->overflowed )
+    {
+        Com_Printf( "ERROR: gamestate message buffer overflow\n" );
+    }
+    
+    // NERVE - SMF - debug info
+    Com_DPrintf( "Sending %i bytes in gamestate to client: %li\n", msg->cursize, ARRAY_INDEX( svs.clients, client ) );
+}
+
+/*
+================
+idServerClientSystemLocal::SendClientGameState
+
+Sends the first message from the server to a connected client.
+This will be sent on the initial connection and upon each new map load.
+
+It will be resent if the client acknowledges a later message but has
+the wrong gamestate.
+================
+*/
 void idServerClientSystemLocal::SendClientGameState( client_t* client )
 {
     sint start;
     entityState_t* base, nullstate;
     msg_t msg;
     uchar8 msgBuffer[MAX_MSGLEN];
+    
+    MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) );
     
     while( client->state && client->netchan.unsentFragments )
     {
@@ -888,60 +965,7 @@ void idServerClientSystemLocal::SendClientGameState( client_t* client )
     // gamestate message was not just sent, forcing a retransmit
     client->gamestateMessageNum = client->netchan.outgoingSequence;
     
-    MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) );
-    
-    // NOTE, MRE: all server->client messages now acknowledge
-    // let the client know which reliable clientCommands we have received
-    MSG_WriteLong( &msg, client->lastClientCommand );
-    
-    // send any server commands waiting to be sent first.
-    // we have to do this cause we send the client->reliableSequence
-    // with a gamestate and it sets the clc.serverCommandSequence at
-    // the client side
-    serverSnapshotSystem->UpdateServerCommandsToClient( client, &msg );
-    
-    // send the gamestate
-    MSG_WriteByte( &msg, svc_gamestate );
-    MSG_WriteLong( &msg, client->reliableSequence );
-    
-    // write the configstrings
-    for( start = 0; start < MAX_CONFIGSTRINGS; start++ )
-    {
-        if( sv.configstrings[start].s[0] )
-        {
-            MSG_WriteByte( &msg, svc_configstring );
-            MSG_WriteShort( &msg, start );
-            MSG_WriteBigString( &msg, sv.configstrings[start].s );
-        }
-    }
-    
-    // write the baselines
-    ::memset( &nullstate, 0, sizeof( nullstate ) );
-    for( start = 0; start < MAX_GENTITIES; start++ )
-    {
-        base = &sv.svEntities[start].baseline;
-        if( !base->number )
-        {
-            continue;
-        }
-        MSG_WriteByte( &msg, svc_baseline );
-        MSG_WriteDeltaEntity( &msg, &nullstate, base, true );
-    }
-    
-    MSG_WriteByte( &msg, svc_EOF );
-    
-    MSG_WriteLong( &msg, ARRAY_INDEX( svs.clients, client ) );
-    
-    // write the checksum feed
-    MSG_WriteLong( &msg, sv.checksumFeed );
-    
-    if( msg.overflowed )
-    {
-        Com_Printf( "ERROR: gamestate message buffer overflow\n" );
-    }
-    
-    // NERVE - SMF - debug info
-    Com_DPrintf( "Sending %i bytes in gamestate to client: %li\n", msg.cursize, static_cast<sint32>( client - svs.clients ) );
+    CreateClientGameStateMessage( client, &msg );
     
     // deliver this to the client
     serverSnapshotSystem->SendMessageToClient( &msg, client );
@@ -996,6 +1020,8 @@ void idServerClientSystemLocal::ClientEnterWorld( client_t* client, usercmd_t* c
 #ifndef UPDATE_SERVER
     sgame->ClientBegin( ARRAY_INDEX( svs.clients, client ) );
 #endif
+    
+    idServerCcmdsSystemLocal::BeginAutoRecordDemos();
 }
 
 /*

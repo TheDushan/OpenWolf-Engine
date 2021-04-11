@@ -66,6 +66,7 @@ public:
     static bool CheckFunstuffExploit( valueType* userinfo, valueType* key );
     static void UpdateUserinfo_f( client_t* cl );
     static void SendClientGameState( client_t* client );
+    static void CreateClientGameStateMessage( client_t* client, msg_t* msg );
     static void StopDownload_f( client_t* cl );
     static void DoneDownload_f( client_t* cl );
     static void NextDownload_f( client_t* cl );

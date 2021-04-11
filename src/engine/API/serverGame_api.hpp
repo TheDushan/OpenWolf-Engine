@@ -134,7 +134,6 @@ public:
     virtual sharedEntity_t* GEntityForSvEntity( svEntity_t* svEnt ) = 0;
     virtual void RestartGameProgs( void ) = 0;
     virtual playerState_t* GameClientNum( sint num ) = 0;
-    virtual sint DemoWriteCommand( sint cmd, pointer str ) = 0;
 };
 
 extern idServerGameSystem* serverGameSystem;

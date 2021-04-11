@@ -480,9 +480,6 @@ void            CL_Snd_Restart_f( void );
 void            CL_NextDemo( void );
 void            CL_ReadDemoMessage( void );
 void            CL_StartDemoLoop( void );
-demoState_t     CL_DemoState( void );
-sint             CL_DemoPos( void );
-void            CL_DemoName( valueType* buffer, sint size );
 
 void            CL_InitDownloads( void );
 void            CL_NextDownload( void );
