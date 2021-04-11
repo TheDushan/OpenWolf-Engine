@@ -12,6 +12,7 @@
 	* [Client] Fix drop shadows
 	* [Client] Unlocked FPS and lag
 	* [Network] Experimenting with scrambling packets
+	* [Engine] Removed leftovers from the old implementation of server-side demos
 
 2021-04-10 Dusan Jocic <dusanjocic@msn>
 	* [Libraries] Cleaning

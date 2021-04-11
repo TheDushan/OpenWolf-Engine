@@ -1080,7 +1080,6 @@ void idServerInitSystemLocal::Init( void )
 #else
     sv_maxclients = cvarSystem->Get( "sv_maxclients", "20", CVAR_SERVERINFO | CVAR_LATCH, "Number of players allowed to connect wen running a server. 16 is a 'soft' limit—it is the maximum recommended. Many servers run 32 or more players. You could set this lower than 2, but then you only have one player on a server; better to use /devmap if you want to play alone." );	// NERVE - SMF - changed to 20 from 8
 #endif
-    sv_democlients = cvarSystem->Get( "sv_democlients", "47", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, "Number of democlients." );
     
     sv_maxRate = cvarSystem->Get( "sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Option to force all clients to play with a max rate. This can be used to limit the advantage of low pings, or to cap bandwidth utilization for a server. Note that rate is ignored for clients that are on the same LAN." );
     sv_minPing = cvarSystem->Get( "sv_minPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, "Set the minimum ping aloud on the server to keep low pings out" );

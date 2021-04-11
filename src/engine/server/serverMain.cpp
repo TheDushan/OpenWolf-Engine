@@ -59,7 +59,6 @@ convar_t* sv_rconPassword;	// password for remote server commands
 convar_t* sv_privatePassword;	// password for the privateClient slots
 convar_t* sv_allowDownload;
 convar_t* sv_maxclients;
-convar_t* sv_democlients;		// number of slots reserved for playing a demo
 
 convar_t* sv_privateClients;	// number of clients reserved for password
 convar_t* sv_hostname;

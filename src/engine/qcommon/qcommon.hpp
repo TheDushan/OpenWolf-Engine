@@ -126,8 +126,6 @@ void            MSG_ReadDeltaEntity( msg_t* msg, entityState_t* from, entityStat
 
 void            MSG_WriteDeltaPlayerstate( msg_t* msg, struct playerState_s* from, struct playerState_s* to );
 void            MSG_ReadDeltaPlayerstate( msg_t* msg, struct playerState_s* from, struct playerState_s* to );
-void			MSG_WriteDeltaSharedEntity( msg_t* msg, void* from, void* to, bool force, sint number );
-void			MSG_ReadDeltaSharedEntity( msg_t* msg, void* from, void* to, sint number );
 
 //============================================================================
 

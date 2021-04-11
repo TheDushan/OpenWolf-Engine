@@ -540,7 +540,6 @@ extern convar_t*  sv_allowDownload;
 extern convar_t*  sv_friendlyFire;	// NERVE - SMF
 extern convar_t*  sv_maxlives;	// NERVE - SMF
 extern convar_t*  sv_maxclients;
-extern convar_t* sv_democlients;
 extern convar_t* sv_threads;
 extern convar_t*  sv_needpass;
 
