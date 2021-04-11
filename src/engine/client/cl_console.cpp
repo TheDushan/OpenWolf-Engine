@@ -106,7 +106,7 @@ void Con_LineAccept( void )
     // reset if commandMode
     if( commandMode )
     {
-        cls.keyCatchers & ~KEYCATCH_CONSOLE;
+        cls.keyCatchers &= ~KEYCATCH_CONSOLE;
         commandMode = false;
     }
     
@@ -153,13 +153,13 @@ void Con_LineAccept( void )
             {
                 cmdBufferSystem->AddText( "cmd say \"" );
                 cmdBufferSystem->AddText( g_consoleField.buffer );
-                cmdBufferSystem->AddText( "\"" );
+                cmdBufferSystem->AddText( "\"\n" );
             }
             else if( conNum == CON_TCHAT )
             {
                 cmdBufferSystem->AddText( "cmd say_team " );
                 cmdBufferSystem->AddText( g_consoleField.buffer );
-                cmdBufferSystem->AddText( "\"" );
+                cmdBufferSystem->AddText( "\"\n" );
             }
             else
             {
@@ -225,6 +225,12 @@ Con_ToggleConsole_f
 */
 void Con_ToggleConsole_f( void )
 {
+    // Can't toggle the console when it's the only thing available
+    if( cls.state == CA_DISCONNECTED && cls.keyCatchers == KEYCATCH_CONSOLE )
+    {
+        return;
+    }
+    
     activeCon->acLength = 0;
     
     if( con_restricted->integer && ( !keys[K_CTRL].down || !keys[K_SHIFT].down ) )
@@ -415,10 +421,51 @@ void Con_Dump_f( void )
     valueType*	ss;
     sint		ilen, isub;
     valueType	name[MAX_QPATH];
+    console_t* con;
     
-    if( cmdSystem->Argc() < 1 || cmdSystem->Argc() > 2 || !Q_stricmp( cmdSystem->Argv( 1 ), "?" ) )
+    if( cmdSystem->Argc() == 2 )
     {
-        Com_Printf( "Usage", "condump", "<filename>" );
+        con = &activeCon[CON_ALL];
+    }
+    else if( cmdSystem->Argc() == 3 )
+    {
+        pointer arg = cmdSystem->Argv( 2 );
+        valueType* p;
+        sint n = strtod( arg, &p );
+        
+        if( *p == '\0' ) // it is a number argument
+        {
+            if( n < 0 || n >= NUMBER_TABS )
+            {
+                Com_Printf( "Invalid console index %d (valid values are "
+                            "0-%d)\n", n, NUMBER_TABS - 1 );
+                return;
+            }
+            con = &activeCon[n];
+        }
+        else
+        {
+            // check if the name matches any of the console names
+            for( i = 0; i < NUMBER_TABS; ++i )
+            {
+                if( Q_stricmp( arg, conTabsNames[i] ) == 0 )
+                {
+                    con = &activeCon[i];
+                    break;
+                }
+            }
+            
+            // we didn't find a tab
+            if( i == NUMBER_TABS )
+            {
+                Com_Printf( "Invalid console tab name %s\n", arg );
+                return;
+            }
+        }
+    }
+    else
+    {
+        Com_Printf( "usage: condump <filename> [tab]\n" );
         return;
     }
     
@@ -459,33 +506,33 @@ void Con_Dump_f( void )
     }
     
     // skip empty lines
-    for( l = activeCon->current - activeCon->totallines + 1; l <= activeCon->current; l++ )
+    for( l = con->current - con->totallines + 1; l <= con->current; l++ )
     {
-        line = activeCon->text + ( l % activeCon->totallines ) * activeCon->linewidth;
-        for( x = 0; x < activeCon->linewidth; x++ )
+        line = con->text + ( l % con->totallines ) * con->linewidth;
+        for( x = 0; x < con->linewidth; x++ )
             if( ( line[x] & 0xff ) != ' ' )
                 break;
-        if( x != activeCon->linewidth )
+        if( x != con->linewidth )
             break;
     }
     
 #ifdef _WIN32
-    bufferlen = activeCon->linewidth + 3 * sizeof( valueType );
+    bufferlen = con->linewidth + 3 * sizeof( valueType );
 #else
-    bufferlen = activeCon->linewidth + 2 * sizeof( valueType );
+    bufferlen = con->linewidth + 2 * sizeof( valueType );
 #endif
     
     buffer = static_cast<valueType*>( Hunk_AllocateTempMemory( bufferlen ) );
     
     // write the remaining lines
     buffer[bufferlen - 1] = 0;
-    for( ; l <= activeCon->current; l++ )
+    for( ; l <= con->current; l++ )
     {
-        line = activeCon->text + ( l % activeCon->totallines ) * activeCon->linewidth;
-        for( i = 0; i < activeCon->linewidth; i++ )
+        line = con->text + ( l % con->totallines ) * con->linewidth;
+        for( i = 0; i < con->linewidth; i++ )
             buffer[i] = line[i] & 0xff;
-        buffer[activeCon->linewidth] = '\0';
-        for( x = activeCon->linewidth - 1; x >= 0; x-- )
+        buffer[con->linewidth] = '\0';
+        for( x = con->linewidth - 1; x >= 0; x-- )
         {
             if( buffer[x] == ' ' )
                 buffer[x] = 0;
@@ -500,7 +547,7 @@ void Con_Dump_f( void )
         fileSystem->Write( buffer, strlen( buffer ), f );
     }
     
-    Com_Printf( S_COLOR_YELLOW  "Dumped console text to " S_COLOR_RED "%s" S_COLOR_BLUE "." S_COLOR_WHITE "\n", filename );
+    Com_Printf( S_COLOR_YELLOW  "Dumped %s-console text to " S_COLOR_RED "%s" S_COLOR_BLUE "." S_COLOR_WHITE "\n", conTabsNames[con - activeCon], filename );
     
     Hunk_FreeTempMemory( buffer );
     fileSystem->FCloseFile( f );
@@ -755,7 +802,7 @@ void Con_Init( void )
     scr_conBarColorBlue = cvarSystem->Get( "scr_conBarColorBlue", "1", CVAR_ARCHIVE, "^1Defines the bar Blue color of the console." );
     scr_conBarColorGreen = cvarSystem->Get( "scr_conBarColorGreen", "1", CVAR_ARCHIVE, "^1Defines the bar Green color of the console." );
     
-    scr_conHeight = cvarSystem->Get( "scr_conHeight", "50", CVAR_ARCHIVE, "^1Console height size." );
+    scr_conHeight = cvarSystem->Get( "scr_conHeight", "52", CVAR_ARCHIVE, "^1Console height size." );
     
     scr_conBarSize = cvarSystem->Get( "scr_conBarSize", "2", CVAR_ARCHIVE, "^1Console bar size." );
     
@@ -985,15 +1032,16 @@ void CL_ConsolePrint( valueType* txt )
     
     if( cmdNum > lastCmdNum )
     {
-        if( Q_strncmp( cmdStr, "chat \"\x19", sizeof "chat \"\x19" - 1 ) == 0 )
+        if( Q_strncmp( cmdStr, "chat", sizeof "chat" - 1 ) == 0 )
         {
             conNum = CON_CHAT;
         }
-        else if( Q_strncmp( cmdStr, "say_team", sizeof "say_team" - 1 ) == 0 )
+        else if( Q_strncmp( cmdStr, "tchat", sizeof "tchat" - 1 ) == 0 )
         {
             conNum = CON_TCHAT;
         }
     }
+    
     lastCmdNum = cmdNum;
     
     CL_ConsolePrintToTabs( txt, &con[CON_ALL] );
@@ -1122,7 +1170,7 @@ void Con_DrawNotify( void )
     {
         if( chat_team )
         {
-            valueType            buf[128];
+            valueType buf[128];
             
             CL_TranslateString( "say_team:", buf );
             clientScreenSystem->DrawBigString( 8, v, buf, 1.0f, false );
@@ -1138,7 +1186,7 @@ void Con_DrawNotify( void )
         }
         else
         {
-            valueType            buf[128];
+            valueType buf[128];
             
             CL_TranslateString( "say:", buf );
             clientScreenSystem->DrawBigString( 8, v, buf, 1.0f, false );
@@ -1208,14 +1256,16 @@ void Con_DrawSolidConsole( float32 frac )
         
         if( &con[x] == activeCon )
         {
-            clientScreenSystem->DrawSmallStringExt( horOffset + SMALLCHAR_WIDTH, vertOffset, name, g_color_table[0], false, true );
-        }
-        else
-        {
-            clientScreenSystem->DrawSmallStringExt( horOffset + SMALLCHAR_WIDTH, vertOffset, name, g_color_table[consoleColors[x]], false, true );
+            renderSystem->SetColor( g_color_table[consoleColors[x]] );
+            clientScreenSystem->DrawSmallChar( horOffset, vertOffset, '*' );
+            horOffset += SMALLCHAR_WIDTH;
+            clientScreenSystem->DrawSmallChar( horOffset + tabWidth, vertOffset, '*' );
+            tabWidth += SMALLCHAR_WIDTH;
         }
         
-        horOffset += tabWidth;
+        clientScreenSystem->DrawSmallStringExt( horOffset, vertOffset, name, g_color_table[consoleColors[x]], false, true );
+        
+        horOffset += tabWidth + SMALLCHAR_WIDTH;
     }
     
     // draw the version number

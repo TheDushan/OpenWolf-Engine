@@ -1,3 +1,7 @@
+2021-04-11 Dusan Jocic <dusanjocic@msn>
+	* [Console] Fixed problems with console tab and input
+	* [Console] Specify console tab to dump in the log file
+
 2021-04-10 Dusan Jocic <dusanjocic@msn>
 	* [Libraries] Cleaning
 

@@ -1534,6 +1534,16 @@ static void CL_KeyCharEvents( sint ch )
         return;
     }
     
+    // switch console
+    if( ch >= '0' && ch <= '9' && keys[K_ALT].down )
+    {
+        // console numbers start at one, last one is 10 (accessed through 0)
+        sint n = ch == '0' ? 10 : ch - '1';
+        
+        Con_ConsoleSwitch( n );
+        return;
+    }
+    
     // pass to the normal editline routine
     cmdCompletionSystem->CharEvent( &g_consoleField, ch );
 }

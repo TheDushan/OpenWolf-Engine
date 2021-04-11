@@ -580,6 +580,8 @@ void            CL_UpdateInfoPacket( netadr_t from );	// DHM - Nerve
 //
 // console
 //
+
+void Con_ConsoleSwitch( sint n );
 void Con_ConsoleNext( sint n );
 void Con_LineAccept( void );
 void            Con_Init( void );
