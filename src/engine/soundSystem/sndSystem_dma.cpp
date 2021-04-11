@@ -656,6 +656,11 @@ void SOrig_StartSound( vec3_t origin, sint entityNum, sint entchannel, sfxHandle
         return;
     }
     
+    if( com_minimized->integer )
+    {
+        return;
+    }
+    
     if( !origin && ( entityNum < 0 || entityNum > MAX_GENTITIES ) )
     {
         Com_Error( ERR_DROP, "S_StartSound: bad entitynum %i", entityNum );
