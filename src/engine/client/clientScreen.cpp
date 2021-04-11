@@ -255,7 +255,7 @@ void idClientScreenSystemLocal::DrawStringExt( sint x, sint y, float32 size, poi
             continue;
         }
         
-        DrawChar( xx + 2, y + 2, size, *s );
+        DrawChar( xx + 1, y + 1, size, *s );
         
         xx += static_cast<sint>( size );
         s++;
