@@ -119,6 +119,10 @@ public:
     
     static void SendLoopPacket( netsrc_t sock, sint length, const void* data, netadr_t to );
     static void QueuePacket( sint length, const void* data, netadr_t to, sint offset );
+    static void ScramblePacket( msg_t* buf );
+    static void UnScramblePacket( msg_t* buf );
+    
+    static const sint SCRAMBLE_START = 6;
 };
 
 extern idNetworkChainSystemLocal networkChainSystemLocal;

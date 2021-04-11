@@ -111,6 +111,109 @@ void idNetworkChainSystemLocal::Init( sint port )
 
 /*
 ==============
+idNetworkChainSystemLocal::ScramblePacket
+==============
+*/
+void idNetworkChainSystemLocal::ScramblePacket( msg_t* buf )
+{
+    uint seed;
+    sint i, j, c, mask, temp;
+    sint seq[MAX_PACKETLEN];
+    
+    seed = ( LittleLong( *( uint* )buf->data ) * 3 ) ^ ( buf->cursize * 123 ) ^ 0x87243987;
+    c = buf->cursize;
+    
+    if( c <= SCRAMBLE_START )
+    {
+        return;
+    }
+    
+    if( c > MAX_PACKETLEN )
+    {
+        Com_Error( ERR_DROP, "MAX_PACKETLEN" );
+    }
+    
+    // generate a sequence of "random" numbers
+    for( i = 0; i < c; i++ )
+    {
+        seed = ( 69069 * seed + 1 );
+        seq[i] = seed;
+    }
+    
+    // byte xor the data after the header
+    for( i = SCRAMBLE_START; i < c; i++ )
+    {
+        buf->data[i] ^= seq[i];
+    }
+    
+    // transpose each character
+    for( mask = 1; mask < c - SCRAMBLE_START; mask = ( mask << 1 ) + 1 )
+    {
+    }
+    
+    mask >>= 1;
+    for( i = SCRAMBLE_START; i < c; i++ )
+    {
+        j = SCRAMBLE_START + ( seq[i] & mask );
+        temp = buf->data[j];
+        buf->data[j] = buf->data[i];
+        buf->data[i] = temp;
+    }
+}
+
+/*
+==============
+idNetworkChainSystemLocal::UnScramblePacket
+==============
+*/
+void idNetworkChainSystemLocal::UnScramblePacket( msg_t* buf )
+{
+    uint seed;
+    sint i, j, c, mask, temp;
+    sint seq[MAX_PACKETLEN];
+    
+    seed = ( LittleLong( *( unsigned* )buf->data ) * 3 ) ^ ( buf->cursize * 123 ) ^ 0x87243987;
+    c = buf->cursize;
+    
+    if( c <= SCRAMBLE_START )
+    {
+        return;
+    }
+    if( c > MAX_PACKETLEN )
+    {
+        Com_Error( ERR_DROP, "MAX_PACKETLEN" );
+    }
+    
+    // generate a sequence of "random" numbers
+    for( i = 0; i < c; i++ )
+    {
+        seed = ( 69069 * seed + 1 );
+        seq[i] = seed;
+    }
+    
+    // transpose each character in reverse order
+    for( mask = 1; mask < c - SCRAMBLE_START; mask = ( mask << 1 ) + 1 )
+    {
+    }
+    
+    mask >>= 1;
+    for( i = c - 1; i >= SCRAMBLE_START; i-- )
+    {
+        j = SCRAMBLE_START + ( seq[i] & mask );
+        temp = buf->data[j];
+        buf->data[j] = buf->data[i];
+        buf->data[i] = temp;
+    }
+    
+    // byte xor the data after the header
+    for( i = SCRAMBLE_START; i < c; i++ )
+    {
+        buf->data[i] ^= seq[i];
+    }
+}
+
+/*
+==============
 idNetworkChainSystemLocal::Setup
 
 called to open a channel to a remote system
@@ -129,7 +232,7 @@ void idNetworkChainSystemLocal::Setup( netsrc_t sock, netchan_t* chan, netadr_t 
 
 /*
 =================
-Netchan_TransmitNextFragment
+idNetworkChainSystemLocal::TransmitNextFragment
 
 Send one fragment of the current message
 =================
@@ -161,6 +264,9 @@ void idNetworkChainSystemLocal::TransmitNextFragment( netchan_t* chan )
     MSG_WriteShort( &send, chan->unsentFragmentStart );
     MSG_WriteShort( &send, fragmentLength );
     MSG_WriteData( &send, chan->unsentBuffer + chan->unsentFragmentStart, fragmentLength );
+    
+    // XOR scramble all data in the packet after the header
+    ScramblePacket( &send );
     
     // send the datagram
     networkChainSystem->SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
@@ -239,6 +345,9 @@ void idNetworkChainSystemLocal::Transmit( netchan_t* chan, sint length, const uc
     
     MSG_WriteData( &send, data, length );
     
+    // XOR scramble all data in the packet after the header
+    ScramblePacket( &send );
+    
     // send the datagram
     networkChainSystem->SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
     
@@ -276,8 +385,8 @@ bool idNetworkChainSystemLocal::Process( netchan_t* chan, msg_t* msg )
     bool	fragmented;
     
     // XOR unscramble all data in the packet after the header
-//	Netchan_UnScramblePacket( msg );
-
+    UnScramblePacket( msg );
+    
     // get sequence numbers
     MSG_BeginReadingOOB( msg );
     sequence = MSG_ReadLong( msg );
