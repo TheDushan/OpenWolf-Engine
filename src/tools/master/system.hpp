@@ -43,7 +43,7 @@
 #define MAX_LISTEN_SOCKETS 8
 
 // Default master port
-#define DEFAULT_MASTER_PORT 27950
+#define DEFAULT_MASTER_PORT 12950
 
 // Network errors code
 #ifdef WIN32
