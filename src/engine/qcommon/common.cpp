@@ -79,7 +79,6 @@ convar_t*         com_timescale;
 convar_t*         com_fixedtime;
 convar_t*         com_dropsim;	// 0.0 to 1.0, simulated packet drops
 convar_t*         com_journal;
-convar_t*         com_maxfps;
 convar_t*         com_timedemo;
 convar_t*         com_sv_running;
 convar_t*         com_cl_running;
@@ -120,9 +119,6 @@ convar_t*         com_protocol;
 #ifndef DEDICATED
 convar_t* con_autochat;
 #endif
-
-convar_t* com_renderfps;
-convar_t* cl_commandsize;//Loda - FPS UNLOCK ENGINE
 
 // com_speeds times
 sint             time_game;
@@ -3227,7 +3223,6 @@ void Com_Init( valueType* commandLine )
     com_logfile = cvarSystem->Get( "logfile", "0", CVAR_TEMP, "Toggles saving a logfile" );
     
     // Gordon: no need to latch this in ET, our recoil is framerate independant
-    com_maxfps = cvarSystem->Get( "com_maxfps", "333", CVAR_ARCHIVE /*|CVAR_LATCH */, "Sets cap on the frames per second. 333, 125, 76 and 43 common 'tweak' values, as better for jumping. 85 default." );
 //  com_blood = cvarSystem->Get ("com_blood", "1", CVAR_ARCHIVE, "Enable blood mist effects."); // Gordon: no longer used?
 
     com_developer = cvarSystem->Get( "developer", "0", CVAR_TEMP, "Enable/disable (1/0) developer mode, allows cheats and so on." );
@@ -3289,9 +3284,6 @@ void Com_Init( valueType* commandLine )
 #ifndef DEDICATED
     con_autochat = cvarSystem->Get( "con_autochat", "1", CVAR_ARCHIVE, "Set to 0 to disable sending console input text as chat when there is not a slash at the beginning." );
 #endif
-    
-    com_renderfps = cvarSystem->Get( "com_renderfps", "0", CVAR_ARCHIVE, "" );
-    cl_commandsize = cvarSystem->Get( "cl_commandsize", "64", CVAR_ARCHIVE, "" ); //Loda - FPS UNLOCK ENGINE
     
     idsystem->Init();
     
@@ -3586,10 +3578,6 @@ void Com_Frame( void )
         else if( com_unfocused->integer && com_maxfpsUnfocused->integer > 0 )
         {
             minMsec = 1000 / com_maxfpsUnfocused->integer;
-        }
-        else if( com_maxfps->integer > 0 )
-        {
-            minMsec = 1000 / com_maxfps->integer;
         }
         else
         {

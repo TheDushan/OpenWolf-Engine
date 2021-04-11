@@ -427,10 +427,6 @@ extern convar_t*  sv_paused;
 extern convar_t*  cl_packetdelay;
 extern convar_t*  sv_packetdelay;
 
-extern convar_t* com_renderfps;
-extern convar_t* cl_commandsize;
-
-
 // com_speeds times
 extern sint      time_game;
 extern sint      time_frontend;

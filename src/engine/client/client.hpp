@@ -302,6 +302,7 @@ typedef struct
     sint             frametime;														// msec since last frame
     sint             realtime;														// ignores pause
     sint             realFrametime;													// ignoring pause, so console always works
+    sint			lastTimeDraw;
     sint             numlocalservers;
     serverInfo_t    localServers[MAX_OTHER_SERVERS];
     sint             numglobalservers;

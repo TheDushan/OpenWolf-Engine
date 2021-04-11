@@ -10,6 +10,7 @@
 	* [Athentication Server] Changed default port address for the authentication server
 	* [Master Server] Changed default port address for the master server
 	* [Client] Fix drop shadows
+	* [Client] Unlocked FPS and lag
 
 2021-04-10 Dusan Jocic <dusanjocic@msn>
 	* [Libraries] Cleaning

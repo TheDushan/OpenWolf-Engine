@@ -1404,9 +1404,9 @@ void CL_WritePacket( void )
     {
         cvarSystem->Set( "cl_packetdup", "0" );
     }
-    else if( cl_packetdup->integer > 5 )
+    else if( cl_packetdup->integer > 1000 )
     {
-        cvarSystem->Set( "cl_packetdup", "5" );
+        cvarSystem->Set( "cl_packetdup", "1000" );
     }
     oldPacketNum = ( clc.netchan.outgoingSequence - 1 - cl_packetdup->integer ) & PACKET_MASK;
     count = cl.cmdNumber - cl.outPackets[oldPacketNum].p_cmdNumber;

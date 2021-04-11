@@ -1215,7 +1215,7 @@ void idClientGameSystemLocal::SetCGameTime( void )
 #ifdef _DEBUG
         timeNudge = Com_Clampi( -900, 900, timeNudge );
 #else
-        timeNudge = Com_Clampi( -2000, 2000, timeNudge );
+        timeNudge = Com_Clampi( -30, 30, timeNudge );
 #endif
         
         cl.serverTime = cls.realtime + cl.serverTimeDelta - timeNudge;

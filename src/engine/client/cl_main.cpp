@@ -3096,6 +3096,11 @@ void CL_Frame( sint msec )
         return;
     }
     
+    if( cls.realtime >= cls.lastTimeDraw + 1 )
+    {
+        cls.lastTimeDraw = cls.realtime;
+    }
+    
     if( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI ) && !com_sv_running->integer && clc.demoplaying && uivm )
     {
         // if disconnected, bring up the menu
@@ -3820,7 +3825,7 @@ void CL_Init( void )
     
     cl_wavefilerecord = cvarSystem->Get( "cl_wavefilerecord", "0", CVAR_TEMP, "Toggle recording a .wav audio file upon loading a demo. Suggest setting to 0 in autoexec.cfg" );
     
-    cl_timeNudge = cvarSystem->Get( "cl_timeNudge", "0", CVAR_TEMP, "Supposed to be for adjusting prediction for your ping." );
+    cl_timeNudge = cvarSystem->Get( "cl_timeNudge", "0", CVAR_ARCHIVE, "Supposed to be for adjusting prediction for your ping." );
     cl_shownet = cvarSystem->Get( "cl_shownet", "0", CVAR_TEMP, "Display network quality graph" );
     cl_shownuments = cvarSystem->Get( "cl_shownuments", "0", CVAR_TEMP, "Display the number of entities in each packet" );
     cl_showServerCommands = cvarSystem->Get( "cl_showServerCommands", "0", 0, "Show server commands" );
