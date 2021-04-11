@@ -44,7 +44,7 @@
 #define MAX_LISTEN_SOCKETS 48
 
 // Default auth port
-#define DEFAULT_MASTER_PORT 27952
+#define DEFAULT_MASTER_PORT 12952
 
 // Network errors code
 #ifdef WIN32
