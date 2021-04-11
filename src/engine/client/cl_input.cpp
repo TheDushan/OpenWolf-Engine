@@ -997,6 +997,11 @@ void CL_MouseMove( usercmd_t* cmd )
                 Com_Printf( "ratex: %f, ratey: %f, powx: %f, powy: %f\n", rate[0], rate[1], power[0], power[1] );
         }
     }
+    else
+    {
+        mx *= cl_sensitivity->value;
+        my *= cl_sensitivity->value;
+    }
     
 // Ridah, experimenting with a slow tracking gun
 #if 0
