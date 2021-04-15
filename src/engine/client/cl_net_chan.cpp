@@ -86,7 +86,7 @@ static void CL_Netchan_Encode( msg_t* msg )
         {
             index = 0;
         }
-        if( string[index] > 127 || string[index] == '%' )
+        if( string[index] > 127 )
         {
             key ^= '.' << ( i & 1 );
         }
@@ -140,7 +140,7 @@ static void CL_Netchan_Decode( msg_t* msg )
         {
             index = 0;
         }
-        if( string[index] > 127 || string[index] == '%' )
+        if( string[index] > 127 )
         {
             key ^= '.' << ( i & 1 );
         }
