@@ -584,17 +584,11 @@ valueType*           MSG_ReadString( msg_t* msg )
         {
             break;
         }
-        // translate all fmt spec to avoid crash bugs
-        if( c == '%' )
+        // don't allow higher ascii values
+        if( c > 127 )
         {
             c = '.';
         }
-        else
-            // don't allow higher ascii values
-            if( c > 127 )
-            {
-                c = '.';
-            }
             
         // break only after reading all expected data from bitstream
         if( l >= sizeof( string ) - 1 )
@@ -623,12 +617,6 @@ valueType*           MSG_ReadBigString( msg_t* msg )
         {
             break;
         }
-        else
-            // translate all fmt spec to avoid crash bugs
-            if( c == '%' )
-            {
-                c = '.';
-            }
             
         // break only after reading all expected data from bitstream
         if( l >= sizeof( string ) - 1 )
@@ -657,12 +645,6 @@ valueType*           MSG_ReadStringLine( msg_t* msg )
         {
             break;
         }
-        else
-            // translate all fmt spec to avoid crash bugs
-            if( c == '%' )
-            {
-                c = '.';
-            }
         // break only after reading all expected data from bitstream
         if( l >= sizeof( string ) - 1 )
         {

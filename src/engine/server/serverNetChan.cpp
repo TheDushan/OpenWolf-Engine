@@ -113,14 +113,7 @@ void idServerNetChanSystemLocal::NetchanEncode( client_t* client, msg_t* msg, va
             index = 0;
         }
         
-        if( string[index] == '%' )
-        {
-            key ^= '.' << ( i & 1 );
-        }
-        else
-        {
-            key ^= string[index] << ( i & 1 );
-        }
+        key ^= string[index] << ( i & 1 );
         
         index++;
         
@@ -173,14 +166,7 @@ void idServerNetChanSystemLocal::NetchanDecode( client_t* client, msg_t* msg )
             index = 0;
         }
         
-        if( string[index] == '%' )
-        {
-            key ^= '.' << ( i & 1 );
-        }
-        else
-        {
-            key ^= string[index] << ( i & 1 );
-        }
+        key ^= string[index] << ( i & 1 );
         
         index++;
         
