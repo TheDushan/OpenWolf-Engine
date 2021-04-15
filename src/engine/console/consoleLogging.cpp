@@ -44,15 +44,14 @@
 #endif
 
 idConsoleLoggingSystemLocal consoleLoggingLocal;
-idConsoleLoggingSystem* consoleLoggingSystem = &consoleLoggingLocal;
+idConsoleLoggingSystem *consoleLoggingSystem = &consoleLoggingLocal;
 
 /*
 ===============
 idConsoleLoggingSystemLocal::idConsoleLoggingSystemLocal
 ===============
 */
-idConsoleLoggingSystemLocal::idConsoleLoggingSystemLocal( void )
-{
+idConsoleLoggingSystemLocal::idConsoleLoggingSystemLocal(void) {
 }
 
 /*
@@ -60,8 +59,7 @@ idConsoleLoggingSystemLocal::idConsoleLoggingSystemLocal( void )
 idConsoleLoggingSystemLocal::~idConsoleLoggingSystemLocal
 ===============
 */
-idConsoleLoggingSystemLocal::~idConsoleLoggingSystemLocal( void )
-{
+idConsoleLoggingSystemLocal::~idConsoleLoggingSystemLocal(void) {
 }
 
 /*
@@ -69,14 +67,10 @@ idConsoleLoggingSystemLocal::~idConsoleLoggingSystemLocal( void )
 idConsoleLoggingSystemLocal::LogSize
 ==================
 */
-uint64 idConsoleLoggingSystemLocal::LogSize( void )
-{
-    if( readPos <= writePos )
-    {
+uint64 idConsoleLoggingSystemLocal::LogSize(void) {
+    if(readPos <= writePos) {
         return writePos - readPos;
-    }
-    else
-    {
+    } else {
         return writePos + MAX_LOG - readPos;
     }
 }
@@ -86,9 +80,8 @@ uint64 idConsoleLoggingSystemLocal::LogSize( void )
 idConsoleLoggingSystemLocal::LogFree
 ==================
 */
-uint64 idConsoleLoggingSystemLocal::LogFree( void )
-{
-    return MAX_LOG - LogSize( ) - 1;
+uint64 idConsoleLoggingSystemLocal::LogFree(void) {
+    return MAX_LOG - LogSize() - 1;
 }
 
 /*
@@ -96,44 +89,37 @@ uint64 idConsoleLoggingSystemLocal::LogFree( void )
 idConsoleLoggingSystemLocal::LogWrite
 ==================
 */
-uint64 idConsoleLoggingSystemLocal::LogWrite( pointer in )
-{
-    uint64 length = ::strlen( in );
+uint64 idConsoleLoggingSystemLocal::LogWrite(pointer in) {
+    uint64 length = ::strlen(in);
     uint64 firstChunk, secondChunk;
-    
-    while( LogFree( ) < length && LogSize( ) > 0 )
-    {
+
+    while(LogFree() < length && LogSize() > 0) {
         // Free enough space
-        while( consoleLog[readPos] != '\n' && LogSize() > 1 )
-        {
-            readPos = ( readPos + 1 ) % MAX_LOG;
+        while(consoleLog[readPos] != '\n' && LogSize() > 1) {
+            readPos = (readPos + 1) % MAX_LOG;
         }
-        
+
         // Skip past the '\n'
-        readPos = ( readPos + 1 ) % MAX_LOG;
+        readPos = (readPos + 1) % MAX_LOG;
     }
-    
-    if( LogFree() < length )
-    {
+
+    if(LogFree() < length) {
         return 0;
     }
-    
-    if( writePos + length > MAX_LOG )
-    {
+
+    if(writePos + length > MAX_LOG) {
         firstChunk  = MAX_LOG - writePos;
         secondChunk = length - firstChunk;
-    }
-    else
-    {
+    } else {
         firstChunk  = length;
         secondChunk = 0;
     }
-    
-    ::memcpy( consoleLog + writePos, in, firstChunk );
-    ::memcpy( consoleLog, in + firstChunk, secondChunk );
-    
-    writePos = ( writePos + length ) % MAX_LOG;
-    
+
+    ::memcpy(consoleLog + writePos, in, firstChunk);
+    ::memcpy(consoleLog, in + firstChunk, secondChunk);
+
+    writePos = (writePos + length) % MAX_LOG;
+
     return length;
 }
 
@@ -142,30 +128,26 @@ uint64 idConsoleLoggingSystemLocal::LogWrite( pointer in )
 idConsoleLoggingSystemLocal::LogRead
 ==================
 */
-uint64 idConsoleLoggingSystemLocal::LogRead( valueType* out, uint64 outSize )
-{
+uint64 idConsoleLoggingSystemLocal::LogRead(valueType *out,
+        uint64 outSize) {
     uint64 firstChunk, secondChunk;
-    
-    if( LogSize() < outSize )
-    {
+
+    if(LogSize() < outSize) {
         outSize = LogSize();
     }
-    
-    if( readPos + outSize > MAX_LOG )
-    {
+
+    if(readPos + outSize > MAX_LOG) {
         firstChunk  = MAX_LOG - readPos;
         secondChunk = outSize - firstChunk;
-    }
-    else
-    {
+    } else {
         firstChunk  = outSize;
         secondChunk = 0;
     }
-    
-    ::memcpy( out, consoleLog + readPos, firstChunk );
-    ::memcpy( out + firstChunk, consoleLog, secondChunk );
-    
-    readPos = ( readPos + outSize ) % MAX_LOG;
-    
+
+    ::memcpy(out, consoleLog + readPos, firstChunk);
+    ::memcpy(out + firstChunk, consoleLog, secondChunk);
+
+    readPos = (readPos + outSize) % MAX_LOG;
+
     return outSize;
 }

@@ -41,34 +41,35 @@
 //
 // idServerGameSystemLocal
 //
-class idServerInitSystemLocal : public idServerInitSystem
-{
+class idServerInitSystemLocal : public idServerInitSystem {
 public:
-    virtual void UpdateConfigStrings( void );
-    virtual void SetConfigstringNoUpdate( sint index, pointer val );
-    virtual void SetConfigstring( sint index, pointer val );
-    virtual void GetConfigstring( sint index, valueType* buffer, uint64 bufferSize );
-    virtual void SetConfigstringRestrictions( sint index, const clientList_t* clientList );
-    virtual void SetUserinfo( sint index, pointer val );
-    virtual void GetUserinfo( sint index, valueType* buffer, uint64 bufferSize );
-    virtual void SpawnServer( valueType* server, bool killBots );
-    virtual void Init( void );
-    virtual void Shutdown( valueType* finalmsg );
-    
+    virtual void UpdateConfigStrings(void);
+    virtual void SetConfigstringNoUpdate(sint index, pointer val);
+    virtual void SetConfigstring(sint index, pointer val);
+    virtual void GetConfigstring(sint index, valueType *buffer,
+                                 uint64 bufferSize);
+    virtual void SetConfigstringRestrictions(sint index,
+            const clientList_t *clientList);
+    virtual void SetUserinfo(sint index, pointer val);
+    virtual void GetUserinfo(sint index, valueType *buffer, uint64 bufferSize);
+    virtual void SpawnServer(valueType *server, bool killBots);
+    virtual void Init(void);
+    virtual void Shutdown(valueType *finalmsg);
+
 public:
     idServerInitSystemLocal();
     ~idServerInitSystemLocal();
-    
-    void SendConfigstring( client_t* client, sint index );
-    void CreateBaseline( void );
-    void BoundMaxClients( sint minimum );
-    void Startup( void );
-    void ChangeMaxClients( void );
-    void SetExpectedHunkUsage( valueType* mapname );
-    void ClearServer( void );
-    void TouchCGameDLL( void );
-    void FinalCommand( valueType* cmd, bool disconnect );
-    void ParseVersionMapping( void );
+
+    void SendConfigstring(client_t *client, sint index);
+    void CreateBaseline(void);
+    void BoundMaxClients(sint minimum);
+    void Startup(void);
+    void ChangeMaxClients(void);
+    void SetExpectedHunkUsage(valueType *mapname);
+    void ClearServer(void);
+    void TouchCGameDLL(void);
+    void FinalCommand(valueType *cmd, bool disconnect);
+    void ParseVersionMapping(void);
 };
 
 extern idServerInitSystemLocal serverInitSystemLocal;

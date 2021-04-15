@@ -40,29 +40,28 @@
 //
 // idNetworkSystem
 //
-class idNetworkSystem
-{
+class idNetworkSystem {
 public:
-    virtual bool StringToAdr( pointer s, netadr_t* a, netadrtype_t family ) = 0;
-    virtual bool CompareBaseAdrMask( netadr_t a, netadr_t b, sint netmask ) = 0;
-    virtual bool CompareBaseAdr( netadr_t a, netadr_t b ) = 0;
-    virtual pointer AdrToString( netadr_t a ) = 0;
-    virtual pointer AdrToStringwPort( netadr_t a ) = 0;
-    virtual bool CompareAdr( netadr_t a, netadr_t b ) = 0;
-    virtual bool IsLocalAddress( netadr_t adr ) = 0;
-    virtual bool GetPacket( netadr_t* net_from, msg_t* net_message ) = 0;
-    virtual void SendPacket( sint length, const void* data, netadr_t to ) = 0;
-    virtual bool IsLANAddress( netadr_t adr ) = 0;
-    virtual void ShowIP( void ) = 0;
-    virtual void JoinMulticast6( void ) = 0;
-    virtual void LeaveMulticast6( void ) = 0;
-    virtual void Init( void ) = 0;
-    virtual void Shutdown( void ) = 0;
-    virtual void Sleep( sint msec ) = 0;
-    virtual void Restart_f( void ) = 0;
-    virtual sint ConnectTCP( valueType* s_host_port ) = 0;
+    virtual bool StringToAdr(pointer s, netadr_t *a, netadrtype_t family) = 0;
+    virtual bool CompareBaseAdrMask(netadr_t a, netadr_t b, sint netmask) = 0;
+    virtual bool CompareBaseAdr(netadr_t a, netadr_t b) = 0;
+    virtual pointer AdrToString(netadr_t a) = 0;
+    virtual pointer AdrToStringwPort(netadr_t a) = 0;
+    virtual bool CompareAdr(netadr_t a, netadr_t b) = 0;
+    virtual bool IsLocalAddress(netadr_t adr) = 0;
+    virtual bool GetPacket(netadr_t *net_from, msg_t *net_message) = 0;
+    virtual void SendPacket(sint length, const void *data, netadr_t to) = 0;
+    virtual bool IsLANAddress(netadr_t adr) = 0;
+    virtual void ShowIP(void) = 0;
+    virtual void JoinMulticast6(void) = 0;
+    virtual void LeaveMulticast6(void) = 0;
+    virtual void Init(void) = 0;
+    virtual void Shutdown(void) = 0;
+    virtual void Sleep(sint msec) = 0;
+    virtual void Restart_f(void) = 0;
+    virtual sint ConnectTCP(valueType *s_host_port) = 0;
 };
 
-extern idNetworkSystem* networkSystem;
+extern idNetworkSystem *networkSystem;
 
 #endif //!__THREADS_API_H__

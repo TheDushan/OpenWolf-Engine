@@ -54,14 +54,14 @@
 
 static bool curses_on = false;
 static field_t input_field;
-static WINDOW* borderwin;
-static WINDOW* logwin;
-static WINDOW* inputwin;
-static WINDOW* scrollwin;
-static WINDOW* clockwin;
+static WINDOW *borderwin;
+static WINDOW *logwin;
+static WINDOW *inputwin;
+static WINDOW *scrollwin;
+static WINDOW *clockwin;
 
 static valueType logbuf[LOG_BUF_SIZE];
-static valueType* insert = logbuf;
+static valueType *insert = logbuf;
 static sint scrollline = 0;
 static sint lastline = 1;
 
@@ -84,24 +84,23 @@ static sint lastline = 1;
 //
 // idConsoleCursesLocal
 //
-class idConsoleCursesLocal : public idConsoleCursesSystem
-{
+class idConsoleCursesLocal : public idConsoleCursesSystem {
 public:
     idConsoleCursesLocal();
     ~idConsoleCursesLocal();
-    
-    virtual void Shutdown( void );
-    virtual void Clear_f( void );
-    virtual void Init( void );
-    virtual valueType* Input( void );
-    virtual void Print( pointer msg );
-    
-    static void SetColor( WINDOW* win, sint color );
-    static void UpdateCursor( void );
-    static void DrawScrollBar( void );
-    static void ColorPrint( WINDOW* win, pointer msg, bool stripcodes );
-    static void UpdateClock( void );
-    static void Resize( void );
+
+    virtual void Shutdown(void);
+    virtual void Clear_f(void);
+    virtual void Init(void);
+    virtual valueType *Input(void);
+    virtual void Print(pointer msg);
+
+    static void SetColor(WINDOW *win, sint color);
+    static void UpdateCursor(void);
+    static void DrawScrollBar(void);
+    static void ColorPrint(WINDOW *win, pointer msg, bool stripcodes);
+    static void UpdateClock(void);
+    static void Resize(void);
 };
 
 extern idConsoleCursesLocal consoleCursesLocal;

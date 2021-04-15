@@ -40,16 +40,15 @@
 //
 // idConsoleHistorySystem
 //
-class idConsoleHistorySystem
-{
+class idConsoleHistorySystem {
 public:
-    virtual void Load( void ) = 0;
-    virtual void Save( void ) = 0;
-    virtual void Add( pointer field ) = 0;
-    virtual pointer Prev( void ) = 0;
-    virtual pointer Next( pointer field ) = 0;
+    virtual void Load(void) = 0;
+    virtual void Save(void) = 0;
+    virtual void Add(pointer field) = 0;
+    virtual pointer Prev(void) = 0;
+    virtual pointer Next(pointer field) = 0;
 };
 
-extern idConsoleHistorySystem* consoleHistorySystem;
+extern idConsoleHistorySystem *consoleHistorySystem;
 
 #endif //!__CONSOLEHISTORY_API_H__

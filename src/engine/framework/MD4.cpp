@@ -43,15 +43,14 @@
 #endif
 
 idMD4SystemLocal MD4SystemLocal;
-idMD4System* MD4System = &MD4SystemLocal;
+idMD4System *MD4System = &MD4SystemLocal;
 
 /*
 ===============
 idMD4SystemLocal::idMD4SystemLocal
 ===============
 */
-idMD4SystemLocal::idMD4SystemLocal( void )
-{
+idMD4SystemLocal::idMD4SystemLocal(void) {
 }
 
 /*
@@ -59,8 +58,7 @@ idMD4SystemLocal::idMD4SystemLocal( void )
 idMD4SystemLocal::~idMD4SystemLocal
 ===============
 */
-idMD4SystemLocal::~idMD4SystemLocal( void )
-{
+idMD4SystemLocal::~idMD4SystemLocal(void) {
 }
 
 /*
@@ -68,18 +66,19 @@ idMD4SystemLocal::~idMD4SystemLocal( void )
 idMD4SystemLocal::BlockChecksum
 ===============
 */
-uint idMD4SystemLocal::BlockChecksum( const void* buffer, sint length )
-{
+uint idMD4SystemLocal::BlockChecksum(const void *buffer, sint length) {
     sint digest[4];
     uint val;
-    MD4_CTX		ctx;
-    
-    MD4_Init( &ctx );
-    MD4_Update( &ctx, const_cast<uchar8*>( reinterpret_cast<const uchar8*>( buffer ) ), length );
-    MD4_Final( const_cast<uchar8*>( reinterpret_cast<const uchar8*>( digest ) ), &ctx );
-    
+    MD4_CTX     ctx;
+
+    MD4_Init(&ctx);
+    MD4_Update(&ctx, const_cast<uchar8 *>(reinterpret_cast<const uchar8 *>
+                                          (buffer)), length);
+    MD4_Final(const_cast<uchar8 *>(reinterpret_cast<const uchar8 *>(digest)),
+              &ctx);
+
     val = digest[0] ^ digest[1] ^ digest[2] ^ digest[3];
-    
+
     return val;
 }
 

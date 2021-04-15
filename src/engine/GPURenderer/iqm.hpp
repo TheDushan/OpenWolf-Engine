@@ -33,10 +33,9 @@
 #define IQM_MAGIC "INTERQUAKEMODEL"
 #define IQM_VERSION 2
 
-#define	IQM_MAX_JOINTS		128
+#define IQM_MAX_JOINTS      128
 
-typedef struct iqmheader
-{
+typedef struct iqmheader {
     valueType magic[16];
     uint version;
     uint filesize;
@@ -53,16 +52,14 @@ typedef struct iqmheader
     uint num_extensions, ofs_extensions;
 } iqmHeader_t;
 
-typedef struct iqmmesh
-{
+typedef struct iqmmesh {
     uint name;
     uint material;
     uint first_vertex, num_vertexes;
     uint first_triangle, num_triangles;
 } iqmMesh_t;
 
-enum
-{
+enum {
     IQM_POSITION     = 0,
     IQM_TEXCOORD     = 1,
     IQM_NORMAL       = 2,
@@ -73,8 +70,7 @@ enum
     IQM_CUSTOM       = 0x10
 };
 
-enum
-{
+enum {
     IQM_BYTE   = 0,
     IQM_UBYTE  = 1,
     IQM_SHORT  = 2,
@@ -86,41 +82,35 @@ enum
     IQM_DOUBLE = 8,
 };
 
-typedef struct iqmtriangle
-{
+typedef struct iqmtriangle {
     uint vertex[3];
 } iqmTriangle_t;
 
-typedef struct iqmjoint
-{
+typedef struct iqmjoint {
     uint name;
     sint parent;
     float32 translate[3], rotate[4], scale[3];
 } iqmJoint_t;
 
-typedef struct iqmpose
-{
+typedef struct iqmpose {
     sint parent;
     uint mask;
     float32 channeloffset[10];
     float32 channelscale[10];
 } iqmPose_t;
 
-typedef struct iqmanim
-{
+typedef struct iqmanim {
     uint name;
     uint first_frame, num_frames;
     float32 framerate;
     uint flags;
 } iqmAnim_t;
 
-enum
-{
+enum {
     IQM_LOOP = 1 << 0
 };
 
-typedef struct iqmvertexarray
-{
+typedef struct iqmvertexarray {
     uint type;
     uint flags;
     uint format;
@@ -128,8 +118,7 @@ typedef struct iqmvertexarray
     uint offset;
 } iqmVertexArray_t;
 
-typedef struct iqmbounds
-{
+typedef struct iqmbounds {
     float32 bbmin[3], bbmax[3];
     float32 xyradius, radius;
 } iqmBounds_t;

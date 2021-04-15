@@ -42,45 +42,47 @@
 //
 // idClientGameSystemLocal
 //
-class idClientGameSystemLocal : public idClientGameSystem
-{
+class idClientGameSystemLocal : public idClientGameSystem {
 public:
     idClientGameSystemLocal();
     ~idClientGameSystemLocal();
-    
-    virtual void GetGameState( gameState_t* gs );
-    virtual void GetGlconfig( vidconfig_t* glconfig );
-    virtual sint CompleteCallback( pointer complete );
-    virtual bool GetUserCmd( sint cmdNumber, usercmd_t* ucmd );
-    virtual sint GetCurrentCmdNumber( void );
-    virtual void GetCurrentSnapshotNumber( sint* snapshotNumber, sint* serverTime );
-    virtual bool GetSnapshot( sint snapshotNumber, snapshot_t* snapshot );
-    virtual void SetUserCmdValue( sint userCmdValue, sint flags, float32 sensitivityScale, sint mpIdentClient );
-    virtual void SetClientLerpOrigin( float32 x, float32 y, float32 z );
-    virtual void CgameCompletion( void( *callback )( pointer s ), sint argNum );
-    virtual void AddCgameCommand( pointer cmdName, pointer cmdDesc );
-    virtual void CgameError( pointer string );
-    virtual bool CGameCheckKeyExec( sint key );
-    virtual void UIPopup( pointer uiname );
-    virtual bool GetServerCommand( sint serverCommandNumber );
-    virtual void LoadMap( pointer mapname );
-    virtual void ShutdownCGame( void );
-    virtual void UIClosePopup( pointer uiname );
-    virtual void KeySetCatcher( sint catcher );
-    virtual void InitCGame( void );
-    virtual bool GameCommand( void );
-    virtual void GameConsoleText( void );
-    virtual void CGameRendering( stereoFrame_t stereo );
-    virtual void SetCGameTime( void );
-    virtual bool GetTag( sint clientNum, valueType* tagname, orientation_t* _or );
-    
-    static void UpdateLevelHunkUsage( void );
-    static void CompleteCgameCommand( valueType* args, sint argNum );
-    static void ConfigstringModified( void );
-    static void SetExpectedHunkUsage( pointer mapname );
-    static void CreateExportTable( void );
-    static void AdjustTimeDelta( void );
-    static void FirstSnapshot( void );
+
+    virtual void GetGameState(gameState_t *gs);
+    virtual void GetGlconfig(vidconfig_t *glconfig);
+    virtual sint CompleteCallback(pointer complete);
+    virtual bool GetUserCmd(sint cmdNumber, usercmd_t *ucmd);
+    virtual sint GetCurrentCmdNumber(void);
+    virtual void GetCurrentSnapshotNumber(sint *snapshotNumber,
+                                          sint *serverTime);
+    virtual bool GetSnapshot(sint snapshotNumber, snapshot_t *snapshot);
+    virtual void SetUserCmdValue(sint userCmdValue, sint flags,
+                                 float32 sensitivityScale, sint mpIdentClient);
+    virtual void SetClientLerpOrigin(float32 x, float32 y, float32 z);
+    virtual void CgameCompletion(void(*callback)(pointer s), sint argNum);
+    virtual void AddCgameCommand(pointer cmdName, pointer cmdDesc);
+    virtual void CgameError(pointer string);
+    virtual bool CGameCheckKeyExec(sint key);
+    virtual void UIPopup(pointer uiname);
+    virtual bool GetServerCommand(sint serverCommandNumber);
+    virtual void LoadMap(pointer mapname);
+    virtual void ShutdownCGame(void);
+    virtual void UIClosePopup(pointer uiname);
+    virtual void KeySetCatcher(sint catcher);
+    virtual void InitCGame(void);
+    virtual bool GameCommand(void);
+    virtual void GameConsoleText(void);
+    virtual void CGameRendering(stereoFrame_t stereo);
+    virtual void SetCGameTime(void);
+    virtual bool GetTag(sint clientNum, valueType *tagname,
+                        orientation_t *_or);
+
+    static void UpdateLevelHunkUsage(void);
+    static void CompleteCgameCommand(valueType *args, sint argNum);
+    static void ConfigstringModified(void);
+    static void SetExpectedHunkUsage(pointer mapname);
+    static void CreateExportTable(void);
+    static void AdjustTimeDelta(void);
+    static void FirstSnapshot(void);
 };
 
 extern idClientGameSystemLocal clientGameLocal;

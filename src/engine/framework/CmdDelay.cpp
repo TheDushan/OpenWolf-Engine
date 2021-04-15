@@ -44,7 +44,7 @@
 #endif
 
 idCmdDelaySystemLocal CmdDelaySystemLocal;
-idCmdDelaySystem* cmdDelaySystem = &CmdDelaySystemLocal;
+idCmdDelaySystem *cmdDelaySystem = &CmdDelaySystemLocal;
 
 delayedCommands_s delayedCommands[MAX_DELAYED_COMMANDS];
 
@@ -53,8 +53,7 @@ delayedCommands_s delayedCommands[MAX_DELAYED_COMMANDS];
 idCmdDelaySystemLocal::idCmdDelaySystemLocal
 ===============
 */
-idCmdDelaySystemLocal::idCmdDelaySystemLocal( void )
-{
+idCmdDelaySystemLocal::idCmdDelaySystemLocal(void) {
 }
 
 /*
@@ -62,8 +61,7 @@ idCmdDelaySystemLocal::idCmdDelaySystemLocal( void )
 idCmdDelaySystemLocal::~idCmdDelaySystemLocal
 ===============
 */
-idCmdDelaySystemLocal::~idCmdDelaySystemLocal( void )
-{
+idCmdDelaySystemLocal::~idCmdDelaySystemLocal(void) {
 }
 
 /*
@@ -71,38 +69,32 @@ idCmdDelaySystemLocal::~idCmdDelaySystemLocal( void )
 idCmdDelaySystemLocal::Frame
 ===============
 */
-void idCmdDelaySystemLocal::Frame( void )
-{
+void idCmdDelaySystemLocal::Frame(void) {
     sint i;
     bool RunIt;
-    
-    for( i = 0; ( i < MAX_DELAYED_COMMANDS ); i++ )
-    {
+
+    for(i = 0; (i < MAX_DELAYED_COMMANDS); i++) {
         RunIt = false;
-        
-        if( delayedCommands[i].delay == CMD_DELAY_UNUSED )
-        {
+
+        if(delayedCommands[i].delay == CMD_DELAY_UNUSED) {
             continue;
         }
-        
+
         //check if we should run the command (both type)
-        if( delayedCommands[i].type == CMD_DELAY_MSEC && delayedCommands[i].delay < idsystem->Milliseconds() )
-        {
+        if(delayedCommands[i].type == CMD_DELAY_MSEC &&
+                delayedCommands[i].delay < idsystem->Milliseconds()) {
             RunIt = true;
-        }
-        else if( delayedCommands[i].type == CMD_DELAY_FRAME )
-        {
+        } else if(delayedCommands[i].type == CMD_DELAY_FRAME) {
             delayedCommands[i].delay -= 1;
-            if( delayedCommands[i].delay == CMD_DELAY_FRAME_FIRE )
-            {
+
+            if(delayedCommands[i].delay == CMD_DELAY_FRAME_FIRE) {
                 RunIt = true;
             }
         }
-        
-        if( RunIt )
-        {
+
+        if(RunIt) {
             delayedCommands[i].delay = CMD_DELAY_UNUSED;
-            cmdBufferLocal.ExecuteText( EXEC_NOW, delayedCommands[i].text );
+            cmdBufferLocal.ExecuteText(EXEC_NOW, delayedCommands[i].text);
         }
     }
 }

@@ -42,8 +42,7 @@
 // include our header, IP header, and some overhead
 #define HEADER_RATE_BYTES 48
 
-typedef struct
-{
+typedef struct {
     sint numSnapshotEntities;
     sint snapshotEntities[MAX_SNAPSHOT_ENTITIES];
 } snapshotEntityNumbers_t;
@@ -51,27 +50,29 @@ typedef struct
 //
 // idServerSnapshotSystemLocal
 //
-class idServerSnapshotSystemLocal : public idServerSnapshotSystem
-{
+class idServerSnapshotSystemLocal : public idServerSnapshotSystem {
 public:
-    virtual void SendMessageToClient( msg_t* msg, client_t* client );
-    virtual void SendClientIdle( client_t* client );
-    virtual void SendClientSnapshot( client_t* client );
-    virtual void SendClientMessages( void );
-    virtual void CheckClientUserinfoTimer( void );
-    virtual void UpdateServerCommandsToClient( client_t* client, msg_t* msg );
-    
+    virtual void SendMessageToClient(msg_t *msg, client_t *client);
+    virtual void SendClientIdle(client_t *client);
+    virtual void SendClientSnapshot(client_t *client);
+    virtual void SendClientMessages(void);
+    virtual void CheckClientUserinfoTimer(void);
+    virtual void UpdateServerCommandsToClient(client_t *client, msg_t *msg);
+
 public:
     idServerSnapshotSystemLocal();
     ~idServerSnapshotSystemLocal();
-    
-    static void EmitPacketEntities( clientSnapshot_t* from, clientSnapshot_t* to, msg_t* msg );
-    static void WriteSnapshotToClient( client_t* client, msg_t* msg );
-    static sint QsortEntityNumbers( const void* a, const void* b );
-    static void AddEntToSnapshot( sharedEntity_t* clientEnt, svEntity_t* svEnt, sharedEntity_t* gEnt, snapshotEntityNumbers_t* eNums );
-    static void AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t* frame, snapshotEntityNumbers_t* eNums, bool portal );
-    static void BuildClientSnapshot( client_t* client );
-    static sint RateMsec( client_t* client, sint messageSize );
+
+    static void EmitPacketEntities(clientSnapshot_t *from,
+                                   clientSnapshot_t *to, msg_t *msg);
+    static void WriteSnapshotToClient(client_t *client, msg_t *msg);
+    static sint QsortEntityNumbers(const void *a, const void *b);
+    static void AddEntToSnapshot(sharedEntity_t *clientEnt, svEntity_t *svEnt,
+                                 sharedEntity_t *gEnt, snapshotEntityNumbers_t *eNums);
+    static void AddEntitiesVisibleFromPoint(vec3_t origin,
+                                            clientSnapshot_t *frame, snapshotEntityNumbers_t *eNums, bool portal);
+    static void BuildClientSnapshot(client_t *client);
+    static sint RateMsec(client_t *client, sint messageSize);
 };
 
 extern idServerSnapshotSystemLocal serverSnapshotSystemLocal;

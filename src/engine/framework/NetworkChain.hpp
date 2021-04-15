@@ -41,10 +41,10 @@
 /*
 packet header
 -------------
-4	outgoing sequence.  high bit will be set if this is a fragmented message
-[2	qport (only for client to server)]
-[2	fragment start uchar8]
-[2	fragment length. if < FRAGMENT_SIZE, this is the last fragment]
+4   outgoing sequence.  high bit will be set if this is a fragmented message
+[2  qport (only for client to server)]
+[2  fragment start uchar8]
+[2  fragment length. if < FRAGMENT_SIZE, this is the last fragment]
 
 if the sequence number is -1, the packet should be handled as an out-of-band
 message instead of as part of a netcon.
@@ -60,68 +60,71 @@ to the new value before sending out any replies.
 */
 
 
-#define	MAX_PACKETLEN			1400		// max size of a network packet
+#define MAX_PACKETLEN           1400        // max size of a network packet
 
-#define	FRAGMENT_SIZE			(MAX_PACKETLEN - 100)
-#define	PACKET_HEADER			10			// two ints and a short
+#define FRAGMENT_SIZE           (MAX_PACKETLEN - 100)
+#define PACKET_HEADER           10          // two ints and a short
 
-#define	FRAGMENT_BIT	(1U<<31)
+#define FRAGMENT_BIT    (1U<<31)
 
 // there needs to be enough loopback messages to hold a complete
 // gamestate of maximum size
-#define	MAX_LOOPBACK	16
+#define MAX_LOOPBACK    16
 
-typedef struct
-{
-    uchar8	data[MAX_PACKETLEN];
-    sint		datalen;
+typedef struct {
+    uchar8  data[MAX_PACKETLEN];
+    sint        datalen;
 } loopmsg_t;
 
-typedef struct
-{
-    loopmsg_t	msgs[MAX_LOOPBACK];
-    sint			get, send;
+typedef struct {
+    loopmsg_t   msgs[MAX_LOOPBACK];
+    sint            get, send;
 } loopback_t;
 
-typedef struct packetQueue_s
-{
-    struct packetQueue_s* next;
+typedef struct packetQueue_s {
+    struct packetQueue_s *next;
     sint length;
-    uchar8* data;
+    uchar8 *data;
     netadr_t to;
     sint release;
 } packetQueue_t;
 
-static convar_t* showpackets;
-static convar_t* showdrop;
-static convar_t* qport;
+static convar_t *showpackets;
+static convar_t *showdrop;
+static convar_t *qport;
 
 //
 // idNetworChainSystemLocal
 //
-class idNetworkChainSystemLocal : public idNetworkChainSystem
-{
+class idNetworkChainSystemLocal : public idNetworkChainSystem {
 public:
     idNetworkChainSystemLocal();
     ~idNetworkChainSystemLocal();
-    
-    virtual void Init( sint port );
-    virtual void Setup( netsrc_t sock, netchan_t* chan, netadr_t adr, sint qport );
-    virtual void TransmitNextFragment( netchan_t* chan );
-    virtual void Transmit( netchan_t* chan, sint length, const uchar8* data );
-    virtual bool Process( netchan_t* chan, msg_t* msg );
-    virtual bool GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message );
-    virtual void FlushPacketQueue( void );
-    virtual void SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to );
-    virtual void OutOfBandPrint( netsrc_t sock, netadr_t adr, pointer format, ... );
-    virtual void OutOfBandData( netsrc_t sock, netadr_t adr, uchar8* format, sint len );
-    virtual sint StringToAdr( pointer s, netadr_t* a, netadrtype_t family );
-    
-    static void SendLoopPacket( netsrc_t sock, sint length, const void* data, netadr_t to );
-    static void QueuePacket( sint length, const void* data, netadr_t to, sint offset );
-    static void ScramblePacket( msg_t* buf );
-    static void UnScramblePacket( msg_t* buf );
-    
+
+    virtual void Init(sint port);
+    virtual void Setup(netsrc_t sock, netchan_t *chan, netadr_t adr,
+                       sint qport);
+    virtual void TransmitNextFragment(netchan_t *chan);
+    virtual void Transmit(netchan_t *chan, sint length, const uchar8 *data);
+    virtual bool Process(netchan_t *chan, msg_t *msg);
+    virtual bool GetLoopPacket(netsrc_t sock, netadr_t *net_from,
+                               msg_t *net_message);
+    virtual void FlushPacketQueue(void);
+    virtual void SendPacket(netsrc_t sock, sint length, const void *data,
+                            netadr_t to);
+    virtual void OutOfBandPrint(netsrc_t sock, netadr_t adr, pointer format,
+                                ...);
+    virtual void OutOfBandData(netsrc_t sock, netadr_t adr, uchar8 *format,
+                               sint len);
+    virtual sint StringToAdr(pointer s, netadr_t *a, netadrtype_t family);
+
+    static void SendLoopPacket(netsrc_t sock, sint length, const void *data,
+                               netadr_t to);
+    static void QueuePacket(sint length, const void *data, netadr_t to,
+                            sint offset);
+    static void ScramblePacket(msg_t *buf);
+    static void UnScramblePacket(msg_t *buf);
+
     static const sint SCRAMBLE_START = 6;
 };
 

@@ -83,17 +83,16 @@
 #define CS_PLAYERS          (CS_PARTICLE_SYSTEMS+MAX_GAME_PARTICLE_SYSTEMS)
 #define CS_PRECACHES        (CS_PLAYERS+MAX_CLIENTS)
 #define CS_LOCATIONS        (CS_PRECACHES+MAX_CLIENTS)
-#define CS_BOTINFOS			(CS_LOCATIONS+MAX_LOCATIONS)	// cyr, should only be used for localhost games
-#define CS_EFFECTS	        (CS_PARTICLE_SYSTEMS+MAX_LOCATIONS)
+#define CS_BOTINFOS         (CS_LOCATIONS+MAX_LOCATIONS)    // cyr, should only be used for localhost games
+#define CS_EFFECTS          (CS_PARTICLE_SYSTEMS+MAX_LOCATIONS)
 #define CS_LIGHT_STYLES     (CS_EFFECTS + MAX_FX)
-#define CS_MAX              (CS_LIGHT_STYLES+MAX_CLIENTS)		// (CS_LOCATIONS+MAX_LOCATIONS)
+#define CS_MAX              (CS_LIGHT_STYLES+MAX_CLIENTS)       // (CS_LOCATIONS+MAX_LOCATIONS)
 
 #if 0 //(CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
 #endif
 
-typedef enum
-{
+typedef enum {
     GENDER_MALE,
     GENDER_FEMALE,
     GENDER_NEUTER
@@ -113,8 +112,7 @@ movement on the server game.
 ===================================================================================
 */
 
-typedef enum
-{
+typedef enum {
     PM_NORMAL,        // can accelerate and turn
     PM_NOCLIP,        // noclip movement
     PM_SPECTATOR,     // still run into walls
@@ -131,8 +129,7 @@ typedef enum
 #define PM_Live( x )      ( (x) == PM_NORMAL || (x) == PM_JETPACK ||\
                             (x) == PM_GRABBED )
 
-typedef enum
-{
+typedef enum {
     WEAPON_READY,
     WEAPON_RAISING,
     WEAPON_DROPPING,
@@ -162,8 +159,7 @@ typedef enum
 
 #define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_KNOCKOFF|PMF_TIME_WALLJUMP)
 
-typedef struct
-{
+typedef struct {
     sint pouncePayload;
     float32 fallVelocity;
 } pmoveExt_t;
@@ -172,11 +168,10 @@ typedef struct
 #ifdef GAMEDLL
 typedef struct gentity_s gentity_t;
 #endif
-typedef struct pmove_s
-{
+typedef struct pmove_s {
     // state (in / out)
-    playerState_t* ps;
-    pmoveExt_t* pmext;
+    playerState_t *ps;
+    pmoveExt_t *pmext;
     // command (in)
     usercmd_t cmd;
     sint tracemask;      // collide against these types of surfaces
@@ -192,7 +187,7 @@ typedef struct pmove_s
     sint waterlevel;
     float32 xyspeed;
 #ifdef GAMEDLL
-    struct gclient_s* gent;			// nullptr if not a client
+    struct gclient_s *gent;         // nullptr if not a client
 #endif
     // for fixed msec Pmove
     sint pmove_fixed;
@@ -200,13 +195,13 @@ typedef struct pmove_s
     // callbacks to test the world
     // these will be different functions during game and cgame
     /*void (*trace)( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, sint passEntityNum, sint contentMask );*/
-    void ( *trace )( trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, sint passEntityNum, sint contentMask );
-    sint( *pointcontents )( const vec3_t point, sint passEntityNum );
+    void (*trace)(trace_t *results, const vec3_t start, const vec3_t mins,
+                  const vec3_t maxs, const vec3_t end, sint passEntityNum, sint contentMask);
+    sint(*pointcontents)(const vec3_t point, sint passEntityNum);
 } pmove_t;
 
 // player_state->stats[] indexes
-typedef enum
-{
+typedef enum {
     STAT_HEALTH,
     STAT_ITEMS,
     STAT_ACTIVEITEMS,
@@ -252,8 +247,7 @@ typedef enum
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
 // cleared on respawn
-typedef enum
-{
+typedef enum {
     PERS_SCORE = 0,       // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
     PERS_HITS,            // total points damage inflicted so damage beeps can sound on change
     PERS_SPAWNS,          // how many spawns your team has
@@ -261,7 +255,7 @@ typedef enum
     PERS_SPAWN_COUNT,     // incremented every respawn
     PERS_ATTACKER,        // clientnum of last damage inflicter
     PERS_KILLED,          // count of the number of times you died
-    
+
     PERS_STATE,
     PERS_CREDIT,    // human credit
     PERS_QUEUEPOS,  // position in the spawn queue
@@ -297,23 +291,21 @@ typedef enum
 #define EF_BLOBLOCKED       0x00020000    // caught by a trapper
 #define EF_WARN_CHARGE      0x00040000    // Lucifer Cannon is about to overcharge
 
-typedef enum
-{
+typedef enum {
     WPM_NONE,
-    
+
     WPM_PRIMARY,
     WPM_SECONDARY,
     WPM_TERTIARY,
-    
+
     WPM_NOTFIRING,
-    
+
     WPM_NUM_WEAPONMODES
 } weaponMode_t;
 
-typedef enum
-{
+typedef enum {
     WP_NONE,
-    
+
     WP_ALEVEL0,
     WP_ALEVEL1,
     WP_ALEVEL1_UPG,
@@ -322,7 +314,7 @@ typedef enum
     WP_ALEVEL3,
     WP_ALEVEL3_UPG,
     WP_ALEVEL4,
-    
+
     WP_BLASTER,
     WP_MACHINEGUN,
     WP_PAIN_SAW,
@@ -334,35 +326,33 @@ typedef enum
     WP_FLAMER,
     WP_LUCIFER_CANNON,
     WP_GRENADE,
-    
+
     WP_LOCKBLOB_LAUNCHER,
     WP_HIVE,
     WP_TESLAGEN,
     WP_MGTURRET,
-    
+
     WP_ABUILD,
     WP_ABUILD2,
     WP_HBUILD,
-    
+
     WP_NUM_WEAPONS
 } weapon_t;
 
-typedef enum
-{
+typedef enum {
     AFEEDBACK_HIT,
     AFEEDBACK_MISS,
     AFEEDBACK_TEAMHIT,
     AFEEDBACK_RANGED_HIT,
     AFEEDBACK_RANGED_MISS,
     AFEEDBACK_RANGED_TEAMHIT,
-    
+
     AFEEDBACK_NUM
 } alienFeedback_t;
 
-typedef enum
-{
+typedef enum {
     UP_NONE,
-    
+
     UP_LIGHTARMOUR,
     UP_HELMET,
     UP_MEDKIT,
@@ -370,9 +360,9 @@ typedef enum
     UP_JETPACK,
     UP_BATTLESUIT,
     UP_GRENADE,
-    
+
     UP_AMMO,
-    
+
     UP_NUM_UPGRADES
 } upgrade_t;
 
@@ -386,33 +376,32 @@ typedef enum
 #define SLOT_WEAPON     0x00000020
 #define SLOT_SIDEARM    0x00000040
 
-typedef enum
-{
+typedef enum {
     BA_NONE,
-    
+
     BA_A_SPAWN,
     BA_A_OVERMIND,
-    
+
     BA_A_BARRICADE,
     BA_A_ACIDTUBE,
     BA_A_TRAPPER,
     BA_A_BOOSTER,
     BA_A_HIVE,
-    
+
     BA_A_HOVEL,
-    
+
     BA_H_SPAWN,
-    
+
     BA_H_MGTURRET,
     BA_H_TESLAGEN,
-    
+
     BA_H_ARMOURY,
     BA_H_DCC,
     BA_H_MEDISTAT,
-    
+
     BA_H_REACTOR,
     BA_H_REPEATER,
-    
+
     BA_NUM_BUILDABLES
 } buildable_t;
 
@@ -434,77 +423,76 @@ typedef enum
 
 #define EVENT_VALID_MSEC  300
 
-typedef enum
-{
+typedef enum {
     EV_NONE,
-    
+
     EV_FOOTSTEP,
     EV_FOOTSTEP_METAL,
     EV_FOOTSTEP_SQUELCH,
     EV_FOOTSPLASH,
     EV_FOOTWADE,
     EV_SWIM,
-    
+
     EV_STEP_4,
     EV_STEP_8,
     EV_STEP_12,
     EV_STEP_16,
-    
+
     EV_STEPDN_4,
     EV_STEPDN_8,
     EV_STEPDN_12,
     EV_STEPDN_16,
-    
+
     EV_FALL_SHORT,
     EV_FALL_MEDIUM,
     EV_FALL_FAR,
     EV_FALLING,
-    
+
     EV_JUMP,
     EV_WATER_TOUCH, // foot touches
     EV_WATER_LEAVE, // foot leaves
     EV_WATER_UNDER, // head touches
     EV_WATER_CLEAR, // head leaves
-    
+
     EV_NOAMMO,
     EV_CHANGE_WEAPON,
     EV_FIRE_WEAPON,
     EV_FIRE_WEAPON2,
     EV_FIRE_WEAPON3,
-    
+
     EV_PLAYER_RESPAWN, // for fovwarp effects
     EV_PLAYER_TELEPORT_IN,
     EV_PLAYER_TELEPORT_OUT,
-    
+
     EV_GRENADE_BOUNCE,    // eventParm will be the soundindex
-    
+
     EV_GENERAL_SOUND,
     EV_GLOBAL_SOUND,    // no attenuation
-    
+
     EV_BULLET_HIT_FLESH,
     EV_BULLET_HIT_WALL,
-    
+
     EV_SHOTGUN,
     EV_MASS_DRIVER,
-    
+
     EV_MISSILE_HIT,
     EV_MISSILE_MISS,
     EV_MISSILE_MISS_METAL,
     EV_TESLATRAIL,
     EV_BULLET,        // otherEntity is the shooter
-    
+
     EV_LEV1_GRAB,
     EV_LEV4_TRAMPLE_PREPARE,
     EV_LEV4_TRAMPLE_START,
-    
+
     EV_PAIN,
     EV_DEATH1,
     EV_DEATH2,
     EV_DEATH3,
     EV_OBITUARY,
-    
+
     EV_GIB_PLAYER,      // gib a previously living player
-    
+
     EV_BUILD_CONSTRUCT,
     EV_BUILD_DESTROY,
     EV_BUILD_DELAY,     // can't build yet
@@ -513,43 +501,42 @@ typedef enum
     EV_HUMAN_BUILDABLE_EXPLOSION,
     EV_ALIEN_BUILDABLE_EXPLOSION,
     EV_ALIEN_ACIDTUBE,
-    
+
     EV_MEDKIT_USED,
-    
+
     EV_ALIEN_EVOLVE,
     EV_ALIEN_EVOLVE_FAILED,
-    
+
     EV_DEBUG_LINE,
     EV_STOPLOOPINGSOUND,
     EV_TAUNT,
-    
+
     EV_OVERMIND_ATTACK, // overmind under attack
     EV_OVERMIND_DYING,  // overmind close to death
     EV_OVERMIND_SPAWNS, // overmind needs spawns
-    
+
     EV_DCC_ATTACK,      // dcc under attack
-    
+
     EV_MGTURRET_SPINUP, // turret spinup sound should play
-    
+
     EV_RPTUSE_SOUND,    // trigger a sound
-    
+
     EV_ALIEN_HIT,       // Alien attack feedback hit enemy
     EV_ALIEN_MISS,      // Alien attack feedback miss enemy
     EV_ALIEN_TEAMHIT,   // Alien attack feedback hit teammate
-    
+
     EV_ALIENRANGED_HIT,       // Alien ranged attack feedback hit enemy
     EV_ALIENRANGED_MISS,      // Alien ranged attack feedback miss enemy
     EV_ALIENRANGED_TEAMHIT,   // Alien ranged attack feedback hit teammate
-    
+
     EV_LEV2_ZAP
 } entity_event_t;
 
-typedef enum
-{
+typedef enum {
     MN_TEAM,
     MN_A_TEAMFULL,
     MN_H_TEAMFULL,
-    
+
     // cmd stuff
     MN_CMD_CHEAT,
     MN_CMD_CHEAT_TEAM,
@@ -558,7 +545,7 @@ typedef enum
     MN_CMD_ALIEN,
     MN_CMD_HUMAN,
     MN_CMD_LIVING,
-    
+
     //alien stuff
     MN_A_CLASS,
     MN_A_BUILD,
@@ -576,7 +563,7 @@ typedef enum
     MN_A_CLASSNOTSPAWN,
     MN_A_CLASSNOTALLOWED,
     MN_A_CLASSNOTATSTAGE,
-    
+
     //shared build
     MN_B_NOROOM,
     MN_B_NORMAL,
@@ -585,7 +572,7 @@ typedef enum
     MN_B_SUDDENDEATH,
     MN_B_REVOKED,
     MN_B_SURRENDER,
-    
+
     //alien build
     MN_A_ONEOVERMIND,
     MN_A_ONEHOVEL,
@@ -593,7 +580,7 @@ typedef enum
     MN_A_NOCREEP,
     MN_A_NOOVMND,
     MN_A_HOVEL_EXIT,
-    
+
     //human stuff
     MN_H_SPAWN,
     MN_H_BUILD,
@@ -610,7 +597,7 @@ typedef enum
     MN_H_ARMOURYBUILDTIMER,
     MN_H_DEADTOCLASS,
     MN_H_UNKNOWNSPAWNITEM,
-    
+
     //human build
     MN_H_NOPOWERHERE,
     MN_H_NOBP,
@@ -621,155 +608,150 @@ typedef enum
 } dynMenu_t;
 
 // animations
-typedef enum
-{
+typedef enum {
     BOTH_DEATH1,
     BOTH_DEAD1,
     BOTH_DEATH2,
     BOTH_DEAD2,
     BOTH_DEATH3,
     BOTH_DEAD3,
-    
+
     TORSO_GESTURE,
-    
+
     TORSO_ATTACK,
     TORSO_ATTACK2,
-    
+
     TORSO_DROP,
     TORSO_RAISE,
-    
+
     TORSO_STAND,
     TORSO_STAND2,
-    
+
     LEGS_WALKCR,
     LEGS_WALK,
     LEGS_RUN,
     LEGS_BACK,
     LEGS_SWIM,
-    
+
     LEGS_JUMP,
     LEGS_LAND,
-    
+
     LEGS_JUMPB,
     LEGS_LANDB,
-    
+
     LEGS_IDLE,
     LEGS_IDLECR,
-    
+
     LEGS_TURN,
-    
+
     TORSO_GETFLAG,
     TORSO_GUARDBASE,
     TORSO_PATROL,
     TORSO_FOLLOWME,
     TORSO_AFFIRMATIVE,
     TORSO_NEGATIVE,
-    
+
     MAX_PLAYER_ANIMATIONS,
-    
+
     LEGS_BACKCR,
     LEGS_BACKWALK,
     FLAG_RUN,
     FLAG_STAND,
     FLAG_STAND2RUN,
-    
+
     MAX_PLAYER_TOTALANIMATIONS
 } playerAnimNumber_t;
 
 // nonsegmented animations
-typedef enum
-{
+typedef enum {
     NSPA_STAND,
-    
+
     NSPA_GESTURE,
-    
+
     NSPA_WALK,
     NSPA_RUN,
     NSPA_RUNBACK,
     NSPA_CHARGE,
-    
+
     NSPA_RUNLEFT,
     NSPA_WALKLEFT,
     NSPA_RUNRIGHT,
     NSPA_WALKRIGHT,
-    
+
     NSPA_SWIM,
-    
+
     NSPA_JUMP,
     NSPA_LAND,
     NSPA_JUMPBACK,
     NSPA_LANDBACK,
-    
+
     NSPA_TURN,
-    
+
     NSPA_ATTACK1,
     NSPA_ATTACK2,
     NSPA_ATTACK3,
-    
+
     NSPA_PAIN1,
     NSPA_PAIN2,
-    
+
     NSPA_DEATH1,
     NSPA_DEAD1,
     NSPA_DEATH2,
     NSPA_DEAD2,
     NSPA_DEATH3,
     NSPA_DEAD3,
-    
+
     MAX_NONSEG_PLAYER_ANIMATIONS,
-    
+
     NSPA_WALKBACK,
-    
+
     MAX_NONSEG_PLAYER_TOTALANIMATIONS
 } nonSegPlayerAnimNumber_t;
 
 // for buildable animations
-typedef enum
-{
+typedef enum {
     BANIM_NONE,
-    
+
     BANIM_CONSTRUCT1,
     BANIM_CONSTRUCT2,
-    
+
     BANIM_IDLE1,
     BANIM_IDLE2,
     BANIM_IDLE3,
-    
+
     BANIM_ATTACK1,
     BANIM_ATTACK2,
-    
+
     BANIM_SPAWN1,
     BANIM_SPAWN2,
-    
+
     BANIM_PAIN1,
     BANIM_PAIN2,
-    
+
     BANIM_DESTROY1,
     BANIM_DESTROY2,
     BANIM_DESTROYED,
-    
+
     MAX_BUILDABLE_ANIMATIONS
 } buildableAnimNumber_t;
 
-typedef enum
-{
+typedef enum {
     WANIM_NONE,
-    
+
     WANIM_IDLE,
-    
+
     WANIM_DROP,
     WANIM_RELOAD,
     WANIM_RAISE,
-    
+
     WANIM_ATTACK1,
     WANIM_ATTACK2,
     WANIM_ATTACK3,
-    
+
     MAX_WEAPON_ANIMATIONS
 } weaponAnimNumber_t;
 
-typedef struct animation_s
-{
+typedef struct animation_s {
     sint firstFrame;
     sint numFrames;
     sint loopFrames;     // 0 to numFrames
@@ -791,14 +773,13 @@ typedef struct animation_s
 #define TEAM_MAXOVERLAY   32
 
 // player classes
-typedef enum
-{
+typedef enum {
     PCL_NONE,
-    
+
     //builder classes
     PCL_ALIEN_BUILDER0,
     PCL_ALIEN_BUILDER0_UPG,
-    
+
     //offensive classes
     PCL_ALIEN_LEVEL0,
     PCL_ALIEN_LEVEL1,
@@ -808,17 +789,16 @@ typedef enum
     PCL_ALIEN_LEVEL3,
     PCL_ALIEN_LEVEL3_UPG,
     PCL_ALIEN_LEVEL4,
-    
+
     //human class
     PCL_HUMAN,
     PCL_HUMAN_BSUIT,
-    
+
     PCL_NUM_CLASSES
 } class_t;
 
 // spectator state
-typedef enum
-{
+typedef enum {
     SPECTATOR_NOT,
     SPECTATOR_FREE,
     SPECTATOR_LOCKED,
@@ -827,19 +807,17 @@ typedef enum
 } spectatorState_t;
 
 // player teams
-typedef enum
-{
+typedef enum {
     TEAM_NONE,
     TEAM_ALIENS,
     TEAM_HUMANS,
-    
+
     NUM_TEAMS
 } team_t;
 
 
 // means of death
-typedef enum
-{
+typedef enum {
     MOD_UNKNOWN,
     MOD_SHOTGUN,
     MOD_BLASTER,
@@ -865,7 +843,7 @@ typedef enum
     MOD_NOCREEP,
     MOD_TARGET_LASER,
     MOD_TRIGGER_HURT,
-    
+
     MOD_ABUILDER_CLAW,
     MOD_LEVEL0_BITE,
     MOD_LEVEL1_CLAW,
@@ -878,16 +856,16 @@ typedef enum
     MOD_LEVEL4_CLAW,
     MOD_LEVEL4_TRAMPLE,
     MOD_LEVEL4_CRUSH,
-    
+
     MOD_SLOWBLOB,
     MOD_POISON,
     MOD_SWARM,
-    
+
     MOD_HSPAWN,
     MOD_TESLAGEN,
     MOD_MGTURRET,
     MOD_REACTOR,
-    
+
     MOD_ASPAWN,
     MOD_ATUBE,
     MOD_OVERMIND
@@ -897,30 +875,29 @@ typedef enum
 //---------------------------------------------------------
 
 // player class record
-typedef struct
-{
+typedef struct {
     class_t number;
-    
-    valueType* name;
-    valueType* info;
-    
+
+    valueType *name;
+    valueType *info;
+
     sint stages;
-    
+
     sint health;
     float32 fallDamage;
     float32 regenRate;
-    
+
     sint abilities;
-    
+
     weapon_t startWeapon;
-    
+
     float32 buildDist;
-    
+
     sint fov;
     float32 bob;
     float32 bobCycle;
     sint steptime;
-    
+
     float32 speed;
     float32 acceleration;
     float32 airAcceleration;
@@ -928,21 +905,20 @@ typedef struct
     float32 stopSpeed;
     float32 jumpMagnitude;
     float32 knockbackScale;
-    
+
     sint children[ 3 ];
     sint cost;
     sint value;
 } classAttributes_t;
 
-typedef struct
-{
+typedef struct {
     valueType modelName[ MAX_QPATH ];
     float32 modelScale;
     valueType skinName[ MAX_QPATH ];
     float32 shadowScale;
     valueType hudName[ MAX_QPATH ];
     valueType humanName[ MAX_STRING_CHARS ];
-    
+
     vec3_t mins;
     vec3_t maxs;
     vec3_t crouchMaxs;
@@ -954,8 +930,7 @@ typedef struct
 } classConfig_t;
 
 //stages
-typedef enum
-{
+typedef enum {
     S1,
     S2,
     S3
@@ -964,59 +939,57 @@ typedef enum
 #define MAX_BUILDABLE_MODELS 4
 
 // buildable item record
-typedef struct
-{
+typedef struct {
     buildable_t number;
-    
-    valueType* name;
-    valueType* humanName;
-    valueType* info;
-    valueType* entityName;
-    
+
+    valueType *name;
+    valueType *humanName;
+    valueType *info;
+    valueType *entityName;
+
     trType_t traj;
     float32 bounce;
-    
+
     sint buildPoints;
     sint stages;
-    
+
     sint health;
     sint regenRate;
-    
+
     sint splashDamage;
     sint splashRadius;
-    
+
     sint meansOfDeath;
-    
+
     team_t team;
     weapon_t buildWeapon;
-    
+
     sint idleAnim;
-    
+
     sint nextthink;
     sint buildTime;
     bool usable;
-    
+
     sint turretRange;
     sint turretFireSpeed;
     weapon_t turretProjType;
-    
+
     float32 minNormal;
     bool invertNormal;
-    
+
     bool creepTest;
     sint creepSize;
-    
+
     bool dccTest;
     bool transparentTest;
     bool uniqueTest;
-    
+
     sint value;
 } buildableAttributes_t;
 
-typedef struct
-{
+typedef struct {
     valueType models[ MAX_BUILDABLE_MODELS ][ MAX_QPATH ];
-    
+
     float32 modelScale;
     vec3_t mins;
     vec3_t maxs;
@@ -1024,61 +997,59 @@ typedef struct
 } buildableConfig_t;
 
 // weapon record
-typedef struct
-{
+typedef struct {
     weapon_t  number;
-    
+
     sint price;
     sint stages;
-    
+
     sint slots;
-    
-    valueType* name;
-    valueType* humanName;
-    valueType* info;
-    
+
+    valueType *name;
+    valueType *humanName;
+    valueType *info;
+
     sint maxAmmo;
     sint maxClips;
     bool infiniteAmmo;
     bool usesEnergy;
-    
+
     sint repeatRate1;
     sint repeatRate2;
     sint repeatRate3;
     sint reloadTime;
     float32 knockbackScale;
-    
+
     bool hasAltMode;
     bool hasThirdMode;
-    
+
     bool canZoom;
     float32 zoomFov;
-    
+
     bool purchasable;
     bool longRanged;
-    
+
     team_t team;
 } weaponAttributes_t;
 
 // upgrade record
-typedef struct
-{
+typedef struct {
     upgrade_t number;
-    
+
     sint price;
     sint stages;
-    
+
     sint slots;
-    
-    valueType* name;
-    valueType* humanName;
-    valueType* info;
-    
-    valueType* icon;
-    
+
+    valueType *name;
+    valueType *humanName;
+    valueType *info;
+
+    valueType *icon;
+
     bool purchasable;
     bool usable;
-    
+
     team_t    team;
 } upgradeAttributes_t;
 
@@ -1109,185 +1080,204 @@ typedef struct
 #define MAX_VOICE_CMD_LEN         16
 #define VOICE_ENTHUSIASM_DECAY    0.5f // enthusiasm lost per second
 
-typedef enum
-{
+typedef enum {
     VOICE_CHAN_ALL,
-    VOICE_CHAN_TEAM ,
+    VOICE_CHAN_TEAM,
     VOICE_CHAN_LOCAL,
-    
+
     VOICE_CHAN_NUM_CHANS
 } voiceChannel_t;
 
-typedef struct voiceTrack_s
-{
+typedef struct voiceTrack_s {
 #ifdef CGAMEDLL
     sfxHandle_t track;
     sint duration;
 #endif
-    valueType* text;
+    valueType *text;
     sint enthusiasm;
     sint team;
     sint _class;
     sint weapon;
-    struct voiceTrack_s* next;
+    struct voiceTrack_s *next;
 } voiceTrack_t;
 
 
-typedef struct voiceCmd_s
-{
+typedef struct voiceCmd_s {
     valueType cmd[ MAX_VOICE_CMD_LEN ];
-    voiceTrack_t* tracks;
-    struct voiceCmd_s* next;
+    voiceTrack_t *tracks;
+    struct voiceCmd_s *next;
 } voiceCmd_t;
 
-typedef struct voice_s
-{
+typedef struct voice_s {
     valueType name[ MAX_VOICE_NAME_LEN ];
-    voiceCmd_t* cmds;
-    struct voice_s* next;
+    voiceCmd_t *cmds;
+    struct voice_s *next;
 } voice_t;
 
 //
 // bgGame
 //
-class bgGame
-{
+class bgGame {
 public:
-    virtual const buildableAttributes_t* BuildableByName( pointer name ) = 0;
-    virtual const buildableAttributes_t* BuildableByEntityName( pointer name ) = 0;
-    virtual const buildableAttributes_t* Buildable( buildable_t buildable ) = 0;
-    virtual bool BuildableAllowedInStage( buildable_t buildable, stage_t stage ) = 0;
-    virtual buildableConfig_t* BuildableConfig( buildable_t buildable ) = 0;
-    virtual void BuildableBoundingBox( buildable_t buildable, vec3_t mins, vec3_t maxs ) = 0;
-    virtual bool ParseBuildableFile( pointer filename, buildableConfig_t* bc ) = 0;
-    virtual void InitBuildableConfigs( void ) = 0;
-    virtual const classAttributes_t* ClassByName( pointer name ) = 0;
-    virtual const classAttributes_t* Class( class_t _class ) = 0;
-    virtual bool ClassAllowedInStage( class_t _class, stage_t stage ) = 0;
-    virtual classConfig_t* ClassConfig( class_t _class ) = 0;
-    virtual void ClassBoundingBox( class_t _class, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs ) = 0;
-    virtual bool ClassHasAbility( class_t _class, sint ability ) = 0;
-    virtual sint ClassCanEvolveFromTo( class_t fclass, class_t tclass, sint credits, sint stage, sint cost ) = 0;
-    virtual bool AlienCanEvolve( class_t pclass, sint credits, sint stage ) = 0;
-    virtual bool ParseClassFile( pointer filename, classConfig_t* cc ) = 0;
-    virtual void InitClassConfigs( void ) = 0;
-    virtual const weaponAttributes_t* WeaponByName( pointer name ) = 0;
-    virtual const weaponAttributes_t* Weapon( weapon_t weapon ) = 0;
-    virtual bool WeaponAllowedInStage( weapon_t weapon, stage_t stage ) = 0;
-    virtual const upgradeAttributes_t* UpgradeByName( pointer name ) = 0;
-    virtual const upgradeAttributes_t* Upgrade( upgrade_t upgrade ) = 0;
-    virtual bool UpgradeAllowedInStage( upgrade_t upgrade, stage_t stage ) = 0;
-    virtual void EvaluateTrajectory( const trajectory_t* tr, sint atTime, vec3_t result ) = 0;
-    virtual void EvaluateTrajectoryDelta( const trajectory_t* tr, sint atTime, vec3_t result ) = 0;
-    virtual pointer EventName( sint num ) = 0;
-    virtual void AddPredictableEventToPlayerstate( sint newEvent, sint eventParm, playerState_t* ps ) = 0;
-    virtual void PlayerStateToEntityState( playerState_t* ps, entityState_t* s, bool snap ) = 0;
-    virtual void PlayerStateToEntityStateExtraPolate( playerState_t* ps, entityState_t* s, sint time, bool snap ) = 0;
-    virtual bool WeaponIsFull( weapon_t weapon, sint stats[], sint ammo, sint clips ) = 0;
-    virtual bool InventoryContainsWeapon( sint weapon, sint stats[] ) = 0;
-    virtual sint CalculateSlotsForInventory( sint stats[] ) = 0;
-    virtual void AddUpgradeToInventory( sint item, sint stats[] ) = 0;
-    virtual void RemoveUpgradeFromInventory( sint item, sint stats[] ) = 0;
-    virtual bool InventoryContainsUpgrade( sint item, sint stats[] ) = 0;
-    virtual void ActivateUpgrade( sint item, sint stats[] ) = 0;
-    virtual void DeactivateUpgrade( sint item, sint stats[] ) = 0;
-    virtual bool UpgradeIsActive( sint item, sint stats[] ) = 0;
-    virtual bool RotateAxis( vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxis[3], bool inverse, bool ceiling ) = 0;
-    virtual void GetClientNormal( const playerState_t* ps, vec3_t normal ) = 0;
-    virtual void PositionBuildableRelativeToPlayer( const playerState_t* ps, const vec3_t mins, const vec3_t maxs, void( *trace )( trace_t*, const vec3_t, const vec3_t, const vec3_t, const vec3_t, sint, sint ), vec3_t outOrigin, vec3_t outAngles, trace_t* tr ) = 0;
-    virtual sint GetValueOfPlayer( playerState_t* ps ) = 0;
-    virtual sint PlayerPoisonCloudTime( playerState_t* ps ) = 0;
-    virtual weapon_t GetPlayerWeapon( playerState_t* ps ) = 0;
-    virtual bool PlayerCanChangeWeapon( playerState_t* ps ) = 0;
-    virtual float32 atof_neg( valueType* token, bool allowNegative ) = 0;
-    virtual sint atoi_neg( valueType* token, bool allowNegative ) = 0;
-    virtual void ParseCSVEquipmentList( pointer string, weapon_t* weapons, sint weaponsSize, upgrade_t* upgrades, sint upgradesSize ) = 0;
-    virtual void ParseCSVClassList( pointer string, class_t* classes, sint classesSize ) = 0;
-    virtual void ParseCSVBuildableList( pointer string, buildable_t* buildables, sint buildablesSize ) = 0;
-    virtual void InitAllowedGameElements( void ) = 0;
-    virtual bool WeaponIsAllowed( weapon_t weapon ) = 0;
-    virtual bool UpgradeIsAllowed( upgrade_t upgrade ) = 0;
-    virtual bool ClassIsAllowed( class_t _class ) = 0;
-    virtual bool BuildableIsAllowed( buildable_t buildable ) = 0;
-    virtual bool ClientListTest( clientList_t* list, sint clientNum ) = 0;
-    virtual void ClientListAdd( clientList_t* list, sint clientNum ) = 0;
-    virtual void ClientListRemove( clientList_t* list, sint clientNum ) = 0;
-    virtual valueType* ClientListString( clientList_t* list ) = 0;
-    virtual void ClientListParse( clientList_t* list, pointer s ) = 0;
-    virtual weapon_t PrimaryWeapon( sint stats[] ) = 0;
-    virtual sint LoadEmoticons( valueType names[][MAX_EMOTICON_NAME_LEN], sint widths[] ) = 0;
-    virtual valueType* TeamName( team_t team ) = 0;
-    virtual bool SlideMove( bool gravity ) = 0;
-    virtual void StepEvent( vec3_t from, vec3_t to, vec3_t normal ) = 0;
-    virtual bool StepSlideMove( bool gravity, bool predictive ) = 0;
-    virtual bool PredictStepMove( void ) = 0;
-    virtual void AddEvent( sint newEvent ) = 0;
-    virtual void AddTouchEnt( sint entityNum ) = 0;
-    virtual void StartTorsoAnim( sint anim ) = 0;
-    virtual void StartLegsAnim( sint anim ) = 0;
-    virtual void ContinueLegsAnim( sint anim ) = 0;
-    virtual void ContinueTorsoAnim( sint anim ) = 0;
-    virtual void ForceLegsAnim( sint anim ) = 0;
-    virtual void ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float32 overbounce ) = 0;
-    virtual void Friction( void ) = 0;
-    virtual void Accelerate( vec3_t wishdir, float32 wishspeed, float32 accel ) = 0;
-    virtual float32 CmdScale( usercmd_t* cmd ) = 0;
-    virtual void SetMovementDir( void ) = 0;
-    virtual void CheckCharge( void ) = 0;
-    virtual bool CheckPounce( void ) = 0;
-    virtual bool CheckWallJump( void ) = 0;
-    virtual bool CheckJump( void ) = 0;
-    virtual bool CheckWaterJump( void ) = 0;
-    virtual bool CheckDodge( void ) = 0;
-    virtual void WaterJumpMove( void ) = 0;
-    virtual void WaterMove( void ) = 0;
-    virtual void JetPackMove( void ) = 0;
-    virtual void FlyMove( void ) = 0;
-    virtual void AirMove( void ) = 0;
-    virtual void ClimbMove( void ) = 0;
-    virtual void WalkMove( void ) = 0;
-    virtual void LadderMove( void ) = 0;
-    virtual void CheckLadder( void ) = 0;
-    virtual void DeadMove( void ) = 0;
-    virtual void NoclipMove( void ) = 0;
-    virtual sint FootstepForSurface( void ) = 0;
-    virtual void CrashLand( void ) = 0;
-    virtual sint CorrectAllSolid( trace_t* trace ) = 0;
-    virtual void GroundTraceMissed( void ) = 0;
-    virtual void GroundClimbTrace( void ) = 0;
-    virtual void GroundTrace( void ) = 0;
-    virtual void SetWaterLevel( void ) = 0;
-    virtual void SetViewheight( void ) = 0;
-    virtual void CheckDuck( void ) = 0;
-    virtual void Footsteps( void ) = 0;
-    virtual void WaterEvents( void ) = 0;
-    virtual void BeginWeaponChange( sint weapon ) = 0;
-    virtual void FinishWeaponChange( void ) = 0;
-    virtual void TorsoAnimation( void ) = 0;
-    virtual void Weapon( void ) = 0;
-    virtual void Animate( void ) = 0;
-    virtual void DropTimers( void ) = 0;
-    virtual void UpdateViewAngles( playerState_t* ps, const usercmd_t* cmd ) = 0;
-    virtual void PmoveSingle( pmove_t* pmove ) = 0;
-    virtual void Pmove( pmove_t* pmove ) = 0;
-    virtual void VoiceParseError( fileHandle_t handle, valueType* err ) = 0;
-    virtual voice_t* VoiceList( void ) = 0;
-    virtual bool VoiceParseTrack( sint handle, voiceTrack_t* voiceTrack ) = 0;
-    virtual voiceTrack_t* VoiceParseCommand( sint handle ) = 0;
-    virtual voiceCmd_t* VoiceParse( valueType* name ) = 0;
-    virtual voice_t* VoiceInit( void ) = 0;
-    virtual void PrintVoices( voice_t* voices, sint debugLevel ) = 0;
-    virtual voice_t* VoiceByName( voice_t* head, valueType* name ) = 0;
-    virtual voiceCmd_t* VoiceCmdFind( voiceCmd_t* head, valueType* name, sint* cmdNum ) = 0;
-    virtual voiceCmd_t* VoiceCmdByNum( voiceCmd_t* head, sint num ) = 0;
-    virtual voiceTrack_t* VoiceTrackByNum( voiceTrack_t* head, sint num ) = 0;
-    virtual voiceTrack_t* VoiceTrackFind( voiceTrack_t* head, team_t team, class_t _class, weapon_t weapon, sint enthusiasm, sint* trackNum ) = 0;
-    virtual void* Alloc( size_t size ) = 0;
-    virtual void Free( void* ptr ) = 0;
-    virtual void InitMemory( void ) = 0;
-    virtual void DefragmentMemory( void ) = 0;
+    virtual const buildableAttributes_t *BuildableByName(pointer name) = 0;
+    virtual const buildableAttributes_t *BuildableByEntityName(
+        pointer name) = 0;
+    virtual const buildableAttributes_t *Buildable(buildable_t buildable) = 0;
+    virtual bool BuildableAllowedInStage(buildable_t buildable,
+                                         stage_t stage) = 0;
+    virtual buildableConfig_t *BuildableConfig(buildable_t buildable) = 0;
+    virtual void BuildableBoundingBox(buildable_t buildable, vec3_t mins,
+                                      vec3_t maxs) = 0;
+    virtual bool ParseBuildableFile(pointer filename,
+                                    buildableConfig_t *bc) = 0;
+    virtual void InitBuildableConfigs(void) = 0;
+    virtual const classAttributes_t *ClassByName(pointer name) = 0;
+    virtual const classAttributes_t *Class(class_t _class) = 0;
+    virtual bool ClassAllowedInStage(class_t _class, stage_t stage) = 0;
+    virtual classConfig_t *ClassConfig(class_t _class) = 0;
+    virtual void ClassBoundingBox(class_t _class, vec3_t mins, vec3_t maxs,
+                                  vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs) = 0;
+    virtual bool ClassHasAbility(class_t _class, sint ability) = 0;
+    virtual sint ClassCanEvolveFromTo(class_t fclass, class_t tclass,
+                                      sint credits, sint stage, sint cost) = 0;
+    virtual bool AlienCanEvolve(class_t pclass, sint credits, sint stage) = 0;
+    virtual bool ParseClassFile(pointer filename, classConfig_t *cc) = 0;
+    virtual void InitClassConfigs(void) = 0;
+    virtual const weaponAttributes_t *WeaponByName(pointer name) = 0;
+    virtual const weaponAttributes_t *Weapon(weapon_t weapon) = 0;
+    virtual bool WeaponAllowedInStage(weapon_t weapon, stage_t stage) = 0;
+    virtual const upgradeAttributes_t *UpgradeByName(pointer name) = 0;
+    virtual const upgradeAttributes_t *Upgrade(upgrade_t upgrade) = 0;
+    virtual bool UpgradeAllowedInStage(upgrade_t upgrade, stage_t stage) = 0;
+    virtual void EvaluateTrajectory(const trajectory_t *tr, sint atTime,
+                                    vec3_t result) = 0;
+    virtual void EvaluateTrajectoryDelta(const trajectory_t *tr, sint atTime,
+                                         vec3_t result) = 0;
+    virtual pointer EventName(sint num) = 0;
+    virtual void AddPredictableEventToPlayerstate(sint newEvent,
+            sint eventParm, playerState_t *ps) = 0;
+    virtual void PlayerStateToEntityState(playerState_t *ps, entityState_t *s,
+                                          bool snap) = 0;
+    virtual void PlayerStateToEntityStateExtraPolate(playerState_t *ps,
+            entityState_t *s, sint time, bool snap) = 0;
+    virtual bool WeaponIsFull(weapon_t weapon, sint stats[], sint ammo,
+                              sint clips) = 0;
+    virtual bool InventoryContainsWeapon(sint weapon, sint stats[]) = 0;
+    virtual sint CalculateSlotsForInventory(sint stats[]) = 0;
+    virtual void AddUpgradeToInventory(sint item, sint stats[]) = 0;
+    virtual void RemoveUpgradeFromInventory(sint item, sint stats[]) = 0;
+    virtual bool InventoryContainsUpgrade(sint item, sint stats[]) = 0;
+    virtual void ActivateUpgrade(sint item, sint stats[]) = 0;
+    virtual void DeactivateUpgrade(sint item, sint stats[]) = 0;
+    virtual bool UpgradeIsActive(sint item, sint stats[]) = 0;
+    virtual bool RotateAxis(vec3_t surfNormal, vec3_t inAxis[3],
+                            vec3_t outAxis[3], bool inverse, bool ceiling) = 0;
+    virtual void GetClientNormal(const playerState_t *ps, vec3_t normal) = 0;
+    virtual void PositionBuildableRelativeToPlayer(const playerState_t *ps,
+            const vec3_t mins, const vec3_t maxs, void(*trace)(trace_t *, const vec3_t,
+                    const vec3_t, const vec3_t, const vec3_t, sint, sint), vec3_t outOrigin,
+            vec3_t outAngles, trace_t *tr) = 0;
+    virtual sint GetValueOfPlayer(playerState_t *ps) = 0;
+    virtual sint PlayerPoisonCloudTime(playerState_t *ps) = 0;
+    virtual weapon_t GetPlayerWeapon(playerState_t *ps) = 0;
+    virtual bool PlayerCanChangeWeapon(playerState_t *ps) = 0;
+    virtual float32 atof_neg(valueType *token, bool allowNegative) = 0;
+    virtual sint atoi_neg(valueType *token, bool allowNegative) = 0;
+    virtual void ParseCSVEquipmentList(pointer string, weapon_t *weapons,
+                                       sint weaponsSize, upgrade_t *upgrades, sint upgradesSize) = 0;
+    virtual void ParseCSVClassList(pointer string, class_t *classes,
+                                   sint classesSize) = 0;
+    virtual void ParseCSVBuildableList(pointer string, buildable_t *buildables,
+                                       sint buildablesSize) = 0;
+    virtual void InitAllowedGameElements(void) = 0;
+    virtual bool WeaponIsAllowed(weapon_t weapon) = 0;
+    virtual bool UpgradeIsAllowed(upgrade_t upgrade) = 0;
+    virtual bool ClassIsAllowed(class_t _class) = 0;
+    virtual bool BuildableIsAllowed(buildable_t buildable) = 0;
+    virtual bool ClientListTest(clientList_t *list, sint clientNum) = 0;
+    virtual void ClientListAdd(clientList_t *list, sint clientNum) = 0;
+    virtual void ClientListRemove(clientList_t *list, sint clientNum) = 0;
+    virtual valueType *ClientListString(clientList_t *list) = 0;
+    virtual void ClientListParse(clientList_t *list, pointer s) = 0;
+    virtual weapon_t PrimaryWeapon(sint stats[]) = 0;
+    virtual sint LoadEmoticons(valueType names[][MAX_EMOTICON_NAME_LEN],
+                               sint widths[]) = 0;
+    virtual valueType *TeamName(team_t team) = 0;
+    virtual bool SlideMove(bool gravity) = 0;
+    virtual void StepEvent(vec3_t from, vec3_t to, vec3_t normal) = 0;
+    virtual bool StepSlideMove(bool gravity, bool predictive) = 0;
+    virtual bool PredictStepMove(void) = 0;
+    virtual void AddEvent(sint newEvent) = 0;
+    virtual void AddTouchEnt(sint entityNum) = 0;
+    virtual void StartTorsoAnim(sint anim) = 0;
+    virtual void StartLegsAnim(sint anim) = 0;
+    virtual void ContinueLegsAnim(sint anim) = 0;
+    virtual void ContinueTorsoAnim(sint anim) = 0;
+    virtual void ForceLegsAnim(sint anim) = 0;
+    virtual void ClipVelocity(vec3_t in, vec3_t normal, vec3_t out,
+                              float32 overbounce) = 0;
+    virtual void Friction(void) = 0;
+    virtual void Accelerate(vec3_t wishdir, float32 wishspeed,
+                            float32 accel) = 0;
+    virtual float32 CmdScale(usercmd_t *cmd) = 0;
+    virtual void SetMovementDir(void) = 0;
+    virtual void CheckCharge(void) = 0;
+    virtual bool CheckPounce(void) = 0;
+    virtual bool CheckWallJump(void) = 0;
+    virtual bool CheckJump(void) = 0;
+    virtual bool CheckWaterJump(void) = 0;
+    virtual bool CheckDodge(void) = 0;
+    virtual void WaterJumpMove(void) = 0;
+    virtual void WaterMove(void) = 0;
+    virtual void JetPackMove(void) = 0;
+    virtual void FlyMove(void) = 0;
+    virtual void AirMove(void) = 0;
+    virtual void ClimbMove(void) = 0;
+    virtual void WalkMove(void) = 0;
+    virtual void LadderMove(void) = 0;
+    virtual void CheckLadder(void) = 0;
+    virtual void DeadMove(void) = 0;
+    virtual void NoclipMove(void) = 0;
+    virtual sint FootstepForSurface(void) = 0;
+    virtual void CrashLand(void) = 0;
+    virtual sint CorrectAllSolid(trace_t *trace) = 0;
+    virtual void GroundTraceMissed(void) = 0;
+    virtual void GroundClimbTrace(void) = 0;
+    virtual void GroundTrace(void) = 0;
+    virtual void SetWaterLevel(void) = 0;
+    virtual void SetViewheight(void) = 0;
+    virtual void CheckDuck(void) = 0;
+    virtual void Footsteps(void) = 0;
+    virtual void WaterEvents(void) = 0;
+    virtual void BeginWeaponChange(sint weapon) = 0;
+    virtual void FinishWeaponChange(void) = 0;
+    virtual void TorsoAnimation(void) = 0;
+    virtual void Weapon(void) = 0;
+    virtual void Animate(void) = 0;
+    virtual void DropTimers(void) = 0;
+    virtual void UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd) = 0;
+    virtual void PmoveSingle(pmove_t *pmove) = 0;
+    virtual void Pmove(pmove_t *pmove) = 0;
+    virtual void VoiceParseError(fileHandle_t handle, valueType *err) = 0;
+    virtual voice_t *VoiceList(void) = 0;
+    virtual bool VoiceParseTrack(sint handle, voiceTrack_t *voiceTrack) = 0;
+    virtual voiceTrack_t *VoiceParseCommand(sint handle) = 0;
+    virtual voiceCmd_t *VoiceParse(valueType *name) = 0;
+    virtual voice_t *VoiceInit(void) = 0;
+    virtual void PrintVoices(voice_t *voices, sint debugLevel) = 0;
+    virtual voice_t *VoiceByName(voice_t *head, valueType *name) = 0;
+    virtual voiceCmd_t *VoiceCmdFind(voiceCmd_t *head, valueType *name,
+                                     sint *cmdNum) = 0;
+    virtual voiceCmd_t *VoiceCmdByNum(voiceCmd_t *head, sint num) = 0;
+    virtual voiceTrack_t *VoiceTrackByNum(voiceTrack_t *head, sint num) = 0;
+    virtual voiceTrack_t *VoiceTrackFind(voiceTrack_t *head, team_t team,
+                                         class_t _class, weapon_t weapon, sint enthusiasm, sint *trackNum) = 0;
+    virtual void *Alloc(size_t size) = 0;
+    virtual void Free(void *ptr) = 0;
+    virtual void InitMemory(void) = 0;
+    virtual void DefragmentMemory(void) = 0;
 };
 
-extern bgGame* bggame;
+extern bgGame *bggame;
 
 #endif //!__BG_API_H__

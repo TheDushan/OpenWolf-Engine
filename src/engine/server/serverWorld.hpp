@@ -48,12 +48,11 @@ them, which prevents having to deal with multiple fragments of a single entity.
 ===============================================================================
 */
 
-typedef struct worldSector_s
-{
-    sint	axis; // -1 = leaf node
-    float32	dist;
-    struct worldSector_s* children[2];
-    svEntity_t*	entities;
+typedef struct worldSector_s {
+    sint    axis; // -1 = leaf node
+    float32 dist;
+    struct worldSector_s *children[2];
+    svEntity_t *entities;
 } worldSector_t;
 
 #define AREA_DEPTH 4
@@ -73,20 +72,18 @@ bounds.  This does NOT mean that they actually touch in the case of bmodels.
 ============================================================================
 */
 
-typedef struct
-{
-    const float32* mins;
-    const float32* maxs;
-    sint* list;
+typedef struct {
+    const float32 *mins;
+    const float32 *maxs;
+    sint *list;
     sint count, maxcount;
 } areaParms_t;
 
-typedef struct
-{
+typedef struct {
     vec3_t boxmins, boxmaxs; // enclose the test object along entire move
-    const float32* mins;
-    const float32* maxs; // size of the moving object
-    const float32* start;
+    const float32 *mins;
+    const float32 *maxs; // size of the moving object
+    const float32 *start;
     vec3_t end;
     trace_t trace;
     sint passEntityNum;
@@ -100,31 +97,36 @@ typedef struct
 //
 // idServerWorldSystemLocal
 //
-class idServerWorldSystemLocal : public idServerWorldSystem
-{
+class idServerWorldSystemLocal : public idServerWorldSystem {
 public:
     // called after the world model has been loaded, before linking any entities
-    virtual void UnlinkEntity( sharedEntity_t* gEnt );
-    virtual void LinkEntity( sharedEntity_t* gEnt );
-    virtual sint AreaEntities( const vec3_t mins, const vec3_t maxs, sint* entityList, sint maxcount );
-    virtual sint PointContents( const vec3_t p, sint passEntityNum );
-    virtual void Trace( trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, sint passEntityNum, sint contentmask, traceType_t type );
+    virtual void UnlinkEntity(sharedEntity_t *gEnt);
+    virtual void LinkEntity(sharedEntity_t *gEnt);
+    virtual sint AreaEntities(const vec3_t mins, const vec3_t maxs,
+                              sint *entityList, sint maxcount);
+    virtual sint PointContents(const vec3_t p, sint passEntityNum);
+    virtual void Trace(trace_t *results, const vec3_t start, const vec3_t mins,
+                       const vec3_t maxs, const vec3_t end, sint passEntityNum, sint contentmask,
+                       traceType_t type);
 public:
     idServerWorldSystemLocal();
     ~idServerWorldSystemLocal();
-    
+
     // Needs to be called any time an entity changes origin, mins, maxs,
     // or solid.  Automatically unlinks if needed.
     // sets ent->v.absmin and ent->v.absmax
     // sets ent->leafnums[] for pvs determination even if the entity
     // is not solid
-    static clipHandle_t ClipHandleForEntity( const sharedEntity_t* ent );
-    static void SectorList_f( void );
-    static worldSector_t* CreateworldSector( sint depth, vec3_t mins, vec3_t maxs );
-    static void ClearWorld( void );
-    static void AreaEntities_r( worldSector_t* node, areaParms_t* ap );
-    static void ClipToEntity( trace_t* trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, sint entityNum, sint contentmask, traceType_t type );
-    static void ClipMoveToEntities( moveclip_t* clip );
+    static clipHandle_t ClipHandleForEntity(const sharedEntity_t *ent);
+    static void SectorList_f(void);
+    static worldSector_t *CreateworldSector(sint depth, vec3_t mins,
+                                            vec3_t maxs);
+    static void ClearWorld(void);
+    static void AreaEntities_r(worldSector_t *node, areaParms_t *ap);
+    static void ClipToEntity(trace_t *trace, const vec3_t start,
+                             const vec3_t mins, const vec3_t maxs, const vec3_t end, sint entityNum,
+                             sint contentmask, traceType_t type);
+    static void ClipMoveToEntities(moveclip_t *clip);
 };
 
 extern idServerWorldSystemLocal serverWorldSystemLocal;

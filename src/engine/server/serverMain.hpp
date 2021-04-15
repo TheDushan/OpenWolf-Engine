@@ -49,43 +49,42 @@ static sint lastTimeResolve[MAX_MASTER_SERVERS];
 //
 // idServerGameSystemLocal
 //
-class idServerMainSystemLocal : public idServerMainSystem
-{
+class idServerMainSystemLocal : public idServerMainSystem {
 public:
-    virtual void AddServerCommand( client_t* client, pointer cmd );
-    virtual void SendServerCommand( client_t* cl, pointer fmt, ... );
-    virtual void MasterShutdown( void );
-    virtual void MasterGameCompleteStatus( void );
-    virtual void MasterGameStat( pointer data );
-    virtual void PacketEvent( netadr_t from, msg_t* msg );
-    virtual void Frame( sint msec );
-    virtual sint LoadTag( pointer mod_name );
-    virtual sint RateMsec( client_t* client );
-    virtual sint SendQueuedPackets( void );
-    
+    virtual void AddServerCommand(client_t *client, pointer cmd);
+    virtual void SendServerCommand(client_t *cl, pointer fmt, ...);
+    virtual void MasterShutdown(void);
+    virtual void MasterGameCompleteStatus(void);
+    virtual void MasterGameStat(pointer data);
+    virtual void PacketEvent(netadr_t from, msg_t *msg);
+    virtual void Frame(sint msec);
+    virtual sint LoadTag(pointer mod_name);
+    virtual sint RateMsec(client_t *client);
+    virtual sint SendQueuedPackets(void);
+
 public:
 
     idServerMainSystemLocal();
     ~idServerMainSystemLocal();
-    
-    static void IntegerOverflowShutDown( valueType* msg );
-    static valueType* ExpandNewlines( valueType* in );
-    static void MasterHeartbeat( pointer hbname );
-    static bool VerifyChallenge( valueType* challenge );
-    static void Status( netadr_t from );
-    static void GameCompleteStatus( netadr_t from );
-    static void Info( netadr_t from );
-    static bool CheckDRDoS( netadr_t from );
-    static void RemoteCommand( netadr_t from, msg_t* msg );
-    static void ConnectionlessPacket( netadr_t from, msg_t* msg );
-    static void CalcPings( void );
-    static void CheckTimeouts( void );
-    static bool CheckPaused( void );
-    static void GetUpdateInfo( netadr_t from );
-    static void CheckCvars( void );
-    
-    static void FlushRedirect( valueType* outputbuf );
-    
+
+    static void IntegerOverflowShutDown(valueType *msg);
+    static valueType *ExpandNewlines(valueType *in);
+    static void MasterHeartbeat(pointer hbname);
+    static bool VerifyChallenge(valueType *challenge);
+    static void Status(netadr_t from);
+    static void GameCompleteStatus(netadr_t from);
+    static void Info(netadr_t from);
+    static bool CheckDRDoS(netadr_t from);
+    static void RemoteCommand(netadr_t from, msg_t *msg);
+    static void ConnectionlessPacket(netadr_t from, msg_t *msg);
+    static void CalcPings(void);
+    static void CheckTimeouts(void);
+    static bool CheckPaused(void);
+    static void GetUpdateInfo(netadr_t from);
+    static void CheckCvars(void);
+
+    static void FlushRedirect(valueType *outputbuf);
+
 private:
     static const sint IPUDP_HEADER_SIZE = 28;
     static const sint IP6UDP_HEADER_SIZE = 48;

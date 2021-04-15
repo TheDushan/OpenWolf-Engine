@@ -41,86 +41,70 @@
 #include <null/null_serverprecompiled.hpp>
 #endif
 
-convar_t*         cl_shownet;
+convar_t         *cl_shownet;
 
 // TTimo: win32 dedicated
-convar_t*         cl_language;
+convar_t         *cl_language;
 
-void CL_Shutdown( void )
-{
+void CL_Shutdown(void) {
 }
 
-void CL_Init( void )
-{
-    cl_shownet = cvarSystem->Get( "cl_shownet", "0", CVAR_TEMP, "Display network quality info" );
+void CL_Init(void) {
+    cl_shownet = cvarSystem->Get("cl_shownet", "0", CVAR_TEMP,
+                                 "Display network quality info");
     // TTimo: localisation, prolly not any use in dedicated / null client
-    cl_language = cvarSystem->Get( "cl_language", "0", CVAR_ARCHIVE, "Stores the language of user's game. English is 0" );
+    cl_language = cvarSystem->Get("cl_language", "0", CVAR_ARCHIVE,
+                                  "Stores the language of user's game. English is 0");
 }
 
-void CL_MouseEvent( sint dx, sint dy, sint time )
-{
+void CL_MouseEvent(sint dx, sint dy, sint time) {
 }
 
-void Key_WriteBindings( fileHandle_t f )
-{
+void Key_WriteBindings(fileHandle_t f) {
 }
 
-void CL_Frame( sint msec )
-{
+void CL_Frame(sint msec) {
 }
 
-void CL_PacketEvent( netadr_t from, msg_t* msg )
-{
+void CL_PacketEvent(netadr_t from, msg_t *msg) {
 }
 
-void CL_CharEvent( sint key )
-{
+void CL_CharEvent(sint key) {
 }
 
-void CL_MapLoading( void )
-{
+void CL_MapLoading(void) {
 }
 
-void CL_KeyEvent( sint key, sint down, sint time )
-{
+void CL_KeyEvent(sint key, sint down, sint time) {
 }
 
-void CL_ForwardCommandToServer( pointer string )
-{
+void CL_ForwardCommandToServer(pointer string) {
 }
 
-void CL_ConsolePrint( valueType* txt )
-{
+void CL_ConsolePrint(valueType *txt) {
 }
 
-void CL_JoystickEvent( sint axis, sint value, sint time )
-{
+void CL_JoystickEvent(sint axis, sint value, sint time) {
 }
 
-void CL_InitKeyCommands( void )
-{
+void CL_InitKeyCommands(void) {
 }
 
-void CL_CDDialog( void )
-{
+void CL_CDDialog(void) {
 }
 
-void CL_FlushMemory( void )
-{
+void CL_FlushMemory(void) {
 }
 
-void CL_StartHunkUsers( void )
-{
+void CL_StartHunkUsers(void) {
 }
 
 // bk001119 - added new dummy for sv_init.c
-void CL_ShutdownAll( void )
-{
+void CL_ShutdownAll(void) {
 };
 
 // TTimo added for win32 dedicated
-void Key_ClearStates( void )
-{
+void Key_ClearStates(void) {
 }
 
 /*
@@ -128,8 +112,7 @@ void Key_ClearStates( void )
 idSystemLocal::Init
 ===============
 */
-void idSystemLocal::Init( void* windowData )
-{
+void idSystemLocal::Init(void *windowData) {
 }
 
 /*
@@ -137,8 +120,7 @@ void idSystemLocal::Init( void* windowData )
 idSystemLocal::Shutdown
 ===============
 */
-void idSystemLocal::Shutdown( void )
-{
+void idSystemLocal::Shutdown(void) {
 }
 
 /*
@@ -146,8 +128,7 @@ void idSystemLocal::Shutdown( void )
 idSystemLocal::Restart
 ===============
 */
-void idSystemLocal::Restart( void )
-{
+void idSystemLocal::Restart(void) {
 }
 
 /*
@@ -155,6 +136,5 @@ void idSystemLocal::Restart( void )
 idSystemLocal::Frame
 ===============
 */
-void idSystemLocal::Frame( void )
-{
+void idSystemLocal::Frame(void) {
 }

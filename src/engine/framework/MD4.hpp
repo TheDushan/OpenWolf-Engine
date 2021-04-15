@@ -41,13 +41,12 @@
 //
 // idServerBotSystemLocal
 //
-class idMD4SystemLocal : public idMD4System
-{
+class idMD4SystemLocal : public idMD4System {
 public:
     idMD4SystemLocal();
     ~idMD4SystemLocal();
-    
-    virtual uint BlockChecksum( const void* buffer, sint length );
+
+    virtual uint BlockChecksum(const void *buffer, sint length);
 };
 
 extern idMD4SystemLocal MD4Local;

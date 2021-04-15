@@ -40,13 +40,12 @@
 //
 // idConsolLoggingSystem
 //
-class idConsoleLoggingSystem
-{
+class idConsoleLoggingSystem {
 public:
-    virtual uint64 LogWrite( pointer in ) = 0;
-    virtual uint64 LogRead( valueType* out, uint64 outSize ) = 0;
+    virtual uint64 LogWrite(pointer in) = 0;
+    virtual uint64 LogRead(valueType *out, uint64 outSize) = 0;
 };
 
-extern idConsoleLoggingSystem* consoleLoggingSystem;
+extern idConsoleLoggingSystem *consoleLoggingSystem;
 
 #endif //!__CONSOLE_LOGGING_H_API__

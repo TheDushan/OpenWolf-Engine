@@ -40,12 +40,11 @@
 //
 // idCVarSystem
 //
-class idCmdDelaySystem
-{
+class idCmdDelaySystem {
 public:
-    virtual void Frame( void ) = 0;
+    virtual void Frame(void) = 0;
 };
 
-extern idCmdDelaySystem* cmdDelaySystem;
+extern idCmdDelaySystem *cmdDelaySystem;
 
 #endif // !__CMDDELAYSYSTEM_API_H__

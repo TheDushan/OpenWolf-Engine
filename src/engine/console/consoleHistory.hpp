@@ -50,17 +50,16 @@ static sint hist_current = -1, hist_next = 0;
 //
 // idConsoleHistoryLocal
 //
-class idConsoleHistoryLocal : public idConsoleHistorySystem
-{
+class idConsoleHistoryLocal : public idConsoleHistorySystem {
 public:
     idConsoleHistoryLocal();
     ~idConsoleHistoryLocal();
-    
-    virtual void Load( void );
-    virtual void Save( void );
-    virtual void Add( pointer field );
-    virtual pointer Prev( void );
-    virtual pointer Next( pointer field );
+
+    virtual void Load(void);
+    virtual void Save(void);
+    virtual void Add(pointer field);
+    virtual pointer Prev(void);
+    virtual pointer Next(pointer field);
 };
 
 extern idConsoleHistoryLocal consoleHistoryLocal;

@@ -43,22 +43,23 @@ static sint entLastVisible[MAX_CLIENTS];
 //
 // idClientParseSystemLocal
 //
-class idClientParseSystemLocal
-{
+class idClientParseSystemLocal {
 public:
     idClientParseSystemLocal();
     ~idClientParseSystemLocal();
-    
-    static void ParseServerMessage( msg_t* msg );
-    static void ShowNet( const msg_t* msg, pointer s );
-    static bool isEntVisible( entityState_t* ent );
-    static void DeltaEntity( msg_t* msg, clSnapshot_t* frame, sint newnum, entityState_t* old, bool unchanged );
-    static void ParsePacketEntities( msg_t* msg, clSnapshot_t* oldframe, clSnapshot_t* newframe );
-    static void ParseSnapshot( msg_t* msg );
-    static void SystemInfoChanged( void );
-    static void ParseGamestate( msg_t* msg );
-    static void ParseDownload( msg_t* msg );
-    static void ParseCommandString( msg_t* msg );
+
+    static void ParseServerMessage(msg_t *msg);
+    static void ShowNet(const msg_t *msg, pointer s);
+    static bool isEntVisible(entityState_t *ent);
+    static void DeltaEntity(msg_t *msg, clSnapshot_t *frame, sint newnum,
+                            entityState_t *old, bool unchanged);
+    static void ParsePacketEntities(msg_t *msg, clSnapshot_t *oldframe,
+                                    clSnapshot_t *newframe);
+    static void ParseSnapshot(msg_t *msg);
+    static void SystemInfoChanged(void);
+    static void ParseGamestate(msg_t *msg);
+    static void ParseDownload(msg_t *msg);
+    static void ParseCommandString(msg_t *msg);
 };
 
 extern idClientParseSystemLocal clientParseSystemLocal;

@@ -40,17 +40,18 @@
 Com_CreateHashTable
 ===============
 */
-hash_table_t* Com_CreateHashTable( uint( *hash_f )( void* k ), sint( *compare )( const void* a, const void* b ), void ( *destroy_key )( void* a ), void ( *destroy_data )( void* a ), sint initial_size )
-{
-    hash_table_t* hash_table;
-    
-    if( ( hash_table = ( hash_table_t* )malloc( sizeof( hash_table_t ) ) ) == nullptr )
-    {
+hash_table_t *Com_CreateHashTable(uint(*hash_f)(void *k),
+                                  sint(*compare)(const void *a, const void *b), void (*destroy_key)(void *a),
+                                  void (*destroy_data)(void *a), sint initial_size) {
+    hash_table_t *hash_table;
+
+    if((hash_table = (hash_table_t *)malloc(sizeof(hash_table_t))) ==
+            nullptr) {
         return nullptr;
     }
-    
-    ::memset( hash_table, 0, sizeof( hash_table ) );
-    
+
+    ::memset(hash_table, 0, sizeof(hash_table));
+
     hash_table->max_colitions = 0;
     hash_table->size = initial_size;
     hash_table->used = 0;
@@ -58,11 +59,12 @@ hash_table_t* Com_CreateHashTable( uint( *hash_f )( void* k ), sint( *compare )(
     hash_table->compare = compare;
     hash_table->destroy_key = destroy_key;
     hash_table->destroy_data = destroy_data;
-    
-    hash_table->table = ( hash_data_t* )malloc( sizeof( hash_data_t ) * initial_size );
-    
-    ::memset( hash_table->table, 0, sizeof( hash_data_t )*initial_size );
-    
+
+    hash_table->table = (hash_data_t *)malloc(sizeof(hash_data_t) *
+                        initial_size);
+
+    ::memset(hash_table->table, 0, sizeof(hash_data_t)*initial_size);
+
     return hash_table;
 }
 
@@ -71,31 +73,31 @@ hash_table_t* Com_CreateHashTable( uint( *hash_f )( void* k ), sint( *compare )(
 Com_InsertIntoHash
 ===============
 */
-hash_node_t* Com_InsertIntoHash( hash_table_t* table, void* key, void* data )
-{
+hash_node_t *Com_InsertIntoHash(hash_table_t *table, void *key,
+                                void *data) {
     unsigned int num_key;
-    hash_node_t* node;
-    
-    num_key = table->hash_f( key ) % table->size;
-    
-    if( Com_FindHashNode( table, key ) != nullptr )
-    {
+    hash_node_t *node;
+
+    num_key = table->hash_f(key) % table->size;
+
+    if(Com_FindHashNode(table, key) != nullptr) {
         return nullptr;
     }
-    
-    node = ( hash_node_t* )malloc( sizeof( hash_node_t ) );
-    
-    
+
+    node = (hash_node_t *)malloc(sizeof(hash_node_t));
+
+
     node->key = key;
     node->next = table->table[num_key].list;
     node->data = data;
-    
+
     table->table[num_key].list = node;
     table->table[num_key].count++;
-    
-    if( table->max_colitions < table->table[num_key].count )
+
+    if(table->max_colitions < table->table[num_key].count) {
         table->max_colitions = table->table[num_key].count;
-        
+    }
+
     return node;
 }
 
@@ -104,15 +106,15 @@ hash_node_t* Com_InsertIntoHash( hash_table_t* table, void* key, void* data )
 Com_FindHashData
 ===============
 */
-void* Com_FindHashData( hash_table_t* table, void* key )
-{
-    hash_node_t* node;
-    
-    node = Com_FindHashNode( table, key );
-    
-    if( node == nullptr )
+void *Com_FindHashData(hash_table_t *table, void *key) {
+    hash_node_t *node;
+
+    node = Com_FindHashNode(table, key);
+
+    if(node == nullptr) {
         return nullptr;
-        
+    }
+
     return node->data;
 }
 
@@ -121,22 +123,21 @@ void* Com_FindHashData( hash_table_t* table, void* key )
 Com_FindHashNode
 ===============
 */
-hash_node_t* Com_FindHashNode( hash_table_t* table, void* key )
-{
+hash_node_t *Com_FindHashNode(hash_table_t *table, void *key) {
     unsigned int num_key;
-    hash_node_t* node;
-    
-    if( table == nullptr )
-    {
+    hash_node_t *node;
+
+    if(table == nullptr) {
         return nullptr;
     }
-    num_key = table->hash_f( key ) % table->size;
-    
-    
-    for( node = table->table[num_key].list;
-            node != nullptr && table->compare( node->key, key ) != 0;
-            node = node->next );
-            
+
+    num_key = table->hash_f(key) % table->size;
+
+
+    for(node = table->table[num_key].list;
+            node != nullptr && table->compare(node->key, key) != 0;
+            node = node->next);
+
     return node;
 }
 
@@ -145,38 +146,36 @@ hash_node_t* Com_FindHashNode( hash_table_t* table, void* key )
 Com_RebuildHash
 ===============
 */
-void Com_RebuildHash( hash_table_t* table, sint new_size )
-{
-    hash_data_t* new_table;
-    hash_node_t* node;
-    hash_node_t* node_next;
-    hash_data_t* old_table;
+void Com_RebuildHash(hash_table_t *table, sint new_size) {
+    hash_data_t *new_table;
+    hash_node_t *node;
+    hash_node_t *node_next;
+    hash_data_t *old_table;
     int old_size;
     int i;
-    
-    new_table = ( hash_data_t* )malloc( sizeof( hash_data_t ) * new_size );
-    
-    memset( new_table, 0, sizeof( hash_data_t ) * new_size );
-    
+
+    new_table = (hash_data_t *)malloc(sizeof(hash_data_t) * new_size);
+
+    memset(new_table, 0, sizeof(hash_data_t) * new_size);
+
     old_table = table->table;
     old_size = table->size;
     table->table = new_table;
     table->size = new_size;
     table->max_colitions = 0;
-    
-    for( i = 0; i < old_size; i++ )
-    {
+
+    for(i = 0; i < old_size; i++) {
         node = old_table[i].list;
-        while( node != nullptr )
-        {
-            Com_InsertIntoHash( table, node->key, node->data );
+
+        while(node != nullptr) {
+            Com_InsertIntoHash(table, node->key, node->data);
             node_next = node->next;
-            free( node );
+            free(node);
             node = node_next;
         }
     }
-    
-    free( old_table );
+
+    free(old_table);
 }
 
 /*
@@ -184,34 +183,28 @@ void Com_RebuildHash( hash_table_t* table, sint new_size )
 Com_DeleteFromHash
 ===============
 */
-void Com_DeleteFromHash( hash_table_t* table, void* key )
-{
+void Com_DeleteFromHash(hash_table_t *table, void *key) {
     unsigned int num_key;
-    hash_node_t* node;
-    hash_node_t* prev_node;
-    
-    num_key = table->hash_f( key ) % table->size;
-    
-    for( prev_node = node = table->table[num_key].list;
-            node != nullptr && table->compare( node->key, key ) != 0;
-            prev_node = node, node = node->next );
-            
-    if( node == nullptr )
-    {
+    hash_node_t *node;
+    hash_node_t *prev_node;
+
+    num_key = table->hash_f(key) % table->size;
+
+    for(prev_node = node = table->table[num_key].list;
+            node != nullptr && table->compare(node->key, key) != 0;
+            prev_node = node, node = node->next);
+
+    if(node == nullptr) {
         return;
-    }
-    else if( prev_node == node )
-    {
+    } else if(prev_node == node) {
         table->table[num_key].list = node->next;
-    }
-    else
-    {
+    } else {
         prev_node->next = node->next;
     }
-    
-    table->destroy_key( node->key );
-    table->destroy_data( node->data );
-    free( node );
+
+    table->destroy_key(node->key);
+    table->destroy_data(node->data);
+    free(node);
 }
 
 /*
@@ -219,28 +212,25 @@ void Com_DeleteFromHash( hash_table_t* table, void* key )
 Com_DestroyHash
 ===============
 */
-void Com_DestroyHash( hash_table_t* table )
-{
-    hash_node_t* node;
-    hash_node_t* next_node;
+void Com_DestroyHash(hash_table_t *table) {
+    hash_node_t *node;
+    hash_node_t *next_node;
     sint i;
-    
-    for( i = 0; i < table->size; i++ )
-    {
+
+    for(i = 0; i < table->size; i++) {
         node = table->table[i].list;
-        
-        while( node != nullptr )
-        {
+
+        while(node != nullptr) {
             next_node = node->next;
-            table->destroy_key( node->key );
-            table->destroy_data( node->data );
-            free( node );
+            table->destroy_key(node->key);
+            table->destroy_data(node->data);
+            free(node);
             node = next_node;
         }
     }
-    
-    free( table->table );
-    free( table );
+
+    free(table->table);
+    free(table);
 }
 
 /*
@@ -248,26 +238,25 @@ void Com_DestroyHash( hash_table_t* table )
 Com_JenkinsHashKey
 ===============
 */
-uint Com_JenkinsHashKey( void* vkey )
-{
+uint Com_JenkinsHashKey(void *vkey) {
     uint hash = 0;
     uint64 i;
-    uchar8* key;
+    uchar8 *key;
     sint key_len;
-    
-    key = static_cast< uchar8*>( vkey );
-    
-    key_len = ::strlen( reinterpret_cast< pointer >( key ) );
-    
-    for( i = 0; i < key_len; i++ )
-    {
+
+    key = static_cast< uchar8 *>(vkey);
+
+    key_len = ::strlen(reinterpret_cast< pointer >(key));
+
+    for(i = 0; i < key_len; i++) {
         hash += key[i];
-        hash += ( hash << 10 );
-        hash ^= ( hash >> 6 );
+        hash += (hash << 10);
+        hash ^= (hash >> 6);
     }
-    hash += ( hash << 3 );
-    hash ^= ( hash >> 11 );
-    hash += ( hash << 15 );
+
+    hash += (hash << 3);
+    hash ^= (hash >> 11);
+    hash += (hash << 15);
     return hash;
 }
 
@@ -276,23 +265,23 @@ uint Com_JenkinsHashKey( void* vkey )
 hashcode
 ===============
 */
-unsigned int hashcode( void* st )
-{
-    valueType* p;
-    valueType* s;
-    
-    s = static_cast<valueType*>( st );
+unsigned int hashcode(void *st) {
+    valueType *p;
+    valueType *s;
+
+    s = static_cast<valueType *>(st);
     uint h = 0, g = 0;
-    for( p = s; *p != '\0'; p = p + 1 )
-    {
-        h = ( h << 4 ) + ( *p );
+
+    for(p = s; *p != '\0'; p = p + 1) {
+        h = (h << 4) + (*p);
         g = h & 0xf0000000;
-        if( g )
-        {
-            h = h ^ ( g >> 24 );
+
+        if(g) {
+            h = h ^ (g >> 24);
             h = h ^ g;
         }
     }
+
     return h;
 }
 
@@ -301,15 +290,19 @@ unsigned int hashcode( void* st )
 Com_
 ===============
 */
-sint Com_StrCmp( const void* a1, const void* a2 )
-{
-    valueType* s1, *s2;
-    s1 = ( const_cast<valueType*>( reinterpret_cast<const valueType*>( a1 ) ) );
-    s2 = ( const_cast<valueType*>( reinterpret_cast<const valueType*>( a2 ) ) );
-    
-    if( strcmp( s1, s2 ) < 0 ) return -1;
-    if( strcmp( s1, s2 ) == 0 ) return 0;
-    
+sint Com_StrCmp(const void *a1, const void *a2) {
+    valueType *s1, *s2;
+    s1 = (const_cast<valueType *>(reinterpret_cast<const valueType *>(a1)));
+    s2 = (const_cast<valueType *>(reinterpret_cast<const valueType *>(a2)));
+
+    if(strcmp(s1, s2) < 0) {
+        return -1;
+    }
+
+    if(strcmp(s1, s2) == 0) {
+        return 0;
+    }
+
     return 1;
 }
 
@@ -318,8 +311,7 @@ sint Com_StrCmp( const void* a1, const void* a2 )
 nullcmp
 ===============
 */
-sint nullcmp( const void* a, const void* b )
-{
+sint nullcmp(const void *a, const void *b) {
     return 0;
 }
 
@@ -328,8 +320,7 @@ sint nullcmp( const void* a, const void* b )
 nulldes
 ===============
 */
-void nulldes( void* a )
-{
+void nulldes(void *a) {
     ;
 }
 
@@ -338,9 +329,8 @@ void nulldes( void* a )
 Com_DestroyStringKey
 ===============
 */
-void Com_DestroyStringKey( void* s )
-{
-    free( static_cast< valueType*>( s ) );
+void Com_DestroyStringKey(void *s) {
+    free(static_cast< valueType *>(s));
 }
 
 /*
@@ -348,11 +338,10 @@ void Com_DestroyStringKey( void* s )
 Com_CreateHashIterator
 ===============
 */
-hash_table_iterator_t* Com_CreateHashIterator( hash_table_t* table )
-{
-    hash_table_iterator_t* iter;
-    iter = ( hash_table_iterator_t* )::malloc( sizeof( hash_table_iterator_t ) );
-    memset( iter, 0, sizeof( hash_table_iterator_t ) );
+hash_table_iterator_t *Com_CreateHashIterator(hash_table_t *table) {
+    hash_table_iterator_t *iter;
+    iter = (hash_table_iterator_t *)::malloc(sizeof(hash_table_iterator_t));
+    memset(iter, 0, sizeof(hash_table_iterator_t));
     iter->table = table;
     iter->node = nullptr;
     iter->index = -1;
@@ -364,37 +353,34 @@ hash_table_iterator_t* Com_CreateHashIterator( hash_table_t* table )
 Com_HashIterationData
 ===============
 */
-void* Com_HashIterationData( hash_table_iterator_t* iter )
-{
-    void* data;
-    
+void *Com_HashIterationData(hash_table_iterator_t *iter) {
+    void *data;
+
     // start point
-    if( iter->index == -1 )
-    {
+    if(iter->index == -1) {
         iter->index = 0;
         iter->node = nullptr;
     }
-    
+
     // If there are not more nodes in the table position goes for the next one
-    if( iter->node == nullptr )
-    {
+    if(iter->node == nullptr) {
         iter->index++;
-        for( ;   iter->index < iter->table->size &&
+
+        for(;   iter->index < iter->table->size &&
                 iter->table->table[iter->index].list == nullptr;
-                iter->index++ );
-                
+                iter->index++);
+
         // End of table
-        if( iter->table->size <= iter->index )
-        {
+        if(iter->table->size <= iter->index) {
             iter->index = -1;
             return nullptr;
         }
-        
+
         iter->node = iter->table->table[iter->index].list;
     }
-    
+
     data = iter->node->data;
     iter->node = iter->node->next;
-    
+
     return data;
 }

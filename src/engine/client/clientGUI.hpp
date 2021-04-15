@@ -41,28 +41,27 @@
 //
 // idClientGUISystemLocal
 //
-class idClientGUISystemLocal : public idClientGUISystem
-{
+class idClientGUISystemLocal : public idClientGUISystem {
 public:
     idClientGUISystemLocal();
     ~idClientGUISystemLocal();
-    
-    virtual void GetClientState( uiClientState_t* state );
-    virtual void GetGlconfig( vidconfig_t* config );
-    virtual void GUIGetClipboardData( valueType* buf, uint64 buflen );
-    virtual bool GetConfigString( sint index, valueType* buf, uint64 size );
-    virtual bool GetNews( bool begin );
-    virtual void KeynumToStringBuf( sint keynum, valueType* buf, uint64 buflen );
-    virtual void GetBindingBuf( sint keynum, valueType* buf, uint64 buflen );
-    virtual sint GetCatcher( void );
-    virtual void SetCatcher( sint catcher );
-    virtual bool checkKeyExec( sint key );
-    virtual bool GameCommand( void );
-    virtual void InitGUI( void );
-    virtual void ShutdownGUI( void );
-    
-    static void CreateExportTable( void );
-    static bool SpawnRenderThread( void ( *function )( void ) );
+
+    virtual void GetClientState(uiClientState_t *state);
+    virtual void GetGlconfig(vidconfig_t *config);
+    virtual void GUIGetClipboardData(valueType *buf, uint64 buflen);
+    virtual bool GetConfigString(sint index, valueType *buf, uint64 size);
+    virtual bool GetNews(bool begin);
+    virtual void KeynumToStringBuf(sint keynum, valueType *buf, uint64 buflen);
+    virtual void GetBindingBuf(sint keynum, valueType *buf, uint64 buflen);
+    virtual sint GetCatcher(void);
+    virtual void SetCatcher(sint catcher);
+    virtual bool checkKeyExec(sint key);
+    virtual bool GameCommand(void);
+    virtual void InitGUI(void);
+    virtual void ShutdownGUI(void);
+
+    static void CreateExportTable(void);
+    static bool SpawnRenderThread(void (*function)(void));
 };
 
 extern idClientGUISystemLocal clientGUILocal;

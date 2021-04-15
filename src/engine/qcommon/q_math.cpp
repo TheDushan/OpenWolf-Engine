@@ -298,12 +298,12 @@ sint DirToByte( vec3_t dir )
 {
     sint             i, best;
     float32           d, bestd;
-    
+
     if( !dir )
     {
         return 0;
     }
-    
+
     bestd = 0;
     best = 0;
     for( i = 0; i < NUMVERTEXNORMALS; i++ )
@@ -315,7 +315,7 @@ sint DirToByte( vec3_t dir )
             best = i;
         }
     }
-    
+
     return best;
 }
 
@@ -332,19 +332,19 @@ void ByteToDir( sint b, vec3_t dir )
 uint ColorBytes4( float32 r, float32 g, float32 b, float32 a )
 {
     uint        i;
-    
+
     ( reinterpret_cast<uchar8*>( & i ) )[0] = static_cast<uchar8>( r * 255 );
     ( reinterpret_cast<uchar8*>( & i ) )[1] = static_cast<uchar8>( g * 255 );
     ( reinterpret_cast<uchar8*>( & i ) )[2] = static_cast<uchar8>( b * 255 );
     ( reinterpret_cast<uchar8*>( & i ) )[3] = static_cast<uchar8>( a * 255 );
-    
+
     return i;
 }
 
 float32 NormalizeColor( const vec3_t in, vec3_t out )
 {
     float32           max;
-    
+
     max = in[0];
     if( in[1] > max )
     {
@@ -354,7 +354,7 @@ float32 NormalizeColor( const vec3_t in, vec3_t out )
     {
         max = in[2];
     }
-    
+
     if( !max )
     {
         VectorClear( out );
@@ -371,12 +371,12 @@ float32 NormalizeColor( const vec3_t in, vec3_t out )
 void ClampColor( vec4_t color )
 {
     sint             i;
-    
+
     for( i = 0; i < 4; i++ )
     {
         if( color[i] < 0 )
             color[i] = 0;
-            
+
         if( color[i] > 1 )
             color[i] = 1;
     }
@@ -385,20 +385,20 @@ void ClampColor( vec4_t color )
 vec_t PlaneNormalize( vec4_t plane )
 {
     vec_t           length, ilength;
-    
+
     length = sqrt( plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2] );
     if( length == 0 )
     {
         VectorClear( plane );
         return 0;
     }
-    
+
     ilength = 1.0f / length;
     plane[0] = plane[0] * ilength;
     plane[1] = plane[1] * ilength;
     plane[2] = plane[2] * ilength;
     plane[3] = plane[3] * ilength;
-    
+
     return length;
 }
 
@@ -413,10 +413,10 @@ The normal will point out of the clock for clockwise ordered points
 bool PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, bool cw )
 {
     vec3_t          d1, d2;
-    
+
     VectorSubtract( b, a, d1 );
     VectorSubtract( c, a, d2 );
-    
+
     if( cw )
     {
         CrossProduct( d2, d1, plane );
@@ -425,12 +425,12 @@ bool PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t
     {
         CrossProduct( d1, d2, plane );
     }
-    
+
     if( VectorNormalize( plane ) == 0 )
     {
         return false;
     }
-    
+
     plane[3] = DotProduct( a, plane );
     return true;
 }
@@ -445,10 +445,10 @@ Returns false if the triangle is degenrate.
 bool PlaneFromPointsOrder( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, bool cw )
 {
     vec3_t          d1, d2;
-    
+
     VectorSubtract( b, a, d1 );
     VectorSubtract( c, a, d2 );
-    
+
     if( cw )
     {
         CrossProduct( d2, d1, plane );
@@ -457,12 +457,12 @@ bool PlaneFromPointsOrder( vec4_t plane, const vec3_t a, const vec3_t b, const v
     {
         CrossProduct( d1, d2, plane );
     }
-    
+
     if( VectorNormalize( plane ) == 0 )
     {
         return false;
     }
-    
+
     plane[3] = DotProduct( a, plane );
     return true;
 }
@@ -470,21 +470,21 @@ bool PlaneFromPointsOrder( vec4_t plane, const vec3_t a, const vec3_t b, const v
 bool PlanesGetIntersectionPoint( const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out )
 {
     // http://www.cgafaq.info/wiki/Intersection_of_three_planes
-    
+
     vec3_t	n1, n2, n3;
     vec3_t	n1n2, n2n3, n3n1;
     vec_t	denom;
-    
+
     VectorNormalize2( plane1, n1 );
     VectorNormalize2( plane2, n2 );
     VectorNormalize2( plane3, n3 );
-    
+
     CrossProduct( n1, n2, n1n2 );
     CrossProduct( n2, n3, n2n3 );
     CrossProduct( n3, n1, n3n1 );
-    
+
     denom = DotProduct( n1, n2n3 );
-    
+
     // check if the denominator is zero (which would mean that no intersection is to be found
     if( denom == 0 )
     {
@@ -492,15 +492,15 @@ bool PlanesGetIntersectionPoint( const vec4_t plane1, const vec4_t plane2, const
         VectorClear( out );
         return false;
     }
-    
+
     VectorClear( out );
-    
+
     VectorMA( out, plane1[3], n2n3, out );
     VectorMA( out, plane2[3], n3n1, out );
     VectorMA( out, plane3[3], n1n2, out );
-    
+
     VectorScale( out, 1.0f / denom, out );
-    
+
     return true;
 }
 
@@ -510,13 +510,13 @@ void PlaneIntersectRay( const vec3_t rayPos, const vec3_t rayDir, const vec4_t p
     float32 sect;
     float32 distToPlane;
     float32 planeDotRay;
-    
+
     VectorNormalize2( rayDir, dir );
-    
+
     distToPlane = DotProduct( plane, rayPos ) - plane[3];
     planeDotRay = DotProduct( plane, dir );
     sect = -( distToPlane ) / planeDotRay;
-    
+
     VectorMA( rayPos, sect, dir, res );
 }
 /*
@@ -536,54 +536,54 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, 
     sint             i;
     vec3_t          vr, vup, vf;
     float32           rad;
-    
+
     vf[0] = dir[0];
     vf[1] = dir[1];
     vf[2] = dir[2];
-    
+
     if( VectorNormalize( vf ) == 0 || degrees == 0.0f )
     {
         // degenerate case
         VectorCopy( point, dst );
         return;
     }
-    
+
     PerpendicularVector( vr, dir );
     CrossProduct( vr, vf, vup );
-    
+
     m[0][0] = vr[0];
     m[1][0] = vr[1];
     m[2][0] = vr[2];
-    
+
     m[0][1] = vup[0];
     m[1][1] = vup[1];
     m[2][1] = vup[2];
-    
+
     m[0][2] = vf[0];
     m[1][2] = vf[1];
     m[2][2] = vf[2];
-    
+
     memcpy( im, m, sizeof( im ) );
-    
+
     im[0][1] = m[1][0];
     im[0][2] = m[2][0];
     im[1][0] = m[0][1];
     im[1][2] = m[2][1];
     im[2][0] = m[0][2];
     im[2][1] = m[1][2];
-    
+
     ::memset( zrot, 0, sizeof( zrot ) );
     zrot[0][0] = zrot[1][1] = zrot[2][2] = 1.0F;
-    
+
     rad = DEG2RAD( degrees );
     zrot[0][0] = cos( rad );
     zrot[0][1] = sin( rad );
     zrot[1][0] = -sin( rad );
     zrot[1][1] = cos( rad );
-    
+
     AxisMultiply( m, zrot, tmpmat );
     AxisMultiply( tmpmat, im, rot );
-    
+
     for( i = 0; i < 3; i++ )
     {
         dst[i] = rot[i][0] * point[0] + rot[i][1] * point[1] + rot[i][2] * point[2];
@@ -600,16 +600,16 @@ Rotate a point around a vertex
 void RotatePointAroundVertex( vec3_t pnt, float32 rot_x, float32 rot_y, float32 rot_z, const vec3_t origin )
 {
     float32           tmp[11];
-    
+
     //float32 rad_x, rad_y, rad_z;
-    
+
     /*rad_x = DEG2RAD( rot_x );
        rad_y = DEG2RAD( rot_y );
        rad_z = DEG2RAD( rot_z ); */
-    
+
     // move pnt to rel{0,0,0}
     VectorSubtract( pnt, origin, pnt );
-    
+
     // init temp values
     tmp[0] = sin( rot_x );
     tmp[1] = cos( rot_x );
@@ -622,12 +622,12 @@ void RotatePointAroundVertex( vec3_t pnt, float32 rot_x, float32 rot_y, float32 
     tmp[8] = pnt[0] * tmp[5];
     tmp[9] = pnt[1] * tmp[4];
     tmp[10] = pnt[2] * tmp[3];
-    
+
     // rotate point
     pnt[0] = ( tmp[3] * ( tmp[8] - tmp[9] ) + pnt[3] * tmp[2] );
     pnt[1] = ( tmp[0] * ( tmp[2] * tmp[8] - tmp[2] * tmp[9] - tmp[10] ) + tmp[1] * ( tmp[7] + tmp[6] ) );
     pnt[2] = ( tmp[1] * ( -tmp[2] * tmp[8] + tmp[2] * tmp[9] + tmp[10] ) + tmp[0] * ( tmp[7] + tmp[6] ) );
-    
+
     // move pnt back
     VectorAdd( pnt, origin, pnt );
 }
@@ -642,16 +642,16 @@ void RotateAroundDirection( vec3_t axis[3], float32 yaw )
 
     // create an arbitrary axis[1]
     PerpendicularVector( axis[1], axis[0] );
-    
+
     // rotate it around axis[0] by yaw
     if( yaw )
     {
         vec3_t          temp;
-        
+
         VectorCopy( axis[1], temp );
         RotatePointAroundVector( axis[1], axis[0], temp, yaw );
     }
-    
+
     // cross to get axis[2]
     CrossProduct( axis[0], axis[1], axis[2] );
 }
@@ -670,11 +670,11 @@ sint Q_isnan( float32 x )
         float32 f;
         uint i;
     } t;
-    
+
     t.f = x;
     t.i &= 0x7FFFFFFF;
     t.i = 0x7F800000 - t.i;
-    
+
     return static_cast<sint>( static_cast<uint>( t.i ) >> 31 );
 }
 
@@ -682,7 +682,7 @@ void vectoangles( const vec3_t value1, vec3_t angles )
 {
     float32           forward;
     float32           yaw, pitch;
-    
+
     if( value1[1] == 0 && value1[0] == 0 )
     {
         yaw = 0;
@@ -713,7 +713,7 @@ void vectoangles( const vec3_t value1, vec3_t angles )
         {
             yaw += 360.0f;
         }
-        
+
         forward = sqrt( value1[0] * value1[0] + value1[1] * value1[1] );
         pitch = ( atan2f( value1[2], forward ) * 180.0f / M_PI );
         if( pitch < 0 )
@@ -721,7 +721,7 @@ void vectoangles( const vec3_t value1, vec3_t angles )
             pitch += 360.0f;
         }
     }
-    
+
     angles[PITCH] = -pitch;
     angles[YAW] = yaw;
     angles[ROLL] = 0;
@@ -736,7 +736,7 @@ AnglesToAxis
 void AnglesToAxis( const vec3_t angles, vec3_t axis[3] )
 {
     vec3_t right;
-    
+
     // angle vectors returns "right" instead of "y axis"
     AngleVectors( angles, axis[0], right, axis[2] );
     VectorSubtract( vec3_origin, right, axis[1] );
@@ -767,14 +767,14 @@ void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal )
     float32           d;
     vec3_t          n;
     float32           inv_denom;
-    
+
     inv_denom = 1.0F / DotProduct( normal, normal );
     d = DotProduct( normal, p ) * inv_denom;
-    
+
     n[0] = normal[0] * inv_denom;
     n[1] = normal[1] * inv_denom;
     n[2] = normal[2] * inv_denom;
-    
+
     dst[0] = p[0] - d * n[0];
     dst[1] = p[1] - d * n[1];
     dst[2] = p[2] - d * n[2];
@@ -791,13 +791,13 @@ other perpendicular vectors
 void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up )
 {
     float32           d;
-    
+
     // this rotate and negate guarantees a vector
     // not colinear with the original
     right[1] = -forward[0];
     right[2] = forward[1];
     right[0] = forward[2];
-    
+
     d = DotProduct( right, forward );
     VectorMA( right, -d, forward, right );
     VectorNormalize( right );
@@ -827,7 +827,7 @@ float32 LerpAngle( float32 from, float32 to, float32 frac )
     {
         to += 360;
     }
-    
+
     return ( from + frac * ( to - from ) );
 }
 
@@ -841,7 +841,7 @@ LerpPosition
 void LerpPosition( vec3_t start, vec3_t end, float32 frac, vec3_t out )
 {
     vec3_t          dist;
-    
+
     VectorSubtract( end, start, dist );
     VectorMA( start, frac, dist, out );
 }
@@ -856,7 +856,7 @@ Always returns a value from -180 to 180
 float32 AngleSubtract( float32 a1, float32 a2 )
 {
     float32           a = a1 - a2;
-    
+
     while( a > 180 )
     {
         a -= 360;
@@ -948,13 +948,13 @@ returns the angle between two vectors normalized to the range [0 <= angle <= 180
 float32 AngleBetweenVectors( const vec3_t a, const vec3_t b )
 {
     vec_t           alen, blen;
-    
+
     alen = VectorLength( a );
     blen = VectorLength( b );
-    
+
     if( !alen || !blen )
         return 0;
-        
+
     // complete dot product of two vectors a, b is |a| * |b| * cos(angle)
     // this results in:
     //
@@ -973,7 +973,7 @@ SetPlaneSignbits
 void SetPlaneSignbits( cplane_t* out )
 {
     sint             bits, j;
-    
+
     // for fast box on planeside test
     bits = 0;
     for( j = 0; j < 3; j++ )
@@ -996,14 +996,14 @@ float32 RadiusFromBounds( const vec3_t mins, const vec3_t maxs )
     sint             i;
     vec3_t          corner;
     float32           a, b;
-    
+
     for( i = 0; i < 3; i++ )
     {
         a = Q_fabs( mins[i] );
         b = Q_fabs( maxs[i] );
         corner[i] = a > b ? a : b;
     }
-    
+
     return VectorLength( corner );
 }
 
@@ -1029,7 +1029,7 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs )
     {
         maxs[0] = v[0];
     }
-    
+
     if( v[1] < mins[1] )
     {
         mins[1] = v[1];
@@ -1038,7 +1038,7 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs )
     {
         maxs[1] = v[1];
     }
-    
+
     if( v[2] < mins[2] )
     {
         mins[2] = v[2];
@@ -1059,7 +1059,7 @@ bool PointInBounds( const vec3_t v, const vec3_t mins, const vec3_t maxs )
     {
         return false;
     }
-    
+
     if( v[1] < mins[1] )
     {
         return false;
@@ -1068,7 +1068,7 @@ bool PointInBounds( const vec3_t v, const vec3_t mins, const vec3_t maxs )
     {
         return false;
     }
-    
+
     if( v[2] < mins[2] )
     {
         return false;
@@ -1077,7 +1077,7 @@ bool PointInBounds( const vec3_t v, const vec3_t mins, const vec3_t maxs )
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -1095,7 +1095,7 @@ void BoundsAdd( vec3_t mins, vec3_t maxs, const vec3_t mins2, const vec3_t maxs2
     {
         mins[2] = mins2[2];
     }
-    
+
     if( maxs2[0] > maxs[0] )
     {
         maxs[0] = maxs2[0];
@@ -1117,7 +1117,7 @@ bool BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, 
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -1130,7 +1130,7 @@ bool BoundsIntersectSphere( const vec3_t mins, const vec3_t maxs, const vec3_t o
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -1141,7 +1141,7 @@ bool BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t or
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -1151,17 +1151,17 @@ sint VectorCompare( const vec3_t v1, const vec3_t v2 )
     {
         return 0;
     }
-    
+
     return 1;
 }
 
 vec_t VectorNormalize( vec3_t v )
 {
     float32           length, ilength;
-    
+
     length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
     length = sqrt( length );
-    
+
     if( length )
     {
         ilength = 1 / length;
@@ -1169,7 +1169,7 @@ vec_t VectorNormalize( vec3_t v )
         v[1] *= ilength;
         v[2] *= ilength;
     }
-    
+
     return length;
 }
 
@@ -1183,7 +1183,7 @@ static ID_INLINE float32 Q_rsqrtApprox( const float32 number )
     float32 y;
     float32 x2;
     const float32 threehalfs = 1.5F;
-    
+
     x2 = number * 0.5F;
     t.f = number;
     /* what the fuck? */
@@ -1216,7 +1216,7 @@ void VectorNormalizeFast( vec3_t v )
 vec_t VectorNormalize2( const vec3_t v, vec3_t out )
 {
     float32 length;
-    
+
     length = DotProduct( v, v );
     length = sqrt( length );
     if( !EQUAL( length, 0.0f ) )
@@ -1226,7 +1226,7 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out )
         out[1] = v[1] * ilength;
         out[2] = v[2] * ilength;
     }
-    
+
     return length;
 }
 
@@ -1291,7 +1291,7 @@ vec_t VectorLengthSquared( const vec3_t v )
 vec_t Distance( const vec3_t p1, const vec3_t p2 )
 {
     vec3_t          v;
-    
+
     VectorSubtract( p2, p1, v );
     return VectorLength( v );
 }
@@ -1299,7 +1299,7 @@ vec_t Distance( const vec3_t p1, const vec3_t p2 )
 vec_t DistanceSquared( const vec3_t p1, const vec3_t p2 )
 {
     vec3_t          v;
-    
+
     VectorSubtract( p2, p1, v );
     return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
 }
@@ -1322,7 +1322,7 @@ void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out )
 sint NearestPowerOfTwo( sint val )
 {
     sint             answer;
-    
+
     for( answer = 1; answer < val; answer <<= 1 )
         ;
     return answer;
@@ -1331,7 +1331,7 @@ sint NearestPowerOfTwo( sint val )
 sint Q_log2( sint val )
 {
     sint             answer;
-    
+
     answer = 0;
     while( ( val >>= 1 ) != 0 )
     {
@@ -1354,9 +1354,9 @@ acos(*(float32*) &i) == -1.#IND0
 float32 Q_acos( float32 c )
 {
     float32           angle;
-    
+
     angle = acos( c );
-    
+
     if( angle > M_PI )
     {
         return static_cast<float32>( M_PI );
@@ -1410,21 +1410,21 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up 
 {
     float32           angle;
     static float32    sr, sp, sy, cr, cp, cy;
-    
+
     // static to help MS compiler fp bugs
-    
+
     angle = angles[YAW] * ( M_PI * 2 / 360.0f );
     sy = sin( angle );
     cy = cos( angle );
-    
+
     angle = angles[PITCH] * ( M_PI * 2 / 360.0f );
     sp = sin( angle );
     cp = cos( angle );
-    
+
     angle = angles[ROLL] * ( M_PI * 2 / 360.0f );
     sr = sin( angle );
     cr = cos( angle );
-    
+
     if( forward )
     {
         forward[0] = cp * cy;
@@ -1458,7 +1458,7 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
     sint             i;
     float32           minelem = 1.0F;
     vec3_t          tempvec;
-    
+
     /*
      ** find the smallest magnitude axially aligned vector
      */
@@ -1472,12 +1472,12 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
     }
     tempvec[0] = tempvec[1] = tempvec[2] = 0.0F;
     tempvec[pos] = 1.0F;
-    
+
     /*
      ** project the point onto the plane defined by src
      */
     ProjectPointOnPlane( dst, tempvec, src );
-    
+
     /*
      ** normalize the result
      */
@@ -1495,13 +1495,13 @@ GetPerpendicularViewVector
 void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up )
 {
     vec3_t          v1, v2;
-    
+
     VectorSubtract( point, p1, v1 );
     VectorNormalize( v1 );
-    
+
     VectorSubtract( point, p2, v2 );
     VectorNormalize( v2 );
-    
+
     CrossProduct( v1, v2, up );
     VectorNormalize( up );
 }
@@ -1514,7 +1514,7 @@ ProjectPointOntoVector
 void ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj )
 {
     vec3_t          pVec, vec;
-    
+
     VectorSubtract( point, vStart, pVec );
     VectorSubtract( vEnd, vStart, vec );
     VectorNormalize( vec );
@@ -1540,7 +1540,7 @@ vec_t DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1,
     float32           sN, sD;
     float32           tN, tD;
     vec3_t          separation;
-    
+
     VectorSubtract( sP1, sP0, sMag );
     VectorSubtract( tP1, tP0, tMag );
     VectorSubtract( sP0, tP0, diff );
@@ -1550,7 +1550,7 @@ vec_t DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1,
     d = DotProduct( sMag, diff );
     e = DotProduct( tMag, diff );
     sD = tD = D = a * c - b * b;
-    
+
     if( D < LINE_DISTANCE_EPSILON )
     {
         // the lines are almost parallel
@@ -1564,7 +1564,7 @@ vec_t DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1,
         // get the closest points on the infinite  lines
         sN = ( b * e - c * d );
         tN = ( a * e - b * d );
-        
+
         if( sN < 0.0 )
         {
             // sN < 0 => the s=0 edge is visible
@@ -1580,12 +1580,12 @@ vec_t DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1,
             tD = c;
         }
     }
-    
+
     if( tN < 0.0 )
     {
         // tN < 0 => the t=0 edge is visible
         tN = 0.0;
-        
+
         // recompute sN for this edge
         if( -d < 0.0 )
             sN = 0.0;
@@ -1601,7 +1601,7 @@ vec_t DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1,
     {
         // tN > tD => the t=1 edge is visible
         tN = tD;
-        
+
         // recompute sN for this edge
         if( ( -d + b ) < 0.0 )
             sN = 0;
@@ -1613,19 +1613,19 @@ vec_t DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1,
             sD = a;
         }
     }
-    
+
     // finally do the division to get *s and *t
     *s = ( fabs( sN ) < LINE_DISTANCE_EPSILON ? 0.0f : sN / sD );
     *t = ( fabs( tN ) < LINE_DISTANCE_EPSILON ? 0.0f : tN / tD );
-    
+
     // get the difference of the two closest points
     VectorScale( sMag, *s, sMag );
     VectorScale( tMag, *t, tMag );
     VectorAdd( diff, sMag, separation );
     VectorSubtract( separation, tMag, separation );
-    
+
     return VectorLengthSquared( separation );
-    
+
 }
 
 /*
@@ -1650,7 +1650,7 @@ void ProjectPointOntoVectorBounded( vec3_t point, vec3_t vStart, vec3_t vEnd, ve
 {
     vec3_t          pVec, vec;
     sint             j;
-    
+
     VectorSubtract( point, vStart, pVec );
     VectorSubtract( vEnd, vStart, vec );
     VectorNormalize( vec );
@@ -1684,7 +1684,7 @@ float32 DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2 )
 {
     vec3_t          proj, t;
     sint             j;
-    
+
     ProjectPointOntoVector( p, lp1, lp2, proj );
     for( j = 0; j < 3; j++ )
         if( ( proj[j] > lp1[j] && proj[j] > lp2[j] ) || ( proj[j] < lp1[j] && proj[j] < lp2[j] ) )
@@ -1715,7 +1715,7 @@ DistanceFromVectorSquared
 float32 DistanceFromVectorSquared( vec3_t p, vec3_t lp1, vec3_t lp2 )
 {
     vec3_t          proj, t;
-    
+
     ProjectPointOntoVector( p, lp1, lp2, proj );
     VectorSubtract( p, proj, t );
     return VectorLengthSquared( t );
@@ -1724,7 +1724,7 @@ float32 DistanceFromVectorSquared( vec3_t p, vec3_t lp1, vec3_t lp2 )
 float32 vectoyaw( const vec3_t vec )
 {
     float32           yaw;
-    
+
     if( vec[YAW] == 0 && vec[PITCH] == 0 )
     {
         yaw = 0;
@@ -1748,7 +1748,7 @@ float32 vectoyaw( const vec3_t vec )
             yaw += 360;
         }
     }
-    
+
     return yaw;
 }
 
@@ -1766,7 +1766,7 @@ void AxisToAngles( /*const*/ vec3_t axis[3], vec3_t angles )
 {
     float32 length1;
     float32 yaw, pitch, roll = 0.0f;
-    
+
     if( axis[0][1] == 0 && axis[0][0] == 0 )
     {
         yaw = 0;
@@ -1797,21 +1797,21 @@ void AxisToAngles( /*const*/ vec3_t axis[3], vec3_t angles )
         {
             yaw += 360;
         }
-        
+
         length1 = sqrt( axis[0][0] * axis[0][0] + axis[0][1] * axis[0][1] );
         pitch = ( atan2( axis[0][2], length1 ) * 180 / M_PI );
         if( pitch < 0 )
         {
             pitch += 360;
         }
-        
+
         roll = ( atan2( axis[1][2], axis[2][2] ) * 180 / M_PI );
         if( roll < 0 )
         {
             roll += 360;
         }
     }
-    
+
     angles[PITCH] = -pitch;
     angles[YAW] = yaw;
     angles[ROLL] = roll;
@@ -1820,7 +1820,7 @@ void AxisToAngles( /*const*/ vec3_t axis[3], vec3_t angles )
 float32 VectorDistance( vec3_t v1, vec3_t v2 )
 {
     vec3_t          dir;
-    
+
     VectorSubtract( v2, v1, dir );
     return VectorLength( dir );
 }
@@ -1828,7 +1828,7 @@ float32 VectorDistance( vec3_t v1, vec3_t v2 )
 float32 VectorDistanceSquared( vec3_t v1, vec3_t v2 )
 {
     vec3_t          dir;
-    
+
     VectorSubtract( v2, v1, dir );
     return VectorLengthSquared( dir );
 }
@@ -1844,13 +1844,13 @@ Return the biggest component of some vector
 float32 VectorMaxComponent( vec3_t v )
 {
     float32 biggest = v[ 0 ];
-    
+
     if( v[ 1 ] > biggest )
         biggest = v[ 1 ];
-        
+
     if( v[ 2 ] > biggest )
         biggest = v[ 2 ];
-        
+
     return biggest;
 }
 
@@ -1864,30 +1864,30 @@ Return the smallest component of some vector
 float32 VectorMinComponent( vec3_t v )
 {
     float32 smallest = v[ 0 ];
-    
+
     if( v[ 1 ] < smallest )
         smallest = v[ 1 ];
-        
+
     if( v[ 2 ] < smallest )
         smallest = v[ 2 ];
-        
+
     return smallest;
 }
 
 void MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll )
 {
     static float32    sr, sp, sy, cr, cp, cy;
-    
+
     // static to help MS compiler fp bugs
     sp = sin( DEG2RAD( pitch ) );
     cp = cos( DEG2RAD( pitch ) );
-    
+
     sy = sin( DEG2RAD( yaw ) );
     cy = cos( DEG2RAD( yaw ) );
-    
+
     sr = sin( DEG2RAD( roll ) );
     cr = cos( DEG2RAD( roll ) );
-    
+
     m[ 0] = cp * cy;
     m[ 4] = ( sr * sp * cy + cr * -sy );
     m[ 8] = ( cr * sp * cy + -sr * -sy );
@@ -1946,7 +1946,7 @@ void MatrixAffineInverse( const matrix_t in, matrix_t out )
     out[ 7] = 0;
     out[11] = 0;
     out[15] = 1;
-    
+
     out[12] = -( in[12] * out[ 0] + in[13] * out[ 4] + in[14] * out[ 8] );
     out[13] = -( in[12] * out[ 1] + in[13] * out[ 5] + in[14] * out[ 9] );
     out[14] = -( in[12] * out[ 2] + in[13] * out[ 6] + in[14] * out[10] );
@@ -1963,11 +1963,11 @@ void MatrixTransformNormal( const matrix_t m, const vec3_t in, vec3_t out )
 void MatrixTransformNormal2( const matrix_t m, vec3_t inout )
 {
     vec3_t          tmp;
-    
+
     tmp[ 0] = m[ 0] * inout[ 0] + m[ 4] * inout[ 1] + m[ 8] * inout[ 2];
     tmp[ 1] = m[ 1] * inout[ 0] + m[ 5] * inout[ 1] + m[ 9] * inout[ 2];
     tmp[ 2] = m[ 2] * inout[ 0] + m[ 6] * inout[ 1] + m[10] * inout[ 2];
-    
+
     VectorCopy( tmp, inout );
 }
 

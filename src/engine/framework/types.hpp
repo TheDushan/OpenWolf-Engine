@@ -33,17 +33,25 @@
 //-----------------------------------------Basic Types--------------------------------------------------//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef signed char        schar8;      ///< Compiler independent Signed Char
-typedef unsigned char      uchar8;      ///< Compiler independent Unsigned Char
+typedef signed char
+schar8;      ///< Compiler independent Signed Char
+typedef unsigned char
+uchar8;      ///< Compiler independent Unsigned Char
 
-typedef signed short       schar16;     ///< Compiler independent Signed 16-bit short
-typedef unsigned short     uchar16;     ///< Compiler independent Unsigned 16-bit short
+typedef signed short
+schar16;     ///< Compiler independent Signed 16-bit short
+typedef unsigned short
+uchar16;     ///< Compiler independent Unsigned 16-bit short
 
-typedef signed int         sint;     ///< Compiler independent Signed 32-bit integer
-typedef unsigned int       uint;     ///< Compiler independent Unsigned 32-bit integer
+typedef signed int
+sint;     ///< Compiler independent Signed 32-bit integer
+typedef unsigned int
+uint;     ///< Compiler independent Unsigned 32-bit integer
 
-typedef signed long        sint32;     ///< Compiler independent Signed 64-bit integer
-typedef unsigned long      uint32;     ///< Compiler independent Unsigned 64-bit integer
+typedef signed long
+sint32;     ///< Compiler independent Signed 64-bit integer
+typedef unsigned long
+uint32;     ///< Compiler independent Unsigned 64-bit integer
 
 #ifdef _WIN32
 typedef signed __int64     sint64;
@@ -53,16 +61,19 @@ typedef signed long long   sint64;
 typedef unsigned long long uint64;
 #endif
 
-typedef float              float32;     ///< Compiler independent 32-bit float
-typedef double             float64;     ///< Compiler independent 64-bit float
+typedef float
+float32;     ///< Compiler independent 32-bit float
+typedef double
+float64;     ///< Compiler independent 64-bit float
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //----------------------------------------String Types--------------------------------------------------//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef char        valueType;        ///< Compiler independent 8 bit Unicode encoded character
-typedef const char* pointer;
-typedef const char& reference;
+typedef char
+valueType;        ///< Compiler independent 8 bit Unicode encoded character
+typedef const char *pointer;
+typedef const char &reference;
 
 
 #endif //__TYPES_H__

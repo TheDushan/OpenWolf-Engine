@@ -40,13 +40,13 @@
 //
 // idMD5SystemLocal
 //
-class idMD5SystemLocal : public idMD5System
-{
+class idMD5SystemLocal : public idMD5System {
 public:
     idMD5SystemLocal();
     ~idMD5SystemLocal();
-    
-    virtual valueType* MD5File( pointer fn, sint length, pointer prefix, uint64 prefix_len );
+
+    virtual valueType *MD5File(pointer fn, sint length, pointer prefix,
+                               uint64 prefix_len);
 };
 
 extern idMD5SystemLocal MD5Local;

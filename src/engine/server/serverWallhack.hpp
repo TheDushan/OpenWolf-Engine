@@ -41,8 +41,7 @@ static vec3_t pred_ppos, pred_opos;
 static trajectory_t traject;
 static vec3_t old_origin[MAX_CLIENTS];
 static sint origin_changed[MAX_CLIENTS];
-static float32 delta_sign[8][3] =
-{
+static float32 delta_sign[8][3] = {
     { 1,  1,  1  },
     { 1,  1,  1  },
     { 1,  1,  -1 },
@@ -84,27 +83,28 @@ static sint bbox_vert;
 //
 // idServerWallhackSystemLocal
 //
-class idServerWallhackSystemLocal
-{
+class idServerWallhackSystemLocal {
 public:
     idServerWallhackSystemLocal();
     ~idServerWallhackSystemLocal();
-    
-    static sint zero_vector( vec3_t v );
-    static void predict_clip_velocity( vec3_t in, vec3_t normal, vec3_t out );
-    static sint predict_slide_move( sharedEntity_t* ent, float32 frametime, trajectory_t* tr, vec3_t result );
-    static void predict_move( sharedEntity_t* ent, float32 frametime, trajectory_t* tr, vec3_t result );
-    static void calc_viewpoint( playerState_t* ps, vec3_t org, vec3_t vp );
-    static sint player_in_fov( vec3_t viewangle, vec3_t ppos, vec3_t opos );
-    static void copy_trajectory( trajectory_t* src, trajectory_t* dst );
-    static sint is_visible( vec3_t start, vec3_t end );
-    static void init_horz_delta( void );
-    static void init_vert_delta( void );
-    static void InitWallhack( void );
-    static sint CanSee( sint player, sint other );
-    static void RandomizePos( sint player, sint other );
-    static void RestorePos( sint cli );
-    static sint PositionChanged( sint cli );
+
+    static sint zero_vector(vec3_t v);
+    static void predict_clip_velocity(vec3_t in, vec3_t normal, vec3_t out);
+    static sint predict_slide_move(sharedEntity_t *ent, float32 frametime,
+                                   trajectory_t *tr, vec3_t result);
+    static void predict_move(sharedEntity_t *ent, float32 frametime,
+                             trajectory_t *tr, vec3_t result);
+    static void calc_viewpoint(playerState_t *ps, vec3_t org, vec3_t vp);
+    static sint player_in_fov(vec3_t viewangle, vec3_t ppos, vec3_t opos);
+    static void copy_trajectory(trajectory_t *src, trajectory_t *dst);
+    static sint is_visible(vec3_t start, vec3_t end);
+    static void init_horz_delta(void);
+    static void init_vert_delta(void);
+    static void InitWallhack(void);
+    static sint CanSee(sint player, sint other);
+    static void RandomizePos(sint player, sint other);
+    static void RestorePos(sint cli);
+    static sint PositionChanged(sint cli);
 };
 
 extern idServerWallhackSystemLocal serverWallhackLocal;

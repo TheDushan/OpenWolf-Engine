@@ -40,22 +40,27 @@
 //
 // idNetworkChainSystem
 //
-class idNetworkChainSystem
-{
+class idNetworkChainSystem {
 public:
-    virtual void Init( sint port ) = 0;
-    virtual void Setup( netsrc_t sock, netchan_t* chan, netadr_t adr, sint qport ) = 0;
-    virtual void TransmitNextFragment( netchan_t* chan ) = 0;
-    virtual void Transmit( netchan_t* chan, sint length, const uchar8* data ) = 0;
-    virtual bool Process( netchan_t* chan, msg_t* msg ) = 0;
-    virtual bool GetLoopPacket( netsrc_t sock, netadr_t* net_from, msg_t* net_message ) = 0;
-    virtual void FlushPacketQueue( void ) = 0;
-    virtual void SendPacket( netsrc_t sock, sint length, const void* data, netadr_t to ) = 0;
-    virtual void OutOfBandPrint( netsrc_t sock, netadr_t adr, pointer format, ... ) = 0;
-    virtual void OutOfBandData( netsrc_t sock, netadr_t adr, uchar8* format, sint len ) = 0;
-    virtual sint StringToAdr( pointer s, netadr_t* a, netadrtype_t family ) = 0;
+    virtual void Init(sint port) = 0;
+    virtual void Setup(netsrc_t sock, netchan_t *chan, netadr_t adr,
+                       sint qport) = 0;
+    virtual void TransmitNextFragment(netchan_t *chan) = 0;
+    virtual void Transmit(netchan_t *chan, sint length,
+                          const uchar8 *data) = 0;
+    virtual bool Process(netchan_t *chan, msg_t *msg) = 0;
+    virtual bool GetLoopPacket(netsrc_t sock, netadr_t *net_from,
+                               msg_t *net_message) = 0;
+    virtual void FlushPacketQueue(void) = 0;
+    virtual void SendPacket(netsrc_t sock, sint length, const void *data,
+                            netadr_t to) = 0;
+    virtual void OutOfBandPrint(netsrc_t sock, netadr_t adr, pointer format,
+                                ...) = 0;
+    virtual void OutOfBandData(netsrc_t sock, netadr_t adr, uchar8 *format,
+                               sint len) = 0;
+    virtual sint StringToAdr(pointer s, netadr_t *a, netadrtype_t family) = 0;
 };
 
-extern idNetworkChainSystem* networkChainSystem;
+extern idNetworkChainSystem *networkChainSystem;
 
 #endif //!__THREADS_API_H__

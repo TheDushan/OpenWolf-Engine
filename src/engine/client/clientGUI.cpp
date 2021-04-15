@@ -37,23 +37,22 @@
 
 #include <framework/precompiled.hpp>
 
-void* uivm;
+void *uivm;
 
-idUserInterfaceManager* uiManager;
-idUserInterfaceManager* ( *guiEntry )( guiImports_t* guimports );
+idUserInterfaceManager *uiManager;
+idUserInterfaceManager *(*guiEntry)(guiImports_t *guimports);
 
 static guiImports_t exports;
 
 idClientGUISystemLocal clientGUILocal;
-idClientGUISystem* clientGUISystem = &clientGUILocal;
+idClientGUISystem *clientGUISystem = &clientGUILocal;
 
 /*
 ===============
 idClientGUISystemLocal::idClientGUISystemLocal
 ===============
 */
-idClientGUISystemLocal::idClientGUISystemLocal( void )
-{
+idClientGUISystemLocal::idClientGUISystemLocal(void) {
 }
 
 /*
@@ -61,8 +60,7 @@ idClientGUISystemLocal::idClientGUISystemLocal( void )
 idClientGUISystemLocal::~idClientGUISystemLocal
 ===============
 */
-idClientGUISystemLocal::~idClientGUISystemLocal( void )
-{
+idClientGUISystemLocal::~idClientGUISystemLocal(void) {
 }
 
 /*
@@ -70,13 +68,14 @@ idClientGUISystemLocal::~idClientGUISystemLocal( void )
 idClientGUISystemLocal::GetClientState
 ====================
 */
-void idClientGUISystemLocal::GetClientState( uiClientState_t* state )
-{
+void idClientGUISystemLocal::GetClientState(uiClientState_t *state) {
     state->connectPacketCount = clc.connectPacketCount;
     state->connState = cls.state;
-    Q_strncpyz( state->servername, cls.servername, sizeof( state->servername ) );
-    Q_strncpyz( state->updateInfoString, cls.updateInfoString, sizeof( state->updateInfoString ) );
-    Q_strncpyz( state->messageString, clc.serverMessage, sizeof( state->messageString ) );
+    Q_strncpyz(state->servername, cls.servername, sizeof(state->servername));
+    Q_strncpyz(state->updateInfoString, cls.updateInfoString,
+               sizeof(state->updateInfoString));
+    Q_strncpyz(state->messageString, clc.serverMessage,
+               sizeof(state->messageString));
     state->clientNum = cl.snapServer.ps.clientNum;
 }
 
@@ -85,49 +84,46 @@ void idClientGUISystemLocal::GetClientState( uiClientState_t* state )
 idClientGUISystemLocal::GetNews
 ====================
 */
-bool idClientGUISystemLocal::GetNews( bool begin )
-{
+bool idClientGUISystemLocal::GetNews(bool begin) {
     bool finished = false;
     sint readSize;
     static valueType newsFile[MAX_QPATH] = "";
-    
-    if( !newsFile[0] )
-    {
-        Q_strncpyz( newsFile, fileSystem->BuildOSPath( cvarSystem->VariableString( "fs_homepath" ), "", "news.dat" ), MAX_QPATH );
+
+    if(!newsFile[0]) {
+        Q_strncpyz(newsFile, fileSystem->BuildOSPath(
+                       cvarSystem->VariableString("fs_homepath"), "", "news.dat"), MAX_QPATH);
         newsFile[MAX_QPATH - 1] = 0;
     }
-    
-    if( begin )   // if not already using curl, start the download
-    {
-        if( !clc.bWWWDl )
-        {
+
+    if(begin) {   // if not already using curl, start the download
+        if(!clc.bWWWDl) {
             clc.bWWWDl = true;
-            downloadSystem->BeginDownload( newsFile, "http://tremulous.net/clientnews.txt", com_developer->integer );
+            downloadSystem->BeginDownload(newsFile,
+                                          "http://tremulous.net/clientnews.txt", com_developer->integer);
             cls.bWWWDlDisconnected = true;
             return false;
         }
     }
-    
-    if( fileSystem->SV_FOpenFileRead( newsFile, &clc.download ) )
-    {
-        readSize = fileSystem->Read( clc.newsString, sizeof( clc.newsString ), clc.download );
+
+    if(fileSystem->SV_FOpenFileRead(newsFile, &clc.download)) {
+        readSize = fileSystem->Read(clc.newsString, sizeof(clc.newsString),
+                                    clc.download);
         clc.newsString[ readSize ] = '\0';
-        if( readSize > 0 )
-        {
+
+        if(readSize > 0) {
             finished = true;
             clc.bWWWDl = false;
             cls.bWWWDlDisconnected = false;
         }
     }
-    
-    fileSystem->FCloseFile( clc.download );
-    
-    if( !finished )
-    {
-        Q_strcpy_s( clc.newsString, "Retrieving..." );
+
+    fileSystem->FCloseFile(clc.download);
+
+    if(!finished) {
+        Q_strcpy_s(clc.newsString, "Retrieving...");
     }
-    
-    cvarSystem->Set( "cl_newsString", clc.newsString );
+
+    cvarSystem->Set("cl_newsString", clc.newsString);
     return finished;
 }
 
@@ -136,8 +132,7 @@ bool idClientGUISystemLocal::GetNews( bool begin )
 idClientGUISystemLocal::GetGlConfig
 ====================
 */
-void idClientGUISystemLocal::GetGlconfig( vidconfig_t* config )
-{
+void idClientGUISystemLocal::GetGlconfig(vidconfig_t *config) {
     *config = cls.glconfig;
 }
 
@@ -146,21 +141,20 @@ void idClientGUISystemLocal::GetGlconfig( vidconfig_t* config )
 idClientGUISystemLocal::GUIGetClipboarzdData
 ====================
 */
-void idClientGUISystemLocal::GUIGetClipboardData( valueType* buf, uint64 buflen )
-{
-    valueType* cbd;
-    
+void idClientGUISystemLocal::GUIGetClipboardData(valueType *buf,
+        uint64 buflen) {
+    valueType *cbd;
+
     cbd = idsystem->SysGetClipboardData();
-    
-    if( !cbd )
-    {
+
+    if(!cbd) {
         *buf = 0;
         return;
     }
-    
-    Q_strncpyz( buf, cbd, buflen );
-    
-    Z_Free( cbd );
+
+    Q_strncpyz(buf, cbd, buflen);
+
+    Z_Free(cbd);
 }
 
 /*
@@ -168,9 +162,9 @@ void idClientGUISystemLocal::GUIGetClipboardData( valueType* buf, uint64 buflen 
 idClientGUISystemLocal::KeynumToStringBuf
 ====================
 */
-void idClientGUISystemLocal::KeynumToStringBuf( sint keynum, valueType* buf, uint64 buflen )
-{
-    Q_strncpyz( buf, Key_KeynumToString( keynum ), buflen );
+void idClientGUISystemLocal::KeynumToStringBuf(sint keynum, valueType *buf,
+        uint64 buflen) {
+    Q_strncpyz(buf, Key_KeynumToString(keynum), buflen);
 }
 
 /*
@@ -178,17 +172,15 @@ void idClientGUISystemLocal::KeynumToStringBuf( sint keynum, valueType* buf, uin
 idClientGUISystemLocal::GetBindingBuf
 ====================
 */
-void idClientGUISystemLocal::GetBindingBuf( sint keynum, valueType* buf, uint64 buflen )
-{
-    valueType* value;
-    
-    value = Key_GetBinding( keynum );
-    if( value )
-    {
-        Q_strncpyz( buf, value, buflen );
-    }
-    else
-    {
+void idClientGUISystemLocal::GetBindingBuf(sint keynum, valueType *buf,
+        uint64 buflen) {
+    valueType *value;
+
+    value = Key_GetBinding(keynum);
+
+    if(value) {
+        Q_strncpyz(buf, value, buflen);
+    } else {
         *buf = 0;
     }
 }
@@ -198,8 +190,7 @@ void idClientGUISystemLocal::GetBindingBuf( sint keynum, valueType* buf, uint64 
 idClientGUISystemLocal::GetCatcher
 ====================
 */
-sint idClientGUISystemLocal::GetCatcher( void )
-{
+sint idClientGUISystemLocal::GetCatcher(void) {
     return cls.keyCatchers;
 }
 
@@ -208,18 +199,14 @@ sint idClientGUISystemLocal::GetCatcher( void )
 idClientGUISystemLocal::SetCatcher
 ====================
 */
-void idClientGUISystemLocal::SetCatcher( sint catcher )
-{
+void idClientGUISystemLocal::SetCatcher(sint catcher) {
     // console overrides everything
-    if( cls.keyCatchers & KEYCATCH_CONSOLE )
-    {
+    if(cls.keyCatchers & KEYCATCH_CONSOLE) {
         cls.keyCatchers = catcher | KEYCATCH_CONSOLE;
-    }
-    else
-    {
+    } else {
         cls.keyCatchers = catcher;
     }
-    
+
 }
 
 /*
@@ -227,28 +214,26 @@ void idClientGUISystemLocal::SetCatcher( sint catcher )
 idClientGUISystemLocal::GetConfigString
 ====================
 */
-bool idClientGUISystemLocal::GetConfigString( sint index, valueType* buf, uint64 size )
-{
+bool idClientGUISystemLocal::GetConfigString(sint index, valueType *buf,
+        uint64 size) {
     uint64 offset;
-    
-    if( index < 0 || index >= MAX_CONFIGSTRINGS )
-    {
+
+    if(index < 0 || index >= MAX_CONFIGSTRINGS) {
         return false;
     }
-    
+
     offset = cl.gameState.stringOffsets[index];
-    
-    if( !offset )
-    {
-        if( size )
-        {
+
+    if(!offset) {
+        if(size) {
             buf[0] = 0;
         }
+
         return false;
     }
-    
-    Q_strncpyz( buf, cl.gameState.stringData + offset, size );
-    
+
+    Q_strncpyz(buf, cl.gameState.stringData + offset, size);
+
     return true;
 }
 
@@ -257,20 +242,18 @@ bool idClientGUISystemLocal::GetConfigString( sint index, valueType* buf, uint64
 idClientGUISystemLocal::ShutdownGUI
 ====================
 */
-void idClientGUISystemLocal::ShutdownGUI( void )
-{
+void idClientGUISystemLocal::ShutdownGUI(void) {
     cls.keyCatchers &= ~KEYCATCH_UI;
     cls.uiStarted = false;
-    
-    if( uiManager == nullptr || uivm == nullptr )
-    {
+
+    if(uiManager == nullptr || uivm == nullptr) {
         return;
     }
-    
+
     uiManager->Shutdown();
     uiManager = nullptr;
-    
-    idsystem->UnloadDll( uivm );
+
+    idsystem->UnloadDll(uivm);
     uivm = nullptr;
 }
 
@@ -279,11 +262,10 @@ void idClientGUISystemLocal::ShutdownGUI( void )
 idClientGUISystemLocal::CreateExportTable
 ====================
 */
-void idClientGUISystemLocal::CreateExportTable( void )
-{
+void idClientGUISystemLocal::CreateExportTable(void) {
     exports.Print = Com_Printf;
     exports.Error = Com_Error;
-    
+
     exports.RealTime = Com_RealTime;
     exports.CheckAutoUpdate = CL_CheckAutoUpdate;
     exports.GetAutoUpdate = CL_GetAutoUpdate;
@@ -302,7 +284,7 @@ void idClientGUISystemLocal::CreateExportTable( void )
     exports.TranslateString = CL_TranslateString;
     exports.OpenURL = CL_OpenURL;
     exports.GetHunkInfo = Com_GetHunkInfo;
-    
+
     exports.renderSystem = renderSystem;
     exports.soundSystem = soundSystem;
     exports.fileSystem = fileSystem;
@@ -322,40 +304,40 @@ void idClientGUISystemLocal::CreateExportTable( void )
 idClientGUISystemLocal::InitGUI
 ====================
 */
-void idClientGUISystemLocal::InitGUI( void )
-{
+void idClientGUISystemLocal::InitGUI(void) {
     sint t1, t2;
-    
+
     t1 = idsystem->Milliseconds();
-    
+
     // load the GUI module
-    uivm = idsystem->LoadDll( "gui" );
-    if( !uivm )
-    {
-        Com_Error( ERR_DROP, "cannot load client gui dynamic module.\n" );
+    uivm = idsystem->LoadDll("gui");
+
+    if(!uivm) {
+        Com_Error(ERR_DROP, "cannot load client gui dynamic module.\n");
     }
-    
+
     // Load in the entry point.
-    guiEntry = ( idUserInterfaceManager * ( QDECL* )( guiImports_t* ) )idsystem->GetProcAddress( uivm, "guiEntry" );
-    if( !guiEntry )
-    {
-        Com_Error( ERR_DROP, "error loading entry point on client gui.\n" );
+    guiEntry = (idUserInterfaceManager * (QDECL *)(guiImports_t *))
+               idsystem->GetProcAddress(uivm, "guiEntry");
+
+    if(!guiEntry) {
+        Com_Error(ERR_DROP, "error loading entry point on client gui.\n");
     }
-    
+
     // Create the export table.
     CreateExportTable();
-    
+
     // Call the dll entry point.
-    if( guiEntry )
-    {
-        uiManager = guiEntry( &exports );
+    if(guiEntry) {
+        uiManager = guiEntry(&exports);
     }
-    
-    uiManager->Init( cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE );
-    
+
+    uiManager->Init(cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE);
+
     t2 = idsystem->Milliseconds();
-    
-    Com_Printf( "idClientGUISystemLocal::InitGUI: %5.2f seconds\n", ( t2 - t1 ) / 1000.0 );
+
+    Com_Printf("idClientGUISystemLocal::InitGUI: %5.2f seconds\n",
+               (t2 - t1) / 1000.0);
 }
 
 /*
@@ -363,14 +345,10 @@ void idClientGUISystemLocal::InitGUI( void )
 idClientGUISystemLocal::checkKeyExec
 ====================
 */
-bool idClientGUISystemLocal::checkKeyExec( sint key )
-{
-    if( uivm )
-    {
-        return uiManager->CheckExecKey( key );
-    }
-    else
-    {
+bool idClientGUISystemLocal::checkKeyExec(sint key) {
+    if(uivm) {
+        return uiManager->CheckExecKey(key);
+    } else {
         return false;
     }
 }
@@ -382,12 +360,10 @@ idClientGUISystemLocal::GameCommand
 See if the current console command is claimed by the ui
 ====================
 */
-bool idClientGUISystemLocal::GameCommand( void )
-{
-    if( !cls.uiStarted )
-    {
+bool idClientGUISystemLocal::GameCommand(void) {
+    if(!cls.uiStarted) {
         return false;
     }
-    
-    return uiManager->ConsoleCommand( cls.realtime );
+
+    return uiManager->ConsoleCommand(cls.realtime);
 }

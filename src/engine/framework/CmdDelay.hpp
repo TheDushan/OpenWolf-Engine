@@ -43,18 +43,16 @@
 #define CMD_DELAY_FRAME_FIRE 1
 #define CMD_DELAY_UNUSED 0
 
-enum cmdDelayType_t
-{
+enum cmdDelayType_t {
     CMD_DELAY_MSEC,
     CMD_DELAY_FRAME
 };
 
-typedef struct
-{
+typedef struct {
     valueType name[MAX_CMD_LINE];
     valueType text[MAX_CMD_LINE];
     sint delay;
-    cmdDelayType_t 	type;
+    cmdDelayType_t  type;
 } delayedCommands_s;
 
 extern delayedCommands_s delayedCommands[MAX_DELAYED_COMMANDS];
@@ -62,14 +60,13 @@ extern delayedCommands_s delayedCommands[MAX_DELAYED_COMMANDS];
 //
 // idCmdDelaySystemLocal
 //
-class idCmdDelaySystemLocal : public idCmdDelaySystem
-{
+class idCmdDelaySystemLocal : public idCmdDelaySystem {
 public:
     idCmdDelaySystemLocal();
     ~idCmdDelaySystemLocal();
-    
-    virtual void Frame( void );
-    
+
+    virtual void Frame(void);
+
 };
 
 extern idCmdDelaySystemLocal cmdDelayLocal;

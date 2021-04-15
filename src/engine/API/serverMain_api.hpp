@@ -47,21 +47,20 @@ typedef struct msg_t msg_t;
 //
 // idServerMainSystem
 //
-class idServerMainSystem
-{
+class idServerMainSystem {
 public:
-    virtual void AddServerCommand( client_t* client, pointer cmd ) = 0;
-    virtual void SendServerCommand( client_t* cl, pointer fmt, ... ) = 0;
-    virtual void MasterShutdown( void ) = 0;
-    virtual void MasterGameCompleteStatus( void ) = 0;
-    virtual void MasterGameStat( pointer data ) = 0;
-    virtual void PacketEvent( netadr_t from, msg_t* msg ) = 0;
-    virtual void Frame( sint msec ) = 0;
-    virtual sint LoadTag( pointer mod_name ) = 0;
-    virtual sint RateMsec( client_t* client ) = 0;
-    virtual sint SendQueuedPackets( void ) = 0;
+    virtual void AddServerCommand(client_t *client, pointer cmd) = 0;
+    virtual void SendServerCommand(client_t *cl, pointer fmt, ...) = 0;
+    virtual void MasterShutdown(void) = 0;
+    virtual void MasterGameCompleteStatus(void) = 0;
+    virtual void MasterGameStat(pointer data) = 0;
+    virtual void PacketEvent(netadr_t from, msg_t *msg) = 0;
+    virtual void Frame(sint msec) = 0;
+    virtual sint LoadTag(pointer mod_name) = 0;
+    virtual sint RateMsec(client_t *client) = 0;
+    virtual sint SendQueuedPackets(void) = 0;
 };
 
-extern idServerMainSystem* serverMainSystem;
+extern idServerMainSystem *serverMainSystem;
 
 #endif //!__SERVERMAIN_API_H__

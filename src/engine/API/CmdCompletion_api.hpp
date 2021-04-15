@@ -44,8 +44,7 @@ Edit fields and command line history/completion
 */
 
 #define MAX_EDIT_LINE   256
-typedef struct
-{
+typedef struct {
     uint64 cursor, scroll, widthInChars;
     valueType buffer[MAX_EDIT_LINE];
 } field_t;
@@ -53,25 +52,27 @@ typedef struct
 //
 // idCmdCompletionSystem
 //
-class idCmdCompletionSystem
-{
+class idCmdCompletionSystem {
 public:
-    virtual void CompleteKeyname( void ) = 0;
-    virtual void CompleteCgame( sint argNum ) = 0;
-    virtual void CompleteFilename( pointer dir, pointer ext, bool stripExt ) = 0;
-    virtual void CompleteAlias( void ) = 0;
-    virtual void CompleteDelay( void ) = 0;
-    virtual void CompleteCommand( valueType* cmd, bool doCommands, bool doCvars ) = 0;
-    virtual void AutoComplete( field_t* field, pointer prompt ) = 0;
-    virtual void Clear( field_t* edit ) = 0;
-    virtual void Set( field_t* edit, pointer content ) = 0;
-    virtual void WordDelete( field_t* edit ) = 0;
-    virtual void Draw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape, float32 alpha ) = 0;
-    virtual void BigDraw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape ) = 0;
-    virtual void KeyDownEvent( field_t* edit, sint key ) = 0;
-    virtual void CharEvent( field_t* edit, valueType ch ) = 0;
+    virtual void CompleteKeyname(void) = 0;
+    virtual void CompleteCgame(sint argNum) = 0;
+    virtual void CompleteFilename(pointer dir, pointer ext, bool stripExt) = 0;
+    virtual void CompleteAlias(void) = 0;
+    virtual void CompleteDelay(void) = 0;
+    virtual void CompleteCommand(valueType *cmd, bool doCommands,
+                                 bool doCvars) = 0;
+    virtual void AutoComplete(field_t *field, pointer prompt) = 0;
+    virtual void Clear(field_t *edit) = 0;
+    virtual void Set(field_t *edit, pointer content) = 0;
+    virtual void WordDelete(field_t *edit) = 0;
+    virtual void Draw(field_t *edit, sint x, sint y, bool showCursor,
+                      bool noColorEscape, float32 alpha) = 0;
+    virtual void BigDraw(field_t *edit, sint x, sint y, bool showCursor,
+                         bool noColorEscape) = 0;
+    virtual void KeyDownEvent(field_t *edit, sint key) = 0;
+    virtual void CharEvent(field_t *edit, valueType ch) = 0;
 };
 
-extern idCmdCompletionSystem* cmdCompletionSystem;
+extern idCmdCompletionSystem *cmdCompletionSystem;
 
 #endif //__COMMANDLINECOMPLETION_API_H__

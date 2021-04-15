@@ -41,21 +41,23 @@
 //
 // idServerInitSystem
 //
-class idServerInitSystem
-{
+class idServerInitSystem {
 public:
-    virtual void UpdateConfigStrings( void ) = 0;
-    virtual void SetConfigstringNoUpdate( sint index, pointer val ) = 0;
-    virtual void SetConfigstring( sint index, pointer val ) = 0;
-    virtual void GetConfigstring( sint index, valueType* buffer, uint64 bufferSize ) = 0;
-    virtual void SetConfigstringRestrictions( sint index, const clientList_t* clientList ) = 0;
-    virtual void SetUserinfo( sint index, pointer val ) = 0;
-    virtual void GetUserinfo( sint index, valueType* buffer, uint64 bufferSize ) = 0;
-    virtual void SpawnServer( valueType* server, bool killBots ) = 0;
-    virtual void Init( void ) = 0;
-    virtual void Shutdown( valueType* finalmsg ) = 0;
+    virtual void UpdateConfigStrings(void) = 0;
+    virtual void SetConfigstringNoUpdate(sint index, pointer val) = 0;
+    virtual void SetConfigstring(sint index, pointer val) = 0;
+    virtual void GetConfigstring(sint index, valueType *buffer,
+                                 uint64 bufferSize) = 0;
+    virtual void SetConfigstringRestrictions(sint index,
+            const clientList_t *clientList) = 0;
+    virtual void SetUserinfo(sint index, pointer val) = 0;
+    virtual void GetUserinfo(sint index, valueType *buffer,
+                             uint64 bufferSize) = 0;
+    virtual void SpawnServer(valueType *server, bool killBots) = 0;
+    virtual void Init(void) = 0;
+    virtual void Shutdown(valueType *finalmsg) = 0;
 };
 
-extern idServerInitSystem* serverInitSystem;
+extern idServerInitSystem *serverInitSystem;
 
 #endif //!__SERVERINIT_API_H__

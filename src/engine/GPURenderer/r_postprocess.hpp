@@ -30,30 +30,47 @@
 #ifndef __R_POSTPROCESS_H__
 #define __R_POSTPROCESS_H__
 
-void RB_ToneMap( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox, sint autoExposure );
-void RB_BokehBlur( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, float32 blur );
-void RB_SunRays( FBO_t* srcFbo, ivec4_t srcBox, FBO_t* dstFbo, ivec4_t dstBox );
-void RB_GaussianBlur( FBO_t* srcFbo, FBO_t* intermediateFbo, FBO_t* dstFbo, float32 spread );
-void RB_HBlur( FBO_t* srcFbo, FBO_t* dstFbo, float32 strength );
-void RB_VBlur( FBO_t* srcFbo, FBO_t* dstFbo, float32 strength );
-void RB_TextureDetail( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_RBM( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_Contrast( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox );
-void RB_DarkExpand( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_Anamorphic( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_LensFlare( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_HDR( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_Anaglyph( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_FXAA( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_ESharpening( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_ESharpening2( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_TextureClean( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_DOF( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_MultiPost( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_Vibrancy( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_Bloom( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_SSGI( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_ScreenSpaceReflections( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
-void RB_Underwater( FBO_t* hdrFbo, ivec4_t hdrBox, FBO_t* ldrFbo, ivec4_t ldrBox );
+void RB_ToneMap(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                ivec4_t ldrBox, sint autoExposure);
+void RB_BokehBlur(FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox,
+                  float32 blur);
+void RB_SunRays(FBO_t *srcFbo, ivec4_t srcBox, FBO_t *dstFbo,
+                ivec4_t dstBox);
+void RB_GaussianBlur(FBO_t *srcFbo, FBO_t *intermediateFbo, FBO_t *dstFbo,
+                     float32 spread);
+void RB_HBlur(FBO_t *srcFbo, FBO_t *dstFbo, float32 strength);
+void RB_VBlur(FBO_t *srcFbo, FBO_t *dstFbo, float32 strength);
+void RB_TextureDetail(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                      ivec4_t ldrBox);
+void RB_RBM(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo, ivec4_t ldrBox);
+void RB_Contrast(FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox);
+void RB_DarkExpand(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                   ivec4_t ldrBox);
+void RB_Anamorphic(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                   ivec4_t ldrBox);
+void RB_LensFlare(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                  ivec4_t ldrBox);
+void RB_HDR(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo, ivec4_t ldrBox);
+void RB_Anaglyph(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                 ivec4_t ldrBox);
+void RB_FXAA(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo, ivec4_t ldrBox);
+void RB_ESharpening(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                    ivec4_t ldrBox);
+void RB_ESharpening2(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                     ivec4_t ldrBox);
+void RB_TextureClean(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                     ivec4_t ldrBox);
+void RB_DOF(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo, ivec4_t ldrBox);
+void RB_MultiPost(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                  ivec4_t ldrBox);
+void RB_Vibrancy(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                 ivec4_t ldrBox);
+void RB_Bloom(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+              ivec4_t ldrBox);
+void RB_SSGI(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo, ivec4_t ldrBox);
+void RB_ScreenSpaceReflections(FBO_t *hdrFbo, ivec4_t hdrBox,
+                               FBO_t *ldrFbo, ivec4_t ldrBox);
+void RB_Underwater(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
+                   ivec4_t ldrBox);
 
 #endif //!__R_POSTPROCESS_H__

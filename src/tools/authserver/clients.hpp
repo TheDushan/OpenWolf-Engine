@@ -38,8 +38,8 @@
 // Address hash size in bits for clients (between 0 and MAX_HASH_SIZE)
 #define DEFAULT_CL_HASH_SIZE 7
 
-#define DEFAULT_FP_DECAY_TIME	30
-#define DEFAULT_FP_THROTTLE		20
+#define DEFAULT_FP_DECAY_TIME   30
+#define DEFAULT_FP_THROTTLE     20
 
 // ---------- Public variables ---------- //
 
@@ -50,16 +50,18 @@ extern bool flood_protection;
 // ---------- Public functions ---------- //
 
 // Will simply return "false" if called after Sv_Init
-bool Cl_SetHashSize( unsigned int size );
-bool Cl_SetMaxNbClients( unsigned int nb );
-bool Cl_SetFPDecayTime( time_t decay );
-bool Cl_SetFPThrottle( unsigned int throttle );
+bool Cl_SetHashSize(unsigned int size);
+bool Cl_SetMaxNbClients(unsigned int nb);
+bool Cl_SetFPDecayTime(time_t decay);
+bool Cl_SetFPThrottle(unsigned int throttle);
 
 // Initialize the client list and hash tables
-bool Cl_Init( void );
+bool Cl_Init(void);
 
 // Return "true" if a client should be temporary ignored because he has sent too many requests recently
-bool Cl_BlockedByThrottle( const struct sockaddr_storage* addr, socklen_t addrlen, int counter );
-bool Cl_Counter( const struct sockaddr_storage* addr, socklen_t addrlen, int counter );
+bool Cl_BlockedByThrottle(const struct sockaddr_storage *addr,
+                          socklen_t addrlen, int counter);
+bool Cl_Counter(const struct sockaddr_storage *addr, socklen_t addrlen,
+                int counter);
 
 #endif  // #ifndef _CLIENTS_H_

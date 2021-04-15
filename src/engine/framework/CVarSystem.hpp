@@ -42,53 +42,57 @@ extern sint cvar_modifiedFlags;
 //
 // idFileSystemLocal
 //
-class idCVarSystemLocal : public idCVarSystem
-{
+class idCVarSystemLocal : public idCVarSystem {
 public:
-    idCVarSystemLocal( void );
-    ~idCVarSystemLocal( void );
-    
-    static sint32 generateHashValue( pointer fname );
-    static bool ValidateString( pointer s );
-    static convar_t* FindVar( pointer var_name );
-    virtual float32 VariableValue( pointer var_name );
-    virtual sint VariableIntegerValue( pointer var_name );
-    virtual valueType* VariableString( pointer var_name );
-    virtual void VariableStringBuffer( pointer var_name, valueType* buffer, uint64 bufsize );
-    virtual void LatchedVariableStringBuffer( pointer var_name, valueType* buffer, uint64 bufsize );
-    virtual sint Flags( pointer var_name );
-    virtual void CommandCompletion( void( *callback )( pointer s ) );
-    virtual valueType* ClearForeignCharacters( pointer value );
-    virtual convar_t* Get( pointer var_name, pointer var_value, sint flags, pointer description );
-    virtual convar_t* GetSet2( pointer var_name, pointer value, bool force );
-    virtual void Set( pointer var_name, pointer value );
-    virtual void SetLatched( pointer var_name, pointer value );
-    virtual void SetValue( pointer var_name, float32 value );
-    virtual void SetValueSafe( pointer var_name, float32 value );
-    virtual void SetValueLatched( pointer var_name, float32 value );
-    virtual void Reset( pointer var_name );
-    virtual void SetCheatState( void );
-    virtual bool Command( void );
-    static void Toggle_f( void );
-    static void Cycle_f( void );
-    static void Set_f( void );
-    static void SetU_f( void );
-    static void SetS_f( void );
-    static void SetA_f( void );
-    static void Reset_f( void );
-    virtual void WriteVariables( fileHandle_t f );
-    static void List_f( void );
-    static void Restart_f( void );
-    virtual valueType* InfoString( sint bit );
-    virtual valueType* InfoString_Big( sint bit );
-    virtual void InfoStringBuffer( sint bit, valueType* buff, uint64 buffsize );
-    virtual void CheckRange( convar_t* var, float32 min, float32 max, bool integral );
-    virtual void Register( vmConvar_t* vmCvar, pointer varName, pointer defaultValue, sint flags, pointer description );
-    virtual void Update( vmConvar_t* vmCvar );
-    static void CompleteCvarName( valueType* args, sint argNum );
-    virtual void Init( void );
-    virtual void Shutdown( void );
-    static const valueType* Validate( convar_t* var, pointer value, bool warn );
+    idCVarSystemLocal(void);
+    ~idCVarSystemLocal(void);
+
+    static sint32 generateHashValue(pointer fname);
+    static bool ValidateString(pointer s);
+    static convar_t *FindVar(pointer var_name);
+    virtual float32 VariableValue(pointer var_name);
+    virtual sint VariableIntegerValue(pointer var_name);
+    virtual valueType *VariableString(pointer var_name);
+    virtual void VariableStringBuffer(pointer var_name, valueType *buffer,
+                                      uint64 bufsize);
+    virtual void LatchedVariableStringBuffer(pointer var_name,
+            valueType *buffer, uint64 bufsize);
+    virtual sint Flags(pointer var_name);
+    virtual void CommandCompletion(void(*callback)(pointer s));
+    virtual valueType *ClearForeignCharacters(pointer value);
+    virtual convar_t *Get(pointer var_name, pointer var_value, sint flags,
+                          pointer description);
+    virtual convar_t *GetSet2(pointer var_name, pointer value, bool force);
+    virtual void Set(pointer var_name, pointer value);
+    virtual void SetLatched(pointer var_name, pointer value);
+    virtual void SetValue(pointer var_name, float32 value);
+    virtual void SetValueSafe(pointer var_name, float32 value);
+    virtual void SetValueLatched(pointer var_name, float32 value);
+    virtual void Reset(pointer var_name);
+    virtual void SetCheatState(void);
+    virtual bool Command(void);
+    static void Toggle_f(void);
+    static void Cycle_f(void);
+    static void Set_f(void);
+    static void SetU_f(void);
+    static void SetS_f(void);
+    static void SetA_f(void);
+    static void Reset_f(void);
+    virtual void WriteVariables(fileHandle_t f);
+    static void List_f(void);
+    static void Restart_f(void);
+    virtual valueType *InfoString(sint bit);
+    virtual valueType *InfoString_Big(sint bit);
+    virtual void InfoStringBuffer(sint bit, valueType *buff, uint64 buffsize);
+    virtual void CheckRange(convar_t *var, float32 min, float32 max,
+                            bool integral);
+    virtual void Register(vmConvar_t *vmCvar, pointer varName,
+                          pointer defaultValue, sint flags, pointer description);
+    virtual void Update(vmConvar_t *vmCvar);
+    static void CompleteCvarName(valueType *args, sint argNum);
+    virtual void Init(void);
+    virtual void Shutdown(void);
+    static const valueType *Validate(convar_t *var, pointer value, bool warn);
 };
 
 extern idCVarSystemLocal cvarSystemLocal;

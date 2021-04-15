@@ -39,61 +39,60 @@
 static float32 s_noise_table[NOISE_SIZE];
 static sint s_noise_perm[NOISE_SIZE];
 
-static float32 GetNoiseValue( sint x, sint y, sint z, sint t )
-{
-    sint index = INDEX( static_cast<sint>( x ), static_cast<sint>( y ), static_cast<sint>( z ), static_cast<sint>( t ) );
-    
+static float32 GetNoiseValue(sint x, sint y, sint z, sint t) {
+    sint index = INDEX(static_cast<sint>(x), static_cast<sint>(y),
+                       static_cast<sint>(z), static_cast<sint>(t));
+
     return s_noise_table[index];
 }
 
-void R_NoiseInit( void )
-{
+void R_NoiseInit(void) {
     sint i;
-    
-    for( i = 0; i < NOISE_SIZE; i++ )
-    {
-        s_noise_table[i] = static_cast<float32>( ( ( rand() / static_cast<float32>( RAND_MAX ) ) * 2.0f - 1.0f ) );
-        s_noise_perm[i] = static_cast<uchar8>( rand() / static_cast<float32>( RAND_MAX ) * 255 );
+
+    for(i = 0; i < NOISE_SIZE; i++) {
+        s_noise_table[i] = static_cast<float32>(((rand() / static_cast<float32>
+                                                (RAND_MAX)) * 2.0f - 1.0f));
+        s_noise_perm[i] = static_cast<uchar8>(rand() / static_cast<float32>
+                                              (RAND_MAX) * 255);
     }
 }
 
-float32 R_NoiseGet4f( float32 x, float32 y, float32 z, float64 t )
-{
+float32 R_NoiseGet4f(float32 x, float32 y, float32 z, float64 t) {
     sint i;
     sint ix, iy, iz, it;
     float32 fx, fy, fz, ft;
     float32 front[4];
     float32 back[4];
     float32 fvalue, bvalue, value[2], finalvalue;
-    
-    ix = static_cast<sint>( floor( x ) );
+
+    ix = static_cast<sint>(floor(x));
     fx = x - ix;
-    iy = static_cast<sint>( floor( y ) );
+    iy = static_cast<sint>(floor(y));
     fy = y - iy;
-    iz = static_cast<sint>( floor( z ) );
+    iz = static_cast<sint>(floor(z));
     fz = z - iz;
-    it = static_cast<sint>( floor( t ) );
+    it = static_cast<sint>(floor(t));
     ft = t - it;
-    
-    for( i = 0; i < 2; i++ )
-    {
-        front[0] = GetNoiseValue( ix, iy, iz, it + i );
-        front[1] = GetNoiseValue( ix + 1, iy, iz, it + i );
-        front[2] = GetNoiseValue( ix, iy + 1, iz, it + i );
-        front[3] = GetNoiseValue( ix + 1, iy + 1, iz, it + i );
-        
-        back[0] = GetNoiseValue( ix, iy, iz + 1, it + i );
-        back[1] = GetNoiseValue( ix + 1, iy, iz + 1, it + i );
-        back[2] = GetNoiseValue( ix, iy + 1, iz + 1, it + i );
-        back[3] = GetNoiseValue( ix + 1, iy + 1, iz + 1, it + i );
-        
-        fvalue = LERP( LERP( front[0], front[1], fx ), LERP( front[2], front[3], fx ), fy );
-        bvalue = LERP( LERP( back[0], back[1], fx ), LERP( back[2], back[3], fx ), fy );
-        
-        value[i] = LERP( fvalue, bvalue, fz );
+
+    for(i = 0; i < 2; i++) {
+        front[0] = GetNoiseValue(ix, iy, iz, it + i);
+        front[1] = GetNoiseValue(ix + 1, iy, iz, it + i);
+        front[2] = GetNoiseValue(ix, iy + 1, iz, it + i);
+        front[3] = GetNoiseValue(ix + 1, iy + 1, iz, it + i);
+
+        back[0] = GetNoiseValue(ix, iy, iz + 1, it + i);
+        back[1] = GetNoiseValue(ix + 1, iy, iz + 1, it + i);
+        back[2] = GetNoiseValue(ix, iy + 1, iz + 1, it + i);
+        back[3] = GetNoiseValue(ix + 1, iy + 1, iz + 1, it + i);
+
+        fvalue = LERP(LERP(front[0], front[1], fx), LERP(front[2], front[3], fx),
+                      fy);
+        bvalue = LERP(LERP(back[0], back[1], fx), LERP(back[2], back[3], fx), fy);
+
+        value[i] = LERP(fvalue, bvalue, fz);
     }
-    
-    finalvalue = LERP( value[0], value[1], ft );
-    
+
+    finalvalue = LERP(value[0], value[1], ft);
+
     return finalvalue;
 }

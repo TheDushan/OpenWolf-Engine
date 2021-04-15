@@ -45,23 +45,20 @@
 // enable to make the collision detection a bunch faster
 #define MRE_OPTIMIZE
 
-typedef struct cbrushedge_s
-{
+typedef struct cbrushedge_s {
     vec3_t          p0;
     vec3_t          p1;
 } cbrushedge_t;
 
-typedef struct
-{
-    cplane_t*       plane;
+typedef struct {
+    cplane_t       *plane;
     sint             planeNum;
-    sint             children[2];	// negative numbers are leafs
-    winding_t*      winding;
+    sint             children[2];   // negative numbers are leafs
+    winding_t      *winding;
 } cNode_t;
 
-typedef struct
-{
-    sint		cluster;
+typedef struct {
+    sint        cluster;
     sint     area;
     sint64     firstLeafBrush;
     sint     numLeafBrushes;
@@ -69,76 +66,74 @@ typedef struct
     sint     numLeafSurfaces;
 } cLeaf_t;
 
-typedef struct cmodel_s
-{
+typedef struct cmodel_s {
     vec3_t          mins, maxs;
-    cLeaf_t         leaf;		// submodels don't reference the main tree
+    cLeaf_t         leaf;       // submodels don't reference the main tree
 } cmodel_t;
 
-typedef struct
-{
-    cplane_t*       plane;
+typedef struct {
+    cplane_t       *plane;
     sint             planeNum;
     sint             surfaceFlags;
     sint             shaderNum;
-    winding_t*      winding;
+    winding_t      *winding;
 } cbrushside_t;
 
 
-typedef struct
-{
-    sint             shaderNum;	// the shader that determined the contents
+typedef struct {
+    sint             shaderNum; // the shader that determined the contents
     sint             contents;
     vec3_t          bounds[2];
     sint             numsides;
-    cbrushside_t*   sides;
-    sint             checkcount;	// to avoid repeated testings
-    bool            collided;	// marker for optimisation
-    cbrushedge_t*   edges;
+    cbrushside_t   *sides;
+    sint             checkcount;    // to avoid repeated testings
+    bool            collided;   // marker for optimisation
+    cbrushedge_t   *edges;
     sint             numEdges;
     bool            physicsprocessed;
 } cbrush_t;
 
-typedef struct
-{
+typedef struct {
     sint             floodnum;
     sint             floodvalid;
 } cArea_t;
 
-typedef struct
-{
+typedef struct {
     valueType            name[MAX_QPATH];
     sint             numShaders;
-    dshader_t*      shaders;
+    dshader_t      *shaders;
     sint             numBrushSides;
-    cbrushside_t*   brushsides;
+    cbrushside_t   *brushsides;
     sint             numPlanes;
-    cplane_t*       planes;
+    cplane_t       *planes;
     sint             numNodes;
-    cNode_t*        nodes;
+    cNode_t        *nodes;
     sint             numLeafs;
-    cLeaf_t*        leafs;
+    cLeaf_t        *leafs;
     sint             numLeafBrushes;
-    sint*            leafbrushes;
+    sint            *leafbrushes;
     sint             numLeafSurfaces;
-    sint*            leafsurfaces;
+    sint            *leafsurfaces;
     sint             numSubModels;
-    cmodel_t*       cmodels;
+    cmodel_t       *cmodels;
     sint             numBrushes;
-    cbrush_t*       brushes;
+    cbrush_t       *brushes;
     sint             numClusters;
     sint             clusterBytes;
-    uchar8*           visibility;
-    bool        vised;						// if false, visibility is just a single cluster of ffs
+    uchar8           *visibility;
+    bool
+    vised;                      // if false, visibility is just a single cluster of ffs
     sint             numEntityChars;
-    valueType*           entityString;
+    valueType           *entityString;
     sint             numAreas;
-    cArea_t*        areas;
-    sint*            areaPortals;				// [ numAreas*numAreas ] reference counts
+    cArea_t        *areas;
+    sint
+    *areaPortals;               // [ numAreas*numAreas ] reference counts
     sint             numSurfaces;
-    cSurface_t**     surfaces;					// non-patches will be nullptr
+    cSurface_t     **surfaces;                  // non-patches will be nullptr
     sint             floodvalid;
-    sint             checkcount;					// incremented on each trace
+    sint
+    checkcount;                    // incremented on each trace
     bool        perPolyCollision;
 } clipMap_t;
 
@@ -149,50 +144,57 @@ typedef struct
 
 extern clipMap_t cm;
 extern sint      c_pointcontents;
-extern sint      c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
+extern sint      c_traces, c_brush_traces, c_patch_traces,
+       c_trisoup_traces;
 #ifndef BSPC
-extern convar_t*  cm_noAreas;
-extern convar_t*  cm_noCurves;
-extern convar_t*  cm_playerCurveClip;
-extern convar_t*  cm_forceTriangles;
-extern convar_t*  cm_optimize;
-extern convar_t*  cm_showCurves;
-extern convar_t*  cm_showTriangles;
+extern convar_t  *cm_noAreas;
+extern convar_t  *cm_noCurves;
+extern convar_t  *cm_playerCurveClip;
+extern convar_t  *cm_forceTriangles;
+extern convar_t  *cm_optimize;
+extern convar_t  *cm_showCurves;
+extern convar_t  *cm_showTriangles;
 #endif
 // cm_test.c
 
-typedef struct
-{
-    float32		startRadius;
-    float32		endRadius;
+typedef struct {
+    float32     startRadius;
+    float32     endRadius;
 } biSphere_t;
 
 // Used for oriented capsule collision detection
-typedef struct
-{
+typedef struct {
     bool use;
     float32 radius;
     float32 halfheight;
     vec3_t offset;
 } sphere_t;
 
-typedef struct
-{
-    traceType_t		type;
+typedef struct {
+    traceType_t     type;
     vec3_t          start;
     vec3_t          end;
-    vec3_t          size[2];				// size of the box being swept through the model
-    vec3_t          offsets[8];				// [signbits][x] = either size[0][x] or size[1][x]
-    float32           maxOffset;				// longest corner length from origin
-    vec3_t          extents;				// greatest of abs(size[0]) and abs(size[1])
-    vec3_t          bounds[2];				// enclosing box of start and end surrounding by size
-    vec3_t          modelOrigin;			// origin of the model tracing through
-    sint             contents;				// ored contents of the model tracing through
-    bool        isPoint;				// optimized case
-    trace_t         trace;					// returned from trace call
-    sphere_t        sphere;					// sphere for oriendted capsule collision
-    biSphere_t		biSphere;
-    bool		testLateralCollision;	// whether or not to test for lateral collision
+    vec3_t
+    size[2];                // size of the box being swept through the model
+    vec3_t
+    offsets[8];             // [signbits][x] = either size[0][x] or size[1][x]
+    float32
+    maxOffset;                // longest corner length from origin
+    vec3_t
+    extents;                // greatest of abs(size[0]) and abs(size[1])
+    vec3_t
+    bounds[2];              // enclosing box of start and end surrounding by size
+    vec3_t
+    modelOrigin;            // origin of the model tracing through
+    sint
+    contents;              // ored contents of the model tracing through
+    bool        isPoint;                // optimized case
+    trace_t         trace;                  // returned from trace call
+    sphere_t
+    sphere;                 // sphere for oriendted capsule collision
+    biSphere_t      biSphere;
+    bool
+    testLateralCollision;   // whether or not to test for lateral collision
 #ifdef MRE_OPTIMIZE
     cplane_t        tracePlane1;
     cplane_t        tracePlane2;
@@ -202,15 +204,15 @@ typedef struct
 #endif
 } traceWork_t;
 
-typedef struct leafList_s
-{
+typedef struct leafList_s {
     sint             count;
     sint             maxcount;
     bool        overflowed;
-    sint*            list;
+    sint            *list;
     vec3_t          bounds[2];
-    sint             lastLeaf;	// for overflows where each leaf can't be stored individually
-    void ( *storeLeafs )( struct leafList_s* ll, sint nodenum );
+    sint
+    lastLeaf;  // for overflows where each leaf can't be stored individually
+    void (*storeLeafs)(struct leafList_s *ll, sint nodenum);
 } leafList_t;
 
 #define SUBDIVIDE_DISTANCE      16      //4 // never more than this units away from curve
@@ -218,14 +220,14 @@ typedef struct leafList_s
 #define WRAP_POINT_EPSILON      0.1
 
 
-cSurfaceCollide_t* CM_GeneratePatchCollide( sint width, sint height, vec3_t* points );
-void            CM_ClearLevelPatches( void );
+cSurfaceCollide_t *CM_GeneratePatchCollide(sint width, sint height,
+        vec3_t *points);
+void            CM_ClearLevelPatches(void);
 
 // cm_trisoup.c
 
-typedef struct
-{
-    sint		numTriangles;
+typedef struct {
+    sint        numTriangles;
     sint     indexes[SHADER_MAX_INDEXES];
     sint     trianglePlanes[SHADER_MAX_TRIANGLES];
     vec3_t  points[SHADER_MAX_TRIANGLES][3];
@@ -236,63 +238,79 @@ typedef struct
 
 
 // cm_test.c
-extern const cSurfaceCollide_t* debugSurfaceCollide;
-extern const cFacet_t* debugFacet;
+extern const cSurfaceCollide_t *debugSurfaceCollide;
+extern const cFacet_t *debugFacet;
 extern bool debugBlock;
 extern vec3_t   debugBlockPoints[4];
 
-sint             CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t** list, sint listsize );
-void            CM_StoreLeafs( leafList_t* ll, sint nodenum );
-void            CM_StoreBrushes( leafList_t* ll, sint nodenum );
-void            CM_BoxLeafnums_r( leafList_t* ll, sint nodenum );
-cmodel_t*       CM_ClipHandleToModel( clipHandle_t handle );
-bool        CM_BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
-bool        CM_BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t point );
+sint             CM_BoxBrushes(const vec3_t mins, const vec3_t maxs,
+                               cbrush_t **list, sint listsize);
+void            CM_StoreLeafs(leafList_t *ll, sint nodenum);
+void            CM_StoreBrushes(leafList_t *ll, sint nodenum);
+void            CM_BoxLeafnums_r(leafList_t *ll, sint nodenum);
+cmodel_t       *CM_ClipHandleToModel(clipHandle_t handle);
+bool        CM_BoundsIntersect(const vec3_t mins, const vec3_t maxs,
+                               const vec3_t mins2, const vec3_t maxs2);
+bool        CM_BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs,
+                                    const vec3_t point);
 
 //
 // idCollisionModelManagerLocal
 //
-class idCollisionModelManagerLocal : public idCollisionModelManager
-{
+class idCollisionModelManagerLocal : public idCollisionModelManager {
 public:
-    virtual void LoadMap( pointer name, bool clientload, sint* checksum );
-    virtual clipHandle_t InlineModel( sint index );      // 0 = world, 1 + are bmodels
-    virtual clipHandle_t TempBoxModel( const vec3_t mins, const vec3_t maxs, sint capsule );
-    virtual void SetTempBoxModelContents( sint contents );
-    virtual void ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
-    
-    virtual sint NumClusters( void );
-    virtual sint NumInlineModels( void );
-    virtual valueType* EntityString( void );
-    
+    virtual void LoadMap(pointer name, bool clientload, sint *checksum);
+    virtual clipHandle_t InlineModel(sint
+                                     index);        // 0 = world, 1 + are bmodels
+    virtual clipHandle_t TempBoxModel(const vec3_t mins, const vec3_t maxs,
+                                      sint capsule);
+    virtual void SetTempBoxModelContents(sint contents);
+    virtual void ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs);
+
+    virtual sint NumClusters(void);
+    virtual sint NumInlineModels(void);
+    virtual valueType *EntityString(void);
+
     // returns an ORed contents mask
-    virtual sint PointContents( const vec3_t p, clipHandle_t model );
-    virtual sint TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
-    virtual void BoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, sint brushmask, traceType_t type );
-    virtual void TransformedBoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, sint brushmask, const vec3_t origin, const vec3_t angles, traceType_t type );
-    virtual void BiSphereTrace( trace_t* results, const vec3_t start, const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model, sint mask );
-    virtual void TransformedBiSphereTrace( trace_t* results, const vec3_t start, const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model, sint mask, const vec3_t origin );
-    virtual uchar8* ClusterPVS( sint cluster );
-    
-    virtual sint PointLeafnum( const vec3_t p );
-    
+    virtual sint PointContents(const vec3_t p, clipHandle_t model);
+    virtual sint TransformedPointContents(const vec3_t p, clipHandle_t model,
+                                          const vec3_t origin, const vec3_t angles);
+    virtual void BoxTrace(trace_t *results, const vec3_t start,
+                          const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model,
+                          sint brushmask, traceType_t type);
+    virtual void TransformedBoxTrace(trace_t *results, const vec3_t start,
+                                     const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model,
+                                     sint brushmask, const vec3_t origin, const vec3_t angles,
+                                     traceType_t type);
+    virtual void BiSphereTrace(trace_t *results, const vec3_t start,
+                               const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model,
+                               sint mask);
+    virtual void TransformedBiSphereTrace(trace_t *results, const vec3_t start,
+                                          const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model,
+                                          sint mask, const vec3_t origin);
+    virtual uchar8 *ClusterPVS(sint cluster);
+
+    virtual sint PointLeafnum(const vec3_t p);
+
     // only returns non-solid leafs
     // overflow if return listsize and if *lastLeaf != list[listsize-1]
-    virtual sint BoxLeafnums( const vec3_t mins, const vec3_t maxs, sint* list, sint listsize, sint* lastLeaf );
-    
-    virtual sint LeafCluster( sint leafnum );
-    virtual sint LeafArea( sint leafnum );
-    
-    virtual void AdjustAreaPortalState( sint area1, sint area2, bool open );
-    virtual bool AreasConnected( sint area1, sint area2 );
-    
-    virtual sint WriteAreaBits( uchar8* buffer, sint area );
-    
-    virtual void ClearMap( void );
-    
-    virtual void DrawDebugSurface( void ( *drawPoly )( sint color, sint numPoints, float32* points ) );
-    
-    virtual sint BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t* plane );
+    virtual sint BoxLeafnums(const vec3_t mins, const vec3_t maxs, sint *list,
+                             sint listsize, sint *lastLeaf);
+
+    virtual sint LeafCluster(sint leafnum);
+    virtual sint LeafArea(sint leafnum);
+
+    virtual void AdjustAreaPortalState(sint area1, sint area2, bool open);
+    virtual bool AreasConnected(sint area1, sint area2);
+
+    virtual sint WriteAreaBits(uchar8 *buffer, sint area);
+
+    virtual void ClearMap(void);
+
+    virtual void DrawDebugSurface(void (*drawPoly)(sint color, sint numPoints,
+                                  float32 *points));
+
+    virtual sint BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *plane);
 };
 
 extern idCollisionModelManagerLocal collisionModelManagerLocal;

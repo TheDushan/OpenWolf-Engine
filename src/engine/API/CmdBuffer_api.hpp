@@ -40,15 +40,14 @@
 //
 // idCVarSystem
 //
-class idCmdBufferSystem
-{
+class idCmdBufferSystem {
 public:
-    virtual void Init( void ) = 0;
-    virtual void AddText( pointer text ) = 0;
-    virtual void ExecuteText( sint exec_when, pointer text ) = 0;
-    virtual void Execute( void ) = 0;
+    virtual void Init(void) = 0;
+    virtual void AddText(pointer text) = 0;
+    virtual void ExecuteText(sint exec_when, pointer text) = 0;
+    virtual void Execute(void) = 0;
 };
 
-extern idCmdBufferSystem* cmdBufferSystem;
+extern idCmdBufferSystem *cmdBufferSystem;
 
 #endif // !__CMDBUFFER_API_H__

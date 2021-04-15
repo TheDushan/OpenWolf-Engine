@@ -33,37 +33,43 @@
 struct image_s;
 struct shaderProgram_s;
 
-typedef struct FBO_s
-{
+typedef struct FBO_s {
     valueType            name[MAX_QPATH];
-    
+
     sint             index;
-    
+
     uint        frameBuffer;
-    
+
     uint        colorBuffers[16];
     sint             colorFormat;
-    struct image_s*  colorImage[16];
-    
+    struct image_s  *colorImage[16];
+
     uint        depthBuffer;
     sint             depthFormat;
-    
+
     uint        stencilBuffer;
     sint             stencilFormat;
-    
+
     uint        packedDepthStencilBuffer;
     sint             packedDepthStencilFormat;
-    
+
     sint             width;
     sint             height;
 } FBO_t;
 
-void FBO_AttachImage( FBO_t* fbo, image_t* image, GLenum attachment, GLuint cubemapside );
-void FBO_Bind( FBO_t* fbo );
+void FBO_AttachImage(FBO_t *fbo, image_t *image, GLenum attachment,
+                     GLuint cubemapside);
+void FBO_Bind(FBO_t *fbo);
 
-void FBO_BlitFromTexture( struct image_s* src, vec4_t inSrcTexCorners, vec2_t inSrcTexScale, FBO_t* dst, ivec4_t inDstBox, struct shaderProgram_s* shaderProgram, vec4_t inColor, sint blend );
-void FBO_Blit( FBO_t* src, ivec4_t srcBox, vec2_t srcTexScale, FBO_t* dst, ivec4_t dstBox, struct shaderProgram_s* shaderProgram, vec4_t color, sint blend );
-void FBO_FastBlit( FBO_t* src, ivec4_t srcBox, FBO_t* dst, ivec4_t dstBox, sint buffers, sint filter );
-void FBO_FastBlitIndexed( FBO_t* src, FBO_t* dst, sint srcReadBuffer, sint dstDrawBuffer, sint buffers, sint filter );
+void FBO_BlitFromTexture(struct image_s *src, vec4_t inSrcTexCorners,
+                         vec2_t inSrcTexScale, FBO_t *dst, ivec4_t inDstBox,
+                         struct shaderProgram_s *shaderProgram, vec4_t inColor, sint blend);
+void FBO_Blit(FBO_t *src, ivec4_t srcBox, vec2_t srcTexScale, FBO_t *dst,
+              ivec4_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color,
+              sint blend);
+void FBO_FastBlit(FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox,
+                  sint buffers, sint filter);
+void FBO_FastBlitIndexed(FBO_t *src, FBO_t *dst, sint srcReadBuffer,
+                         sint dstDrawBuffer, sint buffers, sint filter);
 
 #endif //!__R_FBO_H__

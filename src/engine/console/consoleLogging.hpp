@@ -46,17 +46,16 @@ static uint64 readPos = 0;
 //
 // idConsoleLoggingSystemLocal
 //
-class idConsoleLoggingSystemLocal : public idConsoleLoggingSystem
-{
+class idConsoleLoggingSystemLocal : public idConsoleLoggingSystem {
 public:
     idConsoleLoggingSystemLocal();
     ~idConsoleLoggingSystemLocal();
-    
-    virtual uint64 LogWrite( pointer in );
-    virtual uint64 LogRead( valueType* out, uint64 outSize );
-    
-    static uint64 LogSize( void );
-    static uint64 LogFree( void );
+
+    virtual uint64 LogWrite(pointer in);
+    virtual uint64 LogRead(valueType *out, uint64 outSize);
+
+    static uint64 LogSize(void);
+    static uint64 LogFree(void);
 private:
 };
 

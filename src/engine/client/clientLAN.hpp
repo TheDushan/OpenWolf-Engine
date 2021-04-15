@@ -32,33 +32,37 @@
 //
 // idClientLANSystemLocal
 //
-class idClientLANSystemLocal : public idClientLANSystem
-{
+class idClientLANSystemLocal : public idClientLANSystem {
 public:
     idClientLANSystemLocal();
     ~idClientLANSystemLocal();
-    
-    virtual void LoadCachedServers( void );
-    virtual void SaveServersToCache( void );
-    virtual void ResetPings( sint source );
-    virtual sint AddServer( sint source, pointer name, pointer address );
-    virtual void RemoveServer( sint source, pointer addr );
-    virtual sint GetServerCount( sint source );
-    virtual void GetServerAddressString( sint source, sint n, valueType* buf, uint64 buflen );
-    virtual void GetServerInfo( sint source, sint n, valueType* buf, uint64 buflen );
-    virtual sint GetServerPing( sint source, sint n );
-    virtual sint CompareServers( sint source, sint sortKey, sint sortDir, sint s1, sint s2 );
-    virtual sint GetPingQueueCount( void );
-    virtual void ClearPing( sint n );
-    virtual void GetPing( sint n, valueType* buf, uint64 buflen, sint* pingtime );
-    virtual void GetPingInfo( sint n, valueType* buf, uint64 buflen );
-    virtual void MarkServerVisible( sint source, sint n, bool visible );
-    virtual sint ServerIsVisible( sint source, sint n );
-    virtual bool UpdateVisiblePings( sint source );
-    virtual sint GetServerStatus( valueType* serverAddress, valueType* serverStatus, uint64 maxLen );
-    virtual bool ServerIsInFavoriteList( sint source, sint n );
-    
-    static serverInfo_t* GetServerPtr( sint source, sint n );
+
+    virtual void LoadCachedServers(void);
+    virtual void SaveServersToCache(void);
+    virtual void ResetPings(sint source);
+    virtual sint AddServer(sint source, pointer name, pointer address);
+    virtual void RemoveServer(sint source, pointer addr);
+    virtual sint GetServerCount(sint source);
+    virtual void GetServerAddressString(sint source, sint n, valueType *buf,
+                                        uint64 buflen);
+    virtual void GetServerInfo(sint source, sint n, valueType *buf,
+                               uint64 buflen);
+    virtual sint GetServerPing(sint source, sint n);
+    virtual sint CompareServers(sint source, sint sortKey, sint sortDir,
+                                sint s1, sint s2);
+    virtual sint GetPingQueueCount(void);
+    virtual void ClearPing(sint n);
+    virtual void GetPing(sint n, valueType *buf, uint64 buflen,
+                         sint *pingtime);
+    virtual void GetPingInfo(sint n, valueType *buf, uint64 buflen);
+    virtual void MarkServerVisible(sint source, sint n, bool visible);
+    virtual sint ServerIsVisible(sint source, sint n);
+    virtual bool UpdateVisiblePings(sint source);
+    virtual sint GetServerStatus(valueType *serverAddress,
+                                 valueType *serverStatus, uint64 maxLen);
+    virtual bool ServerIsInFavoriteList(sint source, sint n);
+
+    static serverInfo_t *GetServerPtr(sint source, sint n);
 };
 
 extern idClientLANSystemLocal clientLANLocal;

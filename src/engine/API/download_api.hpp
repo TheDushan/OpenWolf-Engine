@@ -38,16 +38,14 @@
 #ifndef __DOWNLOAD_API_H__
 #define __DOWNLOAD_API_H__
 
-enum dlStatus_t
-{
+enum dlStatus_t {
     DL_CONTINUE,
     DL_DONE,
     DL_FAILED
 };
 
 // bitmask
-enum dlFlags_t
-{
+enum dlFlags_t {
     DL_FLAG_DISCON = 0,
     DL_FLAG_URL
 };
@@ -55,15 +53,15 @@ enum dlFlags_t
 //
 // idDownloadSystem
 //
-class idDownloadSystem
-{
+class idDownloadSystem {
 public:
-    virtual void InitDownload( void ) = 0;
-    virtual void Shutdown( void ) = 0;
-    virtual sint BeginDownload( pointer localName, pointer remoteName, sint debug ) = 0;
-    virtual dlStatus_t DownloadLoop( void ) = 0;
+    virtual void InitDownload(void) = 0;
+    virtual void Shutdown(void) = 0;
+    virtual sint BeginDownload(pointer localName, pointer remoteName,
+                               sint debug) = 0;
+    virtual dlStatus_t DownloadLoop(void) = 0;
 };
 
-extern idDownloadSystem* downloadSystem;
+extern idDownloadSystem *downloadSystem;
 
 #endif //!__DOWNLOAD_API_H__

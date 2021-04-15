@@ -33,8 +33,10 @@
 // ---------- Public functions ---------- //
 
 // Parse a packet to figure out what to do with it
-void HandlePacketMessage( const char* message, size_t length, const struct sockaddr_storage* address, socklen_t addressLen, socket_t recvSocket );
+void HandlePacketMessage(const char *message, size_t length,
+                         const struct sockaddr_storage *address, socklen_t addressLen,
+                         socket_t recvSocket);
 
-int is_numeric( const char* p );
+int is_numeric(const char *p);
 
 #endif  // #ifndef _MESSAGES_H_

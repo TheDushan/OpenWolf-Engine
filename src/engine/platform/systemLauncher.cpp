@@ -39,25 +39,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main( int argc, char** argv )
-{
-    const char* symname = nullptr;
-    char* engineExportName = "engineMain";
-    char* spawnname = nullptr;
-    char* dynName = nullptr;
+int main(int argc, char **argv) {
+    const char *symname = nullptr;
+    char *engineExportName = "engineMain";
+    char *spawnname = nullptr;
+    char *dynName = nullptr;
 #ifdef _WIN32
-    int( __cdecl * engineMain )( int argc, char** argv );
+    int(__cdecl * engineMain)(int argc, char **argv);
 #else
-    int ( *engineMain )( int argc, char** argv );
+    int (*engineMain)(int argc, char **argv);
 #endif
-    
+
     /* Initialize SDL */
-    if( SDL_Init( 0 ) < 0 )
-    {
-        printf( "Couldn't initialize SDL: %s\n", SDL_GetError() );
+    if(SDL_Init(0) < 0) {
+        printf("Couldn't initialize SDL: %s\n", SDL_GetError());
         return 0;
     }
-    
+
 #if defined (_WIN32)
     dynName = "engine.AMD64.dll";
 #elif defined (__LINUX__)
@@ -65,32 +63,32 @@ int main( int argc, char** argv )
 #else
     dynName = "./engine.AMD64.dylib";
 #endif
-    
-    void* libraryName = SDL_LoadObject( dynName );
-    
-    printf( "libraryHandle config: library(%s) spawn(%s)\n", dynName ? dynName : "--", engineExportName ? engineExportName : "--" );
-    printf( "Loading libraryHandle: %s\n", libraryName ? "loaded!" : SDL_GetError() );
-    
-    if( libraryName )
-    {
+
+    void *libraryName = SDL_LoadObject(dynName);
+
+    printf("libraryHandle config: library(%s) spawn(%s)\n",
+           dynName ? dynName : "--", engineExportName ? engineExportName : "--");
+    printf("Loading libraryHandle: %s\n",
+           libraryName ? "loaded!" : SDL_GetError());
+
+    if(libraryName) {
 #ifdef _WIN32
-        engineMain = ( int( __cdecl* )( int, char** ) )SDL_LoadFunction( libraryName, engineExportName );
+        engineMain = (int(__cdecl *)(int, char **))SDL_LoadFunction(libraryName,
+                     engineExportName);
 #else
-        engineMain = ( int (* )( int, char** ) ) SDL_LoadFunction( libraryName, engineExportName );
+        engineMain = (int (*)(int, char **)) SDL_LoadFunction(libraryName,
+                     engineExportName);
 #endif
-        
-        if( engineMain != nullptr )
-        {
-            engineMain( argc, argv );
-        }
-        else
-        {
-            printf( "Cannot read engine export name\n" );
+
+        if(engineMain != nullptr) {
+            engineMain(argc, argv);
+        } else {
+            printf("Cannot read engine export name\n");
         }
     }
-    
-    SDL_UnloadObject( libraryName );
+
+    SDL_UnloadObject(libraryName);
     SDL_Quit();
-    
+
     return 0;
 }

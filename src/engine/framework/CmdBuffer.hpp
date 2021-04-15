@@ -41,18 +41,17 @@
 //
 // idServerBotSystemLocal
 //
-class idCmdBufferSystemLocal : public idCmdBufferSystem
-{
+class idCmdBufferSystemLocal : public idCmdBufferSystem {
 public:
-    idCmdBufferSystemLocal( void );
-    ~idCmdBufferSystemLocal( void );
-    
-    virtual void Init( void );
-    virtual void AddText( pointer text );
-    virtual void ExecuteText( sint exec_when, pointer text );
-    virtual void Execute( void );
-    
-    void InsertText( pointer text );
+    idCmdBufferSystemLocal(void);
+    ~idCmdBufferSystemLocal(void);
+
+    virtual void Init(void);
+    virtual void AddText(pointer text);
+    virtual void ExecuteText(sint exec_when, pointer text);
+    virtual void Execute(void);
+
+    void InsertText(pointer text);
 };
 
 extern idCmdBufferSystemLocal cmdBufferLocal;
