@@ -55,18 +55,16 @@
 // ---------- Types ---------- //
 
 // Address mapping
-typedef struct addrmap_s
-{
-    struct addrmap_s* next;
+typedef struct addrmap_s {
+    struct addrmap_s *next;
     struct sockaddr_in from;
     struct sockaddr_in to;
-    char* from_string;
-    char* to_string;
+    char *from_string;
+    char *to_string;
 } addrmap_t;
 
 // Server state
-typedef enum
-{
+typedef enum {
     sv_state_unused_slot,
     sv_state_uninitialized,
     sv_state_empty,
@@ -75,22 +73,22 @@ typedef enum
 } server_state_t;
 
 // Server properties
-struct game_properties_s;		// Defined in games.h
+struct game_properties_s;       // Defined in games.h
 
-typedef struct challenge_s
-{
-    const char*	name;
-    
+typedef struct challenge_s {
+    const char *name;
+
 } challenge_t;
 struct challenge_s;
 
-typedef struct server_s
-{
-    user_t user;										// WARNING: MUST be the 1st member, for compatibility with the user hash tables
-    const struct addrmap_s* addrmap;
+typedef struct server_s {
+    user_t user;                                        // WARNING: MUST be the 1st member, for compatibility with the user hash tables
+    const struct addrmap_s *addrmap;
     const struct challenge_s data;
-    const struct game_properties_s* anon_properties;	// game properties, for an anonymous game
-    const struct game_properties_s* hb_properties;		// future "anon_properties", not yet validated by an infoResponse
+    const struct game_properties_s
+        *anon_properties;    // game properties, for an anonymous game
+    const struct game_properties_s
+        *hb_properties;      // future "anon_properties", not yet validated by an infoResponse
     time_t timeout;
     time_t challenge_timeout;
     int protocol;
@@ -109,25 +107,26 @@ extern bool allow_loopback;
 // ---------- Public functions (servers) ---------- //
 
 // Will simply return "false" if called after Sv_Init
-bool Sv_SetHashSize( unsigned int size );
-bool Sv_SetMaxNbServers( unsigned int nb );
-bool Sv_SetMaxNbServersPerAddress( unsigned int nb );
+bool Sv_SetHashSize(unsigned int size);
+bool Sv_SetMaxNbServers(unsigned int nb);
+bool Sv_SetMaxNbServersPerAddress(unsigned int nb);
 
 // Initialize the server list and hash tables
-bool Sv_Init( void );
+bool Sv_Init(void);
 
 // Search for a particular server in the list; add it if necessary
 // NOTE: doesn't change the current position for "Sv_GetNext"
-server_t* Sv_GetByAddr( const struct sockaddr_storage* address, socklen_t addrlen, bool add_it );
+server_t *Sv_GetByAddr(const struct sockaddr_storage *address,
+                       socklen_t addrlen, bool add_it);
 
 // Get the first server in the list
-server_t* Sv_GetFirst( void );
+server_t *Sv_GetFirst(void);
 
 // Get the next server in the list
-server_t* Sv_GetNext( void );
+server_t *Sv_GetNext(void);
 
 // Print the list of servers to the output
-void Sv_PrintServerList( msg_level_t msg_level );
+void Sv_PrintServerList(msg_level_t msg_level);
 
 
 // ---------- Public functions (address mappings) ---------- //
@@ -137,10 +136,10 @@ void Sv_PrintServerList( msg_level_t msg_level );
 
 // Add an unresolved address mapping to the list
 // mapping must be of the form "addr1:port1=addr2:port2", ":portX" are optional
-bool Sv_AddAddressMapping( const char* mapping );
+bool Sv_AddAddressMapping(const char *mapping);
 
 // Resolve the address mapping list
-bool Sv_ResolveAddressMappings( void );
+bool Sv_ResolveAddressMappings(void);
 
 
 #endif  // #ifndef _SERVERS_H_

@@ -30,15 +30,15 @@
 
 #include <soundSystemAL/sndSystemAL_precompiled.hpp>
 
-#define BUFFERS	4
-#define	BUFFER_SIZE 4096
+#define BUFFERS 4
+#define BUFFER_SIZE 4096
 
 static bool mus_playing = false;
 static srcHandle_t source_handle = -1;
 static ALuint source;
 static ALuint buffers[BUFFERS];
 
-static snd_stream_t* mus_stream;
+static snd_stream_t *mus_stream;
 static valueType s_backgroundLoop[MAX_QPATH];
 
 static uchar8 decode_buffer[BUFFER_SIZE];
@@ -50,25 +50,24 @@ idAudioOpenALSystemLocal::mus_source_get
 Source aquire / release
 =================
 */
-void idAudioOpenALSystemLocal::mus_source_get( void )
-{
+void idAudioOpenALSystemLocal::mus_source_get(void) {
     // Allocate a source at high priority
-    source_handle = src_alloc( SRCPRI_STREAM, -2, 0 );
-    if( source_handle == -1 )
-    {
+    source_handle = src_alloc(SRCPRI_STREAM, -2, 0);
+
+    if(source_handle == -1) {
         return;
     }
-    
+
     // Lock the source so nobody else can use it, and get the raw source
-    src_lock( source_handle );
-    source = src_get( source_handle );
-    
+    src_lock(source_handle);
+    source = src_get(source_handle);
+
     // Set some source parameters
-    qalSource3f( source, AL_POSITION,        0.0, 0.0, 0.0 );
-    qalSource3f( source, AL_VELOCITY,        0.0, 0.0, 0.0 );
-    qalSource3f( source, AL_DIRECTION,       0.0, 0.0, 0.0 );
-    qalSourcef( source, AL_ROLLOFF_FACTOR,  0.0 );
-    qalSourcei( source, AL_SOURCE_RELATIVE, AL_TRUE );
+    qalSource3f(source, AL_POSITION,        0.0, 0.0, 0.0);
+    qalSource3f(source, AL_VELOCITY,        0.0, 0.0, 0.0);
+    qalSource3f(source, AL_DIRECTION,       0.0, 0.0, 0.0);
+    qalSourcef(source, AL_ROLLOFF_FACTOR,  0.0);
+    qalSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
 }
 
 /*
@@ -76,11 +75,10 @@ void idAudioOpenALSystemLocal::mus_source_get( void )
 idAudioOpenALSystemLocal::mus_source_free
 =================
 */
-void idAudioOpenALSystemLocal::mus_source_free( void )
-{
+void idAudioOpenALSystemLocal::mus_source_free(void) {
     // Release the output source
-    src_unlock( source_handle );
-    
+    src_unlock(source_handle);
+
     source = 0;
     source_handle = -1;
 }
@@ -90,29 +88,26 @@ void idAudioOpenALSystemLocal::mus_source_free( void )
 idAudioOpenALSystemLocal::mus_process
 =================
 */
-void idAudioOpenALSystemLocal::mus_process( ALuint b )
-{
+void idAudioOpenALSystemLocal::mus_process(ALuint b) {
     sint l;
     ALuint fmt;
-    
-    l = soundSystem->codec_read( mus_stream, BUFFER_SIZE, decode_buffer );
-    
-    if( l == 0 )
-    {
-        soundSystem->codec_close( mus_stream );
-        mus_stream = soundSystem->codec_open( s_backgroundLoop );
-        
-        if( !mus_stream )
-        {
+
+    l = soundSystem->codec_read(mus_stream, BUFFER_SIZE, decode_buffer);
+
+    if(l == 0) {
+        soundSystem->codec_close(mus_stream);
+        mus_stream = soundSystem->codec_open(s_backgroundLoop);
+
+        if(!mus_stream) {
             soundOpenALSystem->StopBackgroundTrack();
             return;
         }
-        
-        l = soundSystem->codec_read( mus_stream, BUFFER_SIZE, decode_buffer );
+
+        l = soundSystem->codec_read(mus_stream, BUFFER_SIZE, decode_buffer);
     }
-    
-    fmt = format( mus_stream->info.width, mus_stream->info.channels );
-    qalBufferData( b, fmt, decode_buffer, l, mus_stream->info.rate );
+
+    fmt = format(mus_stream->info.width, mus_stream->info.channels);
+    qalBufferData(b, fmt, decode_buffer, l, mus_stream->info.rate);
 }
 
 /*
@@ -122,59 +117,55 @@ idAudioOpenALSystemLocal::StartBackgroundTrack
 Background music playback
 =================
 */
-void idAudioOpenALSystemLocal::StartBackgroundTrack( pointer intro, pointer loop )
-{
+void idAudioOpenALSystemLocal::StartBackgroundTrack(pointer intro,
+        pointer loop) {
     sint i;
-    
+
     // Stop any existing music that might be playing
     StopBackgroundTrack();
-    
-    if( !intro || !intro[0] )
-    {
+
+    if(!intro || !intro[0]) {
         intro = loop;
     }
-    if( !loop || !loop[0] )
-    {
+
+    if(!loop || !loop[0]) {
         loop = intro;
     }
-    
-    if( ( !intro || !intro[0] ) && ( !intro || !intro[0] ) )
-    {
+
+    if((!intro || !intro[0]) && (!intro || !intro[0])) {
         return;
     }
-    
+
     // Copy the loop over
-    ::strncpy( s_backgroundLoop, loop, sizeof( s_backgroundLoop ) );
-    
+    ::strncpy(s_backgroundLoop, loop, sizeof(s_backgroundLoop));
+
     // Open the intro
-    mus_stream = soundSystem->codec_open( intro );
-    
-    if( !mus_stream )
-    {
+    mus_stream = soundSystem->codec_open(intro);
+
+    if(!mus_stream) {
         return;
     }
-    
+
     // Allocate a source
     mus_source_get();
-    if( source_handle == -1 )
-    {
+
+    if(source_handle == -1) {
         return;
     }
-    
+
     // Generate the buffers
-    qalGenBuffers( BUFFERS, buffers );
-    
+    qalGenBuffers(BUFFERS, buffers);
+
     // Queue the buffers up
-    for( i = 0; i < BUFFERS; i++ )
-    {
-        mus_process( buffers[i] );
+    for(i = 0; i < BUFFERS; i++) {
+        mus_process(buffers[i]);
     }
-    
-    qalSourceQueueBuffers( source, BUFFERS, buffers );
-    
+
+    qalSourceQueueBuffers(source, BUFFERS, buffers);
+
     // Start playing
-    qalSourcePlay( source );
-    
+    qalSourcePlay(source);
+
     mus_playing = true;
 }
 
@@ -183,33 +174,30 @@ void idAudioOpenALSystemLocal::StartBackgroundTrack( pointer intro, pointer loop
 idAudioOpenALSystemLocal::StopBackgroundTrack
 =================
 */
-void idAudioOpenALSystemLocal::StopBackgroundTrack( void )
-{
-    if( !mus_playing )
-    {
+void idAudioOpenALSystemLocal::StopBackgroundTrack(void) {
+    if(!mus_playing) {
         return;
     }
-    
+
     // Stop playing
-    qalSourceStop( source );
-    
+    qalSourceStop(source);
+
     // De-queue the buffers
-    qalSourceUnqueueBuffers( source, BUFFERS, buffers );
-    
+    qalSourceUnqueueBuffers(source, BUFFERS, buffers);
+
     // Destroy the buffers
-    qalDeleteBuffers( BUFFERS, buffers );
-    
+    qalDeleteBuffers(BUFFERS, buffers);
+
     // Free the source
     mus_source_free();
-    
+
     // Unload the stream
-    if( mus_stream )
-    {
-        soundSystem->codec_close( mus_stream );
+    if(mus_stream) {
+        soundSystem->codec_close(mus_stream);
     }
-    
+
     mus_stream = nullptr;
-    
+
     mus_playing = false;
 }
 
@@ -218,36 +206,33 @@ void idAudioOpenALSystemLocal::StopBackgroundTrack( void )
 idAudioOpenALSystemLocal::mus_update
 =================
 */
-void idAudioOpenALSystemLocal::mus_update( void )
-{
+void idAudioOpenALSystemLocal::mus_update(void) {
     sint processed;
     ALint state;
-    
-    if( !mus_playing )
-    {
+
+    if(!mus_playing) {
         return;
     }
-    
-    qalGetSourcei( source, AL_BUFFERS_PROCESSED, &processed );
-    if( processed )
-    {
-        while( processed-- )
-        {
+
+    qalGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
+
+    if(processed) {
+        while(processed--) {
             ALuint b;
-            qalSourceUnqueueBuffers( source, 1, &b );
-            mus_process( b );
-            qalSourceQueueBuffers( source, 1, &b );
+            qalSourceUnqueueBuffers(source, 1, &b);
+            mus_process(b);
+            qalSourceQueueBuffers(source, 1, &b);
         }
     }
-    
+
     // If it's not still playing, give it a kick
-    qalGetSourcei( source, AL_SOURCE_STATE, &state );
-    if( state == AL_STOPPED )
-    {
-        trap_Printf( PRINT_DEVELOPER, "Musical kick\n" );
-        qalSourcePlay( source );
+    qalGetSourcei(source, AL_SOURCE_STATE, &state);
+
+    if(state == AL_STOPPED) {
+        trap_Printf(PRINT_DEVELOPER, "Musical kick\n");
+        qalSourcePlay(source);
     }
-    
+
     // Set the gain property
-    qalSourcef( source, AL_GAIN, s_gain->value * s_musicVolume->value );
+    qalSourcef(source, AL_GAIN, s_gain->value * s_musicVolume->value);
 }

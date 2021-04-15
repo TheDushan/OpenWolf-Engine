@@ -31,30 +31,28 @@
 #define INCLUDE_SDL_SPLASH_H
 
 #define SPLASH_IMAGE_RUN_LENGTH_DECODE(image_buf, rle_data, size, bpp) do \
-{ unsigned int __bpp; unsigned char *__ip; const unsigned char *__il, *__rd; \
-  __bpp = (bpp); __ip = (image_buf); __il = __ip + (size) * __bpp; \
-  __rd = (rle_data); if (__bpp > 3) { /* RGBA */ \
-    while (__ip < __il) { unsigned int __l = *(__rd++); \
-      if (__l & 128) { __l = __l - 128; \
-        do { memcpy (__ip, __rd, 4); __ip += 4; } while (--__l); __rd += 4; \
-      } else { __l *= 4; memcpy (__ip, __rd, __l); \
-               __ip += __l; __rd += __l; } } \
-  } else { /* RGB */ \
-    while (__ip < __il) { unsigned int __l = *(__rd++); \
-      if (__l & 128) { __l = __l - 128; \
-        do { memcpy (__ip, __rd, 3); __ip += 3; } while (--__l); __rd += 3; \
-      } else { __l *= 3; memcpy (__ip, __rd, __l); \
-               __ip += __l; __rd += __l; } } \
-  } } while (0)
+    { unsigned int __bpp; unsigned char *__ip; const unsigned char *__il, *__rd; \
+        __bpp = (bpp); __ip = (image_buf); __il = __ip + (size) * __bpp; \
+        __rd = (rle_data); if (__bpp > 3) { /* RGBA */ \
+            while (__ip < __il) { unsigned int __l = *(__rd++); \
+                if (__l & 128) { __l = __l - 128; \
+                    do { memcpy (__ip, __rd, 4); __ip += 4; } while (--__l); __rd += 4; \
+                } else { __l *= 4; memcpy (__ip, __rd, __l); \
+                    __ip += __l; __rd += __l; } } \
+        } else { /* RGB */ \
+            while (__ip < __il) { unsigned int __l = *(__rd++); \
+                if (__l & 128) { __l = __l - 128; \
+                    do { memcpy (__ip, __rd, 3); __ip += 3; } while (--__l); __rd += 3; \
+                } else { __l *= 3; memcpy (__ip, __rd, __l); \
+                    __ip += __l; __rd += __l; } } \
+        } } while (0)
 
-static const struct
-{
+static const struct {
     unsigned int  width;
     unsigned int  height;
     unsigned int  bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */
-    unsigned char	 rle_pixel_data[45659 + 1];
-} CLIENT_WINDOW_SPLASH =
-{
+    unsigned char    rle_pixel_data[45659 + 1];
+} CLIENT_WINDOW_SPLASH = {
     475, 75, 4,
     "\377\000\000\000\377\211\000\000\000\377\002\001\000\001\377\000\000\000\377\202\001\001\001\377\204\000\001"
     "\000\377\005\001\000\000\377\001\001\000\377\001\001\001\377\000\000\000\377\000\001\000\377\203\000\000\002\377"

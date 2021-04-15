@@ -35,14 +35,12 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 /* Intel ADPCM step variation table */
-static sint indexTable[16] =
-{
+static sint indexTable[16] = {
     -1, -1, -1, -1, 2, 4, 6, 8,
-    -1, -1, -1, -1, 2, 4, 6, 8,
-};
+        -1, -1, -1, -1, 2, 4, 6, 8,
+    };
 
-static sint stepsizeTable[89] =
-{
+static sint stepsizeTable[89] = {
     7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
     19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
     50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
@@ -59,35 +57,34 @@ static sint stepsizeTable[89] =
 S_AdpcmEncode
 =================
 */
-void S_AdpcmEncode( schar16 indata[], valueType outdata[], sint len, struct adpcm_state* state )
-{
-    schar16* inp;
-    schar8* outp;
-    sint val, sign, delta, diff, step, valpred, vpdiff, index, outputbuffer, bufferstep;
-    
-    outp = reinterpret_cast<schar8*>( outdata );
+void S_AdpcmEncode(schar16 indata[], valueType outdata[], sint len,
+                   struct adpcm_state *state) {
+    schar16 *inp;
+    schar8 *outp;
+    sint val, sign, delta, diff, step, valpred, vpdiff, index, outputbuffer,
+         bufferstep;
+
+    outp = reinterpret_cast<schar8 *>(outdata);
     inp = indata;
-    
+
     valpred = state->sample;
     index = state->index;
     step = stepsizeTable[index];
-    
-    outputbuffer = 0;	// quiet a compiler warning
+
+    outputbuffer = 0;   // quiet a compiler warning
     bufferstep = 1;
-    
-    for( ; len > 0 ; len-- )
-    {
+
+    for(; len > 0 ; len--) {
         val = *inp++;
-        
+
         /* Step 1 - compute difference with previous value */
         diff = val - valpred;
-        sign = ( diff < 0 ) ? 8 : 0;
-        
-        if( sign )
-        {
-            diff = ( -diff );
+        sign = (diff < 0) ? 8 : 0;
+
+        if(sign) {
+            diff = (-diff);
         }
-        
+
         /* Step 2 - Divide and clamp */
         /* Note:
         ** This code *approximately* computes:
@@ -98,83 +95,73 @@ void S_AdpcmEncode( schar16 indata[], valueType outdata[], sint len, struct adpc
         ** good use since the fixup would be too expensive.
         */
         delta = 0;
-        vpdiff = ( step >> 3 );
-        
-        if( diff >= step )
-        {
+        vpdiff = (step >> 3);
+
+        if(diff >= step) {
             delta = 4;
             diff -= step;
             vpdiff += step;
         }
+
         step >>= 1;
-        
-        if( diff >= step )
-        {
+
+        if(diff >= step) {
             delta |= 2;
             diff -= step;
             vpdiff += step;
         }
+
         step >>= 1;
-        
-        if( diff >= step )
-        {
+
+        if(diff >= step) {
             delta |= 1;
             vpdiff += step;
         }
-        
+
         /* Step 3 - Update previous value */
-        if( sign )
-        {
+        if(sign) {
             valpred -= vpdiff;
-        }
-        else
-        {
+        } else {
             valpred += vpdiff;
         }
-        
+
         /* Step 4 - Clamp previous value to 16 bits */
-        if( valpred > 32767 )
-        {
+        if(valpred > 32767) {
             valpred = 32767;
-        }
-        else if( valpred < -32768 )
-        {
+        } else if(valpred < -32768) {
             valpred = -32768;
         }
-        
+
         /* Step 5 - Assemble value, update index and step values */
         delta |= sign;
-        
+
         index += indexTable[delta];
-        if( index < 0 )
-        {
+
+        if(index < 0) {
             index = 0;
         }
-        
-        if( index > 88 )
-        {
+
+        if(index > 88) {
             index = 88;
         }
+
         step = stepsizeTable[index];
-        
+
         /* Step 6 - Output value */
-        if( bufferstep )
-        {
-            outputbuffer = ( delta << 4 ) & 0xf0;
+        if(bufferstep) {
+            outputbuffer = (delta << 4) & 0xf0;
+        } else {
+            *outp++ = (delta & 0x0f) | outputbuffer;
         }
-        else
-        {
-            *outp++ = ( delta & 0x0f ) | outputbuffer;
-        }
+
         bufferstep = !bufferstep;
     }
-    
+
     /* Output last step, if needed */
-    if( !bufferstep )
-    {
+    if(!bufferstep) {
         *outp++ = outputbuffer;
     }
-    
+
     state->sample = valpred;
     state->index = index;
 }
@@ -184,100 +171,89 @@ void S_AdpcmEncode( schar16 indata[], valueType outdata[], sint len, struct adpc
 S_AdpcmDecode
 =================
 */
-void S_AdpcmDecode( const valueType indata[], schar16* outdata, sint len, struct adpcm_state* state )
-{
-    schar8* inp;
-    sint outp, sign, delta, step, valpred, vpdiff, index, inputbuffer, bufferstep;
-    
+void S_AdpcmDecode(const valueType indata[], schar16 *outdata, sint len,
+                   struct adpcm_state *state) {
+    schar8 *inp;
+    sint outp, sign, delta, step, valpred, vpdiff, index, inputbuffer,
+         bufferstep;
+
     outp = 0;
-    inp = const_cast<schar8*>( reinterpret_cast<const schar8*>( indata ) );
-    
+    inp = const_cast<schar8 *>(reinterpret_cast<const schar8 *>(indata));
+
     valpred = state->sample;
     index = state->index;
     step = stepsizeTable[index];
-    
+
     bufferstep = 0;
-    inputbuffer = 0;	// quiet a compiler warning
-    for( ; len > 0 ; len-- )
-    {
-    
+    inputbuffer = 0;    // quiet a compiler warning
+
+    for(; len > 0 ; len--) {
+
         /* Step 1 - get the delta value */
-        if( bufferstep )
-        {
+        if(bufferstep) {
             delta = inputbuffer & 0xf;
-        }
-        else
-        {
+        } else {
             inputbuffer = *inp++;
-            delta = ( inputbuffer >> 4 ) & 0xf;
+            delta = (inputbuffer >> 4) & 0xf;
         }
+
         bufferstep = !bufferstep;
-        
+
         /* Step 2 - Find new index value (for later) */
         index += indexTable[delta];
-        
-        if( index < 0 )
-        {
+
+        if(index < 0) {
             index = 0;
         }
-        
-        if( index > 88 )
-        {
+
+        if(index > 88) {
             index = 88;
         }
-        
+
         /* Step 3 - Separate sign and magnitude */
         sign = delta & 8;
         delta = delta & 7;
-        
+
         /* Step 4 - Compute difference and new predicted value */
         /*
         ** Computes 'vpdiff = (delta+0.5)*step/4', but see comment
         ** in adpcm_coder.
         */
         vpdiff = step >> 3;
-        if( delta & 4 )
-        {
+
+        if(delta & 4) {
             vpdiff += step;
         }
-        
-        if( delta & 2 )
-        {
+
+        if(delta & 2) {
             vpdiff += step >> 1;
         }
-        
-        if( delta & 1 )
-        {
+
+        if(delta & 1) {
             vpdiff += step >> 2;
         }
-        
-        if( sign )
-        {
+
+        if(sign) {
             valpred -= vpdiff;
-        }
-        else
-        {
+        } else {
             valpred += vpdiff;
         }
-        
+
         /* Step 5 - clamp output value */
-        if( valpred > 32767 )
-        {
+        if(valpred > 32767) {
             valpred = 32767;
-        }
-        else if( valpred < -32768 )
-        {
+        } else if(valpred < -32768) {
             valpred = -32768;
         }
-        
+
         /* Step 6 - Update step value */
         step = stepsizeTable[index];
-        
+
         /* Step 7 - Output value */
         outdata[outp] = valpred;
         outp++;
     }
-    
+
     state->sample = valpred;
     state->index = index;
 }
@@ -288,31 +264,29 @@ S_AdpcmMemoryNeeded
 Returns the amount of memory (in bytes) needed to store the samples in out internal adpcm format
 ====================
 */
-sint S_AdpcmMemoryNeeded( const wavinfo_t* info )
-{
-    float32	scale;
+sint S_AdpcmMemoryNeeded(const wavinfo_t *info) {
+    float32 scale;
     sint scaledSampleCount, sampleMemory, blockCount, headerMemory;
-    
+
     // determine scale to convert from input sampling rate to desired sampling rate
-    scale = static_cast< float32 >( info->rate ) / dma.speed;
-    
+    scale = static_cast< float32 >(info->rate) / dma.speed;
+
     // calc number of samples at playback sampling rate
     scaledSampleCount = info->samples / scale;
-    
+
     // calc memory need to store those samples using ADPCM at 4 bits per sample
     sampleMemory = scaledSampleCount / 2;
-    
+
     // calc number of sample blocks needed of PAINTBUFFER_SIZE
     blockCount = scaledSampleCount / PAINTBUFFER_SIZE;
-    
-    if( scaledSampleCount % PAINTBUFFER_SIZE )
-    {
+
+    if(scaledSampleCount % PAINTBUFFER_SIZE) {
         blockCount++;
     }
-    
+
     // calc memory needed to store the block headers
-    headerMemory = blockCount * sizeof( adpcm_state_t );
-    
+    headerMemory = blockCount * sizeof(adpcm_state_t);
+
     return sampleMemory + headerMemory;
 }
 
@@ -322,19 +296,19 @@ sint S_AdpcmMemoryNeeded( const wavinfo_t* info )
 S_AdpcmGetSamples
 ====================
 */
-void S_AdpcmGetSamples( sndBuffer* chunk, schar16* to )
-{
+void S_AdpcmGetSamples(sndBuffer *chunk, schar16 *to) {
     adpcm_state_t state;
-    uchar8* out;
-    
+    uchar8 *out;
+
     // get the starting state from the block header
     state.index = chunk->adpcm.index;
     state.sample = chunk->adpcm.sample;
-    
-    out = reinterpret_cast<uchar8*>( chunk->sndChunk );
-    
+
+    out = reinterpret_cast<uchar8 *>(chunk->sndChunk);
+
     // get samples
-    S_AdpcmDecode( reinterpret_cast<valueType*>( out ), to, SND_CHUNK_SIZE_BYTE * 2, &state );
+    S_AdpcmDecode(reinterpret_cast<valueType *>(out), to,
+                  SND_CHUNK_SIZE_BYTE * 2, &state);
 }
 
 
@@ -343,48 +317,46 @@ void S_AdpcmGetSamples( sndBuffer* chunk, schar16* to )
 S_AdpcmEncodeSound
 ====================
 */
-void S_AdpcmEncodeSound( sfx_t* sfx, schar16* samples )
-{
+void S_AdpcmEncodeSound(sfx_t *sfx, schar16 *samples) {
     adpcm_state_t state;
     sint inOffset, count, n;
-    sndBuffer* newchunk, *chunk;
-    uchar8*  out;
-    
+    sndBuffer *newchunk, *chunk;
+    uchar8  *out;
+
     inOffset = 0;
     count = sfx->soundLength;
     state.index = 0;
     state.sample = samples[0];
-    
+
     chunk = nullptr;
-    while( count )
-    {
+
+    while(count) {
         n = count;
-        if( n > SND_CHUNK_SIZE_BYTE * 2 )
-        {
+
+        if(n > SND_CHUNK_SIZE_BYTE * 2) {
             n = SND_CHUNK_SIZE_BYTE * 2;
         }
-        
+
         newchunk = SND_malloc();
-        
-        if( sfx->soundData == nullptr )
-        {
+
+        if(sfx->soundData == nullptr) {
             sfx->soundData = newchunk;
-        }
-        else
-        {
+        } else {
             chunk->next = newchunk;
         }
+
         chunk = newchunk;
-        
+
         // output the header
         chunk->adpcm.index = state.index;
         chunk->adpcm.sample = state.sample;
-        
-        out = reinterpret_cast< uchar8*>( chunk->sndChunk );
-        
+
+        out = reinterpret_cast< uchar8 *>(chunk->sndChunk);
+
         // encode the samples
-        S_AdpcmEncode( samples + inOffset, reinterpret_cast<valueType*>( out ), n, &state );
-        
+        S_AdpcmEncode(samples + inOffset, reinterpret_cast<valueType *>(out), n,
+                      &state);
+
         inOffset += n;
         count -= n;
     }

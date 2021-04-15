@@ -44,15 +44,14 @@
 #endif
 
 idConsoleHistoryLocal consoleHistoryLocal;
-idConsoleHistorySystem* consoleHistorySystem = &consoleHistoryLocal;
+idConsoleHistorySystem *consoleHistorySystem = &consoleHistoryLocal;
 
 /*
 ===============
 idConsoleHistoryLocal::idConsoleHistoryLocal
 ===============
 */
-idConsoleHistoryLocal::idConsoleHistoryLocal( void )
-{
+idConsoleHistoryLocal::idConsoleHistoryLocal(void) {
 }
 
 /*
@@ -60,8 +59,7 @@ idConsoleHistoryLocal::idConsoleHistoryLocal( void )
 idConsoleHistoryLocal::~idConsoleHistoryLocal
 ===============
 */
-idConsoleHistoryLocal::~idConsoleHistoryLocal( void )
-{
+idConsoleHistoryLocal::~idConsoleHistoryLocal(void) {
 }
 
 /*
@@ -69,52 +67,49 @@ idConsoleHistoryLocal::~idConsoleHistoryLocal( void )
 idConsoleHistoryLocal::Load
 ==================
 */
-void idConsoleHistoryLocal::Load( void )
-{
+void idConsoleHistoryLocal::Load(void) {
     sint i;
     fileHandle_t f;
-    valueType* buf, * end;
-    valueType buffer[sizeof( history )];
-    
-    fileSystem->SV_FOpenFileRead( CON_HISTORY_FILE, &f );
-    if( !f )
-    {
-        Com_Printf( "Couldn't read %s.\n", CON_HISTORY_FILE );
+    valueType *buf, * end;
+    valueType buffer[sizeof(history)];
+
+    fileSystem->SV_FOpenFileRead(CON_HISTORY_FILE, &f);
+
+    if(!f) {
+        Com_Printf("Couldn't read %s.\n", CON_HISTORY_FILE);
         return;
     }
-    
-    ::memset( buffer, '\0', sizeof( buffer ) );
-    ::memset( history, '\0', sizeof( history ) );
-    
-    fileSystem->Read( buffer, sizeof( buffer ), f );
-    fileSystem->FCloseFile( f );
-    
+
+    ::memset(buffer, '\0', sizeof(buffer));
+    ::memset(history, '\0', sizeof(history));
+
+    fileSystem->Read(buffer, sizeof(buffer), f);
+    fileSystem->FCloseFile(f);
+
     buf = buffer;
-    
-    for( i = 0; i < CON_HISTORY; i++ )
-    {
-        end = strchr( buf, '\n' );
-        if( !end )
-        {
-            Q_strncpyz( history[i], buf, sizeof( history[0] ) );
+
+    for(i = 0; i < CON_HISTORY; i++) {
+        end = strchr(buf, '\n');
+
+        if(!end) {
+            Q_strncpyz(history[i], buf, sizeof(history[0]));
             break;
         }
-        
+
         *end = '\0';
-        
-        Q_strncpyz( history[i], buf, sizeof( history[0] ) );
+
+        Q_strncpyz(history[i], buf, sizeof(history[0]));
         buf = end + 1;
-        if( !*buf )
-        {
+
+        if(!*buf) {
             break;
         }
     }
-    
-    if( i > CON_HISTORY )
-    {
+
+    if(i > CON_HISTORY) {
         i = CON_HISTORY;
     }
-    
+
     hist_current = hist_next = i + 1;
 }
 
@@ -123,34 +118,33 @@ void idConsoleHistoryLocal::Load( void )
 idConsoleHistoryLocal::Save
 ==================
 */
-void idConsoleHistoryLocal::Save( void )
-{
+void idConsoleHistoryLocal::Save(void) {
     sint i;
     fileHandle_t f;
-    
-    f = fileSystem->SV_FOpenFileWrite( CON_HISTORY_FILE );
-    if( !f )
-    {
-        Com_Printf( "Couldn't write %s.\n", CON_HISTORY_FILE );
+
+    f = fileSystem->SV_FOpenFileWrite(CON_HISTORY_FILE);
+
+    if(!f) {
+        Com_Printf("Couldn't write %s.\n", CON_HISTORY_FILE);
         return;
     }
-    
-    i = ( hist_next + 1 ) % CON_HISTORY;
-    do
-    {
-        valueType* buf;
-        if( !history[i][0] )
-        {
-            i = ( i + 1 ) % CON_HISTORY;
+
+    i = (hist_next + 1) % CON_HISTORY;
+
+    do {
+        valueType *buf;
+
+        if(!history[i][0]) {
+            i = (i + 1) % CON_HISTORY;
             continue;
         }
-        buf = va( "%s\n", history[i] );
-        fileSystem->Write( buf, strlen( buf ), f );
-        i = ( i + 1 ) % CON_HISTORY;
-    }
-    while( i != ( hist_next - 1 ) % CON_HISTORY );
-    
-    fileSystem->FCloseFile( f );
+
+        buf = va("%s\n", history[i]);
+        fileSystem->Write(buf, strlen(buf), f);
+        i = (i + 1) % CON_HISTORY;
+    } while(i != (hist_next - 1) % CON_HISTORY);
+
+    fileSystem->FCloseFile(f);
 }
 
 /*
@@ -158,26 +152,24 @@ void idConsoleHistoryLocal::Save( void )
 idConsoleHistoryLocal::Add
 ==================
 */
-void idConsoleHistoryLocal::Add( pointer field )
-{
-    pointer prev = history[( hist_next - 1 ) % CON_HISTORY];
-    
+void idConsoleHistoryLocal::Add(pointer field) {
+    pointer prev = history[(hist_next - 1) % CON_HISTORY];
+
     // don't add "", "\" or "/"
-    if( !field[0] || ( ( field[0] == '/' || field[0] == '\\' ) && !field[1] ) )
-    {
+    if(!field[0] || ((field[0] == '/' || field[0] == '\\') && !field[1])) {
         hist_current = hist_next;
         return;
     }
-    
+
     // don't add if same as previous (treat leading \ and / as equivalent)
-    if( ( *field == *prev || ( *field == '/' && *prev == '\\' ) || ( *field == '\\' && *prev == '/' ) ) && !::strcmp( &field[1], &prev[1] ) )
-    {
+    if((*field == *prev || (*field == '/' && *prev == '\\') ||
+            (*field == '\\' && *prev == '/')) && !::strcmp(&field[1], &prev[1])) {
         hist_current = hist_next;
         return;
     }
-    
-    Q_strncpyz( history[hist_next % CON_HISTORY], field, sizeof( history[0] ) );
-    
+
+    Q_strncpyz(history[hist_next % CON_HISTORY], field, sizeof(history[0]));
+
     hist_next++;
     hist_current = hist_next;
     Save();
@@ -188,13 +180,12 @@ void idConsoleHistoryLocal::Add( pointer field )
 idConsoleHistoryLocal::Prev
 ==================
 */
-pointer idConsoleHistoryLocal::Prev( void )
-{
-    if( ( hist_current - 1 ) % CON_HISTORY != hist_next % CON_HISTORY && history[( hist_current - 1 ) % CON_HISTORY][0] )
-    {
+pointer idConsoleHistoryLocal::Prev(void) {
+    if((hist_current - 1) % CON_HISTORY != hist_next % CON_HISTORY &&
+            history[(hist_current - 1) % CON_HISTORY][0]) {
         hist_current--;
     }
-    
+
     return history[hist_current % CON_HISTORY];
 }
 
@@ -203,22 +194,19 @@ pointer idConsoleHistoryLocal::Prev( void )
 idConsoleHistoryLocal::Next
 ==================
 */
-pointer idConsoleHistoryLocal::Next( pointer field )
-{
-    if( hist_current % CON_HISTORY != hist_next % CON_HISTORY )
-    {
+pointer idConsoleHistoryLocal::Next(pointer field) {
+    if(hist_current % CON_HISTORY != hist_next % CON_HISTORY) {
         hist_current++;
     }
-    
-    if( hist_current % CON_HISTORY == hist_next % CON_HISTORY )
-    {
-        if( *field && strcmp( field, history[( hist_current - 1 ) % CON_HISTORY] ) )
-        {
-            Add( field );
+
+    if(hist_current % CON_HISTORY == hist_next % CON_HISTORY) {
+        if(*field && strcmp(field, history[(hist_current - 1) % CON_HISTORY])) {
+            Add(field);
         }
-        
+
         return "";
     }
+
     return history[hist_current % CON_HISTORY];
 }
 

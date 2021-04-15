@@ -40,58 +40,59 @@
 //
 // idServerCcmdsSystemLocal
 //
-class idServerCcmdsSystemLocal
-{
+class idServerCcmdsSystemLocal {
 public:
     idServerCcmdsSystemLocal();
     ~idServerCcmdsSystemLocal();
-    
-    static void TempBanNetAddress( netadr_t address, sint length );
-    static void AddOperatorCommands( void );
-    static void Heartbeat_f( void );
-    static bool TempBanIsBanned( netadr_t address );
-    static client_t* GetPlayerByHandle( void );
-    static client_t* GetPlayerByName( void );
-    static void Map_f( void );
-    static bool CheckTransitionGameState( gamestate_t new_gs, gamestate_t old_gs );
-    static bool TransitionGameState( gamestate_t new_gs, gamestate_t old_gs, sint delay );
-    static void FieldInfo_f( void );
-    static void MapRestart_f( void );
-    static void LoadGame_f( void );
-    static void Status_f( void );
-    static void ConSay_f( void );
-    static void Serverinfo_f( void );
-    static void Systeminfo_f( void );
-    static void DumpUser_f( void );
-    static void UserInfo_f( void );
-    static void StartMatch_f( void );
-    static void StopMatch_f( void );
-    static void AddClanMatch_f( void );
-    static void AddUserMatch_f( void );
-    static void AddRefereeMatch_f( void );
-    static void MatchInfo_f( void );
-    static void AddIP_f( void );
-    static void BanList_f( void );
-    static void UnBan_f( void );
-    static void StatsPlayers_f( void );
-    static void StatsPlayer_f( void );
-    static void KillServer_f( void );
-    static void GameCompleteStatus_f( void );
-    static void CompleteMapName( valueType* args, sint argNum );
-    static void ClientRedirect( valueType* outputbuf );
-    static void StartRedirect_f( void );
-    static void CompleteDemoName( valueType* args, sint argNum );
-    static void WriteDemoMessage( client_t* cl, msg_t* msg, sint headerBytes );
-    static void StopRecord_f( void );
-    static void DemoFilename( valueType* buf, sint bufSize );
-    static void Record_f( void );
-    static void StopRecordDemo( client_t* cl );
-    static void StopAutoRecordDemos( void );
-    static void RecordDemo( client_t* cl, valueType* demoName );
-    static void AutoRecordDemo( client_t* cl );
-    static time_t ExtractTimeFromDemoFolder( valueType* folder );
-    static sint DemoFolderTimeComparator( const void* arg1, const void* arg2 );
-    static void BeginAutoRecordDemos( void );
+
+    static void TempBanNetAddress(netadr_t address, sint length);
+    static void AddOperatorCommands(void);
+    static void Heartbeat_f(void);
+    static bool TempBanIsBanned(netadr_t address);
+    static client_t *GetPlayerByHandle(void);
+    static client_t *GetPlayerByName(void);
+    static void Map_f(void);
+    static bool CheckTransitionGameState(gamestate_t new_gs,
+                                         gamestate_t old_gs);
+    static bool TransitionGameState(gamestate_t new_gs, gamestate_t old_gs,
+                                    sint delay);
+    static void FieldInfo_f(void);
+    static void MapRestart_f(void);
+    static void LoadGame_f(void);
+    static void Status_f(void);
+    static void ConSay_f(void);
+    static void Serverinfo_f(void);
+    static void Systeminfo_f(void);
+    static void DumpUser_f(void);
+    static void UserInfo_f(void);
+    static void StartMatch_f(void);
+    static void StopMatch_f(void);
+    static void AddClanMatch_f(void);
+    static void AddUserMatch_f(void);
+    static void AddRefereeMatch_f(void);
+    static void MatchInfo_f(void);
+    static void AddIP_f(void);
+    static void BanList_f(void);
+    static void UnBan_f(void);
+    static void StatsPlayers_f(void);
+    static void StatsPlayer_f(void);
+    static void KillServer_f(void);
+    static void GameCompleteStatus_f(void);
+    static void CompleteMapName(valueType *args, sint argNum);
+    static void ClientRedirect(valueType *outputbuf);
+    static void StartRedirect_f(void);
+    static void CompleteDemoName(valueType *args, sint argNum);
+    static void WriteDemoMessage(client_t *cl, msg_t *msg, sint headerBytes);
+    static void StopRecord_f(void);
+    static void DemoFilename(valueType *buf, sint bufSize);
+    static void Record_f(void);
+    static void StopRecordDemo(client_t *cl);
+    static void StopAutoRecordDemos(void);
+    static void RecordDemo(client_t *cl, valueType *demoName);
+    static void AutoRecordDemo(client_t *cl);
+    static time_t ExtractTimeFromDemoFolder(valueType *folder);
+    static sint DemoFolderTimeComparator(const void *arg1, const void *arg2);
+    static void BeginAutoRecordDemos(void);
 };
 
 extern idServerCcmdsSystemLocal serverCcmdsLocal;

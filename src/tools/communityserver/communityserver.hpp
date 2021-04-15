@@ -37,43 +37,41 @@
 #include <mysql/mysql.h>
 #endif
 
-extern FILE* flog;
+extern FILE *flog;
 
 // Log files
 #define FILE_TO_LOG "communityserver.log"
 
-void lprintf( const char* fmt, ... );
+void lprintf(const char *fmt, ...);
 
-typedef struct
-{
+typedef struct {
     char col[1024];
     char value[1024];
 } col_value_t;
 
 #define MAX_COL_VALUE 1000
-typedef struct
-{
+typedef struct {
     int count;
     col_value_t col_value[MAX_COL_VALUE];
 } sql_data_t;
 
-MYSQL* connect_database( char* server, char* user, char* password, char* database );
-int db_get_id_from( char* st );
-int db_add_reg( col_value_t* col_value );
+MYSQL *connect_database(char *server, char *user, char *password,
+                        char *database);
+int db_get_id_from(char *st);
+int db_add_reg(col_value_t *col_value);
 
-int init_socket_server( char* ip, int port );
-int accept_socket( int sock );
-int db_accept_ip( char* ip );
-int net_get_actual_client_ip( char* ip );
+int init_socket_server(char *ip, int port);
+int accept_socket(int sock);
+int db_accept_ip(char *ip);
+int net_get_actual_client_ip(char *ip);
 
-int parse_message( char* msg );
-int parse_messageJSON( char* msg );
+int parse_message(char *msg);
+int parse_messageJSON(char *msg);
 
 extern int actual_client_socket;
 
 #define WEAPONS 12
-typedef enum
-{
+typedef enum {
     W_BLASTER,
     W_MACHINEGUN,
     W_PAIN_SAW,
@@ -93,8 +91,7 @@ typedef enum
 // Must be the same long as weapon_stats_e
 #define WEAPON_STATS 18
 
-typedef enum
-{
+typedef enum {
     WS_FIRED,
     WS_FIRED_HIT,
     WS_FIRED_HIT_TEAM,
@@ -118,38 +115,33 @@ typedef enum
 #define WEAPONS_STATS_MNEMONICS "WFD", "WFH", "WFT", "WFM", "WK", "WD", "WDD", "WTT", "WHH", "WHT", "WHL", "WHA", "WDN", "WTN", "WDH", "WDT", "WDL", "WDA", NULL
 
 #define MELEE_STATS 1
-typedef enum
-{
+typedef enum {
     MS_MELLE_KILLS,
 } melee_stats_e;
 
 #define MELEE_STATS_MNEMONICS "MKK", NULL
 
 #define EXPLOSIONS_STATS 1
-typedef enum
-{
+typedef enum {
     ES_GRANADE_KILLS
 } explosions_stats_e;
 
 #define EXPLOSIONS_STATS_MNEMONICS "EGK", NULL
 
 #define MISC_STATS 5
-typedef enum
-{
+typedef enum {
     MIS_ENVIRONMENTAL_DEATHS,
     MIS_SUICIDES
 } misc_stats_e;
 
 #define MISC_STATS_MNEMONICS "IED", "ISD", NULL
 
-typedef enum
-{
+typedef enum {
     CB_USER,
     CB_GUID
 } user_type_e;
 
-typedef struct user_stats_s
-{
+typedef struct user_stats_s {
     int type;
     char name[51];
     int weapons[WEAPONS][WEAPON_STATS];
@@ -165,19 +157,17 @@ typedef struct user_stats_s
     int login;
     int score;
     int team;
-    struct user_stats_s* next;
+    struct user_stats_s *next;
 } user_stats_t;
 
-typedef struct
-{
+typedef struct {
     int players;
     int cpu;
     int mem;
 } server_stats_t;
 
-typedef struct
-{
-    user_stats_t* user_stats;
+typedef struct {
+    user_stats_t *user_stats;
     server_stats_t server_stats;
     char game_id[49];
     int game_date;

@@ -40,22 +40,21 @@
 // ready to draw
 bool screenInitialized;
 
-convar_t* cl_timegraph;
-convar_t* cl_debuggraph;
-convar_t* cl_graphheight;
-convar_t* cl_graphscale;
-convar_t* cl_graphshift;
+convar_t *cl_timegraph;
+convar_t *cl_debuggraph;
+convar_t *cl_graphheight;
+convar_t *cl_graphscale;
+convar_t *cl_graphshift;
 
 idClientScreenSystemLocal clientScreenLocal;
-idClientScreenSystem* clientScreenSystem = &clientScreenLocal;
+idClientScreenSystem *clientScreenSystem = &clientScreenLocal;
 
 /*
 ===============
 idClientScreenSystemLocal::idClientScreenSystemLocal
 ===============
 */
-idClientScreenSystemLocal::idClientScreenSystemLocal( void )
-{
+idClientScreenSystemLocal::idClientScreenSystemLocal(void) {
 }
 
 /*
@@ -63,8 +62,7 @@ idClientScreenSystemLocal::idClientScreenSystemLocal( void )
 idClientScreenSystemLocal::~idClientScreenSystemLocal
 ===============
 */
-idClientScreenSystemLocal::~idClientScreenSystemLocal( void )
-{
+idClientScreenSystemLocal::~idClientScreenSystemLocal(void) {
 }
 
 /*
@@ -74,39 +72,36 @@ idClientScreenSystemLocal::AdjustFrom640
 Adjusted for resolution and screen aspect ratio
 ================
 */
-void idClientScreenSystemLocal::AdjustFrom640( float32* x, float32* y, float32* w, float32* h )
-{
+void idClientScreenSystemLocal::AdjustFrom640(float32 *x, float32 *y,
+        float32 *w, float32 *h) {
     float32 xscale, yscale;
-    
+
 #if 0
+
     // adjust for wide screens
-    if( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 )
-    {
-        *x += 0.5 * ( cls.glconfig.vidWidth - ( cls.glconfig.vidHeight * 640 / 480 ) );
+    if(cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640) {
+        *x += 0.5 * (cls.glconfig.vidWidth - (cls.glconfig.vidHeight * 640 / 480));
     }
+
 #endif
-    
+
     // scale for screen sizes
     xscale = cls.glconfig.vidWidth / 640.0f;
     yscale = cls.glconfig.vidHeight / 480.0f;
-    
-    if( x )
-    {
+
+    if(x) {
         *x *= xscale;
     }
-    
-    if( y )
-    {
+
+    if(y) {
         *y *= yscale;
     }
-    
-    if( w )
-    {
+
+    if(w) {
         *w *= xscale;
     }
-    
-    if( h )
-    {
+
+    if(h) {
         *h *= yscale;
     }
 }
@@ -118,14 +113,15 @@ idClientScreenSystemLocal::FillRect
 Coordinates are 640*480 virtual values
 =================
 */
-void idClientScreenSystemLocal::FillRect( float32 x, float32 y, float32 width, float32 height, const float32* color )
-{
-    renderSystem->SetColor( color );
-    
-    AdjustFrom640( &x, &y, &width, &height );
-    renderSystem->DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
-    
-    renderSystem->SetColor( nullptr );
+void idClientScreenSystemLocal::FillRect(float32 x, float32 y,
+        float32 width, float32 height, const float32 *color) {
+    renderSystem->SetColor(color);
+
+    AdjustFrom640(&x, &y, &width, &height);
+    renderSystem->DrawStretchPic(x, y, width, height, 0, 0, 0, 0,
+                                 cls.whiteShader);
+
+    renderSystem->SetColor(nullptr);
 }
 
 /*
@@ -135,38 +131,37 @@ idClientScreenSystemLocal::DrawChar
 chars are drawn at 640*480 virtual screen size
 ==================
 */
-void idClientScreenSystemLocal::DrawChar( sint x, sint y, float32 size, sint ch )
-{
+void idClientScreenSystemLocal::DrawChar(sint x, sint y, float32 size,
+        sint ch) {
     sint row, col;
     float32 frow, fcol, ax, ay, aw, ah;
-    
+
     ch &= 255;
-    
-    if( ch == ' ' )
-    {
+
+    if(ch == ' ') {
         return;
     }
-    
-    if( y < -size )
-    {
+
+    if(y < -size) {
         return;
     }
-    
-    ax = static_cast<float32>( x );
-    ay = static_cast<float32>( y );
+
+    ax = static_cast<float32>(x);
+    ay = static_cast<float32>(y);
     aw = size;
     ah = size;
-    
-    AdjustFrom640( &ax, &ay, &aw, &ah );
-    
+
+    AdjustFrom640(&ax, &ay, &aw, &ah);
+
     row = ch >> 4;
     col = ch & 15;
-    
+
     frow = row * 0.0625f;
     fcol = col * 0.0625f;
     size = 0.0625;
-    
-    renderSystem->DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + size, frow + size, cls.charSetShader );
+
+    renderSystem->DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + size,
+                                 frow + size, cls.charSetShader);
 }
 
 /*
@@ -174,21 +169,26 @@ void idClientScreenSystemLocal::DrawChar( sint x, sint y, float32 size, sint ch 
 idClientScreenSystemLocal::DrawConsoleFontChar
 ==================
 */
-void idClientScreenSystemLocal::DrawConsoleFontChar( float32 x, float32 y, sint ch )
-{
-    fontInfo_t* font = &cls.consoleFont;
-    glyphInfo_t* glyph = &font->glyphs[ch];
-    float32 yadj = static_cast<float32>( glyph->top );
-    float32 xadj = ( ConsoleFontCharWidth( ch ) - glyph->xSkip ) / 2.0f;
-    
-    if( cls.useLegacyConsoleFont )
-    {
-        DrawSmallChar( static_cast<sint>( x ), static_cast<sint>( y ), ch );
+void idClientScreenSystemLocal::DrawConsoleFontChar(float32 x, float32 y,
+        sint ch) {
+    fontInfo_t *font = &cls.consoleFont;
+    glyphInfo_t *glyph = &font->glyphs[ch];
+    float32 yadj = static_cast<float32>(glyph->top);
+    float32 xadj = (ConsoleFontCharWidth(ch) - glyph->xSkip) / 2.0f;
+
+    if(cls.useLegacyConsoleFont) {
+        DrawSmallChar(static_cast<sint>(x), static_cast<sint>(y), ch);
         return;
     }
-    
-    if( ch == ' ' ) return;
-    renderSystem->DrawStretchPic( x + xadj, y - yadj, static_cast<float32>( glyph->imageWidth ), static_cast<float32>( glyph->imageHeight ), glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph );
+
+    if(ch == ' ') {
+        return;
+    }
+
+    renderSystem->DrawStretchPic(x + xadj, y - yadj,
+                                 static_cast<float32>(glyph->imageWidth),
+                                 static_cast<float32>(glyph->imageHeight), glyph->s, glyph->t, glyph->s2,
+                                 glyph->t2, glyph->glyph);
 }
 
 /*
@@ -198,31 +198,30 @@ idClientScreenSystemLocal::DrawSmallChar
 small chars are drawn at native screen resolution
 ==================
 */
-void idClientScreenSystemLocal::DrawSmallChar( sint x, sint y, sint ch )
-{
+void idClientScreenSystemLocal::DrawSmallChar(sint x, sint y, sint ch) {
     sint row, col;
     float32 frow, fcol, size;
-    
+
     ch &= 255;
-    
-    if( ch == ' ' )
-    {
+
+    if(ch == ' ') {
         return;
     }
-    
-    if( y < -SMALLCHAR_HEIGHT )
-    {
+
+    if(y < -SMALLCHAR_HEIGHT) {
         return;
     }
-    
+
     row = ch >> 4;
     col = ch & 15;
-    
+
     frow = row * 0.0625f;
     fcol = col * 0.0625f;
     size = 0.0625f;
-    
-    renderSystem->DrawStretchPic( static_cast<float32>( x ), static_cast<float32>( y ), SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, fcol, frow, fcol + size, frow + size, cls.charSetShader );
+
+    renderSystem->DrawStretchPic(static_cast<float32>(x),
+                                 static_cast<float32>(y), SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, fcol, frow,
+                                 fcol + size, frow + size, cls.charSetShader);
 }
 
 /*
@@ -235,72 +234,65 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void idClientScreenSystemLocal::DrawStringExt( sint x, sint y, float32 size, pointer string, float32* setColor, bool forceColor, bool noColorEscape )
-{
+void idClientScreenSystemLocal::DrawStringExt(sint x, sint y, float32 size,
+        pointer string, float32 *setColor, bool forceColor, bool noColorEscape) {
     sint xx;
     vec4_t color;
     pointer s;
-    
+
     // draw the drop shadow
     color[0] = color[1] = color[2] = 0;
     color[3] = setColor[3];
-    renderSystem->SetColor( color );
+    renderSystem->SetColor(color);
     s = string;
     xx = x;
-    while( *s )
-    {
-        if( !noColorEscape && Q_IsColorString( s ) )
-        {
+
+    while(*s) {
+        if(!noColorEscape && Q_IsColorString(s)) {
             s += 2;
             continue;
         }
-        
-        DrawChar( xx + 1, y + 1, size, *s );
-        
-        xx += static_cast<sint>( size );
+
+        DrawChar(xx + 1, y + 1, size, *s);
+
+        xx += static_cast<sint>(size);
         s++;
     }
-    
-    
+
+
     // draw the colored text
     s = string;
     xx = x;
-    
-    renderSystem->SetColor( setColor );
-    
-    while( *s )
-    {
-        if( !noColorEscape && Q_IsColorString( s ) )
-        {
-            if( !forceColor )
-            {
-                if( *( s + 1 ) == COLOR_NULL )
-                {
-                    ::memcpy( color, setColor, sizeof( color ) );
-                }
-                else
-                {
-                    ::memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
+
+    renderSystem->SetColor(setColor);
+
+    while(*s) {
+        if(!noColorEscape && Q_IsColorString(s)) {
+            if(!forceColor) {
+                if(*(s + 1) == COLOR_NULL) {
+                    ::memcpy(color, setColor, sizeof(color));
+                } else {
+                    ::memcpy(color, g_color_table[ColorIndex(*(s + 1))], sizeof(color));
                     color[3] = setColor[3];
                 }
-                
+
                 color[3] = setColor[3];
-                
-                renderSystem->SetColor( color );
+
+                renderSystem->SetColor(color);
             }
-            
+
             s += 2;
-            
+
             continue;
         }
-        
-        idClientScreenSystemLocal::DrawChar( xx, y, size, *s );
-        
-        xx += static_cast<sint>( size );
+
+        idClientScreenSystemLocal::DrawChar(xx, y, size, *s);
+
+        xx += static_cast<sint>(size);
         s++;
     }
-    
-    renderSystem->SetColor( nullptr );
+
+    renderSystem->SetColor(nullptr);
 }
 
 /*
@@ -308,14 +300,14 @@ void idClientScreenSystemLocal::DrawStringExt( sint x, sint y, float32 size, poi
 idClientScreenSystemLocal::DrawBigString
 ==================
 */
-void idClientScreenSystemLocal::DrawBigString( sint x, sint y, pointer s, float32 alpha, bool noColorEscape )
-{
+void idClientScreenSystemLocal::DrawBigString(sint x, sint y, pointer s,
+        float32 alpha, bool noColorEscape) {
     float32 color[4];
-    
+
     color[0] = color[1] = color[2] = 1.0;
     color[3] = alpha;
-    
-    DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, false, noColorEscape );
+
+    DrawStringExt(x, y, BIGCHAR_WIDTH, s, color, false, noColorEscape);
 }
 
 /*
@@ -328,49 +320,43 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void idClientScreenSystemLocal::DrawSmallStringExt( sint x, sint y, pointer string, float32* setColor, bool forceColor, bool noColorEscape )
-{
+void idClientScreenSystemLocal::DrawSmallStringExt(sint x, sint y,
+        pointer string, float32 *setColor, bool forceColor, bool noColorEscape) {
     float32 xx;
     vec4_t color;
     pointer s;
-    
+
     // draw the colored text
     s = string;
-    xx = static_cast<float32>( x );
-    renderSystem->SetColor( setColor );
-    while( *s )
-    {
-        if( Q_IsColorString( s ) )
-        {
-            if( !forceColor )
-            {
-                if( *( s + 1 ) == COLOR_NULL )
-                {
-                    ::memcpy( color, setColor, sizeof( color ) );
-                }
-                else
-                {
-                    ::memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
+    xx = static_cast<float32>(x);
+    renderSystem->SetColor(setColor);
+
+    while(*s) {
+        if(Q_IsColorString(s)) {
+            if(!forceColor) {
+                if(*(s + 1) == COLOR_NULL) {
+                    ::memcpy(color, setColor, sizeof(color));
+                } else {
+                    ::memcpy(color, g_color_table[ColorIndex(*(s + 1))], sizeof(color));
                     color[3] = setColor[3];
                 }
-                
-                renderSystem->SetColor( color );
+
+                renderSystem->SetColor(color);
             }
-            
-            if( !noColorEscape )
-            {
+
+            if(!noColorEscape) {
                 s += 2;
                 continue;
             }
         }
-        
-        DrawConsoleFontChar( xx, static_cast<float32>( y ), *s );
-        
-        xx += ConsoleFontCharWidth( *s );
+
+        DrawConsoleFontChar(xx, static_cast<float32>(y), *s);
+
+        xx += ConsoleFontCharWidth(*s);
         s++;
     }
-    
-    renderSystem->SetColor( nullptr );
+
+    renderSystem->SetColor(nullptr);
 }
 
 /*
@@ -380,24 +366,19 @@ idClientScreenSystemLocal::Strlen
 skips color escape codes
 ==================
 */
-sint idClientScreenSystemLocal::Strlen( pointer str )
-{
+sint idClientScreenSystemLocal::Strlen(pointer str) {
     sint count = 0;
     pointer s = str;
-    
-    while( *s )
-    {
-        if( Q_IsColorString( s ) )
-        {
+
+    while(*s) {
+        if(Q_IsColorString(s)) {
             s += 2;
-        }
-        else
-        {
+        } else {
             count++;
             s++;
         }
     }
-    
+
     return count;
 }
 
@@ -406,14 +387,13 @@ sint idClientScreenSystemLocal::Strlen( pointer str )
 idClientScreenSystemLocal::DrawDemoRecording
 =================
 */
-void idClientScreenSystemLocal::DrawDemoRecording( void )
-{
-    if( !clc.demorecording )
-    {
+void idClientScreenSystemLocal::DrawDemoRecording(void) {
+    if(!clc.demorecording) {
         return;
     }
-    
-    cvarSystem->Set( "cl_demooffset", va( "%d", fileSystem->FTell( clc.demofile ) ) );
+
+    cvarSystem->Set("cl_demooffset", va("%d",
+                                        fileSystem->FTell(clc.demofile)));
 }
 
 /*
@@ -421,8 +401,7 @@ void idClientScreenSystemLocal::DrawDemoRecording( void )
 idClientScreenSystemLocal::DebugGraph
 ==============
 */
-void idClientScreenSystemLocal::DebugGraph( float32 value, sint color )
-{
+void idClientScreenSystemLocal::DebugGraph(float32 value, sint color) {
     values[current & 1023].value = value;
     values[current & 1023].color = color;
     current++;
@@ -433,35 +412,37 @@ void idClientScreenSystemLocal::DebugGraph( float32 value, sint color )
 idClientScreenSystemLocal::DrawDebugGraph
 ==============
 */
-void idClientScreenSystemLocal::DrawDebugGraph( void )
-{
+void idClientScreenSystemLocal::DrawDebugGraph(void) {
     sint a, x, y, w, i, h, color;
     float32 v;
-    
+
     // draw the graph
     w = cls.glconfig.vidWidth;
     x = 0;
     y = cls.glconfig.vidHeight;
-    
-    renderSystem->SetColor( g_color_table[0] );
-    renderSystem->DrawStretchPic( static_cast<float32>( x ), static_cast<float32>( y - cl_graphheight->integer ), static_cast<float32>( w ), cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader );
-    renderSystem->SetColor( nullptr );
-    
-    for( a = 0; a < w; a++ )
-    {
-        i = ( current - 1 - a + 1024 ) & 1023;
+
+    renderSystem->SetColor(g_color_table[0]);
+    renderSystem->DrawStretchPic(static_cast<float32>(x),
+                                 static_cast<float32>(y - cl_graphheight->integer), static_cast<float32>(w),
+                                 cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader);
+    renderSystem->SetColor(nullptr);
+
+    for(a = 0; a < w; a++) {
+        i = (current - 1 - a + 1024) & 1023;
         v = values[i].value;
         color = values[i].color;
         v = v * cl_graphscale->integer + cl_graphshift->integer;
-        
-        if( v < 0 )
-        {
-            v += cl_graphheight->integer * ( 1 + static_cast<sint>( -v / cl_graphheight->integer ) );
+
+        if(v < 0) {
+            v += cl_graphheight->integer * (1 + static_cast<sint>
+                                            (-v / cl_graphheight->integer));
         }
-        
-        h = static_cast<sint>( v ) % cl_graphheight->integer;
-        
-        renderSystem->DrawStretchPic( x + static_cast<float32>( w - 1 - a ), static_cast<float32>( y - h ), 1, static_cast<float32>( h ), 0, 0, 0, 0, cls.whiteShader );
+
+        h = static_cast<sint>(v) % cl_graphheight->integer;
+
+        renderSystem->DrawStretchPic(x + static_cast<float32>(w - 1 - a),
+                                     static_cast<float32>(y - h), 1, static_cast<float32>(h), 0, 0, 0, 0,
+                                     cls.whiteShader);
     }
 }
 
@@ -470,14 +451,18 @@ void idClientScreenSystemLocal::DrawDebugGraph( void )
 idClientScreenSystemLocal::Init
 ==================
 */
-void idClientScreenSystemLocal::Init( void )
-{
-    cl_timegraph = cvarSystem->Get( "timegraph", "0", CVAR_CHEAT, "description" );
-    cl_debuggraph = cvarSystem->Get( "debuggraph", "0", CVAR_CHEAT, "description" );
-    cl_graphheight = cvarSystem->Get( "graphheight", "32", CVAR_CHEAT, "description" );
-    cl_graphscale = cvarSystem->Get( "graphscale", "1", CVAR_CHEAT, "description" );
-    cl_graphshift = cvarSystem->Get( "graphshift", "0", CVAR_CHEAT, "description" );
-    
+void idClientScreenSystemLocal::Init(void) {
+    cl_timegraph = cvarSystem->Get("timegraph", "0", CVAR_CHEAT,
+                                   "description");
+    cl_debuggraph = cvarSystem->Get("debuggraph", "0", CVAR_CHEAT,
+                                    "description");
+    cl_graphheight = cvarSystem->Get("graphheight", "32", CVAR_CHEAT,
+                                     "description");
+    cl_graphscale = cvarSystem->Get("graphscale", "1", CVAR_CHEAT,
+                                    "description");
+    cl_graphshift = cvarSystem->Get("graphshift", "0", CVAR_CHEAT,
+                                    "description");
+
     screenInitialized = true;
 }
 
@@ -488,103 +473,105 @@ idClientScreenSystemLocal::DrawScreenField
 This will be called twice if rendering in stereo mode
 ==================
 */
-void idClientScreenSystemLocal::DrawScreenField( stereoFrame_t stereoFrame )
-{
+void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
+        stereoFrame) {
     bool uiFullscreen;
-    
-    if( !cls.rendererStarted )
-    {
+
+    if(!cls.rendererStarted) {
         return;
     }
-    
-    renderSystem->BeginFrame( stereoFrame );
-    
-    uiFullscreen = ( uivm && uiManager->IsFullscreen() );
-    
+
+    renderSystem->BeginFrame(stereoFrame);
+
+    uiFullscreen = (uivm && uiManager->IsFullscreen());
+
     // wide aspect ratio screens need to have the sides cleared
     // unless they are displaying game renderings
-    if( uiFullscreen || cls.state < CA_LOADING )
-    {
-        if( cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640 )
-        {
-            renderSystem->SetColor( g_color_table[0] );
-            renderSystem->DrawStretchPic( 0, 0, static_cast<float32>( cls.glconfig.vidWidth ), static_cast<float32>( cls.glconfig.vidHeight ), 0, 0, 0, 0, cls.whiteShader );
-            renderSystem->SetColor( nullptr );
+    if(uiFullscreen || cls.state < CA_LOADING) {
+        if(cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640) {
+            renderSystem->SetColor(g_color_table[0]);
+            renderSystem->DrawStretchPic(0, 0,
+                                         static_cast<float32>(cls.glconfig.vidWidth),
+                                         static_cast<float32>(cls.glconfig.vidHeight), 0, 0, 0, 0, cls.whiteShader);
+            renderSystem->SetColor(nullptr);
         }
     }
-    
-    if( !uivm )
-    {
-        Com_DPrintf( "idClientScreenSystemLocal::DrawScreenField - draw screen without GUI loaded\n" );
+
+    if(!uivm) {
+        Com_DPrintf("idClientScreenSystemLocal::DrawScreenField - draw screen without GUI loaded\n");
         return;
     }
-    
+
     // if the menu is going to cover the entire screen, we
     // don't need to render anything under it
-    if( uivm && !uiFullscreen )
-    {
-        switch( cls.state )
-        {
+    if(uivm && !uiFullscreen) {
+        switch(cls.state) {
             default:
-                Com_Error( ERR_FATAL, "idClientScreenSystemLocal::DrawScreenField: bad cls.state" );
+                Com_Error(ERR_FATAL,
+                          "idClientScreenSystemLocal::DrawScreenField: bad cls.state");
                 break;
+
             case CA_CINEMATIC:
                 SCR_DrawCinematic();
                 break;
+
             case CA_DISCONNECTED:
                 // force menu up
                 soundSystem->StopAllSounds();
-                if( uivm )
-                {
-                    uiManager->SetActiveMenu( UIMENU_MAIN );
+
+                if(uivm) {
+                    uiManager->SetActiveMenu(UIMENU_MAIN);
                 }
+
                 break;
+
             case CA_CONNECTING:
             case CA_CHALLENGING:
             case CA_CONNECTED:
                 // connecting clients will only show the connection dialog
                 // refresh to update the time
-                uiManager->Refresh( cls.realtime );
-                uiManager->DrawConnectScreen( false );
+                uiManager->Refresh(cls.realtime);
+                uiManager->DrawConnectScreen(false);
                 break;
+
                 // Ridah, if the cgame is valid, fall through to there
-                if( !cls.cgameStarted || !com_sv_running->integer )
-                {
+                if(!cls.cgameStarted || !com_sv_running->integer) {
                     // connecting clients will only show the connection dialog
-                    uiManager->DrawConnectScreen( false );
+                    uiManager->DrawConnectScreen(false);
                     break;
                 }
+
             case CA_LOADING:
             case CA_PRIMED:
                 // draw the game information screen and loading progress
-                clientGameSystem->CGameRendering( stereoFrame );
-                
+                clientGameSystem->CGameRendering(stereoFrame);
+
                 // also draw the connection information, so it doesn't
                 // flash away too briefly on local or lan games
-                //if (!com_sv_running->value || cvarSystem->VariableIntegerValue("sv_cheats"))	// Ridah, don't draw useless text if not in dev mode
-                uiManager->Refresh( cls.realtime );
-                uiManager->DrawConnectScreen( true );
+                //if (!com_sv_running->value || cvarSystem->VariableIntegerValue("sv_cheats"))  // Ridah, don't draw useless text if not in dev mode
+                uiManager->Refresh(cls.realtime);
+                uiManager->DrawConnectScreen(true);
                 break;
+
             case CA_ACTIVE:
-                clientGameSystem->CGameRendering( stereoFrame );
-                
+                clientGameSystem->CGameRendering(stereoFrame);
+
                 DrawDemoRecording();
                 break;
         }
     }
-    
+
     // the menu draws next
-    if( cls.keyCatchers & KEYCATCH_UI && uivm )
-    {
-        uiManager->Refresh( cls.realtime );
+    if(cls.keyCatchers & KEYCATCH_UI && uivm) {
+        uiManager->Refresh(cls.realtime);
     }
-    
+
     // console draws next
     Con_DrawConsole();
-    
+
     // debug graph can be drawn on top of anything
-    if( cl_debuggraph->integer || cl_timegraph->integer || cl_debugMove->integer )
-    {
+    if(cl_debuggraph->integer || cl_timegraph->integer ||
+            cl_debugMove->integer) {
         DrawDebugGraph();
     }
 }
@@ -597,44 +584,35 @@ This is called every frame, and can also be called explicitly to flush
 text to the screen.
 ==================
 */
-void idClientScreenSystemLocal::UpdateScreen( void )
-{
+void idClientScreenSystemLocal::UpdateScreen(void) {
     static sint recursive = 0;
-    
-    if( !screenInitialized )
-    {
+
+    if(!screenInitialized) {
         // not initialized yet
         return;
     }
-    
-    if( ++recursive >= 2 )
-    {
+
+    if(++recursive >= 2) {
         recursive = 0;
         return;
     }
-    
+
     recursive = 1;
-    
+
     // If there is no VM, there are also no rendering commands issued. Stop the renderer in that case.
-    if( cls.glconfig.stereoEnabled )
-    {
-        DrawScreenField( STEREO_LEFT );
-        DrawScreenField( STEREO_RIGHT );
+    if(cls.glconfig.stereoEnabled) {
+        DrawScreenField(STEREO_LEFT);
+        DrawScreenField(STEREO_RIGHT);
+    } else {
+        DrawScreenField(STEREO_CENTER);
     }
-    else
-    {
-        DrawScreenField( STEREO_CENTER );
+
+    if(com_speeds->integer) {
+        renderSystem->EndFrame(&time_frontend, &time_backend);
+    } else {
+        renderSystem->EndFrame(nullptr, nullptr);
     }
-    
-    if( com_speeds->integer )
-    {
-        renderSystem->EndFrame( &time_frontend, &time_backend );
-    }
-    else
-    {
-        renderSystem->EndFrame( nullptr, nullptr );
-    }
-    
+
     recursive = 0;
 }
 
@@ -643,18 +621,16 @@ void idClientScreenSystemLocal::UpdateScreen( void )
 idClientScreenSystemLocal::ConsoleFontCharWidth
 ==================
 */
-float32 idClientScreenSystemLocal::ConsoleFontCharWidth( sint ch )
-{
-    fontInfo_t* font = &cls.consoleFont;
-    glyphInfo_t* glyph = &font->glyphs[ch];
+float32 idClientScreenSystemLocal::ConsoleFontCharWidth(sint ch) {
+    fontInfo_t *font = &cls.consoleFont;
+    glyphInfo_t *glyph = &font->glyphs[ch];
     float32 width = glyph->xSkip + cl_consoleFontKerning->value;
-    
-    if( cls.useLegacyConsoleFont )
-    {
+
+    if(cls.useLegacyConsoleFont) {
         return SMALLCHAR_WIDTH;
     }
-    
-    return ( width );
+
+    return (width);
 }
 
 /*
@@ -662,19 +638,17 @@ float32 idClientScreenSystemLocal::ConsoleFontCharWidth( sint ch )
 idClientScreenSystemLocal::ConsoleFontCharHeight
 ==================
 */
-float32 idClientScreenSystemLocal::ConsoleFontCharHeight( void )
-{
+float32 idClientScreenSystemLocal::ConsoleFontCharHeight(void) {
     sint ch = 'I' & 0xff;
     float32 vpadding = 0.3f * cl_consoleFontSize->value;
-    fontInfo_t* font = &cls.consoleFont;
-    glyphInfo_t* glyph = &font->glyphs[ch];
-    
-    if( cls.useLegacyConsoleFont )
-    {
+    fontInfo_t *font = &cls.consoleFont;
+    glyphInfo_t *glyph = &font->glyphs[ch];
+
+    if(cls.useLegacyConsoleFont) {
         return SMALLCHAR_HEIGHT;
     }
-    
-    return ( glyph->imageHeight + vpadding );
+
+    return (glyph->imageHeight + vpadding);
 }
 
 /*
@@ -682,24 +656,22 @@ float32 idClientScreenSystemLocal::ConsoleFontCharHeight( void )
 idClientScreenSystemLocal::ConsoleFontStringWidth
 ==================
 */
-float32 idClientScreenSystemLocal::ConsoleFontStringWidth( pointer s, sint len )
-{
+float32 idClientScreenSystemLocal::ConsoleFontStringWidth(pointer s,
+        sint len) {
     sint i;
     float32 width = 0;
-    fontInfo_t* font = &cls.consoleFont;
-    
-    if( cls.useLegacyConsoleFont )
-    {
-        return static_cast<float32>( len ) * SMALLCHAR_WIDTH;
+    fontInfo_t *font = &cls.consoleFont;
+
+    if(cls.useLegacyConsoleFont) {
+        return static_cast<float32>(len) * SMALLCHAR_WIDTH;
     }
-    
-    for( i = 0; i < len; i++ )
-    {
+
+    for(i = 0; i < len; i++) {
         sint ch = s[i] & 0xff;
-        glyphInfo_t* glyph = &font->glyphs[ch];
+        glyphInfo_t *glyph = &font->glyphs[ch];
         width += glyph->xSkip + cl_consoleFontKerning->value;
     }
-    
-    return ( width );
+
+    return (width);
 }
 

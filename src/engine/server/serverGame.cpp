@@ -43,21 +43,20 @@
 #include <framework/precompiled.hpp>
 #endif
 
-idSGame* sgame;
-idSGame* ( *gameEntry )( gameImports_t* gimports );
+idSGame *sgame;
+idSGame *(*gameEntry)(gameImports_t *gimports);
 
 static gameImports_t exports;
 
 idServerGameSystemLocal serverGameSystemLocal;
-idServerGameSystem* serverGameSystem = &serverGameSystemLocal;
+idServerGameSystem *serverGameSystem = &serverGameSystemLocal;
 
 /*
 ===============
 idServerGameSystemLocal::idServerGameSystemLocal
 ===============
 */
-idServerGameSystemLocal::idServerGameSystemLocal( void )
-{
+idServerGameSystemLocal::idServerGameSystemLocal(void) {
 }
 
 /*
@@ -65,8 +64,7 @@ idServerGameSystemLocal::idServerGameSystemLocal( void )
 idServerGameSystemLocal::~idServerGameSystemLocal
 ===============
 */
-idServerGameSystemLocal::~idServerGameSystemLocal( void )
-{
+idServerGameSystemLocal::~idServerGameSystemLocal(void) {
 }
 
 /*
@@ -74,9 +72,8 @@ idServerGameSystemLocal::~idServerGameSystemLocal( void )
 idServerGameSystemLocal::GameError
 ==================
 */
-void idServerGameSystemLocal::GameError( pointer string )
-{
-    Com_Error( ERR_DROP, "%s", string );
+void idServerGameSystemLocal::GameError(pointer string) {
+    Com_Error(ERR_DROP, "%s", string);
 }
 
 /*
@@ -84,9 +81,8 @@ void idServerGameSystemLocal::GameError( pointer string )
 idServerGameSystemLocal::GamePrint
 ==================
 */
-void idServerGameSystemLocal::GamePrint( pointer string )
-{
-    Com_Printf( "%s", string );
+void idServerGameSystemLocal::GamePrint(pointer string) {
+    Com_Printf("%s", string);
 }
 
 // these functions must be used instead of pointer arithmetic, because
@@ -96,9 +92,9 @@ void idServerGameSystemLocal::GamePrint( pointer string )
 idServerGameSystemLocal::NumForGentity
 ==================
 */
-sint idServerGameSystemLocal::NumForGentity( sharedEntity_t* ent )
-{
-    return static_cast<sint>( ( reinterpret_cast<uchar8*>( ent ) - reinterpret_cast<uchar8*>( sv.gentities ) ) / sv.gentitySize );
+sint idServerGameSystemLocal::NumForGentity(sharedEntity_t *ent) {
+    return static_cast<sint>((reinterpret_cast<uchar8 *>(ent) -
+                              reinterpret_cast<uchar8 *>(sv.gentities)) / sv.gentitySize);
 }
 
 /*
@@ -106,9 +102,9 @@ sint idServerGameSystemLocal::NumForGentity( sharedEntity_t* ent )
 idServerGameSystemLocal::GentityNum
 ==================
 */
-sharedEntity_t* idServerGameSystemLocal::GentityNum( sint num )
-{
-    return reinterpret_cast< sharedEntity_t* >( reinterpret_cast<uchar8*>( sv.gentities ) + sv.gentitySize * num );
+sharedEntity_t *idServerGameSystemLocal::GentityNum(sint num) {
+    return reinterpret_cast< sharedEntity_t * >(reinterpret_cast<uchar8 *>
+            (sv.gentities) + sv.gentitySize * num);
 }
 
 /*
@@ -116,9 +112,9 @@ sharedEntity_t* idServerGameSystemLocal::GentityNum( sint num )
 idServerGameSystemLocal::GentityNum
 ==================
 */
-playerState_t* idServerGameSystemLocal::GameClientNum( sint num )
-{
-    return reinterpret_cast< playerState_t* >( reinterpret_cast<uchar8*>( sv.gameClients ) + sv.gameClientSize * num );
+playerState_t *idServerGameSystemLocal::GameClientNum(sint num) {
+    return reinterpret_cast< playerState_t * >(reinterpret_cast<uchar8 *>
+            (sv.gameClients) + sv.gameClientSize * num);
 }
 
 /*
@@ -126,13 +122,13 @@ playerState_t* idServerGameSystemLocal::GameClientNum( sint num )
 idServerGameSystemLocal::SvEntityForGentity
 ==================
 */
-svEntity_t* idServerGameSystemLocal::SvEntityForGentity( sharedEntity_t* gEnt )
-{
-    if( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES )
-    {
-        Com_Error( ERR_DROP, "idServerGameSystemLocal::SvEntityForGentity: bad gEnt" );
+svEntity_t *idServerGameSystemLocal::SvEntityForGentity(
+    sharedEntity_t *gEnt) {
+    if(!gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES) {
+        Com_Error(ERR_DROP,
+                  "idServerGameSystemLocal::SvEntityForGentity: bad gEnt");
     }
-    
+
     return &sv.svEntities[gEnt->s.number];
 }
 
@@ -141,9 +137,9 @@ svEntity_t* idServerGameSystemLocal::SvEntityForGentity( sharedEntity_t* gEnt )
 idServerGameSystemLocal::GEntityForSvEntity
 ==================
 */
-sharedEntity_t* idServerGameSystemLocal::GEntityForSvEntity( svEntity_t* svEnt )
-{
-    return GentityNum( ARRAY_INDEX( sv.svEntities, svEnt ) );
+sharedEntity_t *idServerGameSystemLocal::GEntityForSvEntity(
+    svEntity_t *svEnt) {
+    return GentityNum(ARRAY_INDEX(sv.svEntities, svEnt));
 }
 
 /*
@@ -153,39 +149,34 @@ idServerGameSystemLocal::GameSendServerCommand
 Sends a command string to a client
 ===============
 */
-void idServerGameSystemLocal::GameSendServerCommand( sint clientNum, pointer text )
-{
-    if( clientNum == -1 )
-    {
-        serverMainSystem->SendServerCommand( nullptr, "%s", text );
-    }
-    else if( clientNum == -2 )
-    {
+void idServerGameSystemLocal::GameSendServerCommand(sint clientNum,
+        pointer text) {
+    if(clientNum == -1) {
+        serverMainSystem->SendServerCommand(nullptr, "%s", text);
+    } else if(clientNum == -2) {
         sint j;
-        client_t* client;
-        
-        for( j = 0, client = svs.clients; j < sv_maxclients->integer; j++, client++ )
-        {
-            if( client->state < CS_PRIMED )
-            {
+        client_t *client;
+
+        for(j = 0, client = svs.clients; j < sv_maxclients->integer;
+                j++, client++) {
+            if(client->state < CS_PRIMED) {
                 continue;
             }
-            
-            if( client->netchan.remoteAddress.type == NA_LOOPBACK || client->netchan.remoteAddress.type == NA_BOT )
-            {
+
+            if(client->netchan.remoteAddress.type == NA_LOOPBACK ||
+                    client->netchan.remoteAddress.type == NA_BOT) {
                 continue;
             }
-            
-            serverMainSystem->AddServerCommand( client, const_cast<valueType*>( reinterpret_cast<const valueType*>( text ) ) );
+
+            serverMainSystem->AddServerCommand(client,
+                                               const_cast<valueType *>(reinterpret_cast<const valueType *>(text)));
         }
-    }
-    else
-    {
-        if( clientNum < 0 || clientNum >= sv_maxclients->integer )
-        {
+    } else {
+        if(clientNum < 0 || clientNum >= sv_maxclients->integer) {
             return;
         }
-        serverMainSystem->SendServerCommand( svs.clients + clientNum, "%s", text );
+
+        serverMainSystem->SendServerCommand(svs.clients + clientNum, "%s", text);
     }
 }
 
@@ -197,18 +188,17 @@ idServerGameSystemLocal::GameDropClient
 Disconnects the client with a message
 ===============
 */
-void idServerGameSystemLocal::GameDropClient( sint clientNum, pointer reason, sint length )
-{
-    if( clientNum < 0 || clientNum >= sv_maxclients->integer )
-    {
+void idServerGameSystemLocal::GameDropClient(sint clientNum,
+        pointer reason, sint length) {
+    if(clientNum < 0 || clientNum >= sv_maxclients->integer) {
         return;
     }
-    
-    serverClientSystem->DropClient( svs.clients + clientNum, reason );
-    
-    if( length )
-    {
-        serverCcmdsLocal.TempBanNetAddress( svs.clients[clientNum].netchan.remoteAddress, length );
+
+    serverClientSystem->DropClient(svs.clients + clientNum, reason);
+
+    if(length) {
+        serverCcmdsLocal.TempBanNetAddress(
+            svs.clients[clientNum].netchan.remoteAddress, length);
     }
 }
 
@@ -219,32 +209,31 @@ idServerGameSystemLocal::SetBrushModel
 sets mins and maxs for inline bmodels
 =================
 */
-void idServerGameSystemLocal::SetBrushModel( sharedEntity_t* ent, pointer name )
-{
+void idServerGameSystemLocal::SetBrushModel(sharedEntity_t *ent,
+        pointer name) {
     clipHandle_t h;
     vec3_t mins, maxs;
-    
-    if( !name )
-    {
-        Com_Error( ERR_DROP, "idServerGameSystemLocal::SetBrushModel: nullptr" );
+
+    if(!name) {
+        Com_Error(ERR_DROP, "idServerGameSystemLocal::SetBrushModel: nullptr");
     }
-    
-    if( name[0] != '*' )
-    {
-        Com_Error( ERR_DROP, "idServerGameSystemLocal::SetBrushModel: %s isn't a brush model", name );
+
+    if(name[0] != '*') {
+        Com_Error(ERR_DROP,
+                  "idServerGameSystemLocal::SetBrushModel: %s isn't a brush model", name);
     }
-    
-    ent->s.modelindex = atoi( name + 1 );
-    
-    h = collisionModelManager->InlineModel( ent->s.modelindex );
-    collisionModelManager->ModelBounds( h, mins, maxs );
-    VectorCopy( mins, ent->r.mins );
-    VectorCopy( maxs, ent->r.maxs );
+
+    ent->s.modelindex = atoi(name + 1);
+
+    h = collisionModelManager->InlineModel(ent->s.modelindex);
+    collisionModelManager->ModelBounds(h, mins, maxs);
+    VectorCopy(mins, ent->r.mins);
+    VectorCopy(maxs, ent->r.maxs);
     ent->r.bmodel = true;
-    
-    ent->r.contents = -1;		// we don't know exactly what is in the brushes
-    
-    //LinkEntity( ent );			// FIXME: remove
+
+    ent->r.contents = -1;       // we don't know exactly what is in the brushes
+
+    //LinkEntity( ent );            // FIXME: remove
 }
 
 /*
@@ -254,30 +243,27 @@ idServerGameSystemLocal::inPVS
 Also checks portalareas so that doors block sight
 =================
 */
-bool idServerGameSystemLocal::inPVS( const vec3_t p1, const vec3_t p2 )
-{
+bool idServerGameSystemLocal::inPVS(const vec3_t p1, const vec3_t p2) {
     sint leafnum, cluster, area1, area2;
-    uchar8* mask;
-    
-    leafnum = collisionModelManager->PointLeafnum( p1 );
-    cluster = collisionModelManager->LeafCluster( leafnum );
-    area1 = collisionModelManager->LeafArea( leafnum );
-    mask = collisionModelManager->ClusterPVS( cluster );
-    
-    leafnum = collisionModelManager->PointLeafnum( p2 );
-    cluster = collisionModelManager->LeafCluster( leafnum );
-    area2 = collisionModelManager->LeafArea( leafnum );
-    
-    if( mask && ( !( mask[cluster >> 3] & ( 1 << ( cluster & 7 ) ) ) ) )
-    {
+    uchar8 *mask;
+
+    leafnum = collisionModelManager->PointLeafnum(p1);
+    cluster = collisionModelManager->LeafCluster(leafnum);
+    area1 = collisionModelManager->LeafArea(leafnum);
+    mask = collisionModelManager->ClusterPVS(cluster);
+
+    leafnum = collisionModelManager->PointLeafnum(p2);
+    cluster = collisionModelManager->LeafCluster(leafnum);
+    area2 = collisionModelManager->LeafArea(leafnum);
+
+    if(mask && (!(mask[cluster >> 3] & (1 << (cluster & 7))))) {
         return false;
     }
-    
-    if( !collisionModelManager->AreasConnected( area1, area2 ) )
-    {
+
+    if(!collisionModelManager->AreasConnected(area1, area2)) {
         return false; // a door blocks sight
     }
-    
+
     return true;
 }
 
@@ -288,25 +274,24 @@ idServerGameSystemLocal::inPVSIgnorePortals
 Does NOT check portalareas
 =================
 */
-bool idServerGameSystemLocal::inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
-{
+bool idServerGameSystemLocal::inPVSIgnorePortals(const vec3_t p1,
+        const vec3_t p2) {
     sint leafnum, cluster, area1, area2;
-    uchar8* mask;
-    
-    leafnum = collisionModelManager->PointLeafnum( p1 );
-    cluster = collisionModelManager->LeafCluster( leafnum );
-    area1 = collisionModelManager->LeafArea( leafnum );
-    mask = collisionModelManager->ClusterPVS( cluster );
-    
-    leafnum = collisionModelManager->PointLeafnum( p2 );
-    cluster = collisionModelManager->LeafCluster( leafnum );
-    area2 = collisionModelManager->LeafArea( leafnum );
-    
-    if( mask && ( !( mask[cluster >> 3] & ( 1 << ( cluster & 7 ) ) ) ) )
-    {
+    uchar8 *mask;
+
+    leafnum = collisionModelManager->PointLeafnum(p1);
+    cluster = collisionModelManager->LeafCluster(leafnum);
+    area1 = collisionModelManager->LeafArea(leafnum);
+    mask = collisionModelManager->ClusterPVS(cluster);
+
+    leafnum = collisionModelManager->PointLeafnum(p2);
+    cluster = collisionModelManager->LeafCluster(leafnum);
+    area2 = collisionModelManager->LeafArea(leafnum);
+
+    if(mask && (!(mask[cluster >> 3] & (1 << (cluster & 7))))) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -315,18 +300,18 @@ bool idServerGameSystemLocal::inPVSIgnorePortals( const vec3_t p1, const vec3_t 
 idServerGameSystemLocal::AdjustAreaPortalState
 ========================
 */
-void idServerGameSystemLocal::AdjustAreaPortalState( sharedEntity_t* ent, bool open )
-{
-    svEntity_t* svEnt;
-    
-    svEnt = serverGameSystemLocal.SvEntityForGentity( ent );
-    
-    if( svEnt->areanum2 == -1 )
-    {
+void idServerGameSystemLocal::AdjustAreaPortalState(sharedEntity_t *ent,
+        bool open) {
+    svEntity_t *svEnt;
+
+    svEnt = serverGameSystemLocal.SvEntityForGentity(ent);
+
+    if(svEnt->areanum2 == -1) {
         return;
     }
-    
-    collisionModelManager->AdjustAreaPortalState( svEnt->areanum, svEnt->areanum2, open );
+
+    collisionModelManager->AdjustAreaPortalState(svEnt->areanum,
+            svEnt->areanum2, open);
 }
 
 /*
@@ -334,19 +319,20 @@ void idServerGameSystemLocal::AdjustAreaPortalState( sharedEntity_t* ent, bool o
 idServerGameSystemLocal::GameAreaEntities
 ==================
 */
-bool idServerGameSystemLocal::EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t* gEnt, traceType_t type )
-{
-    const float32* origin, *angles;
+bool idServerGameSystemLocal::EntityContact(const vec3_t mins,
+        const vec3_t maxs, const sharedEntity_t *gEnt, traceType_t type) {
+    const float32 *origin, *angles;
     clipHandle_t ch;
     trace_t trace;
-    
+
     // check for exact collision
     origin = gEnt->r.currentOrigin;
     angles = gEnt->r.currentAngles;
-    
-    ch = serverWorldSystemLocal.ClipHandleForEntity( gEnt );
-    collisionModelManager->TransformedBoxTrace( &trace, vec3_origin, vec3_origin, mins, maxs, ch, -1, origin, angles, type );
-    
+
+    ch = serverWorldSystemLocal.ClipHandleForEntity(gEnt);
+    collisionModelManager->TransformedBoxTrace(&trace, vec3_origin,
+            vec3_origin, mins, maxs, ch, -1, origin, angles, type);
+
     return trace.startsolid;
 }
 
@@ -355,14 +341,15 @@ bool idServerGameSystemLocal::EntityContact( const vec3_t mins, const vec3_t max
 idServerGameSystemLocal::GetServerinfo
 ===============
 */
-void idServerGameSystemLocal::GetServerinfo( valueType* buffer, uint64 bufferSize )
-{
-    if( bufferSize < 1 )
-    {
-        Com_Error( ERR_DROP, "idServerGameSystemLocal::GetServerinfo: bufferSize == %i", bufferSize );
+void idServerGameSystemLocal::GetServerinfo(valueType *buffer,
+        uint64 bufferSize) {
+    if(bufferSize < 1) {
+        Com_Error(ERR_DROP,
+                  "idServerGameSystemLocal::GetServerinfo: bufferSize == %i", bufferSize);
     }
-    
-    Q_strncpyz( buffer, cvarSystem->InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ), bufferSize );
+
+    Q_strncpyz(buffer, cvarSystem->InfoString(CVAR_SERVERINFO |
+               CVAR_SERVERINFO_NOUPDATE), bufferSize);
 }
 
 /*
@@ -370,12 +357,13 @@ void idServerGameSystemLocal::GetServerinfo( valueType* buffer, uint64 bufferSiz
 idServerGameSystemLocal::LocateGameData
 ===============
 */
-void idServerGameSystemLocal::LocateGameData( sharedEntity_t* gEnts, uint64 numGEntities, sint sizeofGEntity_t, playerState_t* clients, uint64 sizeofGameClient )
-{
+void idServerGameSystemLocal::LocateGameData(sharedEntity_t *gEnts,
+        uint64 numGEntities, sint sizeofGEntity_t, playerState_t *clients,
+        uint64 sizeofGameClient) {
     sv.gentities = gEnts;
     sv.gentitySize = sizeofGEntity_t;
     sv.num_entities = numGEntities;
-    
+
     sv.gameClients = clients;
     sv.gameClientSize = sizeofGameClient;
 }
@@ -385,13 +373,12 @@ void idServerGameSystemLocal::LocateGameData( sharedEntity_t* gEnts, uint64 numG
 idServerGameSystemLocal::GetUsercmd
 ===============
 */
-void idServerGameSystemLocal::GetUsercmd( sint clientNum, usercmd_t* cmd )
-{
-    if( clientNum < 0 || clientNum >= sv_maxclients->integer )
-    {
-        Com_Error( ERR_DROP, "idServerGameSystemLocal::GetUsercmd: bad clientNum:%i", clientNum );
+void idServerGameSystemLocal::GetUsercmd(sint clientNum, usercmd_t *cmd) {
+    if(clientNum < 0 || clientNum >= sv_maxclients->integer) {
+        Com_Error(ERR_DROP,
+                  "idServerGameSystemLocal::GetUsercmd: bad clientNum:%i", clientNum);
     }
-    
+
     *cmd = svs.clients[clientNum].lastUsercmd;
     cmd->angles[ROLL] = 0;
 }
@@ -401,27 +388,28 @@ void idServerGameSystemLocal::GetUsercmd( sint clientNum, usercmd_t* cmd )
 idServerGameSystemLocal::UpdateSharedConfig
 ===============
 */
-void idServerGameSystemLocal::UpdateSharedConfig( uint port, pointer rconpass )
-{
+void idServerGameSystemLocal::UpdateSharedConfig(uint port,
+        pointer rconpass) {
     valueType message[MAX_RCON_MESSAGE];
     netadr_t to;
-    
+
     message[0] = -1;
     message[1] = -1;
     message[2] = -1;
     message[3] = -1;
     message[4] = 0;
-    
-    Q_strcat( message, MAX_RCON_MESSAGE, "rcon " );
-    
-    Q_strcat( message, MAX_RCON_MESSAGE, rconpass );
-    
-    Q_strcat( message, MAX_RCON_MESSAGE, " !readconfig" );
-    
-    networkChainSystem->StringToAdr( "127.0.0.1", &to, NA_UNSPEC );
-    to.port = BigShort( port );
-    
-    networkChainSystem->SendPacket( NS_SERVER, strlen( message ) + 1, message, to );
+
+    Q_strcat(message, MAX_RCON_MESSAGE, "rcon ");
+
+    Q_strcat(message, MAX_RCON_MESSAGE, rconpass);
+
+    Q_strcat(message, MAX_RCON_MESSAGE, " !readconfig");
+
+    networkChainSystem->StringToAdr("127.0.0.1", &to, NA_UNSPEC);
+    to.port = BigShort(port);
+
+    networkChainSystem->SendPacket(NS_SERVER, strlen(message) + 1, message,
+                                   to);
 }
 
 /*
@@ -429,20 +417,17 @@ void idServerGameSystemLocal::UpdateSharedConfig( uint port, pointer rconpass )
 idServerGameSystemLocal::GetEntityToken
 ===============
 */
-bool idServerGameSystemLocal::GetEntityToken( valueType* buffer, uint64 bufferSize )
-{
+bool idServerGameSystemLocal::GetEntityToken(valueType *buffer,
+        uint64 bufferSize) {
     pointer s;
-    
-    s = COM_Parse( &sv.entityParsePoint );
-    
-    Q_strncpyz( buffer, s, bufferSize );
-    
-    if( !sv.entityParsePoint && !s[0] )
-    {
+
+    s = COM_Parse(&sv.entityParsePoint);
+
+    Q_strncpyz(buffer, s, bufferSize);
+
+    if(!sv.entityParsePoint && !s[0]) {
         return false;
-    }
-    else
-    {
+    } else {
         return true;
     }
 }
@@ -452,12 +437,11 @@ bool idServerGameSystemLocal::GetEntityToken( valueType* buffer, uint64 bufferSi
 idServerGameSystemLocal::InitExportTable
 ====================
 */
-void idServerGameSystemLocal::InitExportTable( void )
-{
+void idServerGameSystemLocal::InitExportTable(void) {
     exports.Printf = Com_Printf;
     exports.Error = Com_Error;
     exports.RealTime = Com_RealTime;
-    
+
     exports.collisionModelManager = collisionModelManager;
 #ifndef DEDICATED
     exports.soundSystem = soundSystem;
@@ -481,28 +465,25 @@ idServerGameSystemLocal::ShutdownGameProgs
 Called every time a map changes
 ===============
 */
-void idServerGameSystemLocal::ShutdownGameProgs( void )
-{
-    if( !svs.gameStarted )
-    {
+void idServerGameSystemLocal::ShutdownGameProgs(void) {
+    if(!svs.gameStarted) {
         return;
     }
-    
-    if( !gvm || sgame == nullptr )
-    {
+
+    if(!gvm || sgame == nullptr) {
         return;
     }
-    
-    sgame->Shutdown( false );
+
+    sgame->Shutdown(false);
     sgame = nullptr;
-    
-    idsystem->UnloadDll( gvm );
+
+    idsystem->UnloadDll(gvm);
     gvm = nullptr;
-    
-    if( sv_newGameShlib->string[0] )
-    {
-        fileSystem->Rename( sv_newGameShlib->string, "sgameAMD64" DLL_EXT );
-        cvarSystem->Set( "sv_newGameShlib", "Replace game module library after map restart." );
+
+    if(sv_newGameShlib->string[0]) {
+        fileSystem->Rename(sv_newGameShlib->string, "sgameAMD64" DLL_EXT);
+        cvarSystem->Set("sv_newGameShlib",
+                        "Replace game module library after map restart.");
     }
 }
 
@@ -513,28 +494,25 @@ idServerGameSystemLocal::InitGameModule
 Called for both a full init and a restart
 ==================
 */
-void idServerGameSystemLocal::InitGameModule( bool restart )
-{
+void idServerGameSystemLocal::InitGameModule(bool restart) {
     sint i;
-    
+
     // clear physics interaction links
     serverWorldSystemLocal.ClearWorld();
-    
+
     // start the entity parsing at the beginning
     sv.entityParsePoint = collisionModelManager->EntityString();
-    
+
     // clear all gentity pointers that might still be set from
     // a previous level
-    for( i = 0; i < sv_maxclients->integer; i++ )
-    {
+    for(i = 0; i < sv_maxclients->integer; i++) {
         svs.clients[i].gentity = nullptr;
     }
-    
+
     // use the current msec count for a random seed
     // init for this gamestate
-    if( gvm || sgame )
-    {
-        sgame->Init( sv.time, Com_Milliseconds(), restart );
+    if(gvm || sgame) {
+        sgame->Init(sv.time, Com_Milliseconds(), restart);
     }
 }
 
@@ -545,21 +523,19 @@ idServerGameSystemLocal::RestartGameProgs
 Called on a map_restart, but not on a normal map change
 ===================
 */
-void idServerGameSystemLocal::RestartGameProgs( void )
-{
-    if( !gvm )
-    {
+void idServerGameSystemLocal::RestartGameProgs(void) {
+    if(!gvm) {
         svs.gameStarted = false;
-        Com_Error( ERR_DROP, "idServerGameSystemLocal::RestartGameProgs on game failed" );
+        Com_Error(ERR_DROP,
+                  "idServerGameSystemLocal::RestartGameProgs on game failed");
         return;
     }
-    
-    if( gvm || sgame )
-    {
-        sgame->Shutdown( true );
+
+    if(gvm || sgame) {
+        sgame->Shutdown(true);
     }
-    
-    InitGameModule( true );
+
+    InitGameModule(true);
 }
 
 
@@ -570,39 +546,40 @@ idServerGameSystemLocal::InitGameProgs
 Called on a normal map change, not on a map_restart
 ===============
 */
-void idServerGameSystemLocal::InitGameProgs( void )
-{
+void idServerGameSystemLocal::InitGameProgs(void) {
     sv.num_tagheaders = 0;
     sv.num_tags = 0;
-    
-    convar_t* var = cvarSystem->Get( "bot_enable", "1", CVAR_LATCH, "Whether or not the server allows bots." );
+
+    convar_t *var = cvarSystem->Get("bot_enable", "1", CVAR_LATCH,
+                                    "Whether or not the server allows bots.");
     //bot_enable = var ? var->integer : 0;
-    
+
     // load the dll or bytecode
-    gvm = idsystem->LoadDll( "sgame" );
-    if( !gvm )
-    {
-        Com_Error( ERR_FATAL, "idServerGameSystemLocal::InitGameProgs on game failed" );
+    gvm = idsystem->LoadDll("sgame");
+
+    if(!gvm) {
+        Com_Error(ERR_FATAL,
+                  "idServerGameSystemLocal::InitGameProgs on game failed");
     }
-    
+
     // Get the entry point.
-    gameEntry = ( idSGame * ( QDECL* )( gameImports_t* ) )idsystem->GetProcAddress( gvm, "gameEntry" );
-    if( !gameEntry )
-    {
-        Com_Error( ERR_FATAL, "gameEntry on game failed.\n" );
+    gameEntry = (idSGame * (QDECL *)(gameImports_t *))idsystem->GetProcAddress(
+                    gvm, "gameEntry");
+
+    if(!gameEntry) {
+        Com_Error(ERR_FATAL, "gameEntry on game failed.\n");
     }
-    
+
     svs.gameStarted = true;
-    
+
     // Init the export table.
     InitExportTable();
-    
-    if( gameEntry )
-    {
-        sgame = gameEntry( &exports );
+
+    if(gameEntry) {
+        sgame = gameEntry(&exports);
     }
-    
-    InitGameModule( false );
+
+    InitGameModule(false);
 }
 
 /*
@@ -612,13 +589,11 @@ idServerGameSystemLocal::GameCommand
 See if the current console command is claimed by the game
 ====================
 */
-bool idServerGameSystemLocal::GameCommand( void )
-{
-    if( sv.state != SS_GAME )
-    {
+bool idServerGameSystemLocal::GameCommand(void) {
+    if(sv.state != SS_GAME) {
         return false;
     }
-    
+
     return sgame->ConsoleCommand();
 }
 
@@ -627,9 +602,8 @@ bool idServerGameSystemLocal::GameCommand( void )
 idServerGameSystemLocal::GameIsSinglePlayer
 ====================
 */
-bool idServerGameSystemLocal::GameIsSinglePlayer( void )
-{
-    return ( bool )( com_gameInfo.spGameTypes & ( 1 << g_gameType->integer ) );
+bool idServerGameSystemLocal::GameIsSinglePlayer(void) {
+    return (bool)(com_gameInfo.spGameTypes & (1 << g_gameType->integer));
 }
 
 /*
@@ -639,9 +613,8 @@ idServerGameSystemLocal::GameIsCoop
 This is a modified SinglePlayer, no savegame capability for example
 ====================
 */
-bool idServerGameSystemLocal::GameIsCoop( void )
-{
-    return ( bool )( com_gameInfo.coopGameTypes & ( 1 << g_gameType->integer ) );
+bool idServerGameSystemLocal::GameIsCoop(void) {
+    return (bool)(com_gameInfo.coopGameTypes & (1 << g_gameType->integer));
 }
 
 /*
@@ -652,34 +625,33 @@ return false if unable to retrieve tag information for this client
 Dushan - I have no idea if this ever worked in Wolfenstein: Enemy Territory
 ====================
 */
-bool idServerGameSystemLocal::GetTag( sint clientNum, sint tagFileNumber, valueType* tagname, orientation_t* _or )
-{
+bool idServerGameSystemLocal::GetTag(sint clientNum, sint tagFileNumber,
+                                     valueType *tagname, orientation_t *_or) {
     sint i;
-    
-    if( tagFileNumber > 0 && tagFileNumber <= sv.num_tagheaders )
-    {
-        for( i = sv.tagHeadersExt[tagFileNumber - 1].start; i < sv.tagHeadersExt[tagFileNumber - 1].start + sv.tagHeadersExt[tagFileNumber - 1].count; i++ )
-        {
-            if( !Q_stricmp( sv.tags[i].name, tagname ) )
-            {
-                VectorCopy( sv.tags[i].origin, _or->origin );
-                VectorCopy( sv.tags[i].axis[0], _or->axis[0] );
-                VectorCopy( sv.tags[i].axis[1], _or->axis[1] );
-                VectorCopy( sv.tags[i].axis[2], _or->axis[2] );
+
+    if(tagFileNumber > 0 && tagFileNumber <= sv.num_tagheaders) {
+        for(i = sv.tagHeadersExt[tagFileNumber - 1].start;
+                i < sv.tagHeadersExt[tagFileNumber - 1].start +
+                sv.tagHeadersExt[tagFileNumber - 1].count; i++) {
+            if(!Q_stricmp(sv.tags[i].name, tagname)) {
+                VectorCopy(sv.tags[i].origin, _or->origin);
+                VectorCopy(sv.tags[i].axis[0], _or->axis[0]);
+                VectorCopy(sv.tags[i].axis[1], _or->axis[1]);
+                VectorCopy(sv.tags[i].axis[2], _or->axis[2]);
                 return true;
             }
         }
     }
-    
+
     // Gordon: lets try and remove the inconsitancy between ded/non-ded servers...
     // Gordon: bleh, some code in clientthink_real really relies on this working on player models...
-#ifndef DEDICATED				// TTimo: dedicated only binary defines DEDICATED
-    if( com_dedicated->integer )
-    {
+#ifndef DEDICATED               // TTimo: dedicated only binary defines DEDICATED
+
+    if(com_dedicated->integer) {
         return false;
     }
-    
-    return clientGameSystem->GetTag( clientNum, tagname, _or );
+
+    return clientGameSystem->GetTag(clientNum, tagname, _or);
 #else
     return false;
 #endif

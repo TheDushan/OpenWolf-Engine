@@ -106,7 +106,7 @@ LPALCCAPTURESTART qalcCaptureStart;
 LPALCCAPTURESTOP qalcCaptureStop;
 LPALCCAPTURESAMPLES qalcCaptureSamples;
 
-static void* OpenALLib = nullptr;
+static void *OpenALLib = nullptr;
 
 static bool alinit_fail = false;
 
@@ -115,23 +115,20 @@ static bool alinit_fail = false;
 GPA
 =================
 */
-static void* GPA( valueType* str )
-{
-    void* rv;
-    
-    rv = SDL_LoadFunction( OpenALLib, str );
-    if( !rv )
-    {
-        trap_Printf( PRINT_ALL, " Can't load symbol %s\n", str );
+static void *GPA(valueType *str) {
+    void *rv;
+
+    rv = SDL_LoadFunction(OpenALLib, str);
+
+    if(!rv) {
+        trap_Printf(PRINT_ALL, " Can't load symbol %s\n", str);
         alinit_fail = true;
         return nullptr;
-    }
-    else
-    {
+    } else {
         // Dushan : Print some developer information
         // Don't allow this for release
 #if defined (_DEBUG)
-        trap_Printf( PRINT_ALL, " Loaded symbol %s (0x%08X)\n", str, rv );
+        trap_Printf(PRINT_ALL, " Loaded symbol %s (0x%08X)\n", str, rv);
 #endif
         return rv;
     }
@@ -142,116 +139,145 @@ static void* GPA( valueType* str )
 QAL_Init
 =================
 */
-bool QAL_Init( pointer libname )
-{
-    if( OpenALLib )
-    {
+bool QAL_Init(pointer libname) {
+    if(OpenALLib) {
         return true;
     }
-    
-    if( ( OpenALLib = SDL_LoadObject( libname ) ) == 0 )
-    {
+
+    if((OpenALLib = SDL_LoadObject(libname)) == 0) {
 #ifdef _WIN32
-        trap_Printf( PRINT_ALL, " Can't load %s\n", libname );
+        trap_Printf(PRINT_ALL, " Can't load %s\n", libname);
         return false;
 #else
         valueType fn[1024];
-        ::strncat( fn, "/", sizeof( fn ) - ::strlen( ::getcwd( fn, sizeof( fn ) ) ) - 1 );
-        ::strncat( fn, libname, sizeof( fn ) - ::strlen( fn ) - 1 );
-        
-        if( ( OpenALLib = SDL_LoadObject( fn ) ) == 0 )
-        {
-            trap_Printf( PRINT_ALL, " Can't load %s\n", libname );
+        ::strncat(fn, "/", sizeof(fn) - ::strlen(::getcwd(fn, sizeof(fn))) - 1);
+        ::strncat(fn, libname, sizeof(fn) - ::strlen(fn) - 1);
+
+        if((OpenALLib = SDL_LoadObject(fn)) == 0) {
+            trap_Printf(PRINT_ALL, " Can't load %s\n", libname);
             return false;
         }
+
 #endif
     }
-    
+
     alinit_fail = false;
-    
-    qalEnable = reinterpret_cast<LPALENABLE>( GPA( "alEnable" ) );
-    qalDisable = reinterpret_cast<LPALDISABLE>( GPA( "alDisable" ) );
-    qalIsEnabled = reinterpret_cast<LPALISENABLED>( GPA( "alIsEnabled" ) );
-    qalGetString = reinterpret_cast<LPALGETSTRING>( GPA( "alGetString" ) );
-    qalGetBooleanv = reinterpret_cast<LPALGETBOOLEANV>( GPA( "alGetBooleanv" ) );
-    qalGetIntegerv = reinterpret_cast<LPALGETINTEGERV>( GPA( "alGetIntegerv" ) );
-    qalGetFloatv = reinterpret_cast<LPALGETFLOATV>( GPA( "alGetFloatv" ) );
-    qalGetDoublev = reinterpret_cast<LPALGETDOUBLEV>( GPA( "alGetDoublev" ) );
-    qalGetBoolean = reinterpret_cast<LPALGETBOOLEAN>( GPA( "alGetBoolean" ) );
-    qalGetInteger = reinterpret_cast<LPALGETINTEGER>( GPA( "alGetInteger" ) );
-    qalGetFloat = reinterpret_cast<LPALGETFLOAT>( GPA( "alGetFloat" ) );
-    qalGetDouble = reinterpret_cast<LPALGETDOUBLE>( GPA( "alGetDouble" ) );
-    qalGetError = reinterpret_cast<LPALGETERROR>( GPA( "alGetError" ) );
-    qalIsExtensionPresent = reinterpret_cast<LPALISEXTENSIONPRESENT>( GPA( "alIsExtensionPresent" ) );
-    qalGetProcAddress = reinterpret_cast<LPALGETPROCADDRESS>( GPA( "alGetProcAddress" ) );
-    qalGetEnumValue = reinterpret_cast<LPALGETENUMVALUE>( GPA( "alGetEnumValue" ) );
-    qalListenerf = reinterpret_cast<LPALLISTENERF>( GPA( "alListenerf" ) );
-    qalListener3f = reinterpret_cast<LPALLISTENER3F>( GPA( "alListener3f" ) );
-    qalListenerfv = reinterpret_cast<LPALLISTENERFV>( GPA( "alListenerfv" ) );
-    qalListeneri = reinterpret_cast<LPALLISTENERI>( GPA( "alListeneri" ) );
-    qalGetListenerf = reinterpret_cast<LPALGETLISTENERF>( GPA( "alGetListenerf" ) );
-    qalGetListener3f = reinterpret_cast<LPALGETLISTENER3F>( GPA( "alGetListener3f" ) );
-    qalGetListenerfv = reinterpret_cast<LPALGETLISTENERFV>( GPA( "alGetListenerfv" ) );
-    qalGetListeneri = reinterpret_cast<LPALGETLISTENERI>( GPA( "alGetListeneri" ) );
-    qalGenSources = reinterpret_cast<LPALGENSOURCES>( GPA( "alGenSources" ) );
-    qalDeleteSources = reinterpret_cast<LPALDELETESOURCES>( GPA( "alDeleteSources" ) );
-    qalIsSource = reinterpret_cast<LPALISSOURCE>( GPA( "alIsSource" ) );
-    qalSourcef = reinterpret_cast<LPALSOURCEF>( GPA( "alSourcef" ) );
-    qalSource3f = reinterpret_cast<LPALSOURCE3F>( GPA( "alSource3f" ) );
-    qalSourcefv = reinterpret_cast<LPALSOURCEFV>( GPA( "alSourcefv" ) );
-    qalSourcei = reinterpret_cast<LPALSOURCEI>( GPA( "alSourcei" ) );
-    qalGetSourcef = reinterpret_cast<LPALGETSOURCEF>( GPA( "alGetSourcef" ) );
-    qalGetSource3f = reinterpret_cast<LPALGETSOURCE3F>( GPA( "alGetSource3f" ) );
-    qalGetSourcefv = reinterpret_cast<LPALGETSOURCEFV>( GPA( "alGetSourcefv" ) );
-    qalGetSourcei = reinterpret_cast<LPALGETSOURCEI>( GPA( "alGetSourcei" ) );
-    qalSourcePlayv = reinterpret_cast<LPALSOURCEPLAYV>( GPA( "alSourcePlayv" ) );
-    qalSourceStopv = reinterpret_cast<LPALSOURCESTOPV>( GPA( "alSourceStopv" ) );
-    qalSourceRewindv = reinterpret_cast<LPALSOURCEREWINDV>( GPA( "alSourceRewindv" ) );
-    qalSourcePausev = reinterpret_cast<LPALSOURCEPAUSEV>( GPA( "alSourcePausev" ) );
-    qalSourcePlay = reinterpret_cast<LPALSOURCEPLAY>( GPA( "alSourcePlay" ) );
-    qalSourceStop = reinterpret_cast<LPALSOURCESTOP>( GPA( "alSourceStop" ) );
-    qalSourceRewind = reinterpret_cast<LPALSOURCEREWIND>( GPA( "alSourceRewind" ) );
-    qalSourcePause = reinterpret_cast<LPALSOURCEPAUSE>( GPA( "alSourcePause" ) );
-    qalSourceQueueBuffers = reinterpret_cast<LPALSOURCEQUEUEBUFFERS>( GPA( "alSourceQueueBuffers" ) );
-    qalSourceUnqueueBuffers = reinterpret_cast<LPALSOURCEUNQUEUEBUFFERS>( GPA( "alSourceUnqueueBuffers" ) );
-    qalGenBuffers = reinterpret_cast<LPALGENBUFFERS>( GPA( "alGenBuffers" ) );
-    qalDeleteBuffers = reinterpret_cast<LPALDELETEBUFFERS>( GPA( "alDeleteBuffers" ) );
-    qalIsBuffer = reinterpret_cast<LPALISBUFFER>( GPA( "alIsBuffer" ) );
-    qalBufferData = reinterpret_cast<LPALBUFFERDATA>( GPA( "alBufferData" ) );
-    qalGetBufferf = reinterpret_cast<LPALGETBUFFERF>( GPA( "alGetBufferf" ) );
-    qalGetBufferi = reinterpret_cast<LPALGETBUFFERI>( GPA( "alGetBufferi" ) );
-    qalDopplerFactor = reinterpret_cast<LPALDOPPLERFACTOR>( GPA( "alDopplerFactor" ) );
-    qalDopplerVelocity = reinterpret_cast<LPALDOPPLERVELOCITY>( GPA( "alDopplerVelocity" ) );
-    qalDistanceModel = reinterpret_cast<LPALDISABLE>( GPA( "alDistanceModel" ) );
-    
-    qalcCreateContext = reinterpret_cast<LPALCCREATECONTEXT>( GPA( "alcCreateContext" ) );
-    qalcMakeContextCurrent = reinterpret_cast<LPALCMAKECONTEXTCURRENT>( GPA( "alcMakeContextCurrent" ) );
-    qalcProcessContext = reinterpret_cast<LPALCPROCESSCONTEXT>( GPA( "alcProcessContext" ) );
-    qalcSuspendContext = reinterpret_cast<LPALCSUSPENDCONTEXT>( GPA( "alcSuspendContext" ) );
-    qalcDestroyContext = reinterpret_cast<LPALCDESTROYCONTEXT>( GPA( "alcDestroyContext" ) );
-    qalcGetCurrentContext = reinterpret_cast<LPALCGETCURRENTCONTEXT>( GPA( "alcGetCurrentContext" ) );
-    qalcGetContextsDevice = reinterpret_cast<LPALCGETCONTEXTSDEVICE>( GPA( "alcGetContextsDevice" ) );
-    qalcOpenDevice = reinterpret_cast<LPALCOPENDEVICE>( GPA( "alcOpenDevice" ) );
-    qalcCloseDevice = reinterpret_cast<LPALCCLOSEDEVICE>( GPA( "alcCloseDevice" ) );
-    qalcGetError = reinterpret_cast<LPALCGETERROR>( GPA( "alcGetError" ) );
-    qalcIsExtensionPresent = reinterpret_cast<LPALCISEXTENSIONPRESENT>( GPA( "alcIsExtensionPresent" ) );
-    qalcGetProcAddress = reinterpret_cast<LPALCGETPROCADDRESS>( GPA( "alcGetProcAddress" ) );
-    qalcGetEnumValue = reinterpret_cast<LPALCGETENUMVALUE>( GPA( "alcGetEnumValue" ) );
-    qalcGetString = reinterpret_cast<LPALCGETSTRING>( GPA( "alcGetString" ) );
-    qalcGetIntegerv = reinterpret_cast<LPALCGETINTEGERV>( GPA( "alcGetIntegerv" ) );
-    qalcCaptureOpenDevice = reinterpret_cast<LPALCCAPTUREOPENDEVICE>( GPA( "alcCaptureOpenDevice" ) );
-    qalcCaptureCloseDevice = reinterpret_cast<LPALCCAPTURECLOSEDEVICE>( GPA( "alcCaptureCloseDevice" ) );
-    qalcCaptureStart = reinterpret_cast<LPALCCAPTURESTART>( GPA( "alcCaptureStart" ) );
-    qalcCaptureStop = reinterpret_cast<LPALCCAPTURESTOP>( GPA( "alcCaptureStop" ) );
-    qalcCaptureSamples = reinterpret_cast<LPALCCAPTURESAMPLES>( GPA( "alcCaptureSamples" ) );
-    
-    if( alinit_fail )
-    {
+
+    qalEnable = reinterpret_cast<LPALENABLE>(GPA("alEnable"));
+    qalDisable = reinterpret_cast<LPALDISABLE>(GPA("alDisable"));
+    qalIsEnabled = reinterpret_cast<LPALISENABLED>(GPA("alIsEnabled"));
+    qalGetString = reinterpret_cast<LPALGETSTRING>(GPA("alGetString"));
+    qalGetBooleanv = reinterpret_cast<LPALGETBOOLEANV>(GPA("alGetBooleanv"));
+    qalGetIntegerv = reinterpret_cast<LPALGETINTEGERV>(GPA("alGetIntegerv"));
+    qalGetFloatv = reinterpret_cast<LPALGETFLOATV>(GPA("alGetFloatv"));
+    qalGetDoublev = reinterpret_cast<LPALGETDOUBLEV>(GPA("alGetDoublev"));
+    qalGetBoolean = reinterpret_cast<LPALGETBOOLEAN>(GPA("alGetBoolean"));
+    qalGetInteger = reinterpret_cast<LPALGETINTEGER>(GPA("alGetInteger"));
+    qalGetFloat = reinterpret_cast<LPALGETFLOAT>(GPA("alGetFloat"));
+    qalGetDouble = reinterpret_cast<LPALGETDOUBLE>(GPA("alGetDouble"));
+    qalGetError = reinterpret_cast<LPALGETERROR>(GPA("alGetError"));
+    qalIsExtensionPresent = reinterpret_cast<LPALISEXTENSIONPRESENT>
+                            (GPA("alIsExtensionPresent"));
+    qalGetProcAddress = reinterpret_cast<LPALGETPROCADDRESS>
+                        (GPA("alGetProcAddress"));
+    qalGetEnumValue = reinterpret_cast<LPALGETENUMVALUE>
+                      (GPA("alGetEnumValue"));
+    qalListenerf = reinterpret_cast<LPALLISTENERF>(GPA("alListenerf"));
+    qalListener3f = reinterpret_cast<LPALLISTENER3F>(GPA("alListener3f"));
+    qalListenerfv = reinterpret_cast<LPALLISTENERFV>(GPA("alListenerfv"));
+    qalListeneri = reinterpret_cast<LPALLISTENERI>(GPA("alListeneri"));
+    qalGetListenerf = reinterpret_cast<LPALGETLISTENERF>
+                      (GPA("alGetListenerf"));
+    qalGetListener3f = reinterpret_cast<LPALGETLISTENER3F>
+                       (GPA("alGetListener3f"));
+    qalGetListenerfv = reinterpret_cast<LPALGETLISTENERFV>
+                       (GPA("alGetListenerfv"));
+    qalGetListeneri = reinterpret_cast<LPALGETLISTENERI>
+                      (GPA("alGetListeneri"));
+    qalGenSources = reinterpret_cast<LPALGENSOURCES>(GPA("alGenSources"));
+    qalDeleteSources = reinterpret_cast<LPALDELETESOURCES>
+                       (GPA("alDeleteSources"));
+    qalIsSource = reinterpret_cast<LPALISSOURCE>(GPA("alIsSource"));
+    qalSourcef = reinterpret_cast<LPALSOURCEF>(GPA("alSourcef"));
+    qalSource3f = reinterpret_cast<LPALSOURCE3F>(GPA("alSource3f"));
+    qalSourcefv = reinterpret_cast<LPALSOURCEFV>(GPA("alSourcefv"));
+    qalSourcei = reinterpret_cast<LPALSOURCEI>(GPA("alSourcei"));
+    qalGetSourcef = reinterpret_cast<LPALGETSOURCEF>(GPA("alGetSourcef"));
+    qalGetSource3f = reinterpret_cast<LPALGETSOURCE3F>(GPA("alGetSource3f"));
+    qalGetSourcefv = reinterpret_cast<LPALGETSOURCEFV>(GPA("alGetSourcefv"));
+    qalGetSourcei = reinterpret_cast<LPALGETSOURCEI>(GPA("alGetSourcei"));
+    qalSourcePlayv = reinterpret_cast<LPALSOURCEPLAYV>(GPA("alSourcePlayv"));
+    qalSourceStopv = reinterpret_cast<LPALSOURCESTOPV>(GPA("alSourceStopv"));
+    qalSourceRewindv = reinterpret_cast<LPALSOURCEREWINDV>
+                       (GPA("alSourceRewindv"));
+    qalSourcePausev = reinterpret_cast<LPALSOURCEPAUSEV>
+                      (GPA("alSourcePausev"));
+    qalSourcePlay = reinterpret_cast<LPALSOURCEPLAY>(GPA("alSourcePlay"));
+    qalSourceStop = reinterpret_cast<LPALSOURCESTOP>(GPA("alSourceStop"));
+    qalSourceRewind = reinterpret_cast<LPALSOURCEREWIND>
+                      (GPA("alSourceRewind"));
+    qalSourcePause = reinterpret_cast<LPALSOURCEPAUSE>(GPA("alSourcePause"));
+    qalSourceQueueBuffers = reinterpret_cast<LPALSOURCEQUEUEBUFFERS>
+                            (GPA("alSourceQueueBuffers"));
+    qalSourceUnqueueBuffers = reinterpret_cast<LPALSOURCEUNQUEUEBUFFERS>
+                              (GPA("alSourceUnqueueBuffers"));
+    qalGenBuffers = reinterpret_cast<LPALGENBUFFERS>(GPA("alGenBuffers"));
+    qalDeleteBuffers = reinterpret_cast<LPALDELETEBUFFERS>
+                       (GPA("alDeleteBuffers"));
+    qalIsBuffer = reinterpret_cast<LPALISBUFFER>(GPA("alIsBuffer"));
+    qalBufferData = reinterpret_cast<LPALBUFFERDATA>(GPA("alBufferData"));
+    qalGetBufferf = reinterpret_cast<LPALGETBUFFERF>(GPA("alGetBufferf"));
+    qalGetBufferi = reinterpret_cast<LPALGETBUFFERI>(GPA("alGetBufferi"));
+    qalDopplerFactor = reinterpret_cast<LPALDOPPLERFACTOR>
+                       (GPA("alDopplerFactor"));
+    qalDopplerVelocity = reinterpret_cast<LPALDOPPLERVELOCITY>
+                         (GPA("alDopplerVelocity"));
+    qalDistanceModel = reinterpret_cast<LPALDISABLE>(GPA("alDistanceModel"));
+
+    qalcCreateContext = reinterpret_cast<LPALCCREATECONTEXT>
+                        (GPA("alcCreateContext"));
+    qalcMakeContextCurrent = reinterpret_cast<LPALCMAKECONTEXTCURRENT>
+                             (GPA("alcMakeContextCurrent"));
+    qalcProcessContext = reinterpret_cast<LPALCPROCESSCONTEXT>
+                         (GPA("alcProcessContext"));
+    qalcSuspendContext = reinterpret_cast<LPALCSUSPENDCONTEXT>
+                         (GPA("alcSuspendContext"));
+    qalcDestroyContext = reinterpret_cast<LPALCDESTROYCONTEXT>
+                         (GPA("alcDestroyContext"));
+    qalcGetCurrentContext = reinterpret_cast<LPALCGETCURRENTCONTEXT>
+                            (GPA("alcGetCurrentContext"));
+    qalcGetContextsDevice = reinterpret_cast<LPALCGETCONTEXTSDEVICE>
+                            (GPA("alcGetContextsDevice"));
+    qalcOpenDevice = reinterpret_cast<LPALCOPENDEVICE>(GPA("alcOpenDevice"));
+    qalcCloseDevice = reinterpret_cast<LPALCCLOSEDEVICE>
+                      (GPA("alcCloseDevice"));
+    qalcGetError = reinterpret_cast<LPALCGETERROR>(GPA("alcGetError"));
+    qalcIsExtensionPresent = reinterpret_cast<LPALCISEXTENSIONPRESENT>
+                             (GPA("alcIsExtensionPresent"));
+    qalcGetProcAddress = reinterpret_cast<LPALCGETPROCADDRESS>
+                         (GPA("alcGetProcAddress"));
+    qalcGetEnumValue = reinterpret_cast<LPALCGETENUMVALUE>
+                       (GPA("alcGetEnumValue"));
+    qalcGetString = reinterpret_cast<LPALCGETSTRING>(GPA("alcGetString"));
+    qalcGetIntegerv = reinterpret_cast<LPALCGETINTEGERV>
+                      (GPA("alcGetIntegerv"));
+    qalcCaptureOpenDevice = reinterpret_cast<LPALCCAPTUREOPENDEVICE>
+                            (GPA("alcCaptureOpenDevice"));
+    qalcCaptureCloseDevice = reinterpret_cast<LPALCCAPTURECLOSEDEVICE>
+                             (GPA("alcCaptureCloseDevice"));
+    qalcCaptureStart = reinterpret_cast<LPALCCAPTURESTART>
+                       (GPA("alcCaptureStart"));
+    qalcCaptureStop = reinterpret_cast<LPALCCAPTURESTOP>
+                      (GPA("alcCaptureStop"));
+    qalcCaptureSamples = reinterpret_cast<LPALCCAPTURESAMPLES>
+                         (GPA("alcCaptureSamples"));
+
+    if(alinit_fail) {
         QAL_Shutdown();
-        trap_Printf( PRINT_ALL, " One or more symbols not found\n" );
+        trap_Printf(PRINT_ALL, " One or more symbols not found\n");
         return false;
     }
-    
+
     return true;
 }
 
@@ -260,14 +286,12 @@ bool QAL_Init( pointer libname )
 QAL_Shutdown
 =================
 */
-void QAL_Shutdown( void )
-{
-    if( OpenALLib )
-    {
-        SDL_UnloadObject( OpenALLib );
+void QAL_Shutdown(void) {
+    if(OpenALLib) {
+        SDL_UnloadObject(OpenALLib);
         OpenALLib = nullptr;
     }
-    
+
     qalEnable = nullptr;
     qalDisable = nullptr;
     qalIsEnabled = nullptr;
@@ -322,7 +346,7 @@ void QAL_Shutdown( void )
     qalDopplerFactor = nullptr;
     qalDopplerVelocity = nullptr;
     qalDistanceModel = nullptr;
-    
+
     qalcCreateContext = nullptr;
     qalcMakeContextCurrent = nullptr;
     qalcProcessContext = nullptr;

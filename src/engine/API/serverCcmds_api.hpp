@@ -32,15 +32,14 @@
 //
 // idServerGameSystem
 //
-class idServerCcmdsSystem
-{
+class idServerCcmdsSystem {
 public:
-    virtual void TempBanNetAddress( netadr_t address, S32 length ) = 0;
-    virtual void AddOperatorCommands( void ) = 0;
-    virtual void Heartbeat_f( void ) = 0;
-    virtual bool TempBanIsBanned( netadr_t address ) = 0;
+    virtual void TempBanNetAddress(netadr_t address, S32 length) = 0;
+    virtual void AddOperatorCommands(void) = 0;
+    virtual void Heartbeat_f(void) = 0;
+    virtual bool TempBanIsBanned(netadr_t address) = 0;
 };
 
-extern idServerCcmdsSystem* serverCcmdsSystem;
+extern idServerCcmdsSystem *serverCcmdsSystem;
 
 #endif //!__SERVERCCMDS_API_H__

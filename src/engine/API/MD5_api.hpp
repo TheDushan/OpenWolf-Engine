@@ -40,12 +40,12 @@
 //
 // idMD5System
 //
-class idMD5System
-{
+class idMD5System {
 public:
-    virtual valueType* MD5File( pointer fn, sint length, pointer prefix, uint64 prefix_len ) = 0;
+    virtual valueType *MD5File(pointer fn, sint length, pointer prefix,
+                               uint64 prefix_len) = 0;
 };
 
-extern idMD5System* MD5System;
+extern idMD5System *MD5System;
 
 #endif //!__MD5_API_H__

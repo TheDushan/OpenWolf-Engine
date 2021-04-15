@@ -46,7 +46,7 @@ typedef sint socklen_t;
 #undef ECONNRESET
 
 #ifdef ADDRESS_FAMILY
-#define sa_family_t	ADDRESS_FAMILY
+#define sa_family_t ADDRESS_FAMILY
 #else
 typedef uchar16 sa_family_t;
 #endif
@@ -57,15 +57,15 @@ typedef uchar16 sa_family_t;
 #define ECONNRESET WSAECONNRESET
 #define socketError WSAGetLastError( )
 
-static WSADATA	winsockdata;
-static bool	winsockInitialized = false;
+static WSADATA  winsockdata;
+static bool winsockInitialized = false;
 
 #else
-#define INVALID_SOCKET		-1
-#define SOCKET_ERROR			-1
-#define closesocket			close
-#define ioctlsocket			ioctl
-#define socketError			errno
+#define INVALID_SOCKET      -1
+#define SOCKET_ERROR            -1
+#define closesocket         close
+#define ioctlsocket         ioctl
+#define socketError         errno
 typedef sint SOCKET;
 #endif
 
@@ -73,28 +73,28 @@ typedef sint SOCKET;
 #define IF_NAMESIZE 16
 #endif
 
-#define	MAX_IPS		32
+#define MAX_IPS     32
 
 
 static bool usingSocks = false;
 static bool networkingEnabled = false;
 
-static convar_t* net_enabled;
+static convar_t *net_enabled;
 
-static convar_t* net_socksEnabled;
-static convar_t* net_socksServer;
-static convar_t* net_socksPort;
-static convar_t* net_socksUsername;
-static convar_t* net_socksPassword;
+static convar_t *net_socksEnabled;
+static convar_t *net_socksServer;
+static convar_t *net_socksPort;
+static convar_t *net_socksUsername;
+static convar_t *net_socksPassword;
 
-static convar_t* net_ip;
-static convar_t* net_ip6;
-static convar_t* net_port;
-static convar_t* net_port6;
-static convar_t* net_mcast6addr;
-static convar_t* net_mcast6iface;
+static convar_t *net_ip;
+static convar_t *net_ip6;
+static convar_t *net_port;
+static convar_t *net_port6;
+static convar_t *net_mcast6addr;
+static convar_t *net_mcast6iface;
 
-static struct sockaddr	socksRelayAddr;
+static struct sockaddr  socksRelayAddr;
 
 static SOCKET ip_socket = INVALID_SOCKET;
 static SOCKET ip6_socket = INVALID_SOCKET;
@@ -113,12 +113,11 @@ static struct sockaddr_in6 boundto;
 // use an admin local address per default so that network admins can decide on how to handle quake3 traffic.
 #define NET_MULTICAST_IP6 "ff04::696f:7175:616b:6533"
 
-#define	MAX_IPS		32
+#define MAX_IPS     32
 
-typedef struct
-{
+typedef struct {
     valueType ifname[IF_NAMESIZE];
-    
+
     netadrtype_t type;
     sa_family_t family;
     struct sockaddr_storage addr;
@@ -132,47 +131,51 @@ static valueType socksBuf[4096];
 //
 // idNetworkSystemLocal
 //
-class idNetworkSystemLocal : public idNetworkSystem
-{
+class idNetworkSystemLocal : public idNetworkSystem {
 public:
     idNetworkSystemLocal();
     ~idNetworkSystemLocal();
-    
-    virtual bool StringToAdr( pointer s, netadr_t* a, netadrtype_t family );
-    virtual bool CompareBaseAdrMask( netadr_t a, netadr_t b, sint netmask );
-    virtual bool CompareBaseAdr( netadr_t a, netadr_t b );
-    virtual pointer AdrToString( netadr_t a );
-    virtual pointer AdrToStringwPort( netadr_t a );
-    virtual bool CompareAdr( netadr_t a, netadr_t b );
-    virtual bool IsLocalAddress( netadr_t adr );
-    virtual bool GetPacket( netadr_t* net_from, msg_t* net_message );
-    virtual void SendPacket( sint length, const void* data, netadr_t to );
-    virtual bool IsLANAddress( netadr_t adr );
-    virtual void ShowIP( void );
-    virtual void JoinMulticast6( void );
-    virtual void LeaveMulticast6( void );
-    virtual void Init( void );
-    virtual void Shutdown( void );
-    virtual void Sleep( sint msec );
-    virtual void Restart_f( void );
-    virtual sint ConnectTCP( valueType* s_host_port );
-    
-    static valueType* ErrorString( void );
-    static void SockaddrToString( valueType* dest, uint64 destlen, struct sockaddr* input );
-    static void NetadrToSockadr( netadr_t* a, struct sockaddr* s );
-    static void SockadrToNetadr( struct sockaddr* s, netadr_t* a );
-    static struct addrinfo* SearchAddrInfo( struct addrinfo* hints, sa_family_t family );
-    static bool StringToSockaddr( pointer s, struct sockaddr* sadr, sint sadr_len, sa_family_t family );
-    static void SetMulticast6( void );
-    static SOCKET IPSocket( valueType* net_interface, sint port, sint* err );
-    static SOCKET IP6Socket( valueType* net_interface, sint port, struct sockaddr_in6* bindto, sint* err );
-    static void OpenSocks( sint port );
-    static void AddLocalAddress( valueType* ifname, struct sockaddr* addr, struct sockaddr* netmask );
-    static void GetLocalAddress( void );
-    static bool GetCvars( void );
-    static void OpenIP( void );
-    static void Config( bool enableNetworking );
-    static void NETRestart_f( void );
+
+    virtual bool StringToAdr(pointer s, netadr_t *a, netadrtype_t family);
+    virtual bool CompareBaseAdrMask(netadr_t a, netadr_t b, sint netmask);
+    virtual bool CompareBaseAdr(netadr_t a, netadr_t b);
+    virtual pointer AdrToString(netadr_t a);
+    virtual pointer AdrToStringwPort(netadr_t a);
+    virtual bool CompareAdr(netadr_t a, netadr_t b);
+    virtual bool IsLocalAddress(netadr_t adr);
+    virtual bool GetPacket(netadr_t *net_from, msg_t *net_message);
+    virtual void SendPacket(sint length, const void *data, netadr_t to);
+    virtual bool IsLANAddress(netadr_t adr);
+    virtual void ShowIP(void);
+    virtual void JoinMulticast6(void);
+    virtual void LeaveMulticast6(void);
+    virtual void Init(void);
+    virtual void Shutdown(void);
+    virtual void Sleep(sint msec);
+    virtual void Restart_f(void);
+    virtual sint ConnectTCP(valueType *s_host_port);
+
+    static valueType *ErrorString(void);
+    static void SockaddrToString(valueType *dest, uint64 destlen,
+                                 struct sockaddr *input);
+    static void NetadrToSockadr(netadr_t *a, struct sockaddr *s);
+    static void SockadrToNetadr(struct sockaddr *s, netadr_t *a);
+    static struct addrinfo *SearchAddrInfo(struct addrinfo *hints,
+                                           sa_family_t family);
+    static bool StringToSockaddr(pointer s, struct sockaddr *sadr,
+                                 sint sadr_len, sa_family_t family);
+    static void SetMulticast6(void);
+    static SOCKET IPSocket(valueType *net_interface, sint port, sint *err);
+    static SOCKET IP6Socket(valueType *net_interface, sint port,
+                            struct sockaddr_in6 *bindto, sint *err);
+    static void OpenSocks(sint port);
+    static void AddLocalAddress(valueType *ifname, struct sockaddr *addr,
+                                struct sockaddr *netmask);
+    static void GetLocalAddress(void);
+    static bool GetCvars(void);
+    static void OpenIP(void);
+    static void Config(bool enableNetworking);
+    static void NETRestart_f(void);
 };
 
 extern idNetworkSystemLocal networkSystemLocal;

@@ -37,17 +37,16 @@
 
 
 idAudioOpenALSystemLocal soundOpenALSystemLocal;
-idAudioOpenALSystem* soundOpenALSystem = &soundOpenALSystemLocal;
+idAudioOpenALSystem *soundOpenALSystem = &soundOpenALSystemLocal;
 
-static openALImports_t* imports;
+static openALImports_t *imports;
 
 /*
 ===============
 idSoundSystemLocal::idSoundSystemLocal
 ===============
 */
-idAudioOpenALSystemLocal::idAudioOpenALSystemLocal( void )
-{
+idAudioOpenALSystemLocal::idAudioOpenALSystemLocal(void) {
 }
 
 /*
@@ -55,8 +54,7 @@ idAudioOpenALSystemLocal::idAudioOpenALSystemLocal( void )
 idSystemLocal::~idSystemLocal
 ===============
 */
-idAudioOpenALSystemLocal::~idAudioOpenALSystemLocal( void )
-{
+idAudioOpenALSystemLocal::~idAudioOpenALSystemLocal(void) {
 }
 
 /*
@@ -64,34 +62,24 @@ idAudioOpenALSystemLocal::~idAudioOpenALSystemLocal( void )
 idAudioOpenALSystemLocal::format
 =================
 */
-ALuint idAudioOpenALSystemLocal::format( sint width, sint channels )
-{
+ALuint idAudioOpenALSystemLocal::format(sint width, sint channels) {
     ALuint format = AL_FORMAT_MONO16;
-    
+
     // Work out format
-    if( width == 1 )
-    {
-        if( channels == 1 )
-        {
+    if(width == 1) {
+        if(channels == 1) {
             format = AL_FORMAT_MONO8;
-        }
-        else if( channels == 2 )
-        {
+        } else if(channels == 2) {
             format = AL_FORMAT_STEREO8;
         }
-    }
-    else if( width == 2 )
-    {
-        if( channels == 1 )
-        {
+    } else if(width == 2) {
+        if(channels == 1) {
             format = AL_FORMAT_MONO16;
-        }
-        else if( channels == 2 )
-        {
+        } else if(channels == 2) {
             format = AL_FORMAT_STEREO16;
         }
     }
-    
+
     return format;
 }
 
@@ -102,22 +90,26 @@ idAudioOpenALSystemLocal::errormsg
 OpenAL error messages
 =================
 */
-valueType* idAudioOpenALSystemLocal::errormsg( ALenum error )
-{
-    switch( error )
-    {
+valueType *idAudioOpenALSystemLocal::errormsg(ALenum error) {
+    switch(error) {
         case AL_NO_ERROR:
             return "No error";
+
         case AL_INVALID_NAME:
             return "Invalid name";
+
         case AL_INVALID_ENUM:
             return "Invalid enumerator";
+
         case AL_INVALID_VALUE:
             return "Invalid value";
+
         case AL_INVALID_OPERATION:
             return "Invalid operation";
+
         case AL_OUT_OF_MEMORY:
             return "Out of memory";
+
         default:
             return "Unknown error";
     }
@@ -127,28 +119,28 @@ valueType* idAudioOpenALSystemLocal::errormsg( ALenum error )
  * Local state variables
  */
 static bool snd_shutdown_bug = false;
-static ALCdevice* alDevice;
-static ALCcontext* alContext;
+static ALCdevice *alDevice;
+static ALCcontext *alContext;
 
 /*
  * Console variables
  */
-convar_t* s_volume;
-convar_t* s_musicVolume;
-convar_t* s_doppler;
-convar_t* s_precache;
-convar_t* s_gain;
-convar_t* s_sources;
-convar_t* s_dopplerFactor;
-convar_t* s_dopplerSpeed;
-convar_t* s_minDistance;
-convar_t* s_rolloff;
-convar_t* s_alDevice;
-convar_t* s_alAvailableDevices;
-convar_t* s_alAvailableInputDevices;
+convar_t *s_volume;
+convar_t *s_musicVolume;
+convar_t *s_doppler;
+convar_t *s_precache;
+convar_t *s_gain;
+convar_t *s_sources;
+convar_t *s_dopplerFactor;
+convar_t *s_dopplerSpeed;
+convar_t *s_minDistance;
+convar_t *s_rolloff;
+convar_t *s_alDevice;
+convar_t *s_alAvailableDevices;
+convar_t *s_alAvailableInputDevices;
 
 
-convar_t* s_alDriver;
+convar_t *s_alDriver;
 #if defined( _WIN32 )
 #define ALDRIVER_DEFAULT "OpenAL64"
 #elif defined( MACOS_X )
@@ -162,138 +154,152 @@ convar_t* s_alDriver;
 idAudioOpenALSystemLocal::Init
 =================
 */
-bool idAudioOpenALSystemLocal::Init( void )
-{
+bool idAudioOpenALSystemLocal::Init(void) {
     pointer device = nullptr;
-    
+
     // Original console variables
-    s_volume = cvarSystem->Get( "s_volume", "0.8", CVAR_ARCHIVE, "Sound FX Volume " );
-    s_musicVolume = cvarSystem->Get( "s_musicvolume", "0.25", CVAR_ARCHIVE, "Music volume level 0=off" );
-    s_doppler = cvarSystem->Get( "s_doppler", "1", CVAR_ARCHIVE, "Toggle doppler effect" );
-    
+    s_volume = cvarSystem->Get("s_volume", "0.8", CVAR_ARCHIVE,
+                               "Sound FX Volume ");
+    s_musicVolume = cvarSystem->Get("s_musicvolume", "0.25", CVAR_ARCHIVE,
+                                    "Music volume level 0=off");
+    s_doppler = cvarSystem->Get("s_doppler", "1", CVAR_ARCHIVE,
+                                "Toggle doppler effect");
+
     // New console variables
-    s_precache = cvarSystem->Get( "al_precache", "1", CVAR_ARCHIVE, "Cache OpenAL sounds before use" );
-    s_gain = cvarSystem->Get( "al_gain", "0.4", CVAR_ARCHIVE, "The value of AL_GAIN for each source" );
-    s_sources = cvarSystem->Get( "al_sources", "64", CVAR_ARCHIVE, "The total number of sources (memory) to allocate" );
-    s_dopplerFactor = cvarSystem->Get( "al_dopplerfactor", "1.0", CVAR_ARCHIVE, "The value passed to alDopplerFactor" );
-    s_dopplerSpeed = cvarSystem->Get( "al_dopplerspeed", "2200", CVAR_ARCHIVE, "The value passed to alDopplerVelocity" );
-    s_minDistance = cvarSystem->Get( "al_mindistance", "80", CVAR_ARCHIVE, "The value of AL_REFERENCE_DISTANCE for each source" );
-    s_rolloff = cvarSystem->Get( "al_rolloff", "0.25", CVAR_ARCHIVE, "The value of AL_ROLLOFF_FACTOR for each source" );
-    s_alDevice = cvarSystem->Get( "al_device", "", CVAR_ARCHIVE | CVAR_LATCH, "Which OpenAL device to use" );
-    s_alDriver = cvarSystem->Get( "al_driver", ALDRIVER_DEFAULT, CVAR_ARCHIVE, "Which OpenAL library to use" );
-    
+    s_precache = cvarSystem->Get("al_precache", "1", CVAR_ARCHIVE,
+                                 "Cache OpenAL sounds before use");
+    s_gain = cvarSystem->Get("al_gain", "0.4", CVAR_ARCHIVE,
+                             "The value of AL_GAIN for each source");
+    s_sources = cvarSystem->Get("al_sources", "64", CVAR_ARCHIVE,
+                                "The total number of sources (memory) to allocate");
+    s_dopplerFactor = cvarSystem->Get("al_dopplerfactor", "1.0", CVAR_ARCHIVE,
+                                      "The value passed to alDopplerFactor");
+    s_dopplerSpeed = cvarSystem->Get("al_dopplerspeed", "2200", CVAR_ARCHIVE,
+                                     "The value passed to alDopplerVelocity");
+    s_minDistance = cvarSystem->Get("al_mindistance", "80", CVAR_ARCHIVE,
+                                    "The value of AL_REFERENCE_DISTANCE for each source");
+    s_rolloff = cvarSystem->Get("al_rolloff", "0.25", CVAR_ARCHIVE,
+                                "The value of AL_ROLLOFF_FACTOR for each source");
+    s_alDevice = cvarSystem->Get("al_device", "", CVAR_ARCHIVE | CVAR_LATCH,
+                                 "Which OpenAL device to use");
+    s_alDriver = cvarSystem->Get("al_driver", ALDRIVER_DEFAULT, CVAR_ARCHIVE,
+                                 "Which OpenAL library to use");
+
     // Load QAL
-    if( !QAL_Init( s_alDriver->string ) )
-    {
-        trap_Printf( PRINT_ALL, "not initializing.\n" );
+    if(!QAL_Init(s_alDriver->string)) {
+        trap_Printf(PRINT_ALL, "not initializing.\n");
         return false;
     }
-    
+
     // Open default device
     device = s_alDevice->string;
-    if( device && !*device )
-    {
+
+    if(device && !*device) {
         device = nullptr;
     }
-    
-    if( qalcIsExtensionPresent( nullptr, "ALC_ENUMERATION_EXT" ) )
-    {
+
+    if(qalcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
         valueType devicenames[1024] = "";
         pointer devicelist;
         pointer defaultdevice;
         sint curlen;
-        
+
         // get all available devices + the default device name.
-        devicelist = qalcGetString( nullptr, ALC_DEVICE_SPECIFIER );
-        defaultdevice = qalcGetString( nullptr, ALC_DEFAULT_DEVICE_SPECIFIER );
-        
+        devicelist = qalcGetString(nullptr, ALC_DEVICE_SPECIFIER);
+        defaultdevice = qalcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+
 #ifdef _WIN32
+
         // check whether the default device is generic hardware. If it is, change to
         // Generic Software as that one works more reliably with various sound systems.
         // If it's not, use OpenAL's default selection as we don't want to ignore
         // native hardware acceleration.
-        if( !device && !strcmp( defaultdevice, "Generic Hardware" ) )
-        {
+        if(!device && !strcmp(defaultdevice, "Generic Hardware")) {
             device = "Generic Software";
         }
+
 #endif
-        
+
         // dump a list of available devices to a cvar for the user to see.
-        while( ( curlen = strlen( devicelist ) ) )
-        {
-            ::strcat( devicenames, devicelist );
-            ::strcat( devicenames, "\n" );
-            
+        while((curlen = strlen(devicelist))) {
+            ::strcat(devicenames, devicelist);
+            ::strcat(devicenames, "\n");
+
             devicelist += curlen + 1;
         }
-        s_alAvailableDevices = cvarSystem->Get( "al_AvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART, "List of available OpenAL devices" );
+
+        s_alAvailableDevices = cvarSystem->Get("al_AvailableDevices", devicenames,
+                                               CVAR_ROM | CVAR_NORESTART, "List of available OpenAL devices");
     }
-    
-    alDevice = qalcOpenDevice( device );
-    if( !alDevice && device )
-    {
-        trap_Printf( PRINT_ALL,  "Failed to open OpenAL device '%s', trying default.\n", device );
-        alDevice = qalcOpenDevice( nullptr );
+
+    alDevice = qalcOpenDevice(device);
+
+    if(!alDevice && device) {
+        trap_Printf(PRINT_ALL,
+                    "Failed to open OpenAL device '%s', trying default.\n", device);
+        alDevice = qalcOpenDevice(nullptr);
     }
-    
-    if( !alDevice )
-    {
+
+    if(!alDevice) {
         QAL_Shutdown();
-        trap_Printf( PRINT_ALL,  "Failed to open OpenAL device.\n" );
+        trap_Printf(PRINT_ALL,  "Failed to open OpenAL device.\n");
         return false;
     }
-    
-    
+
+
     // Create OpenAL context
-    alContext = qalcCreateContext( alDevice, nullptr );
-    if( !alContext )
-    {
+    alContext = qalcCreateContext(alDevice, nullptr);
+
+    if(!alContext) {
         QAL_Shutdown();
-        
-        qalcCloseDevice( alDevice );
-        trap_Printf( PRINT_ALL, "Failed to create context\n" );
+
+        qalcCloseDevice(alDevice);
+        trap_Printf(PRINT_ALL, "Failed to create context\n");
         return false;
     }
-    
-    qalcMakeContextCurrent( alContext );
-    qalcProcessContext( alContext );
-    
+
+    qalcMakeContextCurrent(alContext);
+    qalcProcessContext(alContext);
+
     // Print OpenAL information
-    trap_Printf( PRINT_ALL, "OpenAL initialised\n" );
-    trap_Printf( PRINT_ALL, "  Vendor:     %s\n", qalGetString( AL_VENDOR ) );
-    trap_Printf( PRINT_ALL, "  Version:    %s\n", qalGetString( AL_VERSION ) );
-    trap_Printf( PRINT_ALL, "  Renderer:   %s\n", qalGetString( AL_RENDERER ) );
-    trap_Printf( PRINT_ALL, "  AL Extensions: %s\n", qalGetString( AL_EXTENSIONS ) );
-    trap_Printf( PRINT_ALL,  "  ALC Extensions: %s\n", qalcGetString( alDevice, ALC_EXTENSIONS ) );
-    
-    if( qalcIsExtensionPresent( nullptr, "ALC_ENUMERATION_EXT" ) )
-    {
-        trap_Printf( PRINT_ALL, "  Device:     %s\n", qalcGetString( alDevice, ALC_DEVICE_SPECIFIER ) );
-        trap_Printf( PRINT_ALL, "Available Devices:\n%s", s_alAvailableDevices->string );
+    trap_Printf(PRINT_ALL, "OpenAL initialised\n");
+    trap_Printf(PRINT_ALL, "  Vendor:     %s\n", qalGetString(AL_VENDOR));
+    trap_Printf(PRINT_ALL, "  Version:    %s\n", qalGetString(AL_VERSION));
+    trap_Printf(PRINT_ALL, "  Renderer:   %s\n", qalGetString(AL_RENDERER));
+    trap_Printf(PRINT_ALL, "  AL Extensions: %s\n",
+                qalGetString(AL_EXTENSIONS));
+    trap_Printf(PRINT_ALL,  "  ALC Extensions: %s\n", qalcGetString(alDevice,
+                ALC_EXTENSIONS));
+
+    if(qalcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
+        trap_Printf(PRINT_ALL, "  Device:     %s\n", qalcGetString(alDevice,
+                    ALC_DEVICE_SPECIFIER));
+        trap_Printf(PRINT_ALL, "Available Devices:\n%s",
+                    s_alAvailableDevices->string);
     }
-    
+
     // Check for Linux shutdown race condition
-    if( !::strcmp( qalGetString( AL_VENDOR ), "J. Valenzuela" ) )
-    {
+    if(!::strcmp(qalGetString(AL_VENDOR), "J. Valenzuela")) {
         snd_shutdown_bug = true;
     }
-    
+
     // Initialize sources, buffers, music
     buf_init();
     src_init();
-    
+
     // Set up OpenAL parameters (doppler, etc)
-    qalDistanceModel( AL_INVERSE_DISTANCE_CLAMPED );
-    qalDopplerFactor( s_dopplerFactor->value );
-    qalDopplerVelocity( s_dopplerSpeed->value );;
-    
+    qalDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+    qalDopplerFactor(s_dopplerFactor->value);
+    qalDopplerVelocity(s_dopplerSpeed->value);;
+
     // Add commands
-    cmdSystem->AddCommand( "play", Play_f, "play a sound file (play sound)" );
-    cmdSystem->AddCommand( "music", Music_f, "Plays specified music file (music music)" );
-    
+    cmdSystem->AddCommand("play", Play_f, "play a sound file (play sound)");
+    cmdSystem->AddCommand("music", Music_f,
+                          "Plays specified music file (music music)");
+
     // Init successful
-    trap_Printf( PRINT_ALL, "initialization successful\n" );
-    
+    trap_Printf(PRINT_ALL, "initialization successful\n");
+
     return true;
 }
 
@@ -302,28 +308,26 @@ bool idAudioOpenALSystemLocal::Init( void )
 idAudioOpenALSystemLocal::Shutdown
 =================
 */
-void idAudioOpenALSystemLocal::Shutdown( void )
-{
+void idAudioOpenALSystemLocal::Shutdown(void) {
     // Remove commands
-    cmdSystem->RemoveCommand( "music" );
-    cmdSystem->RemoveCommand( "play" );
-    
+    cmdSystem->RemoveCommand("music");
+    cmdSystem->RemoveCommand("play");
+
     // Shut down everything
     stream_die();
-    
+
     StopBackgroundTrack();
-    
+
     src_shutdown();
     buf_shutdown();
-    
-    if( !snd_shutdown_bug )
-    {
-        qalcMakeContextCurrent( nullptr );
+
+    if(!snd_shutdown_bug) {
+        qalcMakeContextCurrent(nullptr);
     }
-    
-    qalcDestroyContext( alContext );
-    qalcCloseDevice( alDevice );
-    
+
+    qalcDestroyContext(alContext);
+    qalcCloseDevice(alDevice);
+
     QAL_Shutdown();
 }
 
@@ -332,10 +336,9 @@ void idAudioOpenALSystemLocal::Shutdown( void )
 idAudioOpenALSystemLocal::StopAllSounds
 =================
 */
-void idAudioOpenALSystemLocal::StopAllSounds( void )
-{
+void idAudioOpenALSystemLocal::StopAllSounds(void) {
     src_shutup();
-    
+
     StopBackgroundTrack();
 }
 
@@ -344,19 +347,19 @@ void idAudioOpenALSystemLocal::StopAllSounds( void )
 idAudioOpenALSystemLocal::Respatialize
 =================
 */
-void idAudioOpenALSystemLocal::Respatialize( sint entityNum, const vec3_t origin, vec3_t axis[3], sint inwater )
-{
+void idAudioOpenALSystemLocal::Respatialize(sint entityNum,
+        const vec3_t origin, vec3_t axis[3], sint inwater) {
     // Axis[0] = Forward
     // Axis[2] = Up
     float32 velocity[] = {0.0f, 0.0f, 0.0f};
     float32 orientation[] = {axis[0][0], axis[0][1], axis[0][2], axis[2][0], axis[2][1], axis[2][2] };
     vec3_t sorigin;
-    
+
     // Set OpenAL listener paramaters
-    VectorScale( origin, POSITION_SCALE, sorigin );
-    qalListenerfv( AL_POSITION, origin );
-    qalListenerfv( AL_VELOCITY, velocity );
-    qalListenerfv( AL_ORIENTATION, orientation );
+    VectorScale(origin, POSITION_SCALE, sorigin);
+    qalListenerfv(AL_POSITION, origin);
+    qalListenerfv(AL_VELOCITY, velocity);
+    qalListenerfv(AL_ORIENTATION, orientation);
 }
 
 /*
@@ -364,43 +367,36 @@ void idAudioOpenALSystemLocal::Respatialize( sint entityNum, const vec3_t origin
 idAudioOpenALSystemLocal::Update
 =================
 */
-void idAudioOpenALSystemLocal::Update( void )
-{
+void idAudioOpenALSystemLocal::Update(void) {
     // Update SFX channels
     src_update();
-    
+
     // Update streams
     stream_update();
     mus_update();
-    
+
     // Doppler
-    if( s_doppler->modified )
-    {
+    if(s_doppler->modified) {
         s_dopplerFactor->modified = true;
         s_doppler->modified = false;
     }
-    
+
     // Doppler parameters
-    if( s_dopplerFactor->modified )
-    {
-        if( s_doppler->integer )
-        {
-            qalDopplerFactor( s_dopplerFactor->value );
+    if(s_dopplerFactor->modified) {
+        if(s_doppler->integer) {
+            qalDopplerFactor(s_dopplerFactor->value);
+        } else {
+            qalDopplerFactor(0.0f);
         }
-        else
-        {
-            qalDopplerFactor( 0.0f );
-        }
-        
+
         s_dopplerFactor->modified = false;
     }
-    
-    if( s_dopplerSpeed->modified )
-    {
-        qalDopplerVelocity( s_dopplerSpeed->value );
+
+    if(s_dopplerSpeed->modified) {
+        qalDopplerVelocity(s_dopplerSpeed->value);
         s_dopplerSpeed->modified = false;
     }
-    
+
     // Clear the modified flags on the other cvars
     s_gain->modified = false;
     s_volume->modified = false;
@@ -414,8 +410,7 @@ void idAudioOpenALSystemLocal::Update( void )
 idAudioOpenALSystemLocal::StopAllSounds
 =================
 */
-void idAudioOpenALSystemLocal::DisableSounds( void )
-{
+void idAudioOpenALSystemLocal::DisableSounds(void) {
     StopAllSounds();
 }
 
@@ -424,8 +419,7 @@ void idAudioOpenALSystemLocal::DisableSounds( void )
 idAudioOpenALSystemLocal::BeginRegistration
 =================
 */
-void idAudioOpenALSystemLocal::BeginRegistration( void )
-{
+void idAudioOpenALSystemLocal::BeginRegistration(void) {
     // Initialize buffers
     buf_init();
 }
@@ -435,34 +429,33 @@ void idAudioOpenALSystemLocal::BeginRegistration( void )
 idAudioOpenALSystemLocal::ClearSoundBuffer
 =================
 */
-void idAudioOpenALSystemLocal::ClearSoundBuffer( void )
-{
+void idAudioOpenALSystemLocal::ClearSoundBuffer(void) {
     src_shutdown();
     src_init();
 }
 
-idSoundSystem* soundSystem;
-idFileSystem* fileSystem;
-idCVarSystem* cvarSystem;
-idCmdSystem* cmdSystem;
-idSystem* idsystem;
-idParseSystem* ParseSystem;
+idSoundSystem *soundSystem;
+idFileSystem *fileSystem;
+idCVarSystem *cvarSystem;
+idCmdSystem *cmdSystem;
+idSystem *idsystem;
+idParseSystem *ParseSystem;
 
 #ifdef __LINUX__
-extern "C" idAudioOpenALSystem* GetSndAPI( openALImports_t* oalimports )
+extern "C" idAudioOpenALSystem *GetSndAPI(openALImports_t *oalimports)
 #else
-Q_EXPORT idAudioOpenALSystem* GetSndAPI( openALImports_t* oalimports )
+Q_EXPORT idAudioOpenALSystem *GetSndAPI(openALImports_t *oalimports)
 #endif
 {
     imports = oalimports;
-    
+
     soundSystem = imports->soundSystem;
     fileSystem = imports->fileSystem;
     cvarSystem = imports->cvarSystem;
     cmdSystem = imports->cmdSystem;
     idsystem = imports->idsystem;
     ParseSystem = imports->parseSystem;
-    
+
     return soundOpenALSystem;
 }
 
@@ -471,31 +464,26 @@ Q_EXPORT idAudioOpenALSystem* GetSndAPI( openALImports_t* oalimports )
 idAudioOpenALSystemLocal::Play_f
 =================
 */
-void idAudioOpenALSystemLocal::Play_f( void )
-{
+void idAudioOpenALSystemLocal::Play_f(void) {
     sint i;
-    sfxHandle_t	h;
+    sfxHandle_t h;
     valueType name[256];
-    
+
     i = 1;
-    while( i < cmdSystem->Argc() )
-    {
-        if( !::strrchr( cmdSystem->Argv( i ), '.' ) )
-        {
-            snprintf( name, sizeof( name ), "%s.wav", cmdSystem->Argv( 1 ) );
+
+    while(i < cmdSystem->Argc()) {
+        if(!::strrchr(cmdSystem->Argv(i), '.')) {
+            snprintf(name, sizeof(name), "%s.wav", cmdSystem->Argv(1));
+        } else {
+            strncpy(name, cmdSystem->Argv(i), sizeof(name));
         }
-        else
-        {
-            strncpy( name, cmdSystem->Argv( i ), sizeof( name ) );
+
+        h = soundOpenALSystem->RegisterSound(name, false);
+
+        if(h) {
+            soundOpenALSystem->StartLocalSound(h, CHAN_LOCAL_SOUND);
         }
-        
-        h = soundOpenALSystem->RegisterSound( name, false );
-        
-        if( h )
-        {
-            soundOpenALSystem->StartLocalSound( h, CHAN_LOCAL_SOUND );
-        }
-        
+
         i++;
     }
 }
@@ -505,57 +493,46 @@ void idAudioOpenALSystemLocal::Play_f( void )
 idAudioOpenALSystemLocal::Music_f
 =================
 */
-void idAudioOpenALSystemLocal::Music_f( void )
-{
+void idAudioOpenALSystemLocal::Music_f(void) {
     sint c;
-    
+
     c = cmdSystem->Argc();
-    
-    if( c == 2 )
-    {
-        soundOpenALSystem->StartBackgroundTrack( cmdSystem->Argv( 1 ), cmdSystem->Argv( 1 ) );
-    }
-    else if( c == 3 )
-    {
-        soundOpenALSystem->StartBackgroundTrack( cmdSystem->Argv( 1 ), cmdSystem->Argv( 2 ) );
-    }
-    else
-    {
-        trap_Printf( PRINT_ALL, "music <musicfile> [loopfile]\n" );
+
+    if(c == 2) {
+        soundOpenALSystem->StartBackgroundTrack(cmdSystem->Argv(1),
+                                                cmdSystem->Argv(1));
+    } else if(c == 3) {
+        soundOpenALSystem->StartBackgroundTrack(cmdSystem->Argv(1),
+                                                cmdSystem->Argv(2));
+    } else {
+        trap_Printf(PRINT_ALL, "music <musicfile> [loopfile]\n");
         return;
     }
 }
 
-void trap_Printf( sint printLevel, pointer fmt, ... )
-{
-    imports->Printf( printLevel, fmt );
+void trap_Printf(sint printLevel, pointer fmt, ...) {
+    imports->Printf(printLevel, fmt);
 }
 
-void trap_Error( sint errorLevel, pointer fmt, ... )
-{
-    imports->Error( errorLevel, fmt );
+void trap_Error(sint errorLevel, pointer fmt, ...) {
+    imports->Error(errorLevel, fmt);
 }
-void* Hunk_AllocateTempMemory( uint64 size )
-{
-    return imports->Hunk_AllocateTempMemory( size );
+void *Hunk_AllocateTempMemory(uint64 size) {
+    return imports->Hunk_AllocateTempMemory(size);
 }
 
-void* trap_Hunk_Alloc( uint64 size, ha_pref preference )
-{
-    return imports->Hunk_Alloc( size, preference );
+void *trap_Hunk_Alloc(uint64 size, ha_pref preference) {
+    return imports->Hunk_Alloc(size, preference);
 }
 
-void trap_Hunk_FreeTempMemory( void* buf )
-{
-    imports->Hunk_FreeTempMemory( buf );
+void trap_Hunk_FreeTempMemory(void *buf) {
+    imports->Hunk_FreeTempMemory(buf);
 }
 
-void* trap_Malloc( uint64 size )
-{
-    return imports->Malloc( size );
+void *trap_Malloc(uint64 size) {
+    return imports->Malloc(size);
 }
 
-void trap_Free( void* ptr )
-{
-    imports->Free( ptr );
+void trap_Free(void *ptr) {
+    imports->Free(ptr);
 }

@@ -29,8 +29,7 @@
 #ifndef __CLIENTGUI_API_H__
 #define __CLIENTGUI_API_H__
 
-typedef struct
-{
+typedef struct {
     sint connectPacketCount;
     sint clientNum;
     valueType servername[MAX_STRING_CHARS];
@@ -42,25 +41,25 @@ typedef struct
 //
 // idClientGUISystem
 //
-class idClientGUISystem
-{
+class idClientGUISystem {
 public:
-    virtual void GetClientState( uiClientState_t* state ) = 0;
-    virtual void GetGlconfig( vidconfig_t* config ) = 0;
-    virtual void GUIGetClipboardData( valueType* buf, uint64 buflen ) = 0;
-    virtual bool GetConfigString( sint index, valueType* buf, uint64 size ) = 0;
-    virtual bool GetNews( bool begin ) = 0;
-    virtual void KeynumToStringBuf( sint keynum, valueType* buf, uint64 buflen ) = 0;
-    virtual void GetBindingBuf( sint keynum, valueType* buf, uint64 buflen ) = 0;
-    virtual sint GetCatcher( void ) = 0;
-    virtual void SetCatcher( sint catcher ) = 0;
-    virtual bool checkKeyExec( sint key ) = 0;
-    virtual bool GameCommand( void ) = 0;
-    virtual void InitGUI( void ) = 0;
-    virtual void ShutdownGUI( void ) = 0;
+    virtual void GetClientState(uiClientState_t *state) = 0;
+    virtual void GetGlconfig(vidconfig_t *config) = 0;
+    virtual void GUIGetClipboardData(valueType *buf, uint64 buflen) = 0;
+    virtual bool GetConfigString(sint index, valueType *buf, uint64 size) = 0;
+    virtual bool GetNews(bool begin) = 0;
+    virtual void KeynumToStringBuf(sint keynum, valueType *buf,
+                                   uint64 buflen) = 0;
+    virtual void GetBindingBuf(sint keynum, valueType *buf, uint64 buflen) = 0;
+    virtual sint GetCatcher(void) = 0;
+    virtual void SetCatcher(sint catcher) = 0;
+    virtual bool checkKeyExec(sint key) = 0;
+    virtual bool GameCommand(void) = 0;
+    virtual void InitGUI(void) = 0;
+    virtual void ShutdownGUI(void) = 0;
 };
 
-extern idClientGUISystem* clientGUISystem;
+extern idClientGUISystem *clientGUISystem;
 
 #endif // !__CLIENTGUI_API_H__
 

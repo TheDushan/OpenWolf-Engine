@@ -32,17 +32,17 @@
 //
 // idServerSnapshotSystem
 //
-class idServerSnapshotSystem
-{
+class idServerSnapshotSystem {
 public:
-    virtual void SendMessageToClient( msg_t* msg, client_t* client ) = 0;
-    virtual void SendClientIdle( client_t* client ) = 0;
-    virtual void SendClientSnapshot( client_t* client ) = 0;
-    virtual void SendClientMessages( void ) = 0;
-    virtual void CheckClientUserinfoTimer( void ) = 0;
-    virtual void UpdateServerCommandsToClient( client_t* client, msg_t* msg ) = 0;
+    virtual void SendMessageToClient(msg_t *msg, client_t *client) = 0;
+    virtual void SendClientIdle(client_t *client) = 0;
+    virtual void SendClientSnapshot(client_t *client) = 0;
+    virtual void SendClientMessages(void) = 0;
+    virtual void CheckClientUserinfoTimer(void) = 0;
+    virtual void UpdateServerCommandsToClient(client_t *client,
+            msg_t *msg) = 0;
 };
 
-extern idServerSnapshotSystem* serverSnapshotSystem;
+extern idServerSnapshotSystem *serverSnapshotSystem;
 
 #endif //!__SERVERSNAPSHOT_API_H__

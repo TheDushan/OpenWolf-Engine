@@ -60,30 +60,30 @@ static valueType libPath[MAX_OSPATH] = { 0 };
 #ifdef _WIN32
 #define FPUCWMASK1 (_MCW_RC|_MCW_EM)
 #define FPUCW (_RC_NEAR|_MCW_EM|_PC_53)
-#define FPUCWMASK	(FPUCWMASK1)
+#define FPUCWMASK   (FPUCWMASK1)
 #ifndef DEDICATED
 static bool SDL_VIDEODRIVER_externallySet = false;
 #endif
 
-typedef bool( __stdcall* SteamAPIInit_Type )();
-typedef void( __stdcall* SteamAPIShutdown_Type )();
+typedef bool(__stdcall *SteamAPIInit_Type)();
+typedef void(__stdcall *SteamAPIShutdown_Type)();
 static SteamAPIInit_Type SteamAPI_Init;
 static SteamAPIShutdown_Type SteamAPI_Shutdown;
-static void* steamLibrary = nullptr;
+static void *steamLibrary = nullptr;
 #endif
 
 #ifdef DEDICATED
-#	define PID_FILENAME PRODUCT_NAME_UPPPER "_server.pid"
+#   define PID_FILENAME PRODUCT_NAME_UPPPER "_server.pid"
 #else
-#	define PID_FILENAME PRODUCT_NAME_UPPPER ".pid"
+#   define PID_FILENAME PRODUCT_NAME_UPPPER ".pid"
 #endif
 
 #ifndef DEFAULT_BASEDIR
-#	ifdef MACOS_X
-#		define DEFAULT_BASEDIR idSystemLocal::StripAppBundle(idSystemLocal::BinaryPath())
-#	else
-#		define DEFAULT_BASEDIR idSystemLocal::BinaryPath()
-#	endif
+#   ifdef MACOS_X
+#       define DEFAULT_BASEDIR idSystemLocal::StripAppBundle(idSystemLocal::BinaryPath())
+#   else
+#       define DEFAULT_BASEDIR idSystemLocal::BinaryPath()
+#   endif
 #endif
 
 // Require a minimum version of SDL
@@ -93,15 +93,13 @@ static void* steamLibrary = nullptr;
 
 #define MAX_CONSOLE_KEYS 16
 
-enum keyType_t
-{
+enum keyType_t {
     QUAKE_KEY,
     CHARACTER
 };
 
 // We translate axes movement into keypresses
-static constexpr sint joy_keys[16] =
-{
+static constexpr sint joy_keys[16] = {
     K_LEFTARROW, K_RIGHTARROW,
     K_UPARROW, K_DOWNARROW,
     K_JOY17, K_JOY18,
@@ -114,8 +112,7 @@ static constexpr sint joy_keys[16] =
 
 // translate hat events into keypresses
 // the 4 highest buttons are used for the first hat ...
-static constexpr sint hat_keys[16] =
-{
+static constexpr sint hat_keys[16] = {
     K_JOY29, K_JOY30,
     K_JOY31, K_JOY32,
     K_JOY25, K_JOY26,
@@ -127,8 +124,7 @@ static constexpr sint hat_keys[16] =
 };
 
 
-static struct
-{
+static struct {
     bool buttons[16];  // !!! FIXME: these might be too many.
     uint oldaxes;
     sint oldaaxes[MAX_JOYSTICK_AXIS];
@@ -138,92 +134,97 @@ static struct
 //
 // idSystemLocal
 //
-class idSystemLocal : public idSystem
-{
+class idSystemLocal : public idSystem {
 public:
     idSystemLocal();
     ~idSystemLocal();
-    
-    virtual valueType* DefaultHomePath( valueType* buffer, sint size );
-    virtual sint Milliseconds( void );
-    virtual bool RandomBytes( uchar8* string, uint64 len );
-    virtual valueType* GetCurrentUser( void );
-    virtual bool LowPhysicalMemory( void );
-    virtual bool Mkdir( pointer path );
-    virtual valueType** ListFiles( pointer directory, pointer extension, valueType* filter, sint* numfiles, bool wantsubs );
-    virtual void FreeFileList( valueType** list );
-    virtual void Sleep( sint msec );
-    virtual bool OpenUrl( pointer url );
-    virtual dialogResult_t Dialog( dialogType_t type, pointer message, pointer title );
-    virtual void GLimpSafeInit( void );
-    virtual void GLimpInit( void );
-    virtual void StartProcess( valueType* exeName, bool doexit );
-    virtual void OpenURL( pointer url, bool doexit );
-    virtual bool IsNumLockDown( void );
-    virtual void Chmod( valueType* file, sint mode );
-    virtual valueType* SysGetClipboardData( void );
-    virtual valueType* DefaultInstallPath( void );
-    virtual valueType* DefaultLibPath( void );
-    virtual valueType* DefaultAppPath( void );
-    virtual void Restart_f( void );
-    virtual valueType* ConsoleInput( void );
-    virtual bool WritePIDFile( void );
-    virtual void Quit( void );
-    virtual void Init( void );
-    virtual void WriteDump( pointer fmt, ... );
-    virtual void Print( pointer msg );
-    virtual void Error( pointer error, ... );
-    virtual void UnloadDll( void* dllHandle );
-    virtual valueType* GetDLLName( pointer name );
-    virtual void* LoadDll( pointer name );
-    virtual void* GetProcAddress( void* dllhandle, pointer name );
-    virtual void SysSnapVector( float32* v );
-    virtual void Init( void* windowData );
-    virtual void Shutdown( void );
-    virtual valueType* Cwd( void );
-    
-    static void SetBinaryPath( pointer path );
-    static void SetFloatEnv( void );
-    static pointer TempPath( void );
-    static pointer Basename( valueType* path );
-    static pointer Dirname( valueType* path );
-    static void ListFilteredFiles( pointer basedir, valueType* subdirs, valueType* filter, valueType** list, sint* numfiles );
-    static void ErrorDialog( pointer error );
-    static void resetTime( void );
-    static void PlatformInit( void );
-    static void SetEnv( pointer name, pointer value );
-    static sint PID( void );
-    static bool PIDIsRunning( sint pid );
-    static void DoStartProcess( valueType* cmdline );
-    static bool Fork( pointer path, pointer cmdLine );
-    static valueType* BinaryPath( void );
-    static void SetDefaultInstallPath( pointer path );
-    static void SetDefaultLibPath( pointer path );
-    static valueType* PIDFileName( void );
-    static void Exit( sint exitCode );
-    static void RecordError( pointer msg );
-    static void ParseArgs( sint argc, valueType** argv );
-    static pointer SignalToString( sint sig );
-    static void SigHandler( sint signal );
-    static void InitJoystick( void );
-    static void ShutdownJoystick( void );
-    static void JoyMove( sint eventTime );
-    static void ProcessEvents( sint eventTime );
-    static void Frame( void );
-    static void InitKeyLockStates( void );
-    static void Restart( void );
-    static void PrintKey( const SDL_Keysym* keysym, keyNum_t key, bool down );
-    static bool IsConsoleKey( keyNum_t key, sint character );
-    static keyNum_t TranslateSDLToQ3Key( SDL_Keysym* keysym, bool down );
-    static void GobbleMotionEvents( void );
-    static void ActivateMouse( void );
-    static void DeactivateMouse( void );
-    static sint CtrlHandler( uint32 sig );
-    static bool strgtr( pointer s0, pointer s1 );
-    static sint ZenityCommand( dialogType_t type, pointer message, pointer title );
-    static sint KdialogCommand( dialogType_t type, pointer message, pointer title );
-    static sint XmessageCommand( dialogType_t type, pointer message, pointer title );
-    static sint TranslateCtrlCharToKey( sint key );
+
+    virtual valueType *DefaultHomePath(valueType *buffer, sint size);
+    virtual sint Milliseconds(void);
+    virtual bool RandomBytes(uchar8 *string, uint64 len);
+    virtual valueType *GetCurrentUser(void);
+    virtual bool LowPhysicalMemory(void);
+    virtual bool Mkdir(pointer path);
+    virtual valueType **ListFiles(pointer directory, pointer extension,
+                                  valueType *filter, sint *numfiles, bool wantsubs);
+    virtual void FreeFileList(valueType **list);
+    virtual void Sleep(sint msec);
+    virtual bool OpenUrl(pointer url);
+    virtual dialogResult_t Dialog(dialogType_t type, pointer message,
+                                  pointer title);
+    virtual void GLimpSafeInit(void);
+    virtual void GLimpInit(void);
+    virtual void StartProcess(valueType *exeName, bool doexit);
+    virtual void OpenURL(pointer url, bool doexit);
+    virtual bool IsNumLockDown(void);
+    virtual void Chmod(valueType *file, sint mode);
+    virtual valueType *SysGetClipboardData(void);
+    virtual valueType *DefaultInstallPath(void);
+    virtual valueType *DefaultLibPath(void);
+    virtual valueType *DefaultAppPath(void);
+    virtual void Restart_f(void);
+    virtual valueType *ConsoleInput(void);
+    virtual bool WritePIDFile(void);
+    virtual void Quit(void);
+    virtual void Init(void);
+    virtual void WriteDump(pointer fmt, ...);
+    virtual void Print(pointer msg);
+    virtual void Error(pointer error, ...);
+    virtual void UnloadDll(void *dllHandle);
+    virtual valueType *GetDLLName(pointer name);
+    virtual void *LoadDll(pointer name);
+    virtual void *GetProcAddress(void *dllhandle, pointer name);
+    virtual void SysSnapVector(float32 *v);
+    virtual void Init(void *windowData);
+    virtual void Shutdown(void);
+    virtual valueType *Cwd(void);
+
+    static void SetBinaryPath(pointer path);
+    static void SetFloatEnv(void);
+    static pointer TempPath(void);
+    static pointer Basename(valueType *path);
+    static pointer Dirname(valueType *path);
+    static void ListFilteredFiles(pointer basedir, valueType *subdirs,
+                                  valueType *filter, valueType **list, sint *numfiles);
+    static void ErrorDialog(pointer error);
+    static void resetTime(void);
+    static void PlatformInit(void);
+    static void SetEnv(pointer name, pointer value);
+    static sint PID(void);
+    static bool PIDIsRunning(sint pid);
+    static void DoStartProcess(valueType *cmdline);
+    static bool Fork(pointer path, pointer cmdLine);
+    static valueType *BinaryPath(void);
+    static void SetDefaultInstallPath(pointer path);
+    static void SetDefaultLibPath(pointer path);
+    static valueType *PIDFileName(void);
+    static void Exit(sint exitCode);
+    static void RecordError(pointer msg);
+    static void ParseArgs(sint argc, valueType **argv);
+    static pointer SignalToString(sint sig);
+    static void SigHandler(sint signal);
+    static void InitJoystick(void);
+    static void ShutdownJoystick(void);
+    static void JoyMove(sint eventTime);
+    static void ProcessEvents(sint eventTime);
+    static void Frame(void);
+    static void InitKeyLockStates(void);
+    static void Restart(void);
+    static void PrintKey(const SDL_Keysym *keysym, keyNum_t key, bool down);
+    static bool IsConsoleKey(keyNum_t key, sint character);
+    static keyNum_t TranslateSDLToQ3Key(SDL_Keysym *keysym, bool down);
+    static void GobbleMotionEvents(void);
+    static void ActivateMouse(void);
+    static void DeactivateMouse(void);
+    static sint CtrlHandler(uint32 sig);
+    static bool strgtr(pointer s0, pointer s1);
+    static sint ZenityCommand(dialogType_t type, pointer message,
+                              pointer title);
+    static sint KdialogCommand(dialogType_t type, pointer message,
+                               pointer title);
+    static sint XmessageCommand(dialogType_t type, pointer message,
+                                pointer title);
+    static sint TranslateCtrlCharToKey(sint key);
 };
 
 extern idSystemLocal systemLocal;

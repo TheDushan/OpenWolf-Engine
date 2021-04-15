@@ -35,15 +35,14 @@
 #endif
 
 idMD5SystemLocal MD5SystemLocal;
-idMD5System* MD5System = &MD5SystemLocal;
+idMD5System *MD5System = &MD5SystemLocal;
 
 /*
 ===============
 idMD5SystemLocal::idMD5SystemLocal
 ===============
 */
-idMD5SystemLocal::idMD5SystemLocal( void )
-{
+idMD5SystemLocal::idMD5SystemLocal(void) {
 }
 
 /*
@@ -51,8 +50,7 @@ idMD5SystemLocal::idMD5SystemLocal( void )
 idMD5SystemLocal::~idMD5SystemLocal
 ===============
 */
-idMD5SystemLocal::~idMD5SystemLocal( void )
-{
+idMD5SystemLocal::~idMD5SystemLocal(void) {
 }
 
 /*
@@ -60,74 +58,66 @@ idMD5SystemLocal::~idMD5SystemLocal( void )
 idMD5SystemLocal::MD5File
 ====================
 */
-valueType* idMD5SystemLocal::MD5File( pointer fn, sint length, pointer prefix, uint64 prefix_len )
-{
+valueType *idMD5SystemLocal::MD5File(pointer fn, sint length,
+                                     pointer prefix, uint64 prefix_len) {
     sint i, filelen = 0, r = 0, total = 0;
     static valueType final[33] = { "" };
     uchar8 digest[16] = { "" }, buffer[2048];
     fileHandle_t f;
     MD5_CTX md5;
-    
-    Q_strncpyz( final, "", sizeof( final ) );
-    
-    filelen = fileSystem->SV_FOpenFileRead( fn, &f );
-    
-    if( !f )
-    {
+
+    Q_strncpyz(final, "", sizeof(final));
+
+    filelen = fileSystem->SV_FOpenFileRead(fn, &f);
+
+    if(!f) {
         return final;
     }
-    
-    if( filelen < 1 )
-    {
-        fileSystem->FCloseFile( f );
+
+    if(filelen < 1) {
+        fileSystem->FCloseFile(f);
         return final;
     }
-    
-    if( filelen < length || !length )
-    {
+
+    if(filelen < length || !length) {
         length = filelen;
     }
-    
-    MD5_Init( &md5 );
-    
-    if( prefix_len && *prefix )
-    {
-        MD5_Update( &md5, prefix, prefix_len );
+
+    MD5_Init(&md5);
+
+    if(prefix_len && *prefix) {
+        MD5_Update(&md5, prefix, prefix_len);
     }
-    
-    for( ;; )
-    {
-        r = fileSystem->Read( buffer, sizeof( buffer ), f );
-        if( r < 1 )
-        {
+
+    for(;;) {
+        r = fileSystem->Read(buffer, sizeof(buffer), f);
+
+        if(r < 1) {
             break;
         }
-        
-        if( r + total > length )
-        {
+
+        if(r + total > length) {
             r = length - total;
         }
-        
+
         total += r;
-        
-        MD5_Update( &md5, buffer, r );
-        
-        if( r < sizeof( buffer ) || total >= length )
-        {
+
+        MD5_Update(&md5, buffer, r);
+
+        if(r < sizeof(buffer) || total >= length) {
             break;
         }
     }
-    
-    fileSystem->FCloseFile( f );
-    
-    MD5_Final( digest, &md5 );
-    
+
+    fileSystem->FCloseFile(f);
+
+    MD5_Final(digest, &md5);
+
     final[0] = '\0';
-    
-    for( i = 0; i < 16; i++ )
-    {
-        Q_strcat( final, sizeof( final ), va( "%02X", digest[i] ) );
+
+    for(i = 0; i < 16; i++) {
+        Q_strcat(final, sizeof(final), va("%02X", digest[i]));
     }
-    
+
     return final;
 }

@@ -40,20 +40,20 @@
 //
 // idServerGameSystemLocal
 //
-class idServerNetChanSystemLocal : public idServerNetChanSystem
-{
+class idServerNetChanSystemLocal : public idServerNetChanSystem {
 public:
-    virtual void NetchanFreeQueue( client_t* client );
-    virtual void NetchanTransmitNextFragment( client_t* client );
-    virtual void NetchanTransmit( client_t* client, msg_t* msg );
-    virtual bool NetchanProcess( client_t* client, msg_t* msg );
+    virtual void NetchanFreeQueue(client_t *client);
+    virtual void NetchanTransmitNextFragment(client_t *client);
+    virtual void NetchanTransmit(client_t *client, msg_t *msg);
+    virtual bool NetchanProcess(client_t *client, msg_t *msg);
 public:
     idServerNetChanSystemLocal();
     ~idServerNetChanSystemLocal();
-    
-    static void NetchanEncode( client_t* client, msg_t* msg, valueType* commandString );
-    static void NetchanDecode( client_t* client, msg_t* msg );
-    
+
+    static void NetchanEncode(client_t *client, msg_t *msg,
+                              valueType *commandString);
+    static void NetchanDecode(client_t *client, msg_t *msg);
+
 };
 
 extern idServerNetChanSystemLocal serverNetChanSystemLocal;

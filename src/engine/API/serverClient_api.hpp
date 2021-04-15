@@ -32,25 +32,25 @@
 //
 // idServerClientSystem
 //
-class idServerClientSystem
-{
+class idServerClientSystem {
 public:
-    virtual void DropClient( client_t* drop, pointer reason ) = 0;
-    virtual void ExecuteClientCommand( client_t* cl, pointer s, bool clientOK, bool premaprestart ) = 0;
-    virtual void ClientEnterWorld( client_t* client, usercmd_t* cmd ) = 0;
-    virtual void CloseDownload( client_t* cl ) = 0;
-    virtual void UserinfoChanged( client_t* cl ) = 0;
-    virtual void FreeClient( client_t* client ) = 0;
-    virtual void ClientThink( sint client, usercmd_t* cmd ) = 0;
-    virtual void WriteDownloadToClient( client_t* cl, msg_t* msg ) = 0;
-    virtual void GetChallenge( netadr_t from ) = 0;
-    virtual void DirectConnect( netadr_t from ) = 0;
-    virtual void ExecuteClientMessage( client_t* cl, msg_t* msg ) = 0;
-    virtual void AuthorizeIpPacket( netadr_t from ) = 0;
-    virtual sint SendQueuedMessages( void ) = 0;
-    virtual sint SendDownloadMessages( void ) = 0;
+    virtual void DropClient(client_t *drop, pointer reason) = 0;
+    virtual void ExecuteClientCommand(client_t *cl, pointer s, bool clientOK,
+                                      bool premaprestart) = 0;
+    virtual void ClientEnterWorld(client_t *client, usercmd_t *cmd) = 0;
+    virtual void CloseDownload(client_t *cl) = 0;
+    virtual void UserinfoChanged(client_t *cl) = 0;
+    virtual void FreeClient(client_t *client) = 0;
+    virtual void ClientThink(sint client, usercmd_t *cmd) = 0;
+    virtual void WriteDownloadToClient(client_t *cl, msg_t *msg) = 0;
+    virtual void GetChallenge(netadr_t from) = 0;
+    virtual void DirectConnect(netadr_t from) = 0;
+    virtual void ExecuteClientMessage(client_t *cl, msg_t *msg) = 0;
+    virtual void AuthorizeIpPacket(netadr_t from) = 0;
+    virtual sint SendQueuedMessages(void) = 0;
+    virtual sint SendDownloadMessages(void) = 0;
 };
 
-extern idServerClientSystem* serverClientSystem;
+extern idServerClientSystem *serverClientSystem;
 
 #endif //!__SERVERCLIENT_API_H__

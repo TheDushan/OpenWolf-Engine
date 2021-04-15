@@ -35,13 +35,12 @@
 FGetLittleLong
 =================
 */
-static sint FGetLittleLong( fileHandle_t f )
-{
+static sint FGetLittleLong(fileHandle_t f) {
     sint v;
-    
-    fileSystem->Read( &v, sizeof( v ), f );
-    
-    return LittleLong( v );
+
+    fileSystem->Read(&v, sizeof(v), f);
+
+    return LittleLong(v);
 }
 
 /*
@@ -49,13 +48,12 @@ static sint FGetLittleLong( fileHandle_t f )
 FGetLittleShort
 =================
 */
-static sint FGetLittleShort( fileHandle_t f )
-{
-    schar16	v;
-    
-    fileSystem->Read( &v, sizeof( v ), f );
-    
-    return LittleShort( v );
+static sint FGetLittleShort(fileHandle_t f) {
+    schar16 v;
+
+    fileSystem->Read(&v, sizeof(v), f);
+
+    return LittleShort(v);
 }
 
 /*
@@ -63,26 +61,25 @@ static sint FGetLittleShort( fileHandle_t f )
 readChunkInfo
 =================
 */
-static sint readChunkInfo( fileHandle_t f, valueType* name )
-{
+static sint readChunkInfo(fileHandle_t f, valueType *name) {
     sint len, r;
-    
+
     name[4] = 0;
-    
-    r = fileSystem->Read( name, 4, f );
-    if( r != 4 )
-    {
+
+    r = fileSystem->Read(name, 4, f);
+
+    if(r != 4) {
         return 0;
     }
-    
-    len = FGetLittleLong( f );
-    if( len < 0 || len > 0xffffffff )
-    {
+
+    len = FGetLittleLong(f);
+
+    if(len < 0 || len > 0xffffffff) {
         return 0;
     }
-    
+
     // pad to word boundary
-    len = ( len + 1 ) & ~1;
+    len = (len + 1) & ~1;
     return len;
 }
 
@@ -91,20 +88,17 @@ static sint readChunkInfo( fileHandle_t f, valueType* name )
 skipChunk
 =================
 */
-static void skipChunk( fileHandle_t f, sint length )
-{
+static void skipChunk(fileHandle_t f, sint length) {
     uchar8 buffer[32 * 1024];
-    
-    while( length > 0 )
-    {
+
+    while(length > 0) {
         sint toread = length;
-        
-        if( toread > sizeof( buffer ) )
-        {
-            toread = sizeof( buffer );
+
+        if(toread > sizeof(buffer)) {
+            toread = sizeof(buffer);
         }
-        
-        fileSystem->Read( buffer, toread, f );
+
+        fileSystem->Read(buffer, toread, f);
         length -= toread;
     }
 }
@@ -116,34 +110,30 @@ S_FindWavChunk
 returns the length of the data in the chunk, or 0 if not found
 =================
 */
-static sint S_FindWavChunk( fileHandle_t f, valueType* chunk )
-{
+static sint S_FindWavChunk(fileHandle_t f, valueType *chunk) {
     valueType name[5];
     sint len;
-    
+
     // This is a bit dangerous...
-    while( 1 )
-    {
-        len = readChunkInfo( f, name );
-        
+    while(1) {
+        len = readChunkInfo(f, name);
+
         // Read failure?
-        if( len == 0 )
-        {
+        if(len == 0) {
             return 0;
         }
-        
+
         // If this is the right chunk, return
-        if( !Q_strncmp( name, chunk, 4 ) )
-        {
+        if(!Q_strncmp(name, chunk, 4)) {
             return len;
         }
-        
-        len = PAD( len, 2 );
-        
+
+        len = PAD(len, 2);
+
         // Not the right chunk - skip it
-        fileSystem->Seek( f, len, FS_SEEK_CUR );
+        fileSystem->Seek(f, len, FS_SEEK_CUR);
     }
-    
+
     return -1;
 }
 
@@ -152,28 +142,26 @@ static sint S_FindWavChunk( fileHandle_t f, valueType* chunk )
 S_ByteSwapRawSamples
 =================
 */
-static void S_ByteSwapRawSamples( sint samples, sint width, sint s_channels, const uchar8* data )
-{
+static void S_ByteSwapRawSamples(sint samples, sint width, sint s_channels,
+                                 const uchar8 *data) {
     sint i;
-    
-    if( width != 2 )
-    {
+
+    if(width != 2) {
         return;
     }
-    
-    if( LittleShort( 256 ) == 256 )
-    {
+
+    if(LittleShort(256) == 256) {
         return;
     }
-    
-    if( s_channels == 2 )
-    {
+
+    if(s_channels == 2) {
         samples <<= 1;
     }
-    
-    for( i = 0 ; i < samples ; i++ )
-    {
-        ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[i] = LittleShort( ( const_cast<schar16*>( reinterpret_cast<const schar16*>( data ) ) )[i] );
+
+    for(i = 0 ; i < samples ; i++) {
+        (const_cast<schar16 *>(reinterpret_cast<const schar16 *>
+                               (data)))[i] = LittleShort((const_cast<schar16 *>
+                                             (reinterpret_cast<const schar16 *>(data)))[i]);
     }
 }
 
@@ -182,53 +170,49 @@ static void S_ByteSwapRawSamples( sint samples, sint width, sint s_channels, con
 read_wav_header
 =================
 */
-static bool read_wav_header( fileHandle_t file, snd_info_t* info )
-{
+static bool read_wav_header(fileHandle_t file, snd_info_t *info) {
     valueType dump[16];
     sint wav_format, fmtlen = 0;
-    
+
     // skip the riff wav header
-    fileSystem->Read( dump, 12, file );
-    
+    fileSystem->Read(dump, 12, file);
+
     // Scan for the format chunk
-    if( ( fmtlen = S_FindWavChunk( file, "fmt " ) ) == 0 )
-    {
-        Com_Printf( "No fmt chunk\n" );
+    if((fmtlen = S_FindWavChunk(file, "fmt ")) == 0) {
+        Com_Printf("No fmt chunk\n");
         return false;
     }
-    
+
     // Save the parameters
-    wav_format = FGetLittleShort( file );
-    info->channels = FGetLittleShort( file );
-    info->rate = FGetLittleLong( file );
-    FGetLittleLong( file );
-    FGetLittleShort( file );
-    info->width = FGetLittleShort( file ) / 8;
+    wav_format = FGetLittleShort(file);
+    info->channels = FGetLittleShort(file);
+    info->rate = FGetLittleLong(file);
+    FGetLittleLong(file);
+    FGetLittleShort(file);
+    info->width = FGetLittleShort(file) / 8;
     info->dataofs = 0;
-    
+
     // Skip the rest of the format chunk if required
-    if( fmtlen > 16 )
-    {
+    if(fmtlen > 16) {
         fmtlen -= 16;
-        skipChunk( file, fmtlen );
+        skipChunk(file, fmtlen);
     }
-    
+
     // Scan for the data chunk
-    if( ( info->size = S_FindWavChunk( file, "data" ) ) == 0 )
-    {
-        Com_Printf( "No data chunk\n" );
+    if((info->size = S_FindWavChunk(file, "data")) == 0) {
+        Com_Printf("No data chunk\n");
         return false;
     }
-    info->samples = ( info->size / info->width ) / info->channels;
-    
+
+    info->samples = (info->size / info->width) / info->channels;
+
     return true;
 }
 
 /*
  * WAV codec
  */
-snd_codec_t wav_codec =
-{
+snd_codec_t wav_codec = {
     ".wav",
     codec_wav_load,
     codec_wav_open,
@@ -242,42 +226,41 @@ snd_codec_t wav_codec =
 codec_wav_load
 =================
 */
-void* codec_wav_load( pointer filename, snd_info_t* info )
-{
+void *codec_wav_load(pointer filename, snd_info_t *info) {
     fileHandle_t file;
-    void* buffer;
-    
+    void *buffer;
+
     // Try to open the file
-    fileSystem->FOpenFileRead( filename, &file, true );
-    if( !file )
-    {
-        Com_Printf( "Can't read sound file %s\n", filename );
+    fileSystem->FOpenFileRead(filename, &file, true);
+
+    if(!file) {
+        Com_Printf("Can't read sound file %s\n", filename);
         return nullptr;
     }
-    
+
     // Read the RIFF header
-    if( !read_wav_header( file, info ) )
-    {
-        fileSystem->FCloseFile( file );
-        Com_Printf( "Can't understand wav file %s\n", filename );
+    if(!read_wav_header(file, info)) {
+        fileSystem->FCloseFile(file);
+        Com_Printf("Can't understand wav file %s\n", filename);
         return nullptr;
     }
-    
+
     // Allocate some memory
-    buffer = Hunk_AllocateTempMemory( info->size );
-    if( !buffer )
-    {
-        fileSystem->FCloseFile( file );
-        Com_Printf( S_COLOR_RED "ERROR: Out of memory reading \"%s\"\n", filename );
+    buffer = Hunk_AllocateTempMemory(info->size);
+
+    if(!buffer) {
+        fileSystem->FCloseFile(file);
+        Com_Printf(S_COLOR_RED "ERROR: Out of memory reading \"%s\"\n", filename);
         return nullptr;
     }
-    
+
     // Read, byteswap
-    fileSystem->Read( buffer, info->size, file );
-    S_ByteSwapRawSamples( info->samples, info->width, info->channels, ( uchar8* )buffer );
-    
+    fileSystem->Read(buffer, info->size, file);
+    S_ByteSwapRawSamples(info->samples, info->width, info->channels,
+                         (uchar8 *)buffer);
+
     // Close and return
-    fileSystem->FCloseFile( file );
+    fileSystem->FCloseFile(file);
     return buffer;
 }
 
@@ -286,24 +269,22 @@ void* codec_wav_load( pointer filename, snd_info_t* info )
 codec_wav_open
 =================
 */
-snd_stream_t* codec_wav_open( pointer filename )
-{
-    snd_stream_t* rv;
-    
+snd_stream_t *codec_wav_open(pointer filename) {
+    snd_stream_t *rv;
+
     // Open
-    rv = codec_util_open( filename, &wav_codec );
-    if( !rv )
-    {
+    rv = codec_util_open(filename, &wav_codec);
+
+    if(!rv) {
         return nullptr;
     }
-    
+
     // Read the RIFF header
-    if( !read_wav_header( rv->file, &rv->info ) )
-    {
-        codec_util_close( rv );
+    if(!read_wav_header(rv->file, &rv->info)) {
+        codec_util_close(rv);
         return nullptr;
     }
-    
+
     return rv;
 }
 
@@ -312,9 +293,8 @@ snd_stream_t* codec_wav_open( pointer filename )
 codec_wav_close
 =================
 */
-void codec_wav_close( snd_stream_t* stream )
-{
-    codec_util_close( stream );
+void codec_wav_close(snd_stream_t *stream) {
+    codec_util_close(stream);
 }
 
 /*
@@ -322,24 +302,22 @@ void codec_wav_close( snd_stream_t* stream )
 codec_wav_close
 =================
 */
-sint codec_wav_read( snd_stream_t* stream, sint bytes, void* buffer )
-{
+sint codec_wav_read(snd_stream_t *stream, sint bytes, void *buffer) {
     sint remaining = stream->info.size - stream->pos, samples;
-    
-    if( remaining <= 0 )
-    {
+
+    if(remaining <= 0) {
         return 0;
     }
-    
-    if( bytes > remaining )
-    {
+
+    if(bytes > remaining) {
         bytes = remaining;
     }
-    
+
     stream->pos += bytes;
-    samples = ( bytes / stream->info.width ) / stream->info.channels;
-    fileSystem->Read( buffer, bytes, stream->file );
-    S_ByteSwapRawSamples( samples, stream->info.width, stream->info.channels, static_cast<const uchar8*>( buffer ) );
-    
+    samples = (bytes / stream->info.width) / stream->info.channels;
+    fileSystem->Read(buffer, bytes, stream->file);
+    S_ByteSwapRawSamples(samples, stream->info.width, stream->info.channels,
+                         static_cast<const uchar8 *>(buffer));
+
     return bytes;
 }

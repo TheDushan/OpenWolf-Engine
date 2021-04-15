@@ -57,76 +57,87 @@ PlaneTypeForNormal
 // or ENTITYNUM_NONE, ENTITYNUM_WORLD
 
 // markfragments are returned by CM_MarkFragments()
-typedef struct
-{
+typedef struct {
     sint firstPoint;
     sint numPoints;
 } markFragment_t;
 
-typedef struct
-{
+typedef struct {
     vec3_t origin;
     vec3_t axis[3];
 } orientation_t;
 
-enum traceType_t
-{
+enum traceType_t {
     TT_NONE,
-    
+
     TT_AABB,
     TT_CAPSULE,
     TT_BISPHERE,
-    
+
     TT_NUM_TRACE_TYPES
 };
 
 //
 // idCollisionModelManager
 //
-class idCollisionModelManager
-{
+class idCollisionModelManager {
 public:
-    virtual void LoadMap( pointer name, bool clientload, sint* checksum ) = 0;
-    virtual clipHandle_t InlineModel( sint index ) = 0;      // 0 = world, 1 + are bmodels
-    virtual clipHandle_t TempBoxModel( const vec3_t mins, const vec3_t maxs, sint capsule ) = 0;
-    virtual void ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) = 0;
-    virtual void SetTempBoxModelContents( sint contents ) = 0;
-    virtual sint NumClusters( void ) = 0;
-    virtual sint NumInlineModels( void ) = 0;
-    virtual valueType* EntityString( void ) = 0;
-    
+    virtual void LoadMap(pointer name, bool clientload, sint *checksum) = 0;
+    virtual clipHandle_t InlineModel(sint index) =
+        0;        // 0 = world, 1 + are bmodels
+    virtual clipHandle_t TempBoxModel(const vec3_t mins, const vec3_t maxs,
+                                      sint capsule) = 0;
+    virtual void ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs) = 0;
+    virtual void SetTempBoxModelContents(sint contents) = 0;
+    virtual sint NumClusters(void) = 0;
+    virtual sint NumInlineModels(void) = 0;
+    virtual valueType *EntityString(void) = 0;
+
     // returns an ORed contents mask
-    virtual sint PointContents( const vec3_t p, clipHandle_t model ) = 0;
-    virtual sint TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles ) = 0;
-    virtual void BoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, sint brushmask, traceType_t type ) = 0;
-    virtual void TransformedBoxTrace( trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, sint brushmask, const vec3_t origin, const vec3_t angles, traceType_t type ) = 0;
-    virtual void BiSphereTrace( trace_t* results, const vec3_t start, const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model, sint mask ) = 0;
-    virtual void TransformedBiSphereTrace( trace_t* results, const vec3_t start, const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model, sint mask, const vec3_t origin ) = 0;
-    
-    virtual uchar8* ClusterPVS( sint cluster ) = 0;
-    
-    virtual sint PointLeafnum( const vec3_t p ) = 0;
-    
+    virtual sint PointContents(const vec3_t p, clipHandle_t model) = 0;
+    virtual sint TransformedPointContents(const vec3_t p, clipHandle_t model,
+                                          const vec3_t origin, const vec3_t angles) = 0;
+    virtual void BoxTrace(trace_t *results, const vec3_t start,
+                          const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model,
+                          sint brushmask, traceType_t type) = 0;
+    virtual void TransformedBoxTrace(trace_t *results, const vec3_t start,
+                                     const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model,
+                                     sint brushmask, const vec3_t origin, const vec3_t angles,
+                                     traceType_t type) = 0;
+    virtual void BiSphereTrace(trace_t *results, const vec3_t start,
+                               const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model,
+                               sint mask) = 0;
+    virtual void TransformedBiSphereTrace(trace_t *results, const vec3_t start,
+                                          const vec3_t end, float32 startRad, float32 endRad, clipHandle_t model,
+                                          sint mask, const vec3_t origin) = 0;
+
+    virtual uchar8 *ClusterPVS(sint cluster) = 0;
+
+    virtual sint PointLeafnum(const vec3_t p) = 0;
+
     // only returns non-solid leafs
     // overflow if return listsize and if *lastLeaf != list[listsize-1]
-    virtual sint BoxLeafnums( const vec3_t mins, const vec3_t maxs, sint* list, sint listsize, sint* lastLeaf ) = 0;
-    
-    virtual sint LeafCluster( sint leafnum ) = 0;
-    virtual sint LeafArea( sint leafnum ) = 0;
-    
-    virtual void AdjustAreaPortalState( sint area1, sint area2, bool open ) = 0;
-    virtual bool AreasConnected( sint area1, sint area2 ) = 0;
-    
-    virtual sint WriteAreaBits( uchar8* buffer, sint area ) = 0;
-    
-    virtual void ClearMap( void ) = 0;
-    
+    virtual sint BoxLeafnums(const vec3_t mins, const vec3_t maxs, sint *list,
+                             sint listsize, sint *lastLeaf) = 0;
+
+    virtual sint LeafCluster(sint leafnum) = 0;
+    virtual sint LeafArea(sint leafnum) = 0;
+
+    virtual void AdjustAreaPortalState(sint area1, sint area2, bool open) = 0;
+    virtual bool AreasConnected(sint area1, sint area2) = 0;
+
+    virtual sint WriteAreaBits(uchar8 *buffer, sint area) = 0;
+
+    virtual void ClearMap(void) = 0;
+
     // cm_patch.cpp
-    virtual void DrawDebugSurface( void ( *drawPoly )( sint color, sint numPoints, float32* points ) ) = 0;
-    
-    virtual sint BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t* plane ) = 0;
+    virtual void DrawDebugSurface(void (*drawPoly)(sint color, sint numPoints,
+                                  float32 *points)) = 0;
+
+    virtual sint BoxOnPlaneSide(vec3_t emins, vec3_t emaxs,
+                                cplane_t *plane) = 0;
 };
 
-extern idCollisionModelManager* collisionModelManager;
+extern idCollisionModelManager *collisionModelManager;
 
 #endif // !__CM_PUBLIC_H__

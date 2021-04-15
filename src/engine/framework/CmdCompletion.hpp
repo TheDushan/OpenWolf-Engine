@@ -41,40 +41,43 @@ static valueType     shortestMatch[MAX_TOKEN_CHARS];
 static sint      matchCount;
 
 // field we are working on, passed to idCmdCompletionLocal::CompleteCommand (&g_consoleCommand for instance)
-static field_t* completionField;
+static field_t *completionField;
 static pointer completionPrompt;
 
 //
 // idCmdCompletionLocal
 //
-class idCmdCompletionLocal : public idCmdCompletionSystem
-{
+class idCmdCompletionLocal : public idCmdCompletionSystem {
 public:
     idCmdCompletionLocal();
     ~idCmdCompletionLocal();
-    
-    virtual void CompleteKeyname( void );
-    virtual void CompleteCgame( sint argNum );
-    virtual void CompleteFilename( pointer dir, pointer ext, bool stripExt );
-    virtual void CompleteAlias( void );
-    virtual void CompleteDelay( void );
-    virtual void CompleteCommand( valueType* cmd, bool doCommands, bool doCvars );
-    virtual void AutoComplete( field_t* field, pointer prompt );
-    virtual void Clear( field_t* edit );
-    virtual void Set( field_t* edit, pointer content );
-    virtual void WordDelete( field_t* edit );
-    virtual void Draw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape, float32 alpha );
-    virtual void BigDraw( field_t* edit, sint x, sint y, bool showCursor, bool noColorEscape );
-    virtual void KeyDownEvent( field_t* edit, sint key );
-    virtual void CharEvent( field_t* edit, valueType ch );
-    
-    static void FindMatches( pointer s );
-    static void PrintMatches( pointer s );
-    static void PrintCvarMatches( pointer s );
-    static valueType* FindFirstSeparator( valueType* s );
-    static bool Complete( void );
-    static void VariableSizeDraw( field_t* edit, sint x, sint y, sint size, bool showCursor, bool noColorEscape, float32 alpha );
-    static void Paste( field_t* edit );
+
+    virtual void CompleteKeyname(void);
+    virtual void CompleteCgame(sint argNum);
+    virtual void CompleteFilename(pointer dir, pointer ext, bool stripExt);
+    virtual void CompleteAlias(void);
+    virtual void CompleteDelay(void);
+    virtual void CompleteCommand(valueType *cmd, bool doCommands,
+                                 bool doCvars);
+    virtual void AutoComplete(field_t *field, pointer prompt);
+    virtual void Clear(field_t *edit);
+    virtual void Set(field_t *edit, pointer content);
+    virtual void WordDelete(field_t *edit);
+    virtual void Draw(field_t *edit, sint x, sint y, bool showCursor,
+                      bool noColorEscape, float32 alpha);
+    virtual void BigDraw(field_t *edit, sint x, sint y, bool showCursor,
+                         bool noColorEscape);
+    virtual void KeyDownEvent(field_t *edit, sint key);
+    virtual void CharEvent(field_t *edit, valueType ch);
+
+    static void FindMatches(pointer s);
+    static void PrintMatches(pointer s);
+    static void PrintCvarMatches(pointer s);
+    static valueType *FindFirstSeparator(valueType *s);
+    static bool Complete(void);
+    static void VariableSizeDraw(field_t *edit, sint x, sint y, sint size,
+                                 bool showCursor, bool noColorEscape, float32 alpha);
+    static void Paste(field_t *edit);
 };
 
 extern idCmdCompletionLocal cmdCompletionLocal;

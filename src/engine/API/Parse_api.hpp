@@ -41,16 +41,16 @@
 //
 // idParseSystem
 //
-class idParseSystem
-{
+class idParseSystem {
 public:
-    virtual sint AddGlobalDefine( valueType* string ) = 0;
-    virtual sint LoadSourceHandle( pointer filename ) = 0;
-    virtual sint FreeSourceHandle( sint handle ) = 0;
-    virtual sint ReadTokenHandle( sint handle, pc_token_t* pc_token ) = 0;
-    virtual sint SourceFileAndLine( sint handle, valueType* filename, sint* line ) = 0;
+    virtual sint AddGlobalDefine(valueType *string) = 0;
+    virtual sint LoadSourceHandle(pointer filename) = 0;
+    virtual sint FreeSourceHandle(sint handle) = 0;
+    virtual sint ReadTokenHandle(sint handle, pc_token_t *pc_token) = 0;
+    virtual sint SourceFileAndLine(sint handle, valueType *filename,
+                                   sint *line) = 0;
 };
 
-extern idParseSystem* ParseSystem;
+extern idParseSystem *ParseSystem;
 
 #endif //!__MD4_API_H__

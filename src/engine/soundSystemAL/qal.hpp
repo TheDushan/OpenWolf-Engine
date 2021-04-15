@@ -129,7 +129,7 @@ extern LPALCCAPTURESTART qalcCaptureStart;
 extern LPALCCAPTURESTOP qalcCaptureStop;
 extern LPALCCAPTURESAMPLES qalcCaptureSamples;
 
-bool QAL_Init( pointer libname );
-void QAL_Shutdown( void );
+bool QAL_Init(pointer libname);
+void QAL_Shutdown(void);
 
-#endif	// __QAL_H__
+#endif  // __QAL_H__

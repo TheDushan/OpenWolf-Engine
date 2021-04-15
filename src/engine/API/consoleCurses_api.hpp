@@ -40,16 +40,15 @@
 //
 // idConsoleCursesSystem
 //
-class idConsoleCursesSystem
-{
+class idConsoleCursesSystem {
 public:
-    virtual void Shutdown( void ) = 0;
-    virtual void Clear_f( void ) = 0;
-    virtual void Init( void ) = 0;
-    virtual valueType* Input( void ) = 0;
-    virtual void Print( pointer msg ) = 0;
+    virtual void Shutdown(void) = 0;
+    virtual void Clear_f(void) = 0;
+    virtual void Init(void) = 0;
+    virtual valueType *Input(void) = 0;
+    virtual void Print(pointer msg) = 0;
 };
 
-extern idConsoleCursesSystem* consoleCursesSystem;
+extern idConsoleCursesSystem *consoleCursesSystem;
 
 #endif //!__CONSOLECURSES_API_H__

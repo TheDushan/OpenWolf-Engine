@@ -29,16 +29,14 @@
 #ifndef __SYSTEM_API_H__
 #define __SYSTEM_API_H__
 
-enum dialogResult_t
-{
+enum dialogResult_t {
     DR_YES = 0,
     DR_NO = 1,
     DR_OK = 0,
     DR_CANCEL = 1
 };
 
-enum dialogType_t
-{
+enum dialogType_t {
     DT_INFO,
     DT_WARNING,
     DT_ERROR,
@@ -49,48 +47,49 @@ enum dialogType_t
 //
 // idServerSnapshotSystem
 //
-class idSystem
-{
+class idSystem {
 public:
-    virtual void Restart_f( void ) = 0;
-    virtual void Shutdown( void ) = 0;
-    virtual void Init( void* windowData ) = 0;
-    virtual void SysSnapVector( float32* v ) = 0;
-    virtual void* GetProcAddress( void* dllhandle, pointer name ) = 0;
-    virtual void* LoadDll( pointer name ) = 0;
-    virtual void UnloadDll( void* dllHandle ) = 0;
-    virtual valueType* GetDLLName( pointer name ) = 0;
-    virtual void Error( pointer error, ... ) = 0;
-    virtual void Print( pointer msg ) = 0;
-    virtual void WriteDump( pointer fmt, ... ) = 0;
-    virtual void Quit( void ) = 0;
-    virtual void Init( void ) = 0;
-    virtual bool WritePIDFile( void ) = 0;
-    virtual valueType* ConsoleInput( void ) = 0;
-    virtual valueType* DefaultAppPath( void ) = 0;
-    virtual valueType* DefaultLibPath( void ) = 0;
-    virtual valueType* DefaultInstallPath( void ) = 0;
-    virtual valueType* SysGetClipboardData( void ) = 0;
-    virtual void Chmod( valueType* file, sint mode ) = 0;
-    virtual bool IsNumLockDown( void ) = 0;
-    virtual void OpenURL( pointer url, bool doexit ) = 0;
-    virtual void StartProcess( valueType* exeName, bool doexit ) = 0;
-    virtual void GLimpSafeInit( void ) = 0;
-    virtual void GLimpInit( void ) = 0;
-    virtual dialogResult_t Dialog( dialogType_t type, pointer message, pointer title ) = 0;
-    virtual bool OpenUrl( pointer url ) = 0;
-    virtual void Sleep( sint msec ) = 0;
-    virtual void FreeFileList( valueType** list ) = 0;
-    virtual valueType** ListFiles( pointer directory, pointer extension, valueType* filter, sint* numfiles, bool wantsubs ) = 0;
-    virtual bool Mkdir( pointer path ) = 0;
-    virtual bool LowPhysicalMemory( void ) = 0;
-    virtual valueType* GetCurrentUser( void ) = 0;
-    virtual bool RandomBytes( uchar8* string, uint64 len ) = 0;
-    virtual sint Milliseconds( void ) = 0;
-    virtual valueType* DefaultHomePath( valueType* buffer, sint size ) = 0;
-    virtual valueType* Cwd( void ) = 0;
+    virtual void Restart_f(void) = 0;
+    virtual void Shutdown(void) = 0;
+    virtual void Init(void *windowData) = 0;
+    virtual void SysSnapVector(float32 *v) = 0;
+    virtual void *GetProcAddress(void *dllhandle, pointer name) = 0;
+    virtual void *LoadDll(pointer name) = 0;
+    virtual void UnloadDll(void *dllHandle) = 0;
+    virtual valueType *GetDLLName(pointer name) = 0;
+    virtual void Error(pointer error, ...) = 0;
+    virtual void Print(pointer msg) = 0;
+    virtual void WriteDump(pointer fmt, ...) = 0;
+    virtual void Quit(void) = 0;
+    virtual void Init(void) = 0;
+    virtual bool WritePIDFile(void) = 0;
+    virtual valueType *ConsoleInput(void) = 0;
+    virtual valueType *DefaultAppPath(void) = 0;
+    virtual valueType *DefaultLibPath(void) = 0;
+    virtual valueType *DefaultInstallPath(void) = 0;
+    virtual valueType *SysGetClipboardData(void) = 0;
+    virtual void Chmod(valueType *file, sint mode) = 0;
+    virtual bool IsNumLockDown(void) = 0;
+    virtual void OpenURL(pointer url, bool doexit) = 0;
+    virtual void StartProcess(valueType *exeName, bool doexit) = 0;
+    virtual void GLimpSafeInit(void) = 0;
+    virtual void GLimpInit(void) = 0;
+    virtual dialogResult_t Dialog(dialogType_t type, pointer message,
+                                  pointer title) = 0;
+    virtual bool OpenUrl(pointer url) = 0;
+    virtual void Sleep(sint msec) = 0;
+    virtual void FreeFileList(valueType **list) = 0;
+    virtual valueType **ListFiles(pointer directory, pointer extension,
+                                  valueType *filter, sint *numfiles, bool wantsubs) = 0;
+    virtual bool Mkdir(pointer path) = 0;
+    virtual bool LowPhysicalMemory(void) = 0;
+    virtual valueType *GetCurrentUser(void) = 0;
+    virtual bool RandomBytes(uchar8 *string, uint64 len) = 0;
+    virtual sint Milliseconds(void) = 0;
+    virtual valueType *DefaultHomePath(valueType *buffer, sint size) = 0;
+    virtual valueType *Cwd(void) = 0;
 };
 
-extern idSystem* idsystem;
+extern idSystem *idsystem;
 
 #endif //!__SYSTEM_API_H__

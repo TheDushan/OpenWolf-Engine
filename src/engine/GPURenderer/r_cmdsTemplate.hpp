@@ -37,30 +37,31 @@ returns nullptr if there is not enough space for important commands
 =============
 */
 template<typename B, typename T>
-T GetCommandBuffer( B bytes, T type )
-{
-    renderCommandList_t* cmdList;
-    
+T GetCommandBuffer(B bytes, T type) {
+    renderCommandList_t *cmdList;
+
     cmdList = &backEndData->commands[tr.smpFrame];
-    bytes = PAD( bytes, sizeof( void* ) );
-    
+    bytes = PAD(bytes, sizeof(void *));
+
     // always leave room for the end of list command
-    if( cmdList->used + bytes + ( sizeof( swapBuffersCommand_t ) + sizeof( sint ) ) > MAX_RENDER_COMMANDS )
-    {
-        if( bytes > MAX_RENDER_COMMANDS - ( sizeof( swapBuffersCommand_t ) + sizeof( sint ) ) )
-        {
-            Com_Error( ERR_FATAL, "GetCommandBuffer: bad size %i", bytes );
+    if(cmdList->used + bytes + (sizeof(swapBuffersCommand_t) + sizeof(
+                                    sint)) > MAX_RENDER_COMMANDS) {
+        if(bytes > MAX_RENDER_COMMANDS - (sizeof(swapBuffersCommand_t) + sizeof(
+                                              sint))) {
+            Com_Error(ERR_FATAL, "GetCommandBuffer: bad size %i", bytes);
         }
-        
-        CL_RefPrintf( PRINT_ALL, "R_GetCommandBufferReserved (%i, %i): out of room, dropping command\n", bytes, type );
-        
+
+        CL_RefPrintf(PRINT_ALL,
+                     "R_GetCommandBufferReserved (%i, %i): out of room, dropping command\n",
+                     bytes, type);
+
         // if we run out of room, just start dropping commands
         return nullptr;
     }
-    
+
     cmdList->used += bytes;
-    
-    return reinterpret_cast<T>( cmdList->cmds + cmdList->used - bytes );
+
+    return reinterpret_cast<T>(cmdList->cmds + cmdList->used - bytes);
 }
 
 #endif //!__R_CMDSTEMPLATE_HPP__

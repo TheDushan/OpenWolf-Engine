@@ -42,11 +42,10 @@
 #include <framework/keycodes.hpp>
 #endif
 
-typedef struct
-{
+typedef struct {
     bool        down;
-    sint             repeats;	// if > 1, it is autorepeating
-    valueType*           binding;
+    sint             repeats;   // if > 1, it is autorepeating
+    valueType           *binding;
     sint             hash;
 } qkey_t;
 
@@ -60,14 +59,15 @@ extern bool chat_team;
 extern bool chat_buddy;
 extern bool commandMode;
 
-void            Key_WriteBindings( fileHandle_t f );
-void            Key_SetBinding( sint keynum, pointer binding );
-void            Key_GetBindingByString( pointer binding, sint* key1, sint* key2 );
-valueType*           Key_GetBinding( sint keynum );
-bool			Key_IsDown( sint keynum );
-bool			Key_GetOverstrikeMode( void );
-void            Key_SetOverstrikeMode( bool state );
-void            Key_ClearStates( void );
-sint             Key_GetKey( pointer binding );
+void            Key_WriteBindings(fileHandle_t f);
+void            Key_SetBinding(sint keynum, pointer binding);
+void            Key_GetBindingByString(pointer binding, sint *key1,
+                                       sint *key2);
+valueType           *Key_GetBinding(sint keynum);
+bool            Key_IsDown(sint keynum);
+bool            Key_GetOverstrikeMode(void);
+void            Key_SetOverstrikeMode(bool state);
+void            Key_ClearStates(void);
+sint             Key_GetKey(pointer binding);
 
 #endif // !__KEYS_H__

@@ -32,18 +32,17 @@
 //
 // idClientAVISystemAPI
 //
-class idClientAVISystemAPI
-{
+class idClientAVISystemAPI {
 public:
-    virtual void WriteAVIVideoFrame( const uchar8* imageBuffer, sint size ) = 0;
-    virtual void WriteAVIAudioFrame( const uchar8* pcmBuffer, sint size ) = 0;
-    virtual void TakeVideoFrame( void ) = 0;
-    virtual bool CloseAVI( void ) = 0;
-    virtual bool VideoRecording( void ) = 0;
-    virtual bool OpenAVIForWriting( pointer fileName ) = 0;
+    virtual void WriteAVIVideoFrame(const uchar8 *imageBuffer, sint size) = 0;
+    virtual void WriteAVIAudioFrame(const uchar8 *pcmBuffer, sint size) = 0;
+    virtual void TakeVideoFrame(void) = 0;
+    virtual bool CloseAVI(void) = 0;
+    virtual bool VideoRecording(void) = 0;
+    virtual bool OpenAVIForWriting(pointer fileName) = 0;
 };
 
-extern idClientAVISystemAPI* clientAVISystem;
+extern idClientAVISystemAPI *clientAVISystem;
 
 #endif // !__CLIENTAVI_API_H__
 

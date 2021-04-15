@@ -49,107 +49,118 @@ typedef struct snd_stream_s snd_stream_t;
 //
 // idSoundSystem
 //
-class idSoundSystem
-{
+class idSoundSystem {
 public:
-    virtual void Init( void ) = 0;
-    virtual void Shutdown( void ) = 0;
+    virtual void Init(void) = 0;
+    virtual void Shutdown(void) = 0;
     // if origin is nullptr, the sound will be dynamically sourced from the entity
-    virtual void StartSound( vec3_t origin, sint entnum, sint entchannel, sfxHandle_t sfx ) = 0;
-    virtual void StartLocalSound( sfxHandle_t sfx, sint channelNum ) = 0;
-    virtual void StartBackgroundTrack( pointer intro, pointer loop ) = 0;
-    virtual void StopBackgroundTrack( void ) = 0;
+    virtual void StartSound(vec3_t origin, sint entnum, sint entchannel,
+                            sfxHandle_t sfx) = 0;
+    virtual void StartLocalSound(sfxHandle_t sfx, sint channelNum) = 0;
+    virtual void StartBackgroundTrack(pointer intro, pointer loop) = 0;
+    virtual void StopBackgroundTrack(void) = 0;
     // cinematics and voice-over-network will send raw samples
     // 1.0 volume will be direct output of source samples
-    virtual void RawSamples( sint stream, sint samples, sint rate, sint width, sint channels, const uchar8* data, float32 volume, sint entityNum ) = 0;
+    virtual void RawSamples(sint stream, sint samples, sint rate, sint width,
+                            sint channels, const uchar8 *data, float32 volume, sint entityNum) = 0;
     // stop all sounds and the background track
-    virtual void StopAllSounds( void ) = 0;
+    virtual void StopAllSounds(void) = 0;
     // all continuous looping sounds must be added before calling S_Update
-    virtual void ClearLoopingSounds( bool killall ) = 0;
-    virtual void AddLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) = 0;
-    virtual void AddRealLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) = 0;
-    virtual void StopLoopingSound( sint entityNum ) = 0;
+    virtual void ClearLoopingSounds(bool killall) = 0;
+    virtual void AddLoopingSound(sint entityNum, const vec3_t origin,
+                                 const vec3_t velocity, sfxHandle_t sfx) = 0;
+    virtual void AddRealLoopingSound(sint entityNum, const vec3_t origin,
+                                     const vec3_t velocity, sfxHandle_t sfx) = 0;
+    virtual void StopLoopingSound(sint entityNum) = 0;
     // recompute the reletive volumes for all running sounds
     // reletive to the given entityNum / orientation
-    virtual void Respatialize( sint entityNum, const vec3_t origin, vec3_t axis[3], sint inwater ) = 0;
+    virtual void Respatialize(sint entityNum, const vec3_t origin,
+                              vec3_t axis[3], sint inwater) = 0;
     // let the sound system know where an entity currently is
-    virtual void UpdateEntityPosition( sint entityNum, const vec3_t origin ) = 0;
-    virtual void Update( void ) = 0;
-    virtual void DisableSounds( void ) = 0;
-    virtual void BeginRegistration( void ) = 0;
+    virtual void UpdateEntityPosition(sint entityNum, const vec3_t origin) = 0;
+    virtual void Update(void) = 0;
+    virtual void DisableSounds(void) = 0;
+    virtual void BeginRegistration(void) = 0;
     // RegisterSound will allways return a valid sample, even if it
     // has to create a placeholder.  This prevents continuous filesystem
     // checks for missing files
-    virtual sfxHandle_t RegisterSound( pointer sample, bool compressed ) = 0;
-    virtual void DisplayFreeMemory( void ) = 0;
-    virtual void ClearSoundBuffer( void ) = 0;
-    virtual sint SoundDuration( sfxHandle_t handle ) = 0;
-    virtual sint GetSoundLength( sfxHandle_t sfxHandle ) = 0;
-    virtual void Reload( void ) = 0;
-    virtual sint GetCurrentSoundTime( void ) = 0;
-    virtual void* codec_load( pointer filename, snd_info_t* info ) = 0;
-    virtual snd_stream_t* codec_open( pointer filename ) = 0;
-    virtual void codec_close( snd_stream_t* stream ) = 0;
-    virtual sint codec_read( snd_stream_t* stream, sint bytes, void* buffer ) = 0;
+    virtual sfxHandle_t RegisterSound(pointer sample, bool compressed) = 0;
+    virtual void DisplayFreeMemory(void) = 0;
+    virtual void ClearSoundBuffer(void) = 0;
+    virtual sint SoundDuration(sfxHandle_t handle) = 0;
+    virtual sint GetSoundLength(sfxHandle_t sfxHandle) = 0;
+    virtual void Reload(void) = 0;
+    virtual sint GetCurrentSoundTime(void) = 0;
+    virtual void *codec_load(pointer filename, snd_info_t *info) = 0;
+    virtual snd_stream_t *codec_open(pointer filename) = 0;
+    virtual void codec_close(snd_stream_t *stream) = 0;
+    virtual sint codec_read(snd_stream_t *stream, sint bytes,
+                            void *buffer) = 0;
 };
 
-extern idSoundSystem* soundSystem;
+extern idSoundSystem *soundSystem;
 
-class idAudioOpenALSystem
-{
+class idAudioOpenALSystem {
 public:
-    virtual bool Init( void ) = 0;
-    virtual void Shutdown( void ) = 0;
-    virtual void StartSound( vec3_t origin, sint entnum, sint entchannel, sfxHandle_t sfx ) = 0;
-    virtual void StartLocalSound( sfxHandle_t sfx, sint channelNum ) = 0;
-    virtual void StartBackgroundTrack( pointer intro, pointer loop ) = 0;
-    virtual void StopBackgroundTrack( void ) = 0;
-    virtual void RawSamples( sint stream, sint samples, sint rate, sint width, sint channels, const uchar8* data, float32 volume, sint entityNum ) = 0;
-    virtual void StopAllSounds( void ) = 0;
-    virtual void ClearLoopingSounds( bool killall ) = 0;
-    virtual void AddLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) = 0;
-    virtual void AddRealLoopingSound( sint entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) = 0;
-    virtual void StopLoopingSound( sint entityNum ) = 0;
-    virtual void Respatialize( sint entityNum, const vec3_t origin, vec3_t axis[3], sint inwater ) = 0;
-    virtual void UpdateEntityPosition( sint entityNum, const vec3_t origin ) = 0;
-    virtual void Update( void ) = 0;
-    virtual void DisableSounds( void ) = 0;
-    virtual void BeginRegistration( void ) = 0;
-    virtual sfxHandle_t RegisterSound( pointer sample, bool compressed ) = 0;
-    virtual void ClearSoundBuffer( void ) = 0;
-    virtual sint SoundDuration( sfxHandle_t sfx ) = 0;
-    virtual sint GetVoiceAmplitude( sint entnum ) = 0;
-    virtual sint GetSoundLength( sfxHandle_t sfxHandle ) = 0;
-    virtual sint GetCurrentSoundTime( void ) = 0;
+    virtual bool Init(void) = 0;
+    virtual void Shutdown(void) = 0;
+    virtual void StartSound(vec3_t origin, sint entnum, sint entchannel,
+                            sfxHandle_t sfx) = 0;
+    virtual void StartLocalSound(sfxHandle_t sfx, sint channelNum) = 0;
+    virtual void StartBackgroundTrack(pointer intro, pointer loop) = 0;
+    virtual void StopBackgroundTrack(void) = 0;
+    virtual void RawSamples(sint stream, sint samples, sint rate, sint width,
+                            sint channels, const uchar8 *data, float32 volume, sint entityNum) = 0;
+    virtual void StopAllSounds(void) = 0;
+    virtual void ClearLoopingSounds(bool killall) = 0;
+    virtual void AddLoopingSound(sint entityNum, const vec3_t origin,
+                                 const vec3_t velocity, sfxHandle_t sfx) = 0;
+    virtual void AddRealLoopingSound(sint entityNum, const vec3_t origin,
+                                     const vec3_t velocity, sfxHandle_t sfx) = 0;
+    virtual void StopLoopingSound(sint entityNum) = 0;
+    virtual void Respatialize(sint entityNum, const vec3_t origin,
+                              vec3_t axis[3], sint inwater) = 0;
+    virtual void UpdateEntityPosition(sint entityNum, const vec3_t origin) = 0;
+    virtual void Update(void) = 0;
+    virtual void DisableSounds(void) = 0;
+    virtual void BeginRegistration(void) = 0;
+    virtual sfxHandle_t RegisterSound(pointer sample, bool compressed) = 0;
+    virtual void ClearSoundBuffer(void) = 0;
+    virtual sint SoundDuration(sfxHandle_t sfx) = 0;
+    virtual sint GetVoiceAmplitude(sint entnum) = 0;
+    virtual sint GetSoundLength(sfxHandle_t sfxHandle) = 0;
+    virtual sint GetCurrentSoundTime(void) = 0;
 };
 
-extern idAudioOpenALSystem* soundOpenALSystem;
+extern idAudioOpenALSystem *soundOpenALSystem;
 
 // Imported functions
-typedef struct openALImports_s
-{
-    void ( QDECL* Printf )( sint printLevel, pointer fmt, ... ) __attribute__( ( format( printf, 2, 3 ) ) );
-    void ( QDECL* Error )( sint errorLevel, pointer fmt, ... ) __attribute__( ( format( printf, 2, 3 ) ) );
+typedef struct openALImports_s {
+    void (QDECL *Printf)(sint printLevel, pointer fmt,
+                         ...) __attribute__((format(printf, 2, 3)));
+    void (QDECL *Error)(sint errorLevel, pointer fmt,
+                        ...) __attribute__((format(printf, 2, 3)));
 #ifdef HUNK_DEBUG
-    void* ( *Hunk_AllocDebug )( uint64 size, ha_pref preference, valueType* label, valueType* file, sint line );
+    void *(*Hunk_AllocDebug)(uint64 size, ha_pref preference, valueType *label,
+                             valueType *file, sint line);
 #else
-    void* ( *Hunk_Alloc )( uint64 size, ha_pref preference );
+    void *(*Hunk_Alloc)(uint64 size, ha_pref preference);
 #endif
-    void* ( *Hunk_AllocateTempMemory )( uint64 size );
-    void ( *Hunk_FreeTempMemory )( void* block );
-    
+    void *(*Hunk_AllocateTempMemory)(uint64 size);
+    void (*Hunk_FreeTempMemory)(void *block);
+
     // dynamic memory allocator for things that need to be freed
-    void* ( *Malloc )( uint64 size );
-    void ( *Free )( void* buf );
-    
+    void *(*Malloc)(uint64 size);
+    void (*Free)(void *buf);
+
 #if !defined (DEDICATED) || !defined (GAMEDLL) || !defined (CGAMEDLL) || !defined (GUI)
-    idAudioOpenALSystem* soundOpenALSystem;
-    idSoundSystem* soundSystem;
-    idFileSystem* fileSystem;
-    idCVarSystem* cvarSystem;
-    idCmdSystem* cmdSystem;
-    idParseSystem* parseSystem;
-    idSystem* idsystem;
+    idAudioOpenALSystem *soundOpenALSystem;
+    idSoundSystem *soundSystem;
+    idFileSystem *fileSystem;
+    idCVarSystem *cvarSystem;
+    idCmdSystem *cmdSystem;
+    idParseSystem *parseSystem;
+    idSystem *idsystem;
 #endif
 } openALImports_t;
 

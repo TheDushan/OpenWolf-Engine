@@ -40,8 +40,8 @@
 #define DEFAULT_CL_HASH_SIZE 7
 
 // Allow "throttle - 1" queries in a row, then force a throttle to one every "decay time" seconds
-#define DEFAULT_FP_DECAY_TIME	3
-#define DEFAULT_FP_THROTTLE		5
+#define DEFAULT_FP_DECAY_TIME   3
+#define DEFAULT_FP_THROTTLE     5
 
 
 // ---------- Public variables ---------- //
@@ -53,16 +53,17 @@ extern qboolean flood_protection;
 // ---------- Public functions ---------- //
 
 // Will simply return "false" if called after Sv_Init
-qboolean Cl_SetHashSize( unsigned int size );
-qboolean Cl_SetMaxNbClients( unsigned int nb );
-qboolean Cl_SetFPDecayTime( time_t decay );
-qboolean Cl_SetFPThrottle( unsigned int throttle );
+qboolean Cl_SetHashSize(unsigned int size);
+qboolean Cl_SetMaxNbClients(unsigned int nb);
+qboolean Cl_SetFPDecayTime(time_t decay);
+qboolean Cl_SetFPThrottle(unsigned int throttle);
 
 // Initialize the client list and hash tables
-qboolean Cl_Init( void );
+qboolean Cl_Init(void);
 
 // Return "true" if a client should be temporary ignored because he has sent too many requests recently
-qboolean Cl_BlockedByThrottle( const struct sockaddr_storage* addr, socklen_t addrlen );
+qboolean Cl_BlockedByThrottle(const struct sockaddr_storage *addr,
+                              socklen_t addrlen);
 
 
 #endif  // #ifndef _CLIENTS_H_

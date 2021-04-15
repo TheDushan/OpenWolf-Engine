@@ -34,9 +34,9 @@
 
 // The default name of the log file
 #ifdef WIN32
-#	define DEFAULT_LOG_FILE "dpmaster.log"
+#   define DEFAULT_LOG_FILE "dpmaster.log"
 #else
-#	define DEFAULT_LOG_FILE "/var/log/dpmaster.log"
+#   define DEFAULT_LOG_FILE "/var/log/dpmaster.log"
 #endif
 
 // The maximum number of listening sockets
@@ -47,29 +47,29 @@
 
 // Network errors code
 #ifdef WIN32
-#	define NETERR_AFNOSUPPORT	WSAEAFNOSUPPORT
-#	define NETERR_NOPROTOOPT	WSAENOPROTOOPT
-#	define NETERR_INTR			WSAEINTR
+#   define NETERR_AFNOSUPPORT   WSAEAFNOSUPPORT
+#   define NETERR_NOPROTOOPT    WSAENOPROTOOPT
+#   define NETERR_INTR          WSAEINTR
 #else
-#	define NETERR_AFNOSUPPORT	EAFNOSUPPORT
-#	define NETERR_NOPROTOOPT	ENOPROTOOPT
-#	define NETERR_INTR			EINTR
+#   define NETERR_AFNOSUPPORT   EAFNOSUPPORT
+#   define NETERR_NOPROTOOPT    ENOPROTOOPT
+#   define NETERR_INTR          EINTR
 #endif
 
 // Windows' CRT wants an explicit buffer size for its setvbuf() calls
 #ifndef WIN32
-#	define SETVBUF_DEFAULT_SIZE 0
+#   define SETVBUF_DEFAULT_SIZE 0
 #else
-#	define SETVBUF_DEFAULT_SIZE 4096
+#   define SETVBUF_DEFAULT_SIZE 4096
 #endif
 
 // Value used to specify an invalid socket
 #ifndef WIN32
-#	define INVALID_SOCKET (-1)
+#   define INVALID_SOCKET (-1)
 #endif
 
 #ifndef MAX_PATH
-#	define MAX_PATH PATH_MAX
+#   define MAX_PATH PATH_MAX
 #endif
 
 // ---------- Public types ---------- //
@@ -82,18 +82,16 @@ typedef int socket_t;
 #endif
 
 // Listening socket
-typedef struct
-{
+typedef struct {
     socket_t socket;
     socklen_t local_addr_len;
-    const char* local_addr_name;
+    const char *local_addr_name;
     struct sockaddr_storage local_addr;
     qboolean optional;
 } listen_socket_t;
 
 // The steps for running as a daemon (no console output)
-typedef enum
-{
+typedef enum {
     DAEMON_STATE_NO,
     DAEMON_STATE_REQUEST,
     DAEMON_STATE_EFFECTIVE,
@@ -119,13 +117,13 @@ extern daemon_state_t daemon_state;
 // ---------- Public functions (listening sockets) ---------- //
 
 // Step 1 - Add a listen socket to the listening socket list
-qboolean Sys_DeclareListenAddress( const char* local_addr_name );
+qboolean Sys_DeclareListenAddress(const char *local_addr_name);
 
 // Step 2 - Resolve the address names of all the listening sockets
-qboolean Sys_ResolveListenAddresses( void );
+qboolean Sys_ResolveListenAddresses(void);
 
 // Step 3 - Create the listening sockets
-qboolean Sys_CreateListenSockets( void );
+qboolean Sys_CreateListenSockets(void);
 
 
 // ---------- Public functions (the rest) ---------- //
@@ -138,28 +136,30 @@ qboolean Sys_CreateListenSockets( void );
 
 
 // Parse a system-dependent command line option
-cmdline_status_t Sys_Cmdline_Option( const cmdlineopt_t* opt, const char** params, unsigned int nb_params );
+cmdline_status_t Sys_Cmdline_Option(const cmdlineopt_t *opt,
+                                    const char **params, unsigned int nb_params);
 
 // System dependent initializations (called BEFORE security initializations)
-qboolean Sys_UnsecureInit( void );
+qboolean Sys_UnsecureInit(void);
 
 // System dependent security initializations
-qboolean Sys_SecurityInit( void );
+qboolean Sys_SecurityInit(void);
 
 // System dependent initializations (called AFTER security initializations)
-qboolean Sys_SecureInit( void );
+qboolean Sys_SecureInit(void);
 
 // Returns a pointer to its static character buffer (do NOT free it!)
-const char* Sys_SockaddrToString( const struct sockaddr_storage* address, socklen_t socklen );
+const char *Sys_SockaddrToString(const struct sockaddr_storage *address,
+                                 socklen_t socklen);
 
 // Get the network port from a sockaddr
-unsigned short Sys_GetSockaddrPort( const struct sockaddr_storage* address );
+unsigned short Sys_GetSockaddrPort(const struct sockaddr_storage *address);
 
 // Get the last network error code
-int Sys_GetLastNetError( void );
+int Sys_GetLastNetError(void);
 
 // Get the last network error string
-const char* Sys_GetLastNetErrorString( void );
+const char *Sys_GetLastNetErrorString(void);
 
 
 #endif  // #ifndef _SYSTEM_H_

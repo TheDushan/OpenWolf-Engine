@@ -40,15 +40,14 @@
 //
 // idServerNetChanSystem
 //
-class idServerNetChanSystem
-{
+class idServerNetChanSystem {
 public:
-    virtual void NetchanFreeQueue( client_t* client ) = 0;
-    virtual void NetchanTransmitNextFragment( client_t* client ) = 0;
-    virtual void NetchanTransmit( client_t* client, msg_t* msg ) = 0;
-    virtual bool NetchanProcess( client_t* client, msg_t* msg ) = 0;
+    virtual void NetchanFreeQueue(client_t *client) = 0;
+    virtual void NetchanTransmitNextFragment(client_t *client) = 0;
+    virtual void NetchanTransmit(client_t *client, msg_t *msg) = 0;
+    virtual bool NetchanProcess(client_t *client, msg_t *msg) = 0;
 };
 
-extern idServerNetChanSystem* serverNetChanSystem;
+extern idServerNetChanSystem *serverNetChanSystem;
 
 #endif //!__SERVERNETCHAN_API_H__

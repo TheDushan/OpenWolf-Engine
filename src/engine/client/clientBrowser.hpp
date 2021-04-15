@@ -29,8 +29,7 @@
 #ifndef __CLIENTBROWSER_LOCAL_H__
 #define __CLIENTBROWSER_LOCAL_H__
 
-typedef struct serverStatus_s
-{
+typedef struct serverStatus_s {
     sint time, startTime;
     valueType string[BIG_INFO_STRING];
     bool pending;
@@ -41,37 +40,38 @@ typedef struct serverStatus_s
 
 #define MAX_SERVERSPERPACKET 256
 
-extern convar_t* cl_serverStatusResendTime;
-extern convar_t* cl_gamename;
+extern convar_t *cl_serverStatusResendTime;
+extern convar_t *cl_gamename;
 
 //
 // idClientBrowserSystemLocal
 //
-class idClientBrowserSystemLocal
-{
+class idClientBrowserSystemLocal {
 public:
     idClientBrowserSystemLocal();
     ~idClientBrowserSystemLocal();
-    
-    static void InitServerInfo( serverInfo_t* server, netadr_t* address );
-    static void ServersResponsePacket( const netadr_t* from, msg_t* msg, bool extended );
-    static void SetServerInfo( serverInfo_t* server, pointer info, sint ping );
-    static void SetServerInfoByAddress( netadr_t from, pointer info, sint ping );
-    static void ServerInfoPacket( netadr_t from, msg_t* msg );
-    static serverStatus_t* GetServerStatus( netadr_t from );
-    static sint ServerStatus( valueType* serverAddress, valueType* serverStatusString, sint maxLen );
-    static void ServerStatusResponse( netadr_t from, msg_t* msg );
-    static void LocalServers( void );
-    static void GlobalServers( void );
-    static void GetPing( sint n, valueType* buf, uint64 buflen, sint* pingtime );
-    static void GetPingInfo( sint n, valueType* buf, uint64 buflen );
-    static void ClearPing( sint n );
-    static sint GetPingQueueCount( void );
-    static ping_t* GetFreePing( void );
-    static void Ping( void );
-    static bool UpdateVisiblePings( sint source );
-    static void ServerStatus( void );
-    static void ShowIP( void );
+
+    static void InitServerInfo(serverInfo_t *server, netadr_t *address);
+    static void ServersResponsePacket(const netadr_t *from, msg_t *msg,
+                                      bool extended);
+    static void SetServerInfo(serverInfo_t *server, pointer info, sint ping);
+    static void SetServerInfoByAddress(netadr_t from, pointer info, sint ping);
+    static void ServerInfoPacket(netadr_t from, msg_t *msg);
+    static serverStatus_t *GetServerStatus(netadr_t from);
+    static sint ServerStatus(valueType *serverAddress,
+                             valueType *serverStatusString, sint maxLen);
+    static void ServerStatusResponse(netadr_t from, msg_t *msg);
+    static void LocalServers(void);
+    static void GlobalServers(void);
+    static void GetPing(sint n, valueType *buf, uint64 buflen, sint *pingtime);
+    static void GetPingInfo(sint n, valueType *buf, uint64 buflen);
+    static void ClearPing(sint n);
+    static sint GetPingQueueCount(void);
+    static ping_t *GetFreePing(void);
+    static void Ping(void);
+    static bool UpdateVisiblePings(sint source);
+    static void ServerStatus(void);
+    static void ShowIP(void);
 };
 
 extern idClientBrowserSystemLocal clientBrowserLocal;

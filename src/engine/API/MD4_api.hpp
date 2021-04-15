@@ -41,12 +41,11 @@
 //
 // idCVarSystem
 //
-class idMD4System
-{
+class idMD4System {
 public:
-    virtual uint BlockChecksum( const void* buffer, sint length ) = 0;
+    virtual uint BlockChecksum(const void *buffer, sint length) = 0;
 };
 
-extern idMD4System* MD4System;
+extern idMD4System *MD4System;
 
 #endif //!__MD4_API_H__

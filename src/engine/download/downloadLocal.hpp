@@ -44,26 +44,28 @@
 // initialize once
 static sint dl_initialized = 0;
 
-static CURLM* dl_multi = nullptr;
-static CURL* dl_request = nullptr;
-static FILE* dl_file = nullptr;
+static CURLM *dl_multi = nullptr;
+static CURL *dl_request = nullptr;
+static FILE *dl_file = nullptr;
 
 //
 // idServerCcmdsSystemLocal
 //
-class idDownloadSystemLocal : public idDownloadSystem
-{
+class idDownloadSystemLocal : public idDownloadSystem {
 public:
     idDownloadSystemLocal();
     ~idDownloadSystemLocal();
-    
-    virtual void InitDownload( void );
-    virtual void Shutdown( void );
-    virtual sint BeginDownload( pointer localName, pointer remoteName, sint debug );
-    virtual dlStatus_t DownloadLoop( void );
-    
-    static uint32 FWriteFile( void* ptr, uint32 size, uint32 nmemb, void* stream );
-    static sint Progress( void* clientp, float64 dltotal, float64 dlnow, float64 ultotal, float64 ulnow );
+
+    virtual void InitDownload(void);
+    virtual void Shutdown(void);
+    virtual sint BeginDownload(pointer localName, pointer remoteName,
+                               sint debug);
+    virtual dlStatus_t DownloadLoop(void);
+
+    static uint32 FWriteFile(void *ptr, uint32 size, uint32 nmemb,
+                             void *stream);
+    static sint Progress(void *clientp, float64 dltotal, float64 dlnow,
+                         float64 ultotal, float64 ulnow);
 };
 
 extern idDownloadSystemLocal downloadLocal;
