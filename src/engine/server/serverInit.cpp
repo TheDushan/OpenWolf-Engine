@@ -659,11 +659,6 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     // clear collision map data     // (SA) NOTE: TODO: used in missionpack
     collisionModelManager->ClearMap();
 
-    // close all filehandles before fileSystem->Restart
-    for(i = 0; i < sv_maxclients->integer; i++) {
-        serverClientSystem->CloseDownload(&svs.clients[i]);
-    }
-
     // wipe the entire per-level structure
     ClearServer();
 
