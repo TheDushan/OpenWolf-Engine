@@ -1614,7 +1614,7 @@ void SOrig_StartBackgroundTrack(pointer intro, pointer loop) {
         return;
     }
 
-    Q_strncpyz(s_backgroundLoop, loop, sizeof(s_backgroundLoop));
+    ::memmove(s_backgroundLoop, loop, sizeof(s_backgroundLoop));
 
     // close the background track, but DON'T reset s_rawend
     // if restarting the same back ground track
