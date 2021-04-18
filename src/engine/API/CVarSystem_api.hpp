@@ -95,7 +95,7 @@ typedef struct convar_s {
     struct convar_s  *hashNext;
 } convar_t;
 
-#define MAX_CVAR_VALUE_STRING   512
+#define MAX_CVAR_VALUE_STRING   256
 
 typedef sint cvarHandle_t;
 

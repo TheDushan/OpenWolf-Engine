@@ -1,3 +1,6 @@
+2021-04-18 Dusan Jocic <dusanjocic@msn>
+	* Decreased of MAX_CVAR_VALUE_STRING to 256
+
 2021-04-11 dGr8LookinSparky <hissparkyness@gmail.com>
 	* [Client]Fix the mouse sensitivity for when cl_mouseAccel is disabled.
 
