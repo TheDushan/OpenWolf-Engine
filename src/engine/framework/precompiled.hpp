@@ -146,6 +146,8 @@ extern "C"
 #include <API/clientLAN_api.hpp>
 #include <API/clientGUI_api.hpp>
 #include <API/clientAVI_api.hpp>
+#include <API/clientNetChan_api.hpp>
+#include <client/clientNetChan.hpp>
 #include <client/clientAVI.hpp>
 #include <client/clientGame.hpp>
 

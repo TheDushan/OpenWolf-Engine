@@ -1297,7 +1297,7 @@ void CL_WritePacket(void) {
         Com_Printf("%i ", buf.cursize);
     }
 
-    CL_Netchan_Transmit(&clc.netchan, &buf);
+    clientNetChanSystem->Netchan_Transmit(&clc.netchan, &buf);
 
     // clients never really should have messages large enough
     // to fragment, but in case they do, fire them all off
@@ -1309,7 +1309,7 @@ void CL_WritePacket(void) {
             Com_Printf("WARNING: unsent fragments (not supposed to happen!)\n");
         }
 
-        CL_Netchan_TransmitNextFragment(&clc.netchan);
+        clientNetChanSystem->Netchan_TransmitNextFragment(&clc.netchan);
     }
 }
 

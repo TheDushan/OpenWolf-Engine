@@ -37,21 +37,39 @@
 
 #include <framework/precompiled.hpp>
 
+idClientNetChanSystemLocal clientNetChanLocal;
+idClientNetChanSystem *clientNetChanSystem = &clientNetChanLocal;
+
+/*
+===============
+idClientNetChanSystemLocal::idClientNetChanSystemLocal
+===============
+*/
+idClientNetChanSystemLocal::idClientNetChanSystemLocal(void) {
+}
+
+/*
+===============
+idClientLANSystemLocal::~idClientLANSystemLocal
+===============
+*/
+idClientNetChanSystemLocal::~idClientNetChanSystemLocal(void) {
+}
+
 /*
 ==============
-CL_Netchan_Encode
+idClientNetChanSystemLocal::Netchan_Encode
 
-    // first 12 bytes of the data are always:
-    sint32 serverId;
-    sint32 messageAcknowledge;
-    sint32 reliableAcknowledge;
-
+// first 12 bytes of the data are always:
+sint32 serverId;
+sint32 messageAcknowledge;
+sint32 reliableAcknowledge;
 ==============
 */
-static void CL_Netchan_Encode(msg_t *msg) {
-    sint             serverId, messageAcknowledge, reliableAcknowledge;
-    sint             i, index, srdc, sbit, soob;
-    uchar8            key, *string;
+void idClientNetChanSystemLocal::Netchan_Encode(msg_t *msg) {
+    sint serverId, messageAcknowledge, reliableAcknowledge;
+    sint i, index, srdc, sbit, soob;
+    uchar8 key, *string;
 
     if(msg->cursize <= CL_ENCODE_START) {
         return;
@@ -99,14 +117,13 @@ static void CL_Netchan_Encode(msg_t *msg) {
 
 /*
 ==============
-CL_Netchan_Decode
+idClientNetChanSystemLocal::Netchan_Decode
 
-    // first four bytes of the data are always:
-    sint32 reliableAcknowledge;
-
+// first four bytes of the data are always:
+sint32 reliableAcknowledge;
 ==============
 */
-static void CL_Netchan_Decode(msg_t *msg) {
+void idClientNetChanSystemLocal::Netchan_Decode(msg_t *msg) {
     sint32            reliableAcknowledge, i, index;
     uchar8            key, *string;
     sint             srdc, sbit;
@@ -152,23 +169,25 @@ static void CL_Netchan_Decode(msg_t *msg) {
 
 /*
 =================
-CL_Netchan_TransmitNextFragment
+idClientNetChanSystemLocal::Netchan_TransmitNextFragment
 =================
 */
-void CL_Netchan_TransmitNextFragment(netchan_t *chan) {
+void idClientNetChanSystemLocal::Netchan_TransmitNextFragment(
+    netchan_t *chan) {
     networkChainSystem->TransmitNextFragment(chan);
 }
 
 /*
 ================
-CL_Netchan_Transmit
+idClientNetChanSystemLocal::Netchan_Transmit
 ================
 */
-void CL_Netchan_Transmit(netchan_t *chan, msg_t *msg) {
+void idClientNetChanSystemLocal::Netchan_Transmit(netchan_t *chan,
+        msg_t *msg) {
     MSG_WriteByte(msg, clc_EOF);
 
     if(!serverGameSystem->GameIsSinglePlayer()) {
-        CL_Netchan_Encode(msg);
+        Netchan_Encode(msg);
     }
 
     networkChainSystem->Transmit(chan, msg->cursize, msg->data);
@@ -179,10 +198,11 @@ sint             newsize = 0;
 
 /*
 =================
-CL_Netchan_Process
+idClientNetChanSystemLocal::Netchan_Process
 =================
 */
-bool CL_Netchan_Process(netchan_t *chan, msg_t *msg) {
+bool idClientNetChanSystemLocal::Netchan_Process(netchan_t *chan,
+        msg_t *msg) {
     bool ret;
 
     ret = networkChainSystem->Process(chan, msg);
@@ -192,7 +212,7 @@ bool CL_Netchan_Process(netchan_t *chan, msg_t *msg) {
     }
 
     if(!serverGameSystem->GameIsSinglePlayer()) {
-        CL_Netchan_Decode(msg);
+        Netchan_Decode(msg);
     }
 
     newsize += msg->cursize;

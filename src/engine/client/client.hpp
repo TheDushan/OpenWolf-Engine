@@ -687,13 +687,6 @@ void            CIN_CloseAllVideos(void);
 void            ROQ_GenYUVTables(void);
 
 //
-// cl_net_chan.c
-//
-void            CL_Netchan_Transmit(netchan_t *chan, msg_t *msg);
-void            CL_Netchan_TransmitNextFragment(netchan_t *chan);
-bool            CL_Netchan_Process(netchan_t *chan, msg_t *msg);
-
-//
 // cl_main.c
 //
 void            CL_WriteDemoMessage(msg_t *msg, sint headerBytes);
