@@ -1013,7 +1013,7 @@ void idCVarSystemLocal::SetU_f(void) {
 
     Set_f();
 
-    v = FindVar(cmdSystem->Argv(1));
+    v = cvarSystemLocal.FindVar(cmdSystem->Argv(1));
 
     if(!v) {
         return;
@@ -1039,7 +1039,7 @@ void idCVarSystemLocal::SetS_f(void) {
 
     Set_f();
 
-    v = FindVar(cmdSystem->Argv(1));
+    v = cvarSystemLocal.FindVar(cmdSystem->Argv(1));
 
     if(!v) {
         return;
@@ -1065,7 +1065,7 @@ void idCVarSystemLocal::SetA_f(void) {
 
     Set_f();
 
-    v = FindVar(cmdSystem->Argv(1));
+    v = cvarSystemLocal.FindVar(cmdSystem->Argv(1));
 
     if(!v) {
         return;
