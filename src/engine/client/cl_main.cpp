@@ -1069,6 +1069,8 @@ void CL_Disconnect(bool showMainMenu, pointer reason) {
         clientGameSystem->ShutdownCGame();
     }
 
+    cvarSystem->Set("timescale", "1");
+
     SCR_StopCinematic();
     soundSystemLocal.ClearSoundBuffer();
 

@@ -380,7 +380,7 @@ sint             Com_RealTime(qtime_t *qtime);
 bool            Com_SafeMode(void);
 
 void            Com_StartupVariable(pointer match);
-void            Com_SetRecommended();
+void            Com_SetRecommended(void);
 
 // checks for and removes command line "+set var arg" constructs
 // if match is nullptr, all set commands will be executed, otherwise

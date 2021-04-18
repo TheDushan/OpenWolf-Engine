@@ -3313,14 +3313,6 @@ void Com_Init( valueType* commandLine )
 
     CL_StartHunkUsers();
 
-    // NERVE - SMF - force recommendedSet and don't do vid_restart if in safe mode
-    if( !com_recommendedSet->integer && !safeMode )
-    {
-        Com_SetRecommended();
-        cmdBufferSystem->ExecuteText( EXEC_APPEND, "vid_restart\n" );
-    }
-    cvarSystem->Set( "com_recommendedSet", "1" );
-
     if( !com_dedicated->integer && !Com_AddStartupCommands() )
     {
 #if 1

@@ -450,7 +450,7 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
             Z_Free(var->resetString);
             var->resetString = CopyString(var_value);
         } else if(var_value[0] && strcmp(var->resetString, var_value)) {
-            Com_DPrintf("idCVarSystemLocal::Get: Warning: cvar \"%s\" given initial values: \"%s\" and \"%s\"\n",
+            Com_DPrintf("idCVarSystemLocal::Get: Warning: convar \"%s\" given initial values: \"%s\" and \"%s\"\n",
                         var_name, var->resetString, var_value);
         }
 
