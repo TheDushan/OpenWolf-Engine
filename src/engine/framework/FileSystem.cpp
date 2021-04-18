@@ -540,6 +540,7 @@ void idFileSystemLocal::FSCopyFile(valueType *fromOSPath,
     buf = static_cast< uchar8 * >(Z_Malloc(len));
 
     if(fread(buf, 1, len, f) != len) {
+        Z_Free(buf);
         Com_Error(ERR_FATAL, "Short read in idFileSystemLocal::Copyfiles()\n");
     }
 
@@ -558,6 +559,7 @@ void idFileSystemLocal::FSCopyFile(valueType *fromOSPath,
     }
 
     if(fwrite(buf, 1, len, f) != len) {
+        Z_Free(buf);
         Com_Error(ERR_FATAL, "Short write in idFileSystemLocal::Copyfiles()\n");
     }
 
