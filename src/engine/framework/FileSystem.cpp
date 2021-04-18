@@ -4229,8 +4229,6 @@ void idFileSystemLocal::PureServerSetReferencedPaks(pointer pakSums,
         c = MAX_SEARCH_PATHS;
     }
 
-    fs_numServerReferencedPaks = c;
-
     for(i = 0 ; i < c ; i++) {
         fs_serverReferencedPaks[i] = atoi(cmdSystem->Argv(i));
     }
@@ -4256,6 +4254,12 @@ void idFileSystemLocal::PureServerSetReferencedPaks(pointer pakSums,
             fs_serverReferencedPakNames[i] = CopyString(cmdSystem->Argv(i));
         }
     }
+
+    if (c != d) {
+        Com_Printf(S_COLOR_YELLOW "WARNING: Corrupted server pak references\n");
+    }
+
+    fs_numServerReferencedPaks = MIN(c, d);
 }
 
 /*

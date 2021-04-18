@@ -740,12 +740,8 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
     }
 
     Com_DPrintf("Going to CS_ZOMBIE for %s\n", drop->name);
-    drop->state = CS_ZOMBIE;    // become free in a few seconds
-
-    if(drop->download) {
-        fileSystem->FCloseFile(drop->download);
-        drop->download = 0;
-    }
+    // become free in a few seconds
+    drop->state = CS_ZOMBIE;
 
     // call the prog function for removing a client
     // this will remove the body, among other things

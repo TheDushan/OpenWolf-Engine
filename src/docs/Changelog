@@ -4,6 +4,7 @@
 	* [Server] Try to send partial snapshots if a snapshot message would otherwise overflow
 	* [Convars] Resend serverinfo / userinfo cvar when it is registered
 	* [Server] Only update the userinfo string when really updating the userinfo.
+	* [Filesystem] Fix client crash when server references packs incorrectly
 
 2021-04-11 dGr8LookinSparky <hissparkyness@gmail.com>
 	* [Client]Fix the mouse sensitivity for when cl_mouseAccel is disabled.
