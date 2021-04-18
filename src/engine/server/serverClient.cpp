@@ -2037,8 +2037,6 @@ void idServerClientSystemLocal::UpdateUserinfo_f(client_t *cl) {
     cl->userinfobuffer[0] = 0;
     cl->nextReliableUserTime = svs.time + 5000;
 
-    Q_strncpyz(cl->userinfo, arg, sizeof(cl->userinfo));
-
     if(cl->lastUserInfoChange > svs.time) {
         cl->lastUserInfoCount++;
 
@@ -2053,6 +2051,8 @@ void idServerClientSystemLocal::UpdateUserinfo_f(client_t *cl) {
         cl->lastUserInfoCount = 0;
         cl->lastUserInfoChange = svs.time + INFO_CHANGE_MIN_INTERVAL;
     }
+
+    Q_strncpyz(cl->userinfo, arg, sizeof(cl->userinfo));
 
     serverClientLocal.UserinfoChanged(cl);
 
