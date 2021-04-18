@@ -114,6 +114,7 @@ typedef struct {
 //
 class idCVarSystem {
 public:
+    virtual convar_t *FindVar(pointer var_name) = 0;
     virtual float32 VariableValue(pointer var_name) = 0;
     virtual sint VariableIntegerValue(pointer var_name) = 0;
     virtual valueType *VariableString(pointer var_name) = 0;

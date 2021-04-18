@@ -637,7 +637,22 @@ void idClientParseSystemLocal::SystemInfoChanged(void) {
             break;
         }
 
-        cvarSystem->Set(key, value);
+        // prevent the server from overwriting existing cVars
+        convar_t *var = cvarSystem->FindVar(key);
+
+        if(!var) {
+            // convar didn't exist, create it, but make sure it is only SYSTEMINFO and not ARCHIVE
+            cvarSystem->Set(key, value);
+
+            var = cvarSystem->FindVar(key);
+
+            if(var) {
+                var->flags = CVAR_SYSTEMINFO;
+            }
+        } else if(var->flags & CVAR_SYSTEMINFO) {
+            // Cvar already exists and is SYSTEMINFO, just set its value
+            cvarSystem->Set(key, value);
+        }
     }
 
     // Arnout: big hack to clear the image cache on a pure change

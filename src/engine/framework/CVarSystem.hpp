@@ -49,7 +49,7 @@ public:
 
     static sint32 generateHashValue(pointer fname);
     static bool ValidateString(pointer s);
-    static convar_t *FindVar(pointer var_name);
+    virtual convar_t *FindVar(pointer var_name);
     virtual float32 VariableValue(pointer var_name);
     virtual sint VariableIntegerValue(pointer var_name);
     virtual valueType *VariableString(pointer var_name);

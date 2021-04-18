@@ -8,6 +8,7 @@
 	* [Filesystem] Fixed resource leak by closing all file handles
 	* [Server] Fixed crash while connecting to the server
 	* [SoundSystem] Fix audio buffer under-runs
+	* [Convars] Added check to prevent CVAR_SYTEMINFO from overwriting existing convars
 
 2021-04-11 dGr8LookinSparky <hissparkyness@gmail.com>
 	* [Client]Fix the mouse sensitivity for when cl_mouseAccel is disabled.
