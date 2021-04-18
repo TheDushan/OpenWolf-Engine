@@ -283,7 +283,6 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
     }
 }
 
-
 /*
 ==================
 idServerSnapshotSystemLocal::UpdateServerCommandsToClient
@@ -293,12 +292,33 @@ idServerSnapshotSystemLocal::UpdateServerCommandsToClient
 */
 void idServerSnapshotSystemLocal::UpdateServerCommandsToClient(
     client_t *client, msg_t *msg) {
+
+    UpdateServerCommandsToClients(client, msg, false);
+}
+
+/*
+==================
+idServerSnapshotSystemLocal::UpdateServerCommandsToClients
+==================
+*/
+bool idServerSnapshotSystemLocal::UpdateServerCommandsToClients(
+    client_t *client, msg_t *msg, bool allowPartial) {
+
     sint i, reliableAcknowledge;
 
 
     // write any unacknowledged serverCommands
     for(i = client->reliableAcknowledge + 1; i <= client->reliableSequence;
             i++) {
+        // msg overflow checks for 4 byte internally; we want to write svc_servercommand (1 byte), the index (4 byte) and the string
+        if(allowPartial &&
+                msg->maxsize - msg->cursize - 4 < 1 + 4 + (sint)::strlen(
+                    client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)])) {
+            client->reliableSent = i - 1;
+            return false;
+        }
+
+
         MSG_WriteByte(msg, svc_serverCommand);
         MSG_WriteLong(msg, i);
         MSG_WriteString(msg, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS -
@@ -306,6 +326,8 @@ void idServerSnapshotSystemLocal::UpdateServerCommandsToClient(
     }
 
     client->reliableSent = client->reliableSequence;
+
+    return true;
 }
 
 /*
@@ -955,7 +977,7 @@ Also called by idServerInitSystemLocal::FinalCommand
 */
 void idServerSnapshotSystemLocal::SendClientSnapshot(client_t *client) {
     uchar8 msg_buf[MAX_MSGLEN];
-    msg_t msg;
+    msg_t msg, msgBackup;
 
     //bots dont need snapshots
     if(client->gentity && client->gentity->r.svFlags & SVF_BOT) {
@@ -998,14 +1020,43 @@ void idServerSnapshotSystemLocal::SendClientSnapshot(client_t *client) {
     MSG_WriteLong(&msg, client->lastClientCommand);
 
     // (re)send any reliable server commands
-    UpdateServerCommandsToClient(client, &msg);
+    if(!UpdateServerCommandsToClients(client, &msg, true)) {
+        // If we can't fit all commands in a single message send what we got and
+        // don't even try to send entities
+        SendMessageToClient(&msg, client);
+        return;
+    }
+
+    // Backup the msg state in case the snapshot would overflow it
+    ::memcpy(&msgBackup, &msg, sizeof(msgBackup));
 
     // send over all the relevant entityState_t
     // and the playerState_t
     WriteSnapshotToClient(client, &msg);
 
+    if(msg.overflowed && !msgBackup.overflowed) {
+        // The entity states were too much and the message overflowed. So send
+        // the old state of the message from before we tried to append the
+        // entity states. As the net code doesn't send the msg_buf content after
+        // the current size of the message we don't have to clear anything and
+        // we can just use the old msg values (which point to the updated buffer).
+        SendMessageToClient(&msgBackup, client);
+        return;
+    }
+
+    // Backup the msg state in case the download would overflow it
+    ::memcpy(&msgBackup, &msg, sizeof(msgBackup));
+
     // Add any download data if the client is downloading
     serverClientSystem->WriteDownloadToClient(client, &msg);
+
+    if(msg.overflowed && !msgBackup.overflowed) {
+        // Downloads usually don't happen in situations that are likely to have
+        // message overflows, but let's make sure and apply the same logic we
+        // used for the entity states.
+        SendMessageToClient(&msgBackup, client);
+        return;
+    }
 
     // check for overflow
     if(msg.overflowed) {

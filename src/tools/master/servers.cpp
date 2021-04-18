@@ -99,6 +99,7 @@ static void Sv_Remove(server_t *sv) {
         do {
             last_used_slot--;
         } while(last_used_slot >= 0 &&
+
                 servers[last_used_slot].state == sv_state_unused_slot);
 
     // If we have removed the end of the server iteration, set it to the new end of the list

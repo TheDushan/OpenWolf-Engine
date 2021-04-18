@@ -1522,7 +1522,7 @@ void idServerCcmdsSystemLocal::DemoFilename(valueType *buf, sint bufSize) {
 
     time(&rawtime);
     strftime(timeStr, sizeof(timeStr), "%Y-%m-%d_%H-%M-%S",
-             localtime(&rawtime));  // or gmtime
+             localtime(&rawtime));    // or gmtime
 
     Q_vsprintf_s(buf, bufSize, bufSize, "demo%s", timeStr);
 }

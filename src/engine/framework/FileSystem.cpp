@@ -3406,7 +3406,7 @@ void idFileSystemLocal::AddGameDirectory(pointer path, pointer dir) {
             Q_strncpyz(search->dir->fullpath, pakfile,
                        sizeof(search->dir->fullpath));    // c:\xreal\base\mypak.pk3dir
             Q_strncpyz(search->dir->gamedir, pakdirs[pakdirsi],
-                       sizeof(search->dir->gamedir));   // mypak.pk3dir
+                       sizeof(search->dir->gamedir));    // mypak.pk3dir
 
             search->next = fs_searchpaths;
             fs_searchpaths = search;

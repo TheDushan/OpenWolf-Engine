@@ -1122,7 +1122,7 @@ bool idServerOACSSystemLocal::IsSpectator(sint client) {
     cl = &svs.clients[client]; // Get client object
 
     team = atoi(Info_ValueForKey(sv.configstrings[CS_PLAYERS + client].s,
-                                 "t")); // Get the team
+                                 "t"));   // Get the team
     Q_strncpyz(team_s, Info_ValueForKey(cl->userinfo, "team"),
                MAX_STRING_CHARS);  // Get the team from another cvar which is formatted differently
 

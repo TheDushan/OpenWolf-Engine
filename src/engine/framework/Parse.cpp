@@ -519,6 +519,7 @@ sint idParseSystemLocal::ReadName(script_t *script, token_t *token) {
 
         c = *script->script_p;
     } while((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' &&
+
             c <= '9') || c == '_');
 
     token->string[len] = '\0';

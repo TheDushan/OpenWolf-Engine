@@ -73,6 +73,8 @@ public:
                                             clientSnapshot_t *frame, snapshotEntityNumbers_t *eNums, bool portal);
     static void BuildClientSnapshot(client_t *client);
     static sint RateMsec(client_t *client, sint messageSize);
+    static bool UpdateServerCommandsToClients(client_t *client, msg_t *msg,
+            bool allowPartial);
 };
 
 extern idServerSnapshotSystemLocal serverSnapshotSystemLocal;

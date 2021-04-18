@@ -2554,7 +2554,7 @@ static bool ParseShader(pointer name, valueType **text) {
         } else if(StringsContainWord(name, name, "ice")) {
             shader.surfaceFlags |= MATERIAL_ICE;
         } else if(StringsContainWord(name, name, "hair") ||
-                  StringsContainWord(name, name, "chewbacca")) { // use carpet
+                  StringsContainWord(name, name, "chewbacca")) {  // use carpet
             shader.surfaceFlags |= MATERIAL_CARPET;
         } else {
 #ifdef _DEBUG

@@ -782,7 +782,7 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
     if(header->num_poses) {
         iqmData->poses = (iqmTransform_t *)dataPtr;
         dataPtr += header->num_poses * header->num_frames * sizeof(
-                       iqmTransform_t); // pose transforms
+                       iqmTransform_t);  // pose transforms
     }
 
     if(header->ofs_bounds) {

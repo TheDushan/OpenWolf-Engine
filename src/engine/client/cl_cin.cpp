@@ -1351,6 +1351,7 @@ e_status CIN_RunCinematic(sint handle) {
             do {
                 RoQInterrupt();
             } while(s_rawend < s_soundtime &&
+
                     cinTable[currentHandle].status == FMV_PLAY);
         }
     }
@@ -1679,6 +1680,7 @@ void CL_PlayCinematic_f(void) {
         do {
             SCR_RunCinematic();
         } while(cinTable[currentHandle].buf == nullptr &&
+
                 cinTable[currentHandle].status ==
                 FMV_PLAY);            // wait for first frame (load codebook and sound)
     }

@@ -190,11 +190,13 @@ enum json_error json_stream_parse(FILE *file, json_t **document) {
 
     assert(file != NULL);    /* must be an open stream */
     assert(document != NULL);    /* must be a valid pointer reference */
-    assert(*document == NULL);   /* only accepts a null json_t pointer, to avoid memory leaks */
+    assert(*document ==
+           NULL);   /* only accepts a null json_t pointer, to avoid memory leaks */
 
     json_jpi_init(&state);   /* initializes the json_parsing_info object */
 
-    while((error == JSON_WAITING_FOR_EOF) || (error == JSON_INCOMPLETE_DOCUMENT)) {
+    while((error == JSON_WAITING_FOR_EOF) ||
+            (error == JSON_INCOMPLETE_DOCUMENT)) {
         if(fgets(buffer, 1024, file) != NULL) {
             switch(error = json_parse_fragment(&state, buffer)) {
                 case JSON_OK:
@@ -418,7 +420,8 @@ enum json_error json_insert_child(json_t *parent, json_t *child) {
     /*TODO change the child list from FIFO to LIFO, in order to get rid of the child_end pointer */
     assert(parent != NULL);      /* the parent must exist */
     assert(child != NULL);   /* the child must exist */
-    assert(parent != child);     /* parent and child must not be the same. if they are, it will enter an infinite loop */
+    assert(parent !=
+           child);     /* parent and child must not be the same. if they are, it will enter an infinite loop */
 
     /* enforce tree structure correctness */
     switch(parent->type) {
@@ -550,9 +553,10 @@ enum json_error json_tree_to_string(json_t *root, char **text) {
     output = rcs_create(RSTRING_DEFAULT);
 
     /* start the convoluted fun */
-state1:         /* open value */
-    {
-        if((cursor->previous) && (cursor != root)) {       /*if cursor is children and not root than it is a followup sibling */
+state1: {       /* open value */
+        if((cursor->previous) &&
+                (cursor !=
+                 root)) {       /*if cursor is children and not root than it is a followup sibling */
             /* append comma */
             if(rcs_catc(output, ',') != RS_OK) {
                 return JSON_MEMORY;
@@ -688,8 +692,7 @@ state1:         /* open value */
         }
     }
 
-state2:         /* close value */
-    {
+state2: {       /* close value */
         switch(cursor->type) {
             case JSON_OBJECT:
                 if(rcs_catc(output, '}') != RS_OK) {
@@ -735,14 +738,12 @@ state2:         /* close value */
         }
     }
 
-error:
-    {
+error: {
         rcs_free(&output);
         return JSON_UNKNOWN_PROBLEM;
     }
 
-end:
-    {
+end: {
         *text = rcs_unwrap(output);
         return JSON_OK;
     }
@@ -759,9 +760,10 @@ enum json_error json_stream_output(FILE *file, json_t *root) {
     /* set up the output and temporary rwstrings */
 
     /* start the convoluted fun */
-state1:         /* open value */
-    {
-        if((cursor->previous) && (cursor != root)) {       /*if cursor is children and not root than it is a followup sibling */
+state1: {       /* open value */
+        if((cursor->previous) &&
+                (cursor !=
+                 root)) {       /*if cursor is children and not root than it is a followup sibling */
             /* append comma */
             fprintf(file, ",");
         }
@@ -858,8 +860,7 @@ state1:         /* open value */
         }
     }
 
-state2:         /* close value */
-    {
+state2: {       /* close value */
         switch(cursor->type) {
             case JSON_OBJECT:
                 fprintf(file, "}");
@@ -899,13 +900,11 @@ state2:         /* close value */
         }
     }
 
-error:
-    {
+error: {
         return JSON_UNKNOWN_PROBLEM;
     }
 
-end:
-    {
+end: {
         fprintf(file, "\n");
         return JSON_OK;
     }
@@ -2887,8 +2886,7 @@ enum json_error json_saxy_parse(struct json_saxy_parser_status *jsps,
             return JSON_UNKNOWN_PROBLEM;
     }
 
-state0:         /* starting point */
-    {
+state0: {       /* starting point */
         switch(c) {
             case '\x20':
             case '\x09':
@@ -3020,8 +3018,7 @@ state0:         /* starting point */
         return JSON_OK;
     }
 
-state1:         /* parse string */
-    {
+state1: {       /* parse string */
         switch(c) {
             case '\\':
                 if(!jsps->string_length_limit_reached) {
@@ -3043,7 +3040,7 @@ state1:         /* parse string */
                     jsps->state = 0;    /* starting point */
 
                     if(jsf->new_string != NULL) {
-                        jsf->new_string(((jsps->temp))->text);    /*copied or integral? */
+                        jsf->new_string(((jsps->temp))->text);       /*copied or integral? */
                     }
 
                     rcs_free(&jsps->temp);
@@ -3071,8 +3068,7 @@ state1:         /* parse string */
         return JSON_OK;
     }
 
-state2:         /* parse string: escaped character */
-    {
+state2: {       /* parse string: escaped character */
         switch(c) {
             case '\"':
             case '\\':
@@ -3116,8 +3112,7 @@ state2:         /* parse string: escaped character */
         return JSON_OK;
     }
 
-state3:         /* parse string: escaped unicode 1 */
-    {
+state3: {       /* parse string: escaped unicode 1 */
         switch(c) {
             case '0':
             case '1':
@@ -3161,8 +3156,7 @@ state3:         /* parse string: escaped unicode 1 */
         return JSON_OK;
     }
 
-state4:         /* parse string: escaped unicode 2 */
-    {
+state4: {       /* parse string: escaped unicode 2 */
         switch(c) {
             case '0':
             case '1':
@@ -3206,8 +3200,7 @@ state4:         /* parse string: escaped unicode 2 */
         return JSON_OK;
     }
 
-state5:         /* parse string: escaped unicode 3 */
-    {
+state5: {       /* parse string: escaped unicode 3 */
         switch(c) {
             case '0':
             case '1':
@@ -3251,8 +3244,7 @@ state5:         /* parse string: escaped unicode 3 */
         return JSON_OK;
     }
 
-state6:         /* parse string: escaped unicode 4 */
-    {
+state6: {       /* parse string: escaped unicode 4 */
         switch(c) {
             case '0':
             case '1':
@@ -3296,8 +3288,7 @@ state6:         /* parse string: escaped unicode 4 */
         return JSON_OK;
     }
 
-state7:         /* parse true: tr */
-    {
+state7: {       /* parse true: tr */
         if(c != 'r') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3306,8 +3297,7 @@ state7:         /* parse true: tr */
         return JSON_OK;
     }
 
-state8:         /* parse true: tru */
-    {
+state8: {       /* parse true: tru */
         if(c != 'u') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3316,8 +3306,7 @@ state8:         /* parse true: tru */
         return JSON_OK;
     }
 
-state9:         /* parse true: true */
-    {
+state9: {       /* parse true: true */
         if(c != 'e') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3331,8 +3320,7 @@ state9:         /* parse true: true */
         return JSON_OK;
     }
 
-state10:            /* parse false: fa */
-    {
+state10: {          /* parse false: fa */
         if(c != 'a') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3341,8 +3329,7 @@ state10:            /* parse false: fa */
         return JSON_OK;
     }
 
-state11:            /* parse false: fal */
-    {
+state11: {          /* parse false: fal */
         if(c != 'l') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3351,8 +3338,7 @@ state11:            /* parse false: fal */
         return JSON_OK;
     }
 
-state12:            /* parse false: fals */
-    {
+state12: {          /* parse false: fals */
         if(c != 's') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3361,8 +3347,7 @@ state12:            /* parse false: fals */
         return JSON_OK;
     }
 
-state13:            /* parse false: false */
-    {
+state13: {          /* parse false: false */
         if(c != 'e') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3376,8 +3361,7 @@ state13:            /* parse false: false */
         return JSON_OK;
     }
 
-state14:            /* parse null: nu */
-    {
+state14: {          /* parse null: nu */
         if(c != 'u') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3386,8 +3370,7 @@ state14:            /* parse null: nu */
         return JSON_OK;
     }
 
-state15:            /* parse null: nul */
-    {
+state15: {          /* parse null: nul */
         if(c != 'l') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3396,8 +3379,7 @@ state15:            /* parse null: nul */
         return JSON_OK;
     }
 
-state16:            /* parse null: null */
-    {
+state16: {          /* parse null: null */
         if(c != 'l') {
             return JSON_ILLEGAL_CHARACTER;
         }
@@ -3411,8 +3393,7 @@ state16:            /* parse null: null */
         return JSON_OK;
     }
 
-state17:            /* parse number: 0 */
-    {
+state17: {          /* parse number: 0 */
         switch(c) {
             case '.':
                 if((jsps->temp = rcs_create(5)) == NULL) {
@@ -3507,8 +3488,7 @@ state17:            /* parse number: 0 */
         return JSON_OK;
     }
 
-state18:            /* parse number: start fraccional part */
-    {
+state18: {          /* parse number: start fraccional part */
         switch(c) {
             case '0':
             case '1':
@@ -3541,8 +3521,7 @@ state18:            /* parse number: start fraccional part */
         return JSON_OK;
     }
 
-state19:            /* parse number: fraccional part */
-    {
+state19: {          /* parse number: fraccional part */
         switch(c) {
             case '0':
             case '1':
@@ -3662,8 +3641,7 @@ state19:            /* parse number: fraccional part */
         return JSON_OK;
     }
 
-state20:            /* parse number: start exponent part */
-    {
+state20: {          /* parse number: start exponent part */
         switch(c) {
             case '+':
             case '-':
@@ -3708,8 +3686,7 @@ state20:            /* parse number: start exponent part */
         return JSON_OK;
     }
 
-state21:            /* parse number: exponent part */
-    {
+state21: {          /* parse number: exponent part */
         switch(c) {
             case '0':
             case '1':
@@ -3820,8 +3797,7 @@ state21:            /* parse number: exponent part */
         return JSON_OK;
     }
 
-state22:            /* parse number: start exponent part */
-    {
+state22: {          /* parse number: start exponent part */
         switch(c) {
             case '0':
             case '1':
@@ -3852,8 +3828,7 @@ state22:            /* parse number: start exponent part */
         return JSON_OK;
     }
 
-state23:            /* parse number: start negative */
-    {
+state23: {          /* parse number: start negative */
         switch(c) {
             case '0':
                 rcs_catc((jsps->temp), c);
@@ -3894,8 +3869,7 @@ state23:            /* parse number: start negative */
         return JSON_OK;
     }
 
-state24:            /* parse number: decimal part */
-    {
+state24: {          /* parse number: decimal part */
         switch(c) {
             case '0':
             case '1':
@@ -4030,8 +4004,7 @@ state24:            /* parse number: decimal part */
         return JSON_OK;
     }
 
-state25:            /* open object */
-    {
+state25: {          /* open object */
         switch(c) {
             case '\x20':
             case '\x09':
@@ -4060,8 +4033,7 @@ state25:            /* open object */
         return JSON_OK;
     }
 
-state26:            /* close object/array */
-    {
+state26: {          /* close object/array */
         switch(c) {
             case '\x20':
             case '\x09':
@@ -4101,8 +4073,7 @@ state26:            /* close object/array */
         return JSON_OK;
     }
 
-state27:            /* sibling followup */
-    {
+state27: {          /* sibling followup */
         switch(c) {
             case '\x20':
             case '\x09':
