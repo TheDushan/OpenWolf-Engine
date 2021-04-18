@@ -13,7 +13,8 @@
 	* [Misc] Fixed compiling
 	* [Client] Ensure timescale is 1 once dropping to main menu from e.g timescaled demo
 	* [Engine] Don't do twice "vid_restart" on first run
-	* [Client] Moved client net-chain into C++ file 
+	* [Client] Moved client net-chain into C++ file
+	* [cMake] Updated CMakeLists.txt
 
 2021-04-11 dGr8LookinSparky <hissparkyness@gmail.com>
 	* [Client]Fix the mouse sensitivity for when cl_mouseAccel is disabled.

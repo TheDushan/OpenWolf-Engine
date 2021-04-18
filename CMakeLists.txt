@@ -350,6 +350,8 @@ set( CLIENTLIST_HEADERS
 	${MOUNT_DIR}/API/clientGUI_api.hpp
 	${MOUNT_DIR}/API/clientLAN_api.hpp
 	${MOUNT_DIR}/client/clientParse.hpp
+	${MOUNT_DIR}/API/clientNetChan_api.hpp
+	${MOUNT_DIR}/client/clientNetChan.hpp
 )
 
 set( CLIENTLIST_SOURCES
@@ -360,14 +362,11 @@ set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/cl_input.cpp
 	${MOUNT_DIR}/client/cl_keys.cpp
 	${MOUNT_DIR}/client/cl_main.cpp
-	${MOUNT_DIR}/client/cl_net_chan.cpp
+	${MOUNT_DIR}/client/clientNetChan.cpp
 	${MOUNT_DIR}/client/clientParse.cpp
 	${MOUNT_DIR}/client/clientScreen.cpp
 	${MOUNT_DIR}/client/clientBrowser.cpp
-	${MOUNT_DIR}/client/clientBrowser.hpp
-	${MOUNT_DIR}/client/clientGUI.hpp
 	${MOUNT_DIR}/client/clientGUI.cpp
-	${MOUNT_DIR}/client/clientLAN.hpp
 	${MOUNT_DIR}/client/clientLAN.cpp
 )
 
