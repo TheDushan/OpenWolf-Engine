@@ -215,7 +215,7 @@ SNDDMA_Init
 bool SNDDMA_Init(sint sampleFrequencyInKHz) {
     SDL_AudioSpec desired;
     SDL_AudioSpec obtained;
-    sint tmp;
+    sint tmp, samples;
 
     if(snd_inited) {
         return true;
@@ -248,7 +248,7 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
     ::memset(&desired, '\0', sizeof(desired));
     ::memset(&obtained, '\0', sizeof(obtained));
 
-    tmp = (static_cast<sint>(s_sdlBits->value));
+    tmp = (s_sdlBits->integer);
 
     if((tmp != 16) && (tmp != 8)) {
         tmp = 16;
@@ -257,24 +257,35 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
     desired.freq = SNDDMA_ExpandSampleFrequencyKHzToHz(sampleFrequencyInKHz);
     desired.format = ((tmp == 16) ? AUDIO_S16SYS : AUDIO_U8);
 
-    // I dunno if this is the best idea, but I'll give it a try...
-    //  should probably check a cvar for this...
-    if(s_sdlDevSamps->value) {
-        desired.samples = s_sdlDevSamps->value;
+    desired.channels = s_sdlChannels->integer;
+
+    // just pick a sane default.
+    if(desired.freq <= 11025) {
+        samples = 128;
+    } else if(desired.freq <= 22050) {
+        samples = 256;
+    } else if(desired.freq <= 44100) {
+        samples = 512;
     } else {
-        // just pick a sane default.
-        if(desired.freq <= 11025) {
-            desired.samples = 256;
-        } else if(desired.freq <= 22050) {
-            desired.samples = 512;
-        } else if(desired.freq <= 44100) {
-            desired.samples = 1024;
-        } else {
-            desired.samples = 2048;    // (*shrug*)
-        }
+        samples = 1024;    // (*shrug*)
     }
 
-    desired.channels = static_cast<sint>(s_sdlChannels->value);
+    if(s_sdlDevSamps->integer) {
+        tmp = s_sdlDevSamps->integer;
+    } else {
+        tmp = samples * desired.channels;
+    }
+
+    // round up to a power of two
+    if(tmp & (tmp - 1)) {
+        sint val;
+
+        for(val = 1; val < tmp; val <<= 1);
+
+        tmp = val;
+    }
+
+    desired.samples = tmp;
     desired.callback = SNDDMA_AudioCallback;
 
     dev = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
@@ -291,17 +302,20 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
     //  work at all; we need to keep it significantly bigger than the
     //  amount of SDL callback samples, and just copy a little each time
     //  the callback runs.
-    // 32768 is what the OSS driver filled in here on my system. I don't
-    //  know if it's a good value overall, but at least we know it's
-    //  reasonable...this is why I let the user override.
-    tmp = s_sdlMixSamps->value;
-
-    if(!tmp) {
-        tmp = (obtained.samples * obtained.channels) * 10;
+    if(s_sdlMixSamps->integer) {
+        tmp = s_sdlMixSamps->integer;
+    } else {
+        tmp = 32 * samples * obtained.channels;
     }
 
-    // samples must be divisible by number of channels
-    tmp -= tmp % obtained.channels;
+    // round up to a power of two
+    if(tmp & (tmp - 1)) {
+        sint val;
+
+        for(val = 1; val < tmp; val <<= 1);
+
+        tmp = val;
+    }
 
     dmapos = 0;
     dma.samplebits = obtained.format & 0xFF;  // first byte of format is bits.

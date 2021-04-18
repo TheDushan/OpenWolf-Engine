@@ -743,7 +743,7 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
     // become free in a few seconds
     drop->state = CS_ZOMBIE;
 
-    if (drop->download) {
+    if(drop->download) {
         fileSystem->FCloseFile(drop->download);
         drop->download = 0;
     }
