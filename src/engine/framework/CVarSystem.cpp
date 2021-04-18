@@ -436,13 +436,13 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
             var->flags &= ~CVAR_USER_CREATED;
             Z_Free(var->resetString);
             var->resetString = CopyString(var_value);
-
-            // ZOID--needs to be set so that cvars the game sets as
-            // SERVERINFO get sent to clients
-            cvar_modifiedFlags |= flags;
         }
 
         var->flags |= flags;
+
+        // ZOID--needs to be set so that cvars the game sets as
+        // SERVERINFO get sent to clients
+        cvar_modifiedFlags |= flags;
 
         // only allow one non-empty reset string without a warning
         if(!var->resetString[0]) {
