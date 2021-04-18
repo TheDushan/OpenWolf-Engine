@@ -660,7 +660,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     collisionModelManager->ClearMap();
 
     // close all filehandles before fileSystem->Restart
-    for (i = 0; i < sv_maxclients->integer; i++) {
+    for(i = 0; i < sv_maxclients->integer; i++) {
         serverClientSystem->CloseDownload(&svs.clients[i]);
     }
 

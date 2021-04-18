@@ -3660,9 +3660,7 @@ void idFileSystemLocal::Shutdown(bool closemfp) {
     sint i;
 
     for(i = 0; i < MAX_FILE_HANDLES; i++) {
-        if(fsh[i].fileSize) {
-            FCloseFile(i);
-        }
+        FCloseFile(i);
     }
 
     // free everything
@@ -4219,7 +4217,7 @@ checksums to see if any pk3 files need to be auto-downloaded.
 */
 void idFileSystemLocal::PureServerSetReferencedPaks(pointer pakSums,
         pointer pakNames) {
-    sint i, c, d;
+    sint i, c, d = 0;
 
     cmdSystem->TokenizeString(pakSums);
 
@@ -4255,7 +4253,7 @@ void idFileSystemLocal::PureServerSetReferencedPaks(pointer pakSums,
         }
     }
 
-    if (c != d) {
+    if(c != d) {
         Com_Printf(S_COLOR_YELLOW "WARNING: Corrupted server pak references\n");
     }
 
