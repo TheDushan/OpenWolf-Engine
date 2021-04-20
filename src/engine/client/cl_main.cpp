@@ -792,7 +792,12 @@ void CL_PlayDemo_f(void) {
     fileSystem->FOpenFileRead(name, &clc.demofile, true);
 
     if(!clc.demofile) {
-        Com_Error(ERR_DROP, "couldn't open %s", name);
+        if(!Q_stricmp(arg, "(null)")) {
+            Com_Error(ERR_DROP, "No demo selected.", name);
+        } else {
+            Com_Error(ERR_DROP, "couldn't open %s", name);
+        }
+        
         return;
     }
 

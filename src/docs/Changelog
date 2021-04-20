@@ -1,3 +1,6 @@
+2021-04-20 Dusan Jocic <dusanjocic@msn>
+	* [Client Demo] Show error if no demo is selected
+
 2021-04-18 Dusan Jocic <dusanjocic@msn>
 	* [Convars] Decreased size of MAX_CVAR_VALUE_STRING to 256
 	* [Misc] Moved astyle files to the proper folder
