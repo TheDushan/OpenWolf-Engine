@@ -56,22 +56,6 @@ QGL_EXT_direct_state_access_PROCS;
 #undef GLE
 
 // these are just here temp while I port everything to c++.
-void CL_PlayCinematic_f(void);
-void SCR_DrawCinematic(void);
-void SCR_RunCinematic(void);
-void SCR_StopCinematic(void);
-sint CIN_PlayCinematic(pointer arg0, sint xpos, sint ypos, sint width,
-                       sint height, sint bits);
-e_status CIN_StopCinematic(sint handle);
-e_status CIN_RunCinematic(sint handle);
-void CIN_DrawCinematic(sint handle);
-void CIN_SetExtents(sint handle, sint x, sint y, sint w, sint h);
-void CIN_SetLooping(sint handle, bool loop);
-void CIN_UploadCinematic(sint handle);
-void CIN_CloseAllVideos(void);
-void CL_RefPrintf(sint print_level, pointer fmt, ...);
-void CL_WriteAVIVideoFrame(const uchar8 *imageBuffer, sint size);
-bool CL_VideoRecording(void);
 sint CL_ScaledMilliseconds(void);
 void *CL_RefMalloc(sint size);
 

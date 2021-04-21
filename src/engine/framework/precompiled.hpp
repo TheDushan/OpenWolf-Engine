@@ -150,6 +150,8 @@ extern "C"
 #include <client/clientNetChan.hpp>
 #include <client/clientAVI.hpp>
 #include <client/clientGame.hpp>
+#include <API/clientCinema_api.hpp>
+#include <client/clientCinema.hpp>
 
 #include <cm/cm_local.hpp>
 

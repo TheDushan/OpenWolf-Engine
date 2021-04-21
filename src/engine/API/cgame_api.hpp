@@ -65,22 +65,6 @@ struct cgameImports_t {
     sint(*Key_GetKey)(pointer binding);
     sint(*RealTime)(qtime_t *qtime);
 
-    // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to nullptr, alteredstates to false (do not alter gamestate)
-    sint(*CIN_PlayCinematic)(pointer arg0, sint xpos, sint ypos, sint width,
-                             sint height, sint bits);
-
-    // stops playing the cinematic and ends it.  should always return FMV_EOF
-    // cinematics must be stopped in reverse order of when they are started
-    e_status(*CIN_StopCinematic)(sint handle);
-
-    // will run a frame of the cinematic but will not draw it.  Will return FMV_EOF if the end of the cinematic has been reached.
-    e_status(*CIN_RunCinematic)(sint handle);
-
-    // draws the current frame
-    void(*CIN_DrawCinematic)(sint handle);
-
-    // allows you to resize the animation dynamically
-    void(*CIN_SetExtents)(sint handle, sint x, sint y, sint w, sint h);
     void(*UI_LimboChat)(pointer arg0);
     void (*AddReliableCommand)(pointer cmd);
     void (*Cvar_LatchedVariableStringBuffer)(pointer var_name,
@@ -107,6 +91,7 @@ struct cgameImports_t {
     idClientGUISystem *idGUISystem;
     idClientScreenSystem *clientScreenSystem;
     idParseSystem *parseSystem;
+    idClientCinemaSystem *clientCinemaSystem;
 #endif
 };
 

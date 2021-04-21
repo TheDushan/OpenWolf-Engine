@@ -797,7 +797,7 @@ void CL_PlayDemo_f(void) {
         } else {
             Com_Error(ERR_DROP, "couldn't open %s", name);
         }
-        
+
         return;
     }
 
@@ -1076,8 +1076,8 @@ void CL_Disconnect(bool showMainMenu, pointer reason) {
 
     cvarSystem->Set("timescale", "1");
 
-    SCR_StopCinematic();
-    soundSystemLocal.ClearSoundBuffer();
+    clientCinemaSystem->StopCinematic();
+    soundSystem->ClearSoundBuffer();
 
     // Remove pure paks
     fileSystem->PureServerSetLoadedPaks("", "");
@@ -1419,7 +1419,7 @@ CL_Disconnect_f
 ==================
 */
 void CL_Disconnect_f(void) {
-    SCR_StopCinematic();
+    clientCinemaSystem->StopCinematic();
     cvarSystem->Set("savegame_loading", "0");
     cvarSystem->Set("g_reloading", "0");
 
@@ -2996,7 +2996,7 @@ void CL_Frame(sint msec) {
     soundSystem->Update();
 
     // advance local effects for next frame
-    SCR_RunCinematic();
+    clientCinemaSystem->RunCinematic();
 
     Con_RunConsole();
 
@@ -3878,7 +3878,8 @@ void CL_Init(void) {
     cmdSystem->AddCommand("demo", CL_PlayDemo_f,
                           "For loading a demo for playback: /demo demofilename");
     cmdSystem->SetCommandCompletionFunc("demo", CL_CompleteDemoName);
-    cmdSystem->AddCommand("cinematic", CL_PlayCinematic_f,
+    cmdSystem->AddCommand("cinematic",
+                          &idClientCinemaSystemLocal::PlayCinematic_f,
                           "[/cinematic] will play the intro movie. Doesnt work in game");
     cmdSystem->AddCommand("stoprecord", CL_StopRecord_f,
                           "Stops recording a demo");

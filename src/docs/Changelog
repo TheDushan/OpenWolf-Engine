@@ -1,4 +1,7 @@
 2021-04-20 Dusan Jocic <dusanjocic@msn>
+	* [Client] Moved client cinematic`s into C++ file
+
+2021-04-20 Dusan Jocic <dusanjocic@msn>
 	* [Client Demo] Show error if no demo is selected
 
 2021-04-18 Dusan Jocic <dusanjocic@msn>

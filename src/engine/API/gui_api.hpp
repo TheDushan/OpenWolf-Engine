@@ -212,11 +212,6 @@ struct guiImports_t {
     void (*ClearStates)(void);
     uint64(*Hunk_MemoryRemaining)(void);
     sint(*RealTime)(qtime_t *qtime);
-    sint(*PlayCinematic)(pointer arg0, sint xpos, sint ypos, sint width,
-                         sint height, sint bits);
-    e_status(*StopCinematic)(sint handle);
-    e_status(*RunCinematic)(sint handle);
-    void(*DrawCinematic)(sint handle);
     void(*SetExtents)(sint handle, sint x, sint y, sint w, sint h);
     void (*TranslateString)(pointer string, valueType *dest_buffer);
     void (*OpenURL)(pointer s);
@@ -236,6 +231,7 @@ struct guiImports_t {
     idClientGUISystem *idGUISystem;
     idClientScreenSystem *clientScreenSystem;
     idParseSystem *parseSystem;
+    idClientCinemaSystem *clientCinemaSystem;
 #endif
 };
 

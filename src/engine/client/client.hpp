@@ -665,28 +665,6 @@ void            Con_Bottom(void);
 void            Con_Close(void);
 
 //
-// cl_cin.c
-//
-
-void            CL_PlayCinematic_f(void);
-void            SCR_DrawCinematic(void);
-void            SCR_RunCinematic(void);
-void            SCR_StopCinematic(void);
-sint             CIN_PlayCinematic(pointer arg0, sint xpos, sint ypos,
-                                   sint width, sint height, sint bits);
-e_status        CIN_StopCinematic(sint handle);
-e_status        CIN_RunCinematic(sint handle);
-void            CIN_DrawCinematic(sint handle);
-void            CIN_SetExtents(sint handle, sint x, sint y, sint w,
-                               sint h);
-void            CIN_SetLooping(sint handle, bool loop);
-void            CIN_UploadCinematic(sint handle);
-void            CIN_CloseAllVideos(void);
-
-// yuv->rgb will be used for Theora(ogm)
-void            ROQ_GenYUVTables(void);
-
-//
 // cl_main.c
 //
 void            CL_WriteDemoMessage(msg_t *msg, sint headerBytes);

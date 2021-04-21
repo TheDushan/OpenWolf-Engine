@@ -35,130 +35,48 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-//#define ADAPTED_TO_STREAMING_SOUND
-// (SA) MISSIONPACK MERGE
-// s_rawend for wolf is [] and for q3 is just a single value
-// I need to ask Ryan if it's as simple as a constant index or
-// if some more coding needs to be done.
-
 #include <framework/precompiled.hpp>
 
-#define MAXSIZE             8
-#define MINSIZE             4
+idClientCinemaSystemLocal clientCinemaLocal;
+idClientCinemaSystem *clientCinemaSystem = &clientCinemaLocal;
 
-#define DEFAULT_CIN_WIDTH   512
-#define DEFAULT_CIN_HEIGHT  512
+/*
+===============
+idClientCinemaSystemLocal::idClientCinemaSystemLocal
+===============
+*/
+idClientCinemaSystemLocal::idClientCinemaSystemLocal(void) {
+}
 
-#define LETTERBOX_OFFSET 105
+/*
+===============
+idClientCinemaSystemLocal::~idClientCinemaSystemLocal
+===============
+*/
+idClientCinemaSystemLocal::~idClientCinemaSystemLocal(void) {
+}
 
-#define ROQ_QUAD            0x1000
-#define ROQ_QUAD_INFO       0x1001
-#define ROQ_CODEBOOK        0x1002
-#define ROQ_QUAD_VQ         0x1011
-#define ROQ_QUAD_JPEG       0x1012
-#define ROQ_QUAD_HANG       0x1013
-#define ROQ_PACKET          0x1030
-#define ZA_SOUND_MONO       0x1020
-#define ZA_SOUND_STEREO     0x1021
-
-#define MAX_VIDEO_HANDLES   16
-
-extern sint s_soundtime;
-
-#define CIN_STREAM 0    //DAJ const for the sound stream used for cinematics
-
-static void RoQ_init(void);
-
-/******************************************************************************
-*
-* Class:        trFMV
-*
-* Description:  RoQ/RnR manipulation routines
-*               not entirely complete for first run
-*
-******************************************************************************/
-
-static sint32 ROQ_YY_tab[256];
-static sint32 ROQ_UB_tab[256];
-static sint32 ROQ_UG_tab[256];
-static sint32 ROQ_VG_tab[256];
-static sint32 ROQ_VR_tab[256];
-
-typedef struct {
-    uchar8 linbuf[DEFAULT_CIN_WIDTH * DEFAULT_CIN_HEIGHT * 4 * 2];
-    uchar8 file[65536];
-    schar16 sqrTable[256];
-
-    sint    mcomp[256];
-    uchar8                *qStatus[2][32768];
-
-    sint32 oldXOff, oldYOff, oldysize, oldxsize;
-
-    sint currentHandle;
-} cinematics_t;
-
-typedef struct {
-    valueType fileName[MAX_OSPATH];
-    sint CIN_WIDTH, CIN_HEIGHT;
-    sint xpos, ypos, width, height;
-    bool looping, holdAtEnd, dirty, alterGameState, silent, shader, letterBox,
-         sound;
-    fileHandle_t iFile;
-    e_status status;
-    sint startTime;
-    sint lastTime;
-    sint32 tfps;
-    sint32 RoQPlayed;
-    sint32 ROQSize;
-    uint RoQFrameSize;
-    sint32 onQuad;
-    sint32 numQuads;
-    sint32 samplesPerLine;
-    uint roq_id;
-    sint32 screenDelta;
-
-    void (*VQ0)(uchar8 *status, void *qdata);
-    void (*VQ1)(uchar8 *status, void *qdata);
-    void (*VQNormal)(uchar8 *status, void *qdata);
-    void (*VQBuffer)(uchar8 *status, void *qdata);
-
-    sint32 samplesPerPixel;                               // defaults to 2
-    uchar8               *gray;
-    uint xsize, ysize, maxsize, minsize;
-
-    bool half, smootheddouble;
-    sint inMemory;
-    sint32 normalBuffer0;
-    sint32 roq_flags;
-    sint32 roqF0;
-    sint32 roqF1;
-    sint32 t[2];
-    sint32 roqFPS;
-    sint playonwalls;
-    uchar8               *buf;
-    sint32 drawX, drawY;
-    uchar16 vq2[256 * 16 * 4];
-    uchar16 vq4[256 * 64 * 4];
-    uchar16 vq8[256 * 256 * 4];
-} cin_cache;
-
-static cinematics_t cin;
-static cin_cache cinTable[MAX_VIDEO_HANDLES];
-static sint currentHandle = -1;
-static sint CL_handle = -1;
-
-void CIN_CloseAllVideos(void) {
+/*
+==============
+idClientCinemaSystemLocal::CloseAllVideos
+==============
+*/
+void idClientCinemaSystemLocal::CloseAllVideos(void) {
     sint i;
 
     for(i = 0 ; i < MAX_VIDEO_HANDLES ; i++) {
         if(cinTable[i].fileName[0] != 0) {
-            CIN_StopCinematic(i);
+            CinemaStopCinematic(i);
         }
     }
 }
 
-
-static sint CIN_HandleForVideo(void) {
+/*
+==============
+idClientCinemaSystemLocal::HandleForVideo
+==============
+*/
+sint idClientCinemaSystemLocal::HandleForVideo(void) {
     sint i;
 
     for(i = 0 ; i < MAX_VIDEO_HANDLES ; i++) {
@@ -171,19 +89,14 @@ static sint CIN_HandleForVideo(void) {
     return -1;
 }
 
+/*
+==============
+idClientCinemaSystemLocal::RllSetupTable
 
-extern sint CL_ScaledMilliseconds(void);
-
-//-----------------------------------------------------------------------------
-// RllSetupTable
-//
-// Allocates and initializes the square table.
-//
-// Parameters:  None
-//
-// Returns:     Nothing
-//-----------------------------------------------------------------------------
-static void RllSetupTable(void) {
+Allocates and initializes the square table.
+==============
+*/
+void idClientCinemaSystemLocal::RllSetupTable(void) {
     sint z;
 
     for(z = 0; z < 128; z++) {
@@ -192,23 +105,24 @@ static void RllSetupTable(void) {
     }
 }
 
+/*
+==============
+idClientCinemaSystemLocal::RllDecodeMonoToMono
 
+Decode mono source data into a mono buffer.
 
-//-----------------------------------------------------------------------------
-// RllDecodeMonoToMono
-//
-// Decode mono source data into a mono buffer.
-//
-// Parameters:  from -> buffer holding encoded data
-//              to ->   buffer to hold decoded data
-//              size =  number of bytes of input (= # of shorts of output)
-//              signedOutput = 0 for unsigned output, non-zero for signed output
-//              flag = flags from asset header
-//
-// Returns:     Number of samples placed in output buffer
-//-----------------------------------------------------------------------------
-sint32 RllDecodeMonoToMono(uchar8 *from, schar16 *to, uint size,
-                           valueType signedOutput, uchar16 flag) {
+Parameters:  from -> buffer holding encoded data
+            to ->   buffer to hold decoded data
+            size =  number of bytes of input (= # of shorts of output)
+            signedOutput = 0 for unsigned output, non-zero for signed output
+            flag = flags from asset header
+
+Returns:     Number of samples placed in output buffer
+==============
+*/
+sint32 idClientCinemaSystemLocal::RllDecodeMonoToMono(uchar8 *from,
+        schar16 *to, uint size,
+        valueType signedOutput, uchar16 flag) {
     uint z;
     schar16 prev; //DAJ was sint
 
@@ -225,23 +139,26 @@ sint32 RllDecodeMonoToMono(uchar8 *from, schar16 *to, uint size,
     return size;    //*sizeof(schar16));
 }
 
+/*
+==============
+idClientCinemaSystemLocal::RllDecodeMonoToStereo
 
-//-----------------------------------------------------------------------------
-// RllDecodeMonoToStereo
-//
-// Decode mono source data into a stereo buffer. Output is 4 times the number
-// of bytes in the input.
-//
-// Parameters:  from -> buffer holding encoded data
-//              to ->   buffer to hold decoded data
-//              size =  number of bytes of input (= 1/4 # of bytes of output)
-//              signedOutput = 0 for unsigned output, non-zero for signed output
-//              flag = flags from asset header
-//
-// Returns:     Number of samples placed in output buffer
-//-----------------------------------------------------------------------------
-sint32 RllDecodeMonoToStereo(uchar8 *from, schar16 *to, uint size,
-                             valueType signedOutput, uchar16 flag) {
+Decode mono source data into a stereo buffer. Output is 4 times the number
+of bytes in the input.
+
+Parameters:  from -> buffer holding encoded data
+            to ->   buffer to hold decoded data
+            size =  number of bytes of input (= 1/4 # of bytes of output)
+            signedOutput = 0 for unsigned output, non-zero for signed output
+            flag = flags from asset header
+
+Returns:     Number of samples placed in output buffer
+-----------------------------------------------------------------------------
+==============
+*/
+sint32 idClientCinemaSystemLocal::RllDecodeMonoToStereo(uchar8 *from,
+        schar16 *to, uint size,
+        valueType signedOutput, uchar16 flag) {
     uint z;
     schar16 prev; //DAJ was sint
 
@@ -259,22 +176,24 @@ sint32 RllDecodeMonoToStereo(uchar8 *from, schar16 *to, uint size,
     return size;    // * 2 * sizeof(schar16));
 }
 
+/*
+==============
+idClientCinemaSystemLocal::RllDecodeStereoToStereo
 
-//-----------------------------------------------------------------------------
-// RllDecodeStereoToStereo
-//
-// Decode stereo source data into a stereo buffer.
-//
-// Parameters:  from -> buffer holding encoded data
-//              to ->   buffer to hold decoded data
-//              size =  number of bytes of input (= 1/2 # of bytes of output)
-//              signedOutput = 0 for unsigned output, non-zero for signed output
-//              flag = flags from asset header
-//
-// Returns:     Number of samples placed in output buffer
-//-----------------------------------------------------------------------------
-sint32 RllDecodeStereoToStereo(uchar8 *from, schar16 *to, uint size,
-                               valueType signedOutput, uchar16 flag) {
+Decode stereo source data into a stereo buffer.
+
+Parameters:  from -> buffer holding encoded data
+            to ->   buffer to hold decoded data
+            size =  number of bytes of input (= 1/2 # of bytes of output)
+            signedOutput = 0 for unsigned output, non-zero for signed output
+            flag = flags from asset header
+
+Returns:     Number of samples placed in output buffer
+==============
+*/
+sint32 idClientCinemaSystemLocal::RllDecodeStereoToStereo(uchar8 *from,
+        schar16 *to, uint size,
+        valueType signedOutput, uchar16 flag) {
     uint z;
     uchar8 *zz = from;
     schar16 prevL, prevR;     //DAJ was sint
@@ -297,22 +216,24 @@ sint32 RllDecodeStereoToStereo(uchar8 *from, schar16 *to, uint size,
     return (size >> 1);     //*sizeof(schar16));
 }
 
+/*
+==============
+idClientCinemaSystemLocal::RllDecodeStereoToMono
 
-//-----------------------------------------------------------------------------
-// RllDecodeStereoToMono
-//
-// Decode stereo source data into a mono buffer.
-//
-// Parameters:  from -> buffer holding encoded data
-//              to ->   buffer to hold decoded data
-//              size =  number of bytes of input (= # of bytes of output)
-//              signedOutput = 0 for unsigned output, non-zero for signed output
-//              flag = flags from asset header
-//
-// Returns:     Number of samples placed in output buffer
-//-----------------------------------------------------------------------------
-sint32 RllDecodeStereoToMono(uchar8 *from, schar16 *to, uint size,
-                             valueType signedOutput, uchar16 flag) {
+Decode stereo source data into a mono buffer.
+
+ Parameters:  from -> buffer holding encoded data
+              to ->   buffer to hold decoded data
+              size =  number of bytes of input (= # of bytes of output)
+              signedOutput = 0 for unsigned output, non-zero for signed output
+              flag = flags from asset header
+
+ Returns:     Number of samples placed in output buffer
+============
+*/
+sint32 idClientCinemaSystemLocal::RllDecodeStereoToMono(uchar8 *from,
+        schar16 *to, uint size,
+        valueType signedOutput, uchar16 flag) {
     uint z;
     schar16 prevL, prevR;     //DAJ was sint
 
@@ -333,99 +254,88 @@ sint32 RllDecodeStereoToMono(uchar8 *from, schar16 *to, uint size,
     return size;
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void move8_32(uchar8 *src, uchar8 *dst, sint spl) {
+/*
+==============
+idClientCinemaSystemLocal::move8_32
+==============
+*/
+void idClientCinemaSystemLocal::move8_32(uchar8 *src, uchar8 *dst,
+        sint spl) {
     sint i;
 
     for(i = 0; i < 8; ++i) {
-        memcpy(dst, src, 32);
+        ::memcpy(dst, src, 32);
         src += spl;
         dst += spl;
     }
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void move4_32(uchar8 *src, uchar8 *dst, sint spl) {
+/*
+==============
+idClientCinemaSystemLocal::move4_32
+==============
+*/
+void idClientCinemaSystemLocal::move4_32(uchar8 *src, uchar8 *dst,
+        sint spl) {
     sint i;
 
     for(i = 0; i < 4; ++i) {
-        memcpy(dst, src, 16);
+        ::memcpy(dst, src, 16);
         src += spl;
         dst += spl;
     }
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void blit8_32(uchar8 *src, uchar8 *dst, sint spl) {
+/*
+==============
+idClientCinemaSystemLocal::blit4_32
+==============
+*/
+void idClientCinemaSystemLocal::blit8_32(uchar8 *src, uchar8 *dst,
+        sint spl) {
     sint i;
 
     for(i = 0; i < 8; ++i) {
-        memcpy(dst, src, 32);
+        ::memcpy(dst, src, 32);
         src += 32;
         dst += spl;
     }
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-static void blit4_32(uchar8 *src, uchar8 *dst, sint spl) {
+/*
+==============
+idClientCinemaSystemLocal::blit4_32
+==============
+*/
+void idClientCinemaSystemLocal::blit4_32(uchar8 *src, uchar8 *dst,
+        sint spl) {
     sint i;
 
     for(i = 0; i < 4; ++i) {
-        memmove(dst, src, 16);
+        ::memmove(dst, src, 16);
         src += 16;
         dst += spl;
     }
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void blit2_32(uchar8 *src, uchar8 *dst, sint spl) {
-    memcpy(dst, src, 8);
-    memcpy(dst + spl, src + 8, 8);
+/*
+==============
+idClientCinemaSystemLocal::blit2_32
+==============
+*/
+void idClientCinemaSystemLocal::blit2_32(uchar8 *src, uchar8 *dst,
+        sint spl) {
+    ::memcpy(dst, src, 8);
+    ::memcpy(dst + spl, src + 8, 8);
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void blitVQQuad32fs(uchar8 **status, uchar8 *data) {
+/*
+==============
+idClientCinemaSystemLocal::blitVQQuad32fs
+==============
+*/
+void idClientCinemaSystemLocal::blitVQQuad32fs(uchar8 **status,
+        uchar8 *data) {
     uchar16 newd, celdata, code;
     uint index, i;
     sint spl;
@@ -517,15 +427,12 @@ static void blitVQQuad32fs(uchar8 **status, uchar8 *data) {
     } while(status[index] != nullptr);
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void ROQ_GenYUVTables(void) {
+/*
+==============
+idClientCinemaSystemLocal::ROQ_GenYUVTables
+==============
+*/
+void idClientCinemaSystemLocal::ROQ_GenYUVTables(void) {
     float32 t_ub, t_vr, t_ug, t_vg;
     sint32 i;
 
@@ -545,51 +452,13 @@ static void ROQ_GenYUVTables(void) {
     }
 }
 
-#define VQ2TO4( a,b,c,d ) { \
-        *c++ = a[0];    \
-        *d++ = a[0];    \
-        *d++ = a[0];    \
-        *c++ = a[1];    \
-        *d++ = a[1];    \
-        *d++ = a[1];    \
-        *c++ = b[0];    \
-        *d++ = b[0];    \
-        *d++ = b[0];    \
-        *c++ = b[1];    \
-        *d++ = b[1];    \
-        *d++ = b[1];    \
-        *d++ = a[0];    \
-        *d++ = a[0];    \
-        *d++ = a[1];    \
-        *d++ = a[1];    \
-        *d++ = b[0];    \
-        *d++ = b[0];    \
-        *d++ = b[1];    \
-        *d++ = b[1];    \
-        a += 2; b += 2; }
-
-#define VQ2TO2( a,b,c,d ) { \
-        *c++ = *a;  \
-        *d++ = *a;  \
-        *d++ = *a;  \
-        *c++ = *b;  \
-        *d++ = *b;  \
-        *d++ = *b;  \
-        *d++ = *a;  \
-        *d++ = *a;  \
-        *d++ = *b;  \
-        *d++ = *b;  \
-        a++; b++; }
-
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static uchar16 yuv_to_rgb(sint32 y, sint32 u, sint32 v) {
+/*
+==============
+idClientCinemaSystemLocal::yuv_to_rgb
+==============
+*/
+uchar16 idClientCinemaSystemLocal::yuv_to_rgb(sint32 y, sint32 u,
+        sint32 v) {
     sint32 r, g, b, YY = static_cast<sint32>(ROQ_YY_tab[(y)]);
 
     r = (YY + ROQ_VR_tab[v]) >> 9;
@@ -623,14 +492,13 @@ static uchar16 yuv_to_rgb(sint32 y, sint32 u, sint32 v) {
     return static_cast<uchar16>((r << 11) + (g << 5) + (b));
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-static void yuv_to_rgb24(sint32 y, sint32 u, sint32 v, uchar8 *out) {
+/*
+==============
+idClientCinemaSystemLocal::yuv_to_rgb24
+==============
+*/
+void idClientCinemaSystemLocal::yuv_to_rgb24(sint32 y, sint32 u, sint32 v,
+        uchar8 *out) {
     sint32 YY = static_cast<sint32>(ROQ_YY_tab[y]);
 
     sint32 r = (YY + ROQ_VR_tab[v]) >> 6;
@@ -667,14 +535,12 @@ static void yuv_to_rgb24(sint32 y, sint32 u, sint32 v, uchar8 *out) {
     out[3] = 255;
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-static void decodeCodeBook(uchar8 *input) {
+/*
+==============
+idClientCinemaSystemLocal::decodeCodeBook
+==============
+*/
+void idClientCinemaSystemLocal::decodeCodeBook(uchar8 *input) {
     sint two, four;
 
     if(!cinTable[currentHandle].roq_flags) {
@@ -745,16 +611,14 @@ static void decodeCodeBook(uchar8 *input) {
     }
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void recurseQuad(sint32 startX, sint32 startY, sint32 quadSize,
-                        sint32 xOff, sint32 yOff) {
+/*
+==============
+idClientCinemaSystemLocal::recurseQuad
+==============
+*/
+void idClientCinemaSystemLocal::recurseQuad(sint32 startX, sint32 startY,
+        sint32 quadSize,
+        sint32 xOff, sint32 yOff) {
     uchar8 *scroff;
     sint32 bigx, bigy, lowx, lowy, useY;
     sint32 offset;
@@ -793,16 +657,12 @@ static void recurseQuad(sint32 startX, sint32 startY, sint32 quadSize,
     }
 }
 
-
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void setupQuad(sint32 xOff, sint32 yOff) {
+/*
+==============
+idClientCinemaSystemLocal::setupQuad
+==============
+*/
+void idClientCinemaSystemLocal::setupQuad(sint32 xOff, sint32 yOff) {
     sint32 numQuadCels, i, x, y;
     uchar8 *temp;
 
@@ -820,7 +680,7 @@ static void setupQuad(sint32 xOff, sint32 yOff) {
     numQuadCels  = (cinTable[currentHandle].xsize *
                     cinTable[currentHandle].ysize) / (16);
     numQuadCels += numQuadCels / 4;
-    numQuadCels += 64;                            // for overflow
+    numQuadCels += 64; // for overflow
 
     cinTable[currentHandle].onQuad = 0;
 
@@ -833,20 +693,17 @@ static void setupQuad(sint32 xOff, sint32 yOff) {
     temp = nullptr;
 
     for(i = (numQuadCels - 64); i < numQuadCels; i++) {
-        cin.qStatus[0][i] = temp;             // eoq
-        cin.qStatus[1][i] = temp;             // eoq
+        cin.qStatus[0][i] = temp; // eoq
+        cin.qStatus[1][i] = temp; // eoq
     }
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void readQuadInfo(uchar8 *qData) {
+/*
+==============
+idClientCinemaSystemLocal::readQuadInfo
+==============
+*/
+void idClientCinemaSystemLocal::readQuadInfo(uchar8 *qData) {
     if(currentHandle < 0) {
         return;
     }
@@ -893,15 +750,12 @@ static void readQuadInfo(uchar8 *qData) {
     }
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void RoQPrepMcomp(sint32 xoff, sint32 yoff) {
+/*
+==============
+idClientCinemaSystemLocal::RoQPrepMcomp
+==============
+*/
+void idClientCinemaSystemLocal::RoQPrepMcomp(sint32 xoff, sint32 yoff) {
     sint32 i, j, x, y, temp, temp2;
 
     i = cinTable[currentHandle].samplesPerLine;
@@ -924,15 +778,12 @@ static void RoQPrepMcomp(sint32 xoff, sint32 yoff) {
     }
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void initRoQ(void) {
+/*
+==============
+idClientCinemaSystemLocal::initRoQ
+==============
+*/
+void idClientCinemaSystemLocal::initRoQ(void) {
     if(currentHandle < 0) {
         return;
     }
@@ -946,16 +797,12 @@ static void initRoQ(void) {
     RllSetupTable();
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void RoQReset(void) {
-
+/*
+==============
+idClientCinemaSystemLocal::RoQReset
+==============
+*/
+void idClientCinemaSystemLocal::RoQReset(void) {
     if(currentHandle < 0) {
         return;
     }
@@ -973,16 +820,13 @@ static void RoQReset(void) {
     cinTable[currentHandle].status = FMV_LOOPED;
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void RoQInterrupt(void) {
-    uchar8                *framedata;
+/*
+==============
+idClientCinemaSystemLocal::RoQInterrupt
+==============
+*/
+void idClientCinemaSystemLocal::RoQInterrupt(void) {
+    uchar8 *framedata;
     schar16 sbuf[32768];
     sint ssize;
 
@@ -1045,9 +889,9 @@ redump:
 
         case    ZA_SOUND_MONO:
             if(!cinTable[currentHandle].silent) {
-                ssize = RllDecodeMonoToStereo(framedata, sbuf,
-                                              cinTable[currentHandle].RoQFrameSize, 0,
-                                              static_cast<uchar16>(cinTable[currentHandle].roq_flags));
+                ssize = clientCinemaLocal.RllDecodeMonoToStereo(framedata, sbuf,
+                        cinTable[currentHandle].RoQFrameSize, 0,
+                        static_cast<uchar16>(cinTable[currentHandle].roq_flags));
                 soundSystem->RawSamples(0, ssize, 22050, 2, 1,
                                         reinterpret_cast<uchar8 *>(sbuf), 1.0f, 1.0f);
                 cinTable[currentHandle].sound = 1;
@@ -1063,9 +907,9 @@ redump:
                     s_rawend = s_soundtime;         //DAJ added
                 }
 
-                ssize = RllDecodeStereoToStereo(framedata, sbuf,
-                                                cinTable[currentHandle].RoQFrameSize, 0,
-                                                static_cast<uchar16>(cinTable[currentHandle].roq_flags));
+                ssize = clientCinemaLocal.RllDecodeStereoToStereo(framedata, sbuf,
+                        cinTable[currentHandle].RoQFrameSize, 0,
+                        static_cast<uchar16>(cinTable[currentHandle].roq_flags));
                 soundSystem->RawSamples(0, ssize, 22050, 2, 2,
                                         reinterpret_cast<uchar8 *>(sbuf), 1.0f, 1.0f);
                 cinTable[currentHandle].sound = 1;
@@ -1157,15 +1001,12 @@ redump:
                                            + 8;
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void RoQ_init(void) {
+/*
+==============
+idClientCinemaSystemLocal::RoQShutdown
+==============
+*/
+void idClientCinemaSystemLocal::RoQ_init(void) {
     cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime =
                                             CL_ScaledMilliseconds();
 
@@ -1192,15 +1033,12 @@ static void RoQ_init(void) {
 
 }
 
-/******************************************************************************
-*
-* Function:
-*
-* Description:
-*
-******************************************************************************/
-
-static void RoQShutdown(void) {
+/*
+==============
+idClientCinemaSystemLocal::RoQShutdown
+==============
+*/
+void idClientCinemaSystemLocal::RoQShutdown(void) {
     pointer s;
 
     if(!cinTable[currentHandle].buf) {
@@ -1211,7 +1049,7 @@ static void RoQShutdown(void) {
         return;
     }
 
-    Com_DPrintf("finished cinematic\n");
+    Com_DPrintf("idClientCinemaSystemLocal::RoQShutdown: finished cinematic\n");
     cinTable[currentHandle].status = FMV_IDLE;
 
     if(cinTable[currentHandle].iFile) {
@@ -1241,10 +1079,10 @@ static void RoQShutdown(void) {
 
 /*
 ==================
-CIN_StopCinematic
+idClientCinemaSystemLocal::CinemaStopCinematic
 ==================
 */
-e_status CIN_StopCinematic(sint handle) {
+e_status idClientCinemaSystemLocal::CinemaStopCinematic(sint handle) {
 
     if(handle < 0 || handle >= MAX_VIDEO_HANDLES ||
             cinTable[handle].status == FMV_EOF) {
@@ -1274,13 +1112,12 @@ e_status CIN_StopCinematic(sint handle) {
 
 /*
 ==================
-CIN_RunCinematic
+idClientCinemaSystemLocal::CinemaRunCinematic
+
 Fetch and decompress the pending frame
 ==================
 */
-
-
-e_status CIN_RunCinematic(sint handle) {
+e_status idClientCinemaSystemLocal::CinemaRunCinematic(sint handle) {
     sint start = 0;
     sint thisTime = 0;
     sint played = 0;
@@ -1379,11 +1216,12 @@ e_status CIN_RunCinematic(sint handle) {
 
 /*
 ==================
-CIN_PlayCinematic
+idClientCinemaSystemLocal::PlayCinematic
 ==================
 */
-sint CIN_PlayCinematic(pointer arg, sint x, sint y, sint w, sint h,
-                       sint systemBits) {
+sint idClientCinemaSystemLocal::PlayCinematic(pointer arg, sint x, sint y,
+        sint w, sint h,
+        sint systemBits) {
     uchar16 RoQID;
     valueType name[MAX_OSPATH];
     sint i;
@@ -1402,10 +1240,10 @@ sint CIN_PlayCinematic(pointer arg, sint x, sint y, sint w, sint h,
         }
     }
 
-    Com_DPrintf("CIN_PlayCinematic( %s )\n", arg);
+    Com_DPrintf("idClientCinemaSystemLocal::PlayCinematic( %s )\n", arg);
 
     memset(&cin, 0, sizeof(cinematics_t));
-    currentHandle = CIN_HandleForVideo();
+    currentHandle = HandleForVideo();
 
     cin.currentHandle = currentHandle;
 
@@ -1421,8 +1259,8 @@ sint CIN_PlayCinematic(pointer arg, sint x, sint y, sint w, sint h,
         return -1;
     }
 
-    CIN_SetExtents(currentHandle, x, y, w, h);
-    CIN_SetLooping(currentHandle, (systemBits & CIN_loop) != 0);
+    SetExtents(currentHandle, x, y, w, h);
+    SetLooping(currentHandle, (systemBits & CIN_loop) != 0);
 
     cinTable[currentHandle].CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
     cinTable[currentHandle].CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
@@ -1478,7 +1316,13 @@ sint CIN_PlayCinematic(pointer arg, sint x, sint y, sint w, sint h,
     return -1;
 }
 
-void CIN_SetExtents(sint handle, sint x, sint y, sint w, sint h) {
+/*
+==============
+idClientCinemaSystemLocal::SetExtents
+==============
+*/
+void idClientCinemaSystemLocal::SetExtents(sint handle, sint x, sint y,
+        sint w, sint h) {
     if(handle < 0 || handle >= MAX_VIDEO_HANDLES ||
             cinTable[handle].status == FMV_EOF) {
         return;
@@ -1491,7 +1335,12 @@ void CIN_SetExtents(sint handle, sint x, sint y, sint w, sint h) {
     cinTable[handle].dirty = true;
 }
 
-void CIN_SetLooping(sint handle, bool loop) {
+/*
+==============
+idClientCinemaSystemLocal::SetLooping
+==============
+*/
+void idClientCinemaSystemLocal::SetLooping(sint handle, bool loop) {
     if(handle < 0 || handle >= MAX_VIDEO_HANDLES ||
             cinTable[handle].status == FMV_EOF) {
         return;
@@ -1502,11 +1351,13 @@ void CIN_SetLooping(sint handle, bool loop) {
 
 /*
 ==================
-CIN_ResampleCinematic
+idClientCinemaSystemLocal::ResampleCinematic
+
 Resample cinematic to 256x256 and store in buf2
 ==================
 */
-void CIN_ResampleCinematic(sint handle, sint *buf2) {
+void idClientCinemaSystemLocal::ResampleCinematic(sint handle,
+        sint *buf2) {
     sint ix, iy, *buf3, xm, ym, ll;
     uchar8 *buf;
 
@@ -1568,10 +1419,10 @@ void CIN_ResampleCinematic(sint handle, sint *buf2) {
 
 /*
 ==================
-CIN_DrawCinematic
+idClientCinemaSystemLocal::CinemaDrawCinematic
 ==================
 */
-void CIN_DrawCinematic(sint handle) {
+void idClientCinemaSystemLocal::CinemaDrawCinematic(sint handle) {
     float32 x, y, w, h;
     uchar8    *buf;
 
@@ -1616,7 +1467,7 @@ void CIN_DrawCinematic(sint handle) {
 
         buf2 = static_cast< sint *>(Hunk_AllocateTempMemory(256 * 256 * 4));
 
-        CIN_ResampleCinematic(handle, buf2);
+        ResampleCinematic(handle, buf2);
 
         renderSystem->DrawStretchRaw(x, y, w, h, 256, 256,
                                      reinterpret_cast<uchar8 *>(buf2), handle, true);
@@ -1632,10 +1483,10 @@ void CIN_DrawCinematic(sint handle) {
 
 /*
 ==============
-CL_PlayCinematic_f
+idClientCinemaSystemLocal::PlayCinematic_f
 ==============
 */
-void CL_PlayCinematic_f(void) {
+void idClientCinemaSystemLocal::PlayCinematic_f(void) {
     valueType    *arg, *s;
     sint bits = CIN_system;
 
@@ -1644,10 +1495,10 @@ void CL_PlayCinematic_f(void) {
         return;
     }
 
-    Com_DPrintf("CL_PlayCinematic_f\n");
+    Com_DPrintf("idClientCinemaSystemLocal::PlayCinematic_f\n");
 
     if(cls.state == CA_CINEMATIC) {
-        SCR_StopCinematic();
+        clientCinemaSystem->StopCinematic();
     }
 
     arg = cmdSystem->Argv(1);
@@ -1668,46 +1519,68 @@ void CL_PlayCinematic_f(void) {
 
     soundSystem->StopAllSounds();
 
-    if(bits) {    //& CIN_letterBox ) {
-        CL_handle = CIN_PlayCinematic(arg, 0, LETTERBOX_OFFSET, SCREEN_WIDTH,
-                                      SCREEN_HEIGHT - (LETTERBOX_OFFSET * 2), bits);
+    if(bits) {
+        CL_handle = clientCinemaSystem->PlayCinematic(arg, 0, LETTERBOX_OFFSET,
+                    SCREEN_WIDTH,
+                    SCREEN_HEIGHT - (LETTERBOX_OFFSET * 2), bits);
     } else {
-        CL_handle = CIN_PlayCinematic(arg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
-                                      bits);
+        CL_handle = clientCinemaSystem->PlayCinematic(arg, 0, 0, SCREEN_WIDTH,
+                    SCREEN_HEIGHT,
+                    bits);
     }
 
     if(CL_handle >= 0) {
         do {
-            SCR_RunCinematic();
+            clientCinemaSystem->RunCinematic();
         } while(cinTable[currentHandle].buf == nullptr &&
 
+                // wait for first frame (load codebook and sound)
                 cinTable[currentHandle].status ==
-                FMV_PLAY);            // wait for first frame (load codebook and sound)
+                FMV_PLAY);
     }
 }
 
-
-void SCR_DrawCinematic(void) {
+/*
+==============
+idClientCinemaSystemLocal::DrawCinematic
+==============
+*/
+void idClientCinemaSystemLocal::DrawCinematic(void) {
     if(CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
-        CIN_DrawCinematic(CL_handle);
+        CinemaDrawCinematic(CL_handle);
     }
 }
 
-void SCR_RunCinematic(void) {
+/*
+==============
+idClientCinemaSystemLocal::RunCinematic
+==============
+*/
+void idClientCinemaSystemLocal::RunCinematic(void) {
     if(CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
-        CIN_RunCinematic(CL_handle);
+        CinemaRunCinematic(CL_handle);
     }
 }
 
-void SCR_StopCinematic(void) {
+/*
+==============
+idClientCinemaSystemLocal::StopCinematic
+==============
+*/
+void idClientCinemaSystemLocal::StopCinematic(void) {
     if(CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
-        CIN_StopCinematic(CL_handle);
+        CinemaStopCinematic(CL_handle);
         soundSystem->StopAllSounds();
         CL_handle = -1;
     }
 }
 
-void CIN_UploadCinematic(sint handle) {
+/*
+==============
+idClientCinemaSystemLocal::UploadCinematic
+==============
+*/
+void idClientCinemaSystemLocal::UploadCinematic(sint handle) {
     if(handle >= 0 && handle < MAX_VIDEO_HANDLES) {
         if(!cinTable[handle].buf) {
             return;
@@ -1733,7 +1606,7 @@ void CIN_UploadCinematic(sint handle) {
 
             buf2 = static_cast<sint *>(Hunk_AllocateTempMemory(256 * 256 * 4));
 
-            CIN_ResampleCinematic(handle, buf2);
+            ResampleCinematic(handle, buf2);
 
             renderSystem->UploadCinematic(cinTable[handle].CIN_WIDTH,
                                           cinTable[handle].CIN_HEIGHT, 256, 256, reinterpret_cast<uchar8 *>(buf2),

@@ -72,8 +72,8 @@ static void R_BindAnimatedImageToTMU(textureBundle_t *bundle, sint tmu) {
     sint i;
 
     if(bundle->isVideoMap) {
-        CIN_RunCinematic(bundle->videoMapHandle);
-        CIN_UploadCinematic(bundle->videoMapHandle);
+        clientCinemaSystem->CinemaRunCinematic(bundle->videoMapHandle);
+        clientCinemaSystem->UploadCinematic(bundle->videoMapHandle);
         GL_BindToTMU(tr.scratchImage[bundle->videoMapHandle], tmu);
         return;
     }

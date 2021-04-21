@@ -649,8 +649,14 @@ void idClientParseSystemLocal::SystemInfoChanged(void) {
             if(var) {
                 var->flags = CVAR_SYSTEMINFO;
             }
+
         } else if(var->flags & CVAR_SYSTEMINFO) {
             // Cvar already exists and is SYSTEMINFO, just set its value
+
+            if(clc.serverAddress.type == NA_LOOPBACK) {
+                continue;
+            }
+
             cvarSystem->Set(key, value);
         }
     }

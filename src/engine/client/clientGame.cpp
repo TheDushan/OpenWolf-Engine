@@ -511,7 +511,7 @@ rescan:
         // clear notify lines and outgoing commands before passing
         // the restart to the cgame
         Con_ClearNotify();
-        // reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
+        // reparse the string, because Con_ClearNotify() may have done another cmdSystem->TokenizeString()
         cmdSystem->TokenizeString(s);
         ::memset(cl.cmds, 0, sizeof(cl.cmds));
         return true;
@@ -662,18 +662,13 @@ void idClientGameSystemLocal::CreateExportTable(void) {
 
     exports.RealTime = Com_RealTime;
 
-    exports.CIN_PlayCinematic = CIN_PlayCinematic;
-    exports.CIN_StopCinematic = CIN_StopCinematic;
-    exports.CIN_RunCinematic = CIN_RunCinematic;
-    exports.CIN_DrawCinematic = CIN_DrawCinematic;
-    exports.CIN_SetExtents = CIN_SetExtents;
-
     exports.Key_SetBinding = Key_SetBinding;
     exports.Key_GetBindingByString = Key_GetBindingByString;
     exports.CL_TranslateString = CL_TranslateString;
     exports.Com_GetHunkInfo = Com_GetHunkInfo;
     exports.UI_LimboChat = CL_AddToLimboChat;
 
+    exports.clientCinemaSystem = clientCinemaSystem;
     exports.clientGameSystem = clientGameSystem;
     exports.renderSystem = renderSystem;
     exports.collisionModelManager = collisionModelManager;

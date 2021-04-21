@@ -276,15 +276,11 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.SetOverstrikeMode = Key_SetOverstrikeMode;
     exports.ClearStates = Key_ClearStates;
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
-    exports.PlayCinematic = CIN_PlayCinematic;
-    exports.StopCinematic = CIN_StopCinematic;
-    exports.RunCinematic = CIN_RunCinematic;
-    exports.DrawCinematic = CIN_DrawCinematic;
-    exports.SetExtents = CIN_SetExtents;
     exports.TranslateString = CL_TranslateString;
     exports.OpenURL = CL_OpenURL;
     exports.GetHunkInfo = Com_GetHunkInfo;
 
+    exports.clientCinemaSystem = clientCinemaSystem;
     exports.renderSystem = renderSystem;
     exports.soundSystem = soundSystem;
     exports.fileSystem = fileSystem;

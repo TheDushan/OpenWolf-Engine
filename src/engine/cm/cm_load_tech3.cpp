@@ -972,7 +972,7 @@ CMod_LoadEntityString
 void CMod_LoadEntityString(lump_t *l) {
     valueType *p, *token, keyname[MAX_TOKEN_CHARS], value[MAX_TOKEN_CHARS];
 
-    cm.entityString = static_cast<valueType *>(Hunk_Alloc(l->filelen, h_high));
+    cm.entityString = static_cast<valueType *>(Z_Malloc(l->filelen));
     cm.numEntityChars = l->filelen;
     ::memcpy(cm.entityString, cmod_base + l->fileofs, l->filelen);
 

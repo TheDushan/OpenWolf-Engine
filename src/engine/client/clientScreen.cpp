@@ -512,7 +512,7 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
                 break;
 
             case CA_CINEMATIC:
-                SCR_DrawCinematic();
+                clientCinemaSystem->DrawCinematic();
                 break;
 
             case CA_DISCONNECTED:

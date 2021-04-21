@@ -916,7 +916,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                 return false;
             }
 
-            stage->bundle[0].videoMapHandle = CIN_PlayCinematic(token, 0, 0, 256, 256,
+            stage->bundle[0].videoMapHandle = clientCinemaSystem->PlayCinematic(token,
+                                              0, 0, 256, 256,
                                               (CIN_loop | CIN_silent | CIN_shader));
 
             if(stage->bundle[0].videoMapHandle != -1) {

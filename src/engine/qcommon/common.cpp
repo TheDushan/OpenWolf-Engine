@@ -140,7 +140,6 @@ bool            com_fullyInitialized = false;
 valueType            com_errorMessage[MAXPRINTMSG];
 void Com_WriteConfiguration(void);
 void            Com_WriteConfig_f(void);
-void            CIN_CloseAllVideos();
 
 //============================================================================
 
@@ -1975,7 +1974,7 @@ void Hunk_Clear( void )
     serverGameSystem->ShutdownGameProgs();
 
 #ifndef DEDICATED
-    CIN_CloseAllVideos();
+    clientCinemaSystem->CloseAllVideos();
 #endif
 
     s_hunk.permTop = 0;
