@@ -291,7 +291,8 @@ button if it appears on the Main Menu screen."
 #define PORT_MOTD           12950
 #define PORT_AUTHORIZE      12952
 #define PORT_SERVER         12960
-#define NUM_SERVER_PORTS    4   // broadcast scan this many ports after
+#define PORT_COMMUNITY      12961
+#define NUM_SERVER_PORTS    5   // broadcast scan this many ports after
 // PORT_SERVER so a single machine can
 // run multiple servers
 

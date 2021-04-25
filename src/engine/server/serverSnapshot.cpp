@@ -36,9 +36,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.hpp>
+#include <server/serverAutoPrecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.hpp>
+#include <server/serverDedPrecompiled.hpp>
 #else
 #include <framework/precompiled.hpp>
 #endif
@@ -462,8 +462,8 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint(
 
         // entities can be flagged to be sent to only a given mask of clients
         if(ent->r.svFlags & SVF_CLIENTMASK) {
-            if(frame->ps.clientNum >= 128) {
-                if(~ent->r.hiMask & (1 << (frame->ps.clientNum - 128))) {
+            if(frame->ps.clientNum >= MAX_CLIENTS) {
+                if(~ent->r.hiMask & (1 << (frame->ps.clientNum - MAX_CLIENTS))) {
                     continue;
                 }
             } else {

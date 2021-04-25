@@ -64,9 +64,9 @@
 */
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.hpp>
+#include <server/serverAutoPrecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.hpp>
+#include <server/serverDedPrecompiled.hpp>
 #else
 #include <framework/precompiled.hpp>
 #endif

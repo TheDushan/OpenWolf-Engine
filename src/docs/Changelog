@@ -3,6 +3,7 @@
 	* [Engine] ERR_DROP causes dedicated servers to enter an inoperable state instead of crashing completely and being restarted.
 	* [Client] Moved client localization into C++ file
 	* [Community Server] More work on the community server
+	* [Mics] Removed null server files from the repo
 
 2021-04-20 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client cinematic`s into C++ file

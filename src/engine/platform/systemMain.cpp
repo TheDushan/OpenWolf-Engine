@@ -36,9 +36,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.hpp>
+#include <server/serverAutoPrecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.hpp>
+#include <server/serverDedPrecompiled.hpp>
 #else
 #include <framework/precompiled.hpp>
 #endif
@@ -331,7 +331,9 @@ void idSystemLocal::Error(pointer error, ...) {
     Print(string);
     Print("\n");
 
+#if !defined (DEDICATED)
     CL_Shutdown();
+#endif
     ErrorDialog(string);
 
     Exit(3);
@@ -542,10 +544,10 @@ void idSystemLocal::SigHandler(sint signal) {
         exit(1);
     } else {
         signalcaught = true;
-#ifndef DEDICATED
+#if !defined (DEDICATED)
         CL_Shutdown();
-#endif
         serverInitSystem->Shutdown(va("Received signal %d", signal));
+#endif
     }
 
     if(signal == SIGTERM || signal == SIGINT) {
@@ -589,6 +591,40 @@ void idSystemLocal::SysSnapVector(float32 *v) {
     v[2] = round(v[2]);
 #endif
 }
+
+#if defined (DEDICATED) || defined (UPDATE_SERVER)
+/*
+===============
+idSystemLocal::Init
+===============
+*/
+void idSystemLocal::Init(void* windowData) {
+}
+
+/*
+===============
+idSystemLocal::Shutdown
+===============
+*/
+void idSystemLocal::Shutdown(void) {
+}
+
+/*
+===============
+idSystemLocal::Restart
+===============
+*/
+void idSystemLocal::Restart(void) {
+}
+
+/*
+===============
+idSystemLocal::Frame
+===============
+*/
+void idSystemLocal::Frame(void) {
+}
+#endif
 
 /*
 =================

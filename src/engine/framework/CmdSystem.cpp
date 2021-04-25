@@ -36,9 +36,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.hpp>
+#include <server/serverAutoPrecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.hpp>
+#include <server/serverDedPrecompiled.hpp>
 #else
 #include <framework/precompiled.hpp>
 #endif
@@ -1750,7 +1750,9 @@ void idCmdSystemLocal::ExecuteString(pointer text) {
 
     // send it as a server command if we are connected
     // this will usually result in a chat message
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
     CL_ForwardCommandToServer(text);
+#endif
 }
 
 /*

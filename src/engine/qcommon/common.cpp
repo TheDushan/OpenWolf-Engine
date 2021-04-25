@@ -36,9 +36,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef UPDATE_SERVER
-#include <null/null_autoprecompiled.hpp>
+#include <server/serverAutoPrecompiled.hpp>
 #elif DEDICATED
-#include <null/null_serverprecompiled.hpp>
+#include <server/serverDedPrecompiled.hpp>
 #else
 #include <framework/precompiled.hpp>
 #endif
@@ -211,7 +211,9 @@ void Com_Printf(pointer fmt, ...) {
 
     // echo to console if we're not a dedicated server
     if(com_dedicated && !com_dedicated->integer) {
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
         CL_ConsolePrint(msg);
+#endif
     }
 
     // echo to dedicated console and early console
@@ -390,9 +392,8 @@ void Com_Error( sint code, pointer fmt, ... )
 
 #ifndef DEDICATED
         CL_Disconnect( true, nullptr );
-#endif
-
         CL_FlushMemory();
+#endif
 
         // make sure we can get at our local stuff
         fileSystem->PureServerSetLoadedPaks( "", "" );
@@ -408,8 +409,8 @@ void Com_Error( sint code, pointer fmt, ... )
 
 #ifndef DEDICATED
         CL_Disconnect( true, "Server crashed" );
-#endif
         CL_FlushMemory();
+#endif
 
         // make sure we can get at our local stuff
         fileSystem->PureServerSetLoadedPaks( "", "" );
@@ -446,7 +447,9 @@ void Com_Error( sint code, pointer fmt, ... )
     else
     {
         serverInitSystem->Shutdown( va( "Server fatal crashed: %s\n", com_errorMessage ) );
+#ifndef DEDICATED
         CL_Shutdown();
+#endif
     }
 
     Com_Shutdown( code == ERR_VID_FATAL ? true : false );
@@ -476,8 +479,8 @@ void Com_Quit_f( void )
 //bani
 #ifndef DEDICATED
         clientGameSystem->ShutdownCGame();
-#endif
         CL_Shutdown();
+#endif
         Com_Shutdown( false );
 
         cmdSystem->Shutdown();
@@ -2416,6 +2419,10 @@ sysEvent_t Com_GetSystemEvent( void )
         return eventQueue[( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
     }
 
+#if defined (DEDICATED)
+    idsystem->Sleep(1);
+#endif
+
     // create an empty event to return
     memset( &ev, 0, sizeof( ev ) );
     ev.evTime = idsystem->Milliseconds();
@@ -2613,7 +2620,9 @@ sint Com_EventLoop( void )
             // manually send packet events for the loopback channel
             while( networkChainSystem->GetLoopPacket( NS_CLIENT, &evFrom, &buf ) )
             {
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
                 CL_PacketEvent( evFrom, &buf );
+#endif
             }
 
             while( networkChainSystem->GetLoopPacket( NS_SERVER, &evFrom, &buf ) )
@@ -2637,7 +2646,9 @@ sint Com_EventLoop( void )
             case SYSE_NONE:
                 break;
             case SYSE_KEY:
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
                 CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
+#endif
                 break;
             case SYSE_CHAR:
 #ifndef DEDICATED
@@ -2651,14 +2662,18 @@ sint Com_EventLoop( void )
                     consoleButtonWasPressed = false;
                     break;
                 }
-#endif
                 CL_CharEvent( ev.evValue );
+#endif
                 break;
             case SYSE_MOUSE:
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
                 CL_MouseEvent( ev.evValue, ev.evValue2, ev.evTime );
+#endif
                 break;
             case SYSE_JOYSTICK_AXIS:
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
                 CL_JoystickEvent( ev.evValue, ev.evValue2, ev.evTime );
+#endif
                 break;
             case SYSE_CONSOLE:
                 //cmdBufferSystem->AddText( "\n" );
@@ -2704,7 +2719,9 @@ sint Com_EventLoop( void )
                 }
                 else
                 {
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
                     CL_PacketEvent( evFrom, &buf );
+#endif
                 }
                 break;
         }
@@ -3041,6 +3058,18 @@ bool Com_WriteProfile( valueType* profile_path )
     return true;
 }
 
+#ifdef DEDICATED
+convar_t* cl_shownet;
+
+void CL_Init(void) {
+    cl_shownet = cvarSystem->Get("cl_shownet", "0", CVAR_TEMP,
+        "Display network quality info");
+    // TTimo: localisation, prolly not any use in dedicated / null client
+    convar_t* cl_language = cvarSystem->Get("cl_language", "0", CVAR_ARCHIVE,
+        "Stores the language of user's game. English is 0");
+}
+#endif
+
 /*
 =================
 Com_Init
@@ -3103,7 +3132,9 @@ void Com_Init( valueType* commandLine )
     com_pid = cvarSystem->Get( "com_pid", s, CVAR_ROM, "Process id" );
 
     // done early so bind command exists
+#if !defined (DEDICATED)
     CL_InitKeyCommands();
+#endif
 
 #ifdef _WIN32
     _setmaxstdio( 2048 );
@@ -3317,7 +3348,9 @@ void Com_Init( valueType* commandLine )
         // if the user didn't give any commands, run default action
     }
 
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
     CL_StartHunkUsers();
+#endif
 
     if( !com_dedicated->integer && !Com_AddStartupCommands() )
     {
@@ -3358,7 +3391,9 @@ void Com_WriteConfigToFile( pointer filename )
     fileSystem->Printf( f, "//\n" );
     fileSystem->Printf( f, "// Key Bindings\n" );
     fileSystem->Printf( f, "//\n" );
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
     Key_WriteBindings( f );
+#endif
     fileSystem->Printf( f, "//\n" );
     fileSystem->Printf( f, "// Cvars\n" );
     fileSystem->Printf( f, "//\n" );
@@ -3627,7 +3662,9 @@ void Com_Frame( void )
         }
         else
         {
+#ifndef DEDICATED
             CL_Shutdown();
+#endif
         }
     }
 
@@ -3655,7 +3692,9 @@ void Com_Frame( void )
             timeBeforeClient = idsystem->Milliseconds();
         }
 
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
         CL_Frame( msec );
+#endif
 
         if( com_speeds->integer )
         {
