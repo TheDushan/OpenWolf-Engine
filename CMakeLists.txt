@@ -19,6 +19,7 @@ set( URL_MASTER_SERVER "" CACHE        STRING "The URL for the Master Server")
 set( URL_MOTD_SERVER "" CACHE          STRING "The URL for the MOTD Server")
 set( URL_AUTHORIZE_SERVER "" CACHE     STRING "The URL for the Authorize Server")
 set( URL_AUTOUPDATE_SERVER "" CACHE    STRING "The URL for the Autoupdate Server")
+set( URL_COMMUNITY_SERVER "" CACHE     STRING "The URL for the Community Server. Example: xxx.xxx.xxx.xxx:port")
 
 string( REPLACE " " "" GAME_APP_NAME_UPPER ${GAME_APP_NAME} )
 string( TOLOWER ${GAME_APP_NAME} GAME_APP_NAME_LOWER )
@@ -49,6 +50,10 @@ endif()
 
 if("${URL_AUTOUPDATE_SERVER}" STREQUAL "")
 	message(FATAL_ERROR "Please set URL_AUTOUPDATE_SERVER first")
+endif()
+
+if("${URL_COMMUNITY_SERVER}" STREQUAL "")
+	message(FATAL_ERROR "Please set URL_COMMUNITY_SERVER first")
 endif()
 
 # This line has to appear before 'PROJECT' in order to be able to disable incremental linking
@@ -352,12 +357,16 @@ set( CLIENTLIST_HEADERS
 	${MOUNT_DIR}/client/clientParse.hpp
 	${MOUNT_DIR}/API/clientNetChan_api.hpp
 	${MOUNT_DIR}/client/clientNetChan.hpp
+	${MOUNT_DIR}/API/clientCinema_api.hpp
+	${MOUNT_DIR}/client/clientCinema.hpp
+	${MOUNT_DIR}/API/clientLocalization_api.hpp
+	${MOUNT_DIR}/client/clientLocalization.hpp
 )
 
 set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/clientAVI.cpp
 	${MOUNT_DIR}/client/clientGame.cpp
-	${MOUNT_DIR}/client/cl_cin.cpp
+	${MOUNT_DIR}/client/clientCinema.cpp
 	${MOUNT_DIR}/client/cl_console.cpp
 	${MOUNT_DIR}/client/cl_input.cpp
 	${MOUNT_DIR}/client/cl_keys.cpp
@@ -368,6 +377,7 @@ set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/clientBrowser.cpp
 	${MOUNT_DIR}/client/clientGUI.cpp
 	${MOUNT_DIR}/client/clientLAN.cpp
+	${MOUNT_DIR}/client/clientLocalization.cpp
 )
 
 set( AUDIO_HEADERS

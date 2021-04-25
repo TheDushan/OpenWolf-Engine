@@ -1162,19 +1162,19 @@ void Con_DrawNotify(void) {
         if(chat_team) {
             valueType buf[128];
 
-            CL_TranslateString("say_team:", buf);
+            clientLocalizationSystem->TranslateString("say_team:", buf);
             clientScreenSystem->DrawBigString(8, v, buf, 1.0f, false);
             skip = strlen(buf) + 2;
         } else if(chat_buddy) {
             valueType buf[128];
 
-            CL_TranslateString("say_fireteam:", buf);
+            clientLocalizationSystem->TranslateString("say_fireteam:", buf);
             clientScreenSystem->DrawBigString(8, v, buf, 1.0f, false);
             skip = strlen(buf) + 2;
         } else {
             valueType buf[128];
 
-            CL_TranslateString("say:", buf);
+            clientLocalizationSystem->TranslateString("say:", buf);
             clientScreenSystem->DrawBigString(8, v, buf, 1.0f, false);
             skip = strlen(buf) + 1;
         }

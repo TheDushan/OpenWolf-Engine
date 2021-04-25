@@ -168,8 +168,6 @@ valueType            autoupdateFilename[MAX_QPATH];
 extern void     SV_BotFrame(sint time);
 void            CL_CheckForResend(void);
 void            CL_ShowIP_f(void);
-void            CL_SaveTranslations_f(void);
-void            CL_LoadTranslations_f(void);
 
 // fretn
 void            CL_WriteWaveClose(void);
@@ -2185,7 +2183,8 @@ void CL_InitDownloads(void) {
                 fileSystem->ComparePaks(clc.downloadList, sizeof(clc.downloadList),
                                         true)) {
             // this gets printed to UI, i18n
-            Com_Printf(CL_TranslateStringBuf("Need paks: %s\n"), clc.downloadList);
+            Com_Printf(clientLocalizationSystem->TranslateStringBuf("Need paks: %s\n"),
+                       clc.downloadList);
 
             if(*clc.downloadList) {
                 // if autodownloading is not enabled on the server
@@ -2480,13 +2479,14 @@ void CL_PrintPacket(netadr_t from, msg_t *msg) {
 
     if(!Q_stricmpn(s, "[err_dialog]", 12)) {
         Q_strncpyz(clc.serverMessage, s + 12, sizeof(clc.serverMessage));
-        // cvarSystem->Set("com_errorMessage", clc.serverMessage );
+        //cvarSystem->Set("com_errorMessage", clc.serverMessage );
         Com_Error(ERR_DROP, "%s", clc.serverMessage);
     } else if(!Q_stricmpn(s, "[err_prot]", 10)) {
         Q_strncpyz(clc.serverMessage, s + 10, sizeof(clc.serverMessage));
-        // cvarSystem->Set("com_errorMessage", CL_TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
+        //cvarSystem->Set("com_errorMessage", clientLocalizationSystem->TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
         Com_Error(ERR_DROP, "%s",
-                  CL_TranslateStringBuf(PROTOCOL_MISMATCH_ERROR_LONG));
+                  clientLocalizationSystem->TranslateStringBuf(
+                      PROTOCOL_MISMATCH_ERROR_LONG));
     } else if(!Q_stricmpn(s, "[err_update]", 12)) {
         Q_strncpyz(clc.serverMessage, s + 12, sizeof(clc.serverMessage));
         Com_Error(ERR_AUTOUPDATE, "%s", clc.serverMessage);
@@ -3482,31 +3482,6 @@ void CL_ShutdownRef(void) {
     cls.rendererStarted = false;
 }
 
-#if !defined( __MACOS__ )
-void CL_SaveTranslations_f(void) {
-    CL_SaveTransTable("scripts/translation.lang", false);
-}
-
-void CL_SaveNewTranslations_f(void) {
-    valueType            fileName[512];
-
-    if(cmdSystem->Argc() != 2) {
-        Com_Printf("usage: SaveNewTranslations <filename>\n");
-        return;
-    }
-
-    Q_strcpy_s(fileName, va("translations/%s.lang", cmdSystem->Argv(1)));
-
-    CL_SaveTransTable(fileName, true);
-}
-
-void CL_LoadTranslations_f(void) {
-    CL_ReloadTranslation();
-}
-
-// -NERVE - SMF
-#endif
-
 /*
 ===============
 CL_GenerateQKey
@@ -3929,11 +3904,14 @@ void CL_Init(void) {
                           "Toggle command to update the screen");
     // done.
 
-    cmdSystem->AddCommand("SaveTranslations", CL_SaveTranslations_f,
+    cmdSystem->AddCommand("SaveTranslations",
+                          &idClientLocalizationSystemLocal::SaveTranslations_f,
                           "Toggle command to save translations");    // NERVE - SMF - localization
-    cmdSystem->AddCommand("SaveNewTranslations", CL_SaveNewTranslations_f,
+    cmdSystem->AddCommand("SaveNewTranslations",
+                          &idClientLocalizationSystemLocal::SaveNewTranslations_f,
                           "Toggle command to save new translations");  // NERVE - SMF - localization
-    cmdSystem->AddCommand("LoadTranslations", CL_LoadTranslations_f,
+    cmdSystem->AddCommand("LoadTranslations",
+                          &idClientLocalizationSystemLocal::LoadTranslations_f,
                           "Toggle command to load translation");     // NERVE - SMF - localization
 
     cmdSystem->AddCommand("setRecommended", CL_SetRecommended_f,
@@ -3967,7 +3945,7 @@ void CL_Init(void) {
     autoupdateChecked = false;
     autoupdateStarted = false;
 
-    CL_InitTranslation(); // NERVE - SMF - localization
+    clientLocalizationSystem->InitTranslation(); // NERVE - SMF - localization
 
     Com_Printf("----- Client Initialization Complete -----\n");
 }
@@ -4052,648 +4030,6 @@ void CL_Shutdown(void) {
     Com_Printf("-----------------------\n");
 }
 
-// NERVE - SMF - Localization code
-#define FILE_HASH_SIZE      1024
-#define MAX_VA_STRING       32000
-#define MAX_TRANS_STRING    4096
-
-typedef struct trans_s {
-    valueType            original[MAX_TRANS_STRING];
-    valueType            translated[MAX_LANGUAGES][MAX_TRANS_STRING];
-    struct trans_s *next;
-    float32           x_offset;
-    float32           y_offset;
-    bool        fromFile;
-} trans_t;
-
-static trans_t *transTable[FILE_HASH_SIZE];
-
-/*
-=======================
-AllocTrans
-=======================
-*/
-static trans_t *AllocTrans(valueType *original,
-                           valueType *translated[MAX_LANGUAGES]) {
-    trans_t        *t;
-    sint             i;
-
-    t = (trans_t *)malloc(sizeof(trans_t));
-    memset(t, 0, sizeof(trans_t));
-
-    if(original) {
-        strncpy(t->original, original, MAX_TRANS_STRING);
-    }
-
-    if(translated) {
-        for(i = 0; i < MAX_LANGUAGES; i++) {
-            strncpy(t->translated[i], translated[i], MAX_TRANS_STRING);
-        }
-    }
-
-    return t;
-}
-
-/*
-=======================
-generateHashValue
-=======================
-*/
-static sint32 generateHashValue(pointer fname) {
-    sint             i;
-    sint32            hash;
-    valueType            letter;
-
-    hash = 0;
-    i = 0;
-
-    while(fname[i] != '\0') {
-        letter = tolower(fname[i]);
-        hash += static_cast<sint32>(letter) * (i + 119);
-        i++;
-    }
-
-    hash &= (FILE_HASH_SIZE - 1);
-    return hash;
-}
-
-/*
-=======================
-LookupTrans
-=======================
-*/
-static trans_t *LookupTrans(valueType *original,
-                            valueType *translated[MAX_LANGUAGES], bool isLoading) {
-    trans_t        *t, *newt, *prev = nullptr;
-    sint32            hash;
-
-    hash = generateHashValue(original);
-
-    for(t = transTable[hash]; t; prev = t, t = t->next) {
-        if(!Q_stricmp(original, t->original)) {
-            if(isLoading) {
-                Com_DPrintf(S_COLOR_YELLOW "WARNING: Duplicate string found: \"%s\"\n",
-                            original);
-            }
-
-            return t;
-        }
-    }
-
-    newt = AllocTrans(original, translated);
-
-    if(prev) {
-        prev->next = newt;
-    } else {
-        transTable[hash] = newt;
-    }
-
-    if(cl_debugTranslation->integer >= 1 && !isLoading) {
-        Com_Printf("Missing translation: \'%s\'\n", original);
-    }
-
-    // see if we want to save out the translation table everytime a string is added
-    if(cl_debugTranslation->integer == 2 && !isLoading) {
-        CL_SaveTransTable("new", true);
-    }
-
-    return newt;
-}
-
-/*
-=======================
-CL_SaveTransTable
-=======================
-*/
-void CL_SaveTransTable(pointer fileName, bool newOnly) {
-    sint             bucketlen, bucketnum, maxbucketlen, avebucketlen;
-    sint             untransnum, transnum;
-    pointer     buf;
-    fileHandle_t    f;
-    trans_t        *t;
-    sint             i, j, len;
-
-    if(cl.corruptedTranslationFile) {
-        Com_Printf(S_COLOR_YELLOW
-                   "WARNING: Cannot save corrupted translation file. Please reload first.");
-        return;
-    }
-
-    fileSystem->FOpenFileByMode(fileName, &f, FS_WRITE);
-
-    bucketnum = 0;
-    maxbucketlen = 0;
-    avebucketlen = 0;
-    transnum = 0;
-    untransnum = 0;
-
-    // write out version, if one
-    if(strlen(cl.translationVersion)) {
-        buf = va("#version\t\t\"%s\"\n", cl.translationVersion);
-    } else {
-        buf = va("#version\t\t\"1.0 01/01/01\"\n");
-    }
-
-    len = strlen(buf);
-    fileSystem->Write(buf, len, f);
-
-    // write out translated strings
-    for(j = 0; j < 2; j++) {
-
-        for(i = 0; i < FILE_HASH_SIZE; i++) {
-            t = transTable[i];
-
-            if(!t || (newOnly && t->fromFile)) {
-                continue;
-            }
-
-            bucketlen = 0;
-
-            for(; t; t = t->next) {
-                bucketlen++;
-
-                if(strlen(t->translated[0])) {
-                    if(j) {
-                        continue;
-                    }
-
-                    transnum++;
-                } else {
-                    if(!j) {
-                        continue;
-                    }
-
-                    untransnum++;
-                }
-
-                buf = va("{\n\tenglish\t\t\"%s\"\n", t->original);
-                len = strlen(buf);
-                fileSystem->Write(buf, len, f);
-
-                buf = va("\tfrench\t\t\"%s\"\n", t->translated[LANGUAGE_FRENCH]);
-                len = strlen(buf);
-                fileSystem->Write(buf, len, f);
-
-                buf = va("\tgerman\t\t\"%s\"\n", t->translated[LANGUAGE_GERMAN]);
-                len = strlen(buf);
-                fileSystem->Write(buf, len, f);
-
-                buf = va("\titalian\t\t\"%s\"\n", t->translated[LANGUAGE_ITALIAN]);
-                len = strlen(buf);
-                fileSystem->Write(buf, len, f);
-
-                buf = va("\tspanish\t\t\"%s\"\n", t->translated[LANGUAGE_SPANISH]);
-                len = strlen(buf);
-                fileSystem->Write(buf, len, f);
-
-                buf = "}\n";
-                len = strlen(buf);
-                fileSystem->Write(buf, len, f);
-            }
-
-            if(bucketlen > maxbucketlen) {
-                maxbucketlen = bucketlen;
-            }
-
-            if(bucketlen) {
-                bucketnum++;
-                avebucketlen += bucketlen;
-            }
-        }
-    }
-
-    Com_Printf("Saved translation table.\nTotal = %i, Translated = %i, Untranslated = %i, aveblen = %2.2f, maxblen = %i\n",
-               transnum + untransnum, transnum, untransnum,
-               static_cast<float32>(avebucketlen) / bucketnum, maxbucketlen);
-
-    fileSystem->FCloseFile(f);
-}
-
-/*
-=======================
-CL_CheckTranslationString
-
-NERVE - SMF - compare formatting UTF8acters
-=======================
-*/
-bool CL_CheckTranslationString(valueType *original,
-                               valueType *translated) {
-    valueType format_org[128], format_trans[128];
-    sint len, i;
-
-    memset(format_org, 0, 128);
-    memset(format_trans, 0, 128);
-
-    // generate formatting string for original
-    len = strlen(original);
-
-    for(i = 0; i < len; i++) {
-        if(original[i] != '%') {
-            continue;
-        }
-
-        strcat(format_org, va("%c%c ", '%', original[i + 1]));
-    }
-
-    // generate formatting string for translated
-    len = strlen(translated);
-
-    if(!len) {
-        return true;
-    }
-
-    for(i = 0; i < len; i++) {
-        if(translated[i] != '%') {
-            continue;
-        }
-
-        strcat(format_trans, va("%c%c ", '%', translated[i + 1]));
-    }
-
-    // compare
-    len = strlen(format_org);
-
-    if(len != strlen(format_trans)) {
-        return false;
-    }
-
-    for(i = 0; i < len; i++) {
-        if(format_org[i] != format_trans[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/*
-=======================
-CL_LoadTransTable
-=======================
-*/
-void CL_LoadTransTable(pointer fileName) {
-    valueType            translated[MAX_LANGUAGES][MAX_VA_STRING];
-    valueType            original[MAX_VA_STRING];
-    bool        aborted;
-    valueType           *text;
-    fileHandle_t    f;
-    valueType           *text_p;
-    valueType           *token;
-    sint             len, i;
-    trans_t        *t;
-    sint             count;
-
-    count = 0;
-    aborted = false;
-    cl.corruptedTranslationFile = false;
-
-    len = fileSystem->FOpenFileByMode(fileName, &f, FS_READ);
-
-    if(len <= 0) {
-        return;
-    }
-
-    // Gordon: shouldn't this be a z_malloc or something?
-    text = static_cast<valueType *>(malloc(len + 1));
-
-    if(!text) {
-        return;
-    }
-
-    fileSystem->Read(text, len, f);
-    text[len] = 0;
-    fileSystem->FCloseFile(f);
-
-    // parse the text
-    text_p = text;
-
-    do {
-        token = COM_Parse(&text_p);
-
-        if(Q_stricmp("{", token)) {
-            // parse version number
-            if(!Q_stricmp("#version", token)) {
-                token = COM_Parse(&text_p);
-                Q_strcpy_s(cl.translationVersion, token);
-                continue;
-            }
-
-            break;
-        }
-
-        // english
-        token = COM_Parse(&text_p);
-
-        if(Q_stricmp("english", token)) {
-            aborted = true;
-            break;
-        }
-
-        token = COM_Parse(&text_p);
-        Q_strcpy_s(original, token);
-
-        if(cl_debugTranslation->integer == 3) {
-            Com_Printf("%i Loading: \"%s\"\n", count, original);
-        }
-
-        // french
-        token = COM_Parse(&text_p);
-
-        if(Q_stricmp("french", token)) {
-            aborted = true;
-            break;
-        }
-
-        token = COM_Parse(&text_p);
-        Q_strcpy_s(translated[LANGUAGE_FRENCH], token);
-
-        if(!CL_CheckTranslationString(original, translated[LANGUAGE_FRENCH])) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Translation formatting doesn't match up with English version!\n");
-            aborted = true;
-            break;
-        }
-
-        // german
-        token = COM_Parse(&text_p);
-
-        if(Q_stricmp("german", token)) {
-            aborted = true;
-            break;
-        }
-
-        token = COM_Parse(&text_p);
-        Q_strcpy_s(translated[LANGUAGE_GERMAN], token);
-
-        if(!CL_CheckTranslationString(original, translated[LANGUAGE_GERMAN])) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Translation formatting doesn't match up with English version!\n");
-            aborted = true;
-            break;
-        }
-
-        // italian
-        token = COM_Parse(&text_p);
-
-        if(Q_stricmp("italian", token)) {
-            aborted = true;
-            break;
-        }
-
-        token = COM_Parse(&text_p);
-        Q_strcpy_s(translated[LANGUAGE_ITALIAN], token);
-
-        if(!CL_CheckTranslationString(original, translated[LANGUAGE_ITALIAN])) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Translation formatting doesn't match up with English version!\n");
-            aborted = true;
-            break;
-        }
-
-        // spanish
-        token = COM_Parse(&text_p);
-
-        if(Q_stricmp("spanish", token)) {
-            aborted = true;
-            break;
-        }
-
-        token = COM_Parse(&text_p);
-        Q_strcpy_s(translated[LANGUAGE_SPANISH], token);
-
-        if(!CL_CheckTranslationString(original, translated[LANGUAGE_SPANISH])) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Translation formatting doesn't match up with English version!\n");
-            aborted = true;
-            break;
-        }
-
-        // do lookup
-        t = LookupTrans(original, nullptr, true);
-
-        if(t) {
-            t->fromFile = true;
-
-            for(i = 0; i < MAX_LANGUAGES; i++) {
-                strncpy(t->translated[i], translated[i], MAX_TRANS_STRING);
-            }
-        }
-
-        token = COM_Parse(&text_p);
-
-        // set offset if we have one
-        if(!Q_stricmp("offset", token)) {
-            token = COM_Parse(&text_p);
-            t->x_offset = atof(token);
-
-            token = COM_Parse(&text_p);
-            t->y_offset = atof(token);
-
-            token = COM_Parse(&text_p);
-        }
-
-        if(Q_stricmp("}", token)) {
-            aborted = true;
-            break;
-        }
-
-        count++;
-    } while(token);
-
-    if(aborted) {
-        sint             i, line = 1;
-
-        for(i = 0; i < len && (text + i) < text_p; i++) {
-            if(text[i] == '\n') {
-                line++;
-            }
-        }
-
-        Com_Printf(S_COLOR_YELLOW "WARNING: Problem loading %s on line %i\n",
-                   fileName, line);
-        cl.corruptedTranslationFile = true;
-    } else {
-        Com_Printf("Loaded %i translation strings from %s\n", count, fileName);
-    }
-
-    // cleanup
-    free(text);
-}
-
-/*
-=======================
-CL_ReloadTranslation
-=======================
-*/
-void CL_ReloadTranslation() {
-    sint i;
-    valueType **fileList;
-    uint64 numFiles;
-
-    for(i = 0; i < FILE_HASH_SIZE; i++) {
-        if(transTable[i]) {
-            free(transTable[i]);
-        }
-    }
-
-    memset(transTable, 0, sizeof(trans_t *) * FILE_HASH_SIZE);
-    CL_LoadTransTable("scripts/translation.lang");
-
-    fileList = fileSystem->ListFiles("translations", ".lang", &numFiles);
-
-    for(i = 0; i < numFiles; i++) {
-        CL_LoadTransTable(va("translations/%s", fileList[i]));
-    }
-}
-
-/*
-=======================
-CL_InitTranslation
-=======================
-*/
-void CL_InitTranslation() {
-    sint i;
-    uint64 numFiles;
-    valueType **fileList;
-
-    memset(transTable, 0, sizeof(trans_t *) * FILE_HASH_SIZE);
-    CL_LoadTransTable("scripts/translation.lang");
-
-    fileList = fileSystem->ListFiles("translations", ".lang", &numFiles);
-
-    for(i = 0; i < numFiles; i++) {
-        CL_LoadTransTable(va("translations/%s", fileList[i]));
-    }
-}
-
-/*
-=======================
-CL_TranslateString
-=======================
-*/
-void CL_TranslateString(pointer string, valueType *dest_buffer) {
-    sint             i, count, currentLanguage;
-    trans_t        *t;
-    bool        newline = false;
-    valueType           *buf;
-
-    buf = dest_buffer;
-    currentLanguage = cl_language->integer - 1;
-
-    // early bail if we only want english or bad language type
-    if(!string) {
-        ::strcpy(buf, "(null)");
-        return;
-    } else if(currentLanguage < 0 || currentLanguage >= MAX_LANGUAGES ||
-              !strlen(string)) {
-        ::strcpy(buf, string);
-        return;
-    }
-
-    // ignore newlines
-    if(string[strlen(string) - 1] == '\n') {
-        newline = true;
-    }
-
-    for(i = 0, count = 0; string[i] != '\0'; i++) {
-        if(string[i] != '\n') {
-            buf[count++] = string[i];
-        }
-    }
-
-    buf[count] = '\0';
-
-    t = LookupTrans(buf, nullptr, false);
-
-    if(t && strlen(t->translated[currentLanguage])) {
-        sint             offset = 0;
-
-        if(cl_debugTranslation->integer >= 1) {
-            buf[0] = '^';
-            buf[1] = '1';
-            buf[2] = '[';
-            offset = 3;
-        }
-
-        ::strcpy(buf + offset, t->translated[currentLanguage]);
-
-        if(cl_debugTranslation->integer >= 1) {
-            sint             len2 = strlen(buf);
-
-            buf[len2] = ']';
-            buf[len2 + 1] = '^';
-            buf[len2 + 2] = '7';
-            buf[len2 + 3] = '\0';
-        }
-
-        if(newline) {
-            sint             len2 = strlen(buf);
-
-            buf[len2] = '\n';
-            buf[len2 + 1] = '\0';
-        }
-    } else {
-        sint             offset = 0;
-
-        if(cl_debugTranslation->integer >= 1) {
-            buf[0] = '^';
-            buf[1] = '1';
-            buf[2] = '[';
-            offset = 3;
-        }
-
-        ::strcpy(buf + offset, string);
-
-        if(cl_debugTranslation->integer >= 1) {
-            sint             len2 = strlen(buf);
-            bool        addnewline = false;
-
-            if(buf[len2 - 1] == '\n') {
-                len2--;
-                addnewline = true;
-            }
-
-            buf[len2] = ']';
-            buf[len2 + 1] = '^';
-            buf[len2 + 2] = '7';
-            buf[len2 + 3] = '\0';
-
-            if(addnewline) {
-                buf[len2 + 3] = '\n';
-                buf[len2 + 4] = '\0';
-            }
-        }
-    }
-}
-
-/*
-=======================
-CL_TranslateStringBuf
-TTimo - handy, stores in a static buf, converts \n to chr(13)
-=======================
-*/
-pointer     CL_TranslateStringBuf(pointer string) {
-    valueType           *p;
-    sint             i, l;
-    static valueType     buf[MAX_VA_STRING];
-
-    CL_TranslateString(string, buf);
-
-    while((p = strstr(buf, "\\n")) != nullptr) {
-        *p = '\n';
-        p++;
-        // ::memcpy(p, p+1, strlen(p) ); b0rks on win32
-        l = strlen(p);
-
-        for(i = 0; i < l; i++) {
-            *p = *(p + 1);
-            p++;
-        }
-    }
-
-    return buf;
-}
-
 /*
 =======================
 CL_OpenURLForCvar
@@ -4701,7 +4037,7 @@ CL_OpenURLForCvar
 */
 void CL_OpenURL(pointer url) {
     if(!url || !strlen(url)) {
-        Com_Printf("%s", CL_TranslateStringBuf("invalid/empty URL\n"));
+        Com_Printf("%s", clientLocalizationSystem->TranslateStringBuf("invalid/empty URL\n"));
         return;
     }
 

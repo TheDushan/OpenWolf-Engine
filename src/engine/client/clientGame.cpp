@@ -664,7 +664,6 @@ void idClientGameSystemLocal::CreateExportTable(void) {
 
     exports.Key_SetBinding = Key_SetBinding;
     exports.Key_GetBindingByString = Key_GetBindingByString;
-    exports.CL_TranslateString = CL_TranslateString;
     exports.Com_GetHunkInfo = Com_GetHunkInfo;
     exports.UI_LimboChat = CL_AddToLimboChat;
 

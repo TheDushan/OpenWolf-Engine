@@ -504,6 +504,7 @@ extern convar_t  *cl_altTab;
 
 // NERVE - SMF - localization
 extern convar_t  *cl_language;
+extern convar_t *cl_debugTranslation;
 // -NERVE - SMF
 
 extern convar_t  *cl_profile;
@@ -558,15 +559,6 @@ void            CL_ShutdownRef(void);
 void            CL_InitRef(void);
 
 void            CL_AddToLimboChat(pointer str);      // NERVE - SMF
-
-// NERVE - SMF - localization
-void            CL_InitTranslation();
-void            CL_SaveTransTable(pointer fileName, bool newOnly);
-void            CL_ReloadTranslation();
-void            CL_TranslateString(pointer string, valueType *dest_buffer);
-pointer     CL_TranslateStringBuf(pointer string) __attribute__((
-            format_arg(1)));     // TTimo
-// -NERVE - SMF
 
 void            CL_OpenURL(pointer url);     // TTimo
 void            CL_Record(pointer name);

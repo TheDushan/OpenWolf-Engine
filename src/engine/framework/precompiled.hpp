@@ -152,6 +152,8 @@ extern "C"
 #include <client/clientGame.hpp>
 #include <API/clientCinema_api.hpp>
 #include <client/clientCinema.hpp>
+#include <API/clientLocalization_api.hpp>
+#include <client/clientLocalization.hpp>
 
 #include <cm/cm_local.hpp>
 

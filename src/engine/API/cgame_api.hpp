@@ -69,7 +69,6 @@ struct cgameImports_t {
     void (*AddReliableCommand)(pointer cmd);
     void (*Cvar_LatchedVariableStringBuffer)(pointer var_name,
             valueType *buffer, uint64 bufsize);
-    void (*CL_TranslateString)(pointer string, valueType *dest_buffer);
     void (*Com_GetHunkInfo)(sint *hunkused, sint *hunkexpected);
     uint64(*Hunk_MemoryRemaining)(void);
     void (*Key_GetBindingByString)(pointer binding, sint *key1, sint *key2);

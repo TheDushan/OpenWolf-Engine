@@ -213,7 +213,6 @@ struct guiImports_t {
     uint64(*Hunk_MemoryRemaining)(void);
     sint(*RealTime)(qtime_t *qtime);
     void(*SetExtents)(sint handle, sint x, sint y, sint w, sint h);
-    void (*TranslateString)(pointer string, valueType *dest_buffer);
     void (*OpenURL)(pointer s);
     void (*GetHunkInfo)(sint *hunkused, sint *hunkexpected);
     void(*AddCommand)(pointer cmdName, pointer cmdDesc);

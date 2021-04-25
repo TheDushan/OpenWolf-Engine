@@ -542,9 +542,6 @@ idCVarSystemLocal::GetSet2
 ============
 */
 #define FOREIGN_MSG "Foreign characters are not allowed in userinfo variables.\n"
-#ifndef DEDICATED
-pointer     CL_TranslateStringBuf(pointer string);
-#endif
 convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
                                      bool force) {
     convar_t *var;
@@ -586,7 +583,7 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
 #ifdef DEDICATED
             Com_Printf(FOREIGN_MSG);
 #else
-            Com_Printf("%s", CL_TranslateStringBuf(FOREIGN_MSG));
+            Com_Printf("%s", clientLocalizationSystem->TranslateStringBuf(FOREIGN_MSG));
 #endif
             Com_Printf("Using %s instead of %s\n", cleaned, value);
             return GetSet2(var_name, cleaned, force);

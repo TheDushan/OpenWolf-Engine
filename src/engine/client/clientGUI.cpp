@@ -276,7 +276,6 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.SetOverstrikeMode = Key_SetOverstrikeMode;
     exports.ClearStates = Key_ClearStates;
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
-    exports.TranslateString = CL_TranslateString;
     exports.OpenURL = CL_OpenURL;
     exports.GetHunkInfo = Com_GetHunkInfo;
 
