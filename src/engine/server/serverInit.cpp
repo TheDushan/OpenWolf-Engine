@@ -648,10 +648,12 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
 
     // if not running a dedicated server CL_MapLoading will connect the client to the server
     // also print some status stuff
+#if !defined (DEDICATED)
     CL_MapLoading();
 
     // make sure all the client stuff is unloaded
     CL_ShutdownAll();
+#endif
 
     // clear the whole hunk because we're (re)loading the server
     Hunk_Clear();
@@ -880,9 +882,6 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
 
     Hunk_SetMark();
 
-    idServerCommunityServer::SaveStatistics();
-    idServerCommunityServer::InitStatistics();
-
     UpdateConfigStrings();
 
     cvarSystem->Set("sv_serverRestarting", "0");
@@ -896,6 +895,9 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
             idServerClientSystemLocal::SendClientGameState(client);
         }
     }
+
+    idServerCommunityServer::SaveStatistics();
+    idServerCommunityServer::InitStatistics();
 
     idServerCcmdsSystemLocal::BeginAutoRecordDemos();
 
@@ -1140,9 +1142,10 @@ void idServerInitSystemLocal::Init(void) {
     sv_cs_PrivateOnlyMSG = cvarSystem->Get("sv_cs_PrivateOnlyMSG",
                                            "This server is for registered users only. Register at " PRODUCT_NAME
                                            ".com", 0, "Send private message only to the registered user.");
-    sv_cs_stats = cvarSystem->Get("sv_cs_stats", "", 0,
+    sv_cs_stats = cvarSystem->Get("sv_cs_stats", COMMUNITY_SERVER_NAME, 0,
                                   "Enter the address of the community server. Example: xxx.xxx.xxx.xxx:port");
-    sv_cs_ServerPort = cvarSystem->Get("sv_cs_ServerPort", "0", 0,
+    sv_cs_ServerPort = cvarSystem->Get("sv_cs_ServerPort", va("%i",
+                                       PORT_COMMUNITY), 0,
                                        "Enter the port address of the community server.");
 
     //Dushan - we need to clean all this
