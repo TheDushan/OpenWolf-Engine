@@ -462,8 +462,8 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint(
 
         // entities can be flagged to be sent to only a given mask of clients
         if(ent->r.svFlags & SVF_CLIENTMASK) {
-            if(frame->ps.clientNum >= 32) {
-                if(~ent->r.hiMask & (1 << (frame->ps.clientNum - 32))) {
+            if(frame->ps.clientNum >= 128) {
+                if(~ent->r.hiMask & (1 << (frame->ps.clientNum - 128))) {
                     continue;
                 }
             } else {
