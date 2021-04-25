@@ -365,6 +365,13 @@ void Com_Error( sint code, pointer fmt, ... )
     }
     lastErrorTime = currentTime;
 
+    // ERR_DROP causes dedicated servers to enter an inoperable state
+    // instead of crashing completely and being restarted.
+    if (com_dedicated && com_dedicated->integer > 0)
+    {
+        code = ERR_FATAL;
+    }
+
     va_start( argptr, fmt );
     Q_vsprintf_s( com_errorMessage, sizeof( com_errorMessage ), fmt, argptr );
     va_end( argptr );
