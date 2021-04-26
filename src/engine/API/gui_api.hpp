@@ -231,6 +231,7 @@ struct guiImports_t {
     idClientScreenSystem *clientScreenSystem;
     idParseSystem *parseSystem;
     idClientCinemaSystem *clientCinemaSystem;
+    idClientLocalizationSystem *clientLocalization;
 #endif
 };
 

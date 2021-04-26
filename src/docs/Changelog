@@ -1,3 +1,6 @@
+2021-04-26 Dusan Jocic <dusanjocic@msn>
+	* [Misc] Fixed compiling
+	
 2021-04-25 Dusan Jocic <dusanjocic@msn>
 	* [Server] Experimenting with 128 players per server
 	* [Engine] ERR_DROP causes dedicated servers to enter an inoperable state instead of crashing completely and being restarted.

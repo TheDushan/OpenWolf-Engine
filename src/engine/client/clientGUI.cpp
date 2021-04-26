@@ -292,6 +292,7 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.idGUISystem = clientGUISystem;
     exports.clientScreenSystem = clientScreenSystem;
     exports.parseSystem = ParseSystem;
+    exports.clientLocalization = clientLocalizationSystem;
 }
 
 /*
