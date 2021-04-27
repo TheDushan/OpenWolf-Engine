@@ -1912,7 +1912,6 @@ sint idNetworkSystemLocal::ConnectTCP(valueType *s_host_port) {
         err = socketError;
         Com_Printf("idNetworkSystemLocal::ConnectTCP: connect: %s\n",
                    ErrorString());
-        close(sock);
         return -1;
     }
 
