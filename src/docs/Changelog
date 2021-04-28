@@ -1,6 +1,7 @@
 2021-04-28 Dusan Jocic <dusanjocic@msn>
 	* [Console] Removed loop
 	* [Renderer] Removed OpenMP from the source code
+	* [Server] Added checking for the user inside "idServerCcmdsSystemLocal::Status_f"
 
 2021-04-27 Dusan Jocic <dusanjocic@msn>
 	* [Community Server] Fixed crash if community server refuse connection from the engine
