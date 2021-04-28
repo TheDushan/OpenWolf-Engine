@@ -160,6 +160,7 @@ bool        autoupdateStarted;
 
 // TTimo : moved from char* to array (was getting the valueType* from va(), broke on big downloads)
 valueType            autoupdateFilename[MAX_QPATH];
+valueType cl_reconnectArgs[MAX_OSPATH] = { 0 };
 
 // "updates" shifted from -7
 #define AUTOUPDATE_DIR "ni]Zm^l"
@@ -1437,16 +1438,14 @@ void CL_Disconnect_f(void) {
 /*
 ================
 CL_Reconnect_f
-
 ================
 */
 void CL_Reconnect_f(void) {
-    if(!strlen(cls.servername) || !strcmp(cls.servername, "localhost")) {
-        Com_Printf("Can't reconnect to localhost.\n");
+    if(!::strlen(cl_reconnectArgs)) {
         return;
     }
 
-    cmdBufferSystem->AddText(va("connect %s\n", cls.servername));
+    cmdBufferSystem->AddText(va("connect %s\n", cl_reconnectArgs));
 }
 
 /*
@@ -1465,6 +1464,9 @@ void CL_Connect_f(void) {
         Com_Printf("usage: connect [-4|-6] server\n");
         return;
     }
+
+    // save arguments for reconnect
+    Q_strncpyz(cl_reconnectArgs, cmdSystem->Args(), sizeof(cl_reconnectArgs));
 
     if(argc == 2) {
         server = cmdSystem->Argv(1);
