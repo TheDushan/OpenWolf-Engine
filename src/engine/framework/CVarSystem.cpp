@@ -583,7 +583,8 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
 #ifdef DEDICATED
             Com_Printf(FOREIGN_MSG);
 #else
-            Com_Printf("%s", clientLocalizationSystem->TranslateStringBuf(FOREIGN_MSG));
+            Com_Printf("%s", clientLocalizationSystem->TranslateStringBuf(
+                           FOREIGN_MSG));
 #endif
             Com_Printf("Using %s instead of %s\n", cleaned, value);
             return GetSet2(var_name, cleaned, force);

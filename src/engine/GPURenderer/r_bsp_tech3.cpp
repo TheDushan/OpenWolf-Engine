@@ -230,7 +230,6 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
         tr.worldDeluxeMapping = false;
     } else {
         tr.worldDeluxeMapping = true;
-        #pragma omp critical
 
         for(i = 0, surf = (dsurface_t *)(fileBase + surfs->fileofs);
                 i < surfs->filelen / sizeof(dsurface_t); i++, surf++) {
@@ -302,8 +301,6 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
         sint width  = tr.fatLightmapCols * tr.lightmapSize;
         sint height = tr.fatLightmapRows * tr.lightmapSize;
 
-        #pragma omp critical
-
         for(i = 0; i < tr.numLightmaps; i++) {
             tr.lightmaps[i] = R_CreateImage(va("_fatlightmap%d", i), nullptr, width,
                                             height, IMGTYPE_COLORALPHA, imgFlags, textureInternalFormat);
@@ -314,8 +311,6 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
             }
         }
     }
-
-    #pragma omp critical
 
     for(i = 0; i < numLightmaps; i++) {
         sint xoff = 0, yoff = 0;
@@ -388,8 +383,6 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
                 sint imgOffset = tr.worldDeluxeMapping ? i * 2 : i;
                 buf_p = buf + imgOffset * tr.lightmapSize * tr.lightmapSize * 3;
             }
-
-            #pragma omp critical
 
             for(j = 0 ; j < tr.lightmapSize * tr.lightmapSize; j++) {
                 if(hdrLightmap) {
@@ -489,8 +482,6 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
 
         if(tr.worldDeluxeMapping) {
             buf_p = buf + (i * 2 + 1) * tr.lightmapSize * tr.lightmapSize * 3;
-
-            #pragma omp critical
 
             for(j = 0 ; j < tr.lightmapSize * tr.lightmapSize; j++) {
                 image[j * 4 + 0] = buf_p[j * 3 + 0];
@@ -769,7 +760,6 @@ static void ParseFace(dsurface_t *ds, drawVert_t *verts,
     surf->cullinfo.type = CULLINFO_PLANE | CULLINFO_BOX;
     ClearBounds(surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
     verts += LittleLong(ds->firstVert);
-    #pragma omp critical
 
     for(i = 0; i < numVerts; i++) {
         LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], realLightmapNum,
@@ -780,7 +770,6 @@ static void ParseFace(dsurface_t *ds, drawVert_t *verts,
     // copy triangles
     badTriangles = 0;
     indexes += LittleLong(ds->firstIndex);
-    #pragma omp critical
 
     for(i = 0, tri = cv->indexes; i < numIndexes; i += 3, tri += 3) {
         for(j = 0; j < 3; j++) {
@@ -806,7 +795,6 @@ static void ParseFace(dsurface_t *ds, drawVert_t *verts,
     }
 
     // take the plane information from the lightmap vector
-    #pragma omp critical
 
     for(i = 0 ; i < 3 ; i++) {
         cv->cullPlane.normal[i] = LittleFloat(ds->lightmapVecs[2][i]);
@@ -822,8 +810,6 @@ static void ParseFace(dsurface_t *ds, drawVert_t *verts,
     // Calculate tangent spaces
     {
         srfVert_t      *dv[3];
-
-        #pragma omp critical
 
         for(i = 0, tri = cv->indexes; i < numIndexes; i += 3, tri += 3) {
             dv[0] = &cv->verts[tri[0]];
@@ -883,7 +869,6 @@ static void ParseMesh(dsurface_t *ds, drawVert_t *verts,
 
     verts += LittleLong(ds->firstVert);
     numPoints = width * height;
-    #pragma omp critical
 
     for(i = 0; i < numPoints; i++) {
         LoadDrawVertToSrfVert(&points[i], &verts[i], realLightmapNum,
@@ -897,8 +882,6 @@ static void ParseMesh(dsurface_t *ds, drawVert_t *verts,
     // copy the level of detail origin, which is the center
     // of the group of all curves that must subdivide the same
     // to avoid cracking
-    #pragma omp critical
-
     for(i = 0 ; i < 3 ; i++) {
         bounds[0][i] = LittleFloat(ds->lightmapVecs[0][i]);
         bounds[1][i] = LittleFloat(ds->lightmapVecs[1][i]);
@@ -959,7 +942,6 @@ static void ParseTriSurf(dsurface_t *ds, drawVert_t *verts,
     surf->cullinfo.type = CULLINFO_BOX;
     ClearBounds(surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
     verts += LittleLong(ds->firstVert);
-    #pragma omp critical
 
     for(i = 0; i < numVerts; i++) {
         LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], -1,
@@ -970,7 +952,6 @@ static void ParseTriSurf(dsurface_t *ds, drawVert_t *verts,
     // copy triangles
     badTriangles = 0;
     indexes += LittleLong(ds->firstIndex);
-    #pragma omp critical
 
     for(i = 0, tri = cv->indexes; i < numIndexes; i += 3, tri += 3) {
         for(j = 0; j < 3; j++) {
@@ -998,8 +979,6 @@ static void ParseTriSurf(dsurface_t *ds, drawVert_t *verts,
     // Calculate tangent spaces
     {
         srfVert_t      *dv[3];
-
-        #pragma omp critical
 
         for(i = 0, tri = cv->indexes; i < numIndexes; i += 3, tri += 3) {
             dv[0] = &cv->verts[tri[0]];
@@ -1037,8 +1016,6 @@ static void ParseFlare(dsurface_t *ds, drawVert_t *verts, msurface_t *surf,
 
     surf->data = (surfaceType_t *)flare;
 
-    #pragma omp critical
-
     for(i = 0 ; i < 3 ; i++) {
         flare->origin[i] = LittleFloat(ds->lightmapOrigin[i]);
         flare->color[i] = LittleFloat(ds->lightmapVecs[0][i]);
@@ -1058,8 +1035,6 @@ returns true if there are grid points merged on a width edge
 */
 sint R_MergedWidthPoints(srfBspSurface_t *grid, sint offset) {
     sint i, j;
-
-    #pragma omp critical
 
     for(i = 1; i < grid->width - 1; i++) {
         for(j = i + 1; j < grid->width - 1; j++) {
@@ -1094,8 +1069,6 @@ returns true if there are grid points merged on a height edge
 */
 sint R_MergedHeightPoints(srfBspSurface_t *grid, sint offset) {
     sint i, j;
-
-    #pragma omp critical
 
     for(i = 1; i < grid->height - 1; i++) {
         for(j = i + 1; j < grid->height - 1; j++) {
@@ -1133,8 +1106,6 @@ FIXME: write generalized version that also avoids cracks between a patch and one
 void R_FixSharedVertexLodError_r(sint start, srfBspSurface_t *grid1) {
     sint j, k, l, m, n, offset1, offset2, touch;
     srfBspSurface_t *grid2;
-
-    #pragma omp critical
 
     for(j = start; j < s_worldData.numsurfaces; j++) {
         //
@@ -1256,8 +1227,6 @@ void R_FixSharedVertexLodError_r(sint start, srfBspSurface_t *grid1) {
             }
         }
 
-        #pragma omp critical
-
         for(n = 0; n < 2; n++) {
             //
             if(n) {
@@ -1364,8 +1333,6 @@ void R_FixSharedVertexLodError(void) {
     sint i;
     srfBspSurface_t *grid1;
 
-    #pragma omp parallel for
-
     for(i = 0; i < s_worldData.numsurfaces; i++) {
         //
         grid1 = (srfBspSurface_t *) s_worldData.surfaces[i].data;
@@ -1400,8 +1367,6 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
 
     grid1 = (srfBspSurface_t *) s_worldData.surfaces[grid1num].data;
     grid2 = (srfBspSurface_t *) s_worldData.surfaces[grid2num].data;
-
-    #pragma omp parallel for
 
     for(n = 0; n < 2; n++) {
         //
@@ -1560,8 +1525,6 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
             }
         }
     }
-
-    #pragma omp parallel for
 
     for(n = 0; n < 2; n++) {
         //
@@ -3268,8 +3231,6 @@ void R_AssignCubemapsToWorldSurfaces(void) {
 
     w = &s_worldData;
 
-    #pragma omp parallel for
-
     for(i = 0; i < w->numsurfaces; i++) {
         msurface_t *surf = &w->surfaces[i];
         vec3_t surfOrigin;
@@ -3303,8 +3264,6 @@ void R_LoadCubemaps(void) {
     sint/*imgFlags_t*/ flags = IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP |
                                IMGFLAG_NOLIGHTSCALE | IMGFLAG_CUBEMAP;
 
-    #pragma omp parallel for
-
     for(i = 0; i < tr.numCubemaps; i++) {
         valueType filename[MAX_QPATH];
         cubemap_t *cubemap = &tr.cubemaps[i];
@@ -3326,8 +3285,6 @@ void R_RenderMissingCubemaps(void) {
     if(r_hdr->integer) {
         cubemapFormat = GL_RGBA16;
     }
-
-    #pragma omp parallel for
 
     for(i = 0; i < tr.numCubemaps; i++) {
         if(!tr.cubemaps[i].image) {

@@ -4037,7 +4037,8 @@ CL_OpenURLForCvar
 */
 void CL_OpenURL(pointer url) {
     if(!url || !strlen(url)) {
-        Com_Printf("%s", clientLocalizationSystem->TranslateStringBuf("invalid/empty URL\n"));
+        Com_Printf("%s",
+                   clientLocalizationSystem->TranslateStringBuf("invalid/empty URL\n"));
         return;
     }
 

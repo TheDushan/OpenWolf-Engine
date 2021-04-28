@@ -598,7 +598,7 @@ void idSystemLocal::SysSnapVector(float32 *v) {
 idSystemLocal::Init
 ===============
 */
-void idSystemLocal::Init(void* windowData) {
+void idSystemLocal::Init(void *windowData) {
 }
 
 /*
