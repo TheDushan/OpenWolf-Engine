@@ -1,3 +1,9 @@
+2021-04-28 Dusan Jocic <dusanjocic@msn>
+	* [Console] Removed loop
+
+2021-04-27 Dusan Jocic <dusanjocic@msn>
+	* [Community Server] Fixed crash if community server refuse connection from the engine
+	
 2021-04-26 Dusan Jocic <dusanjocic@msn>
 	* [Misc] Fixed compiling
 	

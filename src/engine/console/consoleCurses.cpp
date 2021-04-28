@@ -300,12 +300,6 @@ void idConsoleCursesLocal::Init(void) {
     if(!curses_on) {
         SCREEN *test = newterm(nullptr, stdout, stdin);
 
-        if(!test) {
-            Init();
-            Print("Couldn't initialize curses, falling back to tty\n");
-            return;
-        }
-
         endwin();
         delscreen(test);
         initscr();
