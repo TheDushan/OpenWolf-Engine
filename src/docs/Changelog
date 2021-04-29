@@ -1,3 +1,6 @@
+2010-04-29 Dusan Jocic <dusanjocic@msn.com>
+	* [Engine] Zero qtime_t struct if localtime() fails
+
 2021-04-28 Dusan Jocic <dusanjocic@msn>
 	* [Console] Removed loop
 	* [Renderer] Removed OpenMP from the source code

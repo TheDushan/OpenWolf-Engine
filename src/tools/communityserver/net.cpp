@@ -108,7 +108,7 @@ int init_socket_server(char *s_server, int port) {
 
     listen(sock, 5);
 
-    printf("Initializing socke ip %s port %d\n", s_server, port);
+    printf("Initializing socket ip %s port %d\n", s_server, port);
 
 
     return sock;

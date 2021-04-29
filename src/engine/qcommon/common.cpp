@@ -885,7 +885,7 @@ sint Com_RealTime( qtime_t* qtime )
         return t;
     }
     tms = localtime( &t );
-    if( tms )
+    if (tms)
     {
         qtime->tm_sec = tms->tm_sec;
         qtime->tm_min = tms->tm_min;
@@ -896,6 +896,9 @@ sint Com_RealTime( qtime_t* qtime )
         qtime->tm_wday = tms->tm_wday;
         qtime->tm_yday = tms->tm_yday;
         qtime->tm_isdst = tms->tm_isdst;
+    }
+    else {
+        ::memset(qtime, 0, sizeof(qtime_t));
     }
     return t;
 }

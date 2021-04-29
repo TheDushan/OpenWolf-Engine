@@ -2063,7 +2063,6 @@ sint idServerCommunityServer::NETSendMsg(valueType *msg) {
 
     if(sret == -1) {
         Com_Printf("Closed connection to community server...\n");
-        ::close(socket);
         socket = -1;
     }
 
