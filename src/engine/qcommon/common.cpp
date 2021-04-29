@@ -378,78 +378,74 @@ void Com_Error( sint code, pointer fmt, ... )
     Q_vsprintf_s( com_errorMessage, sizeof( com_errorMessage ), fmt, argptr );
     va_end( argptr );
 
-    switch( code )
+    switch (code)
     {
+        case ERR_SERVERDISCONNECT:
+        {
+            serverInitSystem->Shutdown("Server disconnected");
+
+#ifndef DEDICATED
+            CL_Disconnect(true, nullptr);
+            CL_FlushMemory();
+#endif
+
+            // make sure we can get at our local stuff
+            fileSystem->PureServerSetLoadedPaks("", "");
+
+            com_errorEntered = false;
+            longjmp(abortframe, -1);
+        }
         case ERR_FATAL:
         case ERR_DROP:
-            idsystem->WriteDump( "Debug Dump\nCom_Error: %s", com_errorMessage );
-            break;
-    }
-
-    if( code == ERR_SERVERDISCONNECT )
-    {
-        serverInitSystem->Shutdown( "Server disconnected" );
-
-#ifndef DEDICATED
-        CL_Disconnect( true, nullptr );
-        CL_FlushMemory();
-#endif
-
-        // make sure we can get at our local stuff
-        fileSystem->PureServerSetLoadedPaks( "", "" );
-
-        com_errorEntered = false;
-        longjmp( abortframe, -1 );
-    }
-    else if( code == ERR_DROP )
-    {
-        Com_Printf( "********************\nERROR: %s\n********************\n", com_errorMessage );
-
-        serverInitSystem->Shutdown( va( "Server crashed: %s\n", com_errorMessage ) );
-
-#ifndef DEDICATED
-        CL_Disconnect( true, "Server crashed" );
-        CL_FlushMemory();
-#endif
-
-        // make sure we can get at our local stuff
-        fileSystem->PureServerSetLoadedPaks( "", "" );
-
-        com_errorEntered = false;
-        longjmp( abortframe, -1 );
-    }
-#ifndef DEDICATED
-    else if( code == ERR_AUTOUPDATE )
-    {
-        serverInitSystem->Shutdown( "Autoupdate server disconnected" );
-
-#ifndef DEDICATED
-        CL_Disconnect( true, "Autoupdate server crashed" );
-#endif
-
-        CL_FlushMemory();
-
-        // make sure we can get at our local stuff
-        fileSystem->PureServerSetLoadedPaks( "", "" );
-
-        com_errorEntered = false;
-
-        if( !Q_stricmpn( com_errorMessage, "Server is full", 14 ) && CL_NextUpdateServer() )
         {
-            CL_GetAutoUpdate();
-        }
-        else
-        {
-            longjmp( abortframe, -1 );
-        }
-    }
-#endif
-    else
-    {
-        serverInitSystem->Shutdown( va( "Server fatal crashed: %s\n", com_errorMessage ) );
+            Com_Printf("********************\nERROR: %s\n********************\n", com_errorMessage);
+
+            serverInitSystem->Shutdown(va("Server crashed: %s\n", com_errorMessage));
+            idsystem->WriteDump("Debug Dump\nCom_Error: %s", com_errorMessage);
 #ifndef DEDICATED
-        CL_Shutdown();
+            CL_Disconnect(true, "Server crashed");
+            CL_FlushMemory();
 #endif
+
+            // make sure we can get at our local stuff
+            fileSystem->PureServerSetLoadedPaks("", "");
+
+            com_errorEntered = false;
+            longjmp(abortframe, -1);
+        }
+#ifndef DEDICATED
+        case ERR_AUTOUPDATE:
+        {
+            serverInitSystem->Shutdown("Autoupdate server disconnected");
+
+#ifndef DEDICATED
+            CL_Disconnect(true, "Autoupdate server crashed");
+#endif
+
+            CL_FlushMemory();
+
+            // make sure we can get at our local stuff
+            fileSystem->PureServerSetLoadedPaks("", "");
+
+            com_errorEntered = false;
+
+            if (!Q_stricmpn(com_errorMessage, "Server is full", 14) && CL_NextUpdateServer())
+            {
+                CL_GetAutoUpdate();
+            }
+            else
+            {
+                longjmp(abortframe, -1);
+            }
+        }
+#endif
+        default:
+        {
+#ifndef DEDICATED
+            CL_Shutdown();
+#endif
+            serverInitSystem->Shutdown(va("Server fatal crashed: %s\n", com_errorMessage));
+        }
     }
 
     Com_Shutdown( code == ERR_VID_FATAL ? true : false );
