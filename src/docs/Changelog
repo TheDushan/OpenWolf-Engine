@@ -1,5 +1,6 @@
 2010-04-29 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Zero qtime_t struct if localtime() fails
+	* [Server] Check for incorrect game entity data and player state data
 
 2021-04-28 Dusan Jocic <dusanjocic@msn>
 	* [Console] Removed loop

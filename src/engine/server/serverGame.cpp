@@ -360,6 +360,18 @@ idServerGameSystemLocal::LocateGameData
 void idServerGameSystemLocal::LocateGameData(sharedEntity_t *gEnts,
         uint64 numGEntities, sint sizeofGEntity_t, playerState_t *clients,
         uint64 sizeofGameClient) {
+
+    if(gEnts && (sizeofGEntity_t < (sint)sizeof(sharedEntity_t) ||
+                 numGEntities < 0)) {
+        Com_Error(ERR_DROP,
+                  "idServerGameSystemLocal::LocateGameData: incorrect game entity data");
+    }
+
+    if(clients && sizeofGameClient < (sint)sizeof(playerState_t)) {
+        Com_Error(ERR_DROP,
+                  "idServerGameSystemLocal::LocateGameData: incorrect player state data");
+    }
+
     sv.gentities = gEnts;
     sv.gentitySize = sizeofGEntity_t;
     sv.num_entities = numGEntities;
