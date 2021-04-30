@@ -3176,7 +3176,7 @@ void Com_Init( valueType* commandLine )
     }
 
     // pick a port value that should be nice and random
-    networkChainSystem->Init( Com_Milliseconds() & 0xffff );
+    networkChainSystem->Init( Com_Milliseconds() );
 
     serverInitSystem->Init();
 

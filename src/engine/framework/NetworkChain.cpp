@@ -99,9 +99,7 @@ idNetworkChainSystemLocal::Init
 ===============
 */
 void idNetworkChainSystemLocal::Init(sint port) {
-    port &= 0xffff;
-
-    cvarSystem->Set("net_qport", va("%i", port));
+    cvarSystem->Set("net_qport", va("%i", port & 0x7fff));
 }
 
 /*
@@ -209,6 +207,9 @@ void idNetworkChainSystemLocal::Setup(netsrc_t sock, netchan_t *chan,
                                       netadr_t adr, sint qport) {
     ::memset(chan, 0, sizeof(*chan));
 
+    assert(qport == (qport & 0x7fff) &&
+           "idNetworkChainSystemLocal::Setup: qport overflow (qport > 0x7fff)");
+
     chan->sock = sock;
     chan->remoteAddress = adr;
     chan->qport = qport;
@@ -236,7 +237,7 @@ void idNetworkChainSystemLocal::TransmitNextFragment(netchan_t *chan) {
 
     // send the qport if we are a client
     if(chan->sock == NS_CLIENT) {
-        MSG_WriteShort(&send, net_qport->integer);
+        MSG_WriteShort(&send, net_qport->integer & 0x7fff);
     }
 
     // copy the reliable message to the packet first
@@ -325,7 +326,7 @@ void idNetworkChainSystemLocal::Transmit(netchan_t *chan, sint length,
 
     // send the qport if we are a client
     if(chan->sock == NS_CLIENT) {
-        MSG_WriteShort(&send, net_qport->integer);
+        MSG_WriteShort(&send, net_qport->integer & 0x7fff);
     }
 
     MSG_WriteData(&send, data, length);
