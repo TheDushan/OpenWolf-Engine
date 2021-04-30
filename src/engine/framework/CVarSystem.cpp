@@ -44,7 +44,6 @@
 #endif
 
 convar_t *cvar_vars;
-convar_t *cvar_cheats;
 sint cvar_modifiedFlags;
 
 #define MAX_CVARS 4096
@@ -637,7 +636,7 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
             return var;
         }
 
-        if((var->flags & CVAR_CHEAT) && !cvar_cheats->integer) {
+        if((var->flags & CVAR_CHEAT) && !sv_cheats->integer) {
             Com_Printf("%s is cheat protected.\n", var_name);
             return var;
         }
@@ -1221,7 +1220,7 @@ void idCVarSystemLocal::Restart_f(void) {
         }
 
         // don't mess with rom values, or some inter-module
-        // communication will get broken (com_cl_running, etc)
+        // communication will get broken (cl_running, etc)
         if(var->flags & (CVAR_ROM | CVAR_INIT | CVAR_NORESTART)) {
             prev = &var->next;
             continue;
@@ -1437,9 +1436,6 @@ Reads in all archived cvars
 void idCVarSystemLocal::Init(void) {
     ::memset(cvar_indexes, '\0', sizeof(cvar_indexes));
     ::memset(hashTable, '\0', sizeof(hashTable));
-
-    cvar_cheats = Get("sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO,
-                      "Indicates whether cheats are enabled or not");
 
     cmdSystem->AddCommand("toggle", &idCVarSystemLocal::Toggle_f,
                           "Toggles a cvar for easy single key binding, optionally through a list of given values");

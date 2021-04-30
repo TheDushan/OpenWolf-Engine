@@ -40,11 +40,6 @@
 SDL_AudioDeviceID dev;
 bool snd_inited = false;
 
-convar_t *s_sdlBits;
-convar_t *s_sdlChannels;
-convar_t *s_sdlDevSamps;
-convar_t *s_sdlMixSamps;
-
 /* The audio callback. All the magic happens here. */
 static sint dmapos = 0;
 static sint dmasize = 0;
@@ -219,17 +214,6 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
 
     if(snd_inited) {
         return true;
-    }
-
-    if(!s_sdlBits) {
-        s_sdlBits = cvarSystem->Get("s_sdlBits", "16", CVAR_ARCHIVE,
-                                    "SDL sound bit resolution");
-        s_sdlChannels = cvarSystem->Get("s_sdlChannels", "2", CVAR_ARCHIVE,
-                                        "SDL sound number of channels");
-        s_sdlDevSamps = cvarSystem->Get("s_sdlDevSamps", "0", CVAR_ARCHIVE,
-                                        "SDL sound DMA buffer size override");
-        s_sdlMixSamps = cvarSystem->Get("s_sdlMixSamps", "0", CVAR_ARCHIVE,
-                                        "SDL sound mix buffer size override.");
     }
 
     Com_Printf("SDL_Init( SDL_INIT_AUDIO )... ");

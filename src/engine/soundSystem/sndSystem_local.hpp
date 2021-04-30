@@ -158,15 +158,6 @@ extern uchar8 s_entityTalkAmplitude[MAX_CLIENTS];
 #define MAX_RAW_SAMPLES 16384
 extern  portable_samplepair_t   s_rawsamples[MAX_RAW_SAMPLES];
 
-extern convar_t *s_volume;
-extern convar_t *s_nosound;
-extern convar_t *s_khz;
-extern convar_t *s_show;
-extern convar_t *s_mixahead;
-
-extern convar_t *s_testsound;
-extern convar_t *s_separation;
-
 bool S_LoadSound(sfx_t *sfx);
 
 void SND_free(sndBuffer *v);

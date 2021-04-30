@@ -65,7 +65,6 @@ static __attribute__((format(printf, 2,
 /*
  * Routing, runtime loading
  */
-static convar_t *s_module;
 
 /*
 ===============
@@ -120,8 +119,6 @@ S_InitModule
 static bool S_InitModule(void) {
     valueType           fn[1024];
 
-    s_module = cvarSystem->Get("s_module", "AL", CVAR_ARCHIVE,
-                               "Name of the sound system module.");
     Com_Printf("using sound module %s\n", s_module->string);
 
     ::sprintf(fn, "%s/soundSystem%s." ARCH_STRING DLL_EXT, idsystem->Cwd(),

@@ -117,6 +117,7 @@
 #include <API/CVarSystem_api.hpp>
 #include <API/download_api.hpp>
 #include <qcommon/qcommon.hpp>
+#include <framework/CommonConsoleVars.hpp>
 #include <API/serverGame_api.hpp>
 #include <server/server.hpp>
 #include <API/serverWorld_api.hpp>

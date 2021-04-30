@@ -99,7 +99,7 @@ bool idClientGUISystemLocal::GetNews(bool begin) {
         if(!clc.bWWWDl) {
             clc.bWWWDl = true;
             downloadSystem->BeginDownload(newsFile,
-                                          "http://tremulous.net/clientnews.txt", com_developer->integer);
+                                          "http://tremulous.net/clientnews.txt", developer->integer);
             cls.bWWWDlDisconnected = true;
             return false;
         }

@@ -161,7 +161,7 @@ NET
 #endif
 #define PACKET_MASK     (PACKET_BACKUP-1)
 
-#define MAX_PACKET_USERCMDS     512      // max number of usercmd_t in a packet
+#define MAX_PACKET_USERCMDS     2048   // max number of usercmd_t in a packet
 
 #define PORT_ANY            -1
 
@@ -392,46 +392,6 @@ void            Com_TrackProfile(valueType *profile_path);
 bool        Com_CheckProfile(valueType *profile_path);
 bool        Com_WriteProfile(valueType *profile_path);
 
-extern convar_t  *com_crashed;
-
-extern convar_t  *com_ignorecrash;  //bani
-
-extern convar_t  *com_protocol;
-#ifndef DEDICATED
-extern  convar_t *con_autochat;
-#endif
-extern convar_t  *com_pid;      //bani
-
-extern convar_t  *com_developer;
-extern convar_t  *com_dedicated;
-extern convar_t  *com_speeds;
-extern convar_t  *com_timescale;
-extern convar_t  *com_sv_running;
-extern convar_t  *com_cl_running;
-extern convar_t  *com_viewlog;  // 0 = hidden, 1 = visible, 2 = minimized
-extern convar_t  *com_version;
-
-//extern    convar_t  *com_blood;
-extern convar_t  *com_buildScript;  // for building release pak files
-extern convar_t  *com_journal;
-extern convar_t  *com_cameraMode;
-extern convar_t  *com_ansiColor;
-
-extern convar_t  *com_unfocused;
-extern convar_t  *com_minimized;
-
-
-// watchdog
-extern convar_t  *com_watchdog;
-extern convar_t  *com_watchdog_cmd;
-
-// both client and server must agree to pause
-extern convar_t  *cl_paused;
-extern convar_t  *sv_paused;
-
-extern convar_t  *cl_packetdelay;
-extern convar_t  *sv_packetdelay;
-
 // com_speeds times
 extern sint      time_game;
 extern sint      time_frontend;
@@ -518,6 +478,7 @@ void            Hunk_Log(void);
 void            Com_TouchMemory(void);
 void            Com_ReleaseMemory(void);
 
+void Com_InitCommonConsoleVars(void);
 // commandLine should not include the executable name (argv[0])
 void            Com_Init(valueType *commandLine);
 void            Com_Frame(void);
@@ -709,5 +670,10 @@ sint Com_StrCmp(const void *a1, const void *a2);
 void Com_DestroyStringKey(void *s);
 hash_table_iterator_t *Com_CreateHashIterator(hash_table_t *table);
 void *Com_HashIterationData(hash_table_iterator_t *iter);
+
+extern fileHandle_t com_logfile;
+extern fileHandle_t com_journalFile;    // events are written here
+extern fileHandle_t
+com_journalDataFile;    // config files are written here
 
 #endif //!__QCOMMON_H__

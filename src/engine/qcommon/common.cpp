@@ -61,67 +61,9 @@ valueType           *com_argv[MAX_NUM_ARGVS + 1];
 jmp_buf
 abortframe;     // an ERR_DROP occured, exit the entire frame
 
-static fileHandle_t logfile_;
-fileHandle_t    com_journalFile;    // events are written here
-fileHandle_t    com_journalDataFile;    // config files are written here
-
-convar_t         *com_crashed =
-    nullptr;    // ydnar: set in case of a crash, prevents CVAR_UNSAFE variables from being set from a cfg
-
-//bani - explicit nullptr to make win32 teh happy
-
-convar_t         *com_ignorecrash =
-    nullptr;    // bani - let experienced users ignore crashes, explicit nullptr to make win32 teh happy
-convar_t         *com_pid;      // bani - process id
-
-convar_t         *com_viewlog;
-convar_t         *com_speeds;
-convar_t         *com_developer;
-convar_t         *com_dedicated;
-convar_t         *com_timescale;
-convar_t         *com_fixedtime;
-convar_t         *com_dropsim;  // 0.0 to 1.0, simulated packet drops
-convar_t         *com_journal;
-convar_t         *com_timedemo;
-convar_t         *com_sv_running;
-convar_t         *com_cl_running;
-convar_t         *com_showtrace;
-convar_t         *com_version;
-convar_t *com_logfile;      // 1 = buffer log, 2 = flush after each print
-//convar_t    *com_blood;
-convar_t         *com_buildScript;  // for automated data building scripts
-convar_t         *con_drawnotify;
-convar_t         *com_ansiColor;
-
-convar_t         *com_unfocused;
-convar_t         *com_minimized;
-
-convar_t         *com_introPlayed;
-convar_t         *cl_paused;
-convar_t         *sv_paused;
-#if defined (DEDICATED)
-convar_t       *cl_packetdelay;
-#endif
-//convar_t         *sv_packetdelay;
-convar_t         *com_cameraMode;
-convar_t         *com_maxfpsUnfocused;
-convar_t         *com_maxfpsMinimized;
-convar_t         *com_abnormalExit;
-
-convar_t         *com_recommendedSet;
-
-convar_t         *com_watchdog;
-convar_t         *com_watchdog_cmd;
-
-// Rafael Notebook
-convar_t         *cl_notebook;
-
-convar_t         *com_hunkused; // Ridah
-convar_t         *com_protocol;
-
-#ifndef DEDICATED
-convar_t *con_autochat;
-#endif
+fileHandle_t com_logfile;
+fileHandle_t com_journalFile;    // events are written here
+fileHandle_t com_journalDataFile;    // config files are written here
 
 // com_speeds times
 sint             time_game;
@@ -210,7 +152,7 @@ void Com_Printf(pointer fmt, ...) {
     }
 
     // echo to console if we're not a dedicated server
-    if(com_dedicated && !com_dedicated->integer) {
+    if(dedicated && !dedicated->integer) {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
         CL_ConsolePrint(msg);
 #endif
@@ -220,10 +162,10 @@ void Com_Printf(pointer fmt, ...) {
     idsystem->Print(msg);
 
     // logfile
-    if(com_logfile && com_logfile->integer) {
+    if(logfile && logfile->integer) {
         // TTimo: only open the qconsole.log if the filesystem is in an initialized state
         //   also, avoid recursing in the qconsole.log opening (i.e. if fs_debug is on)
-        if(!logfile_ && fileSystem->Initialized() && !opening_qconsole) {
+        if(!com_logfile && fileSystem->Initialized() && !opening_qconsole) {
             struct tm *newtime;
             time_t aclock;
 
@@ -232,19 +174,19 @@ void Com_Printf(pointer fmt, ...) {
             time(&aclock);
             newtime = localtime(&aclock);
 
-            if(com_logfile->integer != 3) {
-                logfile_ = fileSystem->FOpenFileWrite("owconsole.log");
+            if(logfile->integer != 3) {
+                com_logfile = fileSystem->FOpenFileWrite("owconsole.log");
             } else {
-                logfile_ = fileSystem->FOpenFileAppend("owconsole.log");
+                com_logfile = fileSystem->FOpenFileAppend("owconsole.log");
             }
 
-            if(logfile_) {
+            if(logfile) {
                 Com_Printf("logfile opened on %s\n", asctime(newtime));
 
-                if(com_logfile->integer > 1) {
+                if(logfile->integer > 1) {
                     // force it to not buffer so we get valid
                     // data even if we are crashing
-                    fileSystem->ForceFlush(logfile_);
+                    fileSystem->ForceFlush(com_logfile);
                 }
             } else {
                 Com_Printf("Opening qconsole.log failed!\n");
@@ -254,8 +196,8 @@ void Com_Printf(pointer fmt, ...) {
 
         opening_qconsole = false;
 
-        if(logfile_ && fileSystem->Initialized()) {
-            fileSystem->Write(msg, strlen(msg), logfile_);
+        if(com_logfile && fileSystem->Initialized()) {
+            fileSystem->Write(msg, strlen(msg), com_logfile);
         }
     }
 }
@@ -306,7 +248,7 @@ void Com_DPrintf(pointer fmt, ...) {
     va_list         argptr;
     valueType            msg[MAXPRINTMSG];
 
-    if(!com_developer || com_developer->integer != 1) {
+    if(!developer || developer->integer != 1) {
         return;                 // don't confuse non-developers with techie stuff...
     }
 
@@ -369,7 +311,7 @@ void Com_Error( sint code, pointer fmt, ... )
 
     // ERR_DROP causes dedicated servers to enter an inoperable state
     // instead of crashing completely and being restarted.
-    if (com_dedicated && com_dedicated->integer > 0)
+    if (dedicated && dedicated->integer > 0)
     {
         code = ERR_FATAL;
     }
@@ -1290,13 +1232,13 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
     uint64 size, allocSize;
     sint numBlocks;
 
-    if( !logfile_ || !fileSystem->Initialized() )
+    if( !com_logfile || !fileSystem->Initialized() )
     {
         return;
     }
     size = allocSize = numBlocks = 0;
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "\r\n================\r\n%s log\r\n================\r\n", name );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
     for( block = zone->blocklist.next; block->next != &zone->blocklist; block = block->next )
     {
         if( block->tag )
@@ -1318,7 +1260,7 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
             dump[j] = '\0';
             Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "size = %8d: %s, line: %d (%s) [%s]\r\n", block->d.allocSize, block->d.file,
                           block->d.line, block->d.label, dump );
-            fileSystem->Write( buf, strlen( buf ), logfile_ );
+            fileSystem->Write( buf, strlen( buf ), com_logfile);
             allocSize += block->d.allocSize;
 #endif
             size += block->size;
@@ -1332,9 +1274,9 @@ void Z_LogZoneHeap( memzone_t* zone, valueType* name )
     allocSize = numBlocks * sizeof( memblock_t );	// + 32 bit alignment
 #endif
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d %s memory in %d blocks\r\n", size, name, numBlocks );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d %s memory overhead\r\n", size - allocSize, name );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
 }
 
 /*
@@ -1750,25 +1692,25 @@ void Hunk_Log( void )
     uint64 size;
     sint numBlocks;
 
-    if( !logfile_ || !fileSystem->Initialized() )
+    if( !com_logfile || !fileSystem->Initialized() )
         return;
     size = 0;
     numBlocks = 0;
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "\r\n================\r\nHunk log\r\n================\r\n" );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
     for( block = s_hunk.blocks; block; block = block->next )
     {
 #ifdef HUNK_DEBUG
         Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "size = %8d: %s, line: %d (%s)\r\n", block->size, block->file, block->line, block->label );
-        fileSystem->Write( buf, strlen( buf ), logfile_ );
+        fileSystem->Write( buf, strlen( buf ), com_logfile );
 #endif
         size += block->size;
         numBlocks++;
     }
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d Hunk memory\r\n", size );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d hunk blocks\r\n", numBlocks );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
 }
 
 /*
@@ -1783,7 +1725,7 @@ void Hunk_SmallLog( void )
     uint64 size, locsize;
     sint numBlocks;
 
-    if( !logfile_ || !fileSystem->Initialized() )
+    if( !com_logfile || !fileSystem->Initialized() )
         return;
     for( block = s_hunk.blocks ; block; block = block->next )
     {
@@ -1792,7 +1734,7 @@ void Hunk_SmallLog( void )
     size = 0;
     numBlocks = 0;
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "\r\n================\r\nHunk Small log\r\n================\r\n" );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
     for( block = s_hunk.blocks; block; block = block->next )
     {
         if( block->printed )
@@ -1816,15 +1758,15 @@ void Hunk_SmallLog( void )
         }
 #ifdef HUNK_DEBUG
         Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label );
-        fileSystem->Write( buf, strlen( buf ), logfile_ );
+        fileSystem->Write( buf, strlen( buf ), com_logfile);
 #endif
         size += block->size;
         numBlocks++;
     }
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d Hunk memory\r\n", size );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
     Q_vsprintf_s( buf, sizeof( buf ), sizeof( buf ), "%d hunk blocks\r\n", numBlocks );
-    fileSystem->Write( buf, strlen( buf ), logfile_ );
+    fileSystem->Write( buf, strlen( buf ), com_logfile);
 }
 
 /*
@@ -1853,7 +1795,7 @@ void Com_InitHunkMemory( void )
     cv = cvarSystem->Get( "com_hunkMegs", DEF_COMHUNKMEGS_S, CVAR_LATCH | CVAR_ARCHIVE, "Sets the amount of memory reserved for the game, including com_soundMegs and com_zoneMeg" );
 
     // if we are not dedicated min allocation is 56, otherwise min is 1
-    if( com_dedicated && com_dedicated->integer )
+    if(dedicated && dedicated->integer )
     {
         nMinAlloc = MIN_DEDICATED_COMHUNKMEGS;
         pMsg = "Minimum com_hunkMegs for a dedicated server is %i, allocating %i megs.\n";
@@ -2236,15 +2178,14 @@ void Com_InitJournaling( void )
     sint i;
 
     Com_StartupVariable( "journal" );
-    com_journal = cvarSystem->Get( "journal", "0", CVAR_INIT, "Use in command line to record 'demo' of everything you do in application. '+set journal 1' to record; 2 for playback. journaldata.dat & journal.dat are the files it creates, they get very large quickly. Files will also store cfgs loaded." );
-    if( !com_journal->integer )
+    if( !journal->integer )
     {
-        if( com_journal->string && com_journal->string[ 0 ] == '_' )
+        if(journal->string && journal->string[ 0 ] == '_' )
         {
             Com_Printf( "Replaying journaled events\n" );
-            fileSystem->FOpenFileRead( va( "journal%s.dat", com_journal->string ), &com_journalFile, true );
-            fileSystem->FOpenFileRead( va( "journal_data%s.dat", com_journal->string ), &com_journalDataFile, true );
-            com_journal->integer = 2;
+            fileSystem->FOpenFileRead( va( "journal%s.dat", journal->string ), &com_journalFile, true );
+            fileSystem->FOpenFileRead( va( "journal_data%s.dat", journal->string ), &com_journalDataFile, true );
+            journal->integer = 2;
         }
         else
             return;
@@ -2259,13 +2200,13 @@ void Com_InitJournaling( void )
                 break;
         }
 
-        if( com_journal->integer == 1 )
+        if(journal->integer == 1 )
         {
             Com_Printf( "Journaling events\n" );
             com_journalFile		= fileSystem->FOpenFileWrite( va( "journal_%04d.dat", i ) );
             com_journalDataFile	= fileSystem->FOpenFileWrite( va( "journal_data_%04d.dat", i ) );
         }
-        else if( com_journal->integer == 2 )
+        else if(journal->integer == 2 )
         {
             i--;
             Com_Printf( "Replaying journaled events\n" );
@@ -2441,13 +2382,13 @@ sysEvent_t	Com_GetRealEvent( void )
     sysEvent_t	ev;
 
     // either get an event from the system or the journal file
-    if( com_journal->integer == 2 )
+    if(journal->integer == 2 )
     {
         r = fileSystem->Read( &ev, sizeof( ev ), com_journalFile );
         if( r != sizeof( ev ) )
         {
             //Com_Error( ERR_FATAL, "Error reading from journal file" );
-            com_journal->integer = 0;
+            journal->integer = 0;
             ev.evType = SYSE_NONE;
         }
         if( ev.evPtrLength )
@@ -2457,7 +2398,7 @@ sysEvent_t	Com_GetRealEvent( void )
             if( r != ev.evPtrLength )
             {
                 //Com_Error( ERR_FATAL, "Error reading from journal file" );
-                com_journal->integer = 0;
+                journal->integer = 0;
                 ev.evType = SYSE_NONE;
             }
         }
@@ -2467,7 +2408,7 @@ sysEvent_t	Com_GetRealEvent( void )
         ev = Com_GetSystemEvent();
 
         // write the journal value out if needed
-        if( com_journal->integer == 1 )
+        if(journal->integer == 1 )
         {
             r = fileSystem->Write( &ev, sizeof( ev ), com_journalFile );
             if( r != sizeof( ev ) )
@@ -2627,7 +2568,7 @@ sint Com_EventLoop( void )
             while( networkChainSystem->GetLoopPacket( NS_SERVER, &evFrom, &buf ) )
             {
                 // if the server just shut down, flush the events
-                if( com_sv_running->integer )
+                if(sv_running->integer )
                 {
                     Com_RunAndTimeServerPacket( &evFrom, &buf );
                 }
@@ -2712,7 +2653,7 @@ sint Com_EventLoop( void )
                     continue;
                 }
                 memcpy( buf.data, reinterpret_cast<uchar8*>( ( netadr_t* ) ev.evPtr + 1 ), buf.cursize );
-                if( com_sv_running->integer )
+                if(sv_running->integer )
                 {
                     Com_RunAndTimeServerPacket( &evFrom, &buf );
                 }
@@ -2830,24 +2771,22 @@ static void Com_Crash_f( void )
 
 void Com_SetRecommended( void )
 {
-    convar_t* r_highQualityVideo, *com_recommended;
     bool goodVideo;
 
     // will use this for recommended settings as well.. do i outside the lower check so it gets done even with command line stuff
-    r_highQualityVideo = cvarSystem->Get( "r_highQualityVideo", "1", CVAR_ARCHIVE, "Setting high quality settings" );
-    com_recommended = cvarSystem->Get( "com_recommended", "-1", CVAR_ARCHIVE, "Setting the recommended settings" );
-    goodVideo = ( bool )( r_highQualityVideo && r_highQualityVideo->integer );
+
+    goodVideo = ( bool )(com_highSettings && com_highSettings->integer );
 
     if( goodVideo )
     {
-        Com_Printf( "Found high quality video and slow CPU\n" );
-        cmdBufferSystem->AddText( "exec preset_fast.cfg\n" );
+        Com_Printf( "Found high quality video and high quality CPU\n" );
+        cmdBufferSystem->AddText( "exec ultra.cfg\n" );
         cvarSystem->Set( "com_recommended", "2" );
     }
     else
     {
-        Com_Printf( "Found low quality video and slow CPU\n" );
-        cmdBufferSystem->AddText( "exec preset_fastest.cfg\n" );
+        Com_Printf( "Found low quality video and low quality CPU\n" );
+        cmdBufferSystem->AddText( "exec low.cfg\n" );
         cvarSystem->Set( "com_recommended", "3" );
     }
 
@@ -3057,18 +2996,6 @@ bool Com_WriteProfile( valueType* profile_path )
     return true;
 }
 
-#ifdef DEDICATED
-convar_t* cl_shownet;
-
-void CL_Init(void) {
-    cl_shownet = cvarSystem->Get("cl_shownet", "0", CVAR_TEMP,
-        "Display network quality info");
-    // TTimo: localisation, prolly not any use in dedicated / null client
-    convar_t* cl_language = cvarSystem->Get("cl_language", "0", CVAR_ARCHIVE,
-        "Stores the language of user's game. English is 0");
-}
-#endif
-
 /*
 =================
 Com_Init
@@ -3116,19 +3043,8 @@ void Com_Init( valueType* commandLine )
 
     // bani: init this early
     Com_StartupVariable( "com_ignorecrash" );
-    com_ignorecrash = cvarSystem->Get( "com_ignorecrash", "0", 0, "Tells the client override unsafe cvars that result from crash (often also from running modifications as ET didnt delete pid file)" );
 
-    // ydnar: init crashed variable as early as possible
-    com_crashed = cvarSystem->Get( "com_crashed", "0", CVAR_TEMP, "Force a error for development reasons but never really trialed this." );
 
-    // bani: init pid
-#ifdef _WIN32
-    pid = GetCurrentProcessId();
-#else
-    pid = getpid();
-#endif
-    s = va( "%d", pid );
-    com_pid = cvarSystem->Get( "com_pid", s, CVAR_ROM, "Process id" );
 
     // done early so bind command exists
 #if !defined (DEDICATED)
@@ -3138,6 +3054,8 @@ void Com_Init( valueType* commandLine )
 #ifdef _WIN32
     _setmaxstdio( 2048 );
 #endif
+
+    Com_InitCommonConsoleVars();
 
     fileSystem->InitFilesystem();
 
@@ -3221,16 +3139,6 @@ void Com_Init( valueType* commandLine )
     // override anything from the config files with command line args
     Com_StartupVariable( nullptr );
 
-#ifdef UPDATE_SERVER
-    com_dedicated = cvarSystem->Get( "dedicated", "1", CVAR_LATCH, "Sets server type: 1 dedicated LAN, 2 dedicated internet, 0 listen (play & serve)" );
-#elif DEDICATED
-    // TTimo: default to internet dedicated, not LAN dedicated
-    com_dedicated = cvarSystem->Get( "dedicated", "2", CVAR_ROM, "Sets server type: 1 dedicated LAN, 2 dedicated internet, 0 listen (play & serve)" );
-    cvarSystem->CheckRange( com_dedicated, 1, 2, true );
-#else
-    com_dedicated = cvarSystem->Get( "dedicated", "0", CVAR_LATCH, "Sets server type: 1 dedicated LAN, 2 dedicated internet, 0 listen (play & serve)" );
-    cvarSystem->CheckRange( com_dedicated, 0, 2, true );
-#endif
     // allocate the stack based hunk allocator
     Com_InitHunkMemory();
 
@@ -3238,59 +3146,9 @@ void Com_Init( valueType* commandLine )
     // of the config file
     cvar_modifiedFlags &= ~CVAR_ARCHIVE;
 
-    //
-    // init commands and vars
-    //
-
-    com_logfile = cvarSystem->Get( "logfile", "0", CVAR_TEMP, "Toggles saving a logfile" );
-
-    // Gordon: no need to latch this in ET, our recoil is framerate independant
-//  com_blood = cvarSystem->Get ("com_blood", "1", CVAR_ARCHIVE, "Enable blood mist effects."); // Gordon: no longer used?
-
-    com_developer = cvarSystem->Get( "developer", "0", CVAR_TEMP, "Enable/disable (1/0) developer mode, allows cheats and so on." );
-
-    com_timescale = cvarSystem->Get( "timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO, "Increase to fast forward through demos, or decrease for slow motion(fraction of 1)." );
-    com_fixedtime = cvarSystem->Get( "fixedtime", "0", CVAR_CHEAT, "Toggle the rendering of every frame. The game will wait until each frame is completely rendered before sending the next frame." );
-    com_showtrace = cvarSystem->Get( "com_showtrace", "0", CVAR_CHEAT, "Toggle display of packet traces. 0=disables,1=toggles." );
-    com_dropsim = cvarSystem->Get( "com_dropsim", "0", CVAR_CHEAT, "For testing simulates packet loss during communication drops" );
-    com_viewlog = cvarSystem->Get( "viewlog", "0", CVAR_CHEAT, "Toggle the display of the startup console window over the game screen" );
-    com_speeds = cvarSystem->Get( "com_speeds", "0", 0, "Toggle display of frame counter, all, sv, cl, gm, rf, and bk whatever they are" );
-    com_timedemo = cvarSystem->Get( "timedemo", "0", CVAR_CHEAT, "When set to 1 times a demo and returns frames per second like a benchmark" );
-    com_cameraMode = cvarSystem->Get( "com_cameraMode", "0", CVAR_CHEAT, "Seems to toggle the view of your player model off and on when in 3D camera view " );
-
-    com_watchdog = cvarSystem->Get( "com_watchdog", "60", CVAR_ARCHIVE, "Watchdog checks for a map not being loaded" );
-    com_watchdog_cmd = cvarSystem->Get( "com_watchdog_cmd", "", CVAR_ARCHIVE, "Sets what to do when watchdog finds a map is not loaded" );
-
-    cl_paused = cvarSystem->Get( "cl_paused", "0", CVAR_ROM, "Variable holds the status of the paused flag on the client side" );
-    sv_paused = cvarSystem->Get( "sv_paused", "0", CVAR_ROM, "Allow the game to be paused from the server console?" );
-    com_sv_running = cvarSystem->Get( "sv_running", "0", CVAR_ROM, "Variable flag tells the console whether or not a local server is running" );
-    com_cl_running = cvarSystem->Get( "cl_running", "0", CVAR_ROM, "Variable which shows whether or not a client game is running or whether we are in server/client mode (read only)" );
-    com_buildScript = cvarSystem->Get( "com_buildScript", "0", 0, "Automated data building scripts" );
-
-    con_drawnotify = cvarSystem->Get( "con_drawnotify", "0", CVAR_CHEAT, "Draws the last few lines of output transparently over the game top." );
-
-    com_introPlayed = cvarSystem->Get( "com_introplayed", "0", CVAR_ARCHIVE, "Whether or not the intro for the game has been played." );
-    com_ansiColor = cvarSystem->Get( "com_ansiColor", "0", CVAR_ARCHIVE, "Enable use of ANSI escape codes in the tty" );
-    com_recommendedSet = cvarSystem->Get( "com_recommendedSet", "0", CVAR_ARCHIVE, "For determining what the recommended performance settings are, non-user." );
-
-    com_unfocused = cvarSystem->Get( "com_unfocused", "0", CVAR_ROM, "Automatically toggled when the game window is unfocused." );
-    com_minimized = cvarSystem->Get( "com_minimized", "0", CVAR_ROM, "Automatically toggled when the game window is minimized." );
-    com_maxfpsUnfocused = cvarSystem->Get( "com_maxfpsUnfocused", "0", CVAR_ARCHIVE, "Maximum frames per second when unfocused" );
-    com_maxfpsMinimized = cvarSystem->Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE, "Maximum frames per second when minimized" );
-    com_abnormalExit = cvarSystem->Get( "com_abnormalExit", "0", CVAR_ROM, "As Application crashed it will start with safe video settings" );
-
-    com_hunkused = cvarSystem->Get( "com_hunkused", "0", 0, "Tells you the amound of hunk currently being used." );
     com_hunkusedvalue = 0;
 
-    if( com_dedicated->integer )
-    {
-        if( !com_viewlog->integer )
-        {
-            cvarSystem->Set( "viewlog", "0" );
-        }
-    }
-
-    if( com_developer && com_developer->integer )
+    if(developer && developer->integer )
     {
         cmdSystem->AddCommand( "error", Com_Error_f, "Just throw a fatal error to test error shutdown procedures" );
         cmdSystem->AddCommand( "crash", Com_Crash_f, "A way to force a bus error for development reasons" );
@@ -3300,12 +3158,6 @@ void Com_Init( valueType* commandLine )
     cmdSystem->AddCommand( "writeconfig", Com_WriteConfig_f, "Saves all current settings to the specified file, if none specified then uses owconfig.cfg" );
 
     s = va( "%s %s %s %s", PRODUCT_NAME, OS_STRING, OS_STRING, __DATE__ );
-    com_version = cvarSystem->Get( "version", s, CVAR_ROM | CVAR_SERVERINFO, "Records all info about the application version: build number, build date, win/linux etc" );
-    com_protocol = cvarSystem->Get( "protocol", va( "%i", PROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ARCHIVE, "Returns the current protocol (changes with patches)." );
-
-#ifndef DEDICATED
-    con_autochat = cvarSystem->Get( "con_autochat", "1", CVAR_ARCHIVE, "Set to 0 to disable sending console input text as chat when there is not a slash at the beginning." );
-#endif
 
     idsystem->Init();
 
@@ -3330,10 +3182,12 @@ void Com_Init( valueType* commandLine )
 
     consoleHistorySystem->Load();
 
-    com_dedicated->modified = false;
-    if( !com_dedicated->integer )
+    dedicated->modified = false;
+    if( !dedicated->integer )
     {
+#ifndef DEDICATED
         CL_Init();
+#endif
     }
 
     // set com_frameTime so that if a map is started on the
@@ -3351,7 +3205,7 @@ void Com_Init( valueType* commandLine )
     CL_StartHunkUsers();
 #endif
 
-    if( !com_dedicated->integer && !Com_AddStartupCommands() )
+    if( !dedicated->integer && !Com_AddStartupCommands() )
     {
 #if 1
         //Dushan turned this all off until someone create something better
@@ -3478,24 +3332,24 @@ sint Com_ModifyMsec( sint msec )
     //
     // modify time for debugging values
     //
-    if( com_fixedtime->integer )
+    if(fixedtime->integer )
     {
-        msec = com_fixedtime->integer;
+        msec = fixedtime->integer;
     }
-    else if( com_timescale->value )
+    else if(timescale->value )
     {
-        msec *= com_timescale->value;
+        msec *= timescale->value;
 //  } else if (com_cameraMode->integer) {
-//      msec *= com_timescale->value;
+//      msec *= timescale->value;
     }
 
     // don't let it scale below 1 msec
-    if( msec < 1 && com_timescale->value )
+    if( msec < 1 && timescale->value )
     {
         msec = 1;
     }
 
-    if( com_dedicated->integer )
+    if(dedicated->integer )
     {
         // dedicated servers don't want to clamp for a much longer
         // period, because it would mess up all the client's views
@@ -3510,7 +3364,7 @@ sint Com_ModifyMsec( sint msec )
         }
         clampTime = 5000;
     }
-    else if( !com_sv_running->integer )
+    else if( !sv_running->integer )
     {
         // clients of remote servers do not want to clamp time, because
         // it would skew their view of the server's time temporarily
@@ -3572,12 +3426,6 @@ void Com_Frame( void )
     Com_WriteConfiguration();
 #endif
 
-    // if "viewlog" has been modified, show or hide the log console
-    if( com_viewlog->modified )
-    {
-        com_viewlog->modified = false;
-    }
-
     //
     // main event loop
     //
@@ -3587,7 +3435,7 @@ void Com_Frame( void )
     }
 
     // we may want to spin here if things are going too fast
-    if( !com_dedicated->integer && !com_timedemo->integer )
+    if( !dedicated->integer && !com_timedemo->integer )
     {
         if( com_minimized->integer && com_maxfpsMinimized->integer > 0 )
         {
@@ -3650,14 +3498,16 @@ void Com_Frame( void )
     // or shut down the client system.
     // Do this after the server may have started,
     // but before the client tries to auto-connect
-    if( com_dedicated->modified )
+    if(dedicated->modified )
     {
         // get the latched value
         cvarSystem->Get( "dedicated", "0", 0, "Sets server type: 1 dedicated LAN, 2 dedicated internet, 0 listen (play & serve)" );
-        com_dedicated->modified = false;
-        if( !com_dedicated->integer )
+        dedicated->modified = false;
+        if( !dedicated->integer )
         {
+#ifndef DEDICATED
             CL_Init();
+#endif
         }
         else
         {
@@ -3670,7 +3520,7 @@ void Com_Frame( void )
     //
     // client system
     //
-    if( !com_dedicated->integer )
+    if( !dedicated->integer )
     {
         //
         // run event loop a second time to get server to client packets
@@ -3708,7 +3558,7 @@ void Com_Frame( void )
     //
     // watchdog
     //
-    if( com_dedicated->integer && !com_sv_running->integer && com_watchdog->integer )
+    if(dedicated->integer && !sv_running->integer && com_watchdog->integer )
     {
         if( watchdogTime == 0 )
         {
@@ -3795,11 +3645,11 @@ void Com_Shutdown( bool badProfile )
 
     collisionModelManager->ClearMap();
 
-    if( logfile_ )
+    if(com_logfile)
     {
-        fileSystem->FCloseFile( logfile_ );
-        logfile_ = 0;
-        com_logfile->integer = 0;//don't open up the log file again!!
+        fileSystem->FCloseFile(com_logfile);
+        com_logfile = 0;
+        logfile->integer = 0;//don't open up the log file again!!
     }
 
 

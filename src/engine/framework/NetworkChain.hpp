@@ -89,10 +89,6 @@ typedef struct packetQueue_s {
     sint release;
 } packetQueue_t;
 
-static convar_t *showpackets;
-static convar_t *showdrop;
-static convar_t *qport;
-
 //
 // idNetworChainSystemLocal
 //

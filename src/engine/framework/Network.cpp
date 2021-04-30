@@ -1577,92 +1577,36 @@ idNetworkSystemLocal::GetCvars
 ====================
 */
 bool idNetworkSystemLocal::GetCvars(void) {
-    sint modified;
+    sint modified =
+        net_enabled->modified +
+        net_ip->modified +
+        net_ip6->modified +
+        net_port->modified +
+        net_port6->modified +
+        net_mcast6addr->modified +
+        net_mcast6iface->modified +
+        net_socksEnabled->modified +
+        net_socksServer->modified +
+        net_socksPort->modified +
+        net_socksUsername->modified +
+        net_socksPassword->modified;
 
-#ifdef DEDICATED
-    // I want server owners to explicitly turn on ipv6 support.
-    net_enabled = cvarSystem->Get("net_enabled", "1",
-                                  CVAR_LATCH | CVAR_ARCHIVE,
-                                  "Enable networking, bitmask. Add up number for option to enable it : enable ipv4 networking : 1 enable ipv6 networking : 2 prioritise ipv6 over ipv4 : 4 disable multicast support : 8");
-#else
-    /* End users have it enabled so they can connect to ipv6-only hosts, but ipv4 will be
-     * used if available due to ping */
-    net_enabled = cvarSystem->Get("net_enabled", "3",
-                                  CVAR_LATCH | CVAR_ARCHIVE,
-                                  "Enable networking, bitmask. Add up number for option to enable it : enable ipv4 networking : 1 enable ipv6 networking : 2 prioritise ipv6 over ipv4 : 4 disable multicast support : 8");
-#endif
-    modified = net_enabled->modified;
-    net_enabled->modified = false;
-
-    net_ip = cvarSystem->Get("net_ip", "0.0.0.0", CVAR_LATCH,
-                             "IPv4 address to bind to");
-    modified += net_ip->modified;
-    net_ip->modified = false;
-
-    net_ip6 = cvarSystem->Get("net_ip6", "::", CVAR_LATCH,
-                              "IPv6 address to bind to");
-    modified += net_ip6->modified;
-    net_ip6->modified = false;
-
-    net_port = cvarSystem->Get("net_port", va("%i", PORT_SERVER), CVAR_LATCH,
-                               "Port to bind to using the ipv4 address");
-    modified += net_port->modified;
-    net_port->modified = false;
-
-    net_port6 = cvarSystem->Get("net_port6", va("%i", PORT_SERVER), CVAR_LATCH,
-                                "Port to bind to using the ipv6 address");
-    modified += net_port6->modified;
-    net_port6->modified = false;
-
-    // Some cvars for configuring multicast options which facilitates scanning for servers on local subnets.
-    net_mcast6addr = cvarSystem->Get("net_mcast6addr", NET_MULTICAST_IP6,
-                                     CVAR_LATCH | CVAR_ARCHIVE,
-                                     "Multicast address to use for scanning for ipv6 servers on the local network");
-    modified += net_mcast6addr->modified;
-    net_mcast6addr->modified = false;
-
-#ifdef _WIN32
-    net_mcast6iface = cvarSystem->Get("net_mcast6iface", "0",
-                                      CVAR_LATCH | CVAR_ARCHIVE,
-                                      "Enables the outgoing interface used for IPv6 multicast scanning on LAN.");
-#else
-    net_mcast6iface = cvarSystem->Get("net_mcast6iface", "",
-                                      CVAR_LATCH | CVAR_ARCHIVE,
-                                      "Enables the outgoing interface used for IPv6 multicast scanning on LAN.");
-#endif
-    modified += net_mcast6iface->modified;
-    net_mcast6iface->modified = false;
-
-    net_socksEnabled = cvarSystem->Get("net_socksEnabled", "0",
-                                       CVAR_LATCH | CVAR_ARCHIVE, "Enables socks 5 network protocol.");
-    modified += net_socksEnabled->modified;
-    net_socksEnabled->modified = false;
-
-    net_socksServer = cvarSystem->Get("net_socksServer", "",
-                                      CVAR_LATCH | CVAR_ARCHIVE,
-                                      "Sets the name or IP address of the socks server.");
-    modified += net_socksServer->modified;
-    net_socksServer->modified = false;
-
-    net_socksPort = cvarSystem->Get("net_socksPort", "1080",
-                                    CVAR_LATCH | CVAR_ARCHIVE, "Sets proxy and firewall port.");
-    modified += net_socksPort->modified;
-    net_socksPort->modified = false;
-
-    net_socksUsername = cvarSystem->Get("net_socksUsername", "",
-                                        CVAR_LATCH | CVAR_ARCHIVE,
-                                        "Sets the username for socks firewall supports. It does not support GSS-API authentication.");
-    modified += net_socksUsername->modified;
-    net_socksUsername->modified = false;
-
-    net_socksPassword = cvarSystem->Get("net_socksPassword", "",
-                                        CVAR_LATCH | CVAR_ARCHIVE,
-                                        "Sets password for socks network/firewall access.");
-    modified += net_socksPassword->modified;
-    net_socksPassword->modified = false;
+    net_enabled->modified =
+        net_ip->modified =
+            net_ip6->modified =
+                net_port->modified =
+                    net_port6->modified =
+                        net_mcast6addr->modified =
+                            net_mcast6iface->modified =
+                                net_socksEnabled->modified =
+                                    net_socksServer->modified =
+                                        net_socksPort->modified =
+                                            net_socksUsername->modified =
+                                                    net_socksPassword->modified = false;
 
     return modified ? true : false;
 }
+
 
 
 /*
@@ -1811,7 +1755,7 @@ void idNetworkSystemLocal::Sleep(sint msec) {
     fd_set  fdset;
     sint highestfd = -1;
 
-    if(!com_dedicated->integer) {
+    if(!dedicated->integer) {
         return;    // we're not a server, just run full speed
     }
 

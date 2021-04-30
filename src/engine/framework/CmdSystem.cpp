@@ -1725,7 +1725,7 @@ void idCmdSystemLocal::ExecuteString(pointer text) {
     }
 
     // check client game commands
-    if(com_cl_running && com_cl_running->integer
+    if(cl_running && cl_running->integer
 #ifndef DEDICATED
             && clientGameSystem->GameCommand()
 #endif // !DEDICATED
@@ -1734,13 +1734,13 @@ void idCmdSystemLocal::ExecuteString(pointer text) {
     }
 
     // check server game commands
-    if(com_sv_running && com_sv_running->integer &&
+    if(sv_running && sv_running->integer &&
             serverGameSystem->GameCommand()) {
         return;
     }
 
     // check ui commands
-    if(com_cl_running && com_cl_running->integer
+    if(cl_running && cl_running->integer
 #ifndef DEDICATED
             && clientGUISystem->GameCommand()
 #endif // !DEDICATED

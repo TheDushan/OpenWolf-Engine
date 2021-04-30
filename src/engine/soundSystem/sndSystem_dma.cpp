@@ -79,16 +79,6 @@ sint s_numSfx = 0;
 #define LOOP_HASH 128
 static sfx_t *sfxHash[LOOP_HASH];
 
-convar_t *s_volume;
-convar_t *s_testsound;
-convar_t *s_khz;
-convar_t *s_show;
-convar_t *s_mixahead;
-convar_t *s_mixPreStep;
-convar_t *s_musicVolume;
-convar_t *s_separation;
-convar_t *s_doppler;
-
 static loopSound_t loopSounds[MAX_GENTITIES];
 static  channel_t *freelist = nullptr;
 
@@ -167,26 +157,6 @@ S_Init
 */
 void SOrig_Init(void) {
     bool r;
-
-    s_volume = cvarSystem->Get("s_volume", "0.8", CVAR_ARCHIVE,
-                               "Sets volume of the game sounds, multiplier value (0.0 to 1.0)");
-    s_musicVolume = cvarSystem->Get("s_musicvolume", "0.25", CVAR_ARCHIVE,
-                                    "Sets volume of the music, multiplier value (0.0 to 1.0)");
-    s_separation = cvarSystem->Get("s_separation", "0.5", CVAR_ARCHIVE,
-                                   "Set separation between left and right sound channels (this one is it.)");
-    s_doppler = cvarSystem->Get("s_doppler", "1", CVAR_ARCHIVE,
-                                "Toggle doppler effect");
-    s_khz = cvarSystem->Get("s_khz", "22", CVAR_ARCHIVE,
-                            "Set the sampling frequency of sounds lower=performance higher=quality");
-    s_mixahead = cvarSystem->Get("s_mixahead", "0.2", CVAR_ARCHIVE,
-                                 "Set delay before mixing sound samples.");
-
-    s_mixPreStep = cvarSystem->Get("s_mixPreStep", "0.05", CVAR_ARCHIVE,
-                                   "Set the prefetching of sound on sound cards that have that power");
-    s_show = cvarSystem->Get("s_show", "0", CVAR_CHEAT,
-                             "Toggle display of paths and filenames of all sound files as they are played.");
-    s_testsound = cvarSystem->Get("s_testsound", "0", CVAR_CHEAT,
-                                  "Toggle a test tone to test sound system. 0=disables,1=toggles.");
 
     cmdSystem->AddCommand("play", S_Play_f, "Play a sound file (play sound)");
     cmdSystem->AddCommand("music", S_Music_f,

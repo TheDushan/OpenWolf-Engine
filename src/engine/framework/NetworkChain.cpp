@@ -100,12 +100,8 @@ idNetworkChainSystemLocal::Init
 */
 void idNetworkChainSystemLocal::Init(sint port) {
     port &= 0xffff;
-    showpackets = cvarSystem->Get("showpackets", "0", CVAR_TEMP,
-                                  "Toggles the running display of all packets sent and received. 0=disables;1=enables. ");
-    showdrop = cvarSystem->Get("showdrop", "0", CVAR_TEMP,
-                               "When enabled, reports dropped packets should they occur. 0=disables;1=enables. ");
-    qport = cvarSystem->Get("net_qport", va("%i", port), CVAR_INIT,
-                            "Define the port to connect with, useful for bypassing annoying routers & firewalls");
+
+    cvarSystem->Set("net_qport", va("%i", port));
 }
 
 /*
@@ -240,7 +236,7 @@ void idNetworkChainSystemLocal::TransmitNextFragment(netchan_t *chan) {
 
     // send the qport if we are a client
     if(chan->sock == NS_CLIENT) {
-        MSG_WriteShort(&send, qport->integer);
+        MSG_WriteShort(&send, net_qport->integer);
     }
 
     // copy the reliable message to the packet first
@@ -329,7 +325,7 @@ void idNetworkChainSystemLocal::Transmit(netchan_t *chan, sint length,
 
     // send the qport if we are a client
     if(chan->sock == NS_CLIENT) {
-        MSG_WriteShort(&send, qport->integer);
+        MSG_WriteShort(&send, net_qport->integer);
     }
 
     MSG_WriteData(&send, data, length);
@@ -588,7 +584,7 @@ void idNetworkChainSystemLocal::QueuePacket(sint length, const void *data,
     _new->length = length;
     _new->to = to;
     _new->release = idsystem->Milliseconds() + static_cast<sint>
-                    (static_cast<float32>(offset) / com_timescale->value);
+                    (static_cast<float32>(offset) / timescale->value);
     _new->next = nullptr;
 
     if(!packetQueue) {

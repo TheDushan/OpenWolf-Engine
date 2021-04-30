@@ -174,6 +174,7 @@ set( GPURENDERER_HEADERS
 	${MOUNT_DIR}/API/renderer_api.hpp
 	${MOUNT_DIR}/GPURenderer/r_types.hpp
 	${MOUNT_DIR}/GPURenderer/r_cmdsTemplate.hpp
+	${MOUNT_DIR}/GPURenderer/r_ConsoleVars.hpp
 )
 
 set( GPURENDERER_SOURCES
@@ -213,6 +214,7 @@ set( GPURENDERER_SOURCES
 	${MOUNT_DIR}/GPURenderer/r_vbo.cpp
 	${MOUNT_DIR}/GPURenderer/r_world.cpp
 	${MOUNT_DIR}/GPURenderer/r_glimp.cpp
+	${MOUNT_DIR}/GPURenderer/r_ConsoleVars.cpp
 )
 
 set( SERVERLIST_HEADERS
@@ -317,6 +319,7 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/framework/NetworkChain.hpp
 	${MOUNT_DIR}/framework/Parse.hpp
 	${MOUNT_DIR}/framework/CmdCompletion.hpp
+	${MOUNT_DIR}/framework/CommonConsoleVars.hpp
 )
 
 set( FRAMEWORKS_SOURCES
@@ -337,6 +340,7 @@ set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/NetworkChain.cpp
 	${MOUNT_DIR}/framework/Parse.cpp
 	${MOUNT_DIR}/framework/CmdCompletion.cpp
+	${MOUNT_DIR}/framework/CommonConsoleVars.cpp
 )
 
 set( CLIENTLIST_HEADERS

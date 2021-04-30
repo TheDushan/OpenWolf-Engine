@@ -130,10 +130,6 @@ LIGHT SAMPLING
 =============================================================================
 */
 
-extern  convar_t   *r_ambientScale;
-extern  convar_t   *r_directedScale;
-extern  convar_t   *r_debugLight;
-
 /*
 =================
 R_SetupEntityLightingGrid

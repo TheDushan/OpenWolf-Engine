@@ -44,11 +44,6 @@ enum rserr_t {
 SDL_Window *SDL_window = nullptr;
 static SDL_GLContext SDL_glContext = nullptr;
 
-convar_t *r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obtained
-convar_t *r_allowResize; // make window resizable
-convar_t *r_centerWindow;
-convar_t *r_sdlDriver;
-
 void (APIENTRYP qglActiveTextureARB)(uint texture);
 void (APIENTRYP qglClientActiveTextureARB)(uint texture);
 void (APIENTRYP qglMultiTexCoord2fARB)(uint target, float32 s, float32 t);
@@ -637,7 +632,7 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
             vidMode.w = glConfig.vidWidth;
             vidMode.h = glConfig.vidHeight;
             vidMode.refresh_rate = glConfig.displayFrequency =
-                                       cvarSystem->VariableIntegerValue("r_displayRefresh");
+                                       r_displayRefresh->integer;
             vidMode.driverdata = nullptr;
 
             if(SDL_SetWindowDisplayMode(SDL_window, &vidMode) < 0) {
@@ -791,7 +786,7 @@ static bool GLimp_StartDriverAndSetMode(sint mode, bool fullscreen,
         cvarSystem->Set("r_sdlDriver", driverName);
     }
 
-    if(fullscreen && cvarSystem->VariableIntegerValue("in_nograb")) {
+    if(fullscreen && in_nograb->integer) {
         CL_RefPrintf(PRINT_DEVELOPER, "Fullscreen not allowed with in_nograb 1\n");
         cvarSystem->Set("r_fullscreen", "0");
         r_fullscreen->modified = false;
@@ -1034,16 +1029,7 @@ of OpenGL
 void GLimp_Init(bool fixedFunction) {
     CL_RefPrintf(PRINT_DEVELOPER, "Glimp_Init( )\n");
 
-    r_allowSoftwareGL = cvarSystem->Get("r_allowSoftwareGL", "0", CVAR_LATCH,
-                                        "Toggles the use of the default software OpenGL driver as supplied by the Operating System platform. 0=disables;1=enables. ");
-    r_sdlDriver = cvarSystem->Get("r_sdlDriver", "", CVAR_ROM,
-                                  "read only, indicates the SDL driver backend being used");
-    r_allowResize = cvarSystem->Get("r_allowResize", "0",
-                                    CVAR_ARCHIVE | CVAR_LATCH, "make window resizable");
-    r_centerWindow = cvarSystem->Get("r_centerWindow", "0",
-                                     CVAR_ARCHIVE | CVAR_LATCH, "Center windows");
-
-    if(cvarSystem->VariableIntegerValue("com_abnormalExit")) {
+    if(com_abnormalExit->integer) {
         cvarSystem->Set("r_mode", va("%d", R_MODE_FALLBACK));
         cvarSystem->Set("r_fullscreen", "0");
         cvarSystem->Set("r_centerWindow", "0");

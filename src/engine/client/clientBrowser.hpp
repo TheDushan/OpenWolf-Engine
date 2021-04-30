@@ -40,9 +40,6 @@ typedef struct serverStatus_s {
 
 #define MAX_SERVERSPERPACKET 256
 
-extern convar_t *cl_serverStatusResendTime;
-extern convar_t *cl_gamename;
-
 //
 // idClientBrowserSystemLocal
 //

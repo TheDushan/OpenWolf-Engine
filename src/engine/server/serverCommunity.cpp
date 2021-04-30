@@ -1232,7 +1232,7 @@ void idServerCommunityServer::PlayerGameInfo(sint player) {
     valueType bigbuffer[ MAX_INFO_STRING * 2];
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }

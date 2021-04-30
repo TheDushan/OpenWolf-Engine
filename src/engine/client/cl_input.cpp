@@ -508,17 +508,6 @@ void IN_Help(void) {
     }
 }
 
-convar_t *cl_upspeed;
-convar_t *cl_forwardspeed;
-convar_t *cl_sidespeed;
-convar_t *cl_yawspeed;
-convar_t *cl_pitchspeed;
-convar_t *cl_run;
-convar_t *cl_anglespeedkey;
-convar_t *cl_recoilPitch;
-convar_t *cl_bypassMouseInput;  // NERVE - SMF
-convar_t *cl_doubletapdelay;
-
 /*
 ================
 CL_AdjustAngles
@@ -824,7 +813,7 @@ void CL_MouseMove(usercmd_t *cmd) {
 
             rate = sqrt(mx * mx + my * my) / static_cast<float32>(frame_msec);
 
-            accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
+            accelSensitivity = sensitivity->value + rate * cl_mouseAccel->value;
             mx *= accelSensitivity;
             my *= accelSensitivity;
 
@@ -847,10 +836,10 @@ void CL_MouseMove(usercmd_t *cmd) {
             power[1] = powf(rate[1] / cl_mouseAccelOffset->value,
                             cl_mouseAccel->value);
 
-            mx = cl_sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) *
-                                          cl_mouseAccelOffset->value);
-            my = cl_sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) *
-                                          cl_mouseAccelOffset->value);
+            mx = sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) *
+                                       cl_mouseAccelOffset->value);
+            my = sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) *
+                                       cl_mouseAccelOffset->value);
 
             /*  NERVE - SMF - this has moved to CG_CalcFov to fix zoomed-in/out transition movement bug
                 if ( cl.snapServer.ps.stats[STAT_ZOOMED_VIEW] ) {
@@ -868,8 +857,8 @@ void CL_MouseMove(usercmd_t *cmd) {
             }
         }
     } else {
-        mx *= cl_sensitivity->value;
-        my *= cl_sensitivity->value;
+        mx *= sensitivity->value;
+        my *= sensitivity->value;
     }
 
     // Ridah, experimenting with a slow tracking gun
@@ -880,8 +869,8 @@ void CL_MouseMove(usercmd_t *cmd) {
         mx *= 2.5;              //(accelSensitivity * 0.1);
         my *= 2;                //(accelSensitivity * 0.075);
     } else {
-        mx *= cl_sensitivity->value;
-        my *= cl_sensitivity->value;
+        mx *= sensitivity->value;
+        my *= sensitivity->value;
     }
 
 #endif
@@ -1327,7 +1316,7 @@ void CL_SendCmd(void) {
     }
 
     // don't send commands if paused
-    if(com_sv_running->integer && sv_paused->integer && cl_paused->integer) {
+    if(sv_running->integer && sv_paused->integer && cl_paused->integer) {
         return;
     }
 
@@ -1513,11 +1502,6 @@ void CL_InitInput(void) {
 
     //cmdSystem->AddCommand ("notebook",IN_Notebook);
     cmdSystem->AddCommand("help", IN_Help, "Toggles help");
-
-    cl_nodelta = cvarSystem->Get("cl_nodelta", "0", 0,
-                                 "Wether to disable delta compression for networking stuff.");
-    cl_debugMove = cvarSystem->Get("cl_debugMove", "0", 0,
-                                   "Draws a chart at the bottom displaying something to do with how much you look around.");
 }
 
 

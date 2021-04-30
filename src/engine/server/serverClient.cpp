@@ -1906,7 +1906,7 @@ void idServerClientSystemLocal::UserinfoChanged(client_t *cl) {
     // if the client is on the same subnet as the server and we aren't running an
     // internet public server, assume they don't need a rate choke
     if(networkSystem->IsLANAddress(cl->netchan.remoteAddress) &&
-            com_dedicated->integer != 2 && sv_lanForceRate->integer == 1) {
+            dedicated->integer != 2 && sv_lanForceRate->integer == 1) {
         cl->rate = 99999; // lans should not rate limit
     } else {
         val = Info_ValueForKey(cl->userinfo, "rate");
@@ -2318,7 +2318,7 @@ bool idServerClientSystemLocal::ClientCommand(client_t *cl, msg_t *msg,
     // Applying floodprotect only to "CS_ACTIVE" clients leaves too much room for abuse.
     // Extending floodprotect to clients pre CS_ACTIVE shouldn't cause any issues,
     // as the download-commands are handled within the engine and floodprotect only filters calls to the VM.
-    if(!com_cl_running->integer && cl->state >= CS_ACTIVE &&
+    if(!cl_running->integer && cl->state >= CS_ACTIVE &&
             sv_floodProtect->integer && svs.time < cl->nextReliableTime &&
             floodprotect) {
         // ignore any other text messages from this client but let them keep playing

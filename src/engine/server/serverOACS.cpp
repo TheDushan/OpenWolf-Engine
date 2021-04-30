@@ -209,17 +209,6 @@ bool sv_interframe_modifiers[] = {
     true // cheater
 };
 
-// Cvars to configure OACS behavior
-convar_t *sv_oacsEnable;
-convar_t *sv_oacsPlayersTableEnable;
-convar_t *sv_oacsTypesFile;
-convar_t *sv_oacsDataFile;
-convar_t *sv_oacsPlayersTable;
-convar_t *sv_oacsMinPlayers;
-convar_t *sv_oacsLabelPassword;
-convar_t *sv_oacsMaxPing;
-convar_t *sv_oacsMaxLastPacketTime;
-
 /*
 ===============
 idServerOACSSystemLocal::ExtendedRecordDropClient

@@ -211,23 +211,7 @@ or configs will never get loaded from disk!
 
 //bani - made fs_gamedir non-static
 valueType fs_gamedir[MAX_OSPATH]; // this will be a single file name with no separators
-static convar_t *fs_debug;
-static convar_t *fs_homepath;
-static convar_t *fs_basepath;
-static convar_t *fs_libpath;
 
-#ifdef MACOS_X
-// Also search the .app bundle for .pk3 files
-static convar_t *fs_apppath;
-#endif
-
-static convar_t *fs_buildpath;
-static convar_t *fs_buildgame;
-static convar_t *fs_basegame;
-static convar_t *fs_copyfiles;
-static convar_t *fs_gamedirvar;
-static convar_t *fs_missing;
-static convar_t *fs_restrict;
 static searchpath_t *fs_searchpaths;
 
 static sint fs_readCount; // total bytes read
@@ -2158,7 +2142,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
     if(strstr(qpath, ".cfg")) {
         isConfig = true;
 
-        if(com_journal && com_journal->integer == 2) {
+        if(journal && journal->integer == 2) {
             sint r;
 
             Com_DPrintf("Loading %s from journal file.\n", qpath);
@@ -2220,7 +2204,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
         }
 
         // if we are journalling and it is a config file, write a zero to the journal file
-        if(isConfig && com_journal && com_journal->integer == 1) {
+        if(isConfig && journal && journal->integer == 1) {
             Com_DPrintf("Writing zero for %s to journal file.\n", qpath);
             len = 0;
             Write(&len, sizeof(len), com_journalDataFile);
@@ -2231,7 +2215,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
     }
 
     if(!buffer) {
-        if(isConfig && com_journal && com_journal->integer == 1) {
+        if(isConfig && journal && journal->integer == 1) {
             Com_DPrintf("Writing len for %s to journal file.\n", qpath);
             Write(&len, sizeof(len), com_journalDataFile);
             Flush(com_journalDataFile);
@@ -2254,7 +2238,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
     FCloseFile(h);
 
     // if we are journalling and it is a config file, write it to the journal file
-    if(isConfig && com_journal && com_journal->integer == 1) {
+    if(isConfig && journal && journal->integer == 1) {
         Com_DPrintf("Writing %s to journal file.\n", qpath);
         Write(&len, sizeof(len), com_journalDataFile);
         Write(buf, len, com_journalDataFile);
@@ -3759,38 +3743,11 @@ void idFileSystemLocal::Startup(pointer gameName) {
 
     Com_Printf("----- idFileSystemLocal::Startup -----\n");
 
-    fs_debug = cvarSystem->Get("fs_debug", "0", 0,
-                               "enables the display of file system messages to the console.");
-    fs_copyfiles = cvarSystem->Get("fs_copyfiles", "0", CVAR_INIT,
-                                   "Relic/obsolete.!");
-    fs_basepath = cvarSystem->Get("fs_basepath",
-                                  idsystem->DefaultInstallPath(), CVAR_INIT,
-                                  "Holds the logical path to install folder.");
-    fs_buildpath = cvarSystem->Get("fs_buildpath", "", CVAR_INIT,
-                                   "Holds the build path to install folder");
-    fs_buildgame = cvarSystem->Get("fs_buildgame", BASEGAME, CVAR_INIT,
-                                   "Relic/obsolete.!");
-    fs_basegame = cvarSystem->Get("fs_basegame", "", CVAR_INIT,
-                                  "Allows people to base mods upon mods syntax to follow.");
-    fs_libpath = cvarSystem->Get("fs_libpath", idsystem->DefaultLibPath(),
-                                 CVAR_INIT, "Default binary directory.");
-#ifdef MACOS_X
-    fs_apppath = cvarSystem->Get("fs_apppath", idsystem->DefaultAppPath(),
-                                 CVAR_INIT, "Default app directory.");
-#endif
     homePath = idsystem->DefaultHomePath(tmp, sizeof(tmp));
 
     if(!homePath || !homePath[0]) {
         homePath = fs_basepath->string;
     }
-
-    fs_homepath = cvarSystem->Get("fs_homepath", homePath, CVAR_INIT,
-                                  "The default is the path to the game executable.");
-    fs_gamedirvar = cvarSystem->Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO,
-                                    "Set Game path. Set the game folder/dir. ");
-    fs_restrict = cvarSystem->Get("fs_restrict", "", CVAR_INIT,
-                                  "Demoversion if set to 1 restricts game to some number of maps.");
-    fs_missing = cvarSystem->Get("fs_missing", "", CVAR_INIT, "Missing files");
 
     // add search path elements in reverse priority order
     if(fs_basepath->string[0]) {

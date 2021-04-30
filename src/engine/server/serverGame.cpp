@@ -562,8 +562,8 @@ void idServerGameSystemLocal::InitGameProgs(void) {
     sv.num_tagheaders = 0;
     sv.num_tags = 0;
 
-    convar_t *var = cvarSystem->Get("bot_enable", "1", CVAR_LATCH,
-                                    "Whether or not the server allows bots.");
+    //convar_t *var = cvarSystem->Get("bot_enable", "1", CVAR_LATCH,
+    //                                "Whether or not the server allows bots.");
     //bot_enable = var ? var->integer : 0;
 
     // load the dll or bytecode
@@ -659,7 +659,7 @@ bool idServerGameSystemLocal::GetTag(sint clientNum, sint tagFileNumber,
     // Gordon: bleh, some code in clientthink_real really relies on this working on player models...
 #ifndef DEDICATED               // TTimo: dedicated only binary defines DEDICATED
 
-    if(com_dedicated->integer) {
+    if(dedicated->integer) {
         return false;
     }
 

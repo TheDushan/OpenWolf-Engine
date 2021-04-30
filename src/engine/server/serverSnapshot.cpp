@@ -824,7 +824,7 @@ sint idServerSnapshotSystemLocal::RateMsec(client_t *client,
     }
 
     rateMsec = (messageSize + HEADER_RATE_BYTES) * 1000 / (static_cast<sint>
-               (rate * com_timescale->value));
+               (rate * timescale->value));
 
     return rateMsec;
 }
@@ -881,7 +881,7 @@ void idServerSnapshotSystemLocal::SendMessageToClient(msg_t *msg,
             (sv_lanForceRate->integer &&
              networkSystem->IsLANAddress(client->netchan.remoteAddress))) {
         client->nextSnapshotTime = svs.time + (static_cast<sint>
-                                               (1000.0 / sv_fps->integer * com_timescale->value));
+                                               (1000.0 / sv_fps->integer * timescale->value));
         return;
     }
 
@@ -894,14 +894,14 @@ void idServerSnapshotSystemLocal::SendMessageToClient(msg_t *msg,
     if(!*client->downloadName && rateMsec < client->snapshotMsec) {
         // never send more packets than this, no matter what the rate is at
         //rateMsec = client->snapshotMsec;
-        rateMsec = client->snapshotMsec * com_timescale->value;
+        rateMsec = client->snapshotMsec * timescale->value;
         client->rateDelayed = false;
     } else {
         client->rateDelayed = true;
     }
 
     client->nextSnapshotTime = svs.time + (static_cast<sint>
-                                           (rateMsec * com_timescale->value));
+                                           (rateMsec * timescale->value));
 
     // don't pile up empty snapshots while connecting
     if(client->state != CS_ACTIVE) {
@@ -910,9 +910,9 @@ void idServerSnapshotSystemLocal::SendMessageToClient(msg_t *msg,
         // do shorten if client is downloading
         if(!*client->downloadName &&
                 client->nextSnapshotTime < svs.time + (static_cast<sint>
-                        (1000.0 * com_timescale->value))) {
+                        (1000.0 * timescale->value))) {
             client->nextSnapshotTime = svs.time + (static_cast<sint>
-                                                   (1000 * com_timescale->value));
+                                                   (1000 * timescale->value));
         }
     }
 }
@@ -1101,7 +1101,7 @@ void idServerSnapshotSystemLocal::SendClientMessages(void) {
         }
 
         if(svs.time - c->nextSnapshotTime < c->snapshotMsec *
-                com_timescale->value) {
+                timescale->value) {
             // It's not time yet
             continue;
         }

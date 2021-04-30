@@ -52,94 +52,6 @@ versionMapping_t versionMap[MAX_UPDATE_VERSIONS];
 sint numVersions = 0;
 #endif
 
-convar_t *sv_fps = nullptr;         // time rate for running non-clients
-convar_t *sv_timeout;       // seconds without any message
-convar_t *sv_zombietime;    // seconds to sink messages after disconnect
-convar_t *sv_rconPassword;  // password for remote server commands
-convar_t *sv_privatePassword;   // password for the privateClient slots
-convar_t *sv_allowDownload;
-convar_t *sv_maxclients;
-
-convar_t *sv_privateClients;    // number of clients reserved for password
-convar_t *sv_hostname;
-convar_t *sv_master[MAX_MASTER_SERVERS];    // master server ip address
-convar_t *sv_reconnectlimit;    // minimum seconds between connect messages
-convar_t *sv_tempbanmessage;
-convar_t *sv_showloss;  // report when usercmds are lost
-convar_t *sv_padPackets;    // add nop bytes to messages
-convar_t *sv_killserver;    // menu system can set to 1 to shut server down
-convar_t *sv_mapname;
-convar_t *sv_mapChecksum;
-convar_t *sv_serverid;
-convar_t *sv_maxRate;
-convar_t *sv_minPing;
-convar_t *sv_maxPing;
-convar_t *sv_dlRate;
-
-//convar_t    *sv_gametype;
-convar_t *sv_pure;
-convar_t *sv_newGameShlib;
-convar_t *sv_floodProtect;
-convar_t *sv_allowAnonymous;
-convar_t *sv_lanForceRate;  // TTimo - dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
-convar_t *sv_onlyVisibleClients;    // DHM - Nerve
-convar_t *sv_friendlyFire;  // NERVE - SMF
-convar_t *sv_maxlives;  // NERVE - SMF
-convar_t *sv_needpass;
-convar_t *sv_lagAbuse;
-convar_t *sv_lagAbuseFPS;
-
-convar_t *sv_dl_maxRate;
-convar_t *g_gameType;
-
-// of characters '0' through '9' and 'A' through 'F', default 0 don't require
-// Rafael gameskill
-//convar_t    *sv_gameskill;
-// done
-
-convar_t *sv_reloading;
-
-convar_t *sv_showAverageBPS;    // NERVE - SMF - net debugging
-
-convar_t *sv_wwwDownload;   // server does a www dl redirect
-convar_t *sv_wwwBaseURL;    // base URL for redirect
-
-// tell clients to perform their downloads while disconnected from the server
-// this gets you a better throughput, but you loose the ability to control the download usage
-convar_t *sv_wwwDlDisconnected;
-convar_t *sv_wwwFallbackURL;    // URL to send to if an http/ftp fails or is refused client side
-
-//bani
-convar_t *sv_cheats;
-convar_t *sv_packetloss;
-convar_t *sv_packetdelay;
-
-// fretn
-convar_t *sv_fullmsg;
-
-convar_t *sv_hibernateTime;
-
-convar_t *sv_wh_active;
-convar_t *sv_wh_bbox_horz;
-convar_t *sv_wh_bbox_vert;
-convar_t *sv_wh_check_fov;
-
-convar_t *sv_minimumAgeGuid;
-convar_t *sv_maximumAgeGuid;
-
-convar_t *sv_cs_ServerType;
-convar_t *sv_cs_Salt;
-convar_t *sv_cs_BotLog;
-convar_t *sv_cs_MemberColor;
-convar_t *sv_cs_UnknownColor;
-convar_t *sv_cs_PrivateOnlyMSG;
-convar_t *sv_cs_stats;
-convar_t *sv_cs_ServerPort;
-
-convar_t *sv_autoRecDemo;
-convar_t *sv_autoRecDemoBots;
-convar_t *sv_autoRecDemoMaxMaps;
-
 #define LL( x ) x = LittleLong( x )
 
 /*
@@ -291,7 +203,7 @@ void idServerMainSystemLocal::SendServerCommand(client_t *cl, pointer fmt,
     }
 
     // hack to echo broadcast prints to console
-    if(com_dedicated->integer &&
+    if(dedicated->integer &&
             !strncmp(reinterpret_cast<valueType *>(message), "print", 5)) {
         Com_Printf("broadcast: %s\n",
                    ExpandNewlines(reinterpret_cast<valueType *>(message)));
@@ -350,10 +262,10 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
         return;
     }
 
-    netenabled = cvarSystem->VariableIntegerValue("net_enabled");
+    netenabled = net_enabled->integer;;
 
     // "dedicated 1" is for lan play, "dedicated 2" is for inet public play
-    if(!com_dedicated || com_dedicated->integer != 2 ||
+    if(!dedicated || dedicated->integer != 2 ||
             !(netenabled & (NET_ENABLEV6 | NET_ENABLEV4))) {
         return;     // only dedicated servers send heartbeats
 
@@ -454,7 +366,7 @@ void idServerMainSystemLocal::MasterGameCompleteStatus(void) {
     static netadr_t adr[MAX_MASTER_SERVERS];
 
     // "dedicated 1" is for lan play, "dedicated 2" is for inet public play
-    if(!com_dedicated || com_dedicated->integer != 2) {
+    if(!dedicated || dedicated->integer != 2) {
         // only dedicated servers send master game status
         return;
     }
@@ -529,7 +441,7 @@ idServerMainSystemLocal::MasterGameStat
 void idServerMainSystemLocal::MasterGameStat(pointer data) {
     netadr_t adr;
 
-    if(!com_dedicated || com_dedicated->integer != 2) {
+    if(!dedicated || dedicated->integer != 2) {
         return; // only dedicated servers send stats
     }
 
@@ -1616,7 +1528,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
 
 #ifndef UPDATE_SERVER
 
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         // Running as a server, but no map loaded
 #if defined (DEDICATED)
         // Block until something interesting happens
@@ -1632,7 +1544,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
         return;
     }
 
-    if(com_dedicated->integer) {
+    if(dedicated->integer) {
         frameStartTime = idsystem->Milliseconds();
     }
 
@@ -1641,7 +1553,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
         cvarSystem->Set("sv_fps", "10");
     }
 
-    frameMsec = 1000 / sv_fps->integer * com_timescale->value;
+    frameMsec = 1000 / sv_fps->integer * timescale->value;
 
     // don't let it scale below 1ms
     if(frameMsec < 1) {
@@ -1651,8 +1563,8 @@ void idServerMainSystemLocal::Frame(sint msec) {
 
     sv.timeResidual += msec;
 
-    if(com_dedicated->integer && sv.timeResidual < frameMsec &&
-            (!com_timescale || com_timescale->value >= 1)) {
+    if(dedicated->integer && sv.timeResidual < frameMsec &&
+            (!timescale || timescale->value >= 1)) {
         // first check if we need to send any pending packets
         sint timeVal = serverMainSystem->SendQueuedPackets();
 
@@ -1796,7 +1708,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
     MasterHeartbeat(HEARTBEAT_GAME);
 #endif
 
-    if(com_dedicated->integer) {
+    if(dedicated->integer) {
         frameEndTime = idsystem->Milliseconds();
 
         svs.totalFrameTime += (frameEndTime - frameStartTime);
@@ -1961,7 +1873,7 @@ sint idServerMainSystemLocal::RateMsec(client_t *client) {
 
     messageSize += IPUDP_HEADER_SIZE;
 
-    rateMsec = messageSize * 1000 / ((sint)(rate * com_timescale->value));
+    rateMsec = messageSize * 1000 / ((sint)(rate * timescale->value));
     rate = idsystem->Milliseconds() - client->netchan.lastSentTime;
 
     if(rate > rateMsec) {

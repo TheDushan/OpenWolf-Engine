@@ -84,44 +84,6 @@ typedef struct image_s {
 extern vidconfig_t
 glConfig; // outside of TR since it shouldn't be cleared during ref re-init
 
-//
-// cvars
-//
-extern convar_t *r_stencilbits;         // number of desired stencil bits
-extern convar_t *r_depthbits;           // number of desired depth bits
-extern convar_t
-*r_colorbits;           // number of desired color bits, only relevant for fullscreen
-extern convar_t *r_alphabits;           // number of desired alpha bits
-extern convar_t *r_texturebits;         // number of desired texture bits
-extern convar_t *r_ext_multisample;
-// 0 = use framebuffer depth
-// 16 = use 16-bit textures
-// 32 = use 32-bit textures
-// all else = error
-
-extern convar_t *r_customwidth;
-extern convar_t *r_customheight;
-extern convar_t *r_noborder;
-extern convar_t *r_fullscreen;
-extern convar_t
-*r_ignorehwgamma;       // overrides hardware gamma capabilities
-extern convar_t *r_drawBuffer;
-extern convar_t *r_swapInterval;
-extern convar_t
-*r_allowExtensions;             // global enable/disable of OpenGL extensions
-extern convar_t
-*r_ext_compressed_textures;     // these control use of specific extensions
-extern convar_t *r_ext_multitexture;
-extern convar_t *r_ext_compiled_vertex_array;
-extern convar_t *r_ext_texture_env_add;
-
-extern convar_t *r_ext_texture_filter_anisotropic;
-extern convar_t *r_ext_max_anisotropy;
-
-extern convar_t *r_stereoEnabled;
-
-extern  convar_t   *r_saveFontData;
-
 bool    R_GetModeInfo(sint *width, sint *height, float32 *windowAspect,
                       sint mode);
 

@@ -763,8 +763,7 @@ void idClientBrowserSystemLocal::GlobalServers(void) {
 
     // Use the extended query for IPv6 masters
     if(to.type == NA_IP6 || to.type == NA_MULTICAST6) {
-        sint v4enabled = cvarSystem->VariableIntegerValue("net_enabled") &
-                         NET_ENABLEV4;
+        sint v4enabled = net_enabled->integer & NET_ENABLEV4;
 
         if(v4enabled) {
             Q_vsprintf_s(command, sizeof(command), sizeof(command),
@@ -812,7 +811,7 @@ void idClientBrowserSystemLocal::GetPing(sint n, valueType *buf,
     if(!time) {
         // check for timeout
         time = cls.realtime - cl_pinglist[n].start;
-        maxPing = cvarSystem->VariableIntegerValue("cl_maxPing");
+        maxPing = cl_maxPing->integer;
 
         if(maxPing < 100) {
             maxPing = 100;

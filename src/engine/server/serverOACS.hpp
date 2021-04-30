@@ -133,23 +133,6 @@ typedef struct playerstable_s {
 // Declare the sv.interframe global variable, which will contain the array of all features
 //extern feature_t interframe[FEATURES_COUNT];
 
-// Cvars to configure OACS behavior
-extern convar_t *sv_oacsEnable; // enable the extended logging facility?
-extern convar_t
-*sv_oacsPlayersTableEnable; // enable the extended player identification logging?
-extern convar_t *sv_oacsTypesFile; // where to save the features types
-extern convar_t *sv_oacsDataFile; // where to save the features data
-extern convar_t
-*sv_oacsPlayersTable; // where to save the players table (if enabled)
-extern convar_t
-*sv_oacsMinPlayers; // minimum number of human players required to begin logging data
-extern convar_t
-*sv_oacsLabelPassword; // password necessary for a player to label himself
-extern convar_t
-*sv_oacsMaxPing; // max ping to accept interframes (above, the interframe will be dropped until the ping goes down)
-extern convar_t
-*sv_oacsMaxLastPacketTime; // max last packet time to accept interframes (above, the interframe will be dropped until the LastPacketTime goes down)
-
 //
 // idServerOACSSystemLocal
 //

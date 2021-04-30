@@ -75,24 +75,8 @@ typedef sint SOCKET;
 
 #define MAX_IPS     32
 
-
 static bool usingSocks = false;
 static bool networkingEnabled = false;
-
-static convar_t *net_enabled;
-
-static convar_t *net_socksEnabled;
-static convar_t *net_socksServer;
-static convar_t *net_socksPort;
-static convar_t *net_socksUsername;
-static convar_t *net_socksPassword;
-
-static convar_t *net_ip;
-static convar_t *net_ip6;
-static convar_t *net_port;
-static convar_t *net_port6;
-static convar_t *net_mcast6addr;
-static convar_t *net_mcast6iface;
 
 static struct sockaddr  socksRelayAddr;
 

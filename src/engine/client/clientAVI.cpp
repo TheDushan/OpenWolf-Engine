@@ -359,7 +359,7 @@ bool idClientAVISystemLocal::OpenAVIForWriting(pointer fileName) {
                    "of the audio rate, suggest %d\n", suggestRate);
     }
 
-    if(!cvarSystem->VariableIntegerValue("s_initsound")) {
+    if(!s_initsound->integer) {
         afd.audio = false;
     } else if(Q_stricmp(cvarSystem->VariableString("s_backend"), "OpenAL")) {
         if(afd.a.bits == 16 && afd.a.channels == 2) {

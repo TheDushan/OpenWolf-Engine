@@ -40,12 +40,6 @@
 // ready to draw
 bool screenInitialized;
 
-convar_t *cl_timegraph;
-convar_t *cl_debuggraph;
-convar_t *cl_graphheight;
-convar_t *cl_graphscale;
-convar_t *cl_graphshift;
-
 idClientScreenSystemLocal clientScreenLocal;
 idClientScreenSystem *clientScreenSystem = &clientScreenLocal;
 
@@ -423,22 +417,22 @@ void idClientScreenSystemLocal::DrawDebugGraph(void) {
 
     renderSystem->SetColor(g_color_table[0]);
     renderSystem->DrawStretchPic(static_cast<float32>(x),
-                                 static_cast<float32>(y - cl_graphheight->integer), static_cast<float32>(w),
-                                 cl_graphheight->value, 0, 0, 0, 0, cls.whiteShader);
+                                 static_cast<float32>(y - graphheight->integer), static_cast<float32>(w),
+                                 graphheight->value, 0, 0, 0, 0, cls.whiteShader);
     renderSystem->SetColor(nullptr);
 
     for(a = 0; a < w; a++) {
         i = (current - 1 - a + 1024) & 1023;
         v = values[i].value;
         color = values[i].color;
-        v = v * cl_graphscale->integer + cl_graphshift->integer;
+        v = v * graphscale->integer + graphshift->integer;
 
         if(v < 0) {
-            v += cl_graphheight->integer * (1 + static_cast<sint>
-                                            (-v / cl_graphheight->integer));
+            v += graphheight->integer * (1 + static_cast<sint>
+                                         (-v / graphheight->integer));
         }
 
-        h = static_cast<sint>(v) % cl_graphheight->integer;
+        h = static_cast<sint>(v) % graphheight->integer;
 
         renderSystem->DrawStretchPic(x + static_cast<float32>(w - 1 - a),
                                      static_cast<float32>(y - h), 1, static_cast<float32>(h), 0, 0, 0, 0,
@@ -452,17 +446,6 @@ idClientScreenSystemLocal::Init
 ==================
 */
 void idClientScreenSystemLocal::Init(void) {
-    cl_timegraph = cvarSystem->Get("timegraph", "0", CVAR_CHEAT,
-                                   "description");
-    cl_debuggraph = cvarSystem->Get("debuggraph", "0", CVAR_CHEAT,
-                                    "description");
-    cl_graphheight = cvarSystem->Get("graphheight", "32", CVAR_CHEAT,
-                                     "description");
-    cl_graphscale = cvarSystem->Get("graphscale", "1", CVAR_CHEAT,
-                                    "description");
-    cl_graphshift = cvarSystem->Get("graphshift", "0", CVAR_CHEAT,
-                                    "description");
-
     screenInitialized = true;
 }
 
@@ -535,7 +518,7 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
                 break;
 
                 // Ridah, if the cgame is valid, fall through to there
-                if(!cls.cgameStarted || !com_sv_running->integer) {
+                if(!cls.cgameStarted || !sv_running->integer) {
                     // connecting clients will only show the connection dialog
                     uiManager->DrawConnectScreen(false);
                     break;
@@ -548,7 +531,6 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
 
                 // also draw the connection information, so it doesn't
                 // flash away too briefly on local or lan games
-                //if (!com_sv_running->value || cvarSystem->VariableIntegerValue("sv_cheats"))  // Ridah, don't draw useless text if not in dev mode
                 uiManager->Refresh(cls.realtime);
                 uiManager->DrawConnectScreen(true);
                 break;
@@ -570,7 +552,7 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
     Con_DrawConsole();
 
     // debug graph can be drawn on top of anything
-    if(cl_debuggraph->integer || cl_timegraph->integer ||
+    if(debuggraph->integer || timegraph->integer ||
             cl_debugMove->integer) {
         DrawDebugGraph();
     }

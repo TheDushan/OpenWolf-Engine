@@ -37,116 +37,6 @@
 
 #include <framework/precompiled.hpp>
 
-convar_t         *cl_wavefilerecord;
-convar_t         *cl_nodelta;
-convar_t         *cl_debugMove;
-
-convar_t         *cl_noprint;
-convar_t         *cl_motd;
-convar_t         *cl_autoupdate;    // DHM - Nerve
-
-convar_t         *rcon_client_password;
-convar_t         *rconAddress;
-
-convar_t         *cl_timeout;
-convar_t         *cl_maxpackets;
-convar_t         *cl_packetdup;
-convar_t         *cl_timeNudge;
-convar_t         *cl_showTimeDelta;
-convar_t         *cl_freezeDemo;
-
-convar_t         *cl_shownet =
-    nullptr; // NERVE - SMF - This is referenced in msg.c and we need to make sure it is nullptr
-convar_t         *cl_shownuments;   // DHM - Nerve
-convar_t         *cl_showSend;
-convar_t         *cl_showServerCommands;    // NERVE - SMF
-convar_t         *cl_timedemo;
-
-convar_t         *cl_aviFrameRate;
-convar_t         *cl_forceavidemo;
-
-convar_t         *cl_freelook;
-convar_t         *cl_sensitivity;
-convar_t         *cl_xbox360ControllerAvailable;
-
-convar_t         *cl_mouseAccelOffset;
-convar_t         *cl_mouseAccel;
-convar_t         *cl_mouseAccelStyle;
-convar_t         *cl_showMouseRate;
-
-convar_t         *m_pitch;
-convar_t         *m_yaw;
-convar_t         *m_forward;
-convar_t         *m_side;
-convar_t         *m_filter;
-
-convar_t           *j_pitch;
-convar_t           *j_yaw;
-convar_t           *j_forward;
-convar_t           *j_side;
-convar_t         *j_up;
-convar_t           *j_pitch_axis;
-convar_t           *j_yaw_axis;
-convar_t           *j_forward_axis;
-convar_t           *j_side_axis;
-convar_t         *j_up_axis;
-
-convar_t         *cl_activeAction;
-
-convar_t         *cl_autorecord;
-
-convar_t         *cl_motdString;
-
-convar_t         *cl_allowDownload;
-convar_t         *cl_wwwDownload;
-convar_t         *cl_conXOffset;
-convar_t         *cl_inGameVideo;
-
-convar_t         *cl_serverStatusResendTime;
-convar_t         *cl_trn;
-convar_t         *cl_missionStats;
-convar_t         *cl_waitForFire;
-
-// NERVE - SMF - localization
-convar_t         *cl_language;
-convar_t         *cl_debugTranslation;
-
-// -NERVE - SMF
-// DHM - Nerve :: Auto-Update
-convar_t         *cl_updateavailable;
-convar_t         *cl_updatefiles;
-
-// DHM - Nerve
-
-convar_t         *cl_profile;
-convar_t         *cl_defaultProfile;
-
-convar_t         *cl_demorecording; // fretn
-convar_t         *cl_demofilename;  // bani
-convar_t         *cl_demooffset;    // bani
-
-convar_t         *cl_waverecording; //bani
-convar_t         *cl_wavefilename;  //bani
-convar_t         *cl_waveoffset;    //bani
-
-convar_t         *cl_packetloss;    //bani
-convar_t         *cl_packetdelay;   //bani
-//convar_t*         sv_cheats;      //bani
-
-convar_t         *cl_consoleKeys;
-convar_t         *cl_consoleFont;
-convar_t         *cl_consoleFontSize;
-convar_t         *cl_consoleFontKerning;
-convar_t           *cl_consolePrompt;
-
-convar_t         *cl_gamename;
-convar_t         *cl_altTab;
-
-convar_t         *cl_aviMotionJpeg;
-convar_t         *cl_guidServerUniq;
-
-convar_t *cl_guid;
-
 clientActive_t  cl;
 clientConnection_t clc;
 clientStatic_t  cls;
@@ -185,11 +75,11 @@ void CL_DoPurgeCache(void) {
 
     cls.doCachePurge = false;
 
-    if(!com_cl_running) {
+    if(!cl_running) {
         return;
     }
 
-    if(!com_cl_running->integer) {
+    if(!cl_running->integer) {
         return;
     }
 
@@ -496,7 +386,7 @@ CL_DemoCompleted
 */
 
 void CL_DemoCompleted(void) {
-    if(cl_timedemo && cl_timedemo->integer) {
+    if(timedemo && timedemo->integer) {
         sint             time;
 
         time = idsystem->Milliseconds() - clc.timeDemoStart;
@@ -926,7 +816,7 @@ void CL_FlushMemory(void) {
     CL_ShutdownAll();
 
     // if not running a server clear the whole hunk
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         // clear the whole hunk
         Hunk_Clear();
         // clear collision map data
@@ -949,7 +839,7 @@ memory on the hunk from cgame, ui, and renderer
 =====================
 */
 void CL_MapLoading(void) {
-    if(!com_cl_running->integer) {
+    if(!cl_running->integer) {
         return;
     }
 
@@ -1038,7 +928,7 @@ This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
 void CL_Disconnect(bool showMainMenu, pointer reason) {
-    if(!com_cl_running || !com_cl_running->integer) {
+    if(!cl_running || !cl_running->integer) {
         return;
     }
 
@@ -1494,7 +1384,7 @@ void CL_Connect_f(void) {
     // clear any previous "server full" type messages
     clc.serverMessage[0] = 0;
 
-    if(com_sv_running->integer && !strcmp(server, "localhost")) {
+    if(sv_running->integer && !strcmp(server, "localhost")) {
         // if running a local server, kill it
         serverInitSystem->Shutdown("Server quit\n");
     }
@@ -1724,7 +1614,7 @@ void CL_Vid_Restart_f(void) {
     cvarSystem->Set("cl_paused", "0");
 
     // if not running a server clear the whole hunk
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         //collisionModelManager->ClearMap();
         // clear the whole hunk
         Hunk_Clear();
@@ -2782,7 +2672,7 @@ void CL_CheckUserinfo(void) {
     }
 
     // don't overflow the reliable command buffer when paused on a local server
-    if(cl_paused->integer && sv_paused->integer && com_sv_running->integer) {
+    if(cl_paused->integer && sv_paused->integer && sv_running->integer) {
         return;
     }
 
@@ -2923,7 +2813,7 @@ CL_Frame
 ==================
 */
 void CL_Frame(sint msec) {
-    if(!com_cl_running->integer) {
+    if(!cl_running->integer) {
         return;
     }
 
@@ -2932,7 +2822,7 @@ void CL_Frame(sint msec) {
     }
 
     if(cls.state == CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_UI) &&
-            !com_sv_running->integer && clc.demoplaying && uivm) {
+            !sv_running->integer && clc.demoplaying && uivm) {
         // if disconnected, bring up the menu
         soundSystem->StopAllSounds();
         uiManager->SetActiveMenu(UIMENU_MAIN);
@@ -2950,7 +2840,7 @@ void CL_Frame(sint msec) {
 
             // fixed time for next frame'
             msec = static_cast<sint>(ceil((1000.0f / cl_aviFrameRate->value) *
-                                          com_timescale->value));
+                                          timescale->value));
 
             if(msec == 0) {
                 msec = 1;
@@ -2966,7 +2856,7 @@ void CL_Frame(sint msec) {
 
     cls.realtime += cls.frametime;
 
-    if(cl_timegraph->integer) {
+    if(timegraph->integer) {
         clientScreenSystem->DebugGraph(cls.realFrametime * 0.25f, 0);
     }
 
@@ -3231,11 +3121,11 @@ This is the only place that any of these functions are called from
 ============================
 */
 void CL_StartHunkUsers(void) {
-    if(!com_cl_running) {
+    if(!cl_running) {
         return;
     }
 
-    if(!com_cl_running->integer) {
+    if(!cl_running->integer) {
         return;
     }
 
@@ -3254,7 +3144,7 @@ void CL_StartHunkUsers(void) {
         soundSystem->BeginRegistration();
     }
 
-    if(com_dedicated->integer) {
+    if(dedicated->integer) {
         return;
     }
 
@@ -3391,7 +3281,7 @@ void CL_GetAutoUpdate(void) {
     // clear any previous "server full" type messages
     clc.serverMessage[0] = 0;
 
-    if(com_sv_running->integer) {
+    if(sv_running->integer) {
         // if running a local server, kill it
         serverInitSystem->Shutdown("Server quit\n");
     }
@@ -3456,7 +3346,7 @@ sint CL_ScaledMilliseconds(void) {
 #ifdef NDEBUG
     return ++cl_faketime;
 #else
-    return idsystem->Milliseconds() * com_timescale->value;
+    return idsystem->Milliseconds() * timescale->value;
 #endif
 }
 
@@ -3563,262 +3453,6 @@ void CL_Init(void) {
     cls.realtime = 0;
 
     CL_InitInput();
-
-    //
-    // register our variables
-    //
-
-    cl_noprint = cvarSystem->Get("cl_noprint", "0", 0,
-                                 "At 1, it doesnt print to the console. Doesnt affect ingame-console messages.");
-    cl_motd = cvarSystem->Get("cl_motd", "1", 0,
-                              "Wether to get the motd string from tmaphe master server");
-    cl_autoupdate = cvarSystem->Get("cl_autoupdate", "1", CVAR_ARCHIVE,
-                                    "Automatic game update checks on launch.");
-
-    cl_timeout = cvarSystem->Get("cl_timeout", "200", 0,
-                                 "Set the inactivity time before a client is disconnected (timed out)");
-
-    cl_wavefilerecord = cvarSystem->Get("cl_wavefilerecord", "0", CVAR_TEMP,
-                                        "Toggle recording a .wav audio file upon loading a demo. Suggest setting to 0 in autoexec.cfg");
-
-    cl_timeNudge = cvarSystem->Get("cl_timeNudge", "0", CVAR_ARCHIVE,
-                                   "Supposed to be for adjusting prediction for your ping.");
-    cl_shownet = cvarSystem->Get("cl_shownet", "0", CVAR_TEMP,
-                                 "Display network quality graph");
-    cl_shownuments = cvarSystem->Get("cl_shownuments", "0", CVAR_TEMP,
-                                     "Display the number of entities in each packet");
-    cl_showServerCommands = cvarSystem->Get("cl_showServerCommands", "0", 0,
-                                            "Show server commands");
-    cl_showSend = cvarSystem->Get("cl_showSend", "0", CVAR_TEMP,
-                                  "Shows each packet");
-    cl_showTimeDelta = cvarSystem->Get("cl_showTimeDelta", "0", CVAR_TEMP,
-                                       "Shows time difference between each packet");
-    cl_freezeDemo = cvarSystem->Get("cl_freezeDemo", "0", CVAR_TEMP,
-                                    "Pauses demo playback");
-    rcon_client_password = cvarSystem->Get("rconPassword", "", CVAR_TEMP,
-                                           "Password for remote console access");
-    cl_activeAction = cvarSystem->Get("activeAction", "", CVAR_TEMP,
-                                      "Perform the specified when joining server");
-    cl_autorecord = cvarSystem->Get("cl_autorecord", "0", CVAR_TEMP,
-                                    "At 1, then it will start/stop recording a demo at the start/end of each match.");
-
-    cl_timedemo = cvarSystem->Get("timedemo", "0", 0,
-                                  "Set to 1 to enable timedemo mode,for benchmarking purposes");
-    cl_forceavidemo = cvarSystem->Get("cl_forceavidemo", "0", 0,
-                                      "Forces all demo recording into a sequence of screenshots in TGA format.");
-    cl_aviFrameRate = cvarSystem->Get("cl_aviFrameRate", "25", CVAR_ARCHIVE,
-                                      "Framerate to use when capturing video");
-
-    cl_aviMotionJpeg = cvarSystem->Get("cl_aviMotionJpeg", "1", CVAR_ARCHIVE,
-                                       "Use the MJPEG codec when capturing video");
-
-    rconAddress = cvarSystem->Get("rconAddress", "", 0,
-                                  "Alternate server address to remotely access via rcon protocol");
-
-    cl_yawspeed = cvarSystem->Get("cl_yawspeed", "140", CVAR_ARCHIVE,
-                                  "Sets turn speed when using +left and +right.");
-    cl_pitchspeed = cvarSystem->Get("cl_pitchspeed", "140", CVAR_ARCHIVE,
-                                    "Turn speed when using keyboard to look up/down");
-    cl_anglespeedkey = cvarSystem->Get("cl_anglespeedkey", "1.5", 0,
-                                       "When pressing +left or +right keys, this sets the speed that the view angle turns");
-
-    cl_maxpackets = cvarSystem->Get("cl_maxpackets", "30", CVAR_ARCHIVE,
-                                    "Cap for data packet transmissions (upstream)");
-    cl_packetdup = cvarSystem->Get("cl_packetdup", "1", CVAR_ARCHIVE,
-                                   "Number of duplicates for every data packet sent upstream, minimised packetloss");
-
-    cl_run = cvarSystem->Get("cl_run", "1", CVAR_ARCHIVE,
-                             "Toggle 'always run' setting");
-    cl_sensitivity = cvarSystem->Get("sensitivity", "5", CVAR_ARCHIVE,
-                                     "Used for setting the mouse sensitivity");
-    cl_mouseAccel = cvarSystem->Get("cl_mouseAccel", "0", CVAR_ARCHIVE,
-                                    "Toggles mouse accelleration");
-    cl_freelook = cvarSystem->Get("cl_freelook", "1", CVAR_ARCHIVE,
-                                  "Look around using the mouse");
-
-    cl_xbox360ControllerAvailable =
-        cvarSystem->Get("in_xbox360ControllerAvailable", "0", CVAR_ROM,
-                        "Use Xbox 360 controller if it is avaliable");
-
-    // 0: legacy mouse acceleration
-    // 1: new implementation
-
-    cl_mouseAccelStyle = cvarSystem->Get("cl_mouseAccelStyle", "0",
-                                         CVAR_ARCHIVE, "Sets mouse acceleration style.");
-    // offset for the power function (for style 1, ignored otherwise)
-    // this should be set to the max rate value
-    cl_mouseAccelOffset = cvarSystem->Get("cl_mouseAccelOffset", "5",
-                                          CVAR_ARCHIVE, "Sets mouse acceleration sensitivity offset.");
-
-    cl_showMouseRate = cvarSystem->Get("cl_showmouserate", "0", 0,
-                                       "Show how fast you move the mouse in ratio to sensitivity setting.");
-
-    cl_allowDownload = cvarSystem->Get("cl_allowDownload", "1", CVAR_ARCHIVE,
-                                       "Toggles downloading missing files from the server");
-    cl_wwwDownload = cvarSystem->Get("cl_wwwDownload", "1",
-                                     CVAR_USERINFO | CVAR_ARCHIVE,
-                                     "Toggles downloading missing files from a www file server");
-
-    cl_profile = cvarSystem->Get("cl_profile", "", CVAR_ROM,
-                                 "Stores which player profile is being used");
-    cl_defaultProfile = cvarSystem->Get("cl_defaultProfile", "", CVAR_ROM,
-                                        "Sets what player profile is to be used by default when loading the game");
-
-    // init autoswitch so the ui will have it correctly even
-    // if the cgame hasn't been started
-    // -NERVE - SMF - disabled autoswitch by default
-    //cvarSystem->Get( "cg_autoswitch", "0", CVAR_ARCHIVE, "Toggles automatically chaning weapon when current one is out of ammo" );
-
-    // Rafael - particle switch
-    //cvarSystem->Get( "cg_wolfparticles", "1", CVAR_ARCHIVE, "Toggles display of particle effects – e.g. Explosions, some smoke effects." );
-    // done
-
-    cl_conXOffset = cvarSystem->Get("cl_conXOffset", "3", 0,
-                                    "Supposed to move the on-screen console text up/down");
-    cl_inGameVideo = cvarSystem->Get("r_inGameVideo", "1", CVAR_ARCHIVE,
-                                     "Toggle use of video clips in game");
-
-    cl_serverStatusResendTime = cvarSystem->Get("cl_serverStatusResendTime",
-                                "750", 0, "Sets the amount of time (in milliseconds) between heartbeats sent to the master server");
-
-    // RF
-    cl_recoilPitch = cvarSystem->Get("cg_recoilPitch", "0", CVAR_ROM,
-                                     "Sets the amount of the recoil pitch");
-
-    cl_bypassMouseInput = cvarSystem->Get("cl_bypassMouseInput", "0", 0,
-                                          "Automatically toggled when there are items (e.g. Vchat menu) on screen, to maintain mouse focus being in game, instead of in menu.");     //CVAR_ROM );          // NERVE - SMF
-
-    cl_doubletapdelay = cvarSystem->Get("cl_doubletapdelay", "100",
-                                        CVAR_ARCHIVE,
-                                        "	Sets the delay between keypresses required to be a double-tap");    // Arnout: double tap
-
-    m_pitch = cvarSystem->Get("m_pitch", "0.022", CVAR_ARCHIVE,
-                              "Sets the mouse pitch (up/down)");
-    m_yaw = cvarSystem->Get("m_yaw", "0.022", CVAR_ARCHIVE,
-                            "Sets the mouse yaw (left/right)");
-    m_forward = cvarSystem->Get("m_forward", "0.25", CVAR_ARCHIVE,
-                                "Sets the mouse yaw (forward)");
-    m_side = cvarSystem->Get("m_side", "0.25", CVAR_ARCHIVE,
-                             "Sets the mouse yaw (side)");
-    m_filter = cvarSystem->Get("m_filter", "0", CVAR_ARCHIVE,
-                               "Toggles mouse filter (mouse smoothing)");
-
-    j_pitch = cvarSystem->Get("j_pitch", "0.022", CVAR_ARCHIVE,
-                              "Sets joystics pitch");
-    j_yaw = cvarSystem->Get("j_yaw", "-0.022", CVAR_ARCHIVE,
-                            "Sets joystics yaw");
-    j_forward = cvarSystem->Get("j_forward", "-0.25", CVAR_ARCHIVE,
-                                "Sets joystics forward");
-    j_side = cvarSystem->Get("j_side", "0.25", CVAR_ARCHIVE,
-                             "Sets joystics side");
-    j_up = cvarSystem->Get("j_up", "1", CVAR_ARCHIVE, "Sets joystics up");
-    j_pitch_axis = cvarSystem->Get("j_pitch_axis", "3", CVAR_ARCHIVE,
-                                   "Sets joystics axis pitch");
-    j_yaw_axis = cvarSystem->Get("j_yaw_axis", "4", CVAR_ARCHIVE,
-                                 "Sets joystics axis yaw");
-    j_forward_axis = cvarSystem->Get("j_forward_axis", "1", CVAR_ARCHIVE,
-                                     "Sets joystics axis forward");
-    j_side_axis = cvarSystem->Get("j_side_axis", "0", CVAR_ARCHIVE,
-                                  "Sets joystics axis side");
-    j_up_axis = cvarSystem->Get("j_up_axis", "2", CVAR_ARCHIVE,
-                                "Sets joystics axis up");
-
-    cvarSystem->CheckRange(j_pitch_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
-    cvarSystem->CheckRange(j_yaw_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
-    cvarSystem->CheckRange(j_forward_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
-    cvarSystem->CheckRange(j_side_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
-    cvarSystem->CheckRange(j_up_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
-
-    cl_motdString = cvarSystem->Get("cl_motdString", "", CVAR_ROM,
-                                    "Message of the day string.");
-
-    // ~ and `, as keys and characters
-    cl_consoleKeys = cvarSystem->Get("cl_consoleKeys", "~ ` 0x7e 0x60",
-                                     CVAR_ARCHIVE, "Toggle button for opening in-game console");
-
-    cl_consoleFont = cvarSystem->Get("cl_consoleFont", "",
-                                     CVAR_ARCHIVE | CVAR_LATCH,
-                                     "The outline font used for the in-game console.	");
-    cl_consoleFontSize = cvarSystem->Get("cl_consoleFontSize", "16",
-                                         CVAR_ARCHIVE | CVAR_LATCH,
-                                         "The size of the console font (if using an outline font).");
-    cl_consoleFontKerning = cvarSystem->Get("cl_consoleFontKerning", "0",
-                                            CVAR_ARCHIVE, "The width of the console font char.");
-    cl_consolePrompt = cvarSystem->Get("cl_consolePrompt", "^3->",
-                                       CVAR_ARCHIVE, "The console prompt line.");
-
-    cl_gamename = cvarSystem->Get("cl_gamename", GAMENAME_FOR_MASTER,
-                                  CVAR_TEMP,
-                                  "Gamename sent to master server in getservers[Ext] query and infoResponse, infostring value.Also used for filtering local network games.");
-    cl_altTab = cvarSystem->Get("cl_altTab", "1", CVAR_ARCHIVE,
-                                "Allow ⎇ Alt + Tab ↹ out of application (⌘ Cmd + Tab ↹ on a Mac)");
-
-    //bani - make these cvars visible to cgame
-    cl_demorecording = cvarSystem->Get("cl_demorecording", "0", CVAR_ROM,
-                                       "This CVAR is Read Only, you can use it in-game though, basically if you have turned recording on in-game, you can use this CVAR to make sure it is recording in the console, if it says 1 then its recording.");
-    cl_demofilename = cvarSystem->Get("cl_demofilename", "", CVAR_ROM,
-                                      "This CVAR is Read Only, you can use it in-game though, basically if you have turned recording on in-game, you can use this CVAR to see what the name of the demo is in the console.");
-    cl_demooffset = cvarSystem->Get("cl_demooffset", "0", CVAR_ROM,
-                                    "This CVAR is Read Only, you can use it in-game though, basically if you have turned recording on in-game, you can use this CVAR to see what the current camera offset is in the console, it changes based on seconds, but you cant view its offset realtime, you have to continually type the CVAR in the console..");
-    cl_waverecording = cvarSystem->Get("cl_waverecording", "0", CVAR_ROM,
-                                       "This is not changeable, it just tells you when you type cl_waverecording in console if its recording or not, if it is it will say 1 if it isnt it will say 0.");
-    cl_wavefilename = cvarSystem->Get("cl_wavefilename", "", CVAR_ROM,
-                                      "If you type 1, i assume it shows the name of the current .wav audio file being recorded, EDIT: tested yes it does this.");
-    cl_waveoffset = cvarSystem->Get("cl_waveoffset", "0", CVAR_ROM,
-                                    "When 1, if you are recording a .wav audio file it just prints to the console information about the wave offset.");
-
-    //bani
-    cl_packetloss = cvarSystem->Get("cl_packetloss", "0", CVAR_CHEAT,
-                                    "Mimic packet loss.");
-    cl_packetdelay = cvarSystem->Get("cl_packetdelay", "0", CVAR_CHEAT,
-                                     "Mimic packet dealy.");
-
-    cvarSystem->Get("cl_maxPing", "800", CVAR_ARCHIVE,
-                    "This will NOT show servers with a ping higher than the chosen setting in the server browser.");
-
-    cl_guidServerUniq = cvarSystem->Get("cl_guidServerUniq", "1", CVAR_ARCHIVE,
-                                        "Use a unique guid value per server.");
-
-    // userinfo
-    cvarSystem->Get("name", idsystem->GetCurrentUser(),
-                    CVAR_USERINFO | CVAR_ARCHIVE, "Sets the name of the player");
-    cvarSystem->Get("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE,
-                    "Cap on the connection bandwidth to use, 1000=~1KB/s. For 56k use about 4000, broadband 25000");     // Dushan - changed from 5000
-    cvarSystem->Get("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE,
-                    "snapshots for server to send you, leave at 20.");
-    cvarSystem->Get("cg_version", PRODUCT_NAME, CVAR_ROM | CVAR_USERINFO,
-                    "Displays client game version.");
-    cvarSystem->Get("password", "", CVAR_USERINFO,
-                    "Used for setting password required for some servers");
-    cvarSystem->Get("cg_predictItems", "1", CVAR_ARCHIVE,
-                    "Toggle use of prediction for picking up items.");
-
-    //----(SA) added
-    //cvarSystem->Get( "cg_autoactivate", "1", CVAR_ARCHIVE, "Toggles automatically picking up items (paks, weapons etc)" );
-    //----(SA) end
-
-    // cgame might not be initialized before menu is used
-    cvarSystem->Get("cg_viewsize", "100", CVAR_ARCHIVE,
-                    "Supposed to be for setting the % of screen actually displaying rendered game. Might have been useful for using a lower-res ET while using a native resolution on TFT screens");
-
-    //cvarSystem->Get( "cg_autoReload", "1", CVAR_ARCHIVE, "Toggles automatically reloading weapon when clip becomes empty" );
-
-    //cl_missionStats = cvarSystem->Get( "g_missionStats", "0", CVAR_ROM, "Mission statistics" );
-    cl_waitForFire = cvarSystem->Get("cl_waitForFire", "0", CVAR_ROM,
-                                     "Wait for the fire.");
-
-    // NERVE - SMF - localization
-    cl_language = cvarSystem->Get("cl_language", "0", CVAR_ARCHIVE,
-                                  "Stores the language. English is 0");
-    cl_debugTranslation = cvarSystem->Get("cl_debugTranslation", "0", 0,
-                                          "Debug translations");
-    // -NERVE - SMF
-
-    // DHM - Nerve :: Auto-update
-    cl_updateavailable = cvarSystem->Get("cl_updateavailable", "0", CVAR_ROM,
-                                         "Show if update is available");
-    cl_updatefiles = cvarSystem->Get("cl_updatefiles", "", CVAR_ROM,
-                                     "Sset when there is a download an update patch");
 
     Q_strncpyz(cls.autoupdateServerNames[0], AUTOUPDATE_SERVER1_NAME,
                MAX_QPATH);
@@ -3962,7 +3596,7 @@ void CL_Shutdown(void) {
     static bool recursive = false;
 
     // check whether the client is running at all.
-    if(!(com_cl_running && com_cl_running->integer)) {
+    if(!(cl_running && cl_running->integer)) {
         return;
     }
 

@@ -82,23 +82,11 @@ void SetPlaneSignbits(cplane_t *out) {
 
 #define LL( x ) x = LittleLong( x )
 
-
 clipMap_t       cm;
 sint             c_pointcontents, c_traces, c_brush_traces, c_patch_traces,
                  c_trisoup_traces;
 
-
 uchar8           *cmod_base;
-
-#ifndef BSPC
-convar_t         *cm_noAreas;
-convar_t         *cm_noCurves;
-convar_t         *cm_forceTriangles;
-convar_t         *cm_playerCurveClip;
-convar_t         *cm_optimize;
-convar_t         *cm_showCurves;
-convar_t         *cm_showTriangles;
-#endif
 
 cmodel_t        box_model;
 cplane_t       *box_planes;
@@ -1235,23 +1223,6 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
         Com_Error(ERR_DROP, "idCollisionModelManagerLocal::LoadMap: nullptr name");
     }
 
-#ifndef BSPC
-    cm_noAreas = cvarSystem->Get("cm_noAreas", "0", CVAR_CHEAT,
-                                 "Toggle the ability of the player bounding box to clip through areas.");
-    cm_noCurves = cvarSystem->Get("cm_noCurves", "0", CVAR_CHEAT,
-                                  "Toggle the ability of the player bounding box to clip through curved surfaces.");
-    cm_forceTriangles = cvarSystem->Get("cm_forceTriangles", "0",
-                                        CVAR_CHEAT | CVAR_LATCH, "Convert all patches into triangles.");
-    cm_playerCurveClip = cvarSystem->Get("cm_playerCurveClip", "1",
-                                         CVAR_ARCHIVE | CVAR_CHEAT,
-                                         "toggles the ability of the player bounding box to respect curved surfaces.");
-    cm_optimize = cvarSystem->Get("cm_optimize", "1", CVAR_CHEAT,
-                                  "Collision model optimization");
-    cm_showCurves = cvarSystem->Get("cm_showCurves", "0", CVAR_CHEAT,
-                                    "Showing curved surfaces");
-    cm_showTriangles = cvarSystem->Get("cm_showTriangles", "0", CVAR_CHEAT,
-                                       "Showing triangles in the surfaces");
-#endif
     Com_DPrintf("idCollisionModelManagerLocal::LoadMap( %s, %i )\n", name,
                 clientload);
 

@@ -642,7 +642,6 @@ delta functions
 =============================================================================
 */
 
-extern convar_t  *cl_shownet;
 
 #define LOG( x ) if ( cl_shownet && cl_shownet->integer == 4 ) { Com_Printf( "%s ", x ); };
 
@@ -1249,8 +1248,6 @@ If the delta removes the entity, entityState_t->number will be set to MAX_GENTIT
 Can go from either a baseline or a previous packet_entity
 ==================
 */
-extern convar_t  *cl_shownet;
-
 void MSG_ReadDeltaEntity(msg_t *msg, entityState_t *from,
                          entityState_t *to, sint number) {
     sint             i, lc;

@@ -146,15 +146,7 @@ extern clipMap_t cm;
 extern sint      c_pointcontents;
 extern sint      c_traces, c_brush_traces, c_patch_traces,
        c_trisoup_traces;
-#ifndef BSPC
-extern convar_t  *cm_noAreas;
-extern convar_t  *cm_noCurves;
-extern convar_t  *cm_playerCurveClip;
-extern convar_t  *cm_forceTriangles;
-extern convar_t  *cm_optimize;
-extern convar_t  *cm_showCurves;
-extern convar_t  *cm_showTriangles;
-#endif
+
 // cm_test.c
 
 typedef struct {

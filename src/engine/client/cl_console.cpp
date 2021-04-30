@@ -61,31 +61,6 @@ const sint consoleColors[] = {
 console_t   con[NUMBER_TABS];
 console_t *activeCon = con;
 
-convar_t         *con_debug;
-convar_t         *con_conspeed;
-convar_t         *con_notifytime;
-convar_t         *con_autoclear;
-
-// Color and alpha for console
-convar_t       *scr_conColorAlpha;
-convar_t       *scr_conColorRed;
-convar_t       *scr_conColorBlue;
-convar_t       *scr_conColorGreen;
-
-// Color and alpha for bar under console
-convar_t       *scr_conBarHeight;
-
-convar_t       *scr_conBarColorAlpha;
-convar_t       *scr_conBarColorRed;
-convar_t       *scr_conBarColorBlue;
-convar_t       *scr_conBarColorGreen;
-
-convar_t       *scr_conBarSize;
-convar_t       *scr_conHeight;
-
-// DHM - Nerve :: Must hold CTRL + SHIFT + ~ to get console
-convar_t         *con_restricted;
-
 vec4_t          console_highlightcolor = { 0.5, 0.5, 0.2, 0.45 };
 
 /*
@@ -757,46 +732,6 @@ Con_Init
 void Con_Init(void) {
     Com_Printf("----- Console Initialization -------\n");
 
-    con_notifytime = cvarSystem->Get("con_notifytime", "7", 0,
-                                     "^1Defines how long messages (from players or the system) are on the screen.");
-    con_conspeed = cvarSystem->Get("scr_conspeed", "3", 0,
-                                   "^1Set how fast the console goes up and down.");
-    con_debug = cvarSystem->Get("con_debug", "0", CVAR_ARCHIVE,
-                                "^1Toggle console debugging.");
-    con_autoclear = cvarSystem->Get("con_autoclear", "1", CVAR_ARCHIVE,
-                                    "^1Toggles clearing of unfinished text after closing console.");
-    con_restricted = cvarSystem->Get("con_restricted", "0", CVAR_INIT,
-                                     "^1Toggles clearing of unfinished text after closing console.");
-
-    scr_conColorAlpha = cvarSystem->Get("scr_conColorAlpha", "0.5",
-                                        CVAR_ARCHIVE, "^1Defines the backgroud Alpha color of the console.");
-    scr_conColorRed = cvarSystem->Get("scr_conColorRed", "0", CVAR_ARCHIVE,
-                                      "^1Defines the backgroud Red color of the console.");
-    scr_conColorBlue = cvarSystem->Get("scr_conColorBlue", "0.3", CVAR_ARCHIVE,
-                                       "^1Defines the backgroud Blue color of the console.");
-    scr_conColorGreen = cvarSystem->Get("scr_conColorGreen", "0.23",
-                                        CVAR_ARCHIVE, "^1Defines the backgroud Green color of the console.");
-
-    scr_conBarHeight = cvarSystem->Get("scr_conBarHeight", "2", CVAR_ARCHIVE,
-                                       "^1Defines the bar height of the console.");
-
-    scr_conBarColorAlpha = cvarSystem->Get("scr_conBarColorAlpha", "0.3",
-                                           CVAR_ARCHIVE, "^1Defines the bar Alpha color of the console.");
-    scr_conBarColorRed = cvarSystem->Get("scr_conBarColorRed", "1",
-                                         CVAR_ARCHIVE, "^1Defines the bar Red color of the console.");
-    scr_conBarColorBlue = cvarSystem->Get("scr_conBarColorBlue", "1",
-                                          CVAR_ARCHIVE, "^1Defines the bar Blue color of the console.");
-    scr_conBarColorGreen = cvarSystem->Get("scr_conBarColorGreen", "1",
-                                           CVAR_ARCHIVE, "^1Defines the bar Green color of the console.");
-
-    scr_conHeight = cvarSystem->Get("scr_conHeight", "52", CVAR_ARCHIVE,
-                                    "^1Console height size.");
-
-    scr_conBarSize = cvarSystem->Get("scr_conBarSize", "2", CVAR_ARCHIVE,
-                                     "^1Console bar size.");
-
-    // Done defining cvars for console colors
-
     cmdCompletionSystem->Clear(&g_consoleField);
     g_consoleField.widthInChars = g_console_field_width;
 
@@ -1375,8 +1310,6 @@ void Con_DrawSolidConsole(float32 frac) {
     renderSystem->SetColor(nullptr);
 }
 
-extern convar_t  *con_drawnotify;
-
 /*
 ==================
 Con_DrawConsole
@@ -1472,7 +1405,7 @@ void Con_Bottom(void) {
 
 
 void Con_Close(void) {
-    if(!com_cl_running->integer) {
+    if(!cl_running->integer) {
         return;
     }
 

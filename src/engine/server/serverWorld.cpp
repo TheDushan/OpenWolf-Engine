@@ -610,10 +610,10 @@ void idServerWorldSystemLocal::ClipMoveToEntities(moveclip_t *clip) {
 
         if(trace.allsolid) {
             clip->trace.allsolid = true;
-            trace.entityNum = touch->s.number;
+            clip->trace.entityNum = touch->s.number;
         } else if(trace.startsolid) {
             clip->trace.startsolid = true;
-            trace.entityNum = touch->s.number;
+            clip->trace.entityNum = touch->s.number;
 
             clip->trace.entityNum = touch->s.number;
         }

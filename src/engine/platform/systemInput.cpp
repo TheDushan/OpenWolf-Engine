@@ -37,21 +37,10 @@
 
 #include <framework/precompiled.hpp>
 
-static convar_t *in_keyboardDebug = nullptr;
-
 static SDL_Joystick *stick = nullptr;
 
 static bool mouseAvailable = false;
 static bool mouseActive = false;
-
-static convar_t *in_mouse = nullptr;
-static convar_t *in_nograb;
-
-static convar_t *in_joystick = nullptr;
-static convar_t *in_joystickDebug = nullptr;
-static convar_t *in_joystickThreshold = nullptr;
-static convar_t *in_joystickNo = nullptr;
-static convar_t *in_joystickUseAnalog = nullptr;
 
 static sint vidRestartTime = 0;
 
@@ -662,25 +651,15 @@ void idSystemLocal::InitJoystick(void) {
         Q_strcat(buf, sizeof(buf), "\n");
     }
 
-    cvarSystem->Get("in_availableJoysticks", buf, CVAR_ROM,
-                    "List of available Joysticks");
-
     if(!in_joystick->integer) {
         Com_DPrintf("Joystick is not active.\n");
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
         return;
     }
 
-    in_joystickNo = cvarSystem->Get("in_joystickNo", "0", CVAR_ARCHIVE,
-                                    "Check whether a user has changed the joystick number");
-
     if(in_joystickNo->integer < 0 || in_joystickNo->integer >= total) {
         cvarSystem->Set("in_joystickNo", "0");
     }
-
-    in_joystickUseAnalog = cvarSystem->Get("in_joystickUseAnalog", "0",
-                                           CVAR_ARCHIVE,
-                                           "Do not translate joystick axis events to keyboard commands");
 
     stick = SDL_JoystickOpen(in_joystickNo->integer);
 
@@ -1187,8 +1166,7 @@ void idSystemLocal::Frame(void) {
                      !(clientGUISystem->GetCatcher() & KEYCATCH_UI));
 
     // update isFullscreen since it might of changed since the last vid_restart
-    cls.glconfig.isFullscreen =
-        cvarSystem->VariableIntegerValue("r_fullscreen") != 0;
+    cls.glconfig.isFullscreen = r_fullscreen->integer != 0;
 
     if(!cls.glconfig.isFullscreen &&
             (clientGUISystem->GetCatcher() & KEYCATCH_CONSOLE)) {
@@ -1246,23 +1224,6 @@ void idSystemLocal::Init(void *windowData) {
     SDL_window = static_cast< SDL_Window * >(windowData);
 
     Com_DPrintf("\n------- Input Initialization -------\n");
-
-    in_keyboardDebug = cvarSystem->Get("in_keyboardDebug", "0", CVAR_ARCHIVE,
-                                       "Print keyboard debug info");
-
-    // mouse variables
-    in_mouse = cvarSystem->Get("in_mouse", "1", CVAR_ARCHIVE,
-                               "Toggles polling the port used for mouse input. 0=disables;1=enables. ");
-    in_nograb = cvarSystem->Get("in_nograb", "0", CVAR_ARCHIVE,
-                                "Dont capture mouse in window mode");
-
-    in_joystick = cvarSystem->Get("in_joystick", "0",
-                                  CVAR_ARCHIVE | CVAR_LATCH,
-                                  "Toggle the initialization of the joystick  (command line)");
-    in_joystickDebug = cvarSystem->Get("in_joystickDebug", "0", CVAR_TEMP,
-                                       "A debugging tool that joystick keypress input data to the console.");
-    in_joystickThreshold = cvarSystem->Get("joy_threshold", "0.15",
-                                           CVAR_ARCHIVE, "Sets joystick threshold sensitivity");
 
     SDL_StartTextInput();
 

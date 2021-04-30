@@ -280,7 +280,7 @@ void idSystemLocal::WriteDump(pointer fmt, ...) {
 
 #ifndef DEVELOPER
 
-    if(com_developer && com_developer->integer)
+    if(developer && developer->integer)
 #endif
     {
         //this memory should live as long as the SEH is doing its thing...I hope

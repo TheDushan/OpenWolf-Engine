@@ -82,7 +82,7 @@ client_t *idServerCcmdsSystemLocal::GetPlayerByHandle(void) {
     valueType *s, cleanName[64];
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         return nullptr;
     }
 
@@ -145,7 +145,7 @@ client_t *idServerCcmdsSystemLocal::GetPlayerByName(void) {
     client_t *cl;
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         return nullptr;
     }
 
@@ -213,12 +213,11 @@ void idServerCcmdsSystemLocal::Map_f(void) {
         }
     }
 
-    buildScript = static_cast< bool >
-                  (cvarSystem->VariableIntegerValue("com_buildScript"));
+    buildScript = static_cast< bool >(com_buildScript->integer);
 
     if(serverGameSystem->GameIsSinglePlayer()) {
-        if(!buildScript && sv_reloading->integer &&
-                sv_reloading->integer !=
+        if(!buildScript && g_reloading->integer &&
+                g_reloading->integer !=
                 RELOAD_NEXTMAP) { // game is in 'reload' mode, don't allow starting new maps yet.
             return;
         }
@@ -472,7 +471,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
     }
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -520,7 +519,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
     }
 
     // Check for loading a saved game
-    if(cvarSystem->VariableIntegerValue("savegame_loading")) {
+    if(savegame_loading->integer) {
         // open the current savegame, and find out what the time is, everything else we can ignore
         valueType savemap[MAX_QPATH],
                   *cl_profileStr = cvarSystem->VariableString("cl_profile");
@@ -674,13 +673,13 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
     uchar8 *buffer;
 
     // dont allow command if another loadgame is pending
-    if(cvarSystem->VariableIntegerValue("savegame_loading")) {
+    if(savegame_loading->integer) {
         return;
     }
 
-    if(sv_reloading->integer) {
+    if(g_reloading->integer) {
         // (SA) disabling
-        // if(sv_reloading->integer && sv_reloading->integer != RELOAD_FAILED )    // game is in 'reload' mode, don't allow starting new maps yet.
+        // if(g_reloading->integer && g_reloading->integer != RELOAD_FAILED )    // game is in 'reload' mode, don't allow starting new maps yet.
         return;
     }
 
@@ -731,7 +730,7 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
     Q_strncpyz(mapname, reinterpret_cast<pointer>(buffer) + sizeof(sint),
                sizeof(mapname));
 
-    if(com_sv_running->integer && (com_frameTime != sv.serverId)) {
+    if(sv_running->integer && (com_frameTime != sv.serverId)) {
         // check mapname
         if(!Q_stricmp(mapname, sv_mapname->string)) {   // same
             if(Q_stricmp(filename, va("%scurrent.sav", savedir)) != 0) {
@@ -757,7 +756,7 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
     Hunk_FreeTempMemory(buffer);
 
     // otherwise, do a slow load
-    if(cvarSystem->VariableIntegerValue("sv_cheats")) {
+    if(sv_cheats->integer) {
         cmdBufferSystem->ExecuteText(EXEC_APPEND, va("spdevmap %s", filename));
     } else { // no cheats
         cmdBufferSystem->ExecuteText(EXEC_APPEND, va("spmap %s", filename));
@@ -826,7 +825,7 @@ void idServerCcmdsSystemLocal::Status_f(void) {
     uchar8 cpu, avg; //Dushan
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -913,13 +912,13 @@ void idServerCcmdsSystemLocal::ConSay_f(void) {
     valueType *p;
     valueType text[1024];
 
-    if(!com_dedicated->integer) {
+    if(!dedicated->integer) {
         Com_Printf("Server is not dedicated.\n");
         return;
     }
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -963,7 +962,7 @@ Examine the serverinfo string
 ===========
 */
 void idServerCcmdsSystemLocal::Serverinfo_f(void) {
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
     }
 
@@ -982,7 +981,7 @@ Examine or change the serverinfo string
 */
 void idServerCcmdsSystemLocal::Systeminfo_f(void) {
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1004,7 +1003,7 @@ void idServerCcmdsSystemLocal::DumpUser_f(void) {
     client_t *cl;
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1032,7 +1031,7 @@ idServerCcmdsSystemLocal::UserInfo_f
 */
 void idServerCcmdsSystemLocal::UserInfo_f(void) {
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1052,7 +1051,7 @@ idServerCcmdsSystemLocal::StartMatch_f
 */
 void idServerCcmdsSystemLocal::StartMatch_f(void) {
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1070,7 +1069,7 @@ void idServerCcmdsSystemLocal::StopMatch_f(void) {
     client_t *cl;
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1102,7 +1101,7 @@ idServerCcmdsSystemLocal::AddClanMatch_f
 */
 void idServerCcmdsSystemLocal::AddClanMatch_f(void) {
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1122,7 +1121,7 @@ idServerCcmdsSystemLocal::AddUserMatch_f
 */
 void idServerCcmdsSystemLocal::AddUserMatch_f(void) {
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1142,7 +1141,7 @@ idServerCcmdsSystemLocal::AddRefereeMatch_f
 */
 void idServerCcmdsSystemLocal::AddRefereeMatch_f(void) {
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1162,7 +1161,7 @@ idServerCcmdsSystemLocal::MatchInfo_f
 */
 void idServerCcmdsSystemLocal::MatchInfo_f(void) {
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1179,7 +1178,7 @@ void idServerCcmdsSystemLocal::AddIP_f(void) {
     client_t *cl;
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1207,7 +1206,7 @@ idServerCcmdsSystemLocal::BanList_f
 void idServerCcmdsSystemLocal::BanList_f(void) {
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1222,7 +1221,7 @@ idServerCcmdsSystemLocal::UnBan_f
 */
 void idServerCcmdsSystemLocal::UnBan_f(void) {
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1246,7 +1245,7 @@ void idServerCcmdsSystemLocal::StatsPlayers_f(void) {
     valueType bigbuffer[MAX_INFO_STRING * 2];
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1327,7 +1326,7 @@ void idServerCcmdsSystemLocal::StatsPlayer_f(void) {
     valueType bigbuffer[MAX_INFO_STRING * 2];
 
     // make sure server is running
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         Com_Printf("Server is not running.\n");
         return;
     }
@@ -1999,7 +1998,7 @@ void idServerCcmdsSystemLocal::AddOperatorCommands(void) {
                           &idServerCcmdsSystemLocal::StopRecord_f, "");
 
 
-    if(com_dedicated->integer) {
+    if(dedicated->integer) {
         cmdSystem->AddCommand("say", &idServerCcmdsSystemLocal::ConSay_f,
                               "Used by the server. The text in the string is sent to all players as a message.");
     }

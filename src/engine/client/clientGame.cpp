@@ -592,7 +592,7 @@ void idClientGameSystemLocal::LoadMap(pointer mapname) {
     sint checksum;
 
     // DHM - Nerve :: If we are not running the server, then set expected usage here
-    if(!com_sv_running->integer) {
+    if(!sv_running->integer) {
         SetExpectedHunkUsage(mapname);
     } else {
         // TTimo
@@ -701,8 +701,7 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage(void) {
     valueType *memlistfile = "hunkusage.dat", *buf, *outbuf, *buftrav,
                *outbuftrav, * token, outstr[256];
 
-    memusage = cvarSystem->VariableIntegerValue("com_hunkused") +
-               cvarSystem->VariableIntegerValue("hunk_soundadjust");
+    memusage = com_hunkused->integer;
 
     len = fileSystem->FOpenFileByMode(memlistfile, &handle, FS_READ);
 
@@ -973,7 +972,7 @@ void idClientGameSystemLocal::AdjustTimeDelta(void) {
         // if any of the frames between this and the previous snapshot
         // had to be extrapolated, nudge our sense of time back a little
         // the granularity of +1 / -2 is too high for timescale modified frametimes
-        if(com_timescale->value == 0 || com_timescale->value == 1) {
+        if(timescale->value == 0 || timescale->value == 1) {
             if(cl.extrapolatedSnapshot) {
                 cl.extrapolatedSnapshot = false;
                 cl.serverTimeDelta -= 2;
@@ -1012,8 +1011,8 @@ void idClientGameSystemLocal::FirstSnapshot(void) {
     // execute the contents of activeAction now
     // this is to allow scripting a timedemo to start right
     // after loading
-    if(cl_activeAction->string[0]) {
-        cmdBufferSystem->AddText(cl_activeAction->string);
+    if(activeAction->string[0]) {
+        cmdBufferSystem->AddText(activeAction->string);
         cmdBufferSystem->AddText("\n");
         cvarSystem->Set("activeAction", "");
     }
@@ -1059,7 +1058,7 @@ void idClientGameSystemLocal::SetCGameTime(void) {
     }
 
     // allow pause in single player
-    if(sv_paused->integer && cl_paused->integer && com_sv_running->integer) {
+    if(sv_paused->integer && cl_paused->integer && sv_running->integer) {
         // paused
         return;
     }
@@ -1136,7 +1135,7 @@ void idClientGameSystemLocal::SetCGameTime(void) {
     // no matter what speed machine it is run on,
     // while a normal demo may have different time samples
     // each time it is played back
-    if(cl_timedemo->integer) {
+    if(timedemo->integer) {
         if(!clc.timeDemoStart) {
             clc.timeDemoStart = idsystem->Milliseconds();
         }
