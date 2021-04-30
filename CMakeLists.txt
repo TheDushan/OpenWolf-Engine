@@ -344,7 +344,8 @@ set( FRAMEWORKS_SOURCES
 )
 
 set( CLIENTLIST_HEADERS
-	${MOUNT_DIR}/client/client.hpp
+	${MOUNT_DIR}/client/clientLocal.hpp
+	${MOUNT_DIR}/client/clientPublic.hpp
 	${MOUNT_DIR}/client/clientAVI.hpp
 	${MOUNT_DIR}/client/clientBrowser.hpp
 	${MOUNT_DIR}/client/clientGame.hpp

@@ -143,7 +143,7 @@
 #include <API/CmdCompletion_api.hpp>
 #include <framework/CmdCompletion.hpp>
 #include <API/cgame_api.hpp>
-#include <client/client.hpp>
+#include <client/clientPublic.hpp>
 #include <client/keys.hpp>
 
 #include <zlib.h>

@@ -181,7 +181,8 @@ extern "C"
 #include <soundSystem/sndSystem_local.hpp>
 #include <API/cgame_api.hpp>
 #include <API/gui_api.hpp>
-#include <client/client.hpp>
+#include <client/clientPublic.hpp>
+#include <client/clientLocal.hpp>
 #include <client/clientParse.hpp>
 #include <framework/keycodes.hpp>
 #include <framework/CmdSystem.hpp>

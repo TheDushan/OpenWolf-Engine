@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,7 +26,7 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   client.hpp
+// File name:   clientPublic.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -35,8 +34,8 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENT_H__
-#define __CLIENT_H__
+#ifndef __CLIENTPUBLIC_HPP__
+#define __CLIENTPUBLIC_HPP__
 
 #if !defined ( DEDICATED ) && !defined ( UPDATE_SERVER ) && !defined ( BSPC )
 #endif
@@ -75,6 +74,15 @@ typedef struct {
     // making the snapshot current
 } clSnapshot_t;
 
+// the parseEntities array must be large enough to hold PACKET_BACKUP frames of
+// entities, so that when a delta compressed message arives from the server
+// it can be un-deltad from the original
+
+// Dushan
+// MAX_GENTITIES is defined as '1<<GENTITYNUM_BITS' which equates to 1024.
+// And because of that reason we increased that 4 times (old limit was already 2k)
+#define MAX_PARSE_ENTITIES ( PACKET_BACKUP * MAX_GENTITIES * 2 )
+
 // Arnout: for double tapping
 typedef struct {
     sint        pressedTime[DT_NUM];
@@ -96,6 +104,7 @@ typedef struct {
     sint             p_serverTime;  // usercmd->serverTime when packet was sent
     sint             p_realtime;        // cls.realtime when packet was sent
 } outPacket_t;
+
 
 // the parseEntities array must be large enough to hold PACKET_BACKUP frames of
 // entities, so that when a delta compressed message arives from the server
@@ -209,7 +218,6 @@ demo through a file.
 =============================================================================
 */
 
-
 typedef struct {
     sint                        clientNum;
     sint
@@ -271,7 +279,7 @@ typedef struct {
     redirectedList[MAX_INFO_STRING];                            // list of files that we downloaded through a redirect since last FS_ComparePaks
     valueType
     badChecksumList[MAX_INFO_STRING];                           // list of files for which wwwdl redirect is broken (wrong checksum)
-    valueType                   newsString[ MAX_NEWS_STRING ];
+    valueType                   newsString[MAX_NEWS_STRING];
 
     // demo information
     valueType                   demoName[MAX_QPATH];
@@ -414,193 +422,4 @@ typedef struct {
 
 extern clientStatic_t cls;
 
-//=============================================================================
-
-extern void    *cgvm;           // interface to cgame dll or vm
-extern void    *uivm;
-extern void    *dbvm;
-extern idCGame *cgame;
-extern idUserInterfaceManager *uiManager;
-
-//=================================================
-
-void            Key_GetBindingByString(pointer binding, sint *key1,
-                                       sint *key2);
-
-//
-// cl_main
-//
-void CL_PurgeCache(void);
-void            CL_Init(void);
-void            CL_FlushMemory(void);
-void            CL_ShutdownAll(void);
-void            CL_AddReliableCommand(pointer cmd);
-
-void            CL_StartHunkUsers(void);
-
-#if !defined(UPDATE_SERVER)
-void            CL_CheckAutoUpdate(void);
-bool            CL_NextUpdateServer(void);
-void            CL_GetAutoUpdate(void);
-#endif
-
-void            CL_Disconnect_f(void);
-void            CL_Vid_Restart_f(void);
-void            CL_Snd_Restart_f(void);
-void            CL_NextDemo(void);
-void            CL_ReadDemoMessage(void);
-void            CL_StartDemoLoop(void);
-
-void            CL_InitDownloads(void);
-void            CL_NextDownload(void);
-
-
-void            CL_ShutdownRef(void);
-void            CL_InitRef(void);
-
-void            CL_AddToLimboChat(pointer str);      // NERVE - SMF
-
-void            CL_OpenURL(pointer url);     // TTimo
-void            CL_Record(pointer name);
-
-//
-// cl_input
-//
-typedef struct {
-    sint             down[2];   // key nums holding it down
-    uint        downtime;   // msec timestamp
-    uint
-    msec;       // msec down this frame if both a down and up happened
-    bool        active;     // current state
-    bool        wasPressed; // set when down, not cleared when up
-} kbutton_t;
-
-enum kbuttons_t {
-    KB_LEFT,
-    KB_RIGHT,
-    KB_FORWARD,
-    KB_BACK,
-    KB_LOOKUP,
-    KB_LOOKDOWN,
-    KB_MOVELEFT,
-    KB_MOVERIGHT,
-    KB_STRAFE,
-    KB_SPEED,
-    KB_UP,
-    KB_DOWN,
-    KB_BUTTONS0,
-    KB_BUTTONS1,
-    KB_BUTTONS2,
-    KB_BUTTONS3,
-    KB_BUTTONS4,
-    KB_BUTTONS5,
-    KB_BUTTONS6,
-    KB_BUTTONS7,
-    KB_BUTTONS8,
-    KB_BUTTONS9,
-    KB_BUTTONS10,
-    KB_BUTTONS11,
-    KB_BUTTONS12,
-    KB_BUTTONS13,
-    KB_BUTTONS14,
-    KB_BUTTONS15,
-    KB_WBUTTONS0,
-    KB_WBUTTONS1,
-    KB_WBUTTONS2,
-    KB_WBUTTONS3,
-    KB_WBUTTONS4,
-    KB_WBUTTONS5,
-    KB_WBUTTONS6,
-    KB_WBUTTONS7,
-    KB_MLOOK,
-    // Dushan
-    NUM_BUTTONS
-};
-
-
-void            CL_ClearKeys(void);
-void            CL_InitInput(void);
-void            CL_SendCmd(void);
-void            CL_ClearState(void);
-void            CL_WritePacket(void);
-void            IN_Notebook(void);
-void            IN_Help(void);
-float32           CL_KeyState(kbutton_t *key);
-sint             Key_StringToKeynum(pointer str);
-valueType           *Key_KeynumToString(sint keynum);
-
-extern sint      cl_connectedToPureServer;
-
-//====================================================================
-
-void            CL_UpdateInfoPacket(netadr_t from);      // DHM - Nerve
-
-//
-// console
-//
-
-void Con_ConsoleSwitch(sint n);
-void Con_ConsoleNext(sint n);
-void Con_LineAccept(void);
-void            Con_Init(void);
-void            Con_Clear_f(void);
-void            Con_ToggleConsole_f(void);
-void            Con_OpenConsole_f(void);
-void            Con_DrawNotify(void);
-void            Con_ClearNotify(void);
-void            Con_RunConsole(void);
-void            Con_DrawConsole(void);
-void            Con_PageUp(void);
-void            Con_PageDown(void);
-void            Con_Top(void);
-void            Con_Bottom(void);
-void            Con_Close(void);
-
-//
-// cl_main.c
-//
-void            CL_WriteDemoMessage(msg_t *msg, sint headerBytes);
-void            CL_RequestMotd(void);
-
-#define NUMBER_TABS 4
-#define CON_ALL 0
-#define CON_SYS 1
-#define CON_CHAT 2
-#define CON_TCHAT 3
-
-// check if this is a chat console
-#define CON_ISCHAT(conNum) (conNum >= CON_CHAT)
-
-#define NUM_CON_TIMES 4
-#define CON_TEXTSIZE 65536
-typedef struct {
-    bool        initialized;
-
-    schar16         text[CON_TEXTSIZE];
-    sint         current;   // line where next message will be printed
-    sint         x;         // offset in current line for next print
-    sint         display;   // bottom of console displays this line
-
-    sint         linewidth; // characters across screen
-    sint         totallines;    // total lines in console scrollback
-
-    float32         xadjust;    // for wide aspect screens
-
-    float32         displayFrac;    // aproaches finalFrac at scr_conspeed
-    float32         finalFrac;  // 0.0 to 1.0 lines of console to display
-    float32         desiredFrac;    // ydnar: for variable console heights
-
-    sint         vislines;  // in scanlines
-
-    sint
-    times[NUM_CON_TIMES];  // cls.realtime time the line was generated
-    // for transparent notify lines
-    vec4_t      color;
-
-    sint          acLength; // Arnout: autocomplete buffer length
-} console_t;
-
-extern console_t    con[NUMBER_TABS];
-extern console_t *activeCon;
-
-#endif //!__CLIENT_H__
+#endif //!__CLIENTPUBLIC_HPP__
