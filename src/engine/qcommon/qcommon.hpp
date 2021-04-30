@@ -532,19 +532,15 @@ void            CL_ForwardCommandToServer(pointer string);
 // things like godmode, noclip, etc, are commands directed to the server,
 // so when they are typed in at the console, they will need to be forwarded.
 
-void            CL_CDDialog(void);
-
-// bring up the "need a cd to play" dialog
-
-void            CL_ShutdownAll(void);
+void            CL_ShutdownAll(bool shutdownRen);
 
 // shutdown all the client stuff
 
-void            CL_FlushMemory(void);
+void CL_FlushMemory(void);
 
 // dump all memory on an error
 
-void            CL_StartHunkUsers(void);
+void            CL_StartHunkUsers(bool rendererOnly);
 
 // start all the client stuff using the hunk
 

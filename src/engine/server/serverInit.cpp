@@ -652,7 +652,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     CL_MapLoading();
 
     // make sure all the client stuff is unloaded
-    CL_ShutdownAll();
+    CL_ShutdownAll(false);
 #endif
 
     // clear the whole hunk because we're (re)loading the server

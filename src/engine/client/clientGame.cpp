@@ -815,6 +815,7 @@ void idClientGameSystemLocal::InitCGame(void) {
     cgvm = idsystem->LoadDll("cgame");
 
     if(!cgvm) {
+        cls.cgameStarted = false;
         Com_Error(ERR_DROP, "cannot load cgame dynamic module.\n");
     }
 
@@ -823,6 +824,7 @@ void idClientGameSystemLocal::InitCGame(void) {
                  idsystem->GetProcAddress(cgvm, "cgameEntry");
 
     if(!cgameEntry) {
+        cls.cgameStarted = false;
         Com_Error(ERR_DROP, "error loading entry point on clientGame.\n");
     }
 

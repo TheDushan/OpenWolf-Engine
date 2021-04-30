@@ -3202,7 +3202,7 @@ void Com_Init( valueType* commandLine )
     }
 
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-    CL_StartHunkUsers();
+    CL_StartHunkUsers(false);
 #endif
 
     if( !dedicated->integer && !Com_AddStartupCommands() )

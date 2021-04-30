@@ -766,7 +766,7 @@ void CL_DemoName(valueType *buffer, sint size) {
 CL_ShutdownAll
 =====================
 */
-void CL_ShutdownAll(void) {
+void CL_ShutdownAll(bool shutdownRen) {
     // clear sounds
     soundSystem->DisableSounds();
 
@@ -779,8 +779,13 @@ void CL_ShutdownAll(void) {
     // shutdown GUI
     clientGUISystem->ShutdownGUI();
 
+
     // shutdown the renderer
-    renderSystem->Shutdown(false);
+    if(shutdownRen) {
+        CL_ShutdownRef();
+    } else {
+        renderSystem->Shutdown(false);      // don't destroy window or context
+    }
 
     //if( renderSystem->purgeCache )
     //{
@@ -804,16 +809,14 @@ void CL_ShutdownAll(void) {
 
 /*
 =================
-CL_FlushMemory
+CL_ClearMemory
 
-Called by CL_MapLoading, CL_Connect_f, CL_PlayDemo_f, and CL_ParseGamestate the only
-ways a client gets into a game
-Also called by Com_Error
+Called by Com_GameRestart
 =================
 */
-void CL_FlushMemory(void) {
+void CL_ClearMemory(bool shutdownRen) {
     // shutdown all the client stuff
-    CL_ShutdownAll();
+    CL_ShutdownAll(shutdownRen);
 
     // if not running a server clear the whole hunk
     if(!sv_running->integer) {
@@ -825,8 +828,20 @@ void CL_FlushMemory(void) {
         // clear all the client data on the hunk
         Hunk_ClearToMark();
     }
+}
 
-    CL_StartHunkUsers();
+/*
+=================
+CL_FlushMemory
+
+Called by CL_MapLoading, CL_Connect_f, CL_PlayDemo_f, and CL_ParseGamestate the only
+ways a client gets into a game
+Also called by Com_Error
+=================
+*/
+void CL_FlushMemory(void) {
+    CL_ClearMemory(false);
+    CL_StartHunkUsers(false);
 }
 
 /*
@@ -1627,7 +1642,7 @@ void CL_Vid_Restart_f(void) {
     CL_InitRef();
 
     // startup all the client stuff
-    CL_StartHunkUsers();
+    CL_StartHunkUsers(false);
 
 #ifdef _WIN32
     idsystem->Restart_f();
@@ -3120,7 +3135,7 @@ After the server has cleared the hunk, these will need to be restarted
 This is the only place that any of these functions are called from
 ============================
 */
-void CL_StartHunkUsers(void) {
+void CL_StartHunkUsers(bool rendererOnly) {
     if(!cl_running) {
         return;
     }
@@ -3132,6 +3147,10 @@ void CL_StartHunkUsers(void) {
     if(!cls.rendererStarted) {
         cls.rendererStarted = true;
         CL_InitRenderer();
+    }
+
+    if(rendererOnly) {
+        return;
     }
 
     if(!cls.soundStarted) {

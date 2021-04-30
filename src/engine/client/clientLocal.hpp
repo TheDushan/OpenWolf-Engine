@@ -59,12 +59,12 @@ void            Key_GetBindingByString(pointer binding, sint *key1,
 // cl_main
 //
 void CL_PurgeCache(void);
-void            CL_Init(void);
-void            CL_FlushMemory(void);
-void            CL_ShutdownAll(void);
-void            CL_AddReliableCommand(pointer cmd);
+void CL_Init(void);
+void CL_FlushMemory(void);
+void CL_ShutdownAll(bool shutdownRen);
+void CL_AddReliableCommand(pointer cmd);
 
-void            CL_StartHunkUsers(void);
+void            CL_StartHunkUsers(bool rendererOnly);
 
 #if !defined(UPDATE_SERVER)
 void            CL_CheckAutoUpdate(void);

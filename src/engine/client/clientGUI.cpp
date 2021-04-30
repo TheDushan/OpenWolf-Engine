@@ -309,6 +309,7 @@ void idClientGUISystemLocal::InitGUI(void) {
     uivm = idsystem->LoadDll("gui");
 
     if(!uivm) {
+        cls.uiStarted = false;
         Com_Error(ERR_DROP, "cannot load client gui dynamic module.\n");
     }
 
@@ -317,6 +318,7 @@ void idClientGUISystemLocal::InitGUI(void) {
                idsystem->GetProcAddress(uivm, "guiEntry");
 
     if(!guiEntry) {
+        cls.uiStarted = false;
         Com_Error(ERR_DROP, "error loading entry point on client gui.\n");
     }
 

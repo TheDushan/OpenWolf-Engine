@@ -141,7 +141,7 @@ bool idSystemLocal::RandomBytes(uchar8 *string, uint64 len) {
         return false;
     }
 
-    if(!CryptGenRandom(prov, len, (BYTE *)string)) {
+    if(!CryptGenRandom(prov, static_cast<DWORD>(len), (BYTE *)string)) {
         CryptReleaseContext(prov, 0);
         return false;
     }
@@ -219,7 +219,7 @@ idSystemLocal::Basename
 */
 pointer idSystemLocal::Basename(valueType *path) {
     static valueType base[ MAX_OSPATH ] = { 0 };
-    sint    length;
+    uint64 length;
 
     length = strlen(path) - 1;
 
@@ -251,7 +251,7 @@ idSystemLocal::Dirname
 */
 pointer idSystemLocal::Dirname(valueType *path) {
     static valueType dir[ MAX_OSPATH ] = { 0 };
-    sint length;
+    uint64 length;
 
     Q_strncpyz(dir, path, sizeof(dir));
     length = strlen(dir) - 1;
@@ -363,7 +363,7 @@ sidSystemLocal::trgtr
 ==============
 */
 bool idSystemLocal::strgtr(pointer s0, pointer s1) {
-    sint l0, l1, i;
+    uint64 l0, l1, i;
 
     l0 = strlen(s0);
     l1 = strlen(s1);
@@ -567,7 +567,7 @@ void idSystemLocal::ErrorDialog(pointer error) {
             fileName = "crashlog.txt";
     valueType buffer[ 1024 ], *ospath = fileSystem->BuildOSPath(homepath,
                                         gamedir, fileName);
-    uint size;
+    uint64 size;
     sint f = -1;
 
     systemLocal.Print(va("%s\n", error));

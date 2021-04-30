@@ -200,7 +200,7 @@ bool idSystemLocal::WritePIDFile(void) {
 
         pid = atoi(pidBuffer);
 
-        if(!PIDIsRunning(pid)) {
+        if(!PIDIsRunning(static_cast<uint>(pid))) {
             stale = true;
         }
     }

@@ -2059,7 +2059,7 @@ void idServerClientSystemLocal::UpdateUserinfo_f(client_t *cl) {
 
     // call prog code to allow overrides
 #ifndef UPDATE_SERVER
-    sgame->ClientUserinfoChanged(cl - svs.clients);
+    sgame->ClientUserinfoChanged(ARRAY_INDEX(svs.clients, cl));
 #endif
 
     // get the name out of the game and set it in the engine
@@ -2349,24 +2349,25 @@ Also called by bot code
 ==================
 */
 void idServerClientSystemLocal::ClientThink(sint client, usercmd_t *cmd) {
+    client_t *cl = &svs.clients[client];
+
     if(client < 0 || sv_maxclients->integer <= client) {
         Com_DPrintf(S_COLOR_YELLOW
                     "idServerClientSystemLocal::ClientThink: bad clientNum %i\n", client);
         return;
     }
 
-    svs.clients[client].lastUsercmd = *cmd;
+    cl->lastUsercmd = *cmd;
 
-    if(svs.clients[client].state != CS_ACTIVE) {
+    if(cl->state != CS_ACTIVE) {
         // may have been kicked during the last usercmd
         return;
     }
 
-    if(svs.clients[client].lastUserInfoCount >= INFO_CHANGE_MAX_COUNT &&
-            svs.clients[client].lastUserInfoChange < svs.time &&
-            svs.clients[client].userinfoPostponed[0]) {
+    if(cl->lastUserInfoCount >= INFO_CHANGE_MAX_COUNT &&
+            cl->lastUserInfoChange < svs.time &&
+            cl->userinfoPostponed[0]) {
         // Update postponed userinfo changes now
-        client_t *cl = &svs.clients[client];
         valueType info[MAX_INFO_STRING];
 
         Q_strncpyz(cl->userinfo, cl->userinfoPostponed, sizeof(cl->userinfo));
@@ -2387,7 +2388,7 @@ void idServerClientSystemLocal::ClientThink(sint client, usercmd_t *cmd) {
         cl->lastUserInfoChange = svs.time + INFO_CHANGE_MIN_INTERVAL;
     }
 
-    sgame->ClientThink(client);
+    sgame->ClientThink(ARRAY_INDEX(svs.clients, cl));
 }
 
 /*
