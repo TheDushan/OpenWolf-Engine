@@ -1,3 +1,6 @@
+2010-05-01 Dusan Jocic <dusanjocic@msn.com>
+	* [GLSL] Misc fixes
+
 2010-04-30 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Consolidation of engine and renderer convars
 	* [Network] Fixed qport in case of potentially overflowing signed short
