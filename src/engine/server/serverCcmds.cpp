@@ -1041,7 +1041,9 @@ void idServerCcmdsSystemLocal::UserInfo_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::UserInfo(cmdSystem->Argv(1));
+#endif
 }
 
 /*
@@ -1056,7 +1058,9 @@ void idServerCcmdsSystemLocal::StartMatch_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::startMatch();
+#endif
 }
 
 /*
@@ -1074,7 +1078,9 @@ void idServerCcmdsSystemLocal::StopMatch_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::stopMatch();
+#endif
 
     // Say bye to all players and referees and restart server
     for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
@@ -1111,7 +1117,9 @@ void idServerCcmdsSystemLocal::AddClanMatch_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::addMatchClan(cmdSystem->Argv(1));
+#endif
 }
 
 /*
@@ -1131,7 +1139,9 @@ void idServerCcmdsSystemLocal::AddUserMatch_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::addMatchUser(cmdSystem->Argv(1));
+#endif
 }
 
 /*
@@ -1151,7 +1161,9 @@ void idServerCcmdsSystemLocal::AddRefereeMatch_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::addMatchReferee(cmdSystem->Argv(1));
+#endif
 }
 
 /*
@@ -1166,7 +1178,9 @@ void idServerCcmdsSystemLocal::MatchInfo_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::matchInfo();
+#endif
 }
 
 /*
@@ -1194,7 +1208,9 @@ void idServerCcmdsSystemLocal::AddIP_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::BanUser(cl);
+#endif
 
 }
 
@@ -1211,7 +1227,9 @@ void idServerCcmdsSystemLocal::BanList_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::showBanUsers();
+#endif
 }
 
 /*
@@ -1231,7 +1249,9 @@ void idServerCcmdsSystemLocal::UnBan_f(void) {
         return;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::unbanUser(cmdSystem->Argv(1));
+#endif
 }
 
 /*

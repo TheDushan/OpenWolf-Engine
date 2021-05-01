@@ -899,8 +899,10 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
         }
     }
 
+#ifdef _WIN32
     idServerCommunityServer::SaveStatistics();
     idServerCommunityServer::InitStatistics();
+#endif
 
     idServerCcmdsSystemLocal::BeginAutoRecordDemos();
 
@@ -1047,7 +1049,9 @@ void idServerInitSystemLocal::Init(void) {
 #endif
     }
 
+#ifdef _WIN32
     idServerCommunityServer::StartUp();
+#endif
 }
 
 

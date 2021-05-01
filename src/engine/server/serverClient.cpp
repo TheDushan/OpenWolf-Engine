@@ -484,9 +484,11 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
 
     // Community server login and ban system
     // check for privateClient password
+#ifdef _WIN32
     if(idServerCommunityServer::Login(userinfo, &user) != CS_OK) {
         return;
     }
+#endif
 
     // Check if guid is banned
     if(idServerCommunityServer::checkBanGUID(Info_ValueForKey(userinfo,
@@ -585,11 +587,13 @@ gotnewcl:
     *newcl = temp;
 
     // Adding Community server Data
+#ifdef _WIN32
     if(newcl->cs_user != nullptr) {
         idServerCommunityServer::destroyUserData(newcl->cs_user);
     }
 
     newcl->cs_user = user;
+#endif
 
     clientNum = ARRAY_INDEX(svs.clients, newcl);
     ent = serverGameSystem->GentityNum(clientNum);
@@ -1896,7 +1900,9 @@ void idServerClientSystemLocal::UserinfoChanged(client_t *cl) {
         oldInfoLen = newInfoLen;
     }
 
+#ifdef _WIN32
     idServerCommunityServer::userInfoChanged(cl);
+#endif
 
     // name for C code
     Q_strncpyz(cl->name, Info_ValueForKey(cl->userinfo, "name"),
@@ -2110,9 +2116,11 @@ void idServerClientSystemLocal::ExecuteClientCommand(client_t *cl,
 
     cmdSystem->TokenizeString(s);
 
+#ifdef _WIN32
     if(idServerCommunityServer::checkClientCommandPermitions(cl, s) != CS_OK) {
         clientOK = false;
     }
+#endif
 
     // see if it is a server level command
     for(u = ucmds; u->name; u++) {
