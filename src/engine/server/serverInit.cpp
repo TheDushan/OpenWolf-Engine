@@ -690,9 +690,12 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     fileSystem->ClearPakReferences(0);
 
     // allocate the snapshot entities on the hunk
-    svs.snapshotEntities = (entityState_t *)Hunk_Alloc(sizeof(
-                               entityState_t) * svs.numSnapshotEntities, h_high);
     svs.nextSnapshotEntities = 0;
+
+    // allocate the snapshot entities
+    svs.snapshotEntities = new entityState_s[svs.numSnapshotEntities];
+    
+    ::memset(svs.snapshotEntities, 0, sizeof(entityState_t) * svs.numSnapshotEntities);
 
     // toggle the server bit so clients can detect that a
     // server has changed

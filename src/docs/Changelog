@@ -1,5 +1,6 @@
 2010-05-01 Dusan Jocic <dusanjocic@msn.com>
 	* [GLSL] Misc fixes
+	* [Server] Fixed crash with allocate snapshot entities 
 
 2010-04-30 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Consolidation of engine and renderer convars
