@@ -1104,7 +1104,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
                     return;
                 }
 
-                if(cvarSystem->VariableValue("r_fullscreen") == 0) {
+                if(r_fullscreen->integer == 0) {
                     Com_Printf("Switching to fullscreen rendering\n");
                     cvarSystem->Set("r_fullscreen", "1");
                 } else {

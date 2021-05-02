@@ -268,7 +268,6 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
     if(!dedicated || dedicated->integer != 2 ||
             !(netenabled & (NET_ENABLEV6 | NET_ENABLEV4))) {
         return;     // only dedicated servers send heartbeats
-
     }
 
     // if not time yet, don't send anything

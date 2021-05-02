@@ -811,6 +811,7 @@ void idClientBrowserSystemLocal::GetPing(sint n, valueType *buf,
     if(!time) {
         // check for timeout
         time = cls.realtime - cl_pinglist[n].start;
+        cvarSystem->Set("cl_maxPing", "800");
         maxPing = cl_maxPing->integer;
 
         if(maxPing < 100) {

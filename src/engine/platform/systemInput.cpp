@@ -1165,9 +1165,6 @@ void idSystemLocal::Frame(void) {
     loading = (bool)(cls.state != CA_DISCONNECTED && cls.state != CA_ACTIVE &&
                      !(clientGUISystem->GetCatcher() & KEYCATCH_UI));
 
-    // update isFullscreen since it might of changed since the last vid_restart
-    cls.glconfig.isFullscreen = r_fullscreen->integer != 0;
-
     if(!cls.glconfig.isFullscreen &&
             (clientGUISystem->GetCatcher() & KEYCATCH_CONSOLE)) {
         // Console is down in windowed mode

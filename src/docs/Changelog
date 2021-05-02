@@ -1,5 +1,6 @@
 2010-05-02 Dusan Jocic <dusanjocic@msn.com>
     * [cMake] Added "-mcmodel=large" to the cMake debug flags
+	* [Convars] Initialize "cl_maxPing"
     
 2010-05-01 Dusan Jocic <dusanjocic@msn.com>
 	* [GLSL] Misc fixes
