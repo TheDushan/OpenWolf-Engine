@@ -1,3 +1,6 @@
+2010-05-02 Dusan Jocic <dusanjocic@msn.com>
+    * [cMake] Added "-mcmodel=large" to the cMake debug flags
+    
 2010-05-01 Dusan Jocic <dusanjocic@msn.com>
 	* [GLSL] Misc fixes
 	* [Server] Fixed crash with allocate snapshot entities 
