@@ -562,8 +562,8 @@ Display an error message
 ==============
 */
 void idSystemLocal::ErrorDialog(pointer error) {
-    pointer homepath = cvarSystem->VariableString("fs_homepath"),
-            gamedir = cvarSystem->VariableString("fs_gamedir"),
+    pointer homepath = fs_homepath->string,
+            gamedir = fs_game->string,
             fileName = "crashlog.txt";
     valueType buffer[ 1024 ], *ospath = fileSystem->BuildOSPath(homepath,
                                         gamedir, fileName);

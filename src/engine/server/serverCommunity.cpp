@@ -59,13 +59,11 @@ idServerCommunityServer::StartUp
 ===============
 */
 void idServerCommunityServer::StartUp(void) {
-#ifdef _WIN32
     Com_Printf("Loading Community Server\n");
 
     LoadUserFile();
     LoadBanFile();
     LoadMsgFile();
-#endif
 }
 
 /*
@@ -75,7 +73,6 @@ idServerCommunityServer::StartUp
 */
 sint idServerCommunityServer::Login(valueType *userinfo,
                                     user_t **user_ret) {
-#ifdef _WIN32
     valueType *password = nullptr, * username = nullptr,
                * userpassword = nullptr, buffer[512], *use_private_slot;
     netadr_t from;
@@ -200,7 +197,7 @@ sint idServerCommunityServer::Login(valueType *userinfo,
 
     user_stats = GetPlayerStats(user->name);
     (user_stats->login)++;
-#endif
+
     return CS_OK;
 }
 
@@ -211,7 +208,7 @@ idServerCommunityServer::alreadyLogin
 */
 sint idServerCommunityServer::alreadyLogin(valueType *username) {
     sint i;
-#ifdef _WIN32
+
     for(i = 0; i < sv_maxclients->integer; i++) {
         if(svs.clients[i].state >= CS_ACTIVE &&
                 svs.clients[i].cs_user != nullptr) {
@@ -220,7 +217,7 @@ sint idServerCommunityServer::alreadyLogin(valueType *username) {
             }
         }
     }
-#endif
+
     return 0;
 }
 
@@ -232,7 +229,7 @@ idServerCommunityServer::checkMatchInvited
 sint idServerCommunityServer::checkMatchInvited(user_t *user) {
     sint i;
     user_clan_t *user_clan;
-#ifdef _WIN32
+
     if(match_in_progress != 1) {
         Com_Printf("You cannot call this function if there are not a match in progress...");
         return CS_ERROR;
@@ -267,7 +264,7 @@ sint idServerCommunityServer::checkMatchInvited(user_t *user) {
             return CS_OK;
         }
     }
-#endif
+
     return CS_ERROR;
 }
 
@@ -277,7 +274,6 @@ idServerCommunityServer::LoadUserFile
 ===============
 */
 void idServerCommunityServer::LoadUserFile(void) {
-#ifdef _WIN32
     sint32 pos, * dpos;
     valueType **reg, *filename, buffer[512], * key;
     clan_t *clan;
@@ -363,7 +359,6 @@ void idServerCommunityServer::LoadUserFile(void) {
         pos = ::ftell(usersfile);
         ::fgets(buffer, sizeof(buffer), usersfile);
     }
-#endif
 }
 
 /*
@@ -373,7 +368,7 @@ idServerCommunityServer::fastParseLine
 */
 valueType **idServerCommunityServer::fastParseLine(void *userline) {
     static valueType *reg[2];
-#ifdef _WIN32
+
     ::memset(reg, 0, sizeof(reg));
 
     reg[SV_COMMUNITY_REGTYPE] = ::strtok(static_cast<valueType *>(userline),
@@ -392,7 +387,7 @@ valueType **idServerCommunityServer::fastParseLine(void *userline) {
         Com_Printf("Error while parsing userline: check username field\n");
         return nullptr;
     }
-#endif
+
     return reg;
 }
 
@@ -406,7 +401,7 @@ where t may be 'R', 'A' or 'B'
 */
 user_t *idServerCommunityServer::parseUserLine(pointer user_pass) {
     user_t *user;
-#ifdef _WIN32
+
     sint32 *dpos;
     valueType *username, * type, * tigerhash, * clan, userline[1024],
               buffer[512], client_user_pass[1024];
@@ -483,7 +478,7 @@ user_t *idServerCommunityServer::parseUserLine(pointer user_pass) {
             Com_Printf("Clan %s does not exist in Clan DB\n", clan);
         }
     }
-#endif
+
     return user;
 }
 
@@ -493,7 +488,7 @@ idServerCommunityServer::CheckUserFileChange
 ===============
 */
 sint idServerCommunityServer::CheckUserFileChange(void) {
-#ifdef _WIN32
+
     struct stat st;
     valueType *filename, filesrc[1024], filedst[1024];
 
@@ -522,7 +517,7 @@ sint idServerCommunityServer::CheckUserFileChange(void) {
             return 1;
         }
     }
-#endif
+
     return 0;
 }
 
@@ -532,7 +527,6 @@ idServerCommunityServer::copyFile
 ===============
 */
 sint idServerCommunityServer::copyFile(valueType *src, valueType *dst) {
-#ifdef _WIN32
     sint data;
     FILE *fsrc, *fdst;
 
@@ -553,7 +547,7 @@ sint idServerCommunityServer::copyFile(valueType *src, valueType *dst) {
 
     ::fclose(fsrc);
     ::fclose(fdst);
-#endif
+
     return CS_OK;
 }
 
@@ -563,13 +557,10 @@ idServerCommunityServer::destroyLongData
 ===============
 */
 void idServerCommunityServer::destroyLongData(void *data) {
-#ifdef _WIN32
-
     sint32 *d;
 
     d = static_cast<sint32 *>(data);
     ::free(d);
-#endif
 }
 
 /*
@@ -578,7 +569,6 @@ idServerCommunityServer::UserInfo
 ===============
 */
 void idServerCommunityServer::UserInfo(valueType *name) {
-#ifdef _WIN32
     sint32 *dpos;
     user_t *user;
     user_clan_t *user_clan;
@@ -609,7 +599,6 @@ void idServerCommunityServer::UserInfo(valueType *name) {
     Com_Printf("\n");
 
     destroyUserData(user);
-#endif
 }
 
 /*
@@ -630,8 +619,7 @@ idServerCommunityServer::destroyUserData
 ===============
 */
 void idServerCommunityServer::destroyUserData(user_t *user) {
- #ifdef _WIN32
-   user_clan_t *user_clan, * user_clan_next;
+    user_clan_t *user_clan, * user_clan_next;
 
     if(user == nullptr) {
         return;
@@ -644,7 +632,6 @@ void idServerCommunityServer::destroyUserData(user_t *user) {
     }
 
     ::free(user);
-#endif
 }
 
 /*
@@ -669,7 +656,6 @@ idServerCommunityServer::logString
 */
 void idServerCommunityServer::logString(sint client_num, valueType *area,
                                         valueType *message) {
-#ifdef _WIN32
     static sint arch = -1;
     valueType buffer[1024];
     convar_t *logFile;
@@ -697,7 +683,6 @@ void idServerCommunityServer::logString(sint client_num, valueType *area,
     if(::write(arch, buffer, ::strlen(buffer)) < 0) {
         arch = -1;
     }
-#endif
 }
 
 /*
@@ -706,7 +691,7 @@ idServerCommunityServer::startMatch
 ===============
 */
 void idServerCommunityServer::startMatch(void) {
-#ifdef _WIN32
+
     if(match_in_progress == 1) {
         Com_Printf("Match already started, please, add clans and players\n");
         Com_Printf("tip: use addclanmatch and addusermatch commands to do that\n");
@@ -724,7 +709,6 @@ void idServerCommunityServer::startMatch(void) {
 
     Com_Printf("Match started, please, add clans, players and referees\n");
     Com_Printf("tip: use addclanmatch, addusermatch and addrefereematch commands to do that\n");
-#endif
 }
 
 /*
@@ -733,7 +717,7 @@ idServerCommunityServer::stopMatch
 ===============
 */
 void idServerCommunityServer::stopMatch(void) {
-#ifdef _WIN32
+
     if(match_in_progress == 0) {
         Com_Printf("There are NO match in progress, use startmatch to start one\n");
         return;
@@ -742,7 +726,6 @@ void idServerCommunityServer::stopMatch(void) {
     Com_Printf("Match closed, now you may open the server! Thanks!\n");
     match_in_progress = 0;
     return;
-#endif
 }
 
 /*
@@ -751,7 +734,6 @@ idServerCommunityServer::addMatchClan
 ===============
 */
 void idServerCommunityServer::addMatchClan(valueType *clan_name) {
-#ifdef _WIN32
     sint i;
     clan_t *clan_p;
 
@@ -785,7 +767,7 @@ void idServerCommunityServer::addMatchClan(valueType *clan_name) {
 
     Q_strcpy_s(match_clans[i], clan_name);
     Com_Printf("Clan %s added to match\n", clan_name);
-#endif
+
     return;
 }
 
@@ -795,7 +777,6 @@ idServerCommunityServer::addMatchUser
 ===============
 */
 void idServerCommunityServer::addMatchUser(valueType *user_name) {
-#ifdef _WIN32
     sint i;
     user_t *user_p;
 
@@ -831,7 +812,6 @@ void idServerCommunityServer::addMatchUser(valueType *user_name) {
     Com_Printf("User %s added to match\n", user_name);
 
     return;
-#endif
 }
 
 /*
@@ -924,8 +904,7 @@ idServerCommunityServer::LoadBanFile
 ===============
 */
 void idServerCommunityServer::LoadBanFile(void) {
-#ifdef _WIN32
-   sint32 fpos, * dfpos;
+    sint32 fpos, * dfpos;
     valueType *filename, buffer[1024], * banguid;
     banuser_t *banuser;
 
@@ -966,7 +945,7 @@ void idServerCommunityServer::LoadBanFile(void) {
         fpos = ::ftell(bansfile);
         ::fgets(buffer, sizeof(buffer), bansfile);
     }
-#endif
+
 }
 
 /*
@@ -976,7 +955,7 @@ idServerCommunityServer::processBanLine
 */
 banuser_t *idServerCommunityServer::processBanLine(valueType *line) {
     static banuser_t banuser;
-#ifdef _WIN32
+
     valueType *word, buffer[1024] = {0};
 
     ::memset(&banuser, 0, sizeof(banuser_t));
@@ -1031,7 +1010,7 @@ banuser_t *idServerCommunityServer::processBanLine(valueType *line) {
     }
 
     Q_strcpy_s(banuser.guid, word);
-#endif
+
     return &banuser;
 }
 
@@ -1041,7 +1020,7 @@ idServerCommunityServer::BanUser
 ===============
 */
 void idServerCommunityServer::BanUser(client_t *cl) {
-#ifdef _WIN32
+
     sint32 *dpos;
     valueType *guid;
     banuser_t banuser;
@@ -1091,7 +1070,7 @@ void idServerCommunityServer::BanUser(client_t *cl) {
     ::fflush(bansfile);
 
     serverClientSystem->DropClient(cl, "KICKED!");
-#endif
+
     return;
 }
 
@@ -1114,7 +1093,7 @@ idServerCommunityServer::showBanUsers
 ===============
 */
 void idServerCommunityServer::showBanUsers(void) {
-#ifdef _WIN32
+
     sint i = 1;
     hash_table_iterator_t *iter;
     valueType buffer[1024];
@@ -1138,7 +1117,7 @@ void idServerCommunityServer::showBanUsers(void) {
     }
 
     ::free(iter);
-#endif
+
 }
 
 /*
@@ -1147,7 +1126,7 @@ idServerCommunityServer::unbanUser
 ===============
 */
 void idServerCommunityServer::unbanUser(valueType *banlist_num) {
-#ifdef _WIN32
+
     sint i, unban_num;
     hash_table_iterator_t *iter;
     valueType buffer[1024];
@@ -1185,7 +1164,7 @@ void idServerCommunityServer::unbanUser(valueType *banlist_num) {
                banlist_num);
 
     ::free(iter);
-#endif
+
 }
 
 /*
@@ -1507,7 +1486,7 @@ idServerCommunityServer::ProcessWeapon
 */
 void idServerCommunityServer::ProcessWeapon(user_stats_t *user_stats,
         valueType *weapon, valueType **tokens) {
-#ifdef _WIN32
+
     // MUST MATCH WITH weapon_name_e !
     valueType *l_weapons[] = {"BLASTER", "MACHINEGUNE", "PAIN_SAW", "SHOTGUN", "LAS_GUN", "MASS_DRIVER", "CHAINGUN", "PULSE_RIFLE", "FLAMER", "LUCIFER_CANNON", "GRENADE", "LOCKBLOB_LAUNCHER", nullptr };
     sint iweapon;
@@ -1528,7 +1507,7 @@ void idServerCommunityServer::ProcessWeapon(user_stats_t *user_stats,
 
     ProcessGeneric(l_stats_weapons, &(tokens[3]),
                    user_stats->weapons[iweapon]);
-#endif
+
 }
 
 /*
@@ -1538,7 +1517,7 @@ idServerCommunityServer::ProcessMELEE
 */
 void idServerCommunityServer::ProcessMELEE(user_stats_t *user_stats,
         valueType **tokens) {
-#ifdef _WIN32
+
     pointer l_stats[] = {"Alien Level 0 Kills:", "Alien Level 1 Kills:", "Alien Level 1 Upgrade Kills:", "Alien Level 2 Kills:", "Alien Level 2 Upgrade Kills:",
                          "Alien Level 3 Kills: ", "Alien Level 3 Upgrade Kills: ", "Alien Level 4 Upgrade Kills: ",
                          "Alien Level 0 Deaths: ", "Alien Level 1 Upgrade Deaths:", "Alien Level 2 Deaths:", "Alien Level 2 Upgrade Deaths:", "Alien Level 3 Deaths:", "Alien Level 3 Upgrade Kills:",
@@ -1546,7 +1525,7 @@ void idServerCommunityServer::ProcessMELEE(user_stats_t *user_stats,
                         };
 
     ProcessGeneric(l_stats, &(tokens[2]), user_stats->melee);
-#endif
+
 }
 
 /*
@@ -1701,7 +1680,6 @@ idServerCommunityServer::SaveUserStatsOptimal
 sint idServerCommunityServer::SaveUserStatsOptimal(user_stats_t
         *user_stats, valueType *fline) {
     sint offset = 0;
-#ifdef _WIN32
     pointer weapons_mnemonics[WEAPONS + 1] = { WEAPONS_MNEMONICS };
     pointer weapons_stats_mnemonics[WEAPON_STATS + 1] = { WEAPONS_STATS_MNEMONICS };
     pointer melee_stats_mnemonics[MELEE_STATS + 1] = { MELEE_STATS_MNEMONICS };
@@ -1759,7 +1737,7 @@ sint idServerCommunityServer::SaveUserStatsOptimal(user_stats_t
 
     offset += ::sprintf(&(fline[offset]), "}}");
     offset += ::sprintf(&(fline[offset]), "\n");
-#endif
+
     return offset;
 }
 
@@ -1804,7 +1782,6 @@ idServerCommunityServer::InitStatistics
 */
 void idServerCommunityServer::InitStatistics(void) {
     valueType buffer[1024];
-#ifdef _WIN32
     LoadMsgFile();
 
     // Cleaning community_stats structure
@@ -1829,7 +1806,6 @@ void idServerCommunityServer::InitStatistics(void) {
             g_gameType->integer,
             match_in_progress);
     NETAddMsg(buffer);
-#endif
 }
 
 /*
@@ -2018,7 +1994,6 @@ idServerCommunityServer::NET_Loop
 ===============
 */
 void idServerCommunityServer::NET_Loop(void) {
-#ifdef _WIN32
     static sint last_update = 0;
     sint actual_date, i, offset = 0;
     valueType buffer[1024 * 4] = {0};
@@ -2055,7 +2030,6 @@ void idServerCommunityServer::NET_Loop(void) {
 
         last_update = actual_date;
     }
-#endif
 }
 
 /*
@@ -2064,7 +2038,6 @@ idServerCommunityServer::NETAddMsg
 ===============
 */
 void idServerCommunityServer::NETAddMsg(valueType *msg) {
-#ifdef _WIN32    
     valueType buffer[1024 * 3], * line;
 
     line = ::strtok(msg, "\n\r\0");
@@ -2076,7 +2049,7 @@ void idServerCommunityServer::NETAddMsg(valueType *msg) {
 
         line = ::strtok(nullptr, "\n\r\0");
     }
-#endif
+
 }
 
 /*
@@ -2085,7 +2058,6 @@ idServerCommunityServer::NETSendMsg
 ===============
 */
 sint idServerCommunityServer::NETSendMsg(valueType *msg) {
-#ifdef _WIN32
     sint sret = 0, len;
     static sint socket = -1;
 
@@ -2107,7 +2079,7 @@ sint idServerCommunityServer::NETSendMsg(valueType *msg) {
         Com_Printf("Closed connection to community server...\n");
         socket = -1;
     }
-#endif
+
     return 0;
 }
 

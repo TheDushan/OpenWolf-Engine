@@ -3749,6 +3749,8 @@ void idFileSystemLocal::Startup(pointer gameName) {
         homePath = fs_basepath->string;
     }
 
+    cvarSystem->Set("fs_homepath", homePath);
+
     // add search path elements in reverse priority order
     if(fs_basepath->string[0]) {
         AddGameDirectory(fs_basepath->string, gameName);
@@ -3787,15 +3789,15 @@ void idFileSystemLocal::Startup(pointer gameName) {
     }
 
     // check for additional game folder for mods
-    if(fs_gamedirvar->string[0] && !Q_stricmp(gameName, BASEGAME) &&
-            Q_stricmp(fs_gamedirvar->string, gameName)) {
+    if(fs_game->string[0] && !Q_stricmp(gameName, BASEGAME) &&
+            Q_stricmp(fs_game->string, gameName)) {
         if(fs_basepath->string[0]) {
-            AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
+            AddGameDirectory(fs_basepath->string, fs_game->string);
         }
 
         if(fs_homepath->string[0] &&
                 Q_stricmp(fs_homepath->string, fs_basepath->string)) {
-            AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
+            AddGameDirectory(fs_homepath->string, fs_game->string);
         }
     }
 
@@ -3822,7 +3824,7 @@ void idFileSystemLocal::Startup(pointer gameName) {
         idFileSystemLocal::Path_f();
     }
 
-    fs_gamedirvar->modified = false; // We just loaded, it's not modified
+    fs_game->modified = false; // We just loaded, it's not modified
 
     Com_Printf("----------------------\n");
 
@@ -4257,7 +4259,7 @@ void idFileSystemLocal::InitFilesystem(void) {
 #endif
 
     Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
-    Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
+    Q_strncpyz(lastValidGame, fs_game->string, sizeof(lastValidGame));
 }
 
 /*
@@ -4299,7 +4301,7 @@ void idFileSystemLocal::Restart(sint checksumFeed) {
         if(lastValidBase[0]) {
             PureServerSetLoadedPaks("", "");
             cvarSystem->Set("fs_basepath", lastValidBase);
-            cvarSystem->Set("fs_gamedirvar", lastValidGame);
+            cvarSystem->Set("fs_game", lastValidGame);
             lastValidBase[0] = '\0';
             lastValidGame[0] = '\0';
             cvarSystem->Set("fs_restrict", "0");
@@ -4314,10 +4316,10 @@ void idFileSystemLocal::Restart(sint checksumFeed) {
     }
 
     // bk010116 - new check before safeMode
-    if(Q_stricmp(fs_gamedirvar->string, lastValidGame)) {
+    if(Q_stricmp(fs_game->string, lastValidGame)) {
         // skip the wolfconfig.cfg if "safe" is on the command line
         if(!Com_SafeMode()) {
-            valueType *cl_profileStr = cvarSystem->VariableString("cl_profile");
+            valueType *cl_profileStr = cl_profile->string;
 
             if(com_gameInfo.usesProfiles && cl_profileStr[0]) {
                 // bani - check existing pid file and make sure it's ok
@@ -4347,7 +4349,7 @@ void idFileSystemLocal::Restart(sint checksumFeed) {
     }
 
     Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
-    Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
+    Q_strncpyz(lastValidGame, fs_game->string, sizeof(lastValidGame));
 
 }
 
@@ -4362,7 +4364,7 @@ see show_bug.cgi?id=478
 =================
 */
 bool idFileSystemLocal::ConditionalRestart(sint checksumFeed) {
-    if(fs_gamedirvar->modified || checksumFeed != fs_checksumFeed) {
+    if(fs_game->modified || checksumFeed != fs_checksumFeed) {
         Restart(checksumFeed);
         return true;
     }

@@ -3070,7 +3070,7 @@ void Com_Init( valueType* commandLine )
     // skip the q3config.cfg if "safe" is on the command line
     if( !Com_SafeMode() )
     {
-        valueType*           cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+        valueType* cl_profileStr = cl_profile->string;
 
         safeMode = false;
         if( com_gameInfo.usesProfiles )
@@ -3094,7 +3094,7 @@ void Com_Init( valueType* commandLine )
 
                     fileSystem->FreeFile( defaultProfile );
 
-                    cl_profileStr = cvarSystem->VariableString( "cl_defaultProfile" );
+                    cl_profileStr = cl_defaultProfile->string;
                 }
             }
 
@@ -3270,7 +3270,7 @@ Writes key bindings and archived cvars to config file if modified
 */
 void Com_WriteConfiguration( void )
 {
-    valueType*           cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+    valueType* cl_profileStr = cl_profile->string;
 
     // if we are quiting without fully initializing, make sure
     // we don't write out anything
@@ -3639,7 +3639,7 @@ Com_Shutdown
 */
 void Com_Shutdown( bool badProfile )
 {
-    valueType* cl_profileStr = cvarSystem->VariableString( "cl_profile" );
+    valueType* cl_profileStr = cl_profile->string;
 
     networkSystem->Shutdown();
 

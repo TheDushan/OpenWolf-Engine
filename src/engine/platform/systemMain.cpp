@@ -387,9 +387,9 @@ void *idSystemLocal::LoadDll(pointer name) {
 
     Q_strncpyz(filename, GetDLLName(name), sizeof(filename));
 
-    basepath = cvarSystem->VariableString("fs_basepath");
-    homepath = cvarSystem->VariableString("fs_homepath");
-    gamedir = cvarSystem->VariableString("fs_game");
+    basepath = fs_basepath->string;
+    homepath = fs_homepath->string;
+    gamedir = fs_game->string;
 
     fn = fileSystem->BuildOSPath(basepath, gamedir, filename);
 
@@ -397,7 +397,7 @@ void *idSystemLocal::LoadDll(pointer name) {
 
     // if the server is pure, extract the dlls from the bin.pk3 so
     // that they can be referenced
-    if(cvarSystem->VariableValue("sv_pure") && Q_stricmp(name, "sgame")) {
+    if(sv_pure->integer && Q_stricmp(name, "sgame")) {
         fileSystem->CL_ExtractFromPakFile(homepath, gamedir, filename);
     }
 

@@ -91,7 +91,7 @@ bool idClientGUISystemLocal::GetNews(bool begin) {
 
     if(!newsFile[0]) {
         Q_strncpyz(newsFile, fileSystem->BuildOSPath(
-                       cvarSystem->VariableString("fs_homepath"), "", "news.dat"), MAX_QPATH);
+                       fs_homepath->string, "", "news.dat"), MAX_QPATH);
         newsFile[MAX_QPATH - 1] = 0;
     }
 

@@ -590,7 +590,7 @@ void Game_InitProperties(void) {
             GAMENAME_ST,
             4,
             {
-                "protocols=1,2",
+                "protocols=1000,1001",
                 "options=send-empty-servers,send-full-servers",
                 "heartbeat=StellarPrey-1",
                 "flatline=StellarPreyFlatline-1",

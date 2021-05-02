@@ -694,8 +694,9 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
 
     // allocate the snapshot entities
     svs.snapshotEntities = new entityState_s[svs.numSnapshotEntities];
-    
-    ::memset(svs.snapshotEntities, 0, sizeof(entityState_t) * svs.numSnapshotEntities);
+
+    ::memset(svs.snapshotEntities, 0,
+             sizeof(entityState_t) * svs.numSnapshotEntities);
 
     // toggle the server bit so clients can detect that a
     // server has changed
@@ -899,10 +900,8 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
         }
     }
 
-#ifdef _WIN32
     idServerCommunityServer::SaveStatistics();
     idServerCommunityServer::InitStatistics();
-#endif
 
     idServerCcmdsSystemLocal::BeginAutoRecordDemos();
 
@@ -1049,9 +1048,7 @@ void idServerInitSystemLocal::Init(void) {
 #endif
     }
 
-#ifdef _WIN32
     idServerCommunityServer::StartUp();
-#endif
 }
 
 

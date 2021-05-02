@@ -723,7 +723,7 @@ void idServerMainSystemLocal::Info(netadr_t from) {
         Info_SetValueForKey(infostring, "maxPing", va("%i", sv_maxPing->integer));
     }
 
-    gamedir = cvarSystem->VariableString("fs_game");
+    gamedir = fs_game->string;
 
     if(*gamedir) {
         Info_SetValueForKey(infostring, "game", gamedir);

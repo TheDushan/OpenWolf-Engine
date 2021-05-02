@@ -497,8 +497,8 @@ void idSystemLocal::ErrorDialog(pointer error) {
     valueType buffer[ 1024 ];
     uint size;
     sint f = -1;
-    pointer homepath = cvarSystem->VariableString("fs_homepath");
-    pointer gamedir = cvarSystem->VariableString("fs_gamedir");
+    pointer homepath = fs_homepath->string;
+    pointer gamedir = fs_game->string;
     pointer fileName = "crashlog.txt";
     valueType *ospath = fileSystem->BuildOSPath(homepath, gamedir, fileName);
 
@@ -826,13 +826,13 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
     if(access(fn, X_OK) == -1) {
         Com_DPrintf("%s not found\n", fn);
         // try in home path
-        homepath = cvarSystem->VariableString("fs_homepath");
+        homepath = fs_homepath->string;
         Q_vsprintf_s(fn, MAX_OSPATH, MAX_OSPATH, "%s/%s", homepath, fname);
 
         if(access(fn, X_OK) == -1) {
             Com_DPrintf("%s not found\n", fn);
             // basepath, last resort
-            basepath = cvarSystem->VariableString("fs_basepath");
+            basepath = fs_basepath->string;
             Q_vsprintf_s(fn, MAX_OSPATH, MAX_OSPATH, "%s/%s", basepath, fname);
 
             if(access(fn, X_OK) == -1) {

@@ -1884,7 +1884,7 @@ void CL_DownloadsComplete(void) {
             fn = va("%s/%s", fileSystem->ShiftStr(AUTOUPDATE_DIR,
                                                   AUTOUPDATE_DIR_SHIFT), autoupdateFilename);
 #else
-            fs_write_path = cvarSystem->VariableString("fs_homepath");
+            fs_write_path = fs_homepath->string;
             fn = fileSystem->BuildOSPath(fs_write_path,
                                          fileSystem->ShiftStr(AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT),
                                          autoupdateFilename);
@@ -2734,7 +2734,7 @@ void CL_WWWDownload(void) {
         // we work with OS paths
         clc.download = 0;
         to_ospath = fileSystem->BuildOSPath(
-                        cvarSystem->VariableString("fs_homepath"), cls.originalDownloadName, "");
+                        fs_homepath->string, cls.originalDownloadName, "");
         to_ospath[strlen(to_ospath) - 1] = '\0';
 
         if(rename(cls.downloadTempName, to_ospath)) {

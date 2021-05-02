@@ -366,7 +366,7 @@ extern convar_t *fs_homepath;
 extern convar_t *fs_debug;
 extern convar_t *fs_restrict;
 extern convar_t *fs_basegame;
-extern convar_t *fs_gamedirvar;
+extern convar_t *fs_game;
 extern convar_t *net_mcast6addr;
 extern convar_t *net_mcast6iface;
 extern convar_t *net_socksServer;

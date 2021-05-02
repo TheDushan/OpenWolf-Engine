@@ -191,7 +191,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
     sint savegameTime = -1;
     valueType *cmd, *map, smapname[MAX_QPATH], mapname[MAX_QPATH],
               expanded[MAX_QPATH], *cl_profileStr =
-                  cvarSystem->VariableString("cl_profile");
+                  cl_profile->string;
     bool killBots, cheat, buildScript;
 
     map = cmdSystem->Argv(1);
@@ -522,7 +522,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
     if(savegame_loading->integer) {
         // open the current savegame, and find out what the time is, everything else we can ignore
         valueType savemap[MAX_QPATH],
-                  *cl_profileStr = cvarSystem->VariableString("cl_profile");
+                  *cl_profileStr = cl_profile->string;
         uchar8 *buffer;
         sint size, savegameTime;
 
@@ -669,7 +669,7 @@ idServerCcmdsSystemLocal::LoadGame_f
 void idServerCcmdsSystemLocal::LoadGame_f(void) {
     sint size;
     valueType filename[MAX_QPATH], mapname[MAX_QPATH], savedir[MAX_QPATH],
-              *cl_profileStr = cvarSystem->VariableString("cl_profile");
+              *cl_profileStr = cl_profile->string;
     uchar8 *buffer;
 
     // dont allow command if another loadgame is pending
@@ -1041,9 +1041,7 @@ void idServerCcmdsSystemLocal::UserInfo_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::UserInfo(cmdSystem->Argv(1));
-#endif
 }
 
 /*
@@ -1058,9 +1056,7 @@ void idServerCcmdsSystemLocal::StartMatch_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::startMatch();
-#endif
 }
 
 /*
@@ -1078,9 +1074,7 @@ void idServerCcmdsSystemLocal::StopMatch_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::stopMatch();
-#endif
 
     // Say bye to all players and referees and restart server
     for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
@@ -1117,9 +1111,7 @@ void idServerCcmdsSystemLocal::AddClanMatch_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::addMatchClan(cmdSystem->Argv(1));
-#endif
 }
 
 /*
@@ -1139,9 +1131,7 @@ void idServerCcmdsSystemLocal::AddUserMatch_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::addMatchUser(cmdSystem->Argv(1));
-#endif
 }
 
 /*
@@ -1161,9 +1151,7 @@ void idServerCcmdsSystemLocal::AddRefereeMatch_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::addMatchReferee(cmdSystem->Argv(1));
-#endif
 }
 
 /*
@@ -1178,9 +1166,7 @@ void idServerCcmdsSystemLocal::MatchInfo_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::matchInfo();
-#endif
 }
 
 /*
@@ -1208,9 +1194,7 @@ void idServerCcmdsSystemLocal::AddIP_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::BanUser(cl);
-#endif
 
 }
 
@@ -1227,9 +1211,7 @@ void idServerCcmdsSystemLocal::BanList_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::showBanUsers();
-#endif
 }
 
 /*
@@ -1249,9 +1231,7 @@ void idServerCcmdsSystemLocal::UnBan_f(void) {
         return;
     }
 
-#ifdef _WIN32
     idServerCommunityServer::unbanUser(cmdSystem->Argv(1));
-#endif
 }
 
 /*

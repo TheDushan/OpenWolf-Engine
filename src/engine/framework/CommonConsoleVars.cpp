@@ -213,7 +213,7 @@ convar_t *fs_buildpath;
 convar_t *fs_buildgame;
 convar_t *fs_basegame;
 convar_t *fs_copyfiles;
-convar_t *fs_gamedirvar;
+convar_t *fs_game;
 convar_t *fs_missing;
 convar_t *fs_restrict;
 
@@ -747,8 +747,8 @@ void Com_InitCommonConsoleVars(void) {
 
     fs_homepath = cvarSystem->Get("fs_homepath", homePath, CVAR_INIT,
                                   "The default is the path to the game executable.");
-    fs_gamedirvar = cvarSystem->Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO,
-                                    "Set Game path. Set the game folder/dir. ");
+    fs_game = cvarSystem->Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO,
+                              "Set Game path. Set the game folder/dir. ");
     fs_restrict = cvarSystem->Get("fs_restrict", "", CVAR_INIT,
                                   "Demoversion if set to 1 restricts game to some number of maps.");
     fs_missing = cvarSystem->Get("fs_missing", "", CVAR_INIT, "Missing files");

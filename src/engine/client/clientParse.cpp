@@ -829,7 +829,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
 
             // make downloadTempName an OS path
             Q_strncpyz(cls.downloadTempName,
-                       fileSystem->BuildOSPath(cvarSystem->VariableString("fs_homepath"),
+                       fileSystem->BuildOSPath(fs_homepath->string,
                                                cls.downloadTempName, ""),
                        sizeof(cls.downloadTempName));
             cls.downloadTempName[strlen(cls.downloadTempName) - 1] = '\0';

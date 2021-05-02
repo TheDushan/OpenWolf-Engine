@@ -111,8 +111,6 @@ static valueType
 static valueType lastValidBase[MAX_OSPATH];
 static valueType lastValidGame[MAX_OSPATH];
 
-static bool legacy_bin = false;
-
 // referenced flags
 // these are in loop specific order so don't change the order
 #define FS_GENERAL_REF  0x01
