@@ -68,8 +68,7 @@ idSystemLocal::SetFloatEnv
 ==============
 */
 void idSystemLocal::SetFloatEnv(void) {
-    _mm_setcsr(_mm_getcsr() | (_MM_FLUSH_ZERO_MASK | _MM_DENORMALS_ZERO_MASK));
-    //_controlfp( FPUCW, FPUCWMASK );
+    _controlfp(FPUCW, FPUCWMASK);
 }
 
 /*

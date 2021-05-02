@@ -1,3 +1,6 @@
+2010-05-03 Dusan Jocic <dusanjocic@msn.com>
+	* [Engine] Removed Windows only implementations of SysSnapVector and SetFloatEnv
+
 2010-05-02 Dusan Jocic <dusanjocic@msn.com>
     * [cMake] Added "-mcmodel=large" to the cMake debug flags
 	* [Convars] Initialize "cl_maxPing"

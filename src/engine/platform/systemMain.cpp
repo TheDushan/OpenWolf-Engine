@@ -563,33 +563,9 @@ idSystemLocal::SnapVector
 ================
 */
 void idSystemLocal::SysSnapVector(float32 *v) {
-#ifdef _WIN32
-    __m128 vf0, vf1, vf2;
-    __m128i vi;
-    DWORD mxcsr;
-
-    mxcsr = _mm_getcsr();
-    vf0 = _mm_setr_ps(v[0], v[1], v[2], 0.0f);
-
-    _mm_setcsr(mxcsr &
-               ~0x6000);   // enforce rounding mode to "round to nearest"
-
-    vi = _mm_cvtps_epi32(vf0);
-    vf0 = _mm_cvtepi32_ps(vi);
-
-    vf1 = _mm_shuffle_ps(vf0, vf0, _MM_SHUFFLE(1, 1, 1, 1));
-    vf2 = _mm_shuffle_ps(vf0, vf0, _MM_SHUFFLE(2, 2, 2, 2));
-
-    _mm_setcsr(mxcsr);   // restore rounding mode
-
-    _mm_store_ss(&v[0], vf0);
-    _mm_store_ss(&v[1], vf1);
-    _mm_store_ss(&v[2], vf2);
-#else
     v[0] = round(v[0]);
     v[1] = round(v[1]);
     v[2] = round(v[2]);
-#endif
 }
 
 #if defined (DEDICATED) || defined (UPDATE_SERVER)

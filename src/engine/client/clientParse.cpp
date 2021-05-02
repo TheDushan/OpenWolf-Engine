@@ -411,7 +411,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
 
     // if we were just unpaused, we can only *now* really let the
     // change come into effect or the client hangs.
-    cl_paused->modified = (bool)0;
+    cl_paused->modified = false;
 
     newSnap.messageNum = clc.serverMessageSequence;
 
@@ -1029,7 +1029,7 @@ void idClientParseSystemLocal::ParseServerMessage(msg_t *msg) {
         }
 
         if(cl_shownet->integer >= 2) {
-            if(!svc_strings[cmd]) {
+            if((cmd < 0) || (!svc_strings[cmd])) {
                 Com_Printf("%3i:BAD CMD %i\n", msg->readcount - 1, cmd);
             } else {
                 ShowNet(msg, svc_strings[cmd]);
