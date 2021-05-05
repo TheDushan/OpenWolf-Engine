@@ -594,6 +594,9 @@ typedef struct sysEvent_s {
     void           *evPtr;      // this must be manually freed if not nullptr
 } sysEvent_t;
 
+void  Com_rgb_to_hsl(vec4_t rgb, vec4_t hsl);
+void  Com_hsl_to_rgb(vec4_t hsl, vec4_t rgb);
+
 void            Com_QueueEvent(sint time, sysEventType_t type, sint value,
                                sint value2, sint ptrLength, void *ptr);
 sint                Com_EventLoop(void);

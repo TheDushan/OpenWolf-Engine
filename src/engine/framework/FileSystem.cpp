@@ -3739,11 +3739,10 @@ idFileSystemLocal::Startup
 */
 void idFileSystemLocal::Startup(pointer gameName) {
     pointer homePath;
-    valueType tmp[ MAX_OSPATH ];
 
     Com_Printf("----- idFileSystemLocal::Startup -----\n");
 
-    homePath = idsystem->DefaultHomePath(tmp, sizeof(tmp));
+    homePath = idsystem->DefaultHomePath();
 
     if(!homePath || !homePath[0]) {
         homePath = fs_basepath->string;

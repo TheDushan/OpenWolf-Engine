@@ -1754,7 +1754,7 @@ bool Q_strreplace(valueType *dest, sint destsize, pointer find,
 
 sint Q_PrintStrlen(pointer string) {
     sint len;
-    pointer  p;
+    pointer p;
 
     if(!string) {
         return 0;
@@ -1765,11 +1765,9 @@ sint Q_PrintStrlen(pointer string) {
 
     while(*p) {
         if(Q_IsColorString(p)) {
-            p += 2;
+            p += Q_ColorStringLength(p);
             continue;
-        }
-
-        if(*p == Q_COLOR_ESCAPE && *(p + 1) == Q_COLOR_ESCAPE) {
+        } else if(Q_IsColorEscapeEscape(p)) {
             p++;
         }
 
@@ -1782,24 +1780,23 @@ sint Q_PrintStrlen(pointer string) {
 
 
 valueType *Q_CleanStr(valueType *string) {
-    valueType   *d;
-    valueType   *s;
+    valueType *d;
+    valueType *s;
+    sint      c;
 
     s = string;
     d = string;
 
-    while(*s) {
+    while((c = *s) != 0) {
         if(Q_IsColorString(s)) {
-            s += 2;
-            continue;
-        }
+            s += Q_ColorStringLength(s) - 1;
+        } else if(c >= 0x20 && c <= 0x7E) {
+            if(Q_IsColorEscapeEscape(s)) {
+                s++;
+                c = *s;
+            }
 
-        if(*s == Q_COLOR_ESCAPE && *(s + 1) == Q_COLOR_ESCAPE) {
-            s++;
-        }
-
-        if(*s >= 0x20 && *s <= 0x7E) {
-            *d++ = *s;
+            *d++ = c;
         }
 
         s++;
@@ -1807,8 +1804,234 @@ valueType *Q_CleanStr(valueType *string) {
 
     *d = '\0';
 
-
     return string;
+}
+
+void Q_ApproxStrHexColors(
+    const valueType *in_string, valueType *out_string,
+    const size_t in_string_length, const size_t out_string_length) {
+    int     i, j, c;
+    int   total_color_length = 0;
+
+    i = j = 0;
+
+    while((i < in_string_length) && (j < out_string_length) &&
+            (in_string[i] != 0)) {
+        c = in_string[i];
+
+        if(Q_IsColorString(in_string + i)) {
+            if((i + 1) >= in_string_length) {
+                break;
+            }
+
+            if(Q_IsHexColor(in_string + i + 1)) {
+                vec3_t    color;
+                sint      hex_length = Q_ColorStringLength(in_string + i);
+                sint      approx_ansi_color_index;
+                valueType long_color_code[10];
+                valueType short_color_code[6];
+
+                //convert to the closest hardcoded ansi color code
+                if(Q_IsShortHexColor(in_string + i + 1)) {
+                    if((i + sizeof(short_color_code)) >= in_string_length) {
+                        break;
+                    }
+
+                    Q_strncpyz(short_color_code, in_string + i, sizeof(short_color_code));
+                    Q_GetVectFromHexColor(short_color_code, color);
+                } else {
+                    if((i + sizeof(long_color_code)) >= in_string_length) {
+                        break;
+                    }
+
+                    Q_strncpyz(long_color_code, in_string + i, sizeof(long_color_code));
+                    Q_GetVectFromHexColor(long_color_code, color);
+                }
+
+                approx_ansi_color_index = Q_ApproxBasicColorIndexFromVectColor(color);
+
+                //copy over the resulting color code
+                out_string[j] = Q_COLOR_ESCAPE;
+                j++;
+
+                if(j >= out_string_length) {
+                    j = out_string_length - 1;
+                    break;
+                }
+
+                c = '0' + approx_ansi_color_index;
+                out_string[j] = c;
+                j++;
+
+                if(j >= out_string_length) {
+                    j = out_string_length - 1;
+                    break;
+                }
+
+                i += hex_length - 1;
+
+                if(i >= in_string_length) {
+                    i = in_string_length - 1;
+                    break;
+                }
+
+                total_color_length += 2;
+            } else {
+                // copy over the hardcoded color code
+                out_string[j] = c;
+                j++;
+
+                if(j >= out_string_length) {
+                    j = out_string_length - 1;
+                    break;
+                }
+
+                i++;
+
+                if(i >= in_string_length) {
+                    i = in_string_length - 1;
+                    break;
+                }
+
+                c = in_string[i];
+                out_string[j] = c;
+                j++;
+
+                if(j >= out_string_length) {
+                    j = out_string_length - 1;
+                    break;
+                }
+
+                total_color_length += 2;
+            }
+        }    else if(c >= 0x20 && c <= 0x7E) {
+            if(Q_IsColorEscapeEscape(in_string + i)) {
+                i++;
+
+                if(i >= in_string_length) {
+                    i = in_string_length - 1;
+                    break;
+                }
+
+                c = in_string[i];
+            }
+
+            if((j - total_color_length) >= MAX_NAME_LENGTH) {
+                break;
+            }
+
+            out_string[j] = c;
+            j++;
+
+            if(j >= out_string_length) {
+                j = out_string_length - 1;
+                break;
+            }
+        }
+
+        i++;
+
+        if(i >= in_string_length) {
+            i = in_string_length - 1;
+            break;
+        }
+    }
+
+    out_string[j] = '\0';
+}
+
+void Q_StringToLower(valueType *in, valueType *out, sint len) {
+    len--;
+
+    while(*in && len > 0) {
+        *out++ = tolower(*in);
+        len--;
+        in++;
+    }
+
+    *out = 0;
+}
+
+void Q_RemoveUnusedColorStrings(valueType *in, valueType *out,
+                                sint outSize) {
+    sint len = 0;
+
+    outSize--;
+
+    for(; *in; in++) {
+        if(Q_IsColorString(in)) {
+            sint color_string_length = Q_ColorStringLength(in);
+            sint checked_index = color_string_length;
+            bool skip = false;
+            const char *temp_ptr = in;
+
+            //remove unused color strings
+            while(1) {
+                if(Q_IsColorString(temp_ptr + checked_index)) {
+                    skip = true;
+                    break;
+                } else if(*(temp_ptr + checked_index) == ' ') {
+                    //spaces don't use the color strings
+                    checked_index++;
+
+                    if(!(*(temp_ptr + checked_index))) {
+                        //reached the end of the name without using this string
+                        skip = true;
+                        break;
+                    }
+
+                    continue;
+                }
+
+                if(!(*(temp_ptr + checked_index))) {
+                    //reached the end of the name without using this string
+                    skip = true;
+                    break;
+                }
+
+                //this color string is used
+                break;
+            }
+
+            if(skip) {
+                in += (color_string_length - 1);
+                continue;
+            }
+
+            in++;
+
+            // make sure room in dest for both chars
+            if(len > outSize - color_string_length) {
+                break;
+            }
+
+            *out++ = Q_COLOR_ESCAPE;
+
+            if(Q_IsHardcodedColor(in - 1) || Q_IsColorNULLString(in - 1)) {
+                *out++ = *in;
+            } else {
+                sint i;
+
+                for(i = 0; i < (color_string_length - 1); i++) {
+                    *out++ = *(in + i);
+                }
+
+                in += color_string_length - 2;
+            }
+
+            len += color_string_length;
+            continue;
+        } else if(Q_IsColorEscapeEscape(in)) {
+            *out++ = *in;
+            in++;
+            len++;
+        }
+
+        *out++ = *in;
+        len++;
+    }
+
+    *out = 0;
 }
 
 // strips whitespaces and bad characters
@@ -1860,6 +2083,18 @@ sint Q_CountChar(pointer string, valueType tocount) {
     }
 
     return count;
+}
+
+void Q_StripIndentMarker(valueType *string) {
+    int i, j;
+
+    for(i = j = 0; string[i]; i++) {
+        if(string[i] != INDENT_MARKER) {
+            string[j++] = string[i];
+        }
+    }
+
+    string[j] = 0;
 }
 
 /*
@@ -2430,7 +2665,7 @@ bool StringContainsWord(pointer haystack, pointer needle) {
 ============
 COM_CompareExtension
 
-string compare the end of the strings and return qtrue if strings match
+string compare the end of the strings and return true if strings match
 ============
 */
 bool COM_CompareExtension(pointer in, pointer ext) {
@@ -2479,12 +2714,6 @@ bool Q_CleanPlayerName(pointer in, valueType *out, sint outSize) {
         }
 
         if(Q_IsColorString(in + i)) {
-            if(in[i + 1] == COLOR_BLACK) {
-                //don't allow black
-                i++;
-                continue;
-            }
-
             if(len >= outSize - 2)
                 //not enough room
             {
@@ -2554,9 +2783,9 @@ bool Q_CleanPlayerName(pointer in, valueType *out, sint outSize) {
             }
         }
 
-        //append the "^-" to restore the default color
+        //append the "^7" to restore the default color
         out[len++] = Q_COLOR_ESCAPE;
-        out[len++] = COLOR_DEFAULT;
+        out[len++] = COLOR_WHITE;
     }
 
     out[len] = 0;
@@ -2831,30 +3060,91 @@ void Q_strstrip(valueType *string, pointer strip, pointer repl) {
     *out = '\0';
 }
 
+bool Q_IsShortHexColor(pointer p) {
+    return ((p != nullptr) &&
+            (p[0] == Q_COLOR_HEX_ESCAPE) &&
+            (p[1] != '\0') &&
+            (p[1] > 0) &&
+            isalnum(p[1]) &&
+            (p[2] != '\0') &&
+            (p[2] > 0) &&
+            isalnum(p[2]) &&
+            (p[3] != '\0') &&
+            (p[3] > 0) &&
+            isalnum(p[3]));
+}
+
+bool Q_IsLongHexColor(pointer p) {
+    return ((p != nullptr) &&
+            (p[0] == Q_COLOR_HEX_ESCAPE) &&
+            (p[1] == Q_COLOR_HEX_ESCAPE) &&
+            (p[2] != '\0') &&
+            (p[2] > 0) &&
+            isalnum(p[2]) &&
+            (p[3] != '\0') &&
+            (p[3] > 0) &&
+            isalnum(p[3]) &&
+            (p[4] != '\0') &&
+            (p[4] > 0) &&
+            isalnum(p[4]) &&
+            (p[5] != '\0') &&
+            (p[5] > 0) &&
+            isalnum(p[5]) &&
+            (p[6] != '\0') &&
+            (p[6] > 0) &&
+            isalnum(p[6]) &&
+            (p[7] != '\0') &&
+            (p[7] > 0) &&
+            isalnum(p[7]));
+}
+
+bool Q_IsHexColor(pointer p) {
+    return (Q_IsShortHexColor(p) || Q_IsLongHexColor(p));
+}
+
+bool Q_IsHardcodedColor(pointer p) {
+    return ((p != nullptr) &&
+            (p[0] == Q_COLOR_ESCAPE) &&
+            (p[1] != '\0') &&
+            (p[1] > 0) &&
+            (p[1] != Q_COLOR_ESCAPE) &&
+            (isalnum(p[1])));
+}
+
+bool Q_IsColorNULLString(pointer p) {
+    return ((p) &&
+            (p[0] == Q_COLOR_ESCAPE) &&
+            (p[1] == COLOR_NULL));
+}
+
+// ^[0-9a-zA-Z]
+// or for custom short hex ^#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]
+// or custom long hex
+//     ^##[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]
 bool Q_IsColorString(pointer p) {
-    if(!p) {
-        return false;
-    }
+    return ((p != nullptr) &&
+            (p[0] == Q_COLOR_ESCAPE) &&
+            (p[1] != '\0') &&
+            (p[1] > 0) &&
+            (p[1] != Q_COLOR_ESCAPE) &&
+            (Q_IsHardcodedColor(p) || Q_IsHexColor(p + 1) |
+             Q_IsColorNULLString(p)));
+}
 
-    if(p[0] != Q_COLOR_ESCAPE) {
-        return false;
-    }
+bool Q_IsColorEscapeEscape(pointer p) {
+    return ((p) &&
+            (p[0] == Q_COLOR_ESCAPE) &&
+            (p[1] == Q_COLOR_ESCAPE));
+}
 
-    if(p[1] == 0) {
-        return false;
-    }
+sint Q_ColorStringLength(pointer p) {
+    return ((Q_IsHardcodedColor(p) || Q_IsColorNULLString(p)) ?
+            2 : (Q_IsShortHexColor(p + 1) ? 5 : 9));
+}
 
-    // isalnum expects a signed integer in the range -1 (EOF) to 255, or it might assert on undefined behaviour
-    // a dereferenced char pointer has the range -128 to 127, so we just need to rangecheck the negative part
-    if(p[1] < 0) {
-        return false;
-    }
+sint Q_NumOfColorCodeDigits(pointer p) {
+    return (Q_IsHardcodedColor(p) ? 1 : (Q_IsShortHexColor(p + 1) ? 3 : 6));
 
-    if(isalnum(p[1]) == 0) {
-        return false;
-    }
-
-    return true;
 }
 
 void Q_strcpy_s(valueType *pDest, uint32 nDestSize, pointer pSrc) {

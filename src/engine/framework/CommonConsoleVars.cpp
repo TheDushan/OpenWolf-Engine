@@ -52,6 +52,7 @@ convar_t *con_notifytime;
 convar_t *con_autoclear;
 
 // Color and alpha for console
+convar_t *scr_conUseShader;
 convar_t *scr_conColorAlpha;
 convar_t *scr_conColorRed;
 convar_t *scr_conColorBlue;
@@ -444,6 +445,8 @@ void Com_InitCommonConsoleVars(void) {
     con_restricted = cvarSystem->Get("con_restricted", "0", CVAR_INIT,
                                      "^1Toggles clearing of unfinished text after closing console.");
 
+    scr_conUseShader = cvarSystem->Get("scr_conUseShader", "1", CVAR_ARCHIVE,
+                                       "^1Enables the background shader of the console.");
     scr_conColorAlpha = cvarSystem->Get("scr_conColorAlpha", "0.5",
                                         CVAR_ARCHIVE, "^1Defines the backgroud Alpha color of the console.");
     scr_conColorRed = cvarSystem->Get("scr_conColorRed", "0", CVAR_ARCHIVE,
@@ -745,7 +748,7 @@ void Com_InitCommonConsoleVars(void) {
                                  CVAR_INIT, "Default app directory.");
 #endif
 
-    fs_homepath = cvarSystem->Get("fs_homepath", homePath, CVAR_INIT,
+    fs_homepath = cvarSystem->Get("fs_homepath", "", CVAR_INIT,
                                   "The default is the path to the game executable.");
     fs_game = cvarSystem->Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO,
                               "Set Game path. Set the game folder/dir. ");

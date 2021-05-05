@@ -42,13 +42,15 @@ public:
     virtual void DrawConsoleFontChar(float32 x, float32 y, sint ch) = 0;
     virtual void AdjustFrom640(float32 *x, float32 *y, float32 *w,
                                float32 *h) = 0;
+    virtual void DrawPic(float x, float y, float width, float height,
+                         qhandle_t hShader) = 0;
     virtual void FillRect(float32 x, float32 y, float32 width, float32 height,
                           const float32 *color) = 0;
     virtual void DrawChar(sint x, sint y, float32 size, sint ch) = 0;
     virtual void DrawSmallChar(sint x, sint y, sint ch) = 0;
     virtual void DrawStringExt(sint x, sint y, float32 size, pointer string,
                                float32 *setColor, bool forceColor, bool noColorEscape) = 0;
-    virtual sint Strlen(pointer str) = 0;
+    virtual sint Strlen(const pointer str) = 0;
     virtual void DrawDemoRecording(void) = 0;
     virtual void DebugGraph(float32 value, sint color) = 0;
     virtual void DrawDebugGraph(void) = 0;
@@ -61,4 +63,3 @@ public:
 extern idClientScreenSystem *clientScreenSystem;
 
 #endif // !__CLIENTSCREEN_API_H__
-

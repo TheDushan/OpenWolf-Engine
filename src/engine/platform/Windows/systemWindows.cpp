@@ -76,16 +76,18 @@ void idSystemLocal::SetFloatEnv(void) {
 idSystemLocal::DefaultHomePath
 ================
 */
-valueType *idSystemLocal::DefaultHomePath(valueType *buffer, sint size) {
-    if(SHGetSpecialFolderPath(nullptr, buffer, CSIDL_PERSONAL,
-                              TRUE) != NOERROR) {
-        Q_strcat(buffer, size, "\\My Games\\OpenWolf");
+valueType *idSystemLocal::DefaultHomePath(void) {
+    if((fs_homepath != nullptr) && fs_homepath->string[0]) {
+        Q_strncpyz(homePath, fs_homepath->string, sizeof(homePath));
+    } else if(SHGetSpecialFolderPath(nullptr, homePath, CSIDL_PERSONAL,
+                                     TRUE) != NOERROR) {
+        Q_strcat(homePath, sizeof(homePath), "\\My Games\\OpenWolf");
     } else {
         Com_Error(ERR_FATAL, "couldn't find home path.\n");
-        buffer[0] = 0;
+        homePath[0] = 0;
     }
 
-    return buffer;
+    return homePath;
 }
 
 /*

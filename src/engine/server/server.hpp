@@ -323,7 +323,7 @@ typedef struct client_s {
     valueType            lastClientCommandString[MAX_STRING_CHARS];
     sharedEntity_t *gentity;    // SV_GentityNum(clientnum)
     valueType
-    name[MAX_NAME_LENGTH]; // extracted from userinfo, high bits masked
+    name[MAX_COLORFUL_NAME_LENGTH]; // extracted from userinfo, high bits masked
 
     // downloading
     valueType

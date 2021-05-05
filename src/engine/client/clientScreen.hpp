@@ -53,13 +53,15 @@ public:
     virtual float32 ConsoleFontStringWidth(pointer s, sint len);
     virtual void DrawConsoleFontChar(float32 x, float32 y, sint ch);
     virtual void AdjustFrom640(float32 *x, float32 *y, float32 *w, float32 *h);
+    virtual void DrawPic(float x, float y, float width, float height,
+                         qhandle_t hShader);
     virtual void FillRect(float32 x, float32 y, float32 width, float32 height,
                           const float32 *color);
     virtual void DrawChar(sint x, sint y, float32 size, sint ch);
     virtual void DrawSmallChar(sint x, sint y, sint ch);
     virtual void DrawStringExt(sint x, sint y, float32 size, pointer string,
                                float32 *setColor, bool forceColor, bool noColorEscape);
-    virtual sint Strlen(pointer str);
+    virtual sint Strlen(const pointer str);
     virtual void DrawDemoRecording(void);
     virtual void DebugGraph(float32 value, sint color);
     virtual void DrawDebugGraph(void);
