@@ -50,22 +50,24 @@
 idSystemLocal::DefaultHomePath
 ==================
 */
-valueType *idSystemLocal::DefaultHomePath(valueType *buffer, sint size) {
+valueType *idSystemLocal::DefaultHomePath(void) {
     valueType *p;
 
     if(!*homePath) {
-        if((p = getenv("HOME")) != nullptr) {
-            Q_strncpyz(buffer, p, size);
+        if((fs_homepath != nullptr) && fs_homepath->string[0]) {
+            Q_strncpyz(homePath, fs_homepath->string, sizeof(homePath));
+        } else if((p = getenv("HOME")) != nullptr) {
+            Q_strncpyz(homePath, p, sizeof(homePath));
 #ifdef MACOS_X
-            Q_strcat(buffer, size, "/Library/Application Support/"
+            Q_strcat(homePath, sizeof(homePath), "/Library/Application Support/"
                      PRODUCT_NAME_UPPPER);
 #else
-            Q_strcat(buffer, size, "/." PRODUCT_NAME_UPPPER);
+            Q_strcat(homePath, sizeof(homePath), "/." PRODUCT_NAME_UPPPER);
 #endif
         }
     }
 
-    return buffer;
+    return homePath;
 }
 
 /*
@@ -176,7 +178,26 @@ idSystemLocal::SysGetClipboardData
 ==================
 */
 valueType *idSystemLocal::SysGetClipboardData(void) {
-    return nullptr;
+    valueType *data = nullptr;
+#ifndef DEDICATED
+    valueType *cliptext;
+
+    if((cliptext = SDL_GetClipboardText()) != nullptr) {
+        if(cliptext[0] != '\0') {
+            size_t bufsize = strlen(cliptext) + 1;
+
+            data = (valueType *)Z_Malloc(bufsize);
+            Q_strncpyz(data, cliptext, bufsize);
+
+            // find first listed valueType and set to '\0'
+            strtok(data, "\n\r\b");
+        }
+
+        SDL_free(cliptext);
+    }
+
+#endif
+    return data;
 }
 
 /*

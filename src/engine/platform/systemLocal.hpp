@@ -139,7 +139,7 @@ public:
     idSystemLocal();
     ~idSystemLocal();
 
-    virtual valueType *DefaultHomePath(valueType *buffer, sint size);
+    virtual valueType *DefaultHomePath(void);
     virtual sint Milliseconds(void);
     virtual bool RandomBytes(uchar8 *string, uint64 len);
     virtual valueType *GetCurrentUser(void);

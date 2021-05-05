@@ -353,6 +353,10 @@ void Console_DownEventKey(sint key) {
 
     // enter finishes the line
     if(key == K_ENTER || key == K_KP_ENTER) {
+        if(g_consoleField.buffer[0]) {
+            consoleHistorySystem->Add(g_consoleField.buffer);
+        }
+
         Con_LineAccept();
         return;
     }
@@ -967,7 +971,7 @@ CL_InitKeyCommands
 void CL_InitKeyCommands(void) {
     // register our functions
     cmdSystem->AddCommand("bind", Key_Bind_f,
-                          "Used for assigning keys to actions. Bind x “weaponbank 3");
+                          "Used for assigning keys to actions. Bind x ï¿½weaponbank 3");
     cmdSystem->SetCommandCompletionFunc("bind", Key_CompleteBind);
     cmdSystem->AddCommand("unbind", Key_Unbind_f,
                           "Displays list of cvars in console");
@@ -1426,7 +1430,7 @@ void CL_CharEvent(sint key) {
     // but I can't be arsed to leave this as is
 
     if(key == static_cast<uchar8>('`') || key == static_cast<uchar8>('~') ||
-            key == static_cast<uchar8>('¬')) {
+            key == static_cast<uchar8>('ï¿½')) {
         return;
     }
 

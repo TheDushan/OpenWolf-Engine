@@ -1275,6 +1275,15 @@ valueType *idCVarSystemLocal::InfoString(sint bit) {
 
     for(var = cvar_vars; var; var = var->next) {
         if(var->flags & bit) {
+            char cleaned_string[MAX_CVAR_VALUE_STRING];
+
+            Q_RemoveUnusedColorStrings(var->string, cleaned_string,
+                                       MAX_CVAR_VALUE_STRING);
+
+            if(Q_stricmp(cleaned_string, var->string)) {
+                cvarSystemLocal.Set(var->name, cleaned_string);
+            }
+
             Info_SetValueForKey(info, var->name, var->string);
         }
     }
@@ -1297,6 +1306,15 @@ valueType *idCVarSystemLocal::InfoString_Big(sint bit) {
 
     for(var = cvar_vars; var; var = var->next) {
         if(var->flags & bit) {
+            char cleaned_string[MAX_CVAR_VALUE_STRING];
+
+            Q_RemoveUnusedColorStrings(var->string, cleaned_string,
+                                       MAX_CVAR_VALUE_STRING);
+
+            if(Q_stricmp(cleaned_string, var->string)) {
+                cvarSystemLocal.Set(var->name, cleaned_string);
+            }
+
             Info_SetValueForKey_Big(info, var->name, var->string);
         }
     }
@@ -1443,7 +1461,7 @@ void idCVarSystemLocal::Init(void) {
                                         &idCVarSystemLocal::CompleteCvarName);
 
     cmdSystem->AddCommand("cycle", &idCVarSystemLocal::Cycle_f,
-                          "For cycling a specified cvar through the specified values.Bind x “cycle s_mute 0 1");  // ydnar
+                          "For cycling a specified cvar through the specified values.Bind x ï¿½cycle s_mute 0 1");  // ydnar
     cmdSystem->SetCommandCompletionFunc("cycle",
                                         &idCVarSystemLocal::CompleteCvarName);
 

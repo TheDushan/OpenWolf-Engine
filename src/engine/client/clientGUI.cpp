@@ -143,18 +143,22 @@ idClientGUISystemLocal::GUIGetClipboarzdData
 */
 void idClientGUISystemLocal::GUIGetClipboardData(valueType *buf,
         uint64 buflen) {
-    valueType *cbd;
+    if(cls.state == CA_DISCONNECTED) {
+        valueType *cbd;
 
-    cbd = idsystem->SysGetClipboardData();
+        cbd = idsystem->SysGetClipboardData();
 
-    if(!cbd) {
-        *buf = 0;
-        return;
+        if(!cbd) {
+            *buf = 0;
+            return;
+        }
+
+        Q_strncpyz(buf, cbd, buflen);
+
+        Z_Free(cbd);
+    } else {
+        buf[0] = '\0';
     }
-
-    Q_strncpyz(buf, cbd, buflen);
-
-    Z_Free(cbd);
 }
 
 /*

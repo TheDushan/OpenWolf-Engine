@@ -2167,9 +2167,12 @@ void idServerClientSystemLocal::ExecuteClientCommand(client_t *cl,
             // q3cbufexec fix
             if(Q_stricmp("say", cmdSystem->Argv(0)) == 0 || Q_stricmp("say_team",
                     cmdSystem->Argv(0)) == 0 ||
-                    Q_stricmp("say_fireteam", cmdSystem->Argv(0)) == 0) {
+                    Q_stricmp("say_fireteam", cmdSystem->Argv(0)) == 0 ||
+                    Q_stricmp("say_area", cmdSystem->Argv(0)) == 0) {
                 argsFromOneMaxlen = MAX_SAY_STRLEN;
-            } else if(Q_stricmp("tell", cmdSystem->Argv(0)) == 0) {
+            } else if(Q_stricmp("tell", cmdSystem->Argv(0)) == 0 ||
+                      Q_stricmp("m", cmdSystem->Argv(0)) == 0 ||
+                      Q_stricmp("mt", cmdSystem->Argv(0)) == 0) {
                 // A command will look like "tell 12 hi" or "tell foo hi".  The "12"
                 // and "foo" in the examples will be counted towards MAX_SAY_STRLEN,
                 // plus the space.

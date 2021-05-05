@@ -149,10 +149,20 @@ void idConsoleCursesLocal::ColorPrint(WINDOW *win, pointer msg,
                 msg++;
             } else {
                 // Set the color
-                SetColor(win, ColorIndex(*(msg + 1)));
+                vec4_t color;
+
+                if(Q_IsColorNULLString(msg)) {
+                    Vector4Copy(g_color_table[ColorIndex(COLOR_WHITE)], color);
+                } else if(Q_IsHardcodedColor(msg)) {
+                    Vector4Copy(g_color_table[ColorIndex(*(msg + 1))], color);
+                } else {
+                    Q_GetVectFromHexColor(msg, color);
+                }
+
+                SetColor(win, Q_ApproxBasicColorIndexFromVectColor(color));
 
                 if(stripcodes) {
-                    msg += 2;
+                    msg += Q_ColorStringLength(msg);
                 } else {
                     if(length >= MAXPRINTMSG - 1) {
                         break;

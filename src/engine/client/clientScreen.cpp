@@ -102,6 +102,19 @@ void idClientScreenSystemLocal::AdjustFrom640(float32 *x, float32 *y,
 
 /*
 ================
+idClientScreenSystemLocal::DrawPic
+
+Coordinates are 640*480 virtual values
+=================
+*/
+void idClientScreenSystemLocal::DrawPic(float x, float y,
+                                        float width, float height, qhandle_t hShader) {
+    AdjustFrom640(&x, &y, &width, &height);
+    renderSystem->DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
+}
+
+/*
+================
 idClientScreenSystemLocal::FillRect
 
 Coordinates are 640*480 virtual values
@@ -230,9 +243,10 @@ Coordinates are at 640 by 480 virtual resolution
 */
 void idClientScreenSystemLocal::DrawStringExt(sint x, sint y, float32 size,
         pointer string, float32 *setColor, bool forceColor, bool noColorEscape) {
-    sint xx;
-    vec4_t color;
+    sint    xx;
+    vec4_t  color;
     pointer s;
+    bool    skip_color_string_check = false;
 
     // draw the drop shadow
     color[0] = color[1] = color[2] = 0;
@@ -243,8 +257,10 @@ void idClientScreenSystemLocal::DrawStringExt(sint x, sint y, float32 size,
 
     while(*s) {
         if(!noColorEscape && Q_IsColorString(s)) {
-            s += 2;
+            s += Q_ColorStringLength(s);
             continue;
+        } else if(!noColorEscape && Q_IsColorEscapeEscape(s)) {
+            s++;
         }
 
         DrawChar(xx + 1, y + 1, size, *s);
@@ -261,12 +277,20 @@ void idClientScreenSystemLocal::DrawStringExt(sint x, sint y, float32 size,
     renderSystem->SetColor(setColor);
 
     while(*s) {
-        if(!noColorEscape && Q_IsColorString(s)) {
+        if(skip_color_string_check) {
+            skip_color_string_check = false;
+        } else if(Q_IsColorString(s)) {
             if(!forceColor) {
-                if(*(s + 1) == COLOR_NULL) {
+                if(Q_IsColorNULLString(s + 1)) {
                     ::memcpy(color, setColor, sizeof(color));
                 } else {
-                    ::memcpy(color, g_color_table[ColorIndex(*(s + 1))], sizeof(color));
+                    if(Q_IsHardcodedColor(s)) {
+                        ::memcpy(color, g_color_table[ColorIndex(*(s + 1))],
+                                 sizeof(color));
+                    } else {
+                        Q_GetVectFromHexColor(s, color);
+                    }
+
                     color[3] = setColor[3];
                 }
 
@@ -275,9 +299,16 @@ void idClientScreenSystemLocal::DrawStringExt(sint x, sint y, float32 size,
                 renderSystem->SetColor(color);
             }
 
-            s += 2;
-
-            continue;
+            if(!noColorEscape) {
+                s += Q_ColorStringLength(s);
+                continue;
+            }
+        } else if(Q_IsColorEscapeEscape(s)) {
+            if(!noColorEscape) {
+                s++;
+            } else if(!forceColor) {
+                skip_color_string_check = true;
+            }
         }
 
         idClientScreenSystemLocal::DrawChar(xx, y, size, *s);
@@ -317,8 +348,9 @@ Coordinates are at 640 by 480 virtual resolution
 void idClientScreenSystemLocal::DrawSmallStringExt(sint x, sint y,
         pointer string, float32 *setColor, bool forceColor, bool noColorEscape) {
     float32 xx;
-    vec4_t color;
+    vec4_t  color;
     pointer s;
+    bool    skip_color_string_check = false;
 
     // draw the colored text
     s = string;
@@ -326,21 +358,37 @@ void idClientScreenSystemLocal::DrawSmallStringExt(sint x, sint y,
     renderSystem->SetColor(setColor);
 
     while(*s) {
-        if(Q_IsColorString(s)) {
+        if(skip_color_string_check) {
+            skip_color_string_check = false;
+        } else if(Q_IsColorString(s)) {
             if(!forceColor) {
-                if(*(s + 1) == COLOR_NULL) {
+                if(Q_IsColorNULLString(s + 1)) {
                     ::memcpy(color, setColor, sizeof(color));
                 } else {
-                    ::memcpy(color, g_color_table[ColorIndex(*(s + 1))], sizeof(color));
+                    if(Q_IsHardcodedColor(s)) {
+                        ::memcpy(color, g_color_table[ColorIndex(*(s + 1))],
+                                 sizeof(color));
+                    } else {
+                        Q_GetVectFromHexColor(s, color);
+                    }
+
                     color[3] = setColor[3];
                 }
+
+                color[3] = setColor[3];
 
                 renderSystem->SetColor(color);
             }
 
             if(!noColorEscape) {
-                s += 2;
+                s += Q_ColorStringLength(s);
                 continue;
+            }
+        } else if(Q_IsColorEscapeEscape(s)) {
+            if(!noColorEscape) {
+                s++;
+            } else if(!forceColor) {
+                skip_color_string_check = true;
             }
         }
 
@@ -360,14 +408,18 @@ idClientScreenSystemLocal::Strlen
 skips color escape codes
 ==================
 */
-sint idClientScreenSystemLocal::Strlen(pointer str) {
+sint idClientScreenSystemLocal::Strlen(const pointer str) {
     sint count = 0;
-    pointer s = str;
+    const valueType *s = str;
 
     while(*s) {
         if(Q_IsColorString(s)) {
-            s += 2;
+            s += Q_ColorStringLength(s);
         } else {
+            if(Q_IsColorEscapeEscape(s)) {
+                s++;
+            }
+
             count++;
             s++;
         }
@@ -415,7 +467,7 @@ void idClientScreenSystemLocal::DrawDebugGraph(void) {
     x = 0;
     y = cls.glconfig.vidHeight;
 
-    renderSystem->SetColor(g_color_table[0]);
+    renderSystem->SetColor(g_color_table[ColorIndex(COLOR_BLACK)]);
     renderSystem->DrawStretchPic(static_cast<float32>(x),
                                  static_cast<float32>(y - graphheight->integer), static_cast<float32>(w),
                                  graphheight->value, 0, 0, 0, 0, cls.whiteShader);
@@ -472,7 +524,7 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
     // unless they are displaying game renderings
     if(uiFullscreen || cls.state < CA_LOADING) {
         if(cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640) {
-            renderSystem->SetColor(g_color_table[0]);
+            renderSystem->SetColor(g_color_table[ColorIndex(COLOR_BLACK)]);
             renderSystem->DrawStretchPic(0, 0,
                                          static_cast<float32>(cls.glconfig.vidWidth),
                                          static_cast<float32>(cls.glconfig.vidHeight), 0, 0, 0, 0, cls.whiteShader);
@@ -656,4 +708,3 @@ float32 idClientScreenSystemLocal::ConsoleFontStringWidth(pointer s,
 
     return (width);
 }
-

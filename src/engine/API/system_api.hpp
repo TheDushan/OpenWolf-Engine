@@ -86,7 +86,7 @@ public:
     virtual valueType *GetCurrentUser(void) = 0;
     virtual bool RandomBytes(uchar8 *string, uint64 len) = 0;
     virtual sint Milliseconds(void) = 0;
-    virtual valueType *DefaultHomePath(valueType *buffer, sint size) = 0;
+    virtual valueType *DefaultHomePath(void) = 0;
     virtual valueType *Cwd(void) = 0;
 };
 

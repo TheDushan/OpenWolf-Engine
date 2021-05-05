@@ -351,6 +351,7 @@ extern convar_t *scr_conBarColorGreen;
 extern convar_t *scr_conBarColorBlue;
 extern convar_t *scr_conBarColorAlpha;
 extern convar_t *scr_conColorAlpha;
+extern convar_t *scr_conUseShader;
 extern convar_t *con_conspeed;
 extern convar_t *cl_motd;
 extern convar_t *cl_motdString;

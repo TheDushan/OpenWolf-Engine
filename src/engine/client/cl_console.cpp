@@ -333,7 +333,9 @@ void Con_Clear_f(void) {
     sint             i;
 
     for(i = 0; i < CON_TEXTSIZE; i++) {
-        activeCon->text[i] = (ColorIndex(CONSOLE_COLOR) << 8) | ' ';
+        activeCon->text[i] = ' ';
+        Vector4Copy(g_color_table[ColorIndex(CONSOLE_COLOR)],
+                    activeCon->text_color[i]);
     }
 
     Con_Bottom();               // go to end
@@ -349,16 +351,16 @@ Save the console contents out to a file
 ================
 */
 void Con_Dump_f(void) {
-    sint             l, x, i;
-    schar16          *line;
-    fileHandle_t    f;
-    sint        bufferlen;
-    valueType  *buffer;
-    valueType   filename[MAX_QPATH];
-    valueType  *ss;
-    sint        ilen, isub;
-    valueType   name[MAX_QPATH];
-    console_t *con;
+    sint         l, x, i;
+    valueType    *line;
+    fileHandle_t f;
+    sint         bufferlen;
+    valueType    *buffer;
+    valueType    filename[MAX_QPATH];
+    valueType    *ss;
+    sint         ilen, isub;
+    valueType    name[MAX_QPATH];
+    console_t    *con;
 
     if(cmdSystem->Argc() == 2) {
         con = &activeCon[CON_ALL];
@@ -400,8 +402,8 @@ void Con_Dump_f(void) {
 
     if(!strlen(name)) {
         qtime_t time;
-        valueType  *count = (dump_time == cls.realtime / 1000) ? va("(%d)",
-                            dump_count++ + 2) : "";
+        const valueType  *count = (dump_time == cls.realtime / 1000) ? va("(%d)",
+                                  dump_count++ + 2) : "";
         Com_RealTime(&time);
 
         Q_vsprintf_s(name, sizeof(name), sizeof(name),
@@ -442,7 +444,7 @@ void Con_Dump_f(void) {
         line = con->text + (l % con->totallines) * con->linewidth;
 
         for(x = 0; x < con->linewidth; x++)
-            if((line[x] & 0xff) != ' ') {
+            if(line[x] != ' ') {
                 break;
             }
 
@@ -466,7 +468,7 @@ void Con_Dump_f(void) {
         line = con->text + (l % con->totallines) * con->linewidth;
 
         for(i = 0; i < con->linewidth; i++) {
-            buffer[i] = line[i] & 0xff;
+            buffer[i] = line[i];
         }
 
         buffer[con->linewidth] = '\0';
@@ -504,7 +506,7 @@ Scroll up to the first console line containing a string
 */
 void Con_Search_f(void) {
     sint        l, i, x;
-    schar16    *line;
+    valueType   *line;
     valueType   buffer[MAXPRINTMSG];
     sint        direction;
     sint        c = cmdSystem->Argc();
@@ -565,7 +567,7 @@ Find all console lines containing a string
 */
 void Con_Grep_f(void) {
     sint        l, x, i;
-    schar16    *line;
+    valueType   *line;
     valueType   buffer[1024];
     valueType   buffer2[1024];
     valueType   printbuf[CON_TEXTSIZE];
@@ -661,8 +663,9 @@ If the line width has changed, reformat the buffer.
 ================
 */
 static void Con_CheckResize(console_t *con) {
-    sint i, j, width, oldwidth, oldtotallines, numlines, numchars;
-    schar16 tbuf[CON_TEXTSIZE];
+    sint      i, j, width, oldwidth, oldtotallines, numlines, numchars;
+    valueType tbuf[CON_TEXTSIZE];
+    vec4_t    tcbuf[CON_TEXTSIZE];
 
     if(cls.glconfig.vidWidth) {
         width = (cls.glconfig.vidWidth - 30) /
@@ -686,7 +689,9 @@ static void Con_CheckResize(console_t *con) {
         for(i = 0; i < CON_TEXTSIZE; i++)
 
         {
-            con->text[i] = (ColorIndex(COLOR_WHITE) << 8) | ' ';
+            con->text[i] = ' ';
+            Vector4Copy(
+                g_color_table[ColorIndex(CONSOLE_COLOR)], con->text_color[i]);
         }
     } else {
         oldwidth = con->linewidth;
@@ -705,16 +710,21 @@ static void Con_CheckResize(console_t *con) {
             numchars = con->linewidth;
         }
 
-        ::memcpy(tbuf, con->text, CON_TEXTSIZE * sizeof(schar16));
+        ::memcpy(tbuf, con->text, CON_TEXTSIZE * sizeof(valueType));
+        ::memcpy(tcbuf, con->text_color, CON_TEXTSIZE * sizeof(vec4_t));
 
         for(i = 0; i < CON_TEXTSIZE; i++) {
-            con->text[i] = (ColorIndex(COLOR_WHITE) << 8) | ' ';
+            con->text[i] = ' ';
+            Vector4Copy(g_color_table[ColorIndex(CONSOLE_COLOR)], con->text_color[i]);
         }
 
         for(i = 0 ; i < numlines ; i++) {
             for(j = 0 ; j < numchars ; j++) {
                 con->text[(con->totallines - 1 - i) * con->linewidth + j] = tbuf[((
                             con->current - i + oldtotallines) % oldtotallines) * oldwidth + j];
+                Vector4Copy(
+                    tcbuf[((con->current - i + oldtotallines) % oldtotallines) * oldwidth + j],
+                    con->text_color[(con->totallines - 1 - i) * con->linewidth + j]);
             }
         }
     }
@@ -751,9 +761,9 @@ void Con_Init(void) {
 
     // ydnar: these are deprecated in favor of cgame/ui based version
     cmdSystem->AddCommand("clMessageMode", Con_MessageMode_f,
-                          "^1(global chat), without the convenient pop-up box. Also: ‘say’.");
+                          "^1(global chat), without the convenient pop-up box. Also: ï¿½sayï¿½.");
     cmdSystem->AddCommand("clMessageMode2", Con_MessageMode2_f,
-                          "^1(teamchat), without the convenient pop-up box. Also: ‘say_team’.");
+                          "^1(teamchat), without the convenient pop-up box. Also: ï¿½say_teamï¿½.");
     cmdSystem->AddCommand("clMessageMode3", Con_MessageMode3_f,
                           "^1(fireteam chat), without the convenient pop-up box.");
     cmdSystem->AddCommand("commandMode", Con_CommandMode_f, "");
@@ -788,8 +798,10 @@ void Con_Linefeed(console_t *con, bool skipnotify) {
     con->current++;
 
     for(i = 0; i < con->linewidth; i++) {
-        con->text[(con->current % con->totallines) * con->linewidth + i] =
-            (ColorIndex(CONSOLE_COLOR) << 8) | ' ';
+        con->text[(con->current % con->totallines) * con->linewidth + i] = ' ';
+        Vector4Copy(
+            g_color_table[ColorIndex(CONSOLE_COLOR)],
+            con->text_color[(con->current % con->totallines)*con->linewidth + i]);
     }
 }
 
@@ -821,11 +833,14 @@ static void CL_ConsoleTabsInit(void) {
 CL_ConsolePrintToTabs
 ================
 */
-static void CL_ConsolePrintToTabs(valueType *txt, console_t *con) {
-    sint y, c, l;
-    valueType color;
-    bool skipnotify = false;    // NERVE - SMF
-    sint prev;      // NERVE - SMF
+static void CL_ConsolePrintToTabs(valueType *txt, console_t *con,
+                                  bool toCgame) {
+    sint      y, l;
+    valueType c;
+    vec4_t    color;
+    bool      skipnotify = false;    // NERVE - SMF
+    bool      skip_color_string_check = false;
+    sint      prev;      // NERVE - SMF
 
     // NERVE - SMF - work around for text that shows up in console but not in notify
     if(!Q_strncmp(txt, "[skipnotify]", 12)) {
@@ -847,7 +862,7 @@ static void CL_ConsolePrintToTabs(valueType *txt, console_t *con) {
         CL_ConsoleTabsInit();
     }
 
-    if(!skipnotify && !(cls.keyCatchers & KEYCATCH_CONSOLE) &&
+    if(toCgame && !skipnotify && !(cls.keyCatchers & KEYCATCH_CONSOLE) &&
             strncmp(txt, "EXCL: ", 6)) {
         // feed the text to cgame
         cmdSystem->SaveCmdContext();
@@ -856,17 +871,26 @@ static void CL_ConsolePrintToTabs(valueType *txt, console_t *con) {
         cmdSystem->RestoreCmdContext();
     }
 
-    color = ColorIndex(CONSOLE_COLOR);
+    Vector4Copy(g_color_table[ColorIndex(CONSOLE_COLOR)], color);
 
     while((c = *txt) != 0) {
-        if(Q_IsColorString(txt)) {
-            if(*(txt + 1) == COLOR_NULL) {
-                color = ColorIndex(CONSOLE_COLOR);
+        if(skip_color_string_check) {
+            skip_color_string_check = false;
+        } else if(Q_IsColorNULLString(txt)) {
+            Vector4Copy(g_color_table[ColorIndex(CONSOLE_COLOR)], color);
+            txt += 2;
+        } else if(Q_IsColorString(txt)) {
+            if(Q_IsHardcodedColor(txt)) {
+                Vector4Copy(g_color_table[ColorIndex(*(txt + 1))], color);
             } else {
-                color = ColorIndex(*(txt + 1));
+                Q_GetVectFromHexColor(txt, color);
             }
 
-            txt += 2;
+            txt += Q_ColorStringLength(txt);
+            continue;
+        } else if(Q_IsColorEscapeEscape(txt)) {
+            skip_color_string_check = true;
+            txt++;
             continue;
         }
 
@@ -896,6 +920,9 @@ static void CL_ConsolePrintToTabs(valueType *txt, console_t *con) {
         txt++;
 
         switch(c) {
+            case INDENT_MARKER:
+                break;
+
             case '\n':
                 Con_Linefeed(con, skipnotify);
                 break;
@@ -906,10 +933,8 @@ static void CL_ConsolePrintToTabs(valueType *txt, console_t *con) {
 
             default:            // display character and advance
                 y = con->current % con->totallines;
-                // rain - sign extension caused the character to carry over
-                // into the color info for high ascii chars; casting c to unsigned
-                con->text[y * con->linewidth + con->x] = (color << 8) |
-                        static_cast<uchar8>(c);
+                con->text[y * con->linewidth + con->x] = c;
+                Vector4Copy(color, con->text_color[y * con->linewidth + con->x]);
                 con->x++;
 
                 if(con->x >= con->linewidth) {
@@ -963,8 +988,8 @@ void CL_ConsolePrint(valueType *txt) {
 
     lastCmdNum = cmdNum;
 
-    CL_ConsolePrintToTabs(txt, &con[CON_ALL]);
-    CL_ConsolePrintToTabs(txt, &con[conNum]);
+    CL_ConsolePrintToTabs(txt, &con[CON_ALL], true);
+    CL_ConsolePrintToTabs(txt, &con[conNum], false);
 }
 
 #if defined( _WIN32 ) && defined( NDEBUG )
@@ -1032,7 +1057,7 @@ Draws the last few lines of output transparently over the game top
 */
 void Con_DrawNotify(void) {
     sint             x, v;
-    schar16            *text;
+    valueType        *text;
     sint             i;
     sint             time;
     sint             skip;
@@ -1133,15 +1158,18 @@ Draws the console with the solid background
 ================
 */
 void Con_DrawSolidConsole(float32 frac) {
-    sint                i, x, y;
-    sint                rows;
-    schar16            *text;
-    sint                row;
-    sint                lines;
-    sint                currentColor;
+    sint            i, x, y;
+    sint            rows;
+    valueType       *text;
+    vec4_t          *text_color;
+    sint            row;
+    sint            lines;
+    vec4_t          currentColor;
     vec4_t          color;
-    float32           totalwidth;
-    float32           currentWidthLocation = 0;
+    float           currentLuminance = 1.0;
+    bool            currentColorChanged = false;
+    float32         totalwidth;
+    float32         currentWidthLocation = 0;
 
     lines = cls.glconfig.vidHeight * frac;
 
@@ -1150,24 +1178,40 @@ void Con_DrawSolidConsole(float32 frac) {
     clientScreenSystem->AdjustFrom640(&activeCon->xadjust, nullptr, nullptr,
                                       nullptr);
 
-    color[0] = scr_conColorRed->value;
-    color[1] = scr_conColorGreen->value;
-    color[2] = scr_conColorBlue->value;
-    color[3] = frac * 2 * scr_conColorAlpha->value;
-    clientScreenSystem->FillRect(10, 10, 620,
-                                 460 * scr_conHeight->integer * 0.01f, color);
+    // draw the background
+    y = frac * (460 * scr_conHeight->integer * 0.01f) * 2.00f;
+
+    if(y < 1) {
+        y = 0;
+    } else if(scr_conUseShader->integer) {
+        clientScreenSystem->DrawPic(10, 10, 620,
+                                    y,
+                                    cls.consoleShader);
+    } else {
+        color[0] = scr_conColorRed->value;
+        color[1] = scr_conColorGreen->value;
+        color[2] = scr_conColorBlue->value;
+        color[3] = frac * 2 * scr_conColorAlpha->value;
+        clientScreenSystem->FillRect(10, 10, 620, y, color);
+    }
 
     color[0] = scr_conBarColorRed->value;
     color[1] = scr_conBarColorGreen->value;
     color[2] = scr_conBarColorBlue->value;
     color[3] = frac * 2 * scr_conBarColorAlpha->value;
-    clientScreenSystem->FillRect(10, 10, 620, 1, color);     //top
-    clientScreenSystem->FillRect(10, 460 * scr_conHeight->integer * 0.01f + 10,
-                                 621, 1, color);     //bottom
-    clientScreenSystem->FillRect(10, 10, 1,
-                                 460 * scr_conHeight->integer * 0.01f, color);   //left
-    clientScreenSystem->FillRect(630, 10, 1,
-                                 460 * scr_conHeight->integer * 0.01f, color);  //right
+
+    if(y < 1) {
+        y = 0;
+    } else {
+        clientScreenSystem->FillRect(10, 10, 620, 1, color);     //top
+        clientScreenSystem->FillRect(10, y + 10,
+                                     621, 1, color);     //bottom
+        clientScreenSystem->FillRect(10, 10, 1,
+                                     y, color);   //left
+        clientScreenSystem->FillRect(630, 10, 1,
+                                     y, color);  //right
+    }
+
 
     sint tabWidth;
     sint horOffset = SMALLCHAR_WIDTH + 30,
@@ -1264,12 +1308,9 @@ void Con_DrawSolidConsole(float32 frac) {
         row--;
     }
 
-    currentColor = 7;
-    color[0] = g_color_table[currentColor][0];
-    color[1] = g_color_table[currentColor][1];
-    color[2] = g_color_table[currentColor][2];
-    color[3] = frac * 2.0f;
-    renderSystem->SetColor(color);
+    Vector4Copy(g_color_table[ColorIndex(CONSOLE_COLOR)], currentColor);
+    currentColor[3] = frac * 2.0f;
+    renderSystem->SetColor(currentColor);
 
     for(i = 0 ; i < rows ;
             i++, y -= clientScreenSystem->ConsoleFontCharHeight(), row--) {
@@ -1286,15 +1327,32 @@ void Con_DrawSolidConsole(float32 frac) {
 
         text = activeCon->text + (row % activeCon->totallines) *
                activeCon->linewidth;
+        text_color = activeCon->text_color + (row % activeCon->totallines) *
+                     activeCon->linewidth;
 
         for(x = 0 ; x < activeCon->linewidth ; x++) {
-            if(((text[x] >> 8) & 31) != currentColor) {
-                currentColor = (text[x] >> 8) & 31;
-                color[0] = g_color_table[currentColor][0];
-                color[1] = g_color_table[currentColor][1];
-                color[2] = g_color_table[currentColor][2];
-                color[3] = frac * 2.0f;
-                renderSystem->SetColor(color);
+            if(!Vector4Compare(currentColor, text_color[x])) {
+                currentColorChanged = true;
+                Vector4Copy(text_color[x], currentColor);
+                currentLuminance =
+                    sqrt(
+                        (0.299 * currentColor[0] * currentColor[0]) +
+                        (0.587 * currentColor[1] * currentColor[1]) +
+                        (0.114 * currentColor[2] * currentColor[2]));
+            }
+
+            if(currentLuminance <= 0.24) {
+                vec4_t hsl;
+
+                //make the color brighter
+                Com_rgb_to_hsl(currentColor, hsl);
+                hsl[2] = 0.25;
+                Com_hsl_to_rgb(hsl, currentColor);
+                renderSystem->SetColor(currentColor);
+                currentColorChanged = false;
+            } else if(currentColorChanged) {
+                renderSystem->SetColor(currentColor);
+                currentColorChanged = false;
             }
 
             clientScreenSystem->DrawConsoleFontChar(activeCon->xadjust +
@@ -1417,4 +1475,3 @@ void Con_Close(void) {
     activeCon->finalFrac = 0;
     activeCon->displayFrac = 0;
 }
-

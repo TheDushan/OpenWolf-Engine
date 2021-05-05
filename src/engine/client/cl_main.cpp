@@ -2276,7 +2276,7 @@ CL_AuthPacket
 void CL_AuthPacket(netadr_t from) {
     sint challenge;
     uint type;
-    valueType *msg;
+    const valueType *msg;
 
     // if not from our server, ignore it
     if(!networkSystem->CompareAdr(from, clc.serverAddress)) {
@@ -3749,7 +3749,8 @@ CL_AddToLimboChat
 =======================
 */
 void CL_AddToLimboChat(pointer str) {
-    sint i, len, lastcolor, chatHeight;
+    sint i, len, chatHeight;
+    valueType lastcolor[10];
     valueType *p, * ls;
 
     chatHeight = LIMBOCHAT_HEIGHT;
@@ -3765,7 +3766,7 @@ void CL_AddToLimboChat(pointer str) {
     p = cl.limboChatMsgs[0];
     *p = 0;
 
-    lastcolor = '7';
+    Q_strncpyz(lastcolor, "^7\0", sizeof(lastcolor));
 
     ls = nullptr;
 
@@ -3775,9 +3776,15 @@ void CL_AddToLimboChat(pointer str) {
         }
 
         if(Q_IsColorString(str)) {
-            *p++ = *str++;
-            lastcolor = *str;
-            *p++ = *str++;
+            sint j;
+            const sint color_string_length = Q_ColorStringLength(str);
+
+            for(j = 0; j < color_string_length; j++) {
+                lastcolor[j] = *str;
+                *p++ = *str++;
+            }
+
+            lastcolor[j] = '\0';
             continue;
         }
 

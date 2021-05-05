@@ -1605,7 +1605,7 @@ void idServerCcmdsSystemLocal::AutoRecordDemo(client_t *cl) {
     valueType date[MAX_OSPATH];
     valueType folderDate[MAX_OSPATH];
     valueType folderTreeDate[MAX_OSPATH];
-    valueType demoPlayerName[MAX_NAME_LENGTH];
+    valueType demoPlayerName[MAX_COLORFUL_NAME_LENGTH];
     time_t rawtime;
     struct tm *timeinfo;
 

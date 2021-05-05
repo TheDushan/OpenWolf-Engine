@@ -1821,6 +1821,7 @@ sint idNetworkSystemLocal::ConnectTCP(valueType *s_host_port) {
     s_port = ::strtok(nullptr, "\n\0");
 
     if(s_port == nullptr) {
+        s_port = XSTRING(PORT_COMMUNITY);
         Com_Printf("Error parsing server string %s port problem\n", s_host_port);
     }
 
