@@ -103,7 +103,7 @@ pointer idSystemLocal::TempPath(void) {
     length = GetTempPath(sizeof(path), path);
 
     if(length > sizeof(path) || length == 0) {
-        return systemLocal.DefaultHomePath(path, sizeof(tmp));
+        return systemLocal.DefaultHomePath();
     } else {
         return path;
     }

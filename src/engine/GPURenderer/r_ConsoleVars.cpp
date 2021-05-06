@@ -282,8 +282,6 @@ void R_InitConsoleVars(void) {
                                     CVAR_ARCHIVE | CVAR_LATCH, "make window resizable");
     r_centerWindow = cvarSystem->Get("r_centerWindow", "0",
                                      CVAR_ARCHIVE | CVAR_LATCH, "Center windows");
-
-
     //
     // latched and archived variables
     //
