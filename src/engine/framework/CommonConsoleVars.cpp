@@ -52,7 +52,6 @@ convar_t *con_notifytime;
 convar_t *con_autoclear;
 
 // Color and alpha for console
-convar_t *scr_conUseShader;
 convar_t *scr_conColorAlpha;
 convar_t *scr_conColorRed;
 convar_t *scr_conColorBlue;
@@ -444,9 +443,6 @@ void Com_InitCommonConsoleVars(void) {
                                     "^1Toggles clearing of unfinished text after closing console.");
     con_restricted = cvarSystem->Get("con_restricted", "0", CVAR_INIT,
                                      "^1Toggles clearing of unfinished text after closing console.");
-
-    scr_conUseShader = cvarSystem->Get("scr_conUseShader", "1", CVAR_ARCHIVE,
-                                       "^1Enables the background shader of the console.");
     scr_conColorAlpha = cvarSystem->Get("scr_conColorAlpha", "0.5",
                                         CVAR_ARCHIVE, "^1Defines the backgroud Alpha color of the console.");
     scr_conColorRed = cvarSystem->Get("scr_conColorRed", "0", CVAR_ARCHIVE,

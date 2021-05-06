@@ -1180,10 +1180,6 @@ void Con_DrawSolidConsole(float32 frac) {
 
     if(y < 1) {
         y = 0;
-    } else if(scr_conUseShader->integer) {
-        clientScreenSystem->DrawPic(10, 10, 620,
-                                    y,
-                                    cls.consoleShader);
     } else {
         color[0] = scr_conColorRed->value;
         color[1] = scr_conColorGreen->value;
