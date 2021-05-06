@@ -1383,7 +1383,7 @@ valueType *Q_strrchr(pointer string, sint c) {
     valueType *s;
     valueType *sp = static_cast<valueType *>(0);
 
-    s = (const_cast<valueType *>(reinterpret_cast<const valueType *>(string)));
+    s = (const_cast<valueType *>(reinterpret_cast<pointer>(string)));
 
     while(*s) {
         if(*s == cc) {
@@ -1808,10 +1808,10 @@ valueType *Q_CleanStr(valueType *string) {
 }
 
 void Q_ApproxStrHexColors(
-    const valueType *in_string, valueType *out_string,
-    const size_t in_string_length, const size_t out_string_length) {
-    int     i, j, c;
-    int   total_color_length = 0;
+    pointer in_string, valueType *out_string,
+    const uint32 in_string_length, const uint32 out_string_length) {
+    sint     i, j, c;
+    sint   total_color_length = 0;
 
     i = j = 0;
 

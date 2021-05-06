@@ -563,7 +563,7 @@ sint Q_NumOfColorCodeDigits(pointer p);
 #define S_COLOR_LIGHT_GREEN       '^Z'
 #define S_COLOR_NULL              "^*"
 
-void Q_GetVectFromHexColor(const valueType *color_code, vec4_t color);
+void Q_GetVectFromHexColor(pointer color_code, vec4_t color);
 sint Q_ApproxBasicColorIndexFromVectColor(const vec4_t color);
 
 // Dushan - Tremulous
@@ -1038,8 +1038,8 @@ sint Q_PrintStrlen(pointer string);
 // removes color sequences from string
 valueType *Q_CleanStr(valueType *string);
 void Q_ApproxStrHexColors(
-    const valueType *in_string, valueType *out_string,
-    const size_t in_string_length, const size_t out_string_length);
+    pointer in_string, valueType *out_string,
+    const uint32 in_string_length, const uint32 out_string_length);
 void Q_StringToLower(valueType *in, valueType *out, sint len);
 void Q_RemoveUnusedColorStrings(valueType *in, valueType *out, sint len);
 // Count the number of valueType tocount encountered in string

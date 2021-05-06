@@ -1132,7 +1132,7 @@ valueType *idFileSystemLocal::ShiftedStrStr(pointer string,
 
     buf[i] = '\0';
 
-    return const_cast<valueType *>(reinterpret_cast<const valueType *>(strstr(
+    return const_cast<valueType *>(reinterpret_cast<pointer>(strstr(
                                        string, buf)));
 }
 

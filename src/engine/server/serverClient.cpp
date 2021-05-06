@@ -382,7 +382,7 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
     if(networkSystem->IsLocalAddress(from)) {
         ip = "localhost";
     } else {
-        ip = const_cast<valueType *>(reinterpret_cast<const valueType *>
+        ip = const_cast<valueType *>(reinterpret_cast<pointer>
                                      (networkSystem->AdrToString(from)));
     }
 

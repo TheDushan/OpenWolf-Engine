@@ -1160,9 +1160,9 @@ void SOrig_RawSamples(sint stream, sint samples, sint rate, sint width,
             dst = s_rawend & (MAX_RAW_SAMPLES - 1);
             s_rawend++;
             s_rawsamples[dst].left = (const_cast<valueType *>
-                                      (reinterpret_cast<const valueType *>(data)))[src * 2] * intVolume;
+                                      (reinterpret_cast<pointer>(data)))[src * 2] * intVolume;
             s_rawsamples[dst].right = (const_cast<valueType *>
-                                       (reinterpret_cast<const valueType *>(data)))[src * 2 + 1] * intVolume;
+                                       (reinterpret_cast<pointer>(data)))[src * 2 + 1] * intVolume;
         }
     } else if(s_channels == 1 && width == 1) {
         intVolume *= 256;

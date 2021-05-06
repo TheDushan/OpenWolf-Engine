@@ -32,7 +32,7 @@
 void GLimp_InitExtraExtensions(void) {
     //sint len;
     valueType *extension;
-    const valueType *result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
+    pointer result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
     bool q_gl_version_at_least_3_0;
     bool q_gl_version_at_least_3_2;
 
@@ -49,7 +49,7 @@ void GLimp_InitExtraExtensions(void) {
     // Check if we need Intel graphics specific fixes.
     glRefConfig.intelGraphics = false;
 
-    if(strstr((const_cast<valueType *>(reinterpret_cast<const valueType *>
+    if(strstr((const_cast<valueType *>(reinterpret_cast<pointer>
                                        (qglGetString(GL_RENDERER)))), "Intel")) {
         glRefConfig.intelGraphics = true;
     }
@@ -167,8 +167,8 @@ void GLimp_InitExtraExtensions(void) {
         valueType version[256];
 
         Q_strncpyz(version, const_cast<valueType *>
-                   (reinterpret_cast<const valueType *>(qglGetString(
-                               GL_SHADING_LANGUAGE_VERSION))), sizeof(version));
+                   (reinterpret_cast<pointer>(qglGetString(
+                           GL_SHADING_LANGUAGE_VERSION))), sizeof(version));
 
         sscanf(version, "%d.%d", &glRefConfig.glslMajorVersion,
                &glRefConfig.glslMinorVersion);

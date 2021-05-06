@@ -561,7 +561,7 @@ void idClientGameSystemLocal::SetExpectedHunkUsage(pointer mapname) {
 
         while((token = COM_Parse(&buftrav)) != nullptr && token[0]) {
             if(!Q_stricmp(token, (const_cast<valueType *>
-                                  (reinterpret_cast<const valueType *>(mapname))))) {
+                                  (reinterpret_cast<pointer >(mapname))))) {
                 // found a match
                 token = COM_Parse(&buftrav);     // read the size
 

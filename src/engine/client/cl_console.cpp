@@ -665,7 +665,6 @@ If the line width has changed, reformat the buffer.
 static void Con_CheckResize(console_t *con) {
     sint      i, j, width, oldwidth, oldtotallines, numlines, numchars;
     valueType tbuf[CON_TEXTSIZE];
-    vec4_t    tcbuf[CON_TEXTSIZE];
 
     if(cls.glconfig.vidWidth) {
         width = (cls.glconfig.vidWidth - 30) /
@@ -711,7 +710,6 @@ static void Con_CheckResize(console_t *con) {
         }
 
         ::memcpy(tbuf, con->text, CON_TEXTSIZE * sizeof(valueType));
-        ::memcpy(tcbuf, con->text_color, CON_TEXTSIZE * sizeof(vec4_t));
 
         for(i = 0; i < CON_TEXTSIZE; i++) {
             con->text[i] = ' ';
@@ -722,11 +720,10 @@ static void Con_CheckResize(console_t *con) {
             for(j = 0 ; j < numchars ; j++) {
                 con->text[(con->totallines - 1 - i) * con->linewidth + j] = tbuf[((
                             con->current - i + oldtotallines) % oldtotallines) * oldwidth + j];
-                Vector4Copy(
-                    tcbuf[((con->current - i + oldtotallines) % oldtotallines) * oldwidth + j],
-                    con->text_color[(con->totallines - 1 - i) * con->linewidth + j]);
             }
         }
+
+        Con_ClearNotify();
     }
 
     con->current = con->totallines - 1;

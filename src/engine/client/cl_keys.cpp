@@ -847,7 +847,7 @@ void Key_EditBind_f(void) {
 
     binding = Key_GetBinding(b);
 
-    keyq = (const_cast<valueType *>(reinterpret_cast<const valueType *>
+    keyq = (const_cast<valueType *>(reinterpret_cast<pointer>
                                     (Com_QuoteStr(key))));       // <- static buffer
     buf = reinterpret_cast< valueType *>(malloc(8 + strlen(keyq) + strlen(
             binding)));

@@ -61,7 +61,7 @@ public:
     virtual void DrawSmallChar(sint x, sint y, sint ch);
     virtual void DrawStringExt(sint x, sint y, float32 size, pointer string,
                                float32 *setColor, bool forceColor, bool noColorEscape);
-    virtual sint Strlen(const pointer str);
+    virtual sint Strlen(pointer str);
     virtual void DrawDemoRecording(void);
     virtual void DebugGraph(float32 value, sint color);
     virtual void DrawDebugGraph(void);

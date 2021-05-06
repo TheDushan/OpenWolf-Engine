@@ -304,8 +304,8 @@ valueType *idCVarSystemLocal::ClearForeignCharacters(pointer value) {
 idCVarSystemLocal::Validate
 ============
 */
-const valueType *idCVarSystemLocal::Validate(convar_t *var, pointer value,
-        bool warn) {
+pointer idCVarSystemLocal::Validate(convar_t *var, pointer value,
+                                    bool warn) {
     static valueType s[MAX_CVAR_VALUE_STRING];
     float32 valuef;
     bool changed = false;

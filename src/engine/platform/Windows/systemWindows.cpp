@@ -186,7 +186,7 @@ valueType *idSystemLocal::SysGetClipboardData(void) {
         if((hClipboardData = GetClipboardData(CF_TEXT)) != 0) {
             if((cliptext = reinterpret_cast<valueType *>(GlobalLock(
                                hClipboardData))) != 0) {
-                data = (const_cast<valueType *>(reinterpret_cast<const valueType *>
+                data = (const_cast<valueType *>(reinterpret_cast<pointer>
                                                 (Z_Malloc(GlobalSize(hClipboardData)))) + 1);
                 Q_strncpyz(data, cliptext, GlobalSize(hClipboardData));
                 GlobalUnlock(hClipboardData);

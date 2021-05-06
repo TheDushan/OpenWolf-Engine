@@ -2276,7 +2276,7 @@ CL_AuthPacket
 void CL_AuthPacket(netadr_t from) {
     sint challenge;
     uint type;
-    const valueType *msg;
+    pointer msg;
 
     // if not from our server, ignore it
     if(!networkSystem->CompareAdr(from, clc.serverAddress)) {

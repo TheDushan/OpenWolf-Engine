@@ -408,9 +408,9 @@ idClientScreenSystemLocal::Strlen
 skips color escape codes
 ==================
 */
-sint idClientScreenSystemLocal::Strlen(const pointer str) {
+sint idClientScreenSystemLocal::Strlen(pointer str) {
     sint count = 0;
-    const valueType *s = str;
+    pointer s = str;
 
     while(*s) {
         if(Q_IsColorString(s)) {

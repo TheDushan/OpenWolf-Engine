@@ -292,8 +292,8 @@ Com_
 */
 sint Com_StrCmp(const void *a1, const void *a2) {
     valueType *s1, *s2;
-    s1 = (const_cast<valueType *>(reinterpret_cast<const valueType *>(a1)));
-    s2 = (const_cast<valueType *>(reinterpret_cast<const valueType *>(a2)));
+    s1 = (const_cast<valueType *>(reinterpret_cast<pointer>(a1)));
+    s2 = (const_cast<valueType *>(reinterpret_cast<pointer>(a2)));
 
     if(strcmp(s1, s2) < 0) {
         return -1;

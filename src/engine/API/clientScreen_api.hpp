@@ -50,7 +50,7 @@ public:
     virtual void DrawSmallChar(sint x, sint y, sint ch) = 0;
     virtual void DrawStringExt(sint x, sint y, float32 size, pointer string,
                                float32 *setColor, bool forceColor, bool noColorEscape) = 0;
-    virtual sint Strlen(const pointer str) = 0;
+    virtual sint Strlen(pointer str) = 0;
     virtual void DrawDemoRecording(void) = 0;
     virtual void DebugGraph(float32 value, sint color) = 0;
     virtual void DrawDebugGraph(void) = 0;

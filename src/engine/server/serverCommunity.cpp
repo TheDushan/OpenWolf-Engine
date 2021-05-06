@@ -1552,7 +1552,7 @@ void idServerCommunityServer::ProcessGeneric(pointer *l_stats,
 
     while(l_stats[i_stat] != nullptr && tokens[i_token] != nullptr) {
         if(GetDescValue(tokens[i_token],
-                        const_cast<valueType *>(reinterpret_cast<const valueType *>
+                        const_cast<valueType *>(reinterpret_cast<pointer>
                                                 (l_stats[i_stat])), val) == 1) {
             i_stats[i_stat] = atoi(val);
             i_stat++;

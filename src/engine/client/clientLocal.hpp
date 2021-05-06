@@ -200,7 +200,7 @@ void            CL_RequestMotd(void);
 #define CON_ISCHAT(conNum) (conNum >= CON_CHAT)
 
 #define NUM_CON_TIMES 4
-#define CON_TEXTSIZE 65536
+#define CON_TEXTSIZE 163840
 typedef struct {
     bool         initialized;
 

@@ -284,7 +284,7 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 //==============================================================
 
-void Q_GetVectFromHexColor(const valueType *color_code, vec4_t color) {
+void Q_GetVectFromHexColor(pointer color_code, vec4_t color) {
     const char *c = color_code + 1; // skip Q_COLOR_ESCAPE
     sint i;
     bool is_short_hex_color;

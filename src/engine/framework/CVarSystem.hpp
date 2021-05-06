@@ -92,7 +92,7 @@ public:
     static void CompleteCvarName(valueType *args, sint argNum);
     virtual void Init(void);
     virtual void Shutdown(void);
-    static const valueType *Validate(convar_t *var, pointer value, bool warn);
+    static pointer Validate(convar_t *var, pointer value, bool warn);
 };
 
 extern idCVarSystemLocal cvarSystemLocal;

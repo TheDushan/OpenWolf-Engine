@@ -169,7 +169,7 @@ void idServerGameSystemLocal::GameSendServerCommand(sint clientNum,
             }
 
             serverMainSystem->AddServerCommand(client,
-                                               const_cast<valueType *>(reinterpret_cast<const valueType *>(text)));
+                                               const_cast<valueType *>(reinterpret_cast<pointer>(text)));
         }
     } else {
         if(clientNum < 0 || clientNum >= sv_maxclients->integer) {

@@ -1,5 +1,6 @@
 2010-05-05 dGr8LookinSparky <hissparkyness@gmail.com>
 	* [Engine] Fixed compiling on the Windows platform
+	* [Console] Fixed crash on startup on the Windows platform
 	
 2010-05-05 dGr8LookinSparky <hissparkyness@gmail.com>
 	* [Chat] Initial chat/console fixes & porting of chat features from Tremulous 1.3
