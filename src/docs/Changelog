@@ -1,32 +1,35 @@
-2010-05-05 dGr8LookinSparky <hissparkyness@gmail.com>
+2021-05-09 Dusan Jocic <dusanjocic@msn.com>
+	* [Engine] Reverted to the old implementation of the DefaultHomePath
+
+2021-05-05 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Fixed compiling on the Windows platform
 	* [Console] Fixed crash on startup on the Windows platform
 	* [Console] Removed console shader
 	
-2010-05-05 dGr8LookinSparky <hissparkyness@gmail.com>
+2021-05-05 dGr8LookinSparky <hissparkyness@gmail.com>
 	* [Chat] Initial chat/console fixes & porting of chat features from Tremulous 1.3
 
-2010-05-03 Dusan Jocic <dusanjocic@msn.com>
+2021-05-03 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Removed Windows only implementations of SysSnapVector and SetFloatEnv
 
-2010-05-02 Dusan Jocic <dusanjocic@msn.com>
+2021-05-02 Dusan Jocic <dusanjocic@msn.com>
     * [cMake] Added "-mcmodel=large" to the cMake debug flags
 	* [Convars] Initialize "cl_maxPing"
 	* [Convars] Fixed crash with not initialized "cl_maxPing" convar
     
-2010-05-01 Dusan Jocic <dusanjocic@msn.com>
+2021-05-01 Dusan Jocic <dusanjocic@msn.com>
 	* [GLSL] Misc fixes
 	* [Server] Fixed crash with allocate snapshot entities 
 	* [Community Server] Allow community server only for Windows build until we get working MySQL for Linux
 	* [Master Server] Changed protocol version
 
-2010-04-30 Dusan Jocic <dusanjocic@msn.com>
+2021-04-30 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Consolidation of engine and renderer convars
 	* [Network] Fixed qport in case of potentially overflowing signed short
 	* [Client] Splitted client.hpp into clientPublic.hpp and clientLocal.hpp
 	* [Engine] Misc fixes
 
-2010-04-29 Dusan Jocic <dusanjocic@msn.com>
+2021-04-29 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Zero qtime_t struct if localtime() fails
 	* [Server] Check for incorrect game entity data and player state data
 	* [Engine] Print backtrace on program error

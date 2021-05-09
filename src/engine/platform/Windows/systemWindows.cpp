@@ -76,18 +76,17 @@ void idSystemLocal::SetFloatEnv(void) {
 idSystemLocal::DefaultHomePath
 ================
 */
-valueType *idSystemLocal::DefaultHomePath(void) {
-    if((fs_homepath != nullptr) && fs_homepath->string[0]) {
-        Q_strncpyz(homePath, fs_homepath->string, sizeof(homePath));
-    } else if(SHGetSpecialFolderPath(nullptr, homePath, CSIDL_PERSONAL,
-                                     TRUE) != NOERROR) {
-        Q_strcat(homePath, sizeof(homePath), "\\My Games\\OpenWolf");
-    } else {
+valueType* idSystemLocal::DefaultHomePath(valueType* buffer, sint size) {
+    if (SHGetSpecialFolderPath(nullptr, buffer, CSIDL_PERSONAL,
+        TRUE) != NOERROR) {
+        Q_strcat(buffer, size, "\\My Games\\OpenWolf");
+    }
+    else {
         Com_Error(ERR_FATAL, "couldn't find home path.\n");
-        homePath[0] = 0;
+        buffer[0] = 0;
     }
 
-    return homePath;
+    return buffer;
 }
 
 /*
@@ -103,7 +102,7 @@ pointer idSystemLocal::TempPath(void) {
     length = GetTempPath(sizeof(path), path);
 
     if(length > sizeof(path) || length == 0) {
-        return systemLocal.DefaultHomePath();
+        return systemLocal.DefaultHomePath(path, sizeof(tmp));
     } else {
         return path;
     }
