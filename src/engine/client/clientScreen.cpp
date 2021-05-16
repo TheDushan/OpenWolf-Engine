@@ -107,8 +107,8 @@ idClientScreenSystemLocal::DrawPic
 Coordinates are 640*480 virtual values
 =================
 */
-void idClientScreenSystemLocal::DrawPic(float x, float y,
-                                        float width, float height, qhandle_t hShader) {
+void idClientScreenSystemLocal::DrawPic(float32 x, float32 y,
+                                        float32 width, float32 height, qhandle_t hShader) {
     AdjustFrom640(&x, &y, &width, &height);
     renderSystem->DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
 }

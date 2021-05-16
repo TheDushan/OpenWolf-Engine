@@ -97,7 +97,7 @@ client_t *idServerCcmdsSystemLocal::GetPlayerByHandle(void) {
     for(i = 0; s[i] >= '0' && s[i] <= '9'; i++);
 
     if(!s[i]) {
-        int plid = atoi(s);
+        sint plid = atoi(s);
 
         // Check for numeric playerid match
         if(plid >= 0 && plid < sv_maxclients->integer) {
@@ -1065,7 +1065,7 @@ idServerCcmdsSystemLocal::StopMatch_f
 ====================
 */
 void idServerCcmdsSystemLocal::StopMatch_f(void) {
-    int i;
+    sint i;
     client_t *cl;
 
     // make sure server is running

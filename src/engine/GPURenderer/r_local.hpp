@@ -2129,7 +2129,7 @@ void GLSL_SetUniformVec4(shaderProgram_t *program, sint uniformNum,
 void GLSL_SetUniformMat4(shaderProgram_t *program, sint uniformNum,
                          const mat4_t matrix);
 void GLSL_SetUniformMat4BoneMatrix(shaderProgram_t *program,
-                                   int uniformNum, /*const*/ mat4_t *matrix, int numMatricies);
+                                   sint uniformNum, /*const*/ mat4_t *matrix, sint numMatricies);
 
 shaderProgram_t *GLSL_GetGenericShaderProgram(sint stage);
 

@@ -1275,7 +1275,7 @@ valueType *idCVarSystemLocal::InfoString(sint bit) {
 
     for(var = cvar_vars; var; var = var->next) {
         if(var->flags & bit) {
-            char cleaned_string[MAX_CVAR_VALUE_STRING];
+            valueType cleaned_string[MAX_CVAR_VALUE_STRING];
 
             Q_RemoveUnusedColorStrings(var->string, cleaned_string,
                                        MAX_CVAR_VALUE_STRING);

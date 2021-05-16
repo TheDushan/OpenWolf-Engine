@@ -285,7 +285,7 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 //==============================================================
 
 void Q_GetVectFromHexColor(pointer color_code, vec4_t color) {
-    const char *c = color_code + 1; // skip Q_COLOR_ESCAPE
+    pointer c = color_code + 1; // skip Q_COLOR_ESCAPE
     sint i;
     bool is_short_hex_color;
 
@@ -380,12 +380,12 @@ void Q_GetVectFromHexColor(pointer color_code, vec4_t color) {
 sint Q_ApproxBasicColorIndexFromVectColor(const vec4_t color) {
     sint  best_index = 7;
     sint  i;
-    float best_color_distance = 2.0;
+    float32 best_color_distance = 2.0;
 
     for(i = 0; i < 8; i++) {
         vec4_t basic_color;
         vec3_t color_diff;
-        float  distance;
+        float32  distance;
         sint   j;
 
         Vector4Copy(g_color_table[i], basic_color);

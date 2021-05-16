@@ -207,7 +207,7 @@ qhandle_t R_RegisterOBJECT(pointer name, model_t *mod) {
         return false;
     }
 
-    for(int i = 0; i < mod->object->numSurfaces; i++) {
+    for(sint i = 0; i < mod->object->numSurfaces; i++) {
         mod->object->surfaces[i].ident = SF_OBJECT;
         shader_t *sh = R_FindShader(mod->object->surfaces[i].shader, LIGHTMAP_NONE,
                                     true);

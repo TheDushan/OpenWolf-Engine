@@ -470,7 +470,7 @@ static const com_color_defs_t color_definitions[] =
     {"Light Green", "Z"},
 };
 
-static int color_definitions_length = ARRAY_LEN(color_definitions);
+static sint color_definitions_length = ARRAY_LEN(color_definitions);
 
 /*
 ==============
@@ -478,11 +478,11 @@ Com_Colors_f
 ==============
 */
 void Com_Colors_f(void) {
-    int row, i, j;
+    sint row, i, j;
 
     Com_Printf("^3 %-20s %-6s %-20s %-6s^7\n\n", "Color", "Code", "Color", "Code");
 
-    for(row = 0; row < ((int)ceilf(((float)color_definitions_length) / 2.0f)); row++) {
+    for(row = 0; row < ((sint)ceilf(((float32)color_definitions_length) / 2.0f)); row++) {
         for(i = (row * 2), j = 0; i < color_definitions_length && j < 2; i++, j++) {
             Com_Printf(
                 " ^%s%-20s ^^%-5s",
@@ -3817,7 +3817,7 @@ Converts from the red green blue color space to hue saturation luminosity
 ==================
 */
 void Com_rgb_to_hsl(vec4_t rgb, vec4_t hsl) {
-    float max_color, min_color, chroma;
+    float32 max_color, min_color, chroma;
 
     //keep the alpha the same
     hsl[3] = rgb[3];
@@ -3867,7 +3867,7 @@ void Com_hsl_to_rgb(vec4_t hsl, vec4_t rgb) {
         // 0 saturation means this color is grey
         VectorSet(rgb, hsl[2], hsl[2], hsl[2]);
     } else {
-        float chroma, h_, x, m;
+        float32 chroma, h_, x, m;
 
         chroma = (1 - fabs(2 * hsl[2] - 1)) * hsl[1];
         h_ = hsl[0] * 6;

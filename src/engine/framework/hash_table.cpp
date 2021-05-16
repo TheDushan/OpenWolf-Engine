@@ -75,7 +75,7 @@ Com_InsertIntoHash
 */
 hash_node_t *Com_InsertIntoHash(hash_table_t *table, void *key,
                                 void *data) {
-    unsigned int num_key;
+    uint num_key;
     hash_node_t *node;
 
     num_key = table->hash_f(key) % table->size;
@@ -124,7 +124,7 @@ Com_FindHashNode
 ===============
 */
 hash_node_t *Com_FindHashNode(hash_table_t *table, void *key) {
-    unsigned int num_key;
+    uint num_key;
     hash_node_t *node;
 
     if(table == nullptr) {
@@ -151,8 +151,8 @@ void Com_RebuildHash(hash_table_t *table, sint new_size) {
     hash_node_t *node;
     hash_node_t *node_next;
     hash_data_t *old_table;
-    int old_size;
-    int i;
+    sint old_size;
+    sint i;
 
     new_table = (hash_data_t *)malloc(sizeof(hash_data_t) * new_size);
 
@@ -184,7 +184,7 @@ Com_DeleteFromHash
 ===============
 */
 void Com_DeleteFromHash(hash_table_t *table, void *key) {
-    unsigned int num_key;
+    uint num_key;
     hash_node_t *node;
     hash_node_t *prev_node;
 
