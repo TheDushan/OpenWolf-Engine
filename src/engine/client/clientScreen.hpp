@@ -53,7 +53,7 @@ public:
     virtual float32 ConsoleFontStringWidth(pointer s, sint len);
     virtual void DrawConsoleFontChar(float32 x, float32 y, sint ch);
     virtual void AdjustFrom640(float32 *x, float32 *y, float32 *w, float32 *h);
-    virtual void DrawPic(float x, float y, float width, float height,
+    virtual void DrawPic(float32 x, float32 y, float32 width, float32 height,
                          qhandle_t hShader);
     virtual void FillRect(float32 x, float32 y, float32 width, float32 height,
                           const float32 *color);

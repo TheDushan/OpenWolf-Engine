@@ -776,8 +776,8 @@ void tiger(uint64 *str, uint64 length, uint64 res[3]) {
 Com_GetTigerHash
 ===============
 */
-char *Com_GetTigerHash(char *str) {
-    static char cHash[49];
+valueType*Com_GetTigerHash(valueType*str) {
+    static valueType cHash[49];
     uint64 res[3];
 
     tiger(reinterpret_cast<uint64 *>(str), ::strlen(str), res);

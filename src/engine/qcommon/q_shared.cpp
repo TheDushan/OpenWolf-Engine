@@ -1963,7 +1963,7 @@ void Q_RemoveUnusedColorStrings(valueType *in, valueType *out,
             sint color_string_length = Q_ColorStringLength(in);
             sint checked_index = color_string_length;
             bool skip = false;
-            const char *temp_ptr = in;
+            pointer temp_ptr = in;
 
             //remove unused color strings
             while(1) {

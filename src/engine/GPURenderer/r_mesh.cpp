@@ -461,7 +461,7 @@ void R_AddObjectSurfaces(trRefEntity_t *ent) {
 
     surf = mod->surfaces;
 
-    for(int i = 0; i < mod->numSurfaces; surf++, i++) {
+    for(sint i = 0; i < mod->numSurfaces; surf++, i++) {
         if(ent->e.customShader) {
             shader = R_GetShaderByHandle(ent->e.customShader);
         } else if(surf->shaderIndex) {

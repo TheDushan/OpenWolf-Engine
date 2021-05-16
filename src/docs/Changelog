@@ -1,6 +1,7 @@
 2021-05-16 Dusan Jocic <dusanjocic@msn.com>
 	* [Renderer] Added support for the Wavefront .OBJ model file format
 	* [Renderer] Mirror surfaceType in rb_surfaceTable
+	* [Misc] Fixed compiling
 
 2021-05-09 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Reverted to the old implementation of the DefaultHomePath

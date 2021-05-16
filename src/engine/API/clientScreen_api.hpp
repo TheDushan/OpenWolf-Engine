@@ -42,7 +42,7 @@ public:
     virtual void DrawConsoleFontChar(float32 x, float32 y, sint ch) = 0;
     virtual void AdjustFrom640(float32 *x, float32 *y, float32 *w,
                                float32 *h) = 0;
-    virtual void DrawPic(float x, float y, float width, float height,
+    virtual void DrawPic(float32 x, float32 y, float32 width, float32 height,
                          qhandle_t hShader) = 0;
     virtual void FillRect(float32 x, float32 y, float32 width, float32 height,
                           const float32 *color) = 0;
