@@ -15,6 +15,7 @@ include( CMakeDependentOption )
 set( GAME_APP_NAME "" CACHE            STRING "The Application name")
 set( GAME_APP_VERSION "" CACHE         STRING "The Application version")
 set( GAME_APP_STAGE "" CACHE           STRING "The Application stage")
+set( CODENAME "" CACHE                 STRING "The Application codename")
 set( URL_MASTER_SERVER "" CACHE        STRING "The URL for the Master Server")
 set( URL_MOTD_SERVER "" CACHE          STRING "The URL for the MOTD Server")
 set( URL_AUTHORIZE_SERVER "" CACHE     STRING "The URL for the Authorize Server")
@@ -34,6 +35,10 @@ endif()
 
 if("${GAME_APP_STAGE}" STREQUAL "")
 	message(FATAL_ERROR "Please set GAME_APP_STAGE first")
+endif()
+
+if("${CODENAME}" STREQUAL "")
+	message(FATAL_ERROR "Please set CODENAME first")
 endif()
 
 if("${URL_MASTER_SERVER}" STREQUAL "")
