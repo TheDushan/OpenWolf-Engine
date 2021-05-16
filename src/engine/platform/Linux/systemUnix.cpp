@@ -50,15 +50,15 @@
 idSystemLocal::DefaultHomePath
 ==================
 */
-valueType* idSystemLocal::DefaultHomePath(valueType* buffer, sint size) {
-    valueType* p;
+valueType *idSystemLocal::DefaultHomePath(valueType *buffer, sint size) {
+    valueType *p;
 
-    if (!*homePath) {
-        if ((p = getenv("HOME")) != nullptr) {
+    if(!*homePath) {
+        if((p = getenv("HOME")) != nullptr) {
             Q_strncpyz(buffer, p, size);
 #ifdef MACOS_X
             Q_strcat(buffer, size, "/Library/Application Support/"
-                PRODUCT_NAME_UPPPER);
+                     PRODUCT_NAME_UPPPER);
 #else
             Q_strcat(buffer, size, "/." PRODUCT_NAME_UPPPER);
 #endif

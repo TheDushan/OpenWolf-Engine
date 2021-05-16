@@ -899,6 +899,7 @@ enum surfaceType_t {
     SF_MDV,
     SF_MDR,
     SF_IQM,
+    SF_OBJECT,
     SF_FLARE,
     SF_ENTITY,              // beams, rails, lightning, etc that can be determined by entity
     SF_VAO_MDVMESH,
@@ -1302,7 +1303,8 @@ enum modtype_t {
     MOD_BRUSH,
     MOD_MESH,
     MOD_MDR,
-    MOD_IQM
+    MOD_IQM,
+    MOD_OBJECT,
 };
 
 typedef struct model_s {
@@ -1311,6 +1313,7 @@ typedef struct model_s {
     sint            index;      // model = tr.models[model->index]
     sint            dataSize;   // just for listing purposes
     bmodel_t   *bmodel;     // only if type == MOD_BRUSH
+    objectModel_t *object;
     mdvModel_t *mdv[MD3_MAX_LODS];  // only if type == MOD_MESH
     void       *modelData;          // only if type == (MOD_MDR | MOD_IQM)
     sint             numLods;
@@ -1767,6 +1770,7 @@ void R_RenderCubemapSide(sint cubemapIndex, sint cubemapSide,
                          bool subscene);
 
 void R_AddMD3Surfaces(trRefEntity_t *e);
+void R_AddObjectSurfaces(trRefEntity_t *e);
 void R_AddNullModelSurfaces(trRefEntity_t *e);
 void R_AddBeamSurfaces(trRefEntity_t *e);
 void R_AddRailSurfaces(trRefEntity_t *e, bool isUnderwater);
@@ -2438,6 +2442,7 @@ public:
     virtual bool inPVS(const vec3_t p1, const vec3_t p2);
     virtual void TakeVideoFrame(sint h, sint w, uchar8 *captureBuffer,
                                 uchar8 *encodeBuffer, bool motionJpeg);
+    virtual objectModel_t *Model_LoadObject(pointer name);
 public:
     virtual void InitGPUShaders(void);
     virtual void ShutdownGPUShaders(void);

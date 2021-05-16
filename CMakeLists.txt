@@ -202,6 +202,7 @@ set( GPURENDERER_SOURCES
 	${MOUNT_DIR}/GPURenderer/r_mesh.cpp
 	${MOUNT_DIR}/GPURenderer/r_model.cpp
 	${MOUNT_DIR}/GPURenderer/r_model_iqm.cpp
+	${MOUNT_DIR}/GPURenderer/r_model_obj.cpp
 	${MOUNT_DIR}/GPURenderer/r_noise.cpp
 	${MOUNT_DIR}/GPURenderer/r_postprocess.cpp
 	${MOUNT_DIR}/GPURenderer/r_scene.cpp

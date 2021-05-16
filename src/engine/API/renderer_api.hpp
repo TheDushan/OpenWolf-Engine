@@ -110,6 +110,7 @@ public:
     virtual bool inPVS(const vec3_t p1, const vec3_t p2) = 0;
     virtual void TakeVideoFrame(sint h, sint w, uchar8 *captureBuffer,
                                 uchar8 *encodeBuffer, bool motionJpeg) = 0;
+    virtual objectModel_t *Model_LoadObject(pointer name) = 0;
 };
 
 extern idRenderSystem *renderSystem;

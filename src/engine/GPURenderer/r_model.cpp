@@ -199,6 +199,29 @@ qhandle_t R_RegisterIQM(pointer name, model_t *mod) {
 }
 
 
+qhandle_t R_RegisterOBJECT(pointer name, model_t *mod) {
+    mod->type = MOD_OBJECT;
+    mod->object = renderSystemLocal.Model_LoadObject(name);
+
+    if(!mod->object) {
+        return false;
+    }
+
+    for(int i = 0; i < mod->object->numSurfaces; i++) {
+        mod->object->surfaces[i].ident = SF_OBJECT;
+        shader_t *sh = R_FindShader(mod->object->surfaces[i].shader, LIGHTMAP_NONE,
+                                    true);
+
+        if(sh->defaultShader) {
+            mod->object->surfaces[i].shaderIndex = 0;
+        } else {
+            mod->object->surfaces[i].shaderIndex = sh->index;
+        }
+    }
+
+    return true;
+}
+
 struct modelExtToLoaderMap_t {
     pointer ext;
     qhandle_t (*ModelLoader)(pointer, model_t *);
@@ -209,7 +232,8 @@ struct modelExtToLoaderMap_t {
 static modelExtToLoaderMap_t modelLoaders[ ] = {
     { "iqm", R_RegisterIQM },
     { "mdr", R_RegisterMDR },
-    { "md3", R_RegisterMD3 }
+    { "md3", R_RegisterMD3 },
+    { "obj", R_RegisterOBJECT }
 };
 
 static sint numModelLoaders = ARRAY_LEN(modelLoaders);
@@ -312,7 +336,6 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
 
     // only set the name after the model has been successfully loaded
     Q_strncpyz(mod->name, name, sizeof(mod->name));
-
 
     R_IssuePendingRenderCommands();
 

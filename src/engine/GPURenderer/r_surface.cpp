@@ -950,6 +950,45 @@ static void RB_SurfaceMesh(mdvSurface_t *surface) {
 
 }
 
+/*
+=============
+RB_SurfaceObject
+=============
+*/
+void RB_SurfaceObject(objectSurface_t *surf) {
+    sint index = tess.numIndexes, i = 0;
+    sint vindex = tess.numVertexes;
+    objectFace_t *face;
+
+    for(face = surf->faces; i < surf->numFaces; i++, face++) {
+        VectorSet4(tess.xyz[vindex + 0], (*face)[0].vertex[0],
+                   (*face)[0].vertex[1], (*face)[0].vertex[2], 0);
+        VectorSet4(tess.xyz[vindex + 1], (*face)[1].vertex[0],
+                   (*face)[1].vertex[1], (*face)[1].vertex[2], 0);
+        VectorSet4(tess.xyz[vindex + 2], (*face)[2].vertex[0],
+                   (*face)[2].vertex[1], (*face)[2].vertex[2], 0);
+        tess.texCoords[vindex + 0][0] = (*face)[0].uv[0];
+        tess.texCoords[vindex + 0][1] = (*face)[0].uv[1];
+        tess.texCoords[vindex + 1][0] = (*face)[1].uv[0];
+        tess.texCoords[vindex + 1][1] = (*face)[1].uv[1];
+        tess.texCoords[vindex + 2][0] = (*face)[2].uv[0];
+        tess.texCoords[vindex + 2][1] = (*face)[2].uv[1];
+        VectorSet4(tess.normal[vindex + 0], (*face)[0].normal[0],
+                   (*face)[0].normal[1], (*face)[0].normal[2], 0);
+        VectorSet4(tess.normal[vindex + 1], (*face)[1].normal[0],
+                   (*face)[1].normal[1], (*face)[1].normal[2], 0);
+        VectorSet4(tess.normal[vindex + 2], (*face)[2].normal[0],
+                   (*face)[2].normal[1], (*face)[2].normal[2], 0);
+        tess.indexes[index + 0] = vindex + 0;
+        tess.indexes[index + 1] = vindex + 1;
+        tess.indexes[index + 2] = vindex + 2;
+        index += 3;
+        vindex += 3;
+        tess.numIndexes += 3;
+        tess.numVertexes += 3;
+    }
+}
+
 
 /*
 ==============
@@ -1395,4 +1434,5 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *) = {
     (void(*)(void *))RB_SurfaceEntity,            // SF_ENTITY
     (void(*)(void *))RB_SurfaceVaoMdvMesh,      // SF_VAO_MDVMESH
     (void(*)(void *))RB_IQMSurfaceAnimVao,     // SF_VAO_IQM
+    (void(*)(void *))RB_SurfaceObject,         // SF_OBJECT,
 };

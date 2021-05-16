@@ -1671,6 +1671,10 @@ static void R_AddEntitySurface(sint entityNum) {
                         R_AddMD3Surfaces(ent);
                         break;
 
+                    case MOD_OBJECT:
+                        R_AddObjectSurfaces(ent);
+                        break;
+
                     case MOD_MDR:
                         R_MDRAddAnimSurfaces(ent);
                         break;
