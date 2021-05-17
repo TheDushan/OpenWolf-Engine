@@ -317,8 +317,16 @@ void RE_BeginScene(const refdef_t *fd) {
     tr.refdef.y = fd->y;
     tr.refdef.width = fd->width;
     tr.refdef.height = fd->height;
-    tr.refdef.fov_x = fd->fov_x;
-    tr.refdef.fov_y = fd->fov_y;
+
+    if(fd->rdflags & RDF_NOWORLDMODEL) {
+        tr.refdef.fov_x = fd->fov_x;
+        tr.refdef.fov_y = fd->fov_y;
+    } else {
+        tr.refdef.fov_x = atan2(480 * tr.refdef.width,
+                                640 * tr.refdef.height / tan(fd->fov_x / 360 * M_PI)) * 360 / M_PI;
+        tr.refdef.fov_y = atan2(tr.refdef.height,
+                                tr.refdef.width / tan(tr.refdef.fov_x / 360 * M_PI)) * 360 / M_PI;
+    }
 
     VectorCopy(fd->vieworg, tr.refdef.vieworg);
     VectorCopy(fd->viewaxis[0], tr.refdef.viewaxis[0]);

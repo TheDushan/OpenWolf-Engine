@@ -524,10 +524,15 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
     // unless they are displaying game renderings
     if(uiFullscreen || cls.state < CA_LOADING) {
         if(cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640) {
+            sint clw;
+            clw = 0.5f * (cls.glconfig.vidWidth - 640 * cls.glconfig.vidHeight /
+                          480.0);
             renderSystem->SetColor(g_color_table[ColorIndex(COLOR_BLACK)]);
             renderSystem->DrawStretchPic(0, 0,
-                                         static_cast<float32>(cls.glconfig.vidWidth),
+                                         static_cast<float32>(clw),
                                          static_cast<float32>(cls.glconfig.vidHeight), 0, 0, 0, 0, cls.whiteShader);
+            renderSystem->DrawStretchPic(cls.glconfig.vidWidth - clw, 0, clw,
+                                         cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader);
             renderSystem->SetColor(nullptr);
         }
     }

@@ -1423,7 +1423,7 @@ idClientCinemaSystemLocal::CinemaDrawCinematic
 ==================
 */
 void idClientCinemaSystemLocal::CinemaDrawCinematic(sint handle) {
-    float32 x, y, w, h;
+    float32 x, y, w, h, xscale, yscale;
     uchar8    *buf;
 
     if(handle < 0 || handle >= MAX_VIDEO_HANDLES ||
@@ -1440,7 +1440,12 @@ void idClientCinemaSystemLocal::CinemaDrawCinematic(sint handle) {
     w = cinTable[handle].width;
     h = cinTable[handle].height;
     buf = cinTable[handle].buf;
-    clientScreenSystem->AdjustFrom640(&x, &y, &w, &h);
+
+    xscale = yscale = cls.glconfig.vidHeight / 480.0;
+    w *= xscale;
+    h *= yscale;
+    x = 0.5 * (cls.glconfig.vidWidth - w);
+    y *= yscale;
 
     if(cinTable[handle].letterBox) {
         float32 barheight;
