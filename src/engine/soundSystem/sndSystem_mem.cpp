@@ -242,13 +242,17 @@ bool S_LoadSound(sfx_t *sfx) {
     }
 
     if(info.width == 1) {
-        Com_DPrintf(S_COLOR_YELLOW "WARNING: %s is a 8 bit wav file\n",
-                    sfx->soundName);
+        if(developer->integer) {
+            Com_Printf(S_COLOR_YELLOW "WARNING: %s is a 8 bit wav file\n",
+                       sfx->soundName);
+        }
     }
 
     if(info.rate != 22050) {
-        Com_DPrintf(S_COLOR_YELLOW "WARNING: %s is not a 22kHz wav file\n",
-                    sfx->soundName);
+        if(developer->integer) {
+            Com_Printf(S_COLOR_YELLOW "WARNING: %s is not a 22kHz wav file\n",
+                       sfx->soundName);
+        }
     }
 
     samples = static_cast<schar16 *>(Hunk_AllocateTempMemory(

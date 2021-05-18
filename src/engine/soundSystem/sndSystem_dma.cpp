@@ -237,7 +237,9 @@ void S_ChannelSetup(void) {
 
     *(channel_t **)q = nullptr;
     freelist = p + MAX_CHANNELS - 1;
-    //Com_DPrintf( "Channel memory manager started\n" );
+    //if (developer->integer) {
+    //Com_Printf( "Channel memory manager started\n" );
+    //}
 }
 
 // =======================================================================
@@ -1097,8 +1099,11 @@ void SOrig_RawSamples(sint stream, sint samples, sint rate, sint width,
     intVolume = 256 * volume;
 
     if(s_rawend < s_soundtime) {
-        Com_DPrintf("S_RawSamples: resetting minimum: %i < %i\n", s_rawend,
-                    s_soundtime);
+        if(developer->integer) {
+            Com_Printf("S_RawSamples: resetting minimum: %i < %i\n", s_rawend,
+                       s_soundtime);
+        }
+
         s_rawend = s_soundtime;
     }
 
@@ -1184,7 +1189,9 @@ void SOrig_RawSamples(sint stream, sint samples, sint rate, sint width,
     }
 
     if(s_rawend > s_soundtime + MAX_RAW_SAMPLES) {
-        Com_DPrintf("S_RawSamples: overflowed %i > %i\n", s_rawend, s_soundtime);
+        if(developer->integer) {
+            Com_Printf("S_RawSamples: overflowed %i > %i\n", s_rawend, s_soundtime);
+        }
     }
 }
 
@@ -1307,7 +1314,9 @@ void SOrig_Update(void) {
     channel_t *ch;
 
     if(!s_soundStarted || s_soundMuted) {
-        //Com_DPrintf( "not started or muted\n" );
+        //if (developer->integer) {
+        //Com_Printf( "not started or muted\n" );
+        //}
         return;
     }
 
@@ -1373,7 +1382,10 @@ void S_GetSoundtime(void) {
 
     // check to make sure that we haven't overshot
     if(s_paintedtime < s_soundtime) {
-        Com_DPrintf("S_Update_ : overflow\n");
+        if(developer->integer) {
+            Com_Printf("S_Update_ : overflow\n");
+        }
+
         s_paintedtime = s_soundtime;
     }
 
@@ -1578,7 +1590,9 @@ void SOrig_StartBackgroundTrack(pointer intro, pointer loop) {
         loop = intro;
     }
 
-    Com_DPrintf("S_StartBackgroundTrack( %s, %s )\n", intro, loop);
+    if(developer->integer) {
+        Com_Printf("S_StartBackgroundTrack( %s, %s )\n", intro, loop);
+    }
 
     if(!intro[0]) {
         return;
@@ -1713,7 +1727,9 @@ void S_FreeOldestSound(void) {
 
     sfx = &s_knownSfx[used];
 
-    Com_DPrintf("S_FreeOldestSound: freeing sound %s\n", sfx->soundName);
+    if(developer->integer) {
+        Com_Printf("S_FreeOldestSound: freeing sound %s\n", sfx->soundName);
+    }
 
     buffer = sfx->soundData;
 
@@ -1734,8 +1750,11 @@ S_FreeOldestSound
 */
 sint SOrig_GetSoundLength(sfxHandle_t sfxHandle) {
     if(sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_DPrintf(S_COLOR_YELLOW "S_StartSound: handle %i out of range\n",
-                    sfxHandle);
+        if(developer->integer) {
+            Com_Printf(S_COLOR_YELLOW "S_StartSound: handle %i out of range\n",
+                       sfxHandle);
+        }
+
         return -1;
     }
 

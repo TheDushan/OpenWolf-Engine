@@ -320,8 +320,10 @@ void idServerOACSSystemLocal::ExtendedRecordWriteStruct(void) {
     valueType outheader[MAX_STRING_CSV];
     valueType out[MAX_STRING_CSV];
 
-    Com_DPrintf("OACS: Saving the oacs types in file %s\n",
-                sv_oacsTypesFile->string);
+    if(developer->integer) {
+        Com_Printf("OACS: Saving the oacs types in file %s\n",
+                   sv_oacsTypesFile->string);
+    }
 
     ExtendedRecordFeaturesToCSV(outheader, MAX_STRING_CSV, sv_interframe, 0,
                                 -1);
@@ -409,8 +411,11 @@ void idServerOACSSystemLocal::ExtendedRecordWriteValues(sint client) {
         ExtendedRecordFeaturesToCSV(out, MAX_STRING_CSV, sv_interframe, 2, i);
 
         // Output into the text file (only if there's at least one client connected!)
-        Com_DPrintf("OACS: Saving the oacs values for client %i in file %s\n",
-                    client, sv_oacsDataFile->string);
+        if(developer->integer) {
+            Com_Printf("OACS: Saving the oacs values for client %i in file %s\n",
+                       client, sv_oacsDataFile->string);
+        }
+
         fileSystem->Write(va("%s\n", out), strlen(out) + strlen("\n"),
                           file);         //free(out); // write the text (with a line return) and free it
         fileSystem->Flush(file);   // update the content of the file
@@ -439,8 +444,11 @@ void idServerOACSSystemLocal::ExtendedRecordWritePlayersTable(
     }
 
     // Open the data file
-    Com_DPrintf("OACS: Saving the oacs players table entry for client %i in file %s\n",
-                client, sv_oacsPlayersTable->string);
+    if(developer->integer) {
+        Com_Printf("OACS: Saving the oacs players table entry for client %i in file %s\n",
+                   client, sv_oacsPlayersTable->string);
+    }
+
     file = fileSystem->FOpenFileAppend(
                sv_oacsPlayersTable->string);   // open in append mode
 

@@ -720,8 +720,11 @@ fileHandle_t idFileSystemLocal::SV_FOpenFileWrite(pointer filename) {
         return 0;
     }
 
-    Com_DPrintf("idFileSystemLocal::SV_FOpenFileWrite: writing to: %s\n",
-                ospath);
+    if(developer->integer) {
+        Com_Printf("idFileSystemLocal::SV_FOpenFileWrite: writing to: %s\n",
+                   ospath);
+    }
+
     fsh[f].handleFiles.file.o = fopen(ospath, "wb");
 
     if(!fsh[f].handleFiles.file.o) {
@@ -937,7 +940,9 @@ fileHandle_t idFileSystemLocal::FOpenFileWrite(pointer filename) {
 
     // enabling the following line causes a recursive function call loop
     // when running with +set logfile 1 +set developer 1
-    //Com_DPrintf( "writing to: %s\n", ospath );
+    //if (developer->integer) {
+    //Com_Printf( "writing to: %s\n", ospath );
+    //}
     fsh[f].handleFiles.file.o = fopen(ospath, "wb");
 
     Q_strncpyz(fsh[f].name, filename, sizeof(fsh[f].name));
@@ -1023,7 +1028,9 @@ sint idFileSystemLocal::FOpenFileDirect(pointer filename,
 
     // enabling the following line causes a recursive function call loop
     // when running with +set logfile 1 +set developer 1
-    //Com_DPrintf( "writing to: %s\n", ospath );
+    // if (developer->integer) {
+    //Com_Printf( "writing to: %s\n", ospath );
+    //}
     fsh[*f].handleFiles.file.o = fopen(ospath, "rb");
 
     if(!fsh[*f].handleFiles.file.o) {
@@ -1068,7 +1075,9 @@ fileHandle_t idFileSystemLocal::FOpenFileUpdate(pointer filename,
 
     // enabling the following line causes a recursive function call loop
     // when running with +set logfile 1 +set developer 1
-    //Com_DPrintf( "writing to: %s\n", ospath );
+    // if (developer->integer) {
+    //Com_Printf( "writing to: %s\n", ospath );
+    //}
     fsh[f].handleFiles.file.o = fopen(ospath, "wb");
 
     if(!fsh[f].handleFiles.file.o) {
@@ -1324,8 +1333,12 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
                                 !fileSystemLocal.IsExt(filename, ".menu", l)) {
                             // hack to work around issue of com_logfile set and this being first thing logged
                             fsh[*file].handleFiles.file.z = (unzFile) - 1;
-                            Com_DPrintf("Referencing %s due to file %s opened\n", pak->pakFilename,
-                                        filename);
+
+                            if(developer->integer) {
+                                Com_Printf("Referencing %s due to file %s opened\n", pak->pakFilename,
+                                           filename);
+                            }
+
                             fsh[*file].handleFiles.file.z = (unzFile)0;
                             pak->referenced |= FS_GENERAL_REF;
                         }
@@ -1472,7 +1485,9 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
         }
     }
 
-    Com_DPrintf("Can't find %s\n", filename);
+    if(developer->integer) {
+        Com_Printf("Can't find %s\n", filename);
+    }
 
     if(fs_missing->integer && missingFiles) {
         fprintf(missingFiles, "%s\n", filename);
@@ -1800,7 +1815,10 @@ sint idFileSystemLocal::Read2(void *buffer, sint len, fileHandle_t f) {
     }
 
     if(f < 1 || f >= MAX_FILE_HANDLES) {
-        Com_DPrintf("idFileSystemLocal::Read2: handle out of range\n");
+        if(developer->integer) {
+            Com_Printf("idFileSystemLocal::Read2: handle out of range\n");
+        }
+
         return 0;
     }
 
@@ -1895,7 +1913,10 @@ sint idFileSystemLocal::Write(const void *buffer, sint len,
     }
 
     if(h < 1 || h >= MAX_FILE_HANDLES) {
-        Com_DPrintf("idFileSystemLocal::Write: handle out of range\n");
+        if(developer->integer) {
+            Com_Printf("idFileSystemLocal::Write: handle out of range\n");
+        }
+
         return 0;
     }
 
@@ -2145,7 +2166,9 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
         if(journal && journal->integer == 2) {
             sint r;
 
-            Com_DPrintf("Loading %s from journal file.\n", qpath);
+            if(developer->integer) {
+                Com_Printf("Loading %s from journal file.\n", qpath);
+            }
 
             r = Read(&len, sizeof(len), com_journalDataFile);
 
@@ -2205,7 +2228,10 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
 
         // if we are journalling and it is a config file, write a zero to the journal file
         if(isConfig && journal && journal->integer == 1) {
-            Com_DPrintf("Writing zero for %s to journal file.\n", qpath);
+            if(developer->integer) {
+                Com_Printf("Writing zero for %s to journal file.\n", qpath);
+            }
+
             len = 0;
             Write(&len, sizeof(len), com_journalDataFile);
             Flush(com_journalDataFile);
@@ -2216,7 +2242,10 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
 
     if(!buffer) {
         if(isConfig && journal && journal->integer == 1) {
-            Com_DPrintf("Writing len for %s to journal file.\n", qpath);
+            if(developer->integer) {
+                Com_Printf("Writing len for %s to journal file.\n", qpath);
+            }
+
             Write(&len, sizeof(len), com_journalDataFile);
             Flush(com_journalDataFile);
         }
@@ -2239,7 +2268,10 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
 
     // if we are journalling and it is a config file, write it to the journal file
     if(isConfig && journal && journal->integer == 1) {
-        Com_DPrintf("Writing %s to journal file.\n", qpath);
+        if(developer->integer) {
+            Com_Printf("Writing %s to journal file.\n", qpath);
+        }
+
         Write(&len, sizeof(len), com_journalDataFile);
         Write(buf, len, com_journalDataFile);
         Flush(com_journalDataFile);
@@ -3955,7 +3987,9 @@ pointer idFileSystemLocal::LoadedPakPureChecksums(void) {
 
     // DO_LIGHT_DEDICATED
     // only comment out when you need a new pure checksums string
-    //Com_DPrintf("idFileSystemLocal::LoadPakPureChecksums: %s\n", info);
+    // if (developer->integer) {
+    //Com_Printf("idFileSystemLocal::LoadPakPureChecksums: %s\n", info);
+    //}
 
     return info;
 }
@@ -4133,12 +4167,17 @@ void idFileSystemLocal::PureServerSetLoadedPaks(pointer pakSums,
     }
 
     if(fs_numServerPaks) {
-        Com_DPrintf("Connected to a pure server.\n");
+        if(developer->integer) {
+            Com_Printf("Connected to a pure server.\n");
+        }
     } else {
         if(fs_reordered) {
             // show_bug.cgi?id=540
             // force a restart to make sure the search order will be correct
-            Com_DPrintf("FS search reorder is required\n");
+            if(developer->integer) {
+                Com_Printf("FS search reorder is required\n");
+            }
+
             Restart(fs_checksumFeed);
             return;
         }

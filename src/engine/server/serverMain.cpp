@@ -784,50 +784,78 @@ void idServerMainSystemLocal::GetUpdateInfo(netadr_t from) {
     version = cmdSystem->Argv(1);
     platform = cmdSystem->Argv(2);
 
-    Com_DPrintf("idServerMainSystemLocal::GetUpdateInfo: version == %s / %s,\n",
-                version, platform);
+    if(developer->integer) {
+        Com_Printf("idServerMainSystemLocal::GetUpdateInfo: version == %s / %s,\n",
+                   version, platform);
+    }
 
     for(i = 0; i < numVersions; i++) {
         if(!::strcmp(versionMap[i].version, version)) {
-            Com_DPrintf(" version string is same string\n");
+            if(developer->integer) {
+                Com_Printf(" version string is same string\n");
+            }
+
             found = true;
         } else {
-            Com_DPrintf(" version string is not the same\n");
-            Com_DPrintf(" found version %s version %s\n", versionMap[i].version,
-                        version);
+            if(developer->integer) {
+                Com_Printf(" version string is not the same\n");
+                Com_Printf(" found version %s version %s\n", versionMap[i].version,
+                           version);
+            }
+
             found = false;
         }
 
         if(!::strcmp(versionMap[i].platform, platform)) {
-            Com_DPrintf(" platform string is the same\n");
-            Com_DPrintf(" found platform %s platform %s\n", versionMap[i].platform,
-                        platform);
+            if(developer->integer) {
+                Com_Printf(" platform string is the same\n");
+                Com_Printf(" found platform %s platform %s\n", versionMap[i].platform,
+                           platform);
+            }
+
             found = true;
         } else {
-            Com_DPrintf(" platform string is not the same \n");
-            Com_DPrintf(" found platform %s platform %s\n", versionMap[i].platform,
-                        platform);
+            if(developer->integer) {
+                Com_Printf(" platform string is not the same \n");
+                Com_Printf(" found platform %s platform %s\n", versionMap[i].platform,
+                           platform);
+            }
+
             found = false;
         }
 
         if(::strcmp(versionMap[i].installer, "current")) {
-            Com_DPrintf(" installer string is the current\n");
+            if(developer->integer) {
+                Com_Printf(" installer string is the current\n");
+            }
+
             found = true;
         } else {
-            Com_DPrintf(" installer string is not the same\n");
-            Com_DPrintf(" found %s installer\n", versionMap[i].installer);
+            if(developer->integer) {
+                Com_Printf(" installer string is not the same\n");
+                Com_Printf(" found %s installer\n", versionMap[i].installer);
+            }
+
             found = false;
         }
 
-        Com_DPrintf(" -------------------------------------------------------------------\n");
+        if(developer->integer) {
+            Com_Printf(" -------------------------------------------------------------------\n");
+        }
 
         if(found) {
             networkChainSystem->OutOfBandPrint(NS_SERVER, from, "updateResponse 1 %s",
                                                versionMap[i].installer);
-            Com_DPrintf("   SENT:  updateResponse 1 %s\n", versionMap[i].installer);
+
+            if(developer->integer) {
+                Com_Printf("   SENT:  updateResponse 1 %s\n", versionMap[i].installer);
+            }
         } else {
             networkChainSystem->OutOfBandPrint(NS_SERVER, from, "updateResponse 0");
-            Com_DPrintf("   SENT:  updateResponse 0\n");
+
+            if(developer->integer) {
+                Com_Printf("   SENT:  updateResponse 0\n");
+            }
         }
     }
 
@@ -894,16 +922,22 @@ bool idServerMainSystemLocal::CheckDRDoS(netadr_t from) {
             ban->count++;
 
             if(!ban->flood && ((svs.time - ban->time) >= 3000) && ban->count <= 5) {
-                Com_DPrintf("Unban info flood protect for address %s, they're not flooding\n",
-                            networkSystem->AdrToString(exactFrom));
+                if(developer->integer) {
+                    Com_Printf("Unban info flood protect for address %s, they're not flooding\n",
+                               networkSystem->AdrToString(exactFrom));
+                }
+
                 ::memset(ban, 0, sizeof(floodBan_t));
                 oldestBan = i;
                 break;
             }
 
             if(ban->count >= 180) {
-                Com_DPrintf("Renewing info flood ban for address %s, received %i getinfo/getstatus requests in %i milliseconds\n",
-                            networkSystem->AdrToString(exactFrom), ban->count, svs.time - ban->time);
+                if(developer->integer) {
+                    Com_Printf("Renewing info flood ban for address %s, received %i getinfo/getstatus requests in %i milliseconds\n",
+                               networkSystem->AdrToString(exactFrom), ban->count, svs.time - ban->time);
+                }
+
                 ban->time = svs.time;
                 ban->count = 0;
                 ban->flood = true;
@@ -1154,7 +1188,10 @@ void idServerMainSystemLocal::ConnectionlessPacket(netadr_t from,
     cmdSystem->TokenizeString(s);
 
     c = cmdSystem->Argv(0);
-    Com_DPrintf("SV packet %s : %s\n", networkSystem->AdrToString(from), c);
+
+    if(developer->integer) {
+        Com_Printf("SV packet %s : %s\n", networkSystem->AdrToString(from), c);
+    }
 
     if(!Q_stricmp(c, "getstatus")) {
         if(CheckDRDoS(from)) {
@@ -1209,8 +1246,10 @@ void idServerMainSystemLocal::ConnectionlessPacket(netadr_t from,
         // server disconnect messages when their new server sees our final
         // sequenced messages to the old client
     } else {
-        Com_DPrintf("bad connectionless packet from %s:\n%s\n",
-                    networkSystem->AdrToString(from), s);
+        if(developer->integer) {
+            Com_Printf("bad connectionless packet from %s:\n%s\n",
+                       networkSystem->AdrToString(from), s);
+        }
     }
 }
 
@@ -1373,7 +1412,10 @@ void idServerMainSystemLocal::CheckTimeouts(void) {
 
         if(cl->state == CS_ZOMBIE && cl->lastPacketTime < zombiepoint) {
             // using the client id cause the cl->name is empty at this point
-            Com_DPrintf("Going from CS_ZOMBIE to CS_FREE for client %d\n", i);
+            if(developer->integer) {
+                Com_Printf("Going from CS_ZOMBIE to CS_FREE for client %d\n", i);
+            }
+
             cl->state = CS_FREE;    // can now be reused
 
             continue;

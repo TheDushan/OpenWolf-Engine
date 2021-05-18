@@ -229,7 +229,9 @@ void idServerWorldSystemLocal::LinkEntity(sharedEntity_t *gEnt) {
 
     // Ridah, sanity check for possible currentOrigin being reset bug
     if(!gEnt->r.bmodel && VectorCompare(gEnt->r.currentOrigin, vec3_origin)) {
-        Com_DPrintf("WARNING: BBOX entity is being linked at world origin, this is probably a bug\n");
+        if(developer->integer) {
+            Com_Printf("WARNING: BBOX entity is being linked at world origin, this is probably a bug\n");
+        }
     }
 
     if(ent->worldSector) {
@@ -345,8 +347,10 @@ void idServerWorldSystemLocal::LinkEntity(sharedEntity_t *gEnt) {
             if(ent->areanum != -1 && ent->areanum != area) {
                 if(ent->areanum2 != -1 && ent->areanum2 != area &&
                         sv.state == SS_LOADING) {
-                    Com_DPrintf("Object %i touching 3 areas at %f %f %f\n", gEnt->s.number,
-                                gEnt->r.absmin[0], gEnt->r.absmin[1], gEnt->r.absmin[2]);
+                    if(developer->integer) {
+                        Com_Printf("Object %i touching 3 areas at %f %f %f\n", gEnt->s.number,
+                                   gEnt->r.absmin[0], gEnt->r.absmin[1], gEnt->r.absmin[2]);
+                    }
                 }
 
                 ent->areanum2 = area;
@@ -438,7 +442,10 @@ void idServerWorldSystemLocal::AreaEntities_r(worldSector_t *node,
         }
 
         if(ap->count >= ap->maxcount) {
-            Com_DPrintf("idServerWorldSystemLocal::AreaEntities: MAXCOUNT\n");
+            if(developer->integer) {
+                Com_Printf("idServerWorldSystemLocal::AreaEntities: MAXCOUNT\n");
+            }
+
             return;
         }
 

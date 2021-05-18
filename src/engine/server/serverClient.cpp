@@ -167,22 +167,31 @@ void idServerClientSystemLocal::GetChallenge(netadr_t from) {
     challenge->getChallengeCookie = getChallengeCookie;
 
     if(svs.authorizeAddress.type == NA_BAD) {
-        Com_DPrintf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+        if(developer->integer) {
+            Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+        }
 
         if(networkChainSystem->StringToAdr(AUTHORIZE_SERVER_NAME,
                                            &svs.authorizeAddress, NA_IP)) {
             svs.authorizeAddress.port = BigShort(PORT_AUTHORIZE);
-            Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-                        svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
-                        svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-                        BigShort(svs.authorizeAddress.port));
+
+            if(developer->integer) {
+                Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+                           svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
+                           svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
+                           BigShort(svs.authorizeAddress.port));
+            }
         }
     }
 
     if(svs.authorizeAddress.type == NA_BAD) {
-        Com_DPrintf("Couldn't resolve auth server address\n");
+        if(developer->integer) {
+            Com_Printf("Couldn't resolve auth server address\n");
+        }
     } else if(sv.time - oldestClientTime > AUTHORIZE_TIMEOUT) {
-        Com_DPrintf("Authorize server timed out\n");
+        if(developer->integer) {
+            Com_Printf("Authorize server timed out\n");
+        }
 
         networkChainSystem->OutOfBandPrint(NS_SERVER, challenge->adr,
                                            "authStatus %i 2 Server is configured as Strict and auth server failed to respond.",
@@ -191,8 +200,10 @@ void idServerClientSystemLocal::GetChallenge(netadr_t from) {
         challenge->authServerStrict = true;
         return;
     } else {
-        Com_DPrintf("Sending getIpAuthorize for %s\n",
-                    networkSystem->AdrToString(from));
+        if(developer->integer) {
+            Com_Printf("Sending getIpAuthorize for %s\n",
+                       networkSystem->AdrToString(from));
+        }
 
         networkChainSystem->OutOfBandPrint(NS_SERVER, svs.authorizeAddress,
                                            "getIpAuthorize %i %i.%i.%i.%i %s %i %i %i",  challenge->challenge,
@@ -317,7 +328,9 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
     bool reconnect = false, authed;
     user_t *user;
 
-    Com_DPrintf("idServerClientSystemLocal::DirectConnect ()\n");
+    if(developer->integer) {
+        Com_Printf("idServerClientSystemLocal::DirectConnect ()\n");
+    }
 
     Q_strncpyz(userinfo, cmdSystem->Argv(1), sizeof(userinfo));
     oldInfoLen2 = static_cast<sint>(::strlen(userinfo));
@@ -333,7 +346,11 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
         networkChainSystem->OutOfBandPrint(NS_SERVER, from,
                                            "print\nServer uses protocol version %i (yours is %i).\n",
                                            com_protocol->integer, version);
-        Com_DPrintf("    rejected connect from version %i\n", version);
+
+        if(developer->integer) {
+            Com_Printf("    rejected connect from version %i\n", version);
+        }
+
         return;
     }
 
@@ -352,8 +369,11 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
                  from.port == cl->netchan.remoteAddress.port)) {
             if((svs.time - cl->lastConnectTime) < (sv_reconnectlimit->integer *
                                                    1000)) {
-                Com_DPrintf("%s:reconnect rejected : too soon\n",
-                            networkSystem->AdrToString(from));
+                if(developer->integer) {
+                    Com_Printf("%s:reconnect rejected : too soon\n",
+                               networkSystem->AdrToString(from));
+                }
+
                 return;
             }
 
@@ -439,7 +459,11 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
                 // don't let them keep trying until they get a big delay
                 networkChainSystem->OutOfBandPrint(NS_SERVER, from,
                                                    "print\nServer is for high pings only\n");
-                Com_DPrintf("Client %i rejected on a too low ping\n", i);
+
+                if(developer->integer) {
+                    Com_Printf("Client %i rejected on a too low ping\n", i);
+                }
+
                 challengeptr->wasrefused = true;
                 return;
             }
@@ -447,7 +471,11 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
             if(sv_maxPing->value && ping > sv_maxPing->value) {
                 networkChainSystem->OutOfBandPrint(NS_SERVER, from,
                                                    "print\nServer is for low pings only\n");
-                Com_DPrintf("Client %i rejected on a too high ping\n", i);
+
+                if(developer->integer) {
+                    Com_Printf("Client %i rejected on a too high ping\n", i);
+                }
+
                 challengeptr->wasrefused = true;
                 return;
             }
@@ -565,7 +593,11 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
 
         if(!cl) {
             networkChainSystem->OutOfBandPrint(NS_SERVER, from, "xFull\n");
-            Com_DPrintf("Rejected a connection.\n");
+
+            if(developer->integer) {
+                Com_Printf("Rejected a connection.\n");
+            }
+
             return;
         }
 
@@ -622,7 +654,11 @@ gotnewcl:
     if(denied) {
         networkChainSystem->OutOfBandPrint(NS_SERVER, from,
                                            "print\n[err_dialog]%s\n", denied);
-        Com_DPrintf("Game rejected a connection: %s.\n", denied);
+
+        if(developer->integer) {
+            Com_Printf("Game rejected a connection: %s.\n", denied);
+        }
+
         return;
     }
 
@@ -640,7 +676,9 @@ gotnewcl:
     // send the connect packet to the client
     networkChainSystem->OutOfBandPrint(NS_SERVER, from, "connectResponse");
 
-    Com_DPrintf("Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name);
+    if(developer->integer) {
+        Com_Printf("Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name);
+    }
 
     newcl->state = CS_CONNECTED;
     newcl->nextSnapshotTime = svs.time;
@@ -740,7 +778,10 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
         //serverMainSystem->SendServerCommand( nullptr, "print \"[lof]%s" S_COLOR_WHITE " [lon]%s\n\"", drop->name, reason );
     }
 
-    Com_DPrintf("Going to CS_ZOMBIE for %s\n", drop->name);
+    if(developer->integer) {
+        Com_Printf("Going to CS_ZOMBIE for %s\n", drop->name);
+    }
+
     // become free in a few seconds
     drop->state = CS_ZOMBIE;
 
@@ -766,7 +807,10 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
     idServerOACSSystemLocal::ExtendedRecordDropClient(drop - svs.clients);
 #endif
 
-    Com_DPrintf("Going to CS_ZOMBIE for %s\n", drop->name);
+    if(developer->integer) {
+        Com_Printf("Going to CS_ZOMBIE for %s\n", drop->name);
+    }
+
     drop->state = CS_ZOMBIE; // become free in a few seconds
 
     if(drop->demo.demorecording) {
@@ -867,8 +911,10 @@ void idServerClientSystemLocal::CreateClientGameStateMessage(
     }
 
     // NERVE - SMF - debug info
-    Com_DPrintf("Sending %i bytes in gamestate to client: %li\n", msg->cursize,
-                ARRAY_INDEX(svs.clients, client));
+    if(developer->integer) {
+        Com_Printf("Sending %i bytes in gamestate to client: %li\n", msg->cursize,
+                   ARRAY_INDEX(svs.clients, client));
+    }
 }
 
 /*
@@ -891,16 +937,23 @@ void idServerClientSystemLocal::SendClientGameState(client_t *client) {
     MSG_Init(&msg, msgBuffer, sizeof(msgBuffer));
 
     while(client->state && client->netchan.unsentFragments) {
-        Com_DPrintf("idServerClientSystemLocal::SendClientGameState [2] for %s, writing out old fragments\n",
-                    client->name);
+        if(developer->integer) {
+            Com_Printf("idServerClientSystemLocal::SendClientGameState [2] for %s, writing out old fragments\n",
+                       client->name);
+        }
+
         networkChainSystem->TransmitNextFragment(&client->netchan);
     }
 
-    Com_DPrintf("idServerClientSystemLocal::SendClientGameState() for %s\n",
-                client->name);
+    if(developer->integer) {
+        Com_Printf("idServerClientSystemLocal::SendClientGameState() for %s\n",
+                   client->name);
+    }
 
     if(client->state != CS_PRIMED) {
-        Com_DPrintf("Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name);
+        if(developer->integer) {
+            Com_Printf("Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name);
+        }
     }
 
     if(client->state == CS_CONNECTED) {
@@ -938,7 +991,10 @@ void idServerClientSystemLocal::ClientEnterWorld(client_t *client,
 #endif
     }
 
-    Com_DPrintf("Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name);
+    if(developer->integer) {
+        Com_Printf("Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name);
+    }
+
     client->state = CS_ACTIVE;
 
     // resend all configstrings using the cs commands since these are
@@ -1014,8 +1070,10 @@ Abort a download if in progress
 */
 void idServerClientSystemLocal::StopDownload_f(client_t *cl) {
     if(*cl->downloadName) {
-        Com_DPrintf("clientDownload: %d : file \"%s\" aborted\n",
-                    static_cast<sint>(cl - svs.clients), cl->downloadName);
+        if(developer->integer) {
+            Com_Printf("clientDownload: %d : file \"%s\" aborted\n",
+                       static_cast<sint>(cl - svs.clients), cl->downloadName);
+        }
     }
 
     serverClientLocal.CloseDownload(cl);
@@ -1033,7 +1091,9 @@ void idServerClientSystemLocal::DoneDownload_f(client_t *cl) {
         return;
     }
 
-    Com_DPrintf("clientDownload: %s Done\n", cl->name);
+    if(developer->integer) {
+        Com_Printf("clientDownload: %s Done\n", cl->name);
+    }
 
     // resend the game state to update any clients that entered during the download
     SendClientGameState(cl);
@@ -1051,8 +1111,10 @@ void idServerClientSystemLocal::NextDownload_f(client_t *cl) {
     sint block = atoi(cmdSystem->Argv(1));
 
     if(block == cl->downloadClientBlock) {
-        Com_DPrintf("clientDownload: %d : client acknowledge of block %d\n",
-                    static_cast<sint>(cl - svs.clients), block);
+        if(developer->integer) {
+            Com_Printf("clientDownload: %d : client acknowledge of block %d\n",
+                       static_cast<sint>(cl - svs.clients), block);
+        }
 
         // Find out if we are done.  A zero-length block indicates EOF
         if(cl->downloadBlockSize[cl->downloadClientBlock % MAX_DOWNLOAD_WINDOW] ==
@@ -1526,8 +1588,10 @@ void idServerClientSystemLocal::WriteDownloadToClient(client_t *cl,
                           cl->downloadBlockSize[curindex]);
         }
 
-        Com_DPrintf("clientDownload: %d : writing block %d\n",
-                    static_cast<sint>(cl - svs.clients), cl->downloadXmitBlock);
+        if(developer->integer) {
+            Com_Printf("clientDownload: %d : writing block %d\n",
+                       static_cast<sint>(cl - svs.clients), cl->downloadXmitBlock);
+        }
 
         // Move on to the next block
         // It will get sent with next snap shot.  The rate will keep us in line.
@@ -1680,7 +1744,10 @@ void idServerClientSystemLocal::VerifyPaks_f(client_t *cl) {
             // we may get incoming cp sequences from a previous checksumFeed, which we need to ignore
             // since serverId is a frame count, it always goes up
             if(::atoi(pArg) < sv.checksumFeedServerId) {
-                Com_DPrintf("ignoring outdated cp command from client %s\n", cl->name);
+                if(developer->integer) {
+                    Com_Printf("ignoring outdated cp command from client %s\n", cl->name);
+                }
+
                 return;
             }
         }
@@ -1967,7 +2034,9 @@ void idServerClientSystemLocal::UserinfoChanged(client_t *cl) {
     // zinx - modified to always keep this consistent, instead of only
     // when "ip" is 0-length, so users can't supply their own IP
 
-    //Com_DPrintf("Maintain IP in userinfo for '%s'\n", cl->name);
+    //if (developer->integer) {
+    //    Com_Printf("Maintain IP in userinfo for '%s'\n", cl->name);
+    //}
 
     if(!networkSystem->IsLocalAddress(cl->netchan.remoteAddress)) {
         Info_SetValueForKey(cl->userinfo, "ip",
@@ -2107,7 +2176,9 @@ void idServerClientSystemLocal::ExecuteClientCommand(client_t *cl,
     bool exploitDetected;
     bool foundCommand = false;
 
-    Com_DPrintf("idServerClientSystemLocal::ExecuteClientCommand: %s\n", s);
+    if(developer->integer) {
+        Com_Printf("idServerClientSystemLocal::ExecuteClientCommand: %s\n", s);
+    }
 
     cmdSystem->TokenizeString(s);
 
@@ -2248,10 +2319,14 @@ void idServerClientSystemLocal::ExecuteClientCommand(client_t *cl,
 #endif
         }
     } else if(!bProcessed) {
-        Com_DPrintf("client text ignored for %s: %s\n", cl->name,
-                    cmdSystem->Argv(0));
+        if(developer->integer) {
+            Com_Printf("client text ignored for %s: %s\n", cl->name,
+                       cmdSystem->Argv(0));
+        }
     } else if(!foundCommand) {
-        Com_DPrintf("client text ignored for %s\n", cl->name);
+        if(developer->integer) {
+            Com_Printf("client text ignored for %s\n", cl->name);
+        }
     }
 }
 
@@ -2274,7 +2349,9 @@ bool idServerClientSystemLocal::ClientCommand(client_t *cl, msg_t *msg,
         return true;
     }
 
-    Com_DPrintf("clientCommand: %s : %i : %s\n", cl->name, seq, s);
+    if(developer->integer) {
+        Com_Printf("clientCommand: %s : %i : %s\n", cl->name, seq, s);
+    }
 
     // drop the connection if we have somehow lost commands
     if(seq > cl->lastClientCommand + 1) {
@@ -2307,7 +2384,9 @@ bool idServerClientSystemLocal::ClientCommand(client_t *cl, msg_t *msg,
     // NERVE - SMF - some server game-only commands we cannot have flood protect
     if(!Q_strncmp("team", s, 4) || !Q_strncmp("setspawnpt", s, 10) ||
             !Q_strncmp("score", s, 5) || !Q_stricmp("forcetapout", s)) {
-        //Com_DPrintf( "Skipping flood protection for: %s\n", s );
+        //if (developer->integer) {
+        //Com_Printf( "Skipping flood protection for: %s\n", s );
+        //}
         floodprotect = false;
     }
 
@@ -2356,8 +2435,11 @@ void idServerClientSystemLocal::ClientThink(sint client, usercmd_t *cmd) {
     client_t *cl = &svs.clients[client];
 
     if(client < 0 || sv_maxclients->integer <= client) {
-        Com_DPrintf(S_COLOR_YELLOW
-                    "idServerClientSystemLocal::ClientThink: bad clientNum %i\n", client);
+        if(developer->integer) {
+            Com_Printf(S_COLOR_YELLOW
+                       "idServerClientSystemLocal::ClientThink: bad clientNum %i\n", client);
+        }
+
         return;
     }
 
@@ -2464,7 +2546,9 @@ void idServerClientSystemLocal::UserMove(client_t *cl, msg_t *msg,
             !cl->pureReceived) {
         if(cl->state == CS_ACTIVE) {
             // we didn't get a cp yet, don't assume anything and just send the gamestate all over again
-            Com_DPrintf("%s: didn't get cp command, resending gamestate\n", cl->name);
+            if(developer->integer) {
+                Com_Printf("%s: didn't get cp command, resending gamestate\n", cl->name);
+            }
 
             SendClientGameState(cl);
         }
@@ -2583,8 +2667,11 @@ void idServerClientSystemLocal::ExecuteClientMessage(client_t *cl,
                 serverId <
                 sv.serverId) { // TTimo - use a comparison here to catch multiple map_restart
             // they just haven't caught the map_restart yet
-            Com_DPrintf("%s : ignoring pre map_restart / outdated client message\n",
-                        cl->name);
+            if(developer->integer) {
+                Com_Printf("%s : ignoring pre map_restart / outdated client message\n",
+                           cl->name);
+            }
+
             return;
         }
 
@@ -2592,14 +2679,20 @@ void idServerClientSystemLocal::ExecuteClientMessage(client_t *cl,
         // gamestate we sent them, resend it
         if(cl->state != CS_ACTIVE &&
                 cl->messageAcknowledge > cl->gamestateMessageNum) {
-            Com_DPrintf("%s : dropped gamestate, resending\n", cl->name);
+            if(developer->integer) {
+                Com_Printf("%s : dropped gamestate, resending\n", cl->name);
+            }
+
             SendClientGameState(cl);
         }
 
         // this client has acknowledged the new gamestate so it's
         // safe to start sending it the real time again
         if(cl->oldServerTime && serverId == sv.serverId) {
-            Com_DPrintf("%s acknowledged gamestate\n", cl->name);
+            if(developer->integer) {
+                Com_Printf("%s acknowledged gamestate\n", cl->name);
+            }
+
             cl->oldServerTime = 0;
         }
 

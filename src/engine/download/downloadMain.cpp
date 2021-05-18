@@ -153,7 +153,10 @@ sint idDownloadSystemLocal::BeginDownload(pointer localName,
     }
 
     if(!localName || !remoteName) {
-        Com_DPrintf("Empty download URL or empty local file name\n");
+        if(developer->integer) {
+            Com_Printf("Empty download URL or empty local file name\n");
+        }
+
         return 0;
     }
 
@@ -206,7 +209,10 @@ dlStatus_t idDownloadSystemLocal::DownloadLoop(void) {
     pointer err = nullptr;
 
     if(!dl_request) {
-        Com_DPrintf("idDownloadSystemLocal::DownloadLoop: unexpected call with dl_request == nullptr\n");
+        if(developer->integer) {
+            Com_Printf("idDownloadSystemLocal::DownloadLoop: unexpected call with dl_request == nullptr\n");
+        }
+
         return DL_DONE;
     }
 
@@ -244,8 +250,11 @@ dlStatus_t idDownloadSystemLocal::DownloadLoop(void) {
     cvarSystem->Set("ui_dl_running", "0");
 
     if(err) {
-        Com_DPrintf("idDownloadSystemLocal::DownloadLoop: request terminated with failure status '%s'\n",
-                    err);
+        if(developer->integer) {
+            Com_Printf("idDownloadSystemLocal::DownloadLoop: request terminated with failure status '%s'\n",
+                       err);
+        }
+
         return DL_FAILED;
     }
 

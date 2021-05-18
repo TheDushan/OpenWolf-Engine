@@ -297,7 +297,10 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
     prot = atoi(Info_ValueForKey(infoString, "protocol"));
 
     if(prot != com_protocol->integer) {
-        Com_DPrintf("Different protocol info packet: %s\n", infoString);
+        if(developer->integer) {
+            Com_Printf("Different protocol info packet: %s\n", infoString);
+        }
+
         return;
     }
 
@@ -305,7 +308,10 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
     gameName = Info_ValueForKey(infoString, "gamename");
 
     if(!gameName[0] || Q_stricmp(gameName, GAMENAME_STRING)) {
-        Com_DPrintf("Different game info packet: %s\n", infoString);
+        if(developer->integer) {
+            Com_Printf("Different game info packet: %s\n", infoString);
+        }
+
         return;
     }
 
@@ -315,8 +321,11 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
                 networkSystem->CompareAdr(from, cl_pinglist[i].adr)) {
             // calc ping time
             cl_pinglist[i].time = cls.realtime - cl_pinglist[i].start + 1;
-            Com_DPrintf("ping time %dms from %s\n", cl_pinglist[i].time,
-                        networkSystem->AdrToString(from));
+
+            if(developer->integer) {
+                Com_Printf("ping time %dms from %s\n", cl_pinglist[i].time,
+                           networkSystem->AdrToString(from));
+            }
 
             // save of info
             Q_strncpyz(cl_pinglist[i].info, infoString, sizeof(cl_pinglist[i].info));
@@ -365,7 +374,10 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
     }
 
     if(i == MAX_OTHER_SERVERS) {
-        Com_DPrintf("MAX_OTHER_SERVERS hit, dropping infoResponse\n");
+        if(developer->integer) {
+            Com_Printf("MAX_OTHER_SERVERS hit, dropping infoResponse\n");
+        }
+
         return;
     }
 

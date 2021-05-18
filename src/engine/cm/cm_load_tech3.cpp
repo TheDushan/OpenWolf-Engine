@@ -765,8 +765,11 @@ void CMod_CheckLeafBrushes(void) {
 
     for(i = 0; i < cm.numLeafBrushes; i++) {
         if(cm.leafbrushes[i] < 0 || cm.leafbrushes[i] >= cm.numBrushes) {
-            Com_DPrintf(S_COLOR_YELLOW "[%i] invalid leaf brush %08x\n", i,
-                        cm.leafbrushes[i]);
+            if(developer->integer) {
+                Com_Printf(S_COLOR_YELLOW "[%i] invalid leaf brush %08x\n", i,
+                           cm.leafbrushes[i]);
+            }
+
             cm.leafbrushes[i] = 0;
         }
     }
@@ -948,8 +951,10 @@ static void CMod_CreateBrushSideWindings(void) {
         totalEdges += brush->numEdges;
     }
 
-    Com_DPrintf("Allocated %d bytes for %d collision map edges...\n",
-                totalEdgesAlloc, totalEdges);
+    if(developer->integer) {
+        Com_Printf("Allocated %d bytes for %d collision map edges...\n",
+                   totalEdgesAlloc, totalEdges);
+    }
 }
 
 /*
@@ -1223,8 +1228,10 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
         Com_Error(ERR_DROP, "idCollisionModelManagerLocal::LoadMap: nullptr name");
     }
 
-    Com_DPrintf("idCollisionModelManagerLocal::LoadMap( %s, %i )\n", name,
-                clientload);
+    if(developer->integer) {
+        Com_Printf("idCollisionModelManagerLocal::LoadMap( %s, %i )\n", name,
+                   clientload);
+    }
 
     if(!strcmp(cm.name, name) && clientload) {
         *checksum = last_checksum;

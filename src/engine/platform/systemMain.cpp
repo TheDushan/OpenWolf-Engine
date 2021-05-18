@@ -406,42 +406,60 @@ void *idSystemLocal::LoadDll(pointer name) {
     libHandle = SDL_LoadObject(fn);
 
     if(!libHandle) {
-        Com_DPrintf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                    SDL_GetError());
+        if(developer->integer) {
+            Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                       SDL_GetError());
+        }
 
         if(homepath[0]) {
-            Com_DPrintf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                        SDL_GetError());
+            if(developer->integer) {
+                Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                           SDL_GetError());
+            }
+
             fn = fileSystem->BuildOSPath(homepath, gamedir, filename);
             libHandle = SDL_LoadObject(fn);
         }
 
         if(!libHandle) {
-            Com_DPrintf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                        SDL_GetError());
+            if(developer->integer) {
+                Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                           SDL_GetError());
+            }
 
             if(!libHandle) {
-                Com_DPrintf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                            SDL_GetError());
+                if(developer->integer) {
+                    Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                               SDL_GetError());
+                }
+
                 // now we try base
                 fn = fileSystem->BuildOSPath(basepath, BASEGAME, filename);
                 libHandle = SDL_LoadObject(fn);
 
                 if(!libHandle) {
                     if(homepath[0]) {
-                        Com_DPrintf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                    SDL_GetError());
+                        if(developer->integer) {
+                            Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                                       SDL_GetError());
+                        }
+
                         fn = fileSystem->BuildOSPath(homepath, BASEGAME, filename);
                         libHandle = SDL_LoadObject(fn);
                     }
 
                     if(!libHandle) {
-                        Com_DPrintf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                    SDL_GetError());
+                        if(developer->integer) {
+                            Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                                       SDL_GetError());
+                        }
 
                         if(!libHandle) {
-                            Com_DPrintf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                        SDL_GetError());
+                            if(developer->integer) {
+                                Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                                           SDL_GetError());
+                            }
+
                             return nullptr;
                         }
                     }

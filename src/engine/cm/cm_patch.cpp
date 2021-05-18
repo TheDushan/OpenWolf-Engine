@@ -749,7 +749,10 @@ static void CM_SetBorderInward(cFacet_t *facet, cGrid_t *grid,
             facet->borderPlanes[k] = -1;
         } else {
             // bisecting side border
-            Com_DPrintf("WARNING: CM_SetBorderInward: mixed plane sides\n");
+            if(developer->integer) {
+                Com_Printf("WARNING: CM_SetBorderInward: mixed plane sides\n");
+            }
+
             facet->borderInward[k] = false;
 
             if(!debugBlock) {
@@ -1013,8 +1016,11 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
                     ChopWindingInPlace(&w2, newplane, newplane[3], 0.1f);
 
                     if(!w2) {
-                        Com_DPrintf("WARNING: Invalid patch %f %f %f %f\n", w->p[0][0], w->p[0][1],
-                                    w->p[0][2], w->p[0][3]);
+                        if(developer->integer) {
+                            Com_Printf("WARNING: Invalid patch %f %f %f %f\n", w->p[0][0], w->p[0][1],
+                                       w->p[0][2], w->p[0][3]);
+                        }
+
                         continue;
                     } else {
                         FreeWinding(w2);

@@ -464,7 +464,9 @@ void S_PaintChannels(sint endtime) {
         // clear the paint buffer to either music or zeros
         if(s_rawend < s_paintedtime) {
             if(s_rawend) {
-                //Com_DPrintf ("background sound underrun\n");
+                //if (developer->integer) {
+                //Com_Printf ("background sound underrun\n");
+                //}
             }
 
             ::memset(paintbuffer, 0,

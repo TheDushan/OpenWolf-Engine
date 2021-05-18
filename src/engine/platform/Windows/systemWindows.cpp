@@ -828,8 +828,11 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
     static bool doexit_spamguard = false;
 
     if(doexit_spamguard) {
-        Com_DPrintf("idSystemLocal::OpenURL: already in a doexit sequence, ignoring %s\n",
-                    url);
+        if(developer->integer) {
+            Com_Printf("idSystemLocal::OpenURL: already in a doexit sequence, ignoring %s\n",
+                       url);
+        }
+
         return;
     }
 

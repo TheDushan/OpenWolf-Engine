@@ -730,7 +730,10 @@ void CL_NextDemo(void) {
 
     Q_strncpyz(v, cvarSystem->VariableString("nextdemo"), sizeof(v));
     v[MAX_STRING_CHARS - 1] = 0;
-    Com_DPrintf("CL_NextDemo: %s\n", v);
+
+    if(developer->integer) {
+        Com_Printf("CL_NextDemo: %s\n", v);
+    }
 
     if(!v[0]) {
         CL_FlushMemory();
@@ -1193,7 +1196,9 @@ void CL_RequestMotd(void) {
         return;
     }
 
-    Com_DPrintf("Resolving %s\n", MASTER_SERVER_NAME);
+    if(developer->integer) {
+        Com_Printf("Resolving %s\n", MASTER_SERVER_NAME);
+    }
 
     switch(networkChainSystem->StringToAdr(MASTER_SERVER_NAME,
                                            &cls.updateServer, NA_UNSPEC)) {
@@ -1208,8 +1213,10 @@ void CL_RequestMotd(void) {
             break;
     }
 
-    Com_DPrintf("%s resolved to %s\n", MASTER_SERVER_NAME,
-                networkSystem->AdrToStringwPort(cls.updateServer));
+    if(developer->integer) {
+        Com_Printf("%s resolved to %s\n", MASTER_SERVER_NAME,
+                   networkSystem->AdrToStringwPort(cls.updateServer));
+    }
 
     info[0] = 0;
 
@@ -1234,19 +1241,27 @@ void CL_RequestAuthorization(void) {
     sint i, j, l;
 
     if(!cls.authorizeServer.port) {
-        Com_DPrintf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+        if(developer->integer) {
+            Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+        }
 
         if(!networkChainSystem->StringToAdr(AUTHORIZE_SERVER_NAME,
                                             &cls.authorizeServer, NA_UNSPEC)) {
-            Com_DPrintf("Couldn't resolve authorization server address\n");
+            if(developer->integer) {
+                Com_Printf("Couldn't resolve authorization server address\n");
+            }
+
             return;
         }
 
         cls.authorizeServer.port = BigShort(PORT_AUTHORIZE);
-        Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-                    cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
-                    cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
-                    BigShort(cls.authorizeServer.port));
+
+        if(developer->integer) {
+            Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+                       cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
+                       cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
+                       BigShort(cls.authorizeServer.port));
+        }
     }
 
     if(cls.authorizeServer.type == NA_BAD) {
@@ -1970,9 +1985,11 @@ game directory.
 */
 void CL_BeginDownload(pointer localName, pointer remoteName) {
 
-    Com_DPrintf("***** CL_BeginDownload *****\n"
-                "Localname: %s\n" "Remotename: %s\n" "****************************\n",
-                localName, remoteName);
+    if(developer->integer) {
+        Com_Printf("***** CL_BeginDownload *****\n"
+                   "Localname: %s\n" "Remotename: %s\n" "****************************\n",
+                   localName, remoteName);
+    }
 
     Q_strncpyz(cls.downloadName, localName, sizeof(cls.downloadName));
     Q_vsprintf_s(cls.downloadTempName, sizeof(cls.downloadTempName),
@@ -2339,11 +2356,16 @@ void CL_MotdPacket(netadr_t from, pointer info) {
 
     // if not from our server, ignore it
     if(!networkSystem->CompareAdr(from, cls.updateServer)) {
-        Com_DPrintf("MOTD packet from unexpected source\n");
+        if(developer->integer) {
+            Com_Printf("MOTD packet from unexpected source\n");
+        }
+
         return;
     }
 
-    Com_DPrintf("MOTD packet: %s\n", info);
+    if(developer->integer) {
+        Com_Printf("MOTD packet: %s\n", info);
+    }
 
     while(*info != '\\') {
         info++;
@@ -2353,8 +2375,11 @@ void CL_MotdPacket(netadr_t from, pointer info) {
     v = Info_ValueForKey(info, "challenge");
 
     if(strcmp(v, cls.updateChallenge)) {
-        Com_DPrintf("MOTD packet mismatched challenge: "
-                    "'%s' != '%s'\n", v, cls.updateChallenge);
+        if(developer->integer) {
+            Com_Printf("MOTD packet mismatched challenge: "
+                       "'%s' != '%s'\n", v, cls.updateChallenge);
+        }
+
         return;
     }
 
@@ -2429,8 +2454,10 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t *msg) {
 
     c = cmdSystem->Argv(0);
 
-    Com_DPrintf("CL packet %s: %s\n", networkSystem->AdrToStringwPort(from),
-                c);
+    if(developer->integer) {
+        Com_Printf("CL packet %s: %s\n", networkSystem->AdrToStringwPort(from),
+                   c);
+    }
 
     if(!Q_stricmp(c, "disconnectResponse")) {
         if(cls.state == CA_CONNECTED) {
@@ -2459,7 +2486,10 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t *msg) {
             // connection hi-jacking.
 
             if(!*c || challenge != clc.challenge) {
-                Com_DPrintf("Challenge response received from unexpected source. Ignored.\n");
+                if(developer->integer) {
+                    Com_Printf("Challenge response received from unexpected source. Ignored.\n");
+                }
+
                 return;
             }
         }
@@ -2480,7 +2510,11 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t *msg) {
         // take this address as the new server address.  This allows
         // a server proxy to hand off connections to multiple servers
         clc.serverAddress = from;
-        Com_DPrintf("challengeResponse: %d\n", clc.challenge);
+
+        if(developer->integer) {
+            Com_Printf("challengeResponse: %d\n", clc.challenge);
+        }
+
         return;
     }
 
@@ -2581,7 +2615,9 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t *msg) {
         return;
     }
 
-    Com_DPrintf("Unknown connectionless packet command.\n");
+    if(developer->integer) {
+        Com_Printf("Unknown connectionless packet command.\n");
+    }
 }
 
 
@@ -2615,8 +2651,11 @@ void CL_PacketEvent(netadr_t from, msg_t *msg) {
     // packet from server
     //
     if(!networkSystem->CompareAdr(from, clc.netchan.remoteAddress)) {
-        Com_DPrintf("%s:sequenced packet without connection\n"
-                    , networkSystem->AdrToStringwPort(from));
+        if(developer->integer) {
+            Com_Printf("%s:sequenced packet without connection\n"
+                       , networkSystem->AdrToStringwPort(from));
+        }
+
         // FIXME: send a client disconnect?
         return;
     }
@@ -2711,7 +2750,10 @@ void CL_WWWDownload(void) {
 
     if(clc.bWWWDlAborting) {
         if(!bAbort) {
-            Com_DPrintf("CL_WWWDownload: WWWDlAborting\n");
+            if(developer->integer) {
+                Com_Printf("CL_WWWDownload: WWWDlAborting\n");
+            }
+
             bAbort = true;
         }
 
@@ -2719,7 +2761,10 @@ void CL_WWWDownload(void) {
     }
 
     if(bAbort) {
-        Com_DPrintf("CL_WWWDownload: WWWDlAborting done\n");
+        if(developer->integer) {
+            Com_Printf("CL_WWWDownload: WWWDlAborting done\n");
+        }
+
         bAbort = false;
     }
 
@@ -2815,7 +2860,11 @@ bool CL_WWWBadChecksum(pointer pakname) {
 
         strcat(clc.badChecksumList, "@");
         strcat(clc.badChecksumList, pakname);
-        Com_DPrintf("bad checksums: %s\n", clc.badChecksumList);
+
+        if(developer->integer) {
+            Com_Printf("bad checksums: %s\n", clc.badChecksumList);
+        }
+
         return true;
     }
 
@@ -3085,8 +3134,12 @@ void CL_RefPrintf(sint print_level, pointer fmt, ...) {
         Com_Printf("%s", msg);
     } else if(print_level == PRINT_WARNING) {
         Com_Printf(S_COLOR_YELLOW "%s", msg);    // yellow
-    } else if(print_level == PRINT_DEVELOPER) {
-        Com_DPrintf(S_COLOR_RED "%s", msg);      // red
+    }
+
+    if(developer->integer) {
+        if(print_level == PRINT_DEVELOPER) {
+            Com_Printf(S_COLOR_RED "%s", msg);      // red
+        }
     }
 }
 
@@ -3183,7 +3236,10 @@ void CL_CheckAutoUpdate(void) {
 
     // Only check once per session
     if(autoupdateChecked) {
-        Com_DPrintf("Updated checked already..");
+        if(developer->integer) {
+            Com_Printf("Updated checked already..");
+        }
+
         return;
     }
 
@@ -3192,7 +3248,9 @@ void CL_CheckAutoUpdate(void) {
     // Resolve update server
     if(!networkChainSystem->StringToAdr(cls.autoupdateServerNames[0],
                                         &cls.autoupdateServer, NA_IP)) {
-        Com_DPrintf("Failed to resolve any Auto-update servers.\n");
+        if(developer->integer) {
+            Com_Printf("Failed to resolve any Auto-update servers.\n");
+        }
 
         cls.autoUpdateServerChecked[0] = true;
 
@@ -3207,10 +3265,13 @@ void CL_CheckAutoUpdate(void) {
     cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = true;
 
     cls.autoupdateServer.port = BigShort(PORT_SERVER);
-    Com_DPrintf("autoupdate server at: %i.%i.%i.%i:%i\n",
-                cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
-                cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-                BigShort(cls.autoupdateServer.port));
+
+    if(developer->integer) {
+        Com_Printf("autoupdate server at: %i.%i.%i.%i:%i\n",
+                   cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
+                   cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
+                   BigShort(cls.autoupdateServer.port));
+    }
 
     networkChainSystem->OutOfBandPrint(NS_CLIENT, cls.autoupdateServer,
                                        "getUpdateInfo \"%s\" \"%s\"\n", PRODUCT_VERSION, OS_STRING);
@@ -3253,11 +3314,15 @@ bool CL_NextUpdateServer(void) {
 
     servername = cls.autoupdateServerNames[cls.autoupdatServerIndex];
 
-    Com_DPrintf("Resolving AutoUpdate Server... ");
+    if(developer->integer) {
+        Com_Printf("Resolving AutoUpdate Server... ");
+    }
 
     if(!networkChainSystem->StringToAdr(servername, &cls.autoupdateServer,
                                         NA_IP)) {
-        Com_DPrintf("Couldn't resolve address, trying next one...");
+        if(developer->integer) {
+            Com_Printf("Couldn't resolve address, trying next one...");
+        }
 
         cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = true;
 
@@ -3267,10 +3332,13 @@ bool CL_NextUpdateServer(void) {
     cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = true;
 
     cls.autoupdateServer.port = BigShort(PORT_SERVER);
-    Com_DPrintf("%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0],
-                cls.autoupdateServer.ip[1],
-                cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-                BigShort(cls.autoupdateServer.port));
+
+    if(developer->integer) {
+        Com_Printf("%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0],
+                   cls.autoupdateServer.ip[1],
+                   cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
+                   BigShort(cls.autoupdateServer.port));
+    }
 
     return true;
 }
@@ -3286,7 +3354,9 @@ void CL_GetAutoUpdate(void) {
         return;
     }
 
-    Com_DPrintf("Connecting to auto-update server...\n");
+    if(developer->integer) {
+        Com_Printf("Connecting to auto-update server...\n");
+    }
 
     soundSystem->StopAllSounds();           // NERVE - SMF
 
@@ -3324,10 +3394,12 @@ void CL_GetAutoUpdate(void) {
     // Copy auto-update server address to Server connect address
     memcpy(&clc.serverAddress, &cls.autoupdateServer, sizeof(netadr_t));
 
-    Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", cls.servername,
-                clc.serverAddress.ip[0], clc.serverAddress.ip[1],
-                clc.serverAddress.ip[2], clc.serverAddress.ip[3],
-                BigShort(clc.serverAddress.port));
+    if(developer->integer) {
+        Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", cls.servername,
+                   clc.serverAddress.ip[0], clc.serverAddress.ip[1],
+                   clc.serverAddress.ip[2], clc.serverAddress.ip[3],
+                   BigShort(clc.serverAddress.port));
+    }
 
     cls.state = CA_CONNECTING;
 
@@ -3718,19 +3790,24 @@ CL_UpdateInfoPacket
 void CL_UpdateInfoPacket(netadr_t from) {
 
     if(cls.autoupdateServer.type == NA_BAD) {
-        Com_DPrintf("CL_UpdateInfoPacket:  Auto-Updater has bad address\n");
+        Com_Printf("CL_UpdateInfoPacket:  Auto-Updater has bad address\n");
         return;
     }
 
-    Com_DPrintf("Auto-Updater resolved to %i.%i.%i.%i:%i\n",
-                cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
-                cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-                BigShort(cls.autoupdateServer.port));
+    if(developer->integer) {
+        Com_Printf("Auto-Updater resolved to %i.%i.%i.%i:%i\n",
+                   cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
+                   cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
+                   BigShort(cls.autoupdateServer.port));
+    }
 
     if(!networkSystem->CompareAdr(from, cls.autoupdateServer)) {
-        Com_DPrintf("CL_UpdateInfoPacket:  Received packet from %i.%i.%i.%i:%i\n",
-                    from.ip[0], from.ip[1], from.ip[2], from.ip[3],
-                    BigShort(from.port));
+        if(developer->integer) {
+            Com_Printf("CL_UpdateInfoPacket:  Received packet from %i.%i.%i.%i:%i\n",
+                       from.ip[0], from.ip[1], from.ip[2], from.ip[3],
+                       BigShort(from.port));
+        }
+
         return;
     }
 

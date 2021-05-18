@@ -449,8 +449,10 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
             Z_Free(var->resetString);
             var->resetString = CopyString(var_value);
         } else if(var_value[0] && strcmp(var->resetString, var_value)) {
-            Com_DPrintf("idCVarSystemLocal::Get: Warning: convar \"%s\" given initial values: \"%s\" and \"%s\"\n",
-                        var_name, var->resetString, var_value);
+            if(developer->integer) {
+                Com_Printf("idCVarSystemLocal::Get: Warning: convar \"%s\" given initial values: \"%s\" and \"%s\"\n",
+                           var_name, var->resetString, var_value);
+            }
         }
 
         // if we have a latched string, take that value now
@@ -546,7 +548,9 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
     convar_t *var;
 
     if(strcmp("com_hunkused", var_name) != 0) {
-        //Com_DPrintf( "idCVarSystemLocal::Set2: %s %s\n", var_name, value );
+        if(developer->integer) {
+            Com_Printf("idCVarSystemLocal::Set2: %s %s\n", var_name, value);
+        }
     }
 
     if(!ValidateString(var_name)) {
@@ -1360,9 +1364,12 @@ void idCVarSystemLocal::Register(vmConvar_t *vmCvar, pointer varName,
     convar_t *cv;
 
     if((flags & (CVAR_ARCHIVE | CVAR_ROM)) == (CVAR_ARCHIVE | CVAR_ROM)) {
-        Com_DPrintf(S_COLOR_YELLOW
-                    "WARNING: Unsetting CVAR_ROM cvar '%s', since it is also CVAR_ARCHIVE\n",
-                    varName);
+        if(developer->integer) {
+            Com_Printf(S_COLOR_YELLOW
+                       "WARNING: Unsetting CVAR_ROM cvar '%s', since it is also CVAR_ARCHIVE\n",
+                       varName);
+        }
+
         flags &= ~CVAR_ROM;
     }
 

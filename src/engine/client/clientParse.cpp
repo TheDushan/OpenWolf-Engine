@@ -498,10 +498,14 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
         } else if(old->messageNum != newSnap.deltaNum) {
             // The frame that the server did the delta from
             // is too old, so we can't reconstruct it properly.
-            Com_DPrintf("Delta frame too old.\n");
+            if(developer->integer) {
+                Com_Printf("Delta frame too old.\n");
+            }
         } else if(cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES
                   - 128) {
-            Com_DPrintf("Delta parseEntitiesNum too old.\n");
+            if(developer->integer) {
+                Com_Printf("Delta parseEntitiesNum too old.\n");
+            }
         } else {
             newSnap.valid = true;   // valid delta parse
         }
@@ -814,7 +818,11 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
             }
 
             cvarSystem->SetValue("cl_downloadSize", clc.downloadSize);
-            Com_DPrintf("Server redirected download: %s\n", cls.downloadName);
+
+            if(developer->integer) {
+                Com_Printf("Server redirected download: %s\n", cls.downloadName);
+            }
+
             clc.bWWWDl = true;  // activate wwwdl client loop
             CL_AddReliableCommand("wwwdl ack");
 
@@ -886,8 +894,11 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
     MSG_ReadData(msg, data, size);
 
     if(clc.downloadBlock != block) {
-        Com_DPrintf("CL_ParseDownload: Expected block %d, got %d\n",
-                    clc.downloadBlock, block);
+        if(developer->integer) {
+            Com_Printf("CL_ParseDownload: Expected block %d, got %d\n",
+                       clc.downloadBlock, block);
+        }
+
         return;
     }
 

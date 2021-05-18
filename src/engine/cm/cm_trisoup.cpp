@@ -379,7 +379,10 @@ static void CM_SetBorderInward(cFacet_t *facet, cTriangleSoup_t *triSoup,
             facet->borderPlanes[k] = -1;
         } else {
             // bisecting side border
-            Com_DPrintf("WARNING: CM_SetBorderInward: mixed plane sides\n");
+            if(developer->integer) {
+                Com_Printf("WARNING: CM_SetBorderInward: mixed plane sides\n");
+            }
+
             facet->borderInward[k] = false;
         }
     }
@@ -618,8 +621,11 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
                     ChopWindingInPlace(&w2, newplane, newplane[3], 0.1f);
 
                     if(!w2) {
-                        Com_DPrintf("WARNING: Invalid bevel %f %f %f %f\n", w->p[0][0], w->p[0][1],
-                                    w->p[0][2], w->p[0][3]);
+                        if(developer->integer) {
+                            Com_Printf("WARNING: Invalid bevel %f %f %f %f\n", w->p[0][0], w->p[0][1],
+                                       w->p[0][2], w->p[0][3]);
+                        }
+
                         continue;
                     } else {
                         FreeWinding(w2);
@@ -875,8 +881,10 @@ cSurfaceCollide_t *CM_GenerateTriangleSoupCollide(sint numVertexes,
     sc->bounds[1][1] += 1;
     sc->bounds[1][2] += 1;
 
-    Com_DPrintf("CM_GenerateTriangleSoupCollide: %i planes %i facets\n",
-                sc->numPlanes, sc->numFacets);
+    if(developer->integer) {
+        Com_Printf("CM_GenerateTriangleSoupCollide: %i planes %i facets\n",
+                   sc->numPlanes, sc->numFacets);
+    }
 
     return sc;
 }

@@ -1307,11 +1307,15 @@ void idCmdSystemLocal::TokenizeString2(pointer text_in, bool ignoreQuotes,
     valueType *text;
     valueType *textOut;
     pointer cvarName;
-    valueType buffer[ BIG_INFO_STRING ];
+    valueType buffer[BIG_INFO_STRING];
 
 #ifdef TKN_DBG
+
     // FIXME TTimo blunt hook to try to find the tokenization of userinfo
-    Com_DPrintf("idCmdSystemLocal::TokenizeString: %s\n", text_in);
+    if(developer->integer) {
+        Com_Printf("idCmdSystemLocal::TokenizeString: %s\n", text_in);
+    }
+
 #endif
 
     // clear previous args

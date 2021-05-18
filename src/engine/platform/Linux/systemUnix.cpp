@@ -108,7 +108,9 @@ void idSystemLocal::Chmod(valueType *file, sint mode) {
         Com_Printf("chmod('%s', %d) failed: errno %d\n", file, perm, errno);
     }
 
-    Com_DPrintf("chmod +%d '%s'\n", mode, file);
+    if(developer->integer) {
+        Com_Printf("chmod +%d '%s'\n", mode, file);
+    }
 }
 
 /*
@@ -746,7 +748,10 @@ dialogResult_t idSystemLocal::Dialog(dialogType_t type, pointer message,
         break;
     }
 
-    Com_DPrintf(S_COLOR_YELLOW "WARNING: failed to show a dialog\n");
+    if(developer->integer) {
+        Com_Printf(S_COLOR_YELLOW "WARNING: failed to show a dialog\n");
+    }
+
     return DR_OK;
 }
 #endif
@@ -799,15 +804,21 @@ NOTE: might even want to add a small delay?
 */
 void idSystemLocal::StartProcess(valueType *cmdline, bool doexit) {
     if(doexit) {
-        //Dushan review all this and see is this working for the autoupdate and Unix builds
-        Com_DPrintf("idSystemLocal::StartProcess %s (delaying to final exit)\n",
-                    cmdline);
+        if(developer->integer) {
+            //Dushan review all this and see is this working for the autoupdate and Unix builds
+            Com_Printf("idSystemLocal::StartProcess %s (delaying to final exit)\n",
+                       cmdline);
+        }
+
         Q_strncpyz(exit_cmdline, cmdline, MAX_CMD);
         cmdBufferSystem->ExecuteText(EXEC_APPEND, "quit\n");
         return;
     }
 
-    Com_DPrintf("idSystemLocal::StartProcess %s\n", cmdline);
+    if(developer->integer) {
+        Com_Printf("idSystemLocal::StartProcess %s\n", cmdline);
+    }
+
     DoStartProcess(cmdline);
 }
 
@@ -825,8 +836,11 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
     static bool doexit_spamguard = false;
 
     if(doexit_spamguard) {
-        Com_DPrintf("idSystemLocal::OpenURL: already in a doexit sequence, ignoring %s\n",
-                    url);
+        if(developer->integer) {
+            Com_Printf("idSystemLocal::OpenURL: already in a doexit sequence, ignoring %s\n",
+                       url);
+        }
+
         return;
     }
 
@@ -843,19 +857,28 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
     Q_vsprintf_s(fn, MAX_OSPATH, MAX_OSPATH, "%s/%s", pwdpath, fname);
 
     if(access(fn, X_OK) == -1) {
-        Com_DPrintf("%s not found\n", fn);
+        if(developer->integer) {
+            Com_Printf("%s not found\n", fn);
+        }
+
         // try in home path
         homepath = fs_homepath->string;
         Q_vsprintf_s(fn, MAX_OSPATH, MAX_OSPATH, "%s/%s", homepath, fname);
 
         if(access(fn, X_OK) == -1) {
-            Com_DPrintf("%s not found\n", fn);
+            if(developer->integer) {
+                Com_Printf("%s not found\n", fn);
+            }
+
             // basepath, last resort
             basepath = fs_basepath->string;
             Q_vsprintf_s(fn, MAX_OSPATH, MAX_OSPATH, "%s/%s", basepath, fname);
 
             if(access(fn, X_OK) == -1) {
-                Com_DPrintf("%s not found\n", fn);
+                if(developer->integer) {
+                    Com_Printf("%s not found\n", fn);
+                }
+
                 Com_Printf("Can't find script '%s' to open requested URL (use +set developer 1 for more verbosity)\n",
                            fname);
                 // we won't quit
@@ -869,7 +892,9 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
         doexit_spamguard = true;
     }
 
-    Com_DPrintf("URL script: %s\n", fn);
+    if(developer->integer) {
+        Com_Printf("URL script: %s\n", fn);
+    }
 
     // build the command line
     Q_vsprintf_s(cmdline, MAX_CMD, MAX_CMD, "%s '%s' &", fn, url);

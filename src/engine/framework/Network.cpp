@@ -1026,8 +1026,10 @@ SOCKET idNetworkSystemLocal::IP6Socket(valueType *net_interface, sint port,
         if(setsockopt(newsocket, IPPROTO_IPV6, IPV6_V6ONLY,
                       reinterpret_cast<valueType *>(&i), sizeof(i)) == SOCKET_ERROR) {
             // win32 systems don't seem to support this anyways.
-            Com_DPrintf("WARNING: idNetworkSystemLocal::IP6Socket: setsockopt IPV6_V6ONLY: %s\n",
-                        ErrorString());
+            if(developer->integer) {
+                Com_Printf("WARNING: idNetworkSystemLocal::IP6Socket: setsockopt IPV6_V6ONLY: %s\n",
+                           ErrorString());
+            }
         }
     }
 #endif

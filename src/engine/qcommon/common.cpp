@@ -237,30 +237,6 @@ void Com_Warning(pointer error, ...) {
     Com_Printf(msg);
 }
 
-
-
-/*
-================
-Com_DPrintf
-
-A Com_Printf that only shows up if the "developer" cvar is set
-================
-*/
-void Com_DPrintf(pointer fmt, ...) {
-    va_list         argptr;
-    valueType            msg[MAXPRINTMSG];
-
-    if(!developer || developer->integer != 1) {
-        return;                 // don't confuse non-developers with techie stuff...
-    }
-
-    va_start(argptr, fmt);
-    Q_vsprintf_s(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
-
-    Com_Printf("%s", msg);
-}
-
 /*
 =============
 Com_Error
@@ -3172,8 +3148,6 @@ void Com_Init( valueType* commandLine )
     // bani: init this early
     Com_StartupVariable( "com_ignorecrash" );
 
-
-
     // done early so bind command exists
 #if !defined (DEDICATED)
     CL_InitKeyCommands();
@@ -3184,6 +3158,7 @@ void Com_Init( valueType* commandLine )
 #endif
 
     Com_InitCommonConsoleVars();
+    cvarSystem->Set("developer", "0");
 
     fileSystem->InitFilesystem();
 

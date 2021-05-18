@@ -182,8 +182,11 @@ bool idClientGameSystemLocal::GetSnapshot(sint snapshotNumber,
     count = clSnap->numEntities;
 
     if(count > MAX_ENTITIES_IN_SNAPSHOT) {
-        Com_DPrintf("idClientGameSystemLocal::GetSnapshot: truncated %i entities to %i\n",
-                    count, MAX_ENTITIES_IN_SNAPSHOT);
+        if(developer->integer) {
+            Com_Printf("idClientGameSystemLocal::GetSnapshot: truncated %i entities to %i\n",
+                       count, MAX_ENTITIES_IN_SNAPSHOT);
+        }
+
         count = MAX_ENTITIES_IN_SNAPSHOT;
     }
 
@@ -451,7 +454,9 @@ bool idClientGameSystemLocal::GetServerCommand(sint serverCommandNumber) {
 
     if(cl_showServerCommands->integer) {
         // NERVE - SMF
-        Com_DPrintf("serverCommand: %i : %s\n", serverCommandNumber, s);
+        if(developer->integer) {
+            Com_Printf("serverCommand: %i : %s\n", serverCommandNumber, s);
+        }
     }
 
 rescan:

@@ -538,7 +538,10 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
     }
 
     if(!uivm) {
-        Com_DPrintf("idClientScreenSystemLocal::DrawScreenField - draw screen without GUI loaded\n");
+        if(developer->integer) {
+            Com_Printf("idClientScreenSystemLocal::DrawScreenField - draw screen without GUI loaded\n");
+        }
+
         return;
     }
 

@@ -360,7 +360,7 @@ typedef struct gameInfo_s {
 extern gameInfo_t com_gameInfo;
 
 // TTimo
-// centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)
+// centralized and cleaned, that's the max string you can send to a Com_Printf (above gets truncated)
 #define MAXPRINTMSG 8192
 
 valueType           *CopyString(pointer in);

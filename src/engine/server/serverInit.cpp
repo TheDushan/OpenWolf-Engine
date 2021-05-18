@@ -733,7 +733,9 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
 
     // DO_LIGHT_DEDICATED
     // only comment out when you need a new pure checksum string and it's associated random feed
-    //Com_DPrintf("idServerInitSystemLocal::SpawnServer checksum feed: %p\n", sv.checksumFeed);
+    //if (developer->integer) {
+    //Com_Printf("idServerInitSystemLocal::SpawnServer checksum feed: %p\n", sv.checksumFeed);
+    //}
 
     fileSystem->Restart(sv.checksumFeed);
 

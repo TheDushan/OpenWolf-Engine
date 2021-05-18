@@ -182,7 +182,10 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
     } else if(client->netchan.outgoingSequence - client->deltaMessage >=
               (PACKET_BACKUP - 3)) {
         // client hasn't gotten a good message through in a long time
-        Com_DPrintf("%s: Delta request from out of date packet.\n", client->name);
+        if(developer->integer) {
+            Com_Printf("%s: Delta request from out of date packet.\n", client->name);
+        }
+
         oldframe = nullptr;
         lastframe = 0;
     } else if(client->demo.demorecording && client->demo.demowaiting) {
@@ -203,8 +206,11 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
         // the snapshot's entities may still have rolled off the buffer, though
         if(oldframe->first_entity <= svs.nextSnapshotEntities -
                 svs.numSnapshotEntities) {
-            Com_DPrintf("%s: Delta request from out of date entities.\n",
-                        client->name);
+            if(developer->integer) {
+                Com_Printf("%s: Delta request from out of date entities.\n",
+                           client->name);
+            }
+
             oldframe = nullptr;
             lastframe = 0;
         }
@@ -437,7 +443,10 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint(
         }
 
         if(ent->s.number != e) {
-            Com_DPrintf("FIXING ENT->S.NUMBER!!!\n");
+            if(developer->integer) {
+                Com_Printf("FIXING ENT->S.NUMBER!!!\n");
+            }
+
             ent->s.number = e;
         }
 
@@ -585,7 +594,10 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint(
                 }
 
                 if(ment->s.number != h) {
-                    Com_DPrintf("FIXING vis dummy multiple ment->S.NUMBER!!!\n");
+                    if(developer->integer) {
+                        Com_Printf("FIXING vis dummy multiple ment->S.NUMBER!!!\n");
+                    }
+
                     ment->s.number = h;
                 }
 
@@ -1175,10 +1187,12 @@ void idServerSnapshotSystemLocal::SendClientMessages(void) {
             sv.ucompAve += comp_ratio;
             sv.ucompNum++;
 
-            Com_DPrintf("bpspc(%2.0f) bps(%2.0f) pk(%i) ubps(%2.0f) upk(%i) cr(%2.2f) acr(%2.2f)\n",
-                        ave / static_cast<float32>(numclients), ave, sv.bpsMaxBytes, uave,
-                        sv.ubpsMaxBytes, comp_ratio,
-                        sv.ucompAve / sv.ucompNum);
+            if(developer->integer) {
+                Com_Printf("bpspc(%2.0f) bps(%2.0f) pk(%i) ubps(%2.0f) upk(%i) cr(%2.2f) acr(%2.2f)\n",
+                           ave / static_cast<float32>(numclients), ave, sv.bpsMaxBytes, uave,
+                           sv.ubpsMaxBytes, comp_ratio,
+                           sv.ucompAve / sv.ucompNum);
+            }
         }
     }
 

@@ -1071,7 +1071,6 @@ void Com_FatalError(pointer error, ...);
 void Com_DropError(pointer error, ...);
 void Com_Warning(pointer error, ...);
 void Com_Printf(pointer msg, ...) _attribute((format(printf, 1, 2)));
-void Com_DPrintf(pointer msg, ...) _attribute((format(printf, 1, 2)));
 
 /*
 ==========================================================

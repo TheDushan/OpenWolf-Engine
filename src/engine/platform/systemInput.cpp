@@ -632,18 +632,28 @@ void idSystemLocal::InitJoystick(void) {
     ::memset(&stick_state, '\0', sizeof(stick_state));
 
     if(!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-        Com_DPrintf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
+        if(developer->integer) {
+            Com_Printf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
+        }
 
         if(SDL_Init(SDL_INIT_JOYSTICK) == -1) {
-            Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
+            if(developer->integer) {
+                Com_Printf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
+            }
+
             return;
         }
 
-        Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) passed.\n");
+        if(developer->integer) {
+            Com_Printf("SDL_Init(SDL_INIT_JOYSTICK) passed.\n");
+        }
     }
 
     total = SDL_NumJoysticks();
-    Com_DPrintf("%d possible joysticks\n", total);
+
+    if(developer->integer) {
+        Com_Printf("%d possible joysticks\n", total);
+    }
 
     // Print list and build cvar to allow ui to select joystick.
     for(i = 0; i < total; i++) {
@@ -652,7 +662,10 @@ void idSystemLocal::InitJoystick(void) {
     }
 
     if(!in_joystick->integer) {
-        Com_DPrintf("Joystick is not active.\n");
+        if(developer->integer) {
+            Com_Printf("Joystick is not active.\n");
+        }
+
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
         return;
     }
@@ -664,19 +677,24 @@ void idSystemLocal::InitJoystick(void) {
     stick = SDL_JoystickOpen(in_joystickNo->integer);
 
     if(stick == nullptr) {
-        Com_DPrintf("No joystick opened.\n");
+        if(developer->integer) {
+            Com_Printf("No joystick opened.\n");
+        }
+
         return;
     }
 
-    Com_DPrintf("Joystick %d opened\n", in_joystickNo->integer);
-    Com_DPrintf("Name:       %s\n",
-                SDL_JoystickNameForIndex(in_joystickNo->integer));
-    Com_DPrintf("Axes:       %d\n", SDL_JoystickNumAxes(stick));
-    Com_DPrintf("Hats:       %d\n", SDL_JoystickNumHats(stick));
-    Com_DPrintf("Buttons:    %d\n", SDL_JoystickNumButtons(stick));
-    Com_DPrintf("Balls:      %d\n", SDL_JoystickNumBalls(stick));
-    Com_DPrintf("Use Analog: %s\n",
-                in_joystickUseAnalog->integer ? "Yes" : "No");
+    if(developer->integer) {
+        Com_Printf("Joystick %d opened\n", in_joystickNo->integer);
+        Com_Printf("Name:       %s\n",
+                   SDL_JoystickNameForIndex(in_joystickNo->integer));
+        Com_Printf("Axes:       %d\n", SDL_JoystickNumAxes(stick));
+        Com_Printf("Hats:       %d\n", SDL_JoystickNumHats(stick));
+        Com_Printf("Buttons:    %d\n", SDL_JoystickNumButtons(stick));
+        Com_Printf("Balls:      %d\n", SDL_JoystickNumBalls(stick));
+        Com_Printf("Use Analog: %s\n",
+                   in_joystickUseAnalog->integer ? "Yes" : "No");
+    }
 
     SDL_JoystickEventState(SDL_QUERY);
 }
@@ -1016,7 +1034,10 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
                             utf32 |= (*c++ & 0x3F) << 6;
                             utf32 |= (*c++ & 0x3F);
                         } else {
-                            Com_DPrintf("Unrecognised UTF-8 lead byte: 0x%x\n", static_cast<uint>(*c));
+                            if(developer->integer) {
+                                Com_Printf("Unrecognised UTF-8 lead byte: 0x%x\n", static_cast<uint>(*c));
+                            }
+
                             c++;
                         }
 
@@ -1220,17 +1241,25 @@ void idSystemLocal::Init(void *windowData) {
 
     SDL_window = static_cast< SDL_Window * >(windowData);
 
-    Com_DPrintf("\n------- Input Initialization -------\n");
+    if(developer->integer) {
+        Com_Printf("\n------- Input Initialization -------\n");
+    }
 
     SDL_StartTextInput();
 
     mouseAvailable = (in_mouse->value != 0);
 
     if(in_mouse->integer == 2) {
-        Com_DPrintf("IN_Init: Not using raw input\n");
+        if(developer->integer) {
+            Com_Printf("IN_Init: Not using raw input\n");
+        }
+
         SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1");
     } else {
-        Com_DPrintf("IN_Init: Using raw mouse input\n");
+        if(developer->integer) {
+            Com_Printf("IN_Init: Using raw mouse input\n");
+        }
+
         SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "0");
     }
 
@@ -1244,7 +1273,10 @@ void idSystemLocal::Init(void *windowData) {
     InitKeyLockStates();
 
     InitJoystick();
-    Com_DPrintf("------------------------------------\n");
+
+    if(developer->integer) {
+        Com_Printf("------------------------------------\n");
+    }
 }
 
 /*

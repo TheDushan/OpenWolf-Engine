@@ -847,131 +847,133 @@ void GLimp_InitExtensions(void) {
         return;
     }
 
-    CL_RefPrintf(PRINT_ALL, "Initializing OpenGL extensions\n");
+    if(!r_verbose) {
+        CL_RefPrintf(PRINT_ALL, "Initializing OpenGL extensions\n");
 
-    glConfig.textureCompression = TC_NONE;
+        glConfig.textureCompression = TC_NONE;
 
-    // GL_EXT_texture_compression_s3tc
-    if(GLimp_HaveExtension("GL_ARB_texture_compression") &&
-            GLimp_HaveExtension("GL_EXT_texture_compression_s3tc")) {
-        if(r_ext_compressed_textures->value) {
-            glConfig.textureCompression = TC_S3TC_ARB;
-            CL_RefPrintf(PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");
-        } else {
-            CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n");
-        }
-    } else {
-        CL_RefPrintf(PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n");
-    }
-
-    // GL_S3_s3tc ... legacy extension before GL_EXT_texture_compression_s3tc.
-    if(glConfig.textureCompression == TC_NONE) {
-        if(GLimp_HaveExtension("GL_S3_s3tc")) {
+        // GL_EXT_texture_compression_s3tc
+        if(GLimp_HaveExtension("GL_ARB_texture_compression") &&
+                GLimp_HaveExtension("GL_EXT_texture_compression_s3tc")) {
             if(r_ext_compressed_textures->value) {
-                glConfig.textureCompression = TC_S3TC;
-                CL_RefPrintf(PRINT_ALL, "...using GL_S3_s3tc\n");
+                glConfig.textureCompression = TC_S3TC_ARB;
+                CL_RefPrintf(PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");
             } else {
-                CL_RefPrintf(PRINT_ALL, "...ignoring GL_S3_s3tc\n");
+                CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n");
             }
         } else {
-            CL_RefPrintf(PRINT_ALL, "...GL_S3_s3tc not found\n");
+            CL_RefPrintf(PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n");
         }
-    }
 
-    // GL_EXT_texture_env_add
-    glConfig.textureEnvAddAvailable = false;
-
-    if(GLimp_HaveExtension("EXT_texture_env_add")) {
-        if(r_ext_texture_env_add->integer) {
-            glConfig.textureEnvAddAvailable = true;
-            CL_RefPrintf(PRINT_ALL, "...using GL_EXT_texture_env_add\n");
-        } else {
-            glConfig.textureEnvAddAvailable = false;
-            CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n");
-        }
-    } else {
-        CL_RefPrintf(PRINT_ALL, "...GL_EXT_texture_env_add not found\n");
-    }
-
-    // GL_ARB_multitexture
-    qglMultiTexCoord2fARB = nullptr;
-    qglActiveTextureARB = nullptr;
-    qglClientActiveTextureARB = nullptr;
-
-    if(GLimp_HaveExtension("GL_ARB_multitexture")) {
-        if(r_ext_multitexture->value) {
-            qglMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC)
-                                    SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-            qglActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)
-                                  SDL_GL_GetProcAddress("glActiveTextureARB");
-            qglClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC)
-                                        SDL_GL_GetProcAddress("glClientActiveTextureARB");
-
-            if(qglActiveTextureARB) {
-                sint glint = 16; //Dushan
-                qglGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glint);
-                glConfig.numTextureUnits = static_cast<sint>(glint);
-
-                if(glConfig.numTextureUnits > 1) {
-                    CL_RefPrintf(PRINT_ALL, "...using GL_ARB_multitexture\n");
+        // GL_S3_s3tc ... legacy extension before GL_EXT_texture_compression_s3tc.
+        if(glConfig.textureCompression == TC_NONE) {
+            if(GLimp_HaveExtension("GL_S3_s3tc")) {
+                if(r_ext_compressed_textures->value) {
+                    glConfig.textureCompression = TC_S3TC;
+                    CL_RefPrintf(PRINT_ALL, "...using GL_S3_s3tc\n");
                 } else {
-                    qglMultiTexCoord2fARB = nullptr;
-                    qglActiveTextureARB = nullptr;
-                    qglClientActiveTextureARB = nullptr;
-                    CL_RefPrintf(PRINT_ALL,
-                                 "...not using GL_ARB_multitexture, < 2 texture units\n");
+                    CL_RefPrintf(PRINT_ALL, "...ignoring GL_S3_s3tc\n");
                 }
-            }
-        } else {
-            CL_RefPrintf(PRINT_ALL, "...ignoring GL_ARB_multitexture\n");
-        }
-    } else {
-        CL_RefPrintf(PRINT_ALL, "...GL_ARB_multitexture not found\n");
-    }
-
-
-    // GL_EXT_compiled_vertex_array
-    if(GLimp_HaveExtension("GL_EXT_compiled_vertex_array")) {
-        if(r_ext_compiled_vertex_array->value) {
-            CL_RefPrintf(PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n");
-            qglLockArraysEXT = (void (APIENTRY *)(sint,
-                                                  sint)) SDL_GL_GetProcAddress("glLockArraysEXT");
-            qglUnlockArraysEXT = (void (APIENTRY *)(void))
-                                 SDL_GL_GetProcAddress("glUnlockArraysEXT");
-
-            if(!qglLockArraysEXT || !qglUnlockArraysEXT) {
-                Com_Error(ERR_FATAL, "bad getprocaddress");
-            }
-        } else {
-            CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n");
-        }
-    } else {
-        CL_RefPrintf(PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n");
-    }
-
-    glConfig.textureFilterAnisotropic = false;
-
-    if(GLimp_HaveExtension("GL_EXT_texture_filter_anisotropic")) {
-        if(r_ext_texture_filter_anisotropic->integer) {
-            qglGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
-                           static_cast<sint *>(&glConfig.maxAnisotropy));
-
-            if(glConfig.maxAnisotropy <= 0) {
-                CL_RefPrintf(PRINT_ALL,
-                             "...GL_EXT_texture_filter_anisotropic not properly supported!\n");
-                glConfig.maxAnisotropy = 0;
             } else {
-                CL_RefPrintf(PRINT_ALL,
-                             "...using GL_EXT_texture_filter_anisotropic (max: %i)\n",
-                             glConfig.maxAnisotropy);
-                glConfig.textureFilterAnisotropic = true;
+                CL_RefPrintf(PRINT_ALL, "...GL_S3_s3tc not found\n");
+            }
+        }
+
+        // GL_EXT_texture_env_add
+        glConfig.textureEnvAddAvailable = false;
+
+        if(GLimp_HaveExtension("EXT_texture_env_add")) {
+            if(r_ext_texture_env_add->integer) {
+                glConfig.textureEnvAddAvailable = true;
+                CL_RefPrintf(PRINT_ALL, "...using GL_EXT_texture_env_add\n");
+            } else {
+                glConfig.textureEnvAddAvailable = false;
+                CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n");
             }
         } else {
-            CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n");
+            CL_RefPrintf(PRINT_ALL, "...GL_EXT_texture_env_add not found\n");
         }
-    } else {
-        CL_RefPrintf(PRINT_ALL,
-                     "...GL_EXT_texture_filter_anisotropic not found\n");
+
+        // GL_ARB_multitexture
+        qglMultiTexCoord2fARB = nullptr;
+        qglActiveTextureARB = nullptr;
+        qglClientActiveTextureARB = nullptr;
+
+        if(GLimp_HaveExtension("GL_ARB_multitexture")) {
+            if(r_ext_multitexture->value) {
+                qglMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC)
+                                        SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+                qglActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)
+                                      SDL_GL_GetProcAddress("glActiveTextureARB");
+                qglClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC)
+                                            SDL_GL_GetProcAddress("glClientActiveTextureARB");
+
+                if(qglActiveTextureARB) {
+                    sint glint = 16; //Dushan
+                    qglGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glint);
+                    glConfig.numTextureUnits = static_cast<sint>(glint);
+
+                    if(glConfig.numTextureUnits > 1) {
+                        CL_RefPrintf(PRINT_ALL, "...using GL_ARB_multitexture\n");
+                    } else {
+                        qglMultiTexCoord2fARB = nullptr;
+                        qglActiveTextureARB = nullptr;
+                        qglClientActiveTextureARB = nullptr;
+                        CL_RefPrintf(PRINT_ALL,
+                                     "...not using GL_ARB_multitexture, < 2 texture units\n");
+                    }
+                }
+            } else {
+                CL_RefPrintf(PRINT_ALL, "...ignoring GL_ARB_multitexture\n");
+            }
+        } else {
+            CL_RefPrintf(PRINT_ALL, "...GL_ARB_multitexture not found\n");
+        }
+
+
+        // GL_EXT_compiled_vertex_array
+        if(GLimp_HaveExtension("GL_EXT_compiled_vertex_array")) {
+            if(r_ext_compiled_vertex_array->value) {
+                CL_RefPrintf(PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n");
+                qglLockArraysEXT = (void (APIENTRY *)(sint,
+                                                      sint)) SDL_GL_GetProcAddress("glLockArraysEXT");
+                qglUnlockArraysEXT = (void (APIENTRY *)(void))
+                                     SDL_GL_GetProcAddress("glUnlockArraysEXT");
+
+                if(!qglLockArraysEXT || !qglUnlockArraysEXT) {
+                    Com_Error(ERR_FATAL, "bad getprocaddress");
+                }
+            } else {
+                CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n");
+            }
+        } else {
+            CL_RefPrintf(PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n");
+        }
+
+        glConfig.textureFilterAnisotropic = false;
+
+        if(GLimp_HaveExtension("GL_EXT_texture_filter_anisotropic")) {
+            if(r_ext_texture_filter_anisotropic->integer) {
+                qglGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
+                               static_cast<sint *>(&glConfig.maxAnisotropy));
+
+                if(glConfig.maxAnisotropy <= 0) {
+                    CL_RefPrintf(PRINT_ALL,
+                                 "...GL_EXT_texture_filter_anisotropic not properly supported!\n");
+                    glConfig.maxAnisotropy = 0;
+                } else {
+                    CL_RefPrintf(PRINT_ALL,
+                                 "...using GL_EXT_texture_filter_anisotropic (max: %i)\n",
+                                 glConfig.maxAnisotropy);
+                    glConfig.textureFilterAnisotropic = true;
+                }
+            } else {
+                CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n");
+            }
+        } else {
+            CL_RefPrintf(PRINT_ALL,
+                         "...GL_EXT_texture_filter_anisotropic not found\n");
+        }
     }
 }
 

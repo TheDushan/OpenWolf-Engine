@@ -139,11 +139,17 @@ void idCmdBufferSystemLocal::ExecuteText(sint exec_when, pointer text) {
 
         case EXEC_NOW:
             if(text && strlen(text) > 0) {
-                Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
+                if(developer->integer) {
+                    Com_Printf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
+                }
+
                 cmdSystemLocal.ExecuteString(text);
             } else {
                 Execute();
-                Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", cmd_text.data);
+
+                if(developer->integer) {
+                    Com_Printf(S_COLOR_YELLOW "EXEC_NOW %s\n", cmd_text.data);
+                }
             }
 
             break;

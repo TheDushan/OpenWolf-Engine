@@ -120,8 +120,10 @@ trans_t *idClientLocalizationSystemLocal::LookupTrans(valueType *original,
     for(t = transTable[hash]; t; prev = t, t = t->next) {
         if(!Q_stricmp(original, t->original)) {
             if(isLoading) {
-                Com_DPrintf(S_COLOR_YELLOW "WARNING: Duplicate string found: \"%s\"\n",
-                            original);
+                if(developer->integer) {
+                    Com_Printf(S_COLOR_YELLOW "WARNING: Duplicate string found: \"%s\"\n",
+                               original);
+                }
             }
 
             return t;
@@ -137,7 +139,9 @@ trans_t *idClientLocalizationSystemLocal::LookupTrans(valueType *original,
     }
 
     if(cl_debugTranslation->integer >= 1 && !isLoading) {
-        Com_Printf("Missing translation: \'%s\'\n", original);
+        if(developer->integer) {
+            Com_Printf("Missing translation: \'%s\'\n", original);
+        }
     }
 
     // see if we want to save out the translation table everytime a string is added

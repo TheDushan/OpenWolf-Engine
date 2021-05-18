@@ -425,6 +425,9 @@ void Com_InitCommonConsoleVars(void) {
     sint index, pid;
     valueType *s;
 
+    developer = cvarSystem->Get("developer", "0", CVAR_TEMP,
+                                "Enable/disable (1/0) developer mode, allows cheats and so on.");
+
     timegraph = cvarSystem->Get("timegraph", "0", CVAR_CHEAT,
                                 "description");
     debuggraph = cvarSystem->Get("debuggraph", "0", CVAR_CHEAT,
@@ -874,9 +877,6 @@ void Com_InitCommonConsoleVars(void) {
 
     // Gordon: no need to latch this in ET, our recoil is framerate independant
     //  com_blood = cvarSystem->Get ("com_blood", "1", CVAR_ARCHIVE, "Enable blood mist effects."); // Gordon: no longer used?
-
-    developer = cvarSystem->Get("developer", "0", CVAR_TEMP,
-                                "Enable/disable (1/0) developer mode, allows cheats and so on.");
 
     timescale = cvarSystem->Get("timescale", "1",
                                 CVAR_CHEAT | CVAR_SYSTEMINFO,

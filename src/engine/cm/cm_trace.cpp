@@ -2566,14 +2566,19 @@ void idCollisionModelManagerLocal::DrawDebugSurface(void (*drawPoly)(
             if(w) {
                 if(facet == debugFacet) {
                     drawPoly(4, w->numpoints, w->p[0]);
-                    Com_DPrintf("blue facet has %d border planes\n", facet->numBorders);
+
+                    if(developer->integer) {
+                        Com_Printf("blue facet has %d border planes\n", facet->numBorders);
+                    }
                 } else {
                     drawPoly(1, w->numpoints, w->p[0]);
                 }
 
                 FreeWinding(w);
             } else {
-                Com_DPrintf("winding chopped away by border planes\n");
+                if(developer->integer) {
+                    Com_Printf("winding chopped away by border planes\n");
+                }
             }
         }
     }

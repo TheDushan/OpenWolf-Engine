@@ -56,9 +56,13 @@ static __attribute__((format(printf, 2,
     } else if(print_level == PRINT_WARNING) {
         // yellow
         Com_Printf(S_COLOR_YELLOW "%s", msg);
-    } else if(print_level == PRINT_DEVELOPER) {
-        // red
-        Com_DPrintf(S_COLOR_RED "%s", msg);
+    }
+
+    if(developer->integer) {
+        if(print_level == PRINT_DEVELOPER) {
+            // red
+            Com_Printf(S_COLOR_RED "%s", msg);
+        }
     }
 }
 
