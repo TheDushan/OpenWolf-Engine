@@ -582,7 +582,8 @@ enum sysEventType_t {
     SYSE_MOUSE,                 // evValue and evValue2 are reletive signed x / y moves
     SYSE_JOYSTICK_AXIS,         // evValue is an axis number and evValue2 is the current state (-127 to 127)
     SYSE_CONSOLE,               // evPtr is a valueType*
-    SYSE_PACKET                 // evPtr is a netadr_t followed by data bytes to evPtrLength
+    SYSE_PACKET,                 // evPtr is a netadr_t followed by data bytes to evPtrLength
+    SYSE_MAX
 };
 
 typedef struct sysEvent_s {

@@ -2355,6 +2355,27 @@ static sint         eventHead = 0;
 static sint         eventTail = 0;
 static uchar8        sys_packetReceived[ MAX_MSGLEN ];
 
+static pointer Com_ShowEventName(sysEventType_t eventType) {
+
+    static pointer eventNames[SYSE_MAX] = {
+        "SE_NONE",
+        "SE_KEY",
+        "SE_CHAR",
+        "SE_MOUSE",
+        "SE_JOYSTICK_AXIS",
+        "SE_CONSOLE",
+        "SE_PACKET"
+    };
+
+    if (eventType >= SYSE_MAX) {
+        return "SE_UNKNOWN";
+    }
+    else {
+        return eventNames[eventType];
+    }
+}
+
+
 /*
 ================
 Com_QueueEvent
@@ -2364,12 +2385,12 @@ Ptr should either be null, or point to a block of data that can
 be freed by the game later.
 ================
 */
-void Com_QueueEvent( sint time, sysEventType_t type, sint value, sint value2, sint ptrLength, void* ptr )
+void Com_QueueEvent( sint evTime, sysEventType_t evType, sint value, sint value2, sint ptrLength, void* ptr )
 {
     sysEvent_t*  ev;
 
     // combine mouse movement with previous mouse event
-    if( type == SYSE_MOUSE && eventHead != eventTail )
+    if(evType == SYSE_MOUSE && eventHead != eventTail )
     {
         ev = &eventQueue[( eventHead + MAX_QUEUED_EVENTS - 1 ) & MASK_QUEUED_EVENTS];
 
@@ -2385,7 +2406,8 @@ void Com_QueueEvent( sint time, sysEventType_t type, sint value, sint value2, si
 
     if( eventHead - eventTail >= MAX_QUEUED_EVENTS )
     {
-        Com_DPrintf( "Com_QueueEvent: overflow\n" );
+        Com_Printf("Com_ShowEventName(%s, time=%i): overflow\n", Com_ShowEventName(evType), evTime);
+
         // we are discarding an event, but don't leak memory
         if( ev->evPtr )
         {
@@ -2398,11 +2420,11 @@ void Com_QueueEvent( sint time, sysEventType_t type, sint value, sint value2, si
 
     if( time == 0 )
     {
-        time = idsystem->Milliseconds();
+        evTime = idsystem->Milliseconds();
     }
 
-    ev->evTime = time;
-    ev->evType = type;
+    ev->evTime = evTime;
+    ev->evType = evType;
     ev->evValue = value;
     ev->evValue2 = value2;
     ev->evPtrLength = ptrLength;
