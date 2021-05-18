@@ -85,7 +85,8 @@ void idClientBrowserSystemLocal::ServersResponsePacket(
     uchar8 *buffptr;
     uchar8 *buffend;
 
-    Com_Printf("idClientBrowserSystemLocal::ServersResponsePacket\n");
+    Com_Printf("idClientBrowserSystemLocal::ServersResponsePacket from %s\n",
+               networkSystem->AdrToString(*from));
 
     if(cls.numglobalservers == -1) {
         // state to detect lack of servers or lack of response

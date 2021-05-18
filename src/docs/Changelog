@@ -1,6 +1,7 @@
 2021-05-18 Dusan Jocic <dusanjocic@msn>
 	* [Engine] Show what system event overflow
 	* [Engine] Removed Com_DPrintf, there is no real reason to have it inside the engine when there is developer convar
+	* [Client] Show from what address server response with the packet
 
 2021-05-16 Dusan Jocic <dusanjocic@msn.com>
 	* [Renderer] Added support for the Wavefront .OBJ model file format
