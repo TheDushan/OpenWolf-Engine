@@ -54,15 +54,15 @@ typedef struct {
     sint         vislines;  // in scanlines
 
     sint
-        times[NUM_CON_TIMES];  // cls.realtime time the line was generated
-        // for transparent notify lines
+    times[NUM_CON_TIMES];  // cls.realtime time the line was generated
+    // for transparent notify lines
     vec4_t       color;
 
     sint         acLength; // Arnout: autocomplete buffer length
 } console_t;
 
 extern console_t    con[NUMBER_TABS];
-extern console_t* activeCon;
+extern console_t *activeCon;
 
 //
 // idClientConsoleSystemAPI

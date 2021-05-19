@@ -591,7 +591,7 @@ void idFileSystemLocal::Rmdir(pointer osPath, bool recursive) {
             Remove(fileOsPath);
         }
 
-        FreeFileList(filesToRemove);
+        fileSystemLocal.FreeFileList(filesToRemove);
 
         valueType **directoriesToRemove = idsystem->ListFiles(osPath, "/", nullptr,
                                           &numfiles, false);
@@ -608,7 +608,7 @@ void idFileSystemLocal::Rmdir(pointer osPath, bool recursive) {
             Rmdir(directoryOsPath, true);
         }
 
-        FreeFileList(directoriesToRemove);
+        fileSystemLocal.FreeFileList(directoriesToRemove);
     }
 
     rmdir(osPath);
@@ -662,7 +662,7 @@ bool idFileSystemLocal::SV_FileExists(pointer file) {
     FILE *f;
     valueType *testpath;
 
-    testpath = BuildOSPath(fs_homepath->string, file, "");
+    testpath = fileSystemLocal.BuildOSPath(fs_homepath->string, file, "");
     testpath[strlen(testpath) - 1] = '\0';
 
     f = fopen(testpath, "rb");
@@ -1020,7 +1020,8 @@ sint idFileSystemLocal::FOpenFileDirect(pointer filename,
     *f = HandleForFile();
     fsh[*f].zipFile = false;
 
-    ospath = BuildOSPath(fs_homepath->string, fs_gamedir, filename);
+    ospath = fileSystemLocal.BuildOSPath(fs_homepath->string, fs_gamedir,
+                                         filename);
 
     if(fs_debug->integer) {
         Com_Printf("idFileSystemLocal::FOpenFileDirect: %s\n", ospath);
@@ -1063,13 +1064,14 @@ fileHandle_t idFileSystemLocal::FOpenFileUpdate(pointer filename,
     f = HandleForFile();
     fsh[f].zipFile = false;
 
-    ospath = BuildOSPath(fs_homepath->string, fs_gamedir, filename);
+    ospath = fileSystemLocal.BuildOSPath(fs_homepath->string, fs_gamedir,
+                                         filename);
 
     if(fs_debug->integer) {
         Com_Printf("idFileSystemLocal::FOpenFileWrite: %s\n", ospath);
     }
 
-    if(CreatePath(ospath)) {
+    if(fileSystemLocal.CreatePath(ospath)) {
         return 0;
     }
 
@@ -1656,7 +1658,8 @@ sint idFileSystemLocal::DeleteDir(valueType *dirname, bool nonEmpty,
     }
 
     if(recursive) {
-        ospath = BuildOSPath(fs_homepath->string, fs_gamedir, dirname);
+        ospath = fileSystemLocal.BuildOSPath(fs_homepath->string, fs_gamedir,
+                                             dirname);
         pFiles = idsystem->ListFiles(ospath, root, nullptr, &nFiles, false);
 
         for(i = 0; i < nFiles; i++) {
@@ -1678,12 +1681,14 @@ sint idFileSystemLocal::DeleteDir(valueType *dirname, bool nonEmpty,
     }
 
     if(nonEmpty) {
-        ospath = BuildOSPath(fs_homepath->string, fs_gamedir, dirname);
+        ospath = fileSystemLocal.BuildOSPath(fs_homepath->string, fs_gamedir,
+                                             dirname);
         pFiles = idsystem->ListFiles(ospath, nullptr, nullptr, &nFiles, false);
 
         for(i = 0; i < nFiles; i++) {
-            ospath = BuildOSPath(fs_homepath->string, fs_gamedir, va("%s/%s", dirname,
-                                 pFiles[i]));
+            ospath = fileSystemLocal.BuildOSPath(fs_homepath->string, fs_gamedir,
+                                                 va("%s/%s", dirname,
+                                                    pFiles[i]));
 
             if(remove(ospath) == -1) {       // failure
                 return 0;
@@ -1693,7 +1698,8 @@ sint idFileSystemLocal::DeleteDir(valueType *dirname, bool nonEmpty,
         idsystem->FreeFileList(pFiles);
     }
 
-    ospath = BuildOSPath(fs_homepath->string, fs_gamedir, dirname);
+    ospath = fileSystemLocal.BuildOSPath(fs_homepath->string, fs_gamedir,
+                                         dirname);
 
     if(Q_rmdir(ospath) == 0) {
         return 1;
@@ -1797,7 +1803,7 @@ sint idFileSystemLocal::FPrintf(fileHandle_t f, pointer fmt, ...) {
 
     l = strlen(msg);
 
-    r = Write(msg, l, f);
+    r = fileSystemLocal.Write(msg, l, f);
     return r;
 }
 
@@ -1827,13 +1833,13 @@ sint idFileSystemLocal::Read2(void *buffer, sint len, fileHandle_t f) {
 
         fsh[f].streamed = false;
 
-        r = Read(buffer, len, f);
+        r = fileSystemLocal.Read(buffer, len, f);
 
         fsh[f].streamed = true;
 
         return r;
     } else {
-        return Read(buffer, len, f);
+        return fileSystemLocal.Read(buffer, len, f);
     }
 }
 
@@ -2642,7 +2648,8 @@ valueType **idFileSystemLocal::ListFilteredFiles(pointer path,
                       Q_stricmpn(path, "demos", 5)) {
                 continue;
             } else {
-                netpath = BuildOSPath(search->dir->path, search->dir->gamedir, path);
+                netpath = fileSystemLocal.BuildOSPath(search->dir->path,
+                                                      search->dir->gamedir, path);
                 sysFiles = idsystem->ListFiles(netpath, extension, filter, &numSysFiles,
                                                false);
 
@@ -2894,7 +2901,7 @@ uint64 idFileSystemLocal::GetModList(valueType *listbuf, uint64 bufsize) {
             // so it could be in base path, cd path or home path
             // we will try each three of them here (yes, it's a bit messy)
             // NOTE Arnout: what about dropping the current loaded mod as well?
-            path = BuildOSPath(fs_basepath->string, name, "");
+            path = fileSystemLocal.BuildOSPath(fs_basepath->string, name, "");
             nPaks = 0;
             pPaks = idsystem->ListFiles(path, ".pk3", nullptr, &nPaks, false);
             idsystem->FreeFileList(
@@ -2902,7 +2909,7 @@ uint64 idFileSystemLocal::GetModList(valueType *listbuf, uint64 bufsize) {
 
             /* try on home path */
             if(nPaks <= 0) {
-                path = BuildOSPath(fs_homepath->string, name, "");
+                path = fileSystemLocal.BuildOSPath(fs_homepath->string, name, "");
                 nPaks = 0;
                 pPaks = idsystem->ListFiles(path, ".pk3", nullptr, &nPaks, false);
                 idsystem->FreeFileList(pPaks);
@@ -2915,7 +2922,7 @@ uint64 idFileSystemLocal::GetModList(valueType *listbuf, uint64 bufsize) {
                 descPath[0] = '\0';
                 Q_strcpy_s(descPath, name);
                 strcat(descPath, "/description.txt");
-                nDescLen = SV_FOpenFileRead(descPath, &descHandle);
+                nDescLen = fileSystemLocal.SV_FOpenFileRead(descPath, &descHandle);
 
                 if(nDescLen > 0 && descHandle) {
                     FILE *file;
@@ -2927,7 +2934,7 @@ uint64 idFileSystemLocal::GetModList(valueType *listbuf, uint64 bufsize) {
                         descPath[nDescLen] = '\0';
                     }
 
-                    FCloseFile(descHandle);
+                    fileSystemLocal.FCloseFile(descHandle);
                 } else {
                     Q_strcpy_s(descPath, name);
                 }

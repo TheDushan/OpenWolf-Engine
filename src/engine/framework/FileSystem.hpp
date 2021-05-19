@@ -149,117 +149,122 @@ public:
     idFileSystemLocal(void);
     ~idFileSystemLocal(void);
 
-    virtual bool Initialized(void);
-    virtual bool PakIsPure(pack_t *pack);
-    virtual sint LoadStack(void);
-    virtual sint32 HashFileName(pointer fname, uint64 hashSize);
-    virtual fileHandle_t HandleForFile(void);
-    virtual FILE *FileForHandle(fileHandle_t f);
-    virtual void ForceFlush(fileHandle_t f);
-    virtual sint filelength(fileHandle_t f);
-    virtual void ReplaceSeparators(valueType *path);
+    virtual void FCloseFile(fileHandle_t f);
+    virtual sint Delete(valueType *filename);
+    virtual sint Read(void *buffer, sint len, fileHandle_t f);
+    virtual sint Write(const void *buffer, sint len, fileHandle_t h);
+    virtual uint64 GetFileList(pointer path, pointer extension,
+                               valueType *listbuf, uint64 bufsize);
+    virtual sint FOpenFileByMode(pointer qpath, fileHandle_t *f,
+                                 fsMode_t mode);
+    virtual bool FileExists(pointer file);
+    virtual sint ReadFile(pointer qpath, void **buffer);
+    virtual void FreeFile(void *buffer);
+
     virtual valueType *BuildOSPath(pointer base, pointer game, pointer qpath);
-    virtual void BuildOSHomePath(valueType *ospath, sint size, sint qpath);
     virtual sint CreatePath(pointer OSPath_);
     virtual void FSCopyFile(valueType *fromOSPath, valueType *toOSPath);
-    virtual bool Remove(pointer osPath);
-    virtual void HomeRemove(pointer homePath);
-    virtual bool FileExists(pointer file);
-    virtual bool SV_FileExists(pointer file);
-    virtual bool OS_FileExists(pointer file);
     virtual fileHandle_t SV_FOpenFileWrite(pointer filename);
     virtual sint SV_FOpenFileRead(pointer filename, fileHandle_t *fp);
-    virtual void SV_Rename(pointer from, pointer to);
-    virtual void Rename(pointer from, pointer to);
-    virtual void FCloseFile(fileHandle_t f);
     virtual fileHandle_t FOpenFileWrite(pointer filename);
-    virtual fileHandle_t FOpenFileAppend(pointer filename);
-    virtual sint FOpenFileDirect(pointer filename, fileHandle_t *f);
-    virtual fileHandle_t FOpenFileUpdate(pointer filename, sint *length);
     virtual bool FilenameCompare(pointer s1, pointer s2);
-    virtual valueType *ShiftedStrStr(pointer string, pointer substring,
-                                     sint shift);
     virtual valueType *ShiftStr(pointer string, sint shift);
     virtual sint FOpenFileRead(pointer filename, fileHandle_t *file,
                                bool uniqueFILE);
+    virtual sint Seek(fileHandle_t f, sint32 offset, sint origin);
+    virtual bool ComparePaks(valueType *neededpaks, sint len, bool dlstring);
+    virtual void PureServerSetLoadedPaks(pointer pakSums, pointer pakNames);
+    virtual void PureServerSetReferencedPaks(pointer pakSums,
+            pointer pakNames);
+
+    virtual bool Initialized(void);
+    virtual sint LoadStack(void);
+    virtual void ForceFlush(fileHandle_t f);
+    virtual void HomeRemove(pointer homePath);
     virtual sint FOpenFileRead_Filtered(pointer qpath, fileHandle_t *file,
                                         bool uniqueFILE, sint filter_flag);
-    virtual bool CL_ExtractFromPakFile(pointer base, pointer gamedir,
-                                       pointer filename);
-    virtual bool AllowDeletion(valueType *filename);
-    virtual sint DeleteDir(valueType *dirname, bool nonEmpty, bool recursive);
-    virtual sint OSStatFile(valueType *ospath);
-    virtual sint Delete(valueType *filename);
-    virtual sint FPrintf(fileHandle_t f, pointer fmt, ...);
-    virtual sint Read2(void *buffer, sint len, fileHandle_t f);
-    virtual sint Read(void *buffer, sint len, fileHandle_t f);
-    virtual sint Write(const void *buffer, sint len, fileHandle_t h);
     virtual void Printf(fileHandle_t h, pointer fmt, ...);
-    virtual sint Seek(fileHandle_t f, sint32 offset, sint origin);
     virtual sint FileIsInPAK(pointer filename, sint *pChecksum);
-    virtual sint ReadFile(pointer qpath, void **buffer);
-    virtual void FreeFile(void *buffer);
     virtual void WriteFile(pointer qpath, const void *buffer, sint size);
-    virtual pack_t *LoadZipFile(pointer zipfile, pointer basename);
-    virtual sint ReturnPath(pointer zname, valueType *zpath, sint *depth);
-    virtual sint AddFileToList(valueType *name,
-                               valueType *list[MAX_FOUND_FILES], sint nfiles);
-    virtual valueType **ListFilteredFiles(pointer path, pointer extension,
-                                          valueType *filter, uint64 *numfiles);
     virtual valueType **ListFiles(pointer path, pointer extension,
                                   uint64 *numfiles);
     virtual void FreeFileList(valueType **list);
-    virtual uint64 GetFileList(pointer path, pointer extension,
-                               valueType *listbuf, uint64 bufsize);
-    virtual uint CountFileList(valueType **list);
-    virtual valueType **ConcatenateFileLists(valueType **list0,
-            valueType **list1, valueType **list2);
-    virtual uint64 GetModList(valueType *listbuf, uint64 bufsize);
+    virtual void SV_Rename(pointer from, pointer to);
+    virtual void Rename(pointer from, pointer to);
+    virtual fileHandle_t FOpenFileAppend(pointer filename);
+    virtual bool VerifyOfficialPaks(void);
+    virtual void Shutdown(bool closemfp);
+    virtual pointer LoadedPakChecksums(void);
+    virtual pointer LoadedPakNames(void);
+    virtual pointer LoadedPakPureChecksums(void);
+    virtual pointer ReferencedPakNames(void);
+    virtual void ClearPakReferences(sint flags);
+    virtual void Restart(sint checksumFeed);
+    virtual bool ConditionalRestart(sint checksumFeed);
+    virtual sint FTell(fileHandle_t f);
+    virtual void Flush(fileHandle_t f);
+    virtual bool VerifyPak(pointer pak);
+    virtual bool IsFileEmpty(valueType *filename);
+    virtual valueType *GetFullGamePath(valueType *filename);
+    virtual void HomeRmdir(pointer homePath, bool recursive);
+
+    virtual bool idPak(valueType *pak, valueType *base);
+    virtual pointer ReferencedPakChecksums(void);
+    virtual pointer ReferencedPakPureChecksums(void);
+    virtual void InitFilesystem(void);
+
+    virtual bool CL_ExtractFromPakFile(pointer base, pointer gamedir,
+                                       pointer filename);
+    virtual void FilenameCompletion(pointer dir, pointer ext, bool stripExt,
+                                    void(*callback)(pointer s));
+
+    static bool PakIsPure(pack_t *pack);
+    static sint32 HashFileName(pointer fname, uint64 hashSize);
+    static fileHandle_t HandleForFile(void);
+    static FILE *FileForHandle(fileHandle_t f);
+    static sint filelength(fileHandle_t f);
+    static void ReplaceSeparators(valueType *path);
+    static void BuildOSHomePath(valueType *ospath, sint size, sint qpath);
+    static bool Remove(pointer osPath);
+    static bool SV_FileExists(pointer file);
+    static bool OS_FileExists(pointer file);
+    static sint FOpenFileDirect(pointer filename, fileHandle_t *f);
+    static fileHandle_t FOpenFileUpdate(pointer filename, sint *length);
+    static valueType *ShiftedStrStr(pointer string, pointer substring,
+                                    sint shift);
+    static bool AllowDeletion(valueType *filename);
+    static sint DeleteDir(valueType *dirname, bool nonEmpty, bool recursive);
+    static sint OSStatFile(valueType *ospath);
+    static sint FPrintf(fileHandle_t f, pointer fmt, ...);
+    static sint Read2(void *buffer, sint len, fileHandle_t f);
+    static pack_t *LoadZipFile(pointer zipfile, pointer basename);
+    static sint ReturnPath(pointer zname, valueType *zpath, sint *depth);
+    static sint AddFileToList(valueType *name,
+                              valueType *list[MAX_FOUND_FILES], sint nfiles);
+    static valueType **ListFilteredFiles(pointer path, pointer extension,
+                                         valueType *filter, uint64 *numfiles);
+    static uint CountFileList(valueType **list);
+    static valueType **ConcatenateFileLists(valueType **list0,
+                                            valueType **list1, valueType **list2);
+    static uint64 GetModList(valueType *listbuf, uint64 bufsize);
     static void Dir_f(void);
-    virtual void ConvertPath(valueType *s);
-    virtual sint PathCmp(pointer s1, pointer s2);
-    virtual void SortFileList(valueType **filelist, uint64 numfiles);
+    static void ConvertPath(valueType *s);
+    static sint PathCmp(pointer s1, pointer s2);
+    static void SortFileList(valueType **filelist, uint64 numfiles);
     static void NewDir_f(void);
     static void Path_f(void);
     static void TouchFile_f(void);
     static void Which_f(void);
     static sint paksort(const void *a, const void *b);
-    virtual bool IsExt(pointer filename, pointer ext, uint64 namelen);
+    static bool IsExt(pointer filename, pointer ext, uint64 namelen);
     static void AddGameDirectory(pointer path, pointer dir);
-    virtual bool idPak(valueType *pak, valueType *base);
-    virtual bool VerifyOfficialPaks(void);
-    virtual bool ComparePaks(valueType *neededpaks, sint len, bool dlstring);
-    virtual void Shutdown(bool closemfp);
-    virtual void ReorderPurePaks(void);
-    virtual void Startup(pointer gameName);
-    virtual pointer GamePureChecksum(void);
-    virtual pointer LoadedPakChecksums(void);
-    virtual pointer LoadedPakNames(void);
-    virtual pointer LoadedPakPureChecksums(void);
-    virtual pointer ReferencedPakChecksums(void);
-    virtual pointer ReferencedPakNames(void);
-    virtual pointer ReferencedPakPureChecksums(void);
-    virtual void ClearPakReferences(sint flags);
-    virtual void PureServerSetLoadedPaks(pointer pakSums, pointer pakNames);
-    virtual void PureServerSetReferencedPaks(pointer pakSums,
-            pointer pakNames);
-    virtual void InitFilesystem(void);
-    virtual void Restart(sint checksumFeed);
-    virtual bool ConditionalRestart(sint checksumFeed);
-    virtual sint FOpenFileByMode(pointer qpath, fileHandle_t *f,
-                                 fsMode_t mode);
-    virtual sint FTell(fileHandle_t f);
-    virtual void Flush(fileHandle_t f);
-    virtual bool VerifyPak(pointer pak);
-    virtual bool IsPure(void);
-    virtual uint ChecksumOSPath(valueType *OSPath);
-    virtual void FilenameCompletion(pointer dir, pointer ext, bool stripExt,
-                                    void(*callback)(pointer s));
-    virtual pointer GetGameDir(void);
-    virtual bool IsFileEmpty(valueType *filename);
-    virtual valueType *GetFullGamePath(valueType *filename);
-    virtual void Rmdir(pointer osPath, bool recursive);
-    virtual void HomeRmdir(pointer homePath, bool recursive);
+    static void ReorderPurePaks(void);
+    static void Startup(pointer gameName);
+    static pointer GamePureChecksum(void);
+    static bool IsPure(void);
+    static uint ChecksumOSPath(valueType *OSPath);
+    static pointer GetGameDir(void);
+    static void Rmdir(pointer osPath, bool recursive);
 
     static void Restart_f(void);
 };
