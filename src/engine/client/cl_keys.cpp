@@ -357,7 +357,7 @@ void Console_DownEventKey(sint key) {
             consoleHistorySystem->Add(g_consoleField.buffer);
         }
 
-        Con_LineAccept();
+        clientConsoleSystem->LineAccept();
         return;
     }
 
@@ -415,43 +415,43 @@ void Console_DownEventKey(sint key) {
     if(!commandMode) {
         // console tab switching
         if(key == K_LEFTARROW && keys[K_ALT].down) {
-            Con_ConsoleNext(-1);
+            clientConsoleSystem->ConsoleNext(-1);
             return;
         } else if(key == K_RIGHTARROW && keys[K_ALT].down) {
-            Con_ConsoleNext(1);
+            clientConsoleSystem->ConsoleNext(1);
             return;
         }
 
         // console scrolling
         if(key == K_PGUP) {
-            Con_PageUp();
+            clientConsoleSystem->PageUp();
             return;
         }
 
         if(key == K_PGDN) {
-            Con_PageDown();
+            clientConsoleSystem->PageDown();
             return;
         }
 
         if(key == K_MWHEELUP) {
-            Con_PageUp();
+            clientConsoleSystem->PageUp();
 
             // hold <ctrl> to accelerate scrolling
             if(keys[K_CTRL].down) {
-                Con_PageUp();
-                Con_PageUp();
+                clientConsoleSystem->PageUp();
+                clientConsoleSystem->PageUp();
             }
 
             return;
         }
 
         if(key == K_MWHEELDOWN) {
-            Con_PageDown();
+            clientConsoleSystem->PageDown();
 
             // hold <ctrl> to accelerate scrolling
             if(keys[K_CTRL].down) {
-                Con_PageDown();
-                Con_PageDown();
+                clientConsoleSystem->PageDown();
+                clientConsoleSystem->PageDown();
             }
 
             return;
@@ -459,13 +459,13 @@ void Console_DownEventKey(sint key) {
 
         // ctrl-home = top of console
         if(key == K_HOME && keys[K_CTRL].down) {
-            Con_Top();
+            clientConsoleSystem->Top();
             return;
         }
 
         // ctrl-end = bottom of console
         if(key == K_END && keys[K_CTRL].down) {
-            Con_Bottom();
+            clientConsoleSystem->Bottom();
             return;
         }
     }
@@ -853,7 +853,7 @@ void Key_EditBind_f(void) {
             binding)));
     Q_vsprintf_s(buf, sizeof(buf), sizeof(buf), "/bind %s %s", keyq, binding);
 
-    Con_OpenConsole_f();
+    clientConsoleSystem->OpenConsole_f();
     cmdCompletionSystem->Set(&g_consoleField, buf);
     free(buf);
 }
@@ -1156,7 +1156,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
             return;
         }
 
-        Con_ToggleConsole_f();
+        clientConsoleSystem->ToggleConsole_f();
         Key_ClearStates();
         return;
     }
@@ -1203,7 +1203,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
     if(key == K_ESCAPE && down) {
         //If console is active then ESC should close console
         if(cls.keyCatchers & KEYCATCH_CONSOLE) {
-            Con_ToggleConsole_f();
+            clientConsoleSystem->ToggleConsole_f();
             Key_ClearStates();
             return;
         }
@@ -1225,7 +1225,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
             if(cls.state == CA_ACTIVE && !clc.demoplaying) {
                 // Arnout: on request
                 if(cls.keyCatchers & KEYCATCH_CONSOLE) {     // get rid of the console
-                    Con_ToggleConsole_f();
+                    clientConsoleSystem->ToggleConsole_f();
                 } else {
                     uiManager->SetActiveMenu(UIMENU_INGAME);
                 }
@@ -1372,12 +1372,12 @@ static void CL_KeyCharEvents(sint ch) {
         switch(ch) {
             case 'p':
             case 'P':
-                Con_ConsoleNext(-1);
+                clientConsoleSystem->ConsoleNext(-1);
                 return;
 
             case 'n':
             case 'N':
-                Con_ConsoleNext(1);
+                clientConsoleSystem->ConsoleNext(1);
                 return;
         }
     }
@@ -1385,9 +1385,9 @@ static void CL_KeyCharEvents(sint ch) {
     // tab completes command or switches console
     if(ch == '\t') {
         if(keys[K_SHIFT].down) {
-            Con_ConsoleNext(-1);
+            clientConsoleSystem->ConsoleNext(-1);
         } else if(keys[K_CTRL].down) {
-            Con_ConsoleNext(1);
+            clientConsoleSystem->ConsoleNext(1);
         } else {
             sint conNum = activeCon - con;
 
@@ -1405,7 +1405,7 @@ static void CL_KeyCharEvents(sint ch) {
         // console numbers start at one, last one is 10 (accessed through 0)
         sint n = ch == '0' ? 10 : ch - '1';
 
-        Con_ConsoleSwitch(n);
+        clientConsoleSystem->ConsoleSwitch(n);
         return;
     }
 

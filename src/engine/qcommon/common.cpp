@@ -154,7 +154,7 @@ void Com_Printf(pointer fmt, ...) {
     // echo to console if we're not a dedicated server
     if(dedicated && !dedicated->integer) {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-        CL_ConsolePrint(msg);
+        clientConsoleSystem->ConsolePrint(msg);
 #endif
     }
 

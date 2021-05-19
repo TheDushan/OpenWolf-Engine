@@ -609,7 +609,7 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
     }
 
     // console draws next
-    Con_DrawConsole();
+    clientConsoleSystem->DrawConsole();
 
     // debug graph can be drawn on top of anything
     if(debuggraph->integer || timegraph->integer ||

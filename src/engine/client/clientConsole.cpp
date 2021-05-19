@@ -27,7 +27,7 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   cl_console.cpp
+// File name:   clientConsole.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -37,40 +37,33 @@
 
 #include <framework/precompiled.hpp>
 
-sint g_console_field_width = 78;
+idClientConsoleSystemLocal clientConsoleLocal;
+idClientConsoleSystemAPI *clientConsoleSystem = &clientConsoleLocal;
 
-#define CONSOLE_COLOR '7'
-#define DEFAULT_CONSOLE_WIDTH   78
+/*
+===============
+idClientConsoleSystemLocal::idClientConsoleSystemLocal
+===============
+*/
+idClientConsoleSystemLocal::idClientConsoleSystemLocal(void) {
+}
 
-pointer conTabsNames[NUMBER_TABS] = {
-    "All Chat",
-    "System Chat",
-    "Player Chat",
-    "Team Chat"
-};
-
-// color indexes in g_color_table
-const sint consoleColors[] = {
-    1,
-    3,
-    2,
-    5,
-    6
-};
-
-console_t   con[NUMBER_TABS];
-console_t *activeCon = con;
-
-vec4_t          console_highlightcolor = { 0.5, 0.5, 0.2, 0.45 };
+/*
+===============
+idClientConsoleSystemLocal::~idClientConsoleSystemLocal
+===============
+*/
+idClientConsoleSystemLocal::~idClientConsoleSystemLocal(void) {
+}
 
 /*
 ================
-Con_LineAccept
+idClientConsoleSystemLocal::LineAccept
 
 When the user enters a command in the console
 ================
 */
-void Con_LineAccept(void) {
+void idClientConsoleSystemLocal::LineAccept(void) {
     // for commandMode, always use sys-console
     sint conNum = commandMode ? CON_SYS : activeCon - con;
     bool isChat = CON_ISCHAT(conNum);
@@ -143,12 +136,12 @@ void Con_LineAccept(void) {
 
 /*
 ================
-Con_ConsoleSwitch
+idClientConsoleSystemLocal::ConsoleSwitch
 
 Change to console number n
 ================
 */
-void Con_ConsoleSwitch(sint n) {
+void idClientConsoleSystemLocal::ConsoleSwitch(sint n) {
     con[n].displayFrac = activeCon->displayFrac;
     con[n].finalFrac = activeCon->finalFrac;
 
@@ -161,23 +154,32 @@ void Con_ConsoleSwitch(sint n) {
 
 /*
 ================
-Con_ConsoleNext
+idClientConsoleSystemLocal::ConsoleNext
 
 Change to console n steps relative to current console, will wrap around, n can
 be negative in which case it will switch backwards
 ================
 */
-void Con_ConsoleNext(sint n) {
-    Con_ConsoleSwitch((NUMBER_TABS + activeCon - con + n) % NUMBER_TABS);
+void idClientConsoleSystemLocal::ConsoleNext(sint n) {
+    ConsoleSwitch((NUMBER_TABS + activeCon - con + n) % NUMBER_TABS);
 }
 
+/*
+===============
+idClientConsoleSystemLocal::ToggleConsole
+===============
+*/
+void idClientConsoleSystemLocal::ToggleConsole(void) {
+    static_cast<idClientConsoleSystemLocal *>
+    (clientConsoleSystem)->ToggleConsole_f();
+}
 
 /*
 ================
-Con_ToggleConsole_f
+idClientConsoleSystemLocal::ToggleConsole_f
 ================
 */
-void Con_ToggleConsole_f(void) {
+void idClientConsoleSystemLocal::ToggleConsole_f(void) {
     // Can't toggle the console when it's the only thing available
     if(cls.state == CA_DISCONNECTED && cls.keyCatchers == KEYCATCH_CONSOLE) {
         return;
@@ -204,7 +206,7 @@ void Con_ToggleConsole_f(void) {
 
     g_consoleField.widthInChars = g_console_field_width;
 
-    Con_ClearNotify();
+    ClearNotify();
 
     // change to all-console
     activeCon = &con[CON_ALL];
@@ -233,10 +235,10 @@ void Con_ToggleConsole_f(void) {
 
 /*
 ================
-Con_MessageMode_f
+idClientConsoleSystemLocal::MessageMode_f
 ================
 */
-void Con_MessageMode_f(void) {
+void idClientConsoleSystemLocal::MessageMode_f(void) {
     sint i;
 
     chat_team = false;
@@ -248,17 +250,17 @@ void Con_MessageMode_f(void) {
                      chatField.buffer, cmdSystem->Argv(i));
     }
 
-    chatField.cursor += strlen(chatField.buffer);
+    chatField.cursor += ::strlen(chatField.buffer);
 
     cls.keyCatchers ^= KEYCATCH_MESSAGE;
 }
 
 /*
 ================
-Con_MessageMode2_f
+idClientConsoleSystemLocal::MessageMode2_f
 ================
 */
-void Con_MessageMode2_f(void) {
+void idClientConsoleSystemLocal::MessageMode2_f(void) {
     sint i;
 
     chat_team = true;
@@ -270,17 +272,17 @@ void Con_MessageMode2_f(void) {
                      chatField.buffer, cmdSystem->Argv(i));
     }
 
-    chatField.cursor += strlen(chatField.buffer);
+    chatField.cursor += ::strlen(chatField.buffer);
 
     cls.keyCatchers ^= KEYCATCH_MESSAGE;
 }
 
 /*
 ================
-Con_MessageMode3_f
+idClientConsoleSystemLocal::MessageMode3_f
 ================
 */
-void Con_MessageMode3_f(void) {
+void idClientConsoleSystemLocal::MessageMode3_f(void) {
     sint i;
 
     chat_team = false;
@@ -293,44 +295,49 @@ void Con_MessageMode3_f(void) {
                      chatField.buffer, cmdSystem->Argv(i));
     }
 
-    chatField.cursor += strlen(chatField.buffer);
+    chatField.cursor += ::strlen(chatField.buffer);
     cls.keyCatchers ^= KEYCATCH_MESSAGE;
 }
 
 /*
 ================
-Con_CommandMode_f
+idClientConsoleSystemLocal::CommandMode_f
 ================
 */
-void Con_CommandMode_f(void) {
+void idClientConsoleSystemLocal::CommandMode_f(void) {
     cmdCompletionSystem->Clear(&g_consoleField);
     commandMode = true;
     cls.keyCatchers ^= KEYCATCH_CONSOLE;
 }
 
-void Con_OpenConsole_f(void) {
+/*
+================
+idClientConsoleSystemLocal::OpenConsole_f
+================
+*/
+void idClientConsoleSystemLocal::OpenConsole_f(void) {
     if(!(cls.keyCatchers & KEYCATCH_CONSOLE)) {
-        Con_ToggleConsole_f();
+        ToggleConsole_f();
     }
 }
 
 /*
 ===================
-Con_ToggleMenu_f
+idClientConsoleSystemLocal::ToggleMenu_f
 ===================
 */
-void Con_ToggleMenu_f(void) {
+void idClientConsoleSystemLocal::ToggleMenu_f(void) {
     CL_KeyEvent(K_ESCAPE, true, idsystem->Milliseconds());
     CL_KeyEvent(K_ESCAPE, false, idsystem->Milliseconds());
 }
 
 /*
 ================
-Con_Clear_f
+idClientConsoleSystemLocal::Clear_f
 ================
 */
-void Con_Clear_f(void) {
-    sint             i;
+void idClientConsoleSystemLocal::Clear_f(void) {
+    sint i;
 
     for(i = 0; i < CON_TEXTSIZE; i++) {
         activeCon->text[i] = ' ';
@@ -338,38 +345,32 @@ void Con_Clear_f(void) {
                     activeCon->text_color[i]);
     }
 
-    Con_Bottom();               // go to end
+    // go to end
+    clientConsoleLocal.Bottom();
 }
 
-static sint dump_time;
-static sint dump_count;
 /*
 ================
-Con_Dump_f
+idClientConsoleSystemLocal::Dump_f
 
 Save the console contents out to a file
 ================
 */
-void Con_Dump_f(void) {
-    sint         l, x, i;
-    valueType    *line;
+void idClientConsoleSystemLocal::Dump_f(void) {
+    sint l, x, i, bufferlen, ilen, isub;
+    valueType *line, *buffer, filename[MAX_QPATH], *ss, name[MAX_QPATH];
     fileHandle_t f;
-    sint         bufferlen;
-    valueType    *buffer;
-    valueType    filename[MAX_QPATH];
-    valueType    *ss;
-    sint         ilen, isub;
-    valueType    name[MAX_QPATH];
-    console_t    *con;
+    console_t *con;
 
     if(cmdSystem->Argc() == 2) {
         con = &activeCon[CON_ALL];
     } else if(cmdSystem->Argc() == 3) {
         pointer arg = cmdSystem->Argv(2);
         valueType *p;
-        sint n = strtod(arg, &p);
+        sint n = ::strtod(arg, &p);
 
-        if(*p == '\0') { // it is a number argument
+        // it is a number argument
+        if(*p == '\0') {
             if(n < 0 || n >= NUMBER_TABS) {
                 Com_Printf("Invalid console index %d (valid values are "
                            "0-%d)\n", n, NUMBER_TABS - 1);
@@ -398,12 +399,12 @@ void Con_Dump_f(void) {
     }
 
     //name = Cmd_Argv( 1 );
-    strncpy(name, cmdSystem->Argv(1), sizeof(name));
+    ::strncpy(name, cmdSystem->Argv(1), sizeof(name));
 
-    if(!strlen(name)) {
+    if(!::strlen(name)) {
         qtime_t time;
-        const valueType  *count = (dump_time == cls.realtime / 1000) ? va("(%d)",
-                                  dump_count++ + 2) : "";
+        pointer count = (dump_time == cls.realtime / 1000) ? va("(%d)",
+                        dump_count++ + 2) : "";
         Com_RealTime(&time);
 
         Q_vsprintf_s(name, sizeof(name), sizeof(name),
@@ -418,9 +419,9 @@ void Con_Dump_f(void) {
         dump_time = cls.realtime / 1000;
     }
 
-    ss = strstr(name, "logs/");
-    isub = ss ? strlen(ss) : 0;
-    ilen = strlen(name);
+    ss = ::strstr(name, "logs/");
+    isub = ss ? ::strlen(ss) : 0;
+    ilen = ::strlen(name);
 
     if((ilen - isub) != 0) {
         Q_vsprintf_s(filename, sizeof(filename), sizeof(filename), "%s%s", "logs/",
@@ -486,7 +487,7 @@ void Con_Dump_f(void) {
 #else
         Q_strcat(buffer, bufferlen, "\n");
 #endif
-        fileSystem->Write(buffer, strlen(buffer), f);
+        fileSystem->Write(buffer, ::strlen(buffer), f);
     }
 
     Com_Printf(S_COLOR_YELLOW  "Dumped %s-console text to " S_COLOR_RED "%s"
@@ -499,17 +500,14 @@ void Con_Dump_f(void) {
 
 /*
 ================
-Con_Search_f
+idClientConsoleSystemLocal::Search_f
 
 Scroll up to the first console line containing a string
 ================
 */
-void Con_Search_f(void) {
-    sint        l, i, x;
-    valueType   *line;
-    valueType   buffer[MAXPRINTMSG];
-    sint        direction;
-    sint        c = cmdSystem->Argc();
+void idClientConsoleSystemLocal::Search_f(void) {
+    sint l, i, x, direction, c = cmdSystem->Argc();
+    valueType *line, buffer[MAXPRINTMSG];
 
     if(c < 2) {
         Com_Printf("usage: %s <string1> <string2> <...>\n", cmdSystem->Argv(0));
@@ -557,22 +555,17 @@ void Con_Search_f(void) {
     }
 }
 
-
 /*
 ================
-Con_Grep_f
+idClientConsoleSystemLocal::Grep_f
 
 Find all console lines containing a string
 ================
 */
-void Con_Grep_f(void) {
-    sint        l, x, i;
-    valueType   *line;
-    valueType   buffer[1024];
-    valueType   buffer2[1024];
-    valueType   printbuf[CON_TEXTSIZE];
-    valueType  *search;
-    valueType   lastcolor;
+void idClientConsoleSystemLocal::Grep_f(void) {
+    sint l, x, i;
+    valueType *line, buffer[1024], buffer2[1024], printbuf[CON_TEXTSIZE],
+              *search, lastcolor;
 
     if(cmdSystem->Argc() != 2) {
         Com_Printf("usage: grep <string>\n");
@@ -628,8 +621,8 @@ void Con_Grep_f(void) {
         Q_CleanStr(buffer2);
 
         if(Q_stristr(buffer2, search)) {
-            strcat(printbuf, buffer);
-            strcat(printbuf, "\n");
+            ::strcat(printbuf, buffer);
+            ::strcat(printbuf, "\n");
         }
     }
 
@@ -638,32 +631,28 @@ void Con_Grep_f(void) {
     }
 }
 
-
-
 /*
 ================
-Con_ClearNotify
+idClientConsoleSystemLocal::ClearNotify
 ================
 */
-void Con_ClearNotify(void) {
-    sint             i;
+void idClientConsoleSystemLocal::ClearNotify(void) {
+    sint i;
 
     for(i = 0; i < NUM_CON_TIMES; i++) {
         activeCon->times[i] = 0;
     }
 }
 
-
-
 /*
 ================
-Con_CheckResize
+idClientConsoleSystemLocal::CheckResize
 
 If the line width has changed, reformat the buffer.
 ================
 */
-static void Con_CheckResize(console_t *con) {
-    sint      i, j, width, oldwidth, oldtotallines, numlines, numchars;
+void idClientConsoleSystemLocal::CheckResize(console_t *con) {
+    sint i, j, width, oldwidth, oldtotallines, numlines, numchars;
     valueType tbuf[CON_TEXTSIZE];
 
     if(cls.glconfig.vidWidth) {
@@ -680,7 +669,8 @@ static void Con_CheckResize(console_t *con) {
         return;
     }
 
-    if(con->linewidth < 1) {         // video hasn't been initialized yet
+    // video hasn't been initialized yet
+    if(con->linewidth < 1) {
         width = DEFAULT_CONSOLE_WIDTH;
         con->linewidth = width;
         con->totallines = CON_TEXTSIZE / con->linewidth;
@@ -723,59 +713,65 @@ static void Con_CheckResize(console_t *con) {
             }
         }
 
-        Con_ClearNotify();
+        clientConsoleLocal.ClearNotify();
     }
 
     con->current = con->totallines - 1;
     con->display = con->current;
 }
 
-
 /*
 ================
-Con_Init
+idClientConsoleSystemLocal::Init
 ================
 */
-void Con_Init(void) {
-    Com_Printf("----- Console Initialization -------\n");
+void idClientConsoleSystemLocal::Init(void) {
+    Com_Printf("----- idClientConsoleSystemLocal::Init -------\n");
 
     cmdCompletionSystem->Clear(&g_consoleField);
     g_consoleField.widthInChars = g_console_field_width;
 
-    cmdSystem->AddCommand("toggleConsole", Con_ToggleConsole_f,
+    cmdSystem->AddCommand("toggleConsole",
+                          &idClientConsoleSystemLocal::ToggleConsole,
                           "^1Opens or closes the console.");
-    cmdSystem->AddCommand("togglemenu", Con_ToggleMenu_f,
+    cmdSystem->AddCommand("togglemenu",
+                          &idClientConsoleSystemLocal::ToggleMenu_f,
                           "^1Show/hide the menu");
-    cmdSystem->AddCommand("clear", Con_Clear_f, "^1Clear console history.");
-    cmdSystem->AddCommand("condump", Con_Dump_f,
+    cmdSystem->AddCommand("clear", &idClientConsoleSystemLocal::Clear_f,
+                          "^1Clear console history.");
+    cmdSystem->AddCommand("condump", &idClientConsoleSystemLocal::Dump_f,
                           "^1Dumps the contents of the console to a text file.");
-    cmdSystem->AddCommand("search", Con_Search_f,
+    cmdSystem->AddCommand("search", &idClientConsoleSystemLocal::Search_f,
                           "^1Find the text you are looking for.");
-    cmdSystem->AddCommand("searchDown", Con_Search_f,
+    cmdSystem->AddCommand("searchDown", &idClientConsoleSystemLocal::Search_f,
                           "^1Scroll the console to find the text you are looking for.");
-    cmdSystem->AddCommand("grep", Con_Grep_f,
+    cmdSystem->AddCommand("grep", &idClientConsoleSystemLocal::Grep_f,
                           "^1Find the text you are looking for.");
 
     // ydnar: these are deprecated in favor of cgame/ui based version
-    cmdSystem->AddCommand("clMessageMode", Con_MessageMode_f,
+    cmdSystem->AddCommand("clMessageMode",
+                          &idClientConsoleSystemLocal::MessageMode_f,
                           "^1(global chat), without the convenient pop-up box. Also: �say�.");
-    cmdSystem->AddCommand("clMessageMode2", Con_MessageMode2_f,
+    cmdSystem->AddCommand("clMessageMode2",
+                          &idClientConsoleSystemLocal::MessageMode2_f,
                           "^1(teamchat), without the convenient pop-up box. Also: �say_team�.");
-    cmdSystem->AddCommand("clMessageMode3", Con_MessageMode3_f,
+    cmdSystem->AddCommand("clMessageMode3",
+                          &idClientConsoleSystemLocal::MessageMode3_f,
                           "^1(fireteam chat), without the convenient pop-up box.");
-    cmdSystem->AddCommand("commandMode", Con_CommandMode_f, "");
+    cmdSystem->AddCommand("commandMode",
+                          &idClientConsoleSystemLocal::CommandMode_f, "");
 
     Com_Printf("Console initialized.\n");
 }
 
-
 /*
 ===============
-Con_Linefeed
+idClientConsoleSystemLocal::Linefeed
 ===============
 */
-void Con_Linefeed(console_t *con, bool skipnotify) {
-    sint             i;
+void idClientConsoleSystemLocal::Linefeed(console_t *con,
+        bool skipnotify) {
+    sint i;
 
     // mark time for transparent overlay
     if(con->current >= 0) {
@@ -802,16 +798,12 @@ void Con_Linefeed(console_t *con, bool skipnotify) {
     }
 }
 
-#if defined( _WIN32 ) && defined( NDEBUG )
-#pragma optimize( "g", off )    // SMF - msvc totally screws this function up with optimize on
-#endif
-
 /*
 ================
-CL_ConsoleTabsInit
+idClientConsoleSystemLocal::ConsoleTabsInit
 ================
 */
-static void CL_ConsoleTabsInit(void) {
+void idClientConsoleSystemLocal::ConsoleTabsInit(void) {
     sint i;
 
     for(i = 0; i < NUMBER_TABS; ++i) {
@@ -819,7 +811,7 @@ static void CL_ConsoleTabsInit(void) {
             con[i].color[0] = con[i].color[1] = con[i].color[2] = con[i].color[3] =
                                                     1.0f;
             con[i].linewidth = -1;
-            Con_CheckResize(&con[i]);
+            CheckResize(&con[i]);
             con[i].initialized = true;
         }
     }
@@ -827,17 +819,16 @@ static void CL_ConsoleTabsInit(void) {
 
 /*
 ================
-CL_ConsolePrintToTabs
+idClientConsoleSystemLocal::ConsolePrintToTabs
 ================
 */
-static void CL_ConsolePrintToTabs(valueType *txt, console_t *con,
-                                  bool toCgame) {
-    sint      y, l;
+void idClientConsoleSystemLocal::ConsolePrintToTabs(valueType *txt,
+        console_t *con,
+        bool toCgame) {
+    sint y, l, prev; // NERVE - SMF
     valueType c;
-    vec4_t    color;
-    bool      skipnotify = false;    // NERVE - SMF
-    bool      skip_color_string_check = false;
-    sint      prev;      // NERVE - SMF
+    vec4_t color;
+    bool skip_color_string_check = false, skipnotify = false; // NERVE - SMF
 
     // NERVE - SMF - work around for text that shows up in console but not in notify
     if(!Q_strncmp(txt, "[skipnotify]", 12)) {
@@ -856,11 +847,11 @@ static void CL_ConsolePrintToTabs(valueType *txt, console_t *con,
     }
 
     if(!con->initialized) {
-        CL_ConsoleTabsInit();
+        ConsoleTabsInit();
     }
 
     if(toCgame && !skipnotify && !(cls.keyCatchers & KEYCATCH_CONSOLE) &&
-            strncmp(txt, "EXCL: ", 6)) {
+            ::strncmp(txt, "EXCL: ", 6)) {
         // feed the text to cgame
         cmdSystem->SaveCmdContext();
         cmdSystem->TokenizeString(txt);
@@ -910,7 +901,7 @@ static void CL_ConsolePrintToTabs(valueType *txt, console_t *con,
 
         // word wrap
         if(l != con->linewidth && (con->x + l >= con->linewidth)) {
-            Con_Linefeed(con, skipnotify);
+            Linefeed(con, skipnotify);
 
         }
 
@@ -921,21 +912,22 @@ static void CL_ConsolePrintToTabs(valueType *txt, console_t *con,
                 break;
 
             case '\n':
-                Con_Linefeed(con, skipnotify);
+                Linefeed(con, skipnotify);
                 break;
 
             case '\r':
                 con->x = 0;
                 break;
 
-            default:            // display character and advance
+            // display character and advance
+            default:
                 y = con->current % con->totallines;
                 con->text[y * con->linewidth + con->x] = c;
                 Vector4Copy(color, con->text_color[y * con->linewidth + con->x]);
                 con->x++;
 
                 if(con->x >= con->linewidth) {
-                    Con_Linefeed(con, skipnotify);
+                    Linefeed(con, skipnotify);
                 }
 
                 break;
@@ -962,18 +954,17 @@ static void CL_ConsolePrintToTabs(valueType *txt, console_t *con,
 
 /*
 ================
-CL_ConsolePrint
+idClientConsoleSystemLocal::ConsolePrint
 
 Handles cursor positioning, line wrapping, etc
 All console printing must go through this in order to be logged to disk
 If no console is visible, the text will appear at the top of the game window
 ================
 */
-void CL_ConsolePrint(valueType *txt) {
-    sint cmdNum = clc.lastExecutedServerCommand;
-    valueType *cmdStr = clc.serverCommands[cmdNum % MAX_RELIABLE_COMMANDS];
-    sint conNum = CON_SYS;
+void idClientConsoleSystemLocal::ConsolePrint(valueType *txt) {
     static sint lastCmdNum;
+    sint cmdNum = clc.lastExecutedServerCommand, conNum = CON_SYS;
+    valueType *cmdStr = clc.serverCommands[cmdNum % MAX_RELIABLE_COMMANDS];
 
     if(cmdNum > lastCmdNum) {
         if(Q_strncmp(cmdStr, "chat", sizeof "chat" - 1) == 0) {
@@ -985,34 +976,27 @@ void CL_ConsolePrint(valueType *txt) {
 
     lastCmdNum = cmdNum;
 
-    CL_ConsolePrintToTabs(txt, &con[CON_ALL], true);
-    CL_ConsolePrintToTabs(txt, &con[conNum], false);
+    ConsolePrintToTabs(txt, &con[CON_ALL], true);
+    ConsolePrintToTabs(txt, &con[conNum], false);
 }
-
-#if defined( _WIN32 ) && defined( NDEBUG )
-#pragma optimize( "g", on )     // SMF - re-enabled optimization
-#endif
 
 /*
 ==============================================================================
-
 DRAWING
-
 ==============================================================================
 */
 
-
 /*
 ================
-Con_DrawInput
+idClientConsoleSystemLocal::DrawInput
 
 Draw the editline after a ] prompt
 ================
 */
-void Con_DrawInput(void) {
-    sint        y;
-    valueType   prompt[ MAX_STRING_CHARS ];
-    vec4_t  color;
+void idClientConsoleSystemLocal::DrawInput(void) {
+    sint y;
+    valueType prompt[ MAX_STRING_CHARS ];
+    vec4_t color;
     qtime_t realtime;
 
     if(cls.state != CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_CONSOLE)) {
@@ -1044,21 +1028,16 @@ void Con_DrawInput(void) {
                               y + 10, true, true, color[3]);
 }
 
-
 /*
 ================
-Con_DrawNotify
+idClientConsoleSystemLocal::DrawNotify
 
 Draws the last few lines of output transparently over the game top
 ================
 */
-void Con_DrawNotify(void) {
-    sint             x, v;
-    valueType        *text;
-    sint             i;
-    sint             time;
-    sint             skip;
-    sint             currentColor;
+void idClientConsoleSystemLocal::DrawNotify(void) {
+    sint i, time, skip, currentColor, x, v;
+    valueType *text;
 
     currentColor = 7;
     renderSystem->SetColor(g_color_table[currentColor]);
@@ -1121,19 +1100,19 @@ void Con_DrawNotify(void) {
 
             clientLocalizationSystem->TranslateString("say_team:", buf);
             clientScreenSystem->DrawBigString(8, v, buf, 1.0f, false);
-            skip = strlen(buf) + 2;
+            skip = ::strlen(buf) + 2;
         } else if(chat_buddy) {
             valueType buf[128];
 
             clientLocalizationSystem->TranslateString("say_fireteam:", buf);
             clientScreenSystem->DrawBigString(8, v, buf, 1.0f, false);
-            skip = strlen(buf) + 2;
+            skip = ::strlen(buf) + 2;
         } else {
             valueType buf[128];
 
             clientLocalizationSystem->TranslateString("say:", buf);
             clientScreenSystem->DrawBigString(8, v, buf, 1.0f, false);
-            skip = strlen(buf) + 1;
+            skip = ::strlen(buf) + 1;
         }
 
         cmdCompletionSystem->BigDraw(&chatField, skip * BIGCHAR_WIDTH, 232, true,
@@ -1149,24 +1128,17 @@ void Con_DrawNotify(void) {
 
 /*
 ================
-Con_DrawSolidConsole
+idClientConsoleSystemLocal::DrawSolidConsole
 
 Draws the console with the solid background
 ================
 */
-void Con_DrawSolidConsole(float32 frac) {
-    sint            i, x, y;
-    sint            rows;
-    valueType       *text;
-    vec4_t          *text_color;
-    sint            row;
-    sint            lines;
-    vec4_t          currentColor;
-    vec4_t          color;
-    float           currentLuminance = 1.0;
-    bool            currentColorChanged = false;
-    float32         totalwidth;
-    float32         currentWidthLocation = 0;
+void idClientConsoleSystemLocal::DrawSolidConsole(float32 frac) {
+    sint i, x, y, rows, row, lines;
+    vec4_t *text_color, currentColor, color;
+    valueType *text;
+    float32 currentLuminance = 1.0f, totalwidth, currentWidthLocation = 0.0f;
+    bool currentColorChanged = false;
 
     lines = cls.glconfig.vidHeight * frac;
 
@@ -1196,13 +1168,17 @@ void Con_DrawSolidConsole(float32 frac) {
     if(y < 1) {
         y = 0;
     } else {
-        clientScreenSystem->FillRect(10, 10, 620, 1, color);     //top
+        //top
+        clientScreenSystem->FillRect(10, 10, 620, 1, color);
+        //bottom
         clientScreenSystem->FillRect(10, y + 10,
-                                     621, 1, color);     //bottom
+                                     621, 1, color);
+        //left
         clientScreenSystem->FillRect(10, 10, 1,
-                                     y, color);   //left
+                                     y, color);
+        //right
         clientScreenSystem->FillRect(630, 10, 1,
-                                     y, color);  //right
+                                     y, color);
     }
 
 
@@ -1356,48 +1332,46 @@ void Con_DrawSolidConsole(float32 frac) {
     }
 
     // draw the input prompt, user text, and cursor if desired
-    Con_DrawInput();
+    DrawInput();
 
     renderSystem->SetColor(nullptr);
 }
 
 /*
 ==================
-Con_DrawConsole
+idClientConsoleSystemLocal::DrawConsole
 ==================
 */
-void Con_DrawConsole(void) {
+void idClientConsoleSystemLocal::DrawConsole(void) {
     // check for console width changes from a vid mode change
-    Con_CheckResize(activeCon);
+    CheckResize(activeCon);
 
     // if disconnected, render console full screen
     if(cls.state == CA_DISCONNECTED) {
         if(!(cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_CGAME))) {
-            Con_DrawSolidConsole(1.0);
+            DrawSolidConsole(1.0);
             return;
         }
     }
 
     if(activeCon->displayFrac) {
-        Con_DrawSolidConsole(activeCon->displayFrac);
+        DrawSolidConsole(activeCon->displayFrac);
     } else {
         // draw notify lines
         if(cls.state == CA_ACTIVE && con_drawnotify->integer) {
-            Con_DrawNotify();
+            DrawNotify();
         }
     }
 }
 
-//================================================================
-
 /*
 ==================
-Con_RunConsole
+idClientConsoleSystemLocal::RunConsole
 
 Scroll it up or down
 ==================
 */
-void Con_RunConsole(void) {
+void idClientConsoleSystemLocal::RunConsole(void) {
     // decide on the destination height of the console
     if(cls.keyCatchers & KEYCATCH_CONSOLE && !commandMode) {
         activeCon->finalFrac = 0.5f;
@@ -1425,8 +1399,12 @@ void Con_RunConsole(void) {
 
 }
 
-
-void Con_PageUp(void) {
+/*
+================
+idClientConsoleSystemLocal::PageUp
+================
+*/
+void idClientConsoleSystemLocal::PageUp(void) {
     activeCon->display -= 2;
 
     if(activeCon->current - activeCon->display >= activeCon->totallines) {
@@ -1434,7 +1412,12 @@ void Con_PageUp(void) {
     }
 }
 
-void Con_PageDown(void) {
+/*
+================
+idClientConsoleSystemLocal::PageDown
+================
+*/
+void idClientConsoleSystemLocal::PageDown(void) {
     activeCon->display += 2;
 
     if(activeCon->display > activeCon->current) {
@@ -1442,7 +1425,12 @@ void Con_PageDown(void) {
     }
 }
 
-void Con_Top(void) {
+/*
+================
+idClientConsoleSystemLocal::Top
+================
+*/
+void idClientConsoleSystemLocal::Top(void) {
     activeCon->display = activeCon->totallines;
 
     if(activeCon->current - activeCon->display >= activeCon->totallines) {
@@ -1450,17 +1438,26 @@ void Con_Top(void) {
     }
 }
 
-void Con_Bottom(void) {
+/*
+================
+idClientConsoleSystemLocal::Bottom
+================
+*/
+void idClientConsoleSystemLocal::Bottom(void) {
     activeCon->display = activeCon->current;
 }
 
-
-void Con_Close(void) {
+/*
+================
+idClientConsoleSystemLocal::Close
+================
+*/
+void idClientConsoleSystemLocal::Close(void) {
     if(!cl_running->integer) {
         return;
     }
 
-    Con_ClearNotify();
+    ClearNotify();
 
     cls.keyCatchers &= ~KEYCATCH_CONSOLE;
     commandMode = false;

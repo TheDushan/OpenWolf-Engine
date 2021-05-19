@@ -515,7 +515,7 @@ rescan:
     if(!strcmp(cmd, "map_restart")) {
         // clear notify lines and outgoing commands before passing
         // the restart to the cgame
-        Con_ClearNotify();
+        clientConsoleSystem->ClearNotify();
         // reparse the string, because Con_ClearNotify() may have done another cmdSystem->TokenizeString()
         cmdSystem->TokenizeString(s);
         ::memset(cl.cmds, 0, sizeof(cl.cmds));
@@ -808,7 +808,7 @@ void idClientGameSystemLocal::InitCGame(void) {
     t1 = idsystem->Milliseconds();
 
     // put away the console
-    Con_Close();
+    clientConsoleSystem->Close();
 
     // find the current mapname
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
@@ -868,7 +868,7 @@ void idClientGameSystemLocal::InitCGame(void) {
     }
 
     // clear anything that got printed
-    Con_ClearNotify();
+    clientConsoleSystem->ClearNotify();
 
     // Ridah, update the memory usage file
     UpdateLevelHunkUsage();

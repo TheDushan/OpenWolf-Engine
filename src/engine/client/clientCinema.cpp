@@ -1319,7 +1319,7 @@ sint idClientCinemaSystemLocal::PlayCinematic(pointer arg, sint x, sint y,
             cls.state = CA_CINEMATIC;
         }
 
-        Con_Close();
+        clientConsoleSystem->Close();
 
         if(developer->integer) {
             Com_Printf("Setting rawend to %i\n", s_soundtime);

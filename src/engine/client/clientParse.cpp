@@ -695,7 +695,7 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
     sint             cmd;
     valueType           *s;
 
-    Con_Close();
+    clientConsoleSystem->Close();
 
     clc.connectPacketCount = 0;
 

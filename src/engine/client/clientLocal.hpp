@@ -164,72 +164,9 @@ extern sint      cl_connectedToPureServer;
 void            CL_UpdateInfoPacket(netadr_t from);      // DHM - Nerve
 
 //
-// console
-//
-
-void Con_ConsoleSwitch(sint n);
-void Con_ConsoleNext(sint n);
-void Con_LineAccept(void);
-void            Con_Init(void);
-void            Con_Clear_f(void);
-void            Con_ToggleConsole_f(void);
-void            Con_OpenConsole_f(void);
-void            Con_DrawNotify(void);
-void            Con_ClearNotify(void);
-void            Con_RunConsole(void);
-void            Con_DrawConsole(void);
-void            Con_PageUp(void);
-void            Con_PageDown(void);
-void            Con_Top(void);
-void            Con_Bottom(void);
-void            Con_Close(void);
-
-//
 // cl_main.c
 //
 void            CL_WriteDemoMessage(msg_t *msg, sint headerBytes);
 void            CL_RequestMotd(void);
-
-#define NUMBER_TABS 4
-#define CON_ALL 0
-#define CON_SYS 1
-#define CON_CHAT 2
-#define CON_TCHAT 3
-
-// check if this is a chat console
-#define CON_ISCHAT(conNum) (conNum >= CON_CHAT)
-
-#define NUM_CON_TIMES 4
-#define CON_TEXTSIZE 163840
-typedef struct {
-    bool         initialized;
-
-    valueType    text[CON_TEXTSIZE];
-    vec4_t       text_color[CON_TEXTSIZE];
-    sint         current;   // line where next message will be printed
-    sint         x;         // offset in current line for next print
-    sint         display;   // bottom of console displays this line
-
-    sint         linewidth; // characters across screen
-    sint         totallines;    // total lines in console scrollback
-
-    float32      xadjust;    // for wide aspect screens
-
-    float32      displayFrac;    // aproaches finalFrac at scr_conspeed
-    float32      finalFrac;  // 0.0 to 1.0 lines of console to display
-    float32      desiredFrac;    // ydnar: for variable console heights
-
-    sint         vislines;  // in scanlines
-
-    sint
-    times[NUM_CON_TIMES];  // cls.realtime time the line was generated
-    // for transparent notify lines
-    vec4_t       color;
-
-    sint         acLength; // Arnout: autocomplete buffer length
-} console_t;
-
-extern console_t    con[NUMBER_TABS];
-extern console_t *activeCon;
 
 #endif //!__CLIENTLOCAL_HPP__

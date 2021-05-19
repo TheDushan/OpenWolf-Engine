@@ -517,8 +517,6 @@ void            CL_JoystickEvent(sint axis, sint value, sint time);
 
 void            CL_PacketEvent(netadr_t from, msg_t *msg);
 
-void            CL_ConsolePrint(valueType *text);
-
 void            CL_MapLoading(void);
 
 // do a screen update before starting to load a map

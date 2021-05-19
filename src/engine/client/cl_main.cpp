@@ -692,7 +692,7 @@ void CL_PlayDemo_f(void) {
 
     Q_strncpyz(clc.demoName, cmdSystem->Argv(1), sizeof(clc.demoName));
 
-    Con_Close();
+    clientConsoleSystem->Close();
 
     cls.state = CA_CONNECTED;
     clc.demoplaying = true;
@@ -861,7 +861,7 @@ void CL_MapLoading(void) {
         return;
     }
 
-    Con_Close();
+    clientConsoleSystem->Close();
     cls.keyCatchers = 0;
 
     // if we are already connected to the local host, stay connected
@@ -1424,7 +1424,7 @@ void CL_Connect_f(void) {
     serverMainSystem->Frame(0);
 
     CL_Disconnect(true,  "Joining another server");
-    Con_Close();
+    clientConsoleSystem->Close();
 
     Q_strncpyz(cls.servername, server, sizeof(cls.servername));
 
@@ -2954,7 +2954,7 @@ void CL_Frame(sint msec) {
     // advance local effects for next frame
     clientCinemaSystem->RunCinematic();
 
-    Con_RunConsole();
+    clientConsoleSystem->RunConsole();
 
     cls.framecount++;
 }
@@ -3380,7 +3380,7 @@ void CL_GetAutoUpdate(void) {
     serverMainSystem->Frame(0);
 
     CL_Disconnect(true, "Get autoupdate");
-    Con_Close();
+    clientConsoleSystem->Close();
 
     Q_strncpyz(cls.servername, "Auto-Updater", sizeof(cls.servername));
 
@@ -3535,7 +3535,7 @@ CL_Init
 void CL_Init(void) {
     Com_Printf("----- Client Initialization -----\n");
 
-    Con_Init();
+    clientConsoleSystem->Init();
 
     CL_ClearState();
 

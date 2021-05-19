@@ -372,13 +372,15 @@ set( CLIENTLIST_HEADERS
 	${MOUNT_DIR}/client/clientCinema.hpp
 	${MOUNT_DIR}/API/clientLocalization_api.hpp
 	${MOUNT_DIR}/client/clientLocalization.hpp
+	${MOUNT_DIR}/API/clientConsole_api.hpp
+	${MOUNT_DIR}/client/clientConsole.hpp
 )
 
 set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/clientAVI.cpp
 	${MOUNT_DIR}/client/clientGame.cpp
 	${MOUNT_DIR}/client/clientCinema.cpp
-	${MOUNT_DIR}/client/cl_console.cpp
+	${MOUNT_DIR}/client/clientConsole.cpp
 	${MOUNT_DIR}/client/cl_input.cpp
 	${MOUNT_DIR}/client/cl_keys.cpp
 	${MOUNT_DIR}/client/cl_main.cpp
