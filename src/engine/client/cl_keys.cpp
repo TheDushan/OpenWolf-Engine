@@ -1150,6 +1150,56 @@ void CL_KeyEvent(sint key, sint down, sint time) {
         return;
     }
 
+    // are we waiting to clear stats and move to briefing screen
+    //DAJ BUG in dedicated cl_waitForFire don't exist
+    if(down && cl_waitForFire && cl_waitForFire->integer) {
+        // get rid of the console
+        if(cls.keyCatchers & KEYCATCH_CONSOLE) {
+            clientConsoleSystem->ToggleConsole_f();
+        }
+
+        // clear all input controls
+        clientInputSystem->ClearKeys();
+
+        // allow only attack command input
+        kb = keys[key].binding;
+
+        if(!Q_stricmp(kb, "+attack")) {
+            // clear the stats out, ignore the keypress
+            // just remove the stats, but still wait until we're done loading, and player has hit fire to begin playing
+            cvarSystem->Set("g_missionStats", "xx");
+            cvarSystem->Set("cl_waitForFire", "0");
+        }
+
+        // no buttons while waiting
+        return;
+    }
+
+    // are we waiting to begin the level
+    //DAJ BUG in dedicated cl_missionStats don't exist
+    if(down && cl_missionStats && cl_missionStats->string[0] &&
+            cl_missionStats->string[1]) {
+        // get rid of the consol
+        if(cls.keyCatchers & KEYCATCH_CONSOLE) {
+            clientConsoleSystem->ToggleConsole_f();
+        }
+
+        // clear all input controls
+        clientInputSystem->ClearKeys();
+
+        // allow only attack command input
+        kb = keys[key].binding;
+
+        if(!Q_stricmp(kb, "+attack")) {
+            // clear the stats out, ignore the keypress
+            cvarSystem->Set("com_expectedhunkusage", "-1");
+            cvarSystem->Set("g_missionStats", "0");
+        }
+
+        // no buttons while waiting
+        return;
+    }
+
     // console key is hardcoded, so the user can never unbind it
     if(key == K_CONSOLE || (keys[K_SHIFT].down && key == K_ESCAPE)) {
         if(!down) {

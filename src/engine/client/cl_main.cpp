@@ -1008,9 +1008,9 @@ void CL_Disconnect(bool showMainMenu, pointer reason) {
         }
 
         CL_AddReliableCommand(pCmd);
-        CL_WritePacket();
-        CL_WritePacket();
-        CL_WritePacket();
+        clientInputSystem->WritePacket();
+        clientInputSystem->WritePacket();
+        clientInputSystem->WritePacket();
     }
 
     CL_ClearState();
@@ -1970,9 +1970,9 @@ void CL_DownloadsComplete(void) {
     // set pure checksums
     CL_SendPureChecksums();
 
-    CL_WritePacket();
-    CL_WritePacket();
-    CL_WritePacket();
+    clientInputSystem->WritePacket();
+    clientInputSystem->WritePacket();
+    clientInputSystem->WritePacket();
 }
 
 /*
@@ -2937,7 +2937,7 @@ void CL_Frame(sint msec) {
     }
 
     // send intentions now
-    CL_SendCmd();
+    clientInputSystem->SendCmd();
 
     // resend a connection request if necessary
     CL_CheckForResend();
@@ -3543,7 +3543,7 @@ void CL_Init(void) {
 
     cls.realtime = 0;
 
-    CL_InitInput();
+    clientInputSystem->InitInput();
 
     Q_strncpyz(cls.autoupdateServerNames[0], AUTOUPDATE_SERVER1_NAME,
                MAX_QPATH);

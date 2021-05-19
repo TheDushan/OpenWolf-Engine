@@ -2711,12 +2711,12 @@ sint Com_EventLoop( void )
                 break;
             case SYSE_MOUSE:
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                CL_MouseEvent( ev.evValue, ev.evValue2, ev.evTime );
+                clientInputSystem->MouseEvent( ev.evValue, ev.evValue2, ev.evTime );
 #endif
                 break;
             case SYSE_JOYSTICK_AXIS:
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                CL_JoystickEvent( ev.evValue, ev.evValue2, ev.evTime );
+                clientInputSystem->JoystickEvent( ev.evValue, ev.evValue2, ev.evTime );
 #endif
                 break;
             case SYSE_CONSOLE:

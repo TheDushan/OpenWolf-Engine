@@ -158,6 +158,8 @@ extern "C"
 #include <client/clientLocalization.hpp>
 #include <API/clientConsole_api.hpp>
 #include <client/clientConsole.hpp>
+#include <API/clientInput_api.hpp>
+#include <client/clientInput.hpp>
 
 #include <cm/cm_local.hpp>
 

@@ -511,10 +511,6 @@ void            CL_CharEvent(sint key);
 
 // valueType events are for field typing, not game control
 
-void            CL_MouseEvent(sint dx, sint dy, sint time);
-
-void            CL_JoystickEvent(sint axis, sint value, sint time);
-
 void            CL_PacketEvent(netadr_t from, msg_t *msg);
 
 void            CL_MapLoading(void);
@@ -553,10 +549,6 @@ void            Key_KeynameCompletion(void(*callback)(pointer s));
 // for keyname autocompletion
 
 void            Key_WriteBindings(fileHandle_t f);
-
-void            SCR_DebugGraph(float32 value,
-                               sint color);   // FIXME: move logging to common?
-
 
 // AVI files have the start of pixel lines 4 uchar8-aligned
 #define AVI_LINE_PADDING 4

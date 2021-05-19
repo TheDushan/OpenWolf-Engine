@@ -29,7 +29,7 @@
 #ifndef __CLIENTLOCALIZATION_HPP__
 #define __CLIENTLOCALIZATION_HPP__
 
-#define FILE_HASH_SIZE      1024
+#define FILE_HASH_SIZE_      1024
 #define MAX_VA_STRING       32000
 #define MAX_TRANS_STRING    4096
 
@@ -43,7 +43,7 @@ typedef struct trans_s {
     bool        fromFile;
 } trans_t;
 
-static trans_t *transTable[FILE_HASH_SIZE];
+static trans_t *transTable[FILE_HASH_SIZE_];
 
 //
 // idClientLocalizationSystemLocal

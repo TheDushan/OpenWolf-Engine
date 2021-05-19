@@ -27,7 +27,7 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   cl_input.cpp
+// File name:   clientInput.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -37,48 +37,40 @@
 
 #include <framework/precompiled.hpp>
 
-uint frame_msec;
-sint old_com_frameTime;
+idClientInputSystemLocal clientInputLocal;
+idClientInputSystemAPI *clientInputSystem = &clientInputLocal;
 
 /*
-===============================================================================
-
-KEY BUTTONS
-
-Continuous button event tracking is complicated by the fact that two different
-input sources (say, mouse button 1 and the control key) can both press the
-same button, but the button should only be released when both of the
-pressing key have been released.
-
-When a key event issues a button command (+forward, +attack, etc), it appends
-its key number as argv(1) so it can be matched up with the release.
-
-argv(2) will be set to the time the event happened, which allows exact
-control even at low framerates when the down and up events may both get qued
-at the same time.
-
-===============================================================================
+===============
+idClientInputSystemLocal::idClientInputSystemLocal
+===============
 */
+idClientInputSystemLocal::idClientInputSystemLocal(void) {
+}
 
-static kbutton_t kb[NUM_BUTTONS];
+/*
+===============
+idClientInputSystemLocal::~idClientInputSystemLocal
+===============
+*/
+idClientInputSystemLocal::~idClientInputSystemLocal(void) {
+}
 
-// Arnout: doubleTap button mapping
-static kbuttons_t dtmapping[] = {
-    (kbuttons_t) - 1,                // DT_NONE
-    KB_MOVELEFT,                // DT_MOVELEFT
-    KB_MOVERIGHT,               // DT_MOVERIGHT
-    KB_FORWARD,                 // DT_FORWARD
-    KB_BACK,                    // DT_BACK
-    KB_WBUTTONS4,               // DT_LEANLEFT
-    KB_WBUTTONS5,               // DT_LEANRIGHT
-    KB_UP                       // DT_UP
-};
-
-void IN_MLookDown(void) {
+/*
+===============
+idClientInputSystemLocal::MLookDown
+===============
+*/
+void idClientInputSystemLocal::MLookDown(void) {
     kb[KB_MLOOK].active = true;
 }
 
-void IN_MLookUp(void) {
+/*
+===============
+idClientInputSystemLocal::MLookUp
+===============
+*/
+void idClientInputSystemLocal::MLookUp(void) {
     kb[KB_MLOOK].active = false;
 
     if(!cl_freelook->integer) {
@@ -86,20 +78,27 @@ void IN_MLookUp(void) {
     }
 }
 
-void IN_KeyDown(kbutton_t *b) {
+/*
+===============
+idClientInputSystemLocal::KeyDown
+===============
+*/
+void idClientInputSystemLocal::KeyDown(kbutton_t *b) {
     sint k;
     pointer c;
 
     c = cmdSystem->Argv(1);
 
     if(c[0]) {
-        k = atoi(c);
+        k = ::atoi(c);
     } else {
-        k = -1;                 // typed manually at the console for continuous down
+        // typed manually at the console for continuous down
+        k = -1;
     }
 
     if(k == b->down[0] || k == b->down[1]) {
-        return;                 // repeating key
+        // repeating key
+        return;
     }
 
     if(!b->down[0]) {
@@ -112,7 +111,8 @@ void IN_KeyDown(kbutton_t *b) {
     }
 
     if(b->active) {
-        return;                 // still down
+        // still down
+        return;
     }
 
     // save timestamp for partial frame summing
@@ -123,7 +123,12 @@ void IN_KeyDown(kbutton_t *b) {
     b->wasPressed = true;
 }
 
-void IN_KeyUp(kbutton_t *b) {
+/*
+===============
+idClientInputSystemLocal::idClientInputSystemLocal
+===============
+*/
+void idClientInputSystemLocal::KeyUp(kbutton_t *b) {
     sint k;
     pointer c;
     uint uptime;
@@ -166,18 +171,16 @@ void IN_KeyUp(kbutton_t *b) {
     b->active = false;
 }
 
-
-
 /*
 ===============
-CL_KeyState
+idClientInputSystemLocal::KeyState
 
 Returns the fraction of the frame that the key was down
 ===============
 */
-float32 CL_KeyState(kbutton_t *key) {
-    float32           val;
-    sint             msec;
+float32 idClientInputSystemLocal::KeyState(kbutton_t *key) {
+    sint msec;
+    float32 val;
 
     msec = key->msec;
     key->msec = 0;
@@ -214,295 +217,717 @@ float32 CL_KeyState(kbutton_t *key) {
     return val;
 }
 
-
-
-void IN_UpDown(void) {
-    IN_KeyDown(&kb[KB_UP]);
-}
-void IN_UpUp(void) {
-    IN_KeyUp(&kb[KB_UP]);
-}
-void IN_DownDown(void) {
-    IN_KeyDown(&kb[KB_DOWN]);
-}
-void IN_DownUp(void) {
-    IN_KeyUp(&kb[KB_DOWN]);
-}
-void IN_LeftDown(void) {
-    IN_KeyDown(&kb[KB_LEFT]);
-}
-void IN_LeftUp(void) {
-    IN_KeyUp(&kb[KB_LEFT]);
-}
-void IN_RightDown(void) {
-    IN_KeyDown(&kb[KB_RIGHT]);
-}
-void IN_RightUp(void) {
-    IN_KeyUp(&kb[KB_RIGHT]);
-}
-void IN_ForwardDown(void) {
-    IN_KeyDown(&kb[KB_FORWARD]);
-}
-void IN_ForwardUp(void) {
-    IN_KeyUp(&kb[KB_FORWARD]);
-}
-void IN_BackDown(void) {
-    IN_KeyDown(&kb[KB_BACK]);
-}
-void IN_BackUp(void) {
-    IN_KeyUp(&kb[KB_BACK]);
-}
-void IN_LookupDown(void) {
-    IN_KeyDown(&kb[KB_LOOKUP]);
-}
-void IN_LookupUp(void) {
-    IN_KeyUp(&kb[KB_LOOKUP]);
-}
-void IN_LookdownDown(void) {
-    IN_KeyDown(&kb[KB_LOOKDOWN]);
-}
-void IN_LookdownUp(void) {
-    IN_KeyUp(&kb[KB_LOOKDOWN]);
-}
-void IN_MoveleftDown(void) {
-    IN_KeyDown(&kb[KB_MOVELEFT]);
-}
-void IN_MoveleftUp(void) {
-    IN_KeyUp(&kb[KB_MOVELEFT]);
-}
-void IN_MoverightDown(void) {
-    IN_KeyDown(&kb[KB_MOVERIGHT]);
-}
-void IN_MoverightUp(void) {
-    IN_KeyUp(&kb[KB_MOVERIGHT]);
+/*
+===============
+idClientInputSystemLocal::UpDown
+===============
+*/
+void idClientInputSystemLocal::UpDown(void) {
+    KeyDown(&kb[KB_UP]);
 }
 
-void IN_SpeedDown(void) {
-    IN_KeyDown(&kb[KB_SPEED]);
-}
-void IN_SpeedUp(void) {
-    IN_KeyUp(&kb[KB_SPEED]);
-}
-void IN_StrafeDown(void) {
-    IN_KeyDown(&kb[KB_STRAFE]);
-}
-void IN_StrafeUp(void) {
-    IN_KeyUp(&kb[KB_STRAFE]);
+/*
+===============
+idClientInputSystemLocal::UpUp
+===============
+*/
+void idClientInputSystemLocal::UpUp(void) {
+    KeyUp(&kb[KB_UP]);
 }
 
-void IN_Button0Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS0]);
-}
-void IN_Button0Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS0]);
-}
-void IN_Button1Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS1]);
-}
-void IN_Button1Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS1]);
-}
-void IN_UseItemDown(void) {
-    IN_KeyDown(&kb[KB_BUTTONS2]);
-}
-void IN_UseItemUp(void) {
-    IN_KeyUp(&kb[KB_BUTTONS2]);
-}
-void IN_Button2Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS2]);
-}
-void IN_Button2Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS2]);
-}
-void IN_Button3Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS3]);
-}
-void IN_Button3Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS3]);
-}
-void IN_Button4Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS4]);
-}
-void IN_Button4Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS4]);
+/*
+===============
+idClientInputSystemLocal::DownDown
+===============
+*/
+void idClientInputSystemLocal::DownDown(void) {
+    KeyDown(&kb[KB_DOWN]);
 }
 
-void IN_Button5Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS5]);
+/*
+===============
+idClientInputSystemLocal::DownUp
+===============
+*/
+void idClientInputSystemLocal::DownUp(void) {
+    KeyUp(&kb[KB_DOWN]);
 }
 
-void IN_Button5Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS5]);
+/*
+===============
+idClientInputSystemLocal::LeftDown
+===============
+*/
+void idClientInputSystemLocal::LeftDown(void) {
+    KeyDown(&kb[KB_LEFT]);
 }
 
-void IN_Button6Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS6]);
+/*
+===============
+idClientInputSystemLocal::LeftUp
+===============
+*/
+void idClientInputSystemLocal::LeftUp(void) {
+    KeyUp(&kb[KB_LEFT]);
 }
 
-void IN_Button6Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS6]);
+/*
+===============
+idClientInputSystemLocal::RightDown
+===============
+*/
+void idClientInputSystemLocal::RightDown(void) {
+    KeyDown(&kb[KB_RIGHT]);
 }
 
-//
-void IN_Button7Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS7]);
+/*
+===============
+idClientInputSystemLocal::RightUp
+===============
+*/
+void idClientInputSystemLocal::RightUp(void) {
+    KeyUp(&kb[KB_RIGHT]);
 }
 
-void IN_Button7Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS7]);
+/*
+===============
+idClientInputSystemLocal::ForwardDown
+===============
+*/
+void idClientInputSystemLocal::ForwardDown(void) {
+    KeyDown(&kb[KB_FORWARD]);
 }
 
-//
-void IN_Button8Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS8]);
+/*
+===============
+idClientInputSystemLocal::ForwardUp
+===============
+*/
+void idClientInputSystemLocal::ForwardUp(void) {
+    KeyUp(&kb[KB_FORWARD]);
 }
 
-void IN_Button8Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS8]);
+/*
+===============
+idClientInputSystemLocal::BackDown
+===============
+*/
+void idClientInputSystemLocal::BackDown(void) {
+    KeyDown(&kb[KB_BACK]);
 }
 
-//
-void IN_Button9Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS9]);
+/*
+===============
+idClientInputSystemLocal::BackUp
+===============
+*/
+void idClientInputSystemLocal::BackUp(void) {
+    KeyUp(&kb[KB_BACK]);
 }
 
-void IN_Button9Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS9]);
+/*
+===============
+idClientInputSystemLocal::LookupDown
+===============
+*/
+void idClientInputSystemLocal::LookupDown(void) {
+    KeyDown(&kb[KB_LOOKUP]);
 }
 
-//
-void IN_Button10Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS10]);
+/*
+===============
+idClientInputSystemLocal::LookupUp
+===============
+*/
+void idClientInputSystemLocal::LookupUp(void) {
+    KeyUp(&kb[KB_LOOKUP]);
 }
 
-void IN_Button10Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS10]);
+/*
+===============
+idClientInputSystemLocal::LookdownDown
+===============
+*/
+void idClientInputSystemLocal::LookdownDown(void) {
+    KeyDown(&kb[KB_LOOKDOWN]);
 }
 
-//
-void IN_Button11Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS11]);
+/*
+===============
+idClientInputSystemLocal::LookdownUp
+===============
+*/
+void idClientInputSystemLocal::LookdownUp(void) {
+    KeyUp(&kb[KB_LOOKDOWN]);
 }
 
-void IN_Button11Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS11]);
+/*
+===============
+idClientInputSystemLocal::MoveleftDown
+===============
+*/
+void idClientInputSystemLocal::MoveleftDown(void) {
+    KeyDown(&kb[KB_MOVELEFT]);
 }
 
-//
-void IN_Button12Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS12]);
+/*
+===============
+idClientInputSystemLocal::MoveleftUp
+===============
+*/
+void idClientInputSystemLocal::MoveleftUp(void) {
+    KeyUp(&kb[KB_MOVELEFT]);
 }
 
-void IN_Button12Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS12]);
+/*
+===============
+idClientInputSystemLocal::MoverightDown
+===============
+*/
+void idClientInputSystemLocal::MoverightDown(void) {
+    KeyDown(&kb[KB_MOVERIGHT]);
 }
 
-//
-void IN_Button13Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS13]);
+/*
+===============
+idClientInputSystemLocal::MoverightUp
+===============
+*/
+void idClientInputSystemLocal::MoverightUp(void) {
+    KeyUp(&kb[KB_MOVERIGHT]);
 }
 
-void IN_Button13Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS13]);
+/*
+===============
+idClientInputSystemLocal::SpeedDown
+===============
+*/
+void idClientInputSystemLocal::SpeedDown(void) {
+    KeyDown(&kb[KB_SPEED]);
 }
 
-//
-void IN_Button14Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS14]);
+/*
+===============
+idClientInputSystemLocal::SpeedUp
+===============
+*/
+void idClientInputSystemLocal::SpeedUp(void) {
+    KeyUp(&kb[KB_SPEED]);
 }
 
-void IN_Button14Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS14]);
+/*
+===============
+idClientInputSystemLocal::StrafeDown
+===============
+*/
+void idClientInputSystemLocal::StrafeDown(void) {
+    KeyDown(&kb[KB_STRAFE]);
 }
 
-//
-void IN_Button15Down(void) {
-    IN_KeyDown(&kb[KB_BUTTONS15]);
+/*
+===============
+idClientInputSystemLocal::StrafeUp
+===============
+*/
+void idClientInputSystemLocal::StrafeUp(void) {
+    KeyUp(&kb[KB_STRAFE]);
 }
 
-void IN_Button15Up(void) {
-    IN_KeyUp(&kb[KB_BUTTONS15]);
+/*
+===============
+idClientInputSystemLocal::Button0Down
+===============
+*/
+void idClientInputSystemLocal::Button0Down(void) {
+    KeyDown(&kb[KB_BUTTONS0]);
 }
 
-// Rafael activate
-void IN_ActivateDown(void) {
-    IN_KeyDown(&kb[KB_BUTTONS6]);
-}
-void IN_ActivateUp(void) {
-    IN_KeyUp(&kb[KB_BUTTONS6]);
-}
-
-// done.
-
-void IN_SprintDown(void) {
-    IN_KeyDown(&kb[KB_BUTTONS5]);
-}
-void IN_SprintUp(void) {
-    IN_KeyUp(&kb[KB_BUTTONS5]);
+/*
+===============
+idClientInputSystemLocal::Button0Up
+===============
+*/
+void idClientInputSystemLocal::Button0Up(void) {
+    KeyUp(&kb[KB_BUTTONS0]);
 }
 
-
-// wbuttons (wolf buttons)
-void IN_Wbutton0Down(void) {
-    IN_KeyDown(&kb[KB_WBUTTONS0]);
-}                               //----(SA) secondary fire button
-void IN_Wbutton0Up(void) {
-    IN_KeyUp(&kb[KB_WBUTTONS0]);
-}
-void IN_ZoomDown(void) {
-    IN_KeyDown(&kb[KB_WBUTTONS1]);
-}                               //----(SA)  zoom key
-void IN_ZoomUp(void) {
-    IN_KeyUp(&kb[KB_WBUTTONS1]);
-}
-void IN_ReloadDown(void) {
-    IN_KeyDown(&kb[KB_WBUTTONS3]);
-}                               //----(SA)  manual weapon re-load
-void IN_ReloadUp(void) {
-    IN_KeyUp(&kb[KB_WBUTTONS3]);
-}
-void IN_LeanLeftDown(void) {
-    IN_KeyDown(&kb[KB_WBUTTONS4]);
-}                               //----(SA)  lean left
-void IN_LeanLeftUp(void) {
-    IN_KeyUp(&kb[KB_WBUTTONS4]);
-}
-void IN_LeanRightDown(void) {
-    IN_KeyDown(&kb[KB_WBUTTONS5]);
-}                               //----(SA)  lean right
-void IN_LeanRightUp(void) {
-    IN_KeyUp(&kb[KB_WBUTTONS5]);
+/*
+===============
+idClientInputSystemLocal::Button1Down
+===============
+*/
+void idClientInputSystemLocal::Button1Down(void) {
+    KeyDown(&kb[KB_BUTTONS1]);
 }
 
-// Rafael Kick
-// Arnout: now wbutton prone
-void IN_ProneDown(void) {
-    IN_KeyDown(&kb[KB_WBUTTONS7]);
-}
-void IN_ProneUp(void) {
-    IN_KeyUp(&kb[KB_WBUTTONS7]);
-}
-
-void IN_ButtonDown(void) {
-    IN_KeyDown(&kb[KB_BUTTONS1]);
-}
-void IN_ButtonUp(void) {
-    IN_KeyUp(&kb[KB_BUTTONS1]);
+/*
+===============
+idClientInputSystemLocal::Button1Up
+===============
+*/
+void idClientInputSystemLocal::Button1Up(void) {
+    KeyUp(&kb[KB_BUTTONS1]);
 }
 
+/*
+===============
+idClientInputSystemLocal::UseItemDown
+===============
+*/
+void idClientInputSystemLocal::UseItemDown(void) {
+    KeyDown(&kb[KB_BUTTONS2]);
+}
 
-/*void IN_CenterView (void) {
+/*
+===============
+idClientInputSystemLocal::UseItemUp
+===============
+*/
+void idClientInputSystemLocal::UseItemUp(void) {
+    KeyUp(&kb[KB_BUTTONS2]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button2Down
+===============
+*/
+void idClientInputSystemLocal::Button2Down(void) {
+    KeyDown(&kb[KB_BUTTONS2]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button2Up
+===============
+*/
+void idClientInputSystemLocal::Button2Up(void) {
+    KeyUp(&kb[KB_BUTTONS2]);
+}
+
+/*
+===============
+idClientInputSystemLocal::idClientInputSystemLocal
+===============
+*/
+void idClientInputSystemLocal::Button3Down(void) {
+    KeyDown(&kb[KB_BUTTONS3]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button3Up
+===============
+*/
+void idClientInputSystemLocal::Button3Up(void) {
+    KeyUp(&kb[KB_BUTTONS3]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button4Down
+===============
+*/
+void idClientInputSystemLocal::Button4Down(void) {
+    KeyDown(&kb[KB_BUTTONS4]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button4Up
+===============
+*/
+void idClientInputSystemLocal::Button4Up(void) {
+    KeyUp(&kb[KB_BUTTONS4]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button5Down
+===============
+*/
+void idClientInputSystemLocal::Button5Down(void) {
+    KeyDown(&kb[KB_BUTTONS5]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button5Up
+===============
+*/
+void idClientInputSystemLocal::Button5Up(void) {
+    KeyUp(&kb[KB_BUTTONS5]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button6Down
+===============
+*/
+void idClientInputSystemLocal::Button6Down(void) {
+    KeyDown(&kb[KB_BUTTONS6]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button6Up
+===============
+*/
+void idClientInputSystemLocal::Button6Up(void) {
+    KeyUp(&kb[KB_BUTTONS6]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button7Down
+===============
+*/
+void idClientInputSystemLocal::Button7Down(void) {
+    KeyDown(&kb[KB_BUTTONS7]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button7Up
+===============
+*/
+void idClientInputSystemLocal::Button7Up(void) {
+    KeyUp(&kb[KB_BUTTONS7]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button8Down
+===============
+*/
+void idClientInputSystemLocal::Button8Down(void) {
+    KeyDown(&kb[KB_BUTTONS8]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button8Up
+===============
+*/
+void idClientInputSystemLocal::Button8Up(void) {
+    KeyUp(&kb[KB_BUTTONS8]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button9Down
+===============
+*/
+void idClientInputSystemLocal::Button9Down(void) {
+    KeyDown(&kb[KB_BUTTONS9]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button9Up
+===============
+*/
+void idClientInputSystemLocal::Button9Up(void) {
+    KeyUp(&kb[KB_BUTTONS9]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button10Down
+===============
+*/
+void idClientInputSystemLocal::Button10Down(void) {
+    KeyDown(&kb[KB_BUTTONS10]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button10Up
+===============
+*/
+void idClientInputSystemLocal::Button10Up(void) {
+    KeyUp(&kb[KB_BUTTONS10]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button11Down
+===============
+*/
+void idClientInputSystemLocal::Button11Down(void) {
+    KeyDown(&kb[KB_BUTTONS11]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button11Up
+===============
+*/
+void idClientInputSystemLocal::Button11Up(void) {
+    KeyUp(&kb[KB_BUTTONS11]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button12Down
+===============
+*/
+void idClientInputSystemLocal::Button12Down(void) {
+    KeyDown(&kb[KB_BUTTONS12]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button12Up
+===============
+*/
+void idClientInputSystemLocal::Button12Up(void) {
+    KeyUp(&kb[KB_BUTTONS12]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button13Down
+===============
+*/
+void idClientInputSystemLocal::Button13Down(void) {
+    KeyDown(&kb[KB_BUTTONS13]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button13Up
+===============
+*/
+void idClientInputSystemLocal::Button13Up(void) {
+    KeyUp(&kb[KB_BUTTONS13]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button14Down
+===============
+*/
+void idClientInputSystemLocal::Button14Down(void) {
+    KeyDown(&kb[KB_BUTTONS14]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button14Up
+===============
+*/
+void idClientInputSystemLocal::Button14Up(void) {
+    KeyUp(&kb[KB_BUTTONS14]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button15Down
+===============
+*/
+void idClientInputSystemLocal::Button15Down(void) {
+    KeyDown(&kb[KB_BUTTONS15]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Button15Up
+===============
+*/
+void idClientInputSystemLocal::Button15Up(void) {
+    KeyUp(&kb[KB_BUTTONS15]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ActivateDown
+===============
+*/
+void idClientInputSystemLocal::ActivateDown(void) {
+    KeyDown(&kb[KB_BUTTONS6]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ActivateUp
+===============
+*/
+void idClientInputSystemLocal::ActivateUp(void) {
+    KeyUp(&kb[KB_BUTTONS6]);
+}
+
+/*
+===============
+idClientInputSystemLocal::SprintDown
+===============
+*/
+void idClientInputSystemLocal::SprintDown(void) {
+    KeyDown(&kb[KB_BUTTONS5]);
+}
+
+/*
+===============
+idClientInputSystemLocal::SprintUp
+===============
+*/
+void idClientInputSystemLocal::SprintUp(void) {
+    KeyUp(&kb[KB_BUTTONS5]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Wbutton0Down
+===============
+*/
+void idClientInputSystemLocal::Wbutton0Down(void) {
+    KeyDown(&kb[KB_WBUTTONS0]);
+}
+
+/*
+===============
+idClientInputSystemLocal::Wbutton0Up
+===============
+*/
+void idClientInputSystemLocal::Wbutton0Up(void) {
+    KeyUp(&kb[KB_WBUTTONS0]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ZoomDown
+===============
+*/
+void idClientInputSystemLocal::ZoomDown(void) {
+    KeyDown(&kb[KB_WBUTTONS1]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ZoomUp
+===============
+*/
+void idClientInputSystemLocal::ZoomUp(void) {
+    KeyUp(&kb[KB_WBUTTONS1]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ReloadDown
+===============
+*/
+void idClientInputSystemLocal::ReloadDown(void) {
+    KeyDown(&kb[KB_WBUTTONS3]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ReloadUp
+===============
+*/
+void idClientInputSystemLocal::ReloadUp(void) {
+    KeyUp(&kb[KB_WBUTTONS3]);
+}
+
+/*
+===============
+idClientInputSystemLocal::LeanLeftDown
+===============
+*/
+void idClientInputSystemLocal::LeanLeftDown(void) {
+    KeyDown(&kb[KB_WBUTTONS4]);
+}
+
+/*
+===============
+idClientInputSystemLocal::LeanLeftUp
+===============
+*/
+void idClientInputSystemLocal::LeanLeftUp(void) {
+    KeyUp(&kb[KB_WBUTTONS4]);
+}
+
+/*
+===============
+idClientInputSystemLocal::LeanRightDown
+===============
+*/
+void idClientInputSystemLocal::LeanRightDown(void) {
+    KeyDown(&kb[KB_WBUTTONS5]);
+}
+
+/*
+===============
+idClientInputSystemLocal::LeanRightUp
+===============
+*/
+void idClientInputSystemLocal::LeanRightUp(void) {
+    KeyUp(&kb[KB_WBUTTONS5]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ProneDown
+===============
+*/
+void idClientInputSystemLocal::ProneDown(void) {
+    KeyDown(&kb[KB_WBUTTONS7]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ProneUp
+===============
+*/
+void idClientInputSystemLocal::ProneUp(void) {
+    KeyUp(&kb[KB_WBUTTONS7]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ButtonDown
+===============
+*/
+void idClientInputSystemLocal::ButtonDown(void) {
+    KeyDown(&kb[KB_BUTTONS1]);
+}
+
+/*
+===============
+idClientInputSystemLocal::ButtonUp
+===============
+*/
+void idClientInputSystemLocal::ButtonUp(void) {
+    KeyUp(&kb[KB_BUTTONS1]);
+}
+
+
+/*
+===============
+idClientInputSystemLocal::CenterView
+===============
+*/
+void idClientInputSystemLocal::CenterView(void) {
     cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snapServer.ps.delta_angles[PITCH]);
-}*/
+}
 
-
-void IN_Notebook(void) {
+/*
+===============
+idClientInputSystemLocal::Notebook
+===============
+*/
+void idClientInputSystemLocal::Notebook(void) {
     //if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
     //uiManager->SetActiveMenu( UIMENU_NOTEBOOK );
     //}
 }
 
-void IN_Help(void) {
+/*
+===============
+idClientInputSystemLocal::Help
+===============
+*/
+void idClientInputSystemLocal::Help(void) {
     if(cls.state == CA_ACTIVE && !clc.demoplaying) {
         uiManager->SetActiveMenu(UIMENU_HELP);
     }
@@ -510,13 +935,13 @@ void IN_Help(void) {
 
 /*
 ================
-CL_AdjustAngles
+idClientInputSystemLocal::AdjustAngles
 
 Moves the local angle positions
 ================
 */
-void CL_AdjustAngles(void) {
-    float32           speed;
+void idClientInputSystemLocal::AdjustAngles(void) {
+    float32 speed;
 
     if(kb[KB_SPEED].active) {
         speed = (static_cast<float32>(cls.frametime) / 1000.0f) * cls.frametime *
@@ -526,34 +951,31 @@ void CL_AdjustAngles(void) {
     }
 
     if(!kb[KB_STRAFE].active) {
-        cl.viewangles[YAW] -= speed * cl_yawspeed->value * CL_KeyState(
+        cl.viewangles[YAW] -= speed * cl_yawspeed->value * KeyState(
                                   &kb[KB_RIGHT]);
-        cl.viewangles[YAW] += speed * cl_yawspeed->value * CL_KeyState(
+        cl.viewangles[YAW] += speed * cl_yawspeed->value * KeyState(
                                   &kb[KB_LEFT]);
     }
 
-    cl.viewangles[PITCH] -= speed * cl_pitchspeed->value * CL_KeyState(
+    cl.viewangles[PITCH] -= speed * cl_pitchspeed->value * KeyState(
                                 &kb[KB_LOOKUP]);
-    cl.viewangles[PITCH] += speed * cl_pitchspeed->value * CL_KeyState(
+    cl.viewangles[PITCH] += speed * cl_pitchspeed->value * KeyState(
                                 &kb[KB_LOOKDOWN]);
 }
 
 /*
 ================
-CL_KeyMove
+idClientInputSystemLocal::KeyMove
 
 Sets the usercmd_t based on key states
 ================
 */
-void CL_KeyMove(usercmd_t *cmd) {
-    sint             movespeed;
-    sint             forward, side, up;
+void idClientInputSystemLocal::KeyMove(usercmd_t *cmd) {
+    sint movespeed, forward, side, up;
 
-    //
     // adjust for speed key / running
     // the walking flag is to keep animations consistant
     // even during acceleration and develeration
-    //
     if(kb[KB_SPEED].active ^ cl_run->integer) {
         movespeed = 127;
         cmd->buttons &= ~BUTTON_WALKING;
@@ -567,12 +989,12 @@ void CL_KeyMove(usercmd_t *cmd) {
     up = 0;
 
     if(kb[KB_STRAFE].active) {
-        side += movespeed * CL_KeyState(&kb[KB_RIGHT]);
-        side -= movespeed * CL_KeyState(&kb[KB_LEFT]);
+        side += movespeed * KeyState(&kb[KB_RIGHT]);
+        side -= movespeed * KeyState(&kb[KB_LEFT]);
     }
 
-    side += movespeed * CL_KeyState(&kb[KB_MOVERIGHT]);
-    side -= movespeed * CL_KeyState(&kb[KB_MOVELEFT]);
+    side += movespeed * KeyState(&kb[KB_MOVERIGHT]);
+    side -= movespeed * KeyState(&kb[KB_MOVELEFT]);
 
     //----(SA)  added
 #if 0
@@ -590,11 +1012,11 @@ void CL_KeyMove(usercmd_t *cmd) {
 #endif
     //----(SA)  end
 
-    up += movespeed * CL_KeyState(&kb[KB_UP]);
-    up -= movespeed * CL_KeyState(&kb[KB_DOWN]);
+    up += movespeed * KeyState(&kb[KB_UP]);
+    up -= movespeed * KeyState(&kb[KB_DOWN]);
 
-    forward += movespeed * CL_KeyState(&kb[KB_FORWARD]);
-    forward -= movespeed * CL_KeyState(&kb[KB_BACK]);
+    forward += movespeed * KeyState(&kb[KB_FORWARD]);
+    forward -= movespeed * KeyState(&kb[KB_BACK]);
 
     // fretn - moved this to bg_pmove.c
     //if (!(cl.snapServer.ps.persistant[PERS_HWEAPON_USE]))
@@ -611,11 +1033,12 @@ void CL_KeyMove(usercmd_t *cmd) {
             com_frameTime - cl.doubleTap.lastdoubleTap > cl_doubletapdelay->integer +
             cls.frametime) {
         // frametime for low(-ish) fps situations)
-        sint             i;
-        bool        key_down;
+        sint i;
+        bool key_down;
 
         for(i = 1; i < DT_NUM; i++) {
-            key_down = (bool)(kb[dtmapping[i]].active || kb[dtmapping[i]].wasPressed);
+            key_down = static_cast<bool>(kb[dtmapping[i]].active ||
+                                         kb[dtmapping[i]].wasPressed);
 
             if(key_down && !cl.doubleTap.pressedTime[i]) {
                 cl.doubleTap.pressedTime[i] = com_frameTime;
@@ -644,10 +1067,10 @@ void CL_KeyMove(usercmd_t *cmd) {
 
 /*
 =================
-CL_MouseEvent
+idClientInputSystemLocal::MouseEvent
 =================
 */
-void CL_MouseEvent(sint dx, sint dy, sint time) {
+void idClientInputSystemLocal::MouseEvent(sint dx, sint dy, sint time) {
     if(cls.keyCatchers & KEYCATCH_UI) {
         // NERVE - SMF - if we just want to pass it along to game
         if(cl_bypassMouseInput->integer == 1) {
@@ -672,14 +1095,16 @@ void CL_MouseEvent(sint dx, sint dy, sint time) {
 
 /*
 =================
-CL_JoystickEvent
+idClientInputSystemLocal::JoystickEvent
 
 Joystick values stay set until changed
 =================
 */
-void CL_JoystickEvent(sint axis, sint value, sint time) {
+void idClientInputSystemLocal::JoystickEvent(sint axis, sint value,
+        sint time) {
     if(axis < 0 || axis >= MAX_JOYSTICK_AXIS) {
-        Com_Error(ERR_DROP, "CL_JoystickEvent: bad axis %i", axis);
+        Com_Error(ERR_DROP, "idClientInputSystemLocal::JoystickEvent: bad axis %i",
+                  axis);
     }
 
     if(axis >= 0) {
@@ -689,12 +1114,12 @@ void CL_JoystickEvent(sint axis, sint value, sint time) {
 
 /*
 =================
-CL_JoystickMove
+idClientInputSystemLocal::JoystickMove
 =================
 */
-void CL_JoystickMove(usercmd_t *cmd) {
-    sint             movespeed;
-    float32           anglespeed;
+void idClientInputSystemLocal::JoystickMove(usercmd_t *cmd) {
+    sint movespeed;
+    float32 anglespeed;
 
     if(kb[KB_SPEED].active ^ cl_run->integer) {
         movespeed = 2;
@@ -746,13 +1171,12 @@ void CL_JoystickMove(usercmd_t *cmd) {
 
 /*
 =================
-CL_Xbox360ControllerMove
+idClientInputSystemLocal::Xbox360ControllerMove
 =================
 */
-
-void CL_Xbox360ControllerMove(usercmd_t *cmd) {
-    sint     movespeed;
-    float32   anglespeed;
+void idClientInputSystemLocal::Xbox360ControllerMove(usercmd_t *cmd) {
+    sint movespeed;
+    float32 anglespeed;
 
     if(kb[KB_SPEED].active ^ cl_run->integer) {
         movespeed = 2;
@@ -779,14 +1203,12 @@ void CL_Xbox360ControllerMove(usercmd_t *cmd) {
     cmd->upmove = ClampChar(cmd->upmove + cl.joystickAxis[j_up_axis->integer]);
 }
 
-
-
 /*
 =================
-CL_MouseMove
+idClientInputSystemLocal::MouseMove
 =================
 */
-void CL_MouseMove(usercmd_t *cmd) {
+void idClientInputSystemLocal::MouseMove(usercmd_t *cmd) {
     float32 mx, my;
 
     // allow mouse smoothing
@@ -914,14 +1336,13 @@ void CL_MouseMove(usercmd_t *cmd) {
     }
 }
 
-
 /*
 ==============
-CL_CmdButtons
+idClientInputSystemLocal::CmdButtons
 ==============
 */
-void CL_CmdButtons(usercmd_t *cmd) {
-    sint             i;
+void idClientInputSystemLocal::CmdButtons(usercmd_t *cmd) {
+    sint i;
 
     //
     // figure button bits
@@ -961,14 +1382,13 @@ void CL_CmdButtons(usercmd_t *cmd) {
     }
 }
 
-
 /*
 ==============
-CL_FinishMove
+idClientInputSystemLocal::FinishMove
 ==============
 */
-void CL_FinishMove(usercmd_t *cmd) {
-    sint             i;
+void idClientInputSystemLocal::FinishMove(usercmd_t *cmd) {
+    sint i;
 
     // copy the state that the cgame is currently sending
     cmd->weapon = static_cast<uchar8>(cl.cgameUserCmdValue);
@@ -988,37 +1408,37 @@ void CL_FinishMove(usercmd_t *cmd) {
 
 /*
 =================
-CL_CreateCmd
+idClientInputSystemLocal::CreateCmd
 =================
 */
-usercmd_t CL_CreateCmd(void) {
-    usercmd_t       cmd;
-    vec3_t          oldAngles;
-    float32           recoilAdd;
+usercmd_t idClientInputSystemLocal::CreateCmd(void) {
+    float32 recoilAdd;
+    usercmd_t cmd;
+    vec3_t oldAngles;
 
     VectorCopy(cl.viewangles, oldAngles);
 
     // keyboard angle adjustment
-    CL_AdjustAngles();
+    AdjustAngles();
 
-    memset(&cmd, 0, sizeof(cmd));
+    ::memset(&cmd, 0, sizeof(cmd));
 
-    CL_CmdButtons(&cmd);
+    CmdButtons(&cmd);
 
     // get basic movement from keyboard
-    CL_KeyMove(&cmd);
+    KeyMove(&cmd);
 
     // get basic movement from mouse
-    CL_MouseMove(&cmd);
+    MouseMove(&cmd);
 
     // get basic movement from mouse
-    CL_MouseMove(&cmd);
+    MouseMove(&cmd);
 
     // get basic movement from joystick or controller
     if(cl_xbox360ControllerAvailable->integer) {
-        CL_Xbox360ControllerMove(&cmd);
+        Xbox360ControllerMove(&cmd);
     } else {
-        CL_JoystickMove(&cmd);
+        JoystickMove(&cmd);
     }
 
     // check to make sure the angles haven't wrapped
@@ -1039,7 +1459,7 @@ usercmd_t CL_CreateCmd(void) {
     cl_recoilPitch->value = 0;
 
     // store out the final values
-    CL_FinishMove(&cmd);
+    FinishMove(&cmd);
 
     // draw debug graphs of turning for mouse testing
     if(cl_debugMove->integer) {
@@ -1057,17 +1477,16 @@ usercmd_t CL_CreateCmd(void) {
     return cmd;
 }
 
-
 /*
 =================
-CL_CreateNewCommands
+idClientInputSystemLocal::CreateNewCommands
 
 Create a new usercmd_t structure for this frame
 =================
 */
-void CL_CreateNewCommands(void) {
-    usercmd_t      *cmd;
-    sint             cmdNum;
+void idClientInputSystemLocal::CreateNewCommands(void) {
+    sint cmdNum;
+    usercmd_t *cmd;
 
     // no need to create usercmds until we have a gamestate
     if(cls.state < CA_PRIMED) {
@@ -1094,13 +1513,13 @@ void CL_CreateNewCommands(void) {
     // generate a command for this frame
     cl.cmdNumber++;
     cmdNum = cl.cmdNumber & CMD_MASK;
-    cl.cmds[cmdNum] = CL_CreateCmd();
+    cl.cmds[cmdNum] = CreateCmd();
     cmd = &cl.cmds[cmdNum];
 }
 
 /*
 =================
-CL_ReadyToSendPacket
+idClientInputSystemLocal::ReadyToSendPacket
 
 Returns false if we are over the maxpackets limit
 and should choke back the bandwidth a bit by not sending
@@ -1109,9 +1528,8 @@ delivered in the next packet, but saving a header and
 getting more delta compression will reduce total bandwidth.
 =================
 */
-bool CL_ReadyToSendPacket(void) {
-    sint             oldPacketNum;
-    sint             delta;
+bool idClientInputSystemLocal::ReadyToSendPacket(void) {
+    sint oldPacketNum, delta;
 
     // don't send anything if playing back a demo
     if(clc.demoplaying) {
@@ -1160,7 +1578,7 @@ bool CL_ReadyToSendPacket(void) {
 
 /*
 ===================
-CL_WritePacket
+idClientInputSystemLocal::WritePacket
 
 Create and send the command packet to the server
 Including both the reliable commands and the usercmds
@@ -1179,22 +1597,18 @@ During normal gameplay, a client packet will contain something like:
 
 ===================
 */
-void CL_WritePacket(void) {
-    msg_t           buf;
-    uchar8            data[MAX_MSGLEN];
-    sint             i, j;
-    usercmd_t      *cmd, *oldcmd;
-    usercmd_t       nullcmd;
-    sint             packetNum;
-    sint             oldPacketNum;
-    sint             count, key;
+void idClientInputSystemLocal::WritePacket(void) {
+    sint i, j, packetNum, oldPacketNum, count, key;
+    usercmd_t *cmd, *oldcmd, nullcmd;
+    msg_t buf;
+    uchar8 data[MAX_MSGLEN];
 
     // don't send anything if playing back a demo
     if(clc.demoplaying) {
         return;
     }
 
-    memset(&nullcmd, 0, sizeof(nullcmd));
+    ::memset(&nullcmd, 0, sizeof(nullcmd));
     oldcmd = &nullcmd;
 
     MSG_Init(&buf, data, sizeof(data));
@@ -1304,12 +1718,12 @@ void CL_WritePacket(void) {
 
 /*
 =================
-CL_SendCmd
+idClientInputSystemLocal::SendCmd
 
 Called every frame to builds and sends a command packet to the server.
 =================
 */
-void CL_SendCmd(void) {
+void idClientInputSystemLocal::SendCmd(void) {
     // don't send any message if not connected
     if(cls.state < CA_CONNECTED) {
         return;
@@ -1321,10 +1735,10 @@ void CL_SendCmd(void) {
     }
 
     // we create commands even if a demo is playing,
-    CL_CreateNewCommands();
+    CreateNewCommands();
 
     // don't send a packet if the last packet was sent too recently
-    if(!CL_ReadyToSendPacket()) {
+    if(!ReadyToSendPacket()) {
         if(cl_showSend->integer) {
             Com_Printf(". ");
         }
@@ -1332,184 +1746,185 @@ void CL_SendCmd(void) {
         return;
     }
 
-    CL_WritePacket();
+    WritePacket();
 }
 
 /*
 ============
-CL_InitInput
+idClientInputSystemLocal::InitInput
 ============
 */
-void CL_InitInput(void) {
-    //cmdSystem->AddCommand ("centerview", IN_CenterView, "Centers view on screen");
+void idClientInputSystemLocal::InitInput(void) {
+    Com_Printf("----- idClientInputSystemLocal::InitInput -------\n");
 
-    cmdSystem->AddCommand("+moveup", IN_UpDown, "Move up, i.e. Jump");
-    cmdSystem->AddCommand("-moveup", IN_UpUp, "Stop issuing command to jump");
-    cmdSystem->AddCommand("+movedown", IN_DownDown, "Move downwards, crouch");
-    cmdSystem->AddCommand("-movedown", IN_DownUp,
+    //cmdSystem->AddCommand ("centerview", CenterView, "Centers view on screen");
+
+    cmdSystem->AddCommand("+moveup", UpDown, "Move up, i.e. Jump");
+    cmdSystem->AddCommand("-moveup", UpUp, "Stop issuing command to jump");
+    cmdSystem->AddCommand("+movedown", DownDown, "Move downwards, crouch");
+    cmdSystem->AddCommand("-movedown", DownUp,
                           "Stop issing command to crouch");
-    cmdSystem->AddCommand("+left", IN_LeftDown, "Look left");
-    cmdSystem->AddCommand("-left", IN_LeftUp,
+    cmdSystem->AddCommand("+left", LeftDown, "Look left");
+    cmdSystem->AddCommand("-left", LeftUp,
                           "Stop issuing command to look further to the left");
-    cmdSystem->AddCommand("+right", IN_RightDown, "Rotate camera right");
-    cmdSystem->AddCommand("-right", IN_RightUp,
+    cmdSystem->AddCommand("+right", RightDown, "Rotate camera right");
+    cmdSystem->AddCommand("-right", RightUp,
                           "Stops issuing look right command");
-    cmdSystem->AddCommand("+forward", IN_ForwardDown, "Move forward");
-    cmdSystem->AddCommand("-forward", IN_ForwardUp,
+    cmdSystem->AddCommand("+forward", ForwardDown, "Move forward");
+    cmdSystem->AddCommand("-forward", ForwardUp,
                           "Stop issuing command to move forwards");
-    cmdSystem->AddCommand("+back", IN_BackDown, "Move backward");
-    cmdSystem->AddCommand("-back", IN_BackUp,
+    cmdSystem->AddCommand("+back", BackDown, "Move backward");
+    cmdSystem->AddCommand("-back", BackUp,
                           "Stop issuing command to move backwards");
-    cmdSystem->AddCommand("+lookup", IN_LookupDown, "Tilt camera up");
-    cmdSystem->AddCommand("-lookup", IN_LookupUp,
+    cmdSystem->AddCommand("+lookup", LookupDown, "Tilt camera up");
+    cmdSystem->AddCommand("-lookup", LookupUp,
                           "Stop issuing command to look further upwards");
-    cmdSystem->AddCommand("+lookdown", IN_LookdownDown, "Tilt camera down");
-    cmdSystem->AddCommand("-lookdown", IN_LookdownUp,
+    cmdSystem->AddCommand("+lookdown", LookdownDown, "Tilt camera down");
+    cmdSystem->AddCommand("-lookdown", LookdownUp,
                           "Stop issuing command to look further downwards");
-    cmdSystem->AddCommand("+strafe", IN_StrafeDown, "Hold to strafe");
-    cmdSystem->AddCommand("-strafe", IN_StrafeUp,
+    cmdSystem->AddCommand("+strafe", StrafeDown, "Hold to strafe");
+    cmdSystem->AddCommand("-strafe", StrafeUp,
                           "Stops issuing strafe command");
-    cmdSystem->AddCommand("+moveleft", IN_MoveleftDown,
+    cmdSystem->AddCommand("+moveleft", MoveleftDown,
                           "Strafe/sidestep to the left");
-    cmdSystem->AddCommand("-moveleft", IN_MoveleftUp,
+    cmdSystem->AddCommand("-moveleft", MoveleftUp,
                           "Stop issuing command to strafe left");
-    cmdSystem->AddCommand("+moveright", IN_MoverightDown,
+    cmdSystem->AddCommand("+moveright", MoverightDown,
                           "Strafe/sidestep to the right");
-    cmdSystem->AddCommand("-moveright", IN_MoverightUp,
+    cmdSystem->AddCommand("-moveright", MoverightUp,
                           "Stop issuing command to strafe right");
-    cmdSystem->AddCommand("+speed", IN_SpeedDown, "Walk or run");
-    cmdSystem->AddCommand("-speed", IN_SpeedUp,
+    cmdSystem->AddCommand("+speed", SpeedDown, "Walk or run");
+    cmdSystem->AddCommand("-speed", SpeedUp,
                           "Stops issuing walk/run command");
 
-    cmdSystem->AddCommand("+attack", IN_Button0Down,
+    cmdSystem->AddCommand("+attack", Button0Down,
                           "Fires weapon, or uses the weaponbank object currently selected");     // ---- id   (primary firing)
-    cmdSystem->AddCommand("-attack", IN_Button0Up,
+    cmdSystem->AddCommand("-attack", Button0Up,
                           "Stops issuing command to attack");
 
-    cmdSystem->AddCommand("+button0", IN_Button0Down, "Button0");
-    cmdSystem->AddCommand("-button0", IN_Button0Up,
+    cmdSystem->AddCommand("+button0", Button0Down, "Button0");
+    cmdSystem->AddCommand("-button0", Button0Up,
                           "Stop issuing command button0");
 
-    cmdSystem->AddCommand("+button1", IN_Button1Down, "Button1");
-    cmdSystem->AddCommand("-button1", IN_Button1Up,
+    cmdSystem->AddCommand("+button1", Button1Down, "Button1");
+    cmdSystem->AddCommand("-button1", Button1Up,
                           "Stop issuing command button1");
 
-    cmdSystem->AddCommand("+button2", IN_Button2Down, "Button2");
-    cmdSystem->AddCommand("-button2", IN_Button2Up,
+    cmdSystem->AddCommand("+button2", Button2Down, "Button2");
+    cmdSystem->AddCommand("-button2", Button2Up,
                           "Stop issuing command button2");
 
-    cmdSystem->AddCommand("+useitem", IN_UseItemDown, "Use selected item");
-    cmdSystem->AddCommand("-useitem", IN_UseItemUp,
+    cmdSystem->AddCommand("+useitem", UseItemDown, "Use selected item");
+    cmdSystem->AddCommand("-useitem", UseItemUp,
                           "Stop issuing command for selected item");
 
-    cmdSystem->AddCommand("+salute", IN_Button3Down, "Salute");
-    cmdSystem->AddCommand("-salute", IN_Button3Up,
+    cmdSystem->AddCommand("+salute", Button3Down, "Salute");
+    cmdSystem->AddCommand("-salute", Button3Up,
                           "Stop issuing salute command");
 
-    cmdSystem->AddCommand("+button3", IN_Button3Down, "Button3");
-    cmdSystem->AddCommand("-button3", IN_Button3Up,
+    cmdSystem->AddCommand("+button3", Button3Down, "Button3");
+    cmdSystem->AddCommand("-button3", Button3Up,
                           "Stop issuing command button3");
 
-    cmdSystem->AddCommand("+button4", IN_Button4Down, "Button4");
-    cmdSystem->AddCommand("-button4", IN_Button4Up,
+    cmdSystem->AddCommand("+button4", Button4Down, "Button4");
+    cmdSystem->AddCommand("-button4", Button4Up,
                           "Stop issuing command button4");
 
-    cmdSystem->AddCommand("+button5", IN_Button5Down, "Button5");
-    cmdSystem->AddCommand("-button5", IN_Button5Up,
+    cmdSystem->AddCommand("+button5", Button5Down, "Button5");
+    cmdSystem->AddCommand("-button5", Button5Up,
                           "Stop issuing command button5");
 
-    cmdSystem->AddCommand("+button6", IN_Button6Down, "Button6");
-    cmdSystem->AddCommand("-button6", IN_Button6Up,
+    cmdSystem->AddCommand("+button6", Button6Down, "Button6");
+    cmdSystem->AddCommand("-button6", Button6Up,
                           "Stop issuing command button6");
 
-    cmdSystem->AddCommand("+button7", IN_Button7Down, "Button7");
-    cmdSystem->AddCommand("-button7", IN_Button7Up,
+    cmdSystem->AddCommand("+button7", Button7Down, "Button7");
+    cmdSystem->AddCommand("-button7", Button7Up,
                           "Stop issuing command button7");
 
-    cmdSystem->AddCommand("+button8", IN_Button8Down, "Button8");
-    cmdSystem->AddCommand("-button8", IN_Button8Up,
+    cmdSystem->AddCommand("+button8", Button8Down, "Button8");
+    cmdSystem->AddCommand("-button8", Button8Up,
                           "Stop issuing command button9");
 
-    cmdSystem->AddCommand("+button9", IN_Button9Down, "Button9");
-    cmdSystem->AddCommand("-button9", IN_Button9Up,
+    cmdSystem->AddCommand("+button9", Button9Down, "Button9");
+    cmdSystem->AddCommand("-button9", Button9Up,
                           "Stop issuing command button9");
 
-    cmdSystem->AddCommand("+button10", IN_Button10Down, "Button10");
-    cmdSystem->AddCommand("-button10", IN_Button10Up,
+    cmdSystem->AddCommand("+button10", Button10Down, "Button10");
+    cmdSystem->AddCommand("-button10", Button10Up,
                           "Stop issuing command button10");
 
-    cmdSystem->AddCommand("+button11", IN_Button11Down, "Button11");
-    cmdSystem->AddCommand("-button11", IN_Button11Up,
+    cmdSystem->AddCommand("+button11", Button11Down, "Button11");
+    cmdSystem->AddCommand("-button11", Button11Up,
                           "Stop issuing command button11");
 
-    cmdSystem->AddCommand("+button12", IN_Button12Down, "Button12");
-    cmdSystem->AddCommand("-button12", IN_Button12Up,
+    cmdSystem->AddCommand("+button12", Button12Down, "Button12");
+    cmdSystem->AddCommand("-button12", Button12Up,
                           "Stop issuing command button12");
 
-    cmdSystem->AddCommand("+button13", IN_Button13Down, "Button13");
-    cmdSystem->AddCommand("-button13", IN_Button13Up,
+    cmdSystem->AddCommand("+button13", Button13Down, "Button13");
+    cmdSystem->AddCommand("-button13", Button13Up,
                           "Stop issuing command button13");
 
-    cmdSystem->AddCommand("+button14", IN_Button14Down, "Button14");
-    cmdSystem->AddCommand("-button14", IN_Button14Up,
+    cmdSystem->AddCommand("+button14", Button14Down, "Button14");
+    cmdSystem->AddCommand("-button14", Button14Up,
                           "Stop issuing command button14");
 
     // Rafael Activate
-    cmdSystem->AddCommand("+activate", IN_ActivateDown,
+    cmdSystem->AddCommand("+activate", ActivateDown,
                           "Performs various actions like opening doors, picking up weapons.");
-    cmdSystem->AddCommand("-activate", IN_ActivateUp,
+    cmdSystem->AddCommand("-activate", ActivateUp,
                           "Stops issuing +activate command, stop opening doors etc");
     // done.
 
     // Rafael Kick
     // Arnout: now prone
-    cmdSystem->AddCommand("+prone", IN_ProneDown, "Go prone, lie down.");
-    cmdSystem->AddCommand("-prone", IN_ProneUp,
+    cmdSystem->AddCommand("+prone", ProneDown, "Go prone, lie down.");
+    cmdSystem->AddCommand("-prone", ProneUp,
                           "Stop issuing command to go prone");
     // done
 
-    cmdSystem->AddCommand("+dodge", IN_ProneDown, "dodge");
-    cmdSystem->AddCommand("-dodge", IN_ProneUp, "dodge");
+    cmdSystem->AddCommand("+dodge", ProneDown, "dodge");
+    cmdSystem->AddCommand("-dodge", ProneUp, "dodge");
 
-    cmdSystem->AddCommand("+sprint", IN_SprintDown,
+    cmdSystem->AddCommand("+sprint", SprintDown,
                           "Sprint, run fast draining stanima bar");
-    cmdSystem->AddCommand("-sprint", IN_SprintUp,
+    cmdSystem->AddCommand("-sprint", SprintUp,
                           "Stops issuing sprint command");
 
 
     // wolf buttons
-    cmdSystem->AddCommand("+attack2", IN_Wbutton0Down,
+    cmdSystem->AddCommand("+attack2", Wbutton0Down,
                           "Secondary firing mode");   //----(SA) secondary firing
-    cmdSystem->AddCommand("-attack2", IN_Wbutton0Up,
+    cmdSystem->AddCommand("-attack2", Wbutton0Up,
                           "Stop issuing command to perform secondary attack");
-    cmdSystem->AddCommand("+zoom", IN_ZoomDown, "Zoom command");     //
-    cmdSystem->AddCommand("-zoom", IN_ZoomUp, "Stops issuing zoom command");
-    cmdSystem->AddCommand("+reload", IN_ReloadDown, "Reload weapon");    //
-    cmdSystem->AddCommand("-reload", IN_ReloadUp,
+    cmdSystem->AddCommand("+zoom", ZoomDown, "Zoom command");     //
+    cmdSystem->AddCommand("-zoom", ZoomUp, "Stops issuing zoom command");
+    cmdSystem->AddCommand("+reload", ReloadDown, "Reload weapon");    //
+    cmdSystem->AddCommand("-reload", ReloadUp,
                           "Stops issuing reload command");
-    cmdSystem->AddCommand("+leanleft", IN_LeanLeftDown, "Leans to the left");
-    cmdSystem->AddCommand("-leanleft", IN_LeanLeftUp,
+    cmdSystem->AddCommand("+leanleft", LeanLeftDown, "Leans to the left");
+    cmdSystem->AddCommand("-leanleft", LeanLeftUp,
                           "Stop issuing command to lean to the left");
-    cmdSystem->AddCommand("+leanright", IN_LeanRightDown,
+    cmdSystem->AddCommand("+leanright", LeanRightDown,
                           "Leans to the right");
-    cmdSystem->AddCommand("-leanright", IN_LeanRightUp,
+    cmdSystem->AddCommand("-leanright", LeanRightUp,
                           "Stop issuing command to lean to the right");
 
 
-    cmdSystem->AddCommand("+mlook", IN_MLookDown, "Toggles mouselook");
-    cmdSystem->AddCommand("-mlook", IN_MLookUp,
+    cmdSystem->AddCommand("+mlook", MLookDown, "Toggles mouselook");
+    cmdSystem->AddCommand("-mlook", MLookUp,
                           "Stop +mlook (mouselook), go back to mouse-movement");
 
-    //cmdSystem->AddCommand ("notebook",IN_Notebook);
-    cmdSystem->AddCommand("help", IN_Help, "Toggles help");
+    //cmdSystem->AddCommand ("notebook",Notebook);
+    cmdSystem->AddCommand("help", Help, "Toggles help");
 }
-
 
 /*
 ============
-CL_ClearKeys
+idClientInputSystemLocal::ClearKeys
 ============
 */
-void CL_ClearKeys(void) {
-    memset(kb, 0, sizeof(kb));
+void idClientInputSystemLocal::ClearKeys(void) {
+    ::memset(kb, 0, sizeof(kb));
 }

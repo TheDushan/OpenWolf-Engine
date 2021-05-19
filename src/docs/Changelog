@@ -1,6 +1,7 @@
 2021-05-19 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client console into C++ file
 	* [Filesystem] Don't expose whole filesystem
+	* [Client] Moved client input into C++ file
 
 2021-05-18 Dusan Jocic <dusanjocic@msn>
 	* [Engine] Show what system event overflow

@@ -101,7 +101,7 @@ sint32 idClientLocalizationSystemLocal::generateHashValue(pointer fname) {
         i++;
     }
 
-    hash &= (FILE_HASH_SIZE - 1);
+    hash &= (FILE_HASH_SIZE_ - 1);
     return hash;
 }
 
@@ -193,7 +193,7 @@ void idClientLocalizationSystemLocal::SaveTransTable(pointer fileName,
     // write out translated strings
     for(j = 0; j < 2; j++) {
 
-        for(i = 0; i < FILE_HASH_SIZE; i++) {
+        for(i = 0; i < FILE_HASH_SIZE_; i++) {
             t = transTable[i];
 
             if(!t || (newOnly && t->fromFile)) {
@@ -524,13 +524,13 @@ void idClientLocalizationSystemLocal::ReloadTranslation(void) {
     valueType **fileList;
     uint64 numFiles;
 
-    for(i = 0; i < FILE_HASH_SIZE; i++) {
+    for(i = 0; i < FILE_HASH_SIZE_; i++) {
         if(transTable[i]) {
             free(transTable[i]);
         }
     }
 
-    memset(transTable, 0, sizeof(trans_t *) * FILE_HASH_SIZE);
+    ::memset(transTable, 0, sizeof(trans_t *) * FILE_HASH_SIZE_);
     LoadTransTable("scripts/translation.lang");
 
     fileList = fileSystem->ListFiles("translations", ".lang", &numFiles);
@@ -550,7 +550,7 @@ void idClientLocalizationSystemLocal::InitTranslation(void) {
     uint64 numFiles;
     valueType **fileList;
 
-    memset(transTable, 0, sizeof(trans_t *) * FILE_HASH_SIZE);
+    ::memset(transTable, 0, sizeof(trans_t *) * FILE_HASH_SIZE_);
     LoadTransTable("scripts/translation.lang");
 
     fileList = fileSystem->ListFiles("translations", ".lang", &numFiles);

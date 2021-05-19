@@ -761,7 +761,9 @@ void idClientConsoleSystemLocal::Init(void) {
     cmdSystem->AddCommand("commandMode",
                           &idClientConsoleSystemLocal::CommandMode_f, "");
 
-    Com_Printf("Console initialized.\n");
+    if(developer->integer) {
+        Com_Printf("Console initialized.\n");
+    }
 }
 
 /*

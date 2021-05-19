@@ -91,69 +91,8 @@ void            CL_AddToLimboChat(pointer str);      // NERVE - SMF
 void            CL_OpenURL(pointer url);     // TTimo
 void            CL_Record(pointer name);
 
-//
-// cl_input
-//
-typedef struct {
-    sint             down[2];   // key nums holding it down
-    uint        downtime;   // msec timestamp
-    uint
-    msec;       // msec down this frame if both a down and up happened
-    bool        active;     // current state
-    bool        wasPressed; // set when down, not cleared when up
-} kbutton_t;
 
-enum kbuttons_t {
-    KB_LEFT,
-    KB_RIGHT,
-    KB_FORWARD,
-    KB_BACK,
-    KB_LOOKUP,
-    KB_LOOKDOWN,
-    KB_MOVELEFT,
-    KB_MOVERIGHT,
-    KB_STRAFE,
-    KB_SPEED,
-    KB_UP,
-    KB_DOWN,
-    KB_BUTTONS0,
-    KB_BUTTONS1,
-    KB_BUTTONS2,
-    KB_BUTTONS3,
-    KB_BUTTONS4,
-    KB_BUTTONS5,
-    KB_BUTTONS6,
-    KB_BUTTONS7,
-    KB_BUTTONS8,
-    KB_BUTTONS9,
-    KB_BUTTONS10,
-    KB_BUTTONS11,
-    KB_BUTTONS12,
-    KB_BUTTONS13,
-    KB_BUTTONS14,
-    KB_BUTTONS15,
-    KB_WBUTTONS0,
-    KB_WBUTTONS1,
-    KB_WBUTTONS2,
-    KB_WBUTTONS3,
-    KB_WBUTTONS4,
-    KB_WBUTTONS5,
-    KB_WBUTTONS6,
-    KB_WBUTTONS7,
-    KB_MLOOK,
-    // Dushan
-    NUM_BUTTONS
-};
-
-
-void            CL_ClearKeys(void);
-void            CL_InitInput(void);
-void            CL_SendCmd(void);
 void            CL_ClearState(void);
-void            CL_WritePacket(void);
-void            IN_Notebook(void);
-void            IN_Help(void);
-float32           CL_KeyState(kbutton_t *key);
 sint             Key_StringToKeynum(pointer str);
 valueType           *Key_KeynumToString(sint keynum);
 
