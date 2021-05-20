@@ -144,7 +144,7 @@
 #include <framework/CmdCompletion.hpp>
 #include <API/cgame_api.hpp>
 #include <client/clientPublic.hpp>
-#include <client/keys.hpp>
+#include <API/clientKeys_api.hpp>
 
 #include <zlib.h>
 #include <bzlib.h>

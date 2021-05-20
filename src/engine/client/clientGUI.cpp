@@ -168,7 +168,7 @@ idClientGUISystemLocal::KeynumToStringBuf
 */
 void idClientGUISystemLocal::KeynumToStringBuf(sint keynum, valueType *buf,
         uint64 buflen) {
-    Q_strncpyz(buf, Key_KeynumToString(keynum), buflen);
+    Q_strncpyz(buf, clientKeysSystem->KeynumToString(keynum), buflen);
 }
 
 /*
@@ -180,7 +180,7 @@ void idClientGUISystemLocal::GetBindingBuf(sint keynum, valueType *buf,
         uint64 buflen) {
     valueType *value;
 
-    value = Key_GetBinding(keynum);
+    value = clientKeysSystem->GetBinding(keynum);
 
     if(value) {
         Q_strncpyz(buf, value, buflen);
@@ -273,12 +273,6 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.RealTime = Com_RealTime;
     exports.CheckAutoUpdate = CL_CheckAutoUpdate;
     exports.GetAutoUpdate = CL_GetAutoUpdate;
-    exports.SetBinding = Key_SetBinding;
-    exports.IsDown = Key_IsDown;
-    exports.GetBindingByString = Key_GetBindingByString;
-    exports.GetOverstrikeMode = Key_GetOverstrikeMode;
-    exports.SetOverstrikeMode = Key_SetOverstrikeMode;
-    exports.ClearStates = Key_ClearStates;
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
     exports.OpenURL = CL_OpenURL;
     exports.GetHunkInfo = Com_GetHunkInfo;
@@ -297,6 +291,7 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.clientScreenSystem = clientScreenSystem;
     exports.parseSystem = ParseSystem;
     exports.clientLocalization = clientLocalizationSystem;
+    exports.clientKeysSystem = clientKeysSystem;
 }
 
 /*

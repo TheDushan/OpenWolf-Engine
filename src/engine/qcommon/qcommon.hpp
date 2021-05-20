@@ -492,11 +492,6 @@ CLIENT / SERVER SYSTEMS
 ==============================================================
 */
 
-//
-// client interface
-//
-void            CL_InitKeyCommands(void);
-
 // the keyboard binding interface must be setup before execing
 // config files, but the rest of client startup will happen later
 
@@ -505,9 +500,7 @@ void            CL_ClearStaticDownload(void);
 void CL_Disconnect(bool showMainMenu, pointer reason);
 void            CL_Shutdown(void);
 void            CL_Frame(sint msec);
-void            CL_KeyEvent(sint key, sint down, sint time);
 void       CL_RefPrintf(sint print_level, pointer fmt, ...);
-void            CL_CharEvent(sint key);
 
 // valueType events are for field typing, not game control
 
@@ -544,11 +537,6 @@ bool            CL_NextUpdateServer(void);
 void            CL_GetAutoUpdate(void);
 #endif
 
-
-void            Key_KeynameCompletion(void(*callback)(pointer s));
-// for keyname autocompletion
-
-void            Key_WriteBindings(fileHandle_t f);
 
 // AVI files have the start of pixel lines 4 uchar8-aligned
 #define AVI_LINE_PADDING 4

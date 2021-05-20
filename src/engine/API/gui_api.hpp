@@ -204,12 +204,6 @@ struct guiImports_t {
     void(*CheckAutoUpdate)(void);
     void(*GetAutoUpdate)(void);
 
-    void(*SetBinding)(sint keynum, pointer binding);
-    void (*GetBindingByString)(pointer binding, sint *key1, sint *key2);
-    bool(*IsDown)(sint keynum);
-    bool (*GetOverstrikeMode)(void);
-    void (*SetOverstrikeMode)(bool state);
-    void (*ClearStates)(void);
     uint64(*Hunk_MemoryRemaining)(void);
     sint(*RealTime)(qtime_t *qtime);
     void(*SetExtents)(sint handle, sint x, sint y, sint w, sint h);
@@ -232,6 +226,7 @@ struct guiImports_t {
     idParseSystem *parseSystem;
     idClientCinemaSystem *clientCinemaSystem;
     idClientLocalizationSystem *clientLocalization;
+    idClientKeysSystem *clientKeysSystem;
 #endif
 };
 

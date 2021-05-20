@@ -660,15 +660,8 @@ void idClientGameSystemLocal::CreateExportTable(void) {
 
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
 
-    exports.Key_IsDown = Key_IsDown;
-    exports.Key_GetKey = Key_GetKey;
-    exports.Key_GetOverstrikeMode = Key_GetOverstrikeMode;
-    exports.Key_SetOverstrikeMode = Key_SetOverstrikeMode;
-
     exports.RealTime = Com_RealTime;
 
-    exports.Key_SetBinding = Key_SetBinding;
-    exports.Key_GetBindingByString = Key_GetBindingByString;
     exports.Com_GetHunkInfo = Com_GetHunkInfo;
     exports.UI_LimboChat = CL_AddToLimboChat;
 
@@ -686,6 +679,7 @@ void idClientGameSystemLocal::CreateExportTable(void) {
     exports.clientScreenSystem = clientScreenSystem;
     exports.parseSystem = ParseSystem;
     exports.clientLocalization = clientLocalizationSystem;
+    exports.clientKeysSystem = clientKeysSystem;
 }
 
 /*

@@ -60,9 +60,6 @@ struct cgameImports_t {
     void(*stopCamera)(sint camNum);
     bool(*getCameraInfo)(sint camNum, sint time, vec3_t *origin,
                          vec3_t *angles, float32 *fov);
-    bool(*Key_IsDown)(sint keynum);
-    sint(*Key_GetCatcher)(void);
-    sint(*Key_GetKey)(pointer binding);
     sint(*RealTime)(qtime_t *qtime);
 
     void(*UI_LimboChat)(pointer arg0);
@@ -71,10 +68,6 @@ struct cgameImports_t {
             valueType *buffer, uint64 bufsize);
     void (*Com_GetHunkInfo)(sint *hunkused, sint *hunkexpected);
     uint64(*Hunk_MemoryRemaining)(void);
-    void (*Key_GetBindingByString)(pointer binding, sint *key1, sint *key2);
-    void (*Key_SetBinding)(sint keynum, pointer binding);
-    bool (*Key_GetOverstrikeMode)(void);
-    void (*Key_SetOverstrikeMode)(bool state);
     void(*SetValue)(pointer var_name, float32 value);
 
     idClientGameSystem *clientGameSystem;
@@ -92,6 +85,7 @@ struct cgameImports_t {
     idParseSystem *parseSystem;
     idClientCinemaSystem *clientCinemaSystem;
     idClientLocalizationSystem *clientLocalization;
+    idClientKeysSystem *clientKeysSystem;
 #endif
 };
 

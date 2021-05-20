@@ -27,7 +27,7 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   cl_keys.cpp
+// File name:   clientKeys.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -37,294 +37,45 @@
 
 #include <framework/precompiled.hpp>
 
-/*
-key up events are sent even if in console mode
-*/
-
 field_t g_consoleField;
 field_t chatField;
 bool chat_team;
 bool chat_buddy;
 bool commandMode;
 bool key_overstrikeMode;
+bool consoleButtonWasPressed = false;
 
 sint anykeydown;
 qkey_t keys[MAX_KEYS];
 
-typedef struct {
-    valueType    *name;
-    sint keynum;
-} keyname_t;
-
-// names not in this list can either be lowercase ascii, or '0xnn' hex sequences
-keyname_t keynames[] = {
-    {"TAB", K_TAB},
-    {"ENTER", K_ENTER},
-    {"ESCAPE", K_ESCAPE},
-    {"SPACE", K_SPACE},
-    {"BACKSPACE", K_BACKSPACE},
-    {"UPARROW", K_UPARROW},
-    {"DOWNARROW", K_DOWNARROW},
-    {"LEFTARROW", K_LEFTARROW},
-    {"RIGHTARROW", K_RIGHTARROW},
-
-    {"ALT", K_ALT},
-    {"CTRL", K_CTRL},
-    {"SHIFT", K_SHIFT},
-
-    {"COMMAND", K_COMMAND},
-
-    {"CAPSLOCK", K_CAPSLOCK},
-
-
-    {"F1", K_F1},
-    {"F2", K_F2},
-    {"F3", K_F3},
-    {"F4", K_F4},
-    {"F5", K_F5},
-    {"F6", K_F6},
-    {"F7", K_F7},
-    {"F8", K_F8},
-    {"F9", K_F9},
-    {"F10", K_F10},
-    {"F11", K_F11},
-    {"F12", K_F12},
-    {"F13", K_F13},
-    {"F14", K_F14},
-    {"F15", K_F15},
-
-    {"INS", K_INS},
-    {"DEL", K_DEL},
-    {"PGDN", K_PGDN},
-    {"PGUP", K_PGUP},
-    {"HOME", K_HOME},
-    {"END", K_END},
-
-    {"MOUSE1", K_MOUSE1},
-    {"MOUSE2", K_MOUSE2},
-    {"MOUSE3", K_MOUSE3},
-    {"MOUSE4", K_MOUSE4},
-    {"MOUSE5", K_MOUSE5},
-
-    {"MWHEELUP", K_MWHEELUP },
-    {"MWHEELDOWN",   K_MWHEELDOWN },
-
-    {"JOY1", K_JOY1},
-    {"JOY2", K_JOY2},
-    {"JOY3", K_JOY3},
-    {"JOY4", K_JOY4},
-    {"JOY5", K_JOY5},
-    {"JOY6", K_JOY6},
-    {"JOY7", K_JOY7},
-    {"JOY8", K_JOY8},
-    {"JOY9", K_JOY9},
-    {"JOY10", K_JOY10},
-    {"JOY11", K_JOY11},
-    {"JOY12", K_JOY12},
-    {"JOY13", K_JOY13},
-    {"JOY14", K_JOY14},
-    {"JOY15", K_JOY15},
-    {"JOY16", K_JOY16},
-    {"JOY17", K_JOY17},
-    {"JOY18", K_JOY18},
-    {"JOY19", K_JOY19},
-    {"JOY20", K_JOY20},
-    {"JOY21", K_JOY21},
-    {"JOY22", K_JOY22},
-    {"JOY23", K_JOY23},
-    {"JOY24", K_JOY24},
-    {"JOY25", K_JOY25},
-    {"JOY26", K_JOY26},
-    {"JOY27", K_JOY27},
-    {"JOY28", K_JOY28},
-    {"JOY29", K_JOY29},
-    {"JOY30", K_JOY30},
-    {"JOY31", K_JOY31},
-    {"JOY32", K_JOY32},
-
-    {"AUX1", K_AUX1},
-    {"AUX2", K_AUX2},
-    {"AUX3", K_AUX3},
-    {"AUX4", K_AUX4},
-    {"AUX5", K_AUX5},
-    {"AUX6", K_AUX6},
-    {"AUX7", K_AUX7},
-    {"AUX8", K_AUX8},
-    {"AUX9", K_AUX9},
-    {"AUX10", K_AUX10},
-    {"AUX11", K_AUX11},
-    {"AUX12", K_AUX12},
-    {"AUX13", K_AUX13},
-    {"AUX14", K_AUX14},
-    {"AUX15", K_AUX15},
-    {"AUX16", K_AUX16},
-
-    {"KP_HOME",          K_KP_HOME },
-    {"KP_UPARROW",       K_KP_UPARROW },
-    {"KP_PGUP",          K_KP_PGUP },
-    {"KP_LEFTARROW", K_KP_LEFTARROW },
-    {"KP_5",         K_KP_5 },
-    {"KP_RIGHTARROW",    K_KP_RIGHTARROW },
-    {"KP_END",           K_KP_END },
-    {"KP_DOWNARROW", K_KP_DOWNARROW },
-    {"KP_PGDN",          K_KP_PGDN },
-    {"KP_ENTER",     K_KP_ENTER },
-    {"KP_INS",           K_KP_INS },
-    {"KP_DEL",           K_KP_DEL },
-    {"KP_SLASH",     K_KP_SLASH },
-    {"KP_MINUS",     K_KP_MINUS },
-    {"KP_PLUS",          K_KP_PLUS },
-    {"KP_NUMLOCK",       K_KP_NUMLOCK },
-    {"KP_STAR",          K_KP_STAR },
-    {"KP_EQUALS",        K_KP_EQUALS },
-
-    {"PAUSE", K_PAUSE},
-
-    {"SEMICOLON", ';'},   // because a raw semicolon seperates commands
-
-    {"WORLD_0", K_WORLD_0},
-    {"WORLD_1", K_WORLD_1},
-    {"WORLD_2", K_WORLD_2},
-    {"WORLD_3", K_WORLD_3},
-    {"WORLD_4", K_WORLD_4},
-    {"WORLD_5", K_WORLD_5},
-    {"WORLD_6", K_WORLD_6},
-    {"WORLD_7", K_WORLD_7},
-    {"WORLD_8", K_WORLD_8},
-    {"WORLD_9", K_WORLD_9},
-    {"WORLD_10", K_WORLD_10},
-    {"WORLD_11", K_WORLD_11},
-    {"WORLD_12", K_WORLD_12},
-    {"WORLD_13", K_WORLD_13},
-    {"WORLD_14", K_WORLD_14},
-    {"WORLD_15", K_WORLD_15},
-    {"WORLD_16", K_WORLD_16},
-    {"WORLD_17", K_WORLD_17},
-    {"WORLD_18", K_WORLD_18},
-    {"WORLD_19", K_WORLD_19},
-    {"WORLD_20", K_WORLD_20},
-    {"WORLD_21", K_WORLD_21},
-    {"WORLD_22", K_WORLD_22},
-    {"WORLD_23", K_WORLD_23},
-    {"WORLD_24", K_WORLD_24},
-    {"WORLD_25", K_WORLD_25},
-    {"WORLD_26", K_WORLD_26},
-    {"WORLD_27", K_WORLD_27},
-    {"WORLD_28", K_WORLD_28},
-    {"WORLD_29", K_WORLD_29},
-    {"WORLD_30", K_WORLD_30},
-    {"WORLD_31", K_WORLD_31},
-    {"WORLD_32", K_WORLD_32},
-    {"WORLD_33", K_WORLD_33},
-    {"WORLD_34", K_WORLD_34},
-    {"WORLD_35", K_WORLD_35},
-    {"WORLD_36", K_WORLD_36},
-    {"WORLD_37", K_WORLD_37},
-    {"WORLD_38", K_WORLD_38},
-    {"WORLD_39", K_WORLD_39},
-    {"WORLD_40", K_WORLD_40},
-    {"WORLD_41", K_WORLD_41},
-    {"WORLD_42", K_WORLD_42},
-    {"WORLD_43", K_WORLD_43},
-    {"WORLD_44", K_WORLD_44},
-    {"WORLD_45", K_WORLD_45},
-    {"WORLD_46", K_WORLD_46},
-    {"WORLD_47", K_WORLD_47},
-    {"WORLD_48", K_WORLD_48},
-    {"WORLD_49", K_WORLD_49},
-    {"WORLD_50", K_WORLD_50},
-    {"WORLD_51", K_WORLD_51},
-    {"WORLD_52", K_WORLD_52},
-    {"WORLD_53", K_WORLD_53},
-    {"WORLD_54", K_WORLD_54},
-    {"WORLD_55", K_WORLD_55},
-    {"WORLD_56", K_WORLD_56},
-    {"WORLD_57", K_WORLD_57},
-    {"WORLD_58", K_WORLD_58},
-    {"WORLD_59", K_WORLD_59},
-    {"WORLD_60", K_WORLD_60},
-    {"WORLD_61", K_WORLD_61},
-    {"WORLD_62", K_WORLD_62},
-    {"WORLD_63", K_WORLD_63},
-    {"WORLD_64", K_WORLD_64},
-    {"WORLD_65", K_WORLD_65},
-    {"WORLD_66", K_WORLD_66},
-    {"WORLD_67", K_WORLD_67},
-    {"WORLD_68", K_WORLD_68},
-    {"WORLD_69", K_WORLD_69},
-    {"WORLD_70", K_WORLD_70},
-    {"WORLD_71", K_WORLD_71},
-    {"WORLD_72", K_WORLD_72},
-    {"WORLD_73", K_WORLD_73},
-    {"WORLD_74", K_WORLD_74},
-    {"WORLD_75", K_WORLD_75},
-    {"WORLD_76", K_WORLD_76},
-    {"WORLD_77", K_WORLD_77},
-    {"WORLD_78", K_WORLD_78},
-    {"WORLD_79", K_WORLD_79},
-    {"WORLD_80", K_WORLD_80},
-    {"WORLD_81", K_WORLD_81},
-    {"WORLD_82", K_WORLD_82},
-    {"WORLD_83", K_WORLD_83},
-    {"WORLD_84", K_WORLD_84},
-    {"WORLD_85", K_WORLD_85},
-    {"WORLD_86", K_WORLD_86},
-    {"WORLD_87", K_WORLD_87},
-    {"WORLD_88", K_WORLD_88},
-    {"WORLD_89", K_WORLD_89},
-    {"WORLD_90", K_WORLD_90},
-    {"WORLD_91", K_WORLD_91},
-    {"WORLD_92", K_WORLD_92},
-    {"WORLD_93", K_WORLD_93},
-    {"WORLD_94", K_WORLD_94},
-    {"WORLD_95", K_WORLD_95},
-
-    {"WINDOWS", K_SUPER},
-    {"COMPOSE", K_COMPOSE},
-    {"MODE", K_MODE},
-    {"HELP", K_HELP},
-    {"PRINT", K_PRINT},
-    {"SYSREQ", K_SYSREQ},
-    {"SCROLLOCK", K_SCROLLOCK },
-    {"BREAK", K_BREAK},
-    {"MENU", K_MENU},
-    {"POWER", K_POWER},
-    {"EURO", K_EURO},
-    {"UNDO", K_UNDO},
-
-    {"XBOX360_A", K_XBOX360_A},
-    {"XBOX360_B", K_XBOX360_B},
-    {"XBOX360_X", K_XBOX360_X},
-    {"XBOX360_Y", K_XBOX360_Y},
-    {"XBOX360_LB", K_XBOX360_LB},
-    {"XBOX360_RB", K_XBOX360_RB},
-    {"XBOX360_START", K_XBOX360_START},
-    {"XBOX360_GUIDE", K_XBOX360_GUIDE},
-    {"XBOX360_LS", K_XBOX360_LS},
-    {"XBOX360_RS", K_XBOX360_RS},
-    {"XBOX360_BACK", K_XBOX360_BACK},
-    {"XBOX360_LT", K_XBOX360_LT},
-    {"XBOX360_RT", K_XBOX360_RT},
-    {"XBOX360_DPAD_UP", K_XBOX360_DPAD_UP},
-    {"XBOX360_DPAD_RIGHT", K_XBOX360_DPAD_RIGHT},
-    {"XBOX360_DPAD_DOWN", K_XBOX360_DPAD_DOWN},
-    {"XBOX360_DPAD_LEFT", K_XBOX360_DPAD_LEFT},
-    {"XBOX360_DPAD_RIGHTUP", K_XBOX360_DPAD_RIGHTUP},
-    {"XBOX360_DPAD_RIGHTDOWN", K_XBOX360_DPAD_RIGHTDOWN},
-    {"XBOX360_DPAD_LEFTUP", K_XBOX360_DPAD_LEFTUP},
-    {"XBOX360_DPAD_LEFTDOWN", K_XBOX360_DPAD_LEFTDOWN},
-
-    {nullptr, 0}
-};
+idClientKeysSystemLocal clientKeysLocal;
+idClientKeysSystem *clientKeysSystem = &clientKeysLocal;
 
 /*
 ===============
-CompleteCommand
+idClientKeysSystemLocal::idClientKeysSystemLocal
+===============
+*/
+idClientKeysSystemLocal::idClientKeysSystemLocal(void) {
+}
+
+/*
+===============
+idClientKeysSystemLocal::~idClientKeysSystemLocal
+===============
+*/
+idClientKeysSystemLocal::~idClientKeysSystemLocal(void) {
+}
+
+
+/*
+===============
+idClientKeysSystemLocal::CompleteCommand
 
 Tab expansion
 ===============
 */
-static void CompleteCommand(void) {
+void idClientKeysSystemLocal::CompleteCommand(void) {
     field_t *edit;
     edit = &g_consoleField;
 
@@ -336,12 +87,12 @@ static void CompleteCommand(void) {
 
 /*
 ====================
-Console_DownEventKey
+idClientKeysSystemLocal::DownEventKey
 
 Handles history and console scrollback
 ====================
 */
-void Console_DownEventKey(sint key) {
+void idClientKeysSystemLocal::DownEventKey(sint key) {
     sint conNum = activeCon - con;
     bool isChat = CON_ISCHAT(conNum);
 
@@ -474,17 +225,14 @@ void Console_DownEventKey(sint key) {
     cmdCompletionSystem->KeyDownEvent(&g_consoleField, key);
 }
 
-//============================================================================
-
-
 /*
 ================
-Message_Key
+idClientKeysSystemLocal::Key
 
 In game talk message
 ================
 */
-void Message_Key(sint key) {
+void idClientKeysSystemLocal::Key(sint key) {
     valueType buffer[MAX_STRING_CHARS];
 
     if(key == K_ESCAPE) {
@@ -519,25 +267,31 @@ void Message_Key(sint key) {
     cmdCompletionSystem->KeyDownEvent(&chatField, key);
 }
 
-//============================================================================
-
-
-bool Key_GetOverstrikeMode(void) {
+/*
+===================
+idClientKeysSystemLocal::GetOverstrikeMode
+===================
+*/
+bool idClientKeysSystemLocal::GetOverstrikeMode(void) {
     return key_overstrikeMode;
 }
 
-
-void Key_SetOverstrikeMode(bool state) {
+/*
+===================
+idClientKeysSystemLocal::SetOverstrikeMode
+===================
+*/
+void idClientKeysSystemLocal::SetOverstrikeMode(bool state) {
     key_overstrikeMode = state;
 }
 
 
 /*
 ===================
-Key_IsDown
+idClientKeysSystemLocal::IsDown
 ===================
 */
-bool Key_IsDown(sint keynum) {
+bool idClientKeysSystemLocal::IsDown(sint keynum) {
     if(keynum < 0 || keynum >= MAX_KEYS) {
         return false;
     }
@@ -548,7 +302,7 @@ bool Key_IsDown(sint keynum) {
 
 /*
 ===================
-Key_StringToKeynum
+idClientKeysSystemLocal::StringToKeynum
 
 Returns a key number to be used to index keys[] by looking at
 the given string.  Single ascii characters return themselves, while
@@ -559,7 +313,7 @@ the K_* names are matched up.
 to be configured even if they don't have defined names.
 ===================
 */
-sint Key_StringToKeynum(pointer str) {
+sint idClientKeysSystemLocal::StringToKeynum(pointer str) {
     keyname_t   *kn;
 
     if(!str || !str[0]) {
@@ -591,13 +345,13 @@ sint Key_StringToKeynum(pointer str) {
 
 /*
 ===================
-Key_KeynumToString
+idClientKeysSystemLocal::KeynumToString
 
 Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) for the
 given keynum.
 ===================
 */
-valueType *Key_KeynumToString(sint keynum) {
+valueType *idClientKeysSystemLocal::KeynumToString(sint keynum) {
     keyname_t   *kn;
     static valueType tinystr[5];
     sint i, j;
@@ -637,9 +391,12 @@ valueType *Key_KeynumToString(sint keynum) {
     return tinystr;
 }
 
-#define BIND_HASH_SIZE 1024
-
-static sint32 generateHashValue(pointer fname) {
+/*
+===================
+idClientKeysSystemLocal::SetBinding
+===================
+*/
+sint32 idClientKeysSystemLocal::generateHashValue(pointer fname) {
     sint i;
     sint32 hash;
 
@@ -661,10 +418,10 @@ static sint32 generateHashValue(pointer fname) {
 
 /*
 ===================
-Key_SetBinding
+idClientKeysSystemLocal::SetBinding
 ===================
 */
-void Key_SetBinding(sint keynum, pointer binding) {
+void idClientKeysSystemLocal::SetBinding(sint keynum, pointer binding) {
 
     valueType *lcbinding;    // fretn - make a copy of our binding lowercase
     // so name toggle scripts work again: bind x name BzZIfretn?
@@ -691,13 +448,12 @@ void Key_SetBinding(sint keynum, pointer binding) {
     cvar_modifiedFlags |= CVAR_ARCHIVE;
 }
 
-
 /*
 ===================
-Key_GetBinding
+idClientKeysSystemLocal::GetBinding
 ===================
 */
-valueType *Key_GetBinding(sint keynum) {
+valueType *idClientKeysSystemLocal::GetBinding(sint keynum) {
     if(keynum < 0 || keynum >= MAX_KEYS) {
         return "";
     }
@@ -705,8 +461,15 @@ valueType *Key_GetBinding(sint keynum) {
     return keys[ keynum ].binding;
 }
 
-// binding MUST be lower case
-void Key_GetBindingByString(pointer binding, sint *key1, sint *key2) {
+/*
+===================
+idClientKeysSystemLocal::GetBinding
+
+binding MUST be lower case
+===================
+*/
+void idClientKeysSystemLocal::GetBindingByString(pointer binding,
+        sint *key1, sint *key2) {
     sint i;
     sint hash = generateHashValue(binding);
 
@@ -727,11 +490,10 @@ void Key_GetBindingByString(pointer binding, sint *key1, sint *key2) {
 
 /*
 ===================
-Key_GetKey
+idClientKeysSystemLocal::GetKey
 ===================
 */
-
-sint Key_GetKey(pointer binding) {
+sint idClientKeysSystemLocal::GetKey(pointer binding) {
     sint i;
 
     if(binding) {
@@ -747,10 +509,10 @@ sint Key_GetKey(pointer binding) {
 
 /*
 ===================
-Key_Unbind_f
+idClientKeysSystemLocal::Unbind_f
 ===================
 */
-void Key_Unbind_f(void) {
+void idClientKeysSystemLocal::Unbind_f(void) {
     sint b;
 
     if(cmdSystem->Argc() != 2) {
@@ -758,37 +520,36 @@ void Key_Unbind_f(void) {
         return;
     }
 
-    b = Key_StringToKeynum(cmdSystem->Argv(1));
+    b = clientKeysLocal.StringToKeynum(cmdSystem->Argv(1));
 
     if(b == -1) {
         Com_Printf("\"%s\" isn't a valid key\n", cmdSystem->Argv(1));
         return;
     }
 
-    Key_SetBinding(b, "");
+    clientKeysLocal.SetBinding(b, "");
 }
 
 /*
 ===================
-Key_Unbindall_f
+idClientKeysSystemLocal::Unbindall_f
 ===================
 */
-void Key_Unbindall_f(void) {
+void  idClientKeysSystemLocal::Unbindall_f(void) {
     sint i;
 
     for(i = 0 ; i < MAX_KEYS; i++)
         if(keys[i].binding) {
-            Key_SetBinding(i, "");
+            clientKeysLocal.SetBinding(i, "");
         }
 }
 
-
 /*
 ===================
-Key_Bind_f
+idClientKeysSystemLocal::Bind_f
 ===================
 */
-void Key_Bind_f(void) {
+void idClientKeysSystemLocal::Bind_f(void) {
     sint c, b;
 
     c = cmdSystem->Argc();
@@ -798,7 +559,7 @@ void Key_Bind_f(void) {
         return;
     }
 
-    b = Key_StringToKeynum(cmdSystem->Argv(1));
+    b = clientKeysLocal.StringToKeynum(cmdSystem->Argv(1));
 
     if(b == -1) {
         Com_Printf("\"%s\" isn't a valid key\n", cmdSystem->Argv(1));
@@ -807,24 +568,25 @@ void Key_Bind_f(void) {
 
     if(c == 2) {
         if(keys[b].binding) {
-            Com_Printf("\"%s\" = \"%s\"\n", Key_KeynumToString(b), keys[b].binding);
+            Com_Printf("\"%s\" = \"%s\"\n", clientKeysLocal.KeynumToString(b),
+                       keys[b].binding);
         } else {
-            Com_Printf("\"%s\" is not bound\n", Key_KeynumToString(b));
+            Com_Printf("\"%s\" is not bound\n", clientKeysLocal.KeynumToString(b));
         }
 
         return;
     }
 
     // set to 3rd arg onwards, unquoted from raw
-    Key_SetBinding(b, Com_UnquoteStr(cmdSystem->FromNth(2)));
+    clientKeysLocal.SetBinding(b, Com_UnquoteStr(cmdSystem->FromNth(2)));
 }
 
 /*
 ===================
-Key_EditBind_f
+idClientKeysSystemLocal::EditBind_f
 ===================
 */
-void Key_EditBind_f(void) {
+void idClientKeysSystemLocal::EditBind_f(void) {
     valueType *buf;
     /*const*/
     valueType *key, *binding, *keyq;
@@ -838,14 +600,14 @@ void Key_EditBind_f(void) {
     }
 
     key = cmdSystem->Argv(1);
-    b = Key_StringToKeynum(key);
+    b = clientKeysLocal.StringToKeynum(key);
 
     if(b == -1) {
         Com_Printf("\"%s\" isn't a valid key\n", key);
         return;
     }
 
-    binding = Key_GetBinding(b);
+    binding = clientKeysLocal.GetBinding(b);
 
     keyq = (const_cast<valueType *>(reinterpret_cast<pointer>
                                     (Com_QuoteStr(key))));       // <- static buffer
@@ -858,15 +620,14 @@ void Key_EditBind_f(void) {
     free(buf);
 }
 
-
 /*
 ============
-Key_WriteBindings
+idClientKeysSystemLocal::WriteBindings
 
 Writes lines containing "bind key value"
 ============
 */
-void Key_WriteBindings(fileHandle_t f) {
+void idClientKeysSystemLocal::WriteBindings(fileHandle_t f) {
     sint i;
 
     fileSystem->Printf(f, "unbindall\n");
@@ -874,7 +635,7 @@ void Key_WriteBindings(fileHandle_t f) {
     for(i = 0 ; i < MAX_KEYS ; i++) {
         if(keys[i].binding && keys[i].binding[0]) {
             // quote the string if it contains ; but no "
-            fileSystem->Printf(f, "bind %s %s\n", Key_KeynumToString(i),
+            fileSystem->Printf(f, "bind %s %s\n", KeynumToString(i),
                                Com_QuoteStr(keys[i].binding));
         }
 
@@ -884,27 +645,28 @@ void Key_WriteBindings(fileHandle_t f) {
 
 /*
 ============
-Key_Bindlist_f
-
+idClientKeysSystemLocal::Bindlist_f
 ============
 */
-void Key_Bindlist_f(void) {
+void idClientKeysSystemLocal::Bindlist_f(void) {
     sint i;
 
     for(i = 0 ; i < MAX_KEYS ; i++) {
         if(keys[i].binding && keys[i].binding[0]) {
-            Com_Printf("%s = %s\n", Key_KeynumToString(i), keys[i].binding);
+            Com_Printf("%s = %s\n", clientKeysLocal.KeynumToString(i),
+                       keys[i].binding);
         }
     }
 }
 
 /*
 ============
-Key_KeynameCompletion
+idClientKeysSystemLocal::KeynameCompletion
 ============
 */
-void Key_KeynameCompletion(void(*callback)(pointer s)) {
-    sint        i;
+void idClientKeysSystemLocal::KeynameCompletion(void(*callback)(
+            pointer s)) {
+    sint i;
 
     for(i = 0; keynames[ i ].name != nullptr; i++) {
         callback(keynames[ i ].name);
@@ -929,10 +691,10 @@ static void Key_CompleteUnbind(valueType *args, sint argNum) {
 
 /*
 ====================
-Key_CompleteBind
+idClientKeysSystemLocal::CompleteBind
 ====================
 */
-void Key_CompleteBind(valueType *args, sint argNum) {
+void idClientKeysSystemLocal::CompleteBind(valueType *args, sint argNum) {
     valueType *p;
 
     if(argNum == 2) {
@@ -952,7 +714,13 @@ void Key_CompleteBind(valueType *args, sint argNum) {
     }
 }
 
-static void Key_CompleteEditbind(valueType *args, sint argNum) {
+/*
+====================
+idClientKeysSystemLocal::CompleteEditbind
+====================
+*/
+void idClientKeysSystemLocal::CompleteEditbind(valueType *args,
+        sint argNum) {
     valueType *p;
 
     p = Com_SkipTokens(args, 1, " ");
@@ -962,35 +730,37 @@ static void Key_CompleteEditbind(valueType *args, sint argNum) {
     }
 }
 
-
 /*
 ===================
-CL_InitKeyCommands
+idClientKeysSystemLocal::InitKeyCommands
 ===================
 */
-void CL_InitKeyCommands(void) {
+void idClientKeysSystemLocal::InitKeyCommands(void) {
+
+    Com_Printf("----- idClientKeysSystemLocal::InitKeyCommands -------\n");
     // register our functions
-    cmdSystem->AddCommand("bind", Key_Bind_f,
+    cmdSystem->AddCommand("bind", Bind_f,
                           "Used for assigning keys to actions. Bind x �weaponbank 3");
-    cmdSystem->SetCommandCompletionFunc("bind", Key_CompleteBind);
-    cmdSystem->AddCommand("unbind", Key_Unbind_f,
+    cmdSystem->SetCommandCompletionFunc("bind", CompleteBind);
+    cmdSystem->AddCommand("unbind", Unbind_f,
                           "Displays list of cvars in console");
     cmdSystem->SetCommandCompletionFunc("unbind", Key_CompleteUnbind);
-    cmdSystem->AddCommand("unbindall", Key_Unbindall_f,
+    cmdSystem->AddCommand("unbindall", Unbindall_f,
                           "For unassigning all commands etc from ALL keys. /unbindall");
-    cmdSystem->AddCommand("bindlist", Key_Bindlist_f,
+    cmdSystem->AddCommand("bindlist", Bindlist_f,
                           "Displays list of cvars in console");
-    cmdSystem->AddCommand("editbind", Key_EditBind_f,
+    cmdSystem->AddCommand("editbind", EditBind_f,
                           "Used for editing already binded key");
-    cmdSystem->SetCommandCompletionFunc("editbind", Key_CompleteEditbind);
+    cmdSystem->SetCommandCompletionFunc("editbind", CompleteEditbind);
 }
 
 /*
 ===================
-CL_AddKeyUpCommands
+idClientKeysSystemLocal::AddKeyUpCommands
 ===================
 */
-void CL_AddKeyUpCommands(sint key, valueType *kb, sint time) {
+void idClientKeysSystemLocal::AddKeyUpCommands(sint key, valueType *kb,
+        sint time) {
     sint i;
     valueType button[1024], *buttonPtr;
     valueType   cmd[1024];
@@ -1037,19 +807,14 @@ void CL_AddKeyUpCommands(sint key, valueType *kb, sint time) {
     }
 }
 
-
 /*
 ===================
-CL_KeyEvent
+idClientKeysSystemLocal::KeyEvent
 
 Called by the system for both key up and key down events
 ===================
 */
-//static consoleCount = 0;
-// fretn
-bool consoleButtonWasPressed = false;
-
-void CL_KeyEvent(sint key, sint down, sint time) {
+void idClientKeysSystemLocal::KeyEvent(sint key, sint down, sint time) {
     valueType    *kb;
     valueType cmd[1024];
     bool bypassMenu = false;       // NERVE - SMF
@@ -1101,7 +866,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
     if(key == K_ENTER) {
         if(down) {
             if(keys[K_ALT].down) {
-                Key_ClearStates();
+                ClearStates();
 
                 // don't repeat fullscreen toggle when keys are held down
                 if(keys[K_ENTER].repeats > 1) {
@@ -1127,16 +892,16 @@ void CL_KeyEvent(sint key, sint down, sint time) {
     if(down && keys[ K_COMMAND ].down) {
 
         if(key == 'f') {
-            Key_ClearStates();
+            ClearStates();
             cmdBufferSystem->ExecuteText(EXEC_APPEND,
                                          "toggle r_fullscreen\nvid_restart\n");
             return;
         } else if(key == 'q') {
-            Key_ClearStates();
+            ClearStates();
             cmdBufferSystem->ExecuteText(EXEC_APPEND, "quit\n");
             return;
         } else if(key == K_TAB) {
-            Key_ClearStates();
+            ClearStates();
             cvarSystem->SetValue("r_minimize", 1);
             return;
         }
@@ -1145,7 +910,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
 #endif
 
     if(cl_altTab->integer && keys[K_ALT].down && key == K_TAB) {
-        Key_ClearStates();
+        ClearStates();
         cvarSystem->SetValue("r_minimize", 1);
         return;
     }
@@ -1207,7 +972,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
         }
 
         clientConsoleSystem->ToggleConsole_f();
-        Key_ClearStates();
+        ClearStates();
         return;
     }
 
@@ -1254,13 +1019,13 @@ void CL_KeyEvent(sint key, sint down, sint time) {
         //If console is active then ESC should close console
         if(cls.keyCatchers & KEYCATCH_CONSOLE) {
             clientConsoleSystem->ToggleConsole_f();
-            Key_ClearStates();
+            ClearStates();
             return;
         }
 
         if(cls.keyCatchers & KEYCATCH_MESSAGE) {
             // clear message mode
-            Message_Key(key);
+            Key(key);
             return;
         }
 
@@ -1346,7 +1111,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
     if(!down) {
         kb = keys[key].binding;
 
-        CL_AddKeyUpCommands(key, kb, time);
+        AddKeyUpCommands(key, kb, time);
 
         if(cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_BUG)) {
             uiManager->KeyEvent(key, down);
@@ -1360,7 +1125,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
     // distribute the key down event to the apropriate handler
     if(cls.keyCatchers & KEYCATCH_CONSOLE) {
         if(!onlybinds) {
-            Console_DownEventKey(key);
+            DownEventKey(key);
         }
     } else if(cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_BUG)) {
         uiManager->KeyEvent(key, down);
@@ -1376,11 +1141,11 @@ void CL_KeyEvent(sint key, sint down, sint time) {
         }
     } else if(cls.keyCatchers & KEYCATCH_MESSAGE) {
         if(!onlybinds) {
-            Message_Key(key);
+            Key(key);
         }
     } else if(cls.state == CA_DISCONNECTED) {
         if(!onlybinds) {
-            Console_DownEventKey(key);
+            DownEventKey(key);
         }
     } else {
         // send the bound action
@@ -1389,7 +1154,7 @@ void CL_KeyEvent(sint key, sint down, sint time) {
         if(!kb) {
             if(key >= 200) {
                 Com_Printf("%s is unbound, use controls menu to set.\n"
-                           , Key_KeynumToString(key));
+                           , KeynumToString(key));
             }
         } else if(kb[0] == '+') {
             // button commands add keynum and time as parms so that multiple
@@ -1404,13 +1169,12 @@ void CL_KeyEvent(sint key, sint down, sint time) {
     }
 }
 
-
 /*
 ==================
-CL_KeyCharEvents
+idClientKeysSystemLocal::KeyCharEvents
 ==================
 */
-static void CL_KeyCharEvents(sint ch) {
+void idClientKeysSystemLocal::KeyCharEvents(sint ch) {
     // ctrl-L clears screen
     if(ch == KEYBOARDCTRL('l')) {
         cmdBufferSystem->AddText("clear\n");
@@ -1463,15 +1227,14 @@ static void CL_KeyCharEvents(sint ch) {
     cmdCompletionSystem->CharEvent(&g_consoleField, ch);
 }
 
-
 /*
 ===================
-CL_CharEvent
+idClientKeysSystemLocal::CharEvent
 
 Normal keyboard characters, already shifted / capslocked / etc
 ===================
 */
-void CL_CharEvent(sint key) {
+void idClientKeysSystemLocal::CharEvent(sint key) {
     // the console key should never be used as a char
     // ydnar: added uk equivalent of shift+`
     // the RIGHT way to do this would be to have certain keys disable the equivalent SYSE_CHAR event
@@ -1486,7 +1249,7 @@ void CL_CharEvent(sint key) {
 
     // distribute the key down event to the apropriate handler
     if(cls.keyCatchers & KEYCATCH_CONSOLE) {
-        CL_KeyCharEvents(key);
+        KeyCharEvents(key);
     } else if(cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_BUG)) {
         uiManager->KeyEvent(key | K_CHAR_FLAG, true);
     } else if(cls.keyCatchers & KEYCATCH_UI) {
@@ -1500,24 +1263,46 @@ void CL_CharEvent(sint key) {
     }
 }
 
-
 /*
 ===================
-Key_ClearStates
+idClientKeysSystemLocal::ClearStates
 ===================
 */
-void Key_ClearStates(void) {
+void idClientKeysSystemLocal::ClearStates(void) {
     sint i;
 
     anykeydown = 0;
 
     for(i = 0 ; i < MAX_KEYS ; i++) {
         if(keys[i].down) {
-            CL_KeyEvent(i, false, 0);
+            clientKeysLocal.KeyEvent(i, false, 0);
 
         }
 
         keys[i].down = (bool)0;
         keys[i].repeats = 0;
     }
+}
+
+/*
+====================
+idClientKeysSystemLocal::GetCatcher
+====================
+*/
+sint idClientKeysSystemLocal::GetCatcher(void) {
+    return cls.keyCatchers;
+}
+
+/*
+====================
+idClientKeysSystemLocal::SetCatcher
+====================
+*/
+void idClientKeysSystemLocal::SetCatcher(sint catcher) {
+    // If the catcher state is changing, clear all key states
+    if(catcher != cls.keyCatchers) {
+        ClearStates();
+    }
+
+    cls.keyCatchers = catcher;
 }

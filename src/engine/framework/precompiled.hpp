@@ -183,16 +183,17 @@ extern "C"
 #include <soundSystem/sndSystem_codec.hpp>
 #include <API/soundSystem_api.hpp>
 #include <soundSystem/sndSystem_local.hpp>
+#include <framework/keycodes.hpp>
+#include <framework/CmdSystem.hpp>
+#include <API/CmdCompletion_api.hpp>
+#include <framework/CmdCompletion.hpp>
+#include <API/clientKeys_api.hpp>
+#include <client/clientKeys.hpp>
 #include <API/cgame_api.hpp>
 #include <API/gui_api.hpp>
 #include <client/clientPublic.hpp>
 #include <client/clientLocal.hpp>
 #include <client/clientParse.hpp>
-#include <framework/keycodes.hpp>
-#include <framework/CmdSystem.hpp>
-#include <API/CmdCompletion_api.hpp>
-#include <framework/CmdCompletion.hpp>
-#include <client/keys.hpp>
 
 #include <zlib.h>
 #include <bzlib.h>

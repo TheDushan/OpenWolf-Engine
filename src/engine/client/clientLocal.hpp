@@ -52,9 +52,6 @@ extern idUserInterfaceManager *uiManager;
 
 //=================================================
 
-void            Key_GetBindingByString(pointer binding, sint *key1,
-                                       sint *key2);
-
 //
 // cl_main
 //
@@ -93,8 +90,6 @@ void            CL_Record(pointer name);
 
 
 void            CL_ClearState(void);
-sint             Key_StringToKeynum(pointer str);
-valueType           *Key_KeynumToString(sint keynum);
 
 extern sint      cl_connectedToPureServer;
 

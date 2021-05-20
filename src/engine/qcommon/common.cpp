@@ -2691,7 +2691,7 @@ sint Com_EventLoop( void )
                 break;
             case SYSE_KEY:
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
+                clientKeysSystem->KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
 #endif
                 break;
             case SYSE_CHAR:
@@ -2706,7 +2706,8 @@ sint Com_EventLoop( void )
                     consoleButtonWasPressed = false;
                     break;
                 }
-                CL_CharEvent( ev.evValue );
+
+                clientKeysSystem->CharEvent( ev.evValue );
 #endif
                 break;
             case SYSE_MOUSE:
@@ -3150,7 +3151,7 @@ void Com_Init( valueType* commandLine )
 
     // done early so bind command exists
 #if !defined (DEDICATED)
-    CL_InitKeyCommands();
+    clientKeysSystem->InitKeyCommands();
 #endif
 
 #ifdef _WIN32
@@ -3349,7 +3350,7 @@ void Com_WriteConfigToFile( pointer filename )
     fileSystem->Printf( f, "// Key Bindings\n" );
     fileSystem->Printf( f, "//\n" );
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-    Key_WriteBindings( f );
+    clientKeysSystem->WriteBindings( f );
 #endif
     fileSystem->Printf( f, "//\n" );
     fileSystem->Printf( f, "// Cvars\n" );

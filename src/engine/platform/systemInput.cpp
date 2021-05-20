@@ -111,7 +111,7 @@ void idSystemLocal::PrintKey(const SDL_Keysym *keysym, keyNum_t key,
         Com_Printf(" KMOD_RESERVED");
     }
 
-    Com_Printf(" Q:0x%02x(%s)\n", key, Key_KeynumToString(key));
+    Com_Printf(" Q:0x%02x(%s)\n", key, clientKeysSystem->KeynumToString(key));
 }
 
 /*
@@ -163,7 +163,7 @@ bool idSystemLocal::IsConsoleKey(keyNum_t key, sint character) {
                 c->u.character = charCode;
             } else {
                 c->type = QUAKE_KEY;
-                c->u.key = (keyNum_t)Key_StringToKeynum(token);
+                c->u.key = static_cast<keyNum_t>(clientKeysSystem->StringToKeynum(token));
 
                 // 0 isn't a key
                 if(c->u.key <= 0) {

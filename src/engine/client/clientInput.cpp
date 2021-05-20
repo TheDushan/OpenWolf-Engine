@@ -1797,8 +1797,9 @@ void idClientInputSystemLocal::InitInput(void) {
     cmdSystem->AddCommand("-speed", SpeedUp,
                           "Stops issuing walk/run command");
 
+    // ---- id   (primary firing)
     cmdSystem->AddCommand("+attack", Button0Down,
-                          "Fires weapon, or uses the weaponbank object currently selected");     // ---- id   (primary firing)
+                          "Fires weapon, or uses the weaponbank object currently selected");
     cmdSystem->AddCommand("-attack", Button0Up,
                           "Stops issuing command to attack");
 

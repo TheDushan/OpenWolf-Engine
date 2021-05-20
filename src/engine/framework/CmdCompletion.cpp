@@ -226,10 +226,10 @@ void idCmdCompletionLocal::CompleteKeyname(void) {
     matchCount = 0;
     shortestMatch[0] = 0;
 
-    Key_KeynameCompletion(FindMatches);
+    clientKeysSystem->KeynameCompletion(FindMatches);
 
     if(!Complete()) {
-        Key_KeynameCompletion(PrintMatches);
+        clientKeysSystem->KeynameCompletion(PrintMatches);
     }
 
 #endif

@@ -327,8 +327,8 @@ idClientConsoleSystemLocal::ToggleMenu_f
 ===================
 */
 void idClientConsoleSystemLocal::ToggleMenu_f(void) {
-    CL_KeyEvent(K_ESCAPE, true, idsystem->Milliseconds());
-    CL_KeyEvent(K_ESCAPE, false, idsystem->Milliseconds());
+    clientKeysSystem->KeyEvent(K_ESCAPE, true, idsystem->Milliseconds());
+    clientKeysSystem->KeyEvent(K_ESCAPE, false, idsystem->Milliseconds());
 }
 
 /*
