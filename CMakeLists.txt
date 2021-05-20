@@ -359,7 +359,6 @@ set( CLIENTLIST_HEADERS
 	${MOUNT_DIR}/client/clientLAN.hpp
 	${MOUNT_DIR}/client/clientScreen.hpp
 	${MOUNT_DIR}/client/keycodes.hpp
-	${MOUNT_DIR}/client/keys.hpp
 	${MOUNT_DIR}/API/clientScreen_api.hpp
 	${MOUNT_DIR}/API/clientAVI_api.hpp
 	${MOUNT_DIR}/API/clientGame_api.hpp
@@ -376,6 +375,8 @@ set( CLIENTLIST_HEADERS
 	${MOUNT_DIR}/client/clientConsole.hpp
 	${MOUNT_DIR}/API/clientInput_api.hpp
 	${MOUNT_DIR}/client/clientInput.hpp
+	${MOUNT_DIR}/API/clientKeys_api.hpp
+	${MOUNT_DIR}/client/clientKeys.hpp
 )
 
 set( CLIENTLIST_SOURCES
@@ -384,7 +385,7 @@ set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/clientCinema.cpp
 	${MOUNT_DIR}/client/clientConsole.cpp
 	${MOUNT_DIR}/client/clientInput.cpp
-	${MOUNT_DIR}/client/cl_keys.cpp
+	${MOUNT_DIR}/client/clientKeys.cpp
 	${MOUNT_DIR}/client/cl_main.cpp
 	${MOUNT_DIR}/client/clientNetChan.cpp
 	${MOUNT_DIR}/client/clientParse.cpp
