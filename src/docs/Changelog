@@ -1,6 +1,7 @@
 2021-05-20 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client keys into C++ file
 	* [Steamworks] Added initial files for the future Valve Steamworks engine integration
+	* [Renderer] Added initial files for the future idTech2 (BSP version 38) integration
 
 2021-05-19 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client console into C++ file
