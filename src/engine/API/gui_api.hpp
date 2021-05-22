@@ -201,15 +201,10 @@ sint trap_LastAttacker(void);
 struct guiImports_t {
     void(*Print)(pointer fmt, ...);
     void(*Error)(sint level, pointer fmt, ...);
-    void(*CheckAutoUpdate)(void);
-    void(*GetAutoUpdate)(void);
 
     uint64(*Hunk_MemoryRemaining)(void);
     sint(*RealTime)(qtime_t *qtime);
-    void(*SetExtents)(sint handle, sint x, sint y, sint w, sint h);
-    void (*OpenURL)(pointer s);
     void (*GetHunkInfo)(sint *hunkused, sint *hunkexpected);
-    void(*AddCommand)(pointer cmdName, pointer cmdDesc);
 
     idRenderSystem *renderSystem;
     idSoundSystem *soundSystem;
@@ -227,6 +222,9 @@ struct guiImports_t {
     idClientCinemaSystem *clientCinemaSystem;
     idClientLocalizationSystem *clientLocalization;
     idClientKeysSystem *clientKeysSystem;
+    idClientReliableCommandsSystemAPI *clientReliableCommandsSystem;
+    idClientAutoUpdateSystemAPI *clientAutoUpdateSystem;
+    idClientMainSystemAPI *clientMainSystem;
 #endif
 };
 

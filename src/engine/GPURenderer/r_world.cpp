@@ -721,8 +721,9 @@ static void R_MarkLeaves(void) {
         } else if(tr.visClusters[i] == cluster) {
             if(tr.visClusters[i] != tr.visClusters[tr.visIndex] &&
                     r_showcluster->integer) {
-                CL_RefPrintf(PRINT_ALL, "found cluster:%i  area:%i  index:%i\n", cluster,
-                             leaf->area, i);
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "found cluster:%i  area:%i  index:%i\n", cluster,
+                                                leaf->area, i);
             }
 
             tr.visIndex = i;
@@ -738,7 +739,8 @@ static void R_MarkLeaves(void) {
         r_showcluster->modified = false;
 
         if(r_showcluster->integer) {
-            CL_RefPrintf(PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area);
+            clientRendererSystem->RefPrintf(PRINT_ALL, "cluster:%i  area:%i\n",
+                                            cluster, leaf->area);
         }
     }
 

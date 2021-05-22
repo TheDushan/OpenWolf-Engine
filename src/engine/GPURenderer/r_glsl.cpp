@@ -164,30 +164,31 @@ static void GLSL_PrintLog(uint programOrShader, glslPrintLog_t type,
 
     switch(type) {
         case GLSL_PRINTLOG_PROGRAM_INFO:
-            CL_RefPrintf(printLevel, "Program info log:\n");
+            clientRendererSystem->RefPrintf(printLevel, "Program info log:\n");
             qglGetProgramiv(programOrShader, GL_INFO_LOG_LENGTH, &maxLength);
             break;
 
         case GLSL_PRINTLOG_SHADER_INFO:
-            CL_RefPrintf(printLevel, "Shader info log:\n");
+            clientRendererSystem->RefPrintf(printLevel, "Shader info log:\n");
             qglGetShaderiv(programOrShader, GL_INFO_LOG_LENGTH, &maxLength);
             break;
 
         case GLSL_PRINTLOG_SHADER_SOURCE:
-            CL_RefPrintf(printLevel, "Shader source:\n");
+            clientRendererSystem->RefPrintf(printLevel, "Shader source:\n");
             qglGetShaderiv(programOrShader, GL_SHADER_SOURCE_LENGTH, &maxLength);
             break;
     }
 
     if(maxLength <= 0) {
-        CL_RefPrintf(printLevel, "None.\n");
+        clientRendererSystem->RefPrintf(printLevel, "None.\n");
         return;
     }
 
     if(maxLength < 1023) {
         msg = msgPart;
     } else {
-        msg = reinterpret_cast< valueType * >(CL_RefMalloc(maxLength));
+        msg = reinterpret_cast< valueType * >(clientRendererSystem->RefMalloc(
+                maxLength));
     }
 
     switch(type) {
@@ -207,15 +208,15 @@ static void GLSL_PrintLog(uint programOrShader, glslPrintLog_t type,
     if(maxLength < 1023) {
         msgPart[maxLength + 1] = '\0';
 
-        CL_RefPrintf(printLevel, "%s\n", msgPart);
+        clientRendererSystem->RefPrintf(printLevel, "%s\n", msgPart);
     } else {
         for(i = 0; i < maxLength; i += 1023) {
             Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
 
-            CL_RefPrintf(printLevel, "%s", msgPart);
+            clientRendererSystem->RefPrintf(printLevel, "%s", msgPart);
         }
 
-        CL_RefPrintf(printLevel, "\n");
+        clientRendererSystem->RefPrintf(printLevel, "\n");
 
         Z_Free(msg);
     }
@@ -421,7 +422,8 @@ static sint GLSL_LoadGPUShaderText(pointer name, uint shaderType,
 
     size = fileSystem->ReadFile(filename, (void **)&buffer);
 #ifdef _DEBUG
-    CL_RefPrintf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
+    clientRendererSystem->RefPrintf(PRINT_DEVELOPER, "...loading '%s'\n",
+                                    filename);
 #endif
     shaderText = buffer;
     size += 1;
@@ -481,7 +483,8 @@ static void GLSL_ShowProgramUniforms(uint program) {
         qglGetActiveUniform(program, i, sizeof(uniformName), nullptr, &size, &type,
                             uniformName);
 #ifdef _DEBUG
-        CL_RefPrintf(PRINT_DEVELOPER, "active uniform: '%s'\n", uniformName);
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER, "active uniform: '%s'\n",
+                                        uniformName);
 #endif
     }
 }
@@ -489,7 +492,8 @@ static void GLSL_ShowProgramUniforms(uint program) {
 static sint GLSL_InitGPUShader2(shaderProgram_t *program, pointer name,
                                 sint attribs, pointer vpCode, pointer fpCode) {
 #ifdef _DEBUG
-    CL_RefPrintf(PRINT_DEVELOPER, "------- GPU shader -------\n");
+    clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                    "------- GPU shader -------\n");
 #endif
 
     if(strlen(name) >= MAX_QPATH) {
@@ -503,8 +507,8 @@ static sint GLSL_InitGPUShader2(shaderProgram_t *program, pointer name,
 
     if(!(GLSL_CompileGPUShader(program->program, &program->vertexShader,
                                vpCode, strlen(vpCode), GL_VERTEX_SHADER))) {
-        CL_RefPrintf(PRINT_ALL,
-                     "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_VERTEX_SHADER\n", name);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_VERTEX_SHADER\n", name);
         qglDeleteProgram(program->program);
         return 0;
     }
@@ -512,9 +516,9 @@ static sint GLSL_InitGPUShader2(shaderProgram_t *program, pointer name,
     if(fpCode) {
         if(!(GLSL_CompileGPUShader(program->program, &program->fragmentShader,
                                    fpCode, strlen(fpCode), GL_FRAGMENT_SHADER))) {
-            CL_RefPrintf(PRINT_ALL,
-                         "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_FRAGMENT_SHADER\n",
-                         name);
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_FRAGMENT_SHADER\n",
+                                            name);
             qglDeleteProgram(program->program);
             return 0;
         }
@@ -693,8 +697,9 @@ void GLSL_InitUniforms(shaderProgram_t *program) {
         }
     }
 
-    program->uniformBuffer = reinterpret_cast< valueType * >(CL_RefMalloc(
-                                 size));
+    program->uniformBuffer = reinterpret_cast< valueType * >
+                             (clientRendererSystem->RefMalloc(
+                                  size));
 }
 
 void GLSL_FinishGPUShader(shaderProgram_t *program) {
@@ -716,9 +721,9 @@ void GLSL_SetUniformInt(shaderProgram_t *program, sint uniformNum,
     }
 
     if(uniformsInfo[uniformNum].type != GLSL_INT) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformInt: wrong type for uniform %i in program %s\n",
-                     uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformInt: wrong type for uniform %i in program %s\n",
+                                        uniformNum, program->name);
         return;
     }
 
@@ -742,9 +747,9 @@ void GLSL_SetUniformFloat(shaderProgram_t *program, sint uniformNum,
     }
 
     if(uniformsInfo[uniformNum].type != GLSL_FLOAT) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformFloat: wrong type for uniform %i in program %s\n",
-                     uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformFloat: wrong type for uniform %i in program %s\n",
+                                        uniformNum, program->name);
         return;
     }
 
@@ -768,9 +773,9 @@ void GLSL_SetUniformVec2(shaderProgram_t *program, sint uniformNum,
     }
 
     if(uniformsInfo[uniformNum].type != GLSL_VEC2) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformVec2: wrong type for uniform %i in program %s\n",
-                     uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformVec2: wrong type for uniform %i in program %s\n",
+                                        uniformNum, program->name);
         return;
     }
 
@@ -795,9 +800,9 @@ void GLSL_SetUniformVec3(shaderProgram_t *program, sint uniformNum,
     }
 
     if(uniformsInfo[uniformNum].type != GLSL_VEC3) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformVec3: wrong type for uniform %i in program %s\n",
-                     uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformVec3: wrong type for uniform %i in program %s\n",
+                                        uniformNum, program->name);
         return;
     }
 
@@ -822,9 +827,9 @@ void GLSL_SetUniformVec4(shaderProgram_t *program, sint uniformNum,
     }
 
     if(uniformsInfo[uniformNum].type != GLSL_VEC4) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformVec4: wrong type for uniform %i in program %s\n",
-                     uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformVec4: wrong type for uniform %i in program %s\n",
+                                        uniformNum, program->name);
         return;
     }
 
@@ -849,9 +854,9 @@ void GLSL_SetUniformFloat5(shaderProgram_t *program, sint uniformNum,
     }
 
     if(uniformsInfo[uniformNum].type != GLSL_FLOAT5) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformFloat5: wrong type for uniform %i in program %s\n",
-                     uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformFloat5: wrong type for uniform %i in program %s\n",
+                                        uniformNum, program->name);
         return;
     }
 
@@ -875,9 +880,9 @@ void GLSL_SetUniformMat4(shaderProgram_t *program, sint uniformNum,
     }
 
     if(uniformsInfo[uniformNum].type != GLSL_MAT16) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformMat4: wrong type for uniform %i in program %s\n",
-                     uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformMat4: wrong type for uniform %i in program %s\n",
+                                        uniformNum, program->name);
         return;
     }
 
@@ -902,16 +907,16 @@ void GLSL_SetUniformMat4BoneMatrix(shaderProgram_t *program,
     }
 
     if(uniformsInfo[uniformNum].type != GLSL_MAT16_BONEMATRIX) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformMat4BoneMatrix: wrong type for uniform %i in program %s\n",
-                     uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformMat4BoneMatrix: wrong type for uniform %i in program %s\n",
+                                        uniformNum, program->name);
         return;
     }
 
     if(numMatricies > glRefConfig.glslMaxAnimatedBones) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "GLSL_SetUniformMat4BoneMatrix: too many matricies (%d/%d) for uniform %i in program %s\n",
-                     numMatricies, glRefConfig.glslMaxAnimatedBones, uniformNum, program->name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GLSL_SetUniformMat4BoneMatrix: too many matricies (%d/%d) for uniform %i in program %s\n",
+                                        numMatricies, glRefConfig.glslMaxAnimatedBones, uniformNum, program->name);
         return;
     }
 
@@ -954,12 +959,12 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     sint attribs;
     sint numGenShaders = 0, numLightShaders = 0, numEtcShaders = 0;
 
-    CL_RefPrintf(PRINT_ALL,
-                 "------- idRenderSystemLocal::InitGPUShaders -------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "------- idRenderSystemLocal::InitGPUShaders -------\n");
 
     R_IssuePendingRenderCommands();
 
-    startTime = CL_ScaledMilliseconds();
+    startTime = clientRendererSystem->ScaledMilliseconds();
 
     /////////////////////////////////////////////////////////////////////////////
     for(i = 0; i < GENERICDEF_COUNT; i++) {
@@ -1568,7 +1573,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         GLSL_SetUniformVec2(&tr.darkexpandShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     GLSL_FinishGPUShader(&tr.darkexpandShader);
@@ -1716,7 +1721,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         GLSL_SetUniformVec2(&tr.hdrShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     GLSL_FinishGPUShader(&tr.hdrShader);
@@ -1795,7 +1800,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         GLSL_SetUniformVec2(&tr.dofShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     GLSL_FinishGPUShader(&tr.dofShader);
@@ -1834,7 +1839,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         GLSL_SetUniformVec2(&tr.esharpeningShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     GLSL_FinishGPUShader(&tr.esharpeningShader);
@@ -1876,7 +1881,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
         GLSL_SetUniformVec2(&tr.esharpening2Shader, UNIFORM_DIMENSIONS,
                             screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     GLSL_FinishGPUShader(&tr.esharpening2Shader);
@@ -1981,7 +1986,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         GLSL_SetUniformVec2(&tr.anaglyphShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     {
@@ -2031,7 +2036,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
         GLSL_SetUniformVec2(&tr.texturedetailShader, UNIFORM_DIMENSIONS,
                             screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     GLSL_FinishGPUShader(&tr.texturedetailShader);
@@ -2106,7 +2111,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         GLSL_SetUniformVec2(&tr.fxaaShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     GLSL_FinishGPUShader(&tr.fxaaShader);
@@ -2255,20 +2260,20 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     numEtcShaders++;
 #endif
 
-    endTime = CL_ScaledMilliseconds();
+    endTime = clientRendererSystem->ScaledMilliseconds();
 
-    CL_RefPrintf(PRINT_ALL,
-                 "loaded %i GLSL shaders (%i gen %i light %i etc) in %5.2f seconds\n",
-                 numGenShaders + numLightShaders + numEtcShaders, numGenShaders,
-                 numLightShaders,
-                 numEtcShaders, (endTime - startTime) / 1000.0);
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "loaded %i GLSL shaders (%i gen %i light %i etc) in %5.2f seconds\n",
+                                    numGenShaders + numLightShaders + numEtcShaders, numGenShaders,
+                                    numLightShaders,
+                                    numEtcShaders, (endTime - startTime) / 1000.0);
 }
 
 void idRenderSystemLocal::ShutdownGPUShaders(void) {
     sint i;
 
-    CL_RefPrintf(PRINT_ALL,
-                 "------- idRenderSystemLocal::ShutdownGPUShaders -------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "------- idRenderSystemLocal::ShutdownGPUShaders -------\n");
 
     for(i = 0; i < ATTR_INDEX_COUNT; i++) {
         qglDisableVertexAttribArray(i);

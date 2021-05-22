@@ -271,10 +271,7 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.Error = Com_Error;
 
     exports.RealTime = Com_RealTime;
-    exports.CheckAutoUpdate = CL_CheckAutoUpdate;
-    exports.GetAutoUpdate = CL_GetAutoUpdate;
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
-    exports.OpenURL = CL_OpenURL;
     exports.GetHunkInfo = Com_GetHunkInfo;
 
     exports.clientCinemaSystem = clientCinemaSystem;
@@ -292,6 +289,8 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.parseSystem = ParseSystem;
     exports.clientLocalization = clientLocalizationSystem;
     exports.clientKeysSystem = clientKeysSystem;
+    exports.clientAutoUpdateSystem = clientAutoUpdateSystem;
+    exports.clientMainSystem = clientMainSystem;
 }
 
 /*

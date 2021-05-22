@@ -227,8 +227,8 @@ void R_LoadDDS(pointer filename, uchar8 **pic, sint *width, sint *height,
     uchar8 *data;
 
     if(!picFormat) {
-        CL_RefPrintf(PRINT_ERROR,
-                     "R_LoadDDS() called without picFormat parameter!");
+        clientRendererSystem->RefPrintf(PRINT_ERROR,
+                                        "R_LoadDDS() called without picFormat parameter!");
         return;
     }
 
@@ -263,8 +263,9 @@ void R_LoadDDS(pointer filename, uchar8 **pic, sint *width, sint *height,
     // reject files that are too small to hold even a header
     //
     if(len < 4 + sizeof(*ddsHeader)) {
-        CL_RefPrintf(PRINT_ALL, "File %s is too small to be a DDS file.\n",
-                     filename);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "File %s is too small to be a DDS file.\n",
+                                        filename);
         fileSystem->FreeFile(buffer.v);
         return;
     }
@@ -273,7 +274,8 @@ void R_LoadDDS(pointer filename, uchar8 **pic, sint *width, sint *height,
     // reject files that don't start with "DDS "
     //
     if(*(reinterpret_cast<uint *>((buffer.b))) != EncodeFourCC("DDS ")) {
-        CL_RefPrintf(PRINT_ALL, "File %s is not a DDS file.\n", filename);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "File %s is not a DDS file.\n",
+                                        filename);
         fileSystem->FreeFile(buffer.v);
         return;
     }
@@ -286,8 +288,8 @@ void R_LoadDDS(pointer filename, uchar8 **pic, sint *width, sint *height,
     if((ddsHeader->pixelFormatFlags & DDSPF_FOURCC) &&
             ddsHeader->fourCC == EncodeFourCC("DX10")) {
         if(len < 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10)) {
-            CL_RefPrintf(PRINT_ALL,
-                         "File %s indicates a DX10 header it is too small to contain.\n", filename);
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "File %s indicates a DX10 header it is too small to contain.\n", filename);
             fileSystem->FreeFile(buffer.v);
             return;
         }
@@ -399,8 +401,9 @@ void R_LoadDDS(pointer filename, uchar8 **pic, sint *width, sint *height,
                 break;
 
             default:
-                CL_RefPrintf(PRINT_ALL, "DDS File %s has unsupported DXGI format %d.",
-                             filename, ddsHeaderDxt10->dxgiFormat);
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "DDS File %s has unsupported DXGI format %d.",
+                                                filename, ddsHeaderDxt10->dxgiFormat);
                 fileSystem->FreeFile(buffer.v);
                 return;
                 break;
@@ -430,7 +433,8 @@ void R_LoadDDS(pointer filename, uchar8 **pic, sint *width, sint *height,
             } else if(ddsHeader->fourCC == EncodeFourCC("BC5S")) {
                 *picFormat = GL_COMPRESSED_SIGNED_RG_RGTC2;
             } else {
-                CL_RefPrintf(PRINT_ALL, "DDS File %s has unsupported FourCC.", filename);
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "DDS File %s has unsupported FourCC.", filename);
                 fileSystem->FreeFile(buffer.v);
                 return;
             }
@@ -442,14 +446,15 @@ void R_LoadDDS(pointer filename, uchar8 **pic, sint *width, sint *height,
                   && ddsHeader->aBitMask == 0xff000000) {
             *picFormat = GL_RGBA8;
         } else {
-            CL_RefPrintf(PRINT_ALL, "DDS File %s has unsupported RGBA format.",
-                         filename);
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "DDS File %s has unsupported RGBA format.",
+                                            filename);
             fileSystem->FreeFile(buffer.v);
             return;
         }
     }
 
-    *pic = static_cast<uchar8 *>(CL_RefMalloc(len));
+    *pic = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(len));
     ::memcpy(*pic, data, len);
 
     fileSystem->FreeFile(buffer.v);
@@ -467,7 +472,7 @@ void R_SaveDDS(pointer filename, uchar8 *pic, sint width, sint height,
 
     picSize = width * height * depth * 4;
     size = 4 + sizeof(*ddsHeader) + picSize;
-    data = static_cast<uchar8 *>(CL_RefMalloc(size));
+    data = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(size));
 
     data[0] = 'D';
     data[1] = 'D';

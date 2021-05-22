@@ -1,3 +1,6 @@
+2021-05-21 Dusan Jocic <dusanjocic@msn>
+	* [Client] Moved client main in several C++ files
+
 2021-05-20 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client keys into C++ file
 	* [Steamworks] Added initial files for the future Valve Steamworks engine integration

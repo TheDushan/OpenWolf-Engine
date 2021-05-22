@@ -1,0 +1,46 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Copyright(C) 2021 Dusan Jocic <dusanjocic@msn.com>
+//
+// This file is part of OpenWolf.
+//
+// OpenWolf is free software; you can redistribute it
+// and / or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation; either version 2 of the License,
+// or (at your option) any later version.
+//
+// OpenWolf is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with OpenWolf; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
+//
+// -------------------------------------------------------------------------------------
+// File name:   clientGUID.hpp
+// Created:
+// Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+// Description:
+// -------------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef __CLIENTGUID_HPP__
+#define __CLIENTGUID_HPP__
+
+//
+// idClientGUIDSystemLocal
+//
+class idClientGUIDSystemLocal {
+public:
+    idClientGUIDSystemLocal();
+    ~idClientGUIDSystemLocal();
+
+    static void UpdateGUID(pointer prefix, uint64 prefix_len);
+    static void GenerateGUIDKey(void);
+};
+
+extern idClientGUIDSystemLocal clientGUIDLocal;
+
+#endif //__CLIENTGUID_HPP__

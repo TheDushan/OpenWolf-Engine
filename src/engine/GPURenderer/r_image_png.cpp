@@ -235,7 +235,8 @@ static struct BufferedFile *ReadBufferedFile(pointer name) {
      *  Allocate control struct.
      */
 
-    BF = (struct BufferedFile *)CL_RefMalloc(sizeof(struct BufferedFile));
+    BF = (struct BufferedFile *)clientRendererSystem->RefMalloc(sizeof(
+                struct BufferedFile));
 
     if(!BF) {
         return(nullptr);
@@ -597,7 +598,8 @@ static uint DecompressIDATs(struct BufferedFile *BF, uchar8 **Buffer) {
 
     BufferedFileRewind(BF, BytesToRewind);
 
-    CompressedData = static_cast<uchar8 *>(CL_RefMalloc(CompressedDataLength));
+    CompressedData = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+            CompressedDataLength));
 
     if(!CompressedData) {
         return(-1);
@@ -696,7 +698,8 @@ static uint DecompressIDATs(struct BufferedFile *BF, uchar8 **Buffer) {
      *  Allocate the buffer for the uncompressed data.
      */
 
-    DecompressedData = static_cast<uchar8 *>(CL_RefMalloc(puffDestLen));
+    DecompressedData = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                           puffDestLen));
 
     if(!DecompressedData) {
         Z_Free(CompressedData);
@@ -1915,7 +1918,8 @@ void R_LoadPNG(pointer name, uchar8 **pic, sint *width, sint *height) {
             || IHDR_Width > INT_MAX / Q3IMAGE_BYTESPERPIXEL / IHDR_Height) {
         CloseBufferedFile(ThePNG);
 
-        CL_RefPrintf(PRINT_WARNING, "%s: invalid image size\n", name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING, "%s: invalid image size\n",
+                                        name);
 
         return;
     }
@@ -2234,8 +2238,9 @@ void R_LoadPNG(pointer name, uchar8 **pic, sint *width, sint *height) {
      *  Allocate output buffer.
      */
 
-    OutBuffer = static_cast<uchar8 *>(CL_RefMalloc(IHDR_Width * IHDR_Height *
-                                      Q3IMAGE_BYTESPERPIXEL));
+    OutBuffer = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                                          IHDR_Width * IHDR_Height *
+                                          Q3IMAGE_BYTESPERPIXEL));
 
     if(!OutBuffer) {
         Z_Free(DecompressedData);

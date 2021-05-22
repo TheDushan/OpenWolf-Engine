@@ -50,57 +50,7 @@ extern void    *dbvm;
 extern idCGame *cgame;
 extern idUserInterfaceManager *uiManager;
 
-//=================================================
-
-//
-// cl_main
-//
-void CL_PurgeCache(void);
-void CL_Init(void);
-void CL_FlushMemory(void);
-void CL_ShutdownAll(bool shutdownRen);
-void CL_AddReliableCommand(pointer cmd);
-
-void            CL_StartHunkUsers(bool rendererOnly);
-
-#if !defined(UPDATE_SERVER)
-void            CL_CheckAutoUpdate(void);
-bool            CL_NextUpdateServer(void);
-void            CL_GetAutoUpdate(void);
-#endif
-
-void            CL_Disconnect_f(void);
-void            CL_Vid_Restart_f(void);
-void            CL_Snd_Restart_f(void);
-void            CL_NextDemo(void);
-void            CL_ReadDemoMessage(void);
-void            CL_StartDemoLoop(void);
-
-void            CL_InitDownloads(void);
-void            CL_NextDownload(void);
-
-
-void            CL_ShutdownRef(void);
-void            CL_InitRef(void);
-
-void            CL_AddToLimboChat(pointer str);      // NERVE - SMF
-
-void            CL_OpenURL(pointer url);     // TTimo
-void            CL_Record(pointer name);
-
-
-void            CL_ClearState(void);
-
 extern sint      cl_connectedToPureServer;
 
-//====================================================================
-
-void            CL_UpdateInfoPacket(netadr_t from);      // DHM - Nerve
-
-//
-// cl_main.c
-//
-void            CL_WriteDemoMessage(msg_t *msg, sint headerBytes);
-void            CL_RequestMotd(void);
 
 #endif //!__CLIENTLOCAL_HPP__

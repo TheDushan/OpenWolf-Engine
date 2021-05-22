@@ -420,7 +420,7 @@ void R_InitVaos(void) {
     sint             vertexesSize, indexesSize;
     sint             offset;
 
-    CL_RefPrintf(PRINT_ALL, "------- R_InitVaos -------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "------- R_InitVaos -------\n");
 
     tr.numVaos = 0;
 
@@ -526,7 +526,8 @@ void R_ShutdownVaos(void) {
     sint             i;
     vao_t          *vao;
 
-    CL_RefPrintf(PRINT_ALL, "------- R_ShutdownVaos -------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "------- R_ShutdownVaos -------\n");
 
     R_BindNullVao();
 
@@ -560,16 +561,16 @@ void R_VaoList_f(void) {
     sint             vertexesSize = 0;
     sint             indexesSize = 0;
 
-    CL_RefPrintf(PRINT_ALL, " size          name\n");
-    CL_RefPrintf(PRINT_ALL,
-                 "----------------------------------------------------------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, " size          name\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "----------------------------------------------------------\n");
 
     for(i = 0; i < tr.numVaos; i++) {
         vao = tr.vaos[i];
 
-        CL_RefPrintf(PRINT_ALL, "%d.%02d MB %s\n",
-                     vao->vertexesSize / (1024 * 1024),
-                     (vao->vertexesSize % (1024 * 1024)) * 100 / (1024 * 1024), vao->name);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "%d.%02d MB %s\n",
+                                        vao->vertexesSize / (1024 * 1024),
+                                        (vao->vertexesSize % (1024 * 1024)) * 100 / (1024 * 1024), vao->name);
 
         vertexesSize += vao->vertexesSize;
     }
@@ -577,20 +578,22 @@ void R_VaoList_f(void) {
     for(i = 0; i < tr.numVaos; i++) {
         vao = tr.vaos[i];
 
-        CL_RefPrintf(PRINT_ALL, "%d.%02d MB %s\n",
-                     vao->indexesSize / (1024 * 1024),
-                     (vao->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), vao->name);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "%d.%02d MB %s\n",
+                                        vao->indexesSize / (1024 * 1024),
+                                        (vao->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), vao->name);
 
         indexesSize += vao->indexesSize;
     }
 
-    CL_RefPrintf(PRINT_ALL, " %i total VAOs\n", tr.numVaos);
-    CL_RefPrintf(PRINT_ALL, " %d.%02d MB total vertices memory\n",
-                 vertexesSize / (1024 * 1024),
-                 (vertexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
-    CL_RefPrintf(PRINT_ALL, " %d.%02d MB total triangle indices memory\n",
-                 indexesSize / (1024 * 1024),
-                 (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+    clientRendererSystem->RefPrintf(PRINT_ALL, " %i total VAOs\n", tr.numVaos);
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    " %d.%02d MB total vertices memory\n",
+                                    vertexesSize / (1024 * 1024),
+                                    (vertexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    " %d.%02d MB total triangle indices memory\n",
+                                    indexesSize / (1024 * 1024),
+                                    (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
 }
 
 
@@ -745,8 +748,8 @@ void VaoCache_Commit(void) {
     // if found, use that
     if(entry1 < vc.indexEntries + vc.numIndexEntries) {
         tess.firstIndex = entry1->bufferOffset / sizeof(uint);
-        //CL_RefPrintf(PRINT_ALL, "firstIndex %d numIndexes %d\n", tess.firstIndex, tess.numIndexes);
-        //CL_RefPrintf(PRINT_ALL, "vc.numIndexEntries %d\n", vc.numIndexEntries);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "firstIndex %d numIndexes %d\n", tess.firstIndex, tess.numIndexes);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "vc.numIndexEntries %d\n", vc.numIndexEntries);
     }
     // if not, rebuffer all the indexes but reuse any existing vertexes
     else {
@@ -788,7 +791,7 @@ void VaoCache_Commit(void) {
             vc.indexCommitSize += indexesSize;
         }
 
-        //CL_RefPrintf(PRINT_ALL, "committing %d to %d, %d to %d\n", vc.vertexCommitSize, vc.vertexOffset, vc.indexCommitSize, vc.indexOffset);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "committing %d to %d, %d to %d\n", vc.vertexCommitSize, vc.vertexOffset, vc.indexCommitSize, vc.indexOffset);
 
         if(vc.vertexCommitSize) {
             qglBindBuffer(GL_ARRAY_BUFFER, vc.vao->vertexesVBO);
@@ -881,7 +884,7 @@ void VaoCache_CheckAdd(bool *endSurface, bool *recycleVertexBuffer,
 
     if(vc.vao->vertexesSize < vc.vertexOffset + vc.vertexCommitSize +
             vertexesSize) {
-        //CL_RefPrintf(PRINT_ALL, "out of space in vertex cache: %d < %d + %d + %d\n", vc.vao->vertexesSize, vc.vertexOffset, vcq.vertexCommitSize, vertexesSize);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "out of space in vertex cache: %d < %d + %d + %d\n", vc.vao->vertexesSize, vc.vertexOffset, vcq.vertexCommitSize, vertexesSize);
         *recycleVertexBuffer = true;
         *recycleIndexBuffer = true;
         *endSurface = true;
@@ -889,32 +892,32 @@ void VaoCache_CheckAdd(bool *endSurface, bool *recycleVertexBuffer,
 
     if(vc.vao->indexesSize < vc.indexOffset + vc.indexCommitSize +
             indexesSize) {
-        //CL_RefPrintf(PRINT_ALL, "out of space in index cache\n");
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "out of space in index cache\n");
         *recycleIndexBuffer = true;
         *endSurface = true;
     }
 
     if(vc.numIndexEntries + vc.numSurfacesQueued >=
             VAOCACHE_MAX_BUFFERED_SURFACES) {
-        //CL_RefPrintf(PRINT_ALL, "out of surfaces in index cache\n");
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "out of surfaces in index cache\n");
         *recycleIndexBuffer = true;
         *endSurface = true;
     }
 
     if(vc.numSurfacesQueued == VAOCACHE_MAX_QUEUED_SURFACES) {
-        //CL_RefPrintf(PRINT_ALL, "out of queued surfaces\n");
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "out of queued surfaces\n");
         *endSurface = true;
     }
 
     if(VAOCACHE_MAX_QUEUED_VERTEXES * sizeof(srfVert_t) < vc.vertexCommitSize +
             vertexesSize) {
-        //CL_RefPrintf(PRINT_ALL, "out of queued vertexes\n");
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "out of queued vertexes\n");
         *endSurface = true;
     }
 
     if(VAOCACHE_MAX_QUEUED_INDEXES * sizeof(uint) < vc.indexCommitSize +
             indexesSize) {
-        //CL_RefPrintf(PRINT_ALL, "out of queued indexes\n");
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "out of queued indexes\n");
         *endSurface = true;
     }
 }

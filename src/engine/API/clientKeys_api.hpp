@@ -32,7 +32,7 @@
 typedef struct {
     bool down;
     sint repeats; // if > 1, it is autorepeating
-    valueType* binding;
+    valueType *binding;
     sint hash;
 } qkey_t;
 

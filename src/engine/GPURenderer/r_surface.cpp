@@ -1313,7 +1313,7 @@ static void RB_SurfaceEntity(surfaceType_t *surfType) {
 }
 
 static void RB_SurfaceBad(surfaceType_t *surfType) {
-    CL_RefPrintf(PRINT_ALL, "Bad surface tesselated.\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "Bad surface tesselated.\n");
 }
 
 static void RB_SurfaceFlare(srfFlare_t *surf) {

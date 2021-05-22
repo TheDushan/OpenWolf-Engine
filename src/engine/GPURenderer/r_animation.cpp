@@ -226,9 +226,9 @@ void R_MDRAddAnimSurfaces(trRefEntity_t *ent) {
             || (ent->e.frame < 0)
             || (ent->e.oldframe >= header->numFrames)
             || (ent->e.oldframe < 0)) {
-        CL_RefPrintf(PRINT_DEVELOPER,
-                     "R_MDRAddAnimSurfaces: no such frame %d to %d for '%s'\n",
-                     ent->e.oldframe, ent->e.frame, tr.currentModel->name);
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "R_MDRAddAnimSurfaces: no such frame %d to %d for '%s'\n",
+                                        ent->e.oldframe, ent->e.frame, tr.currentModel->name);
         ent->e.frame = 0;
         ent->e.oldframe = 0;
     }

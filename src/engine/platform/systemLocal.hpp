@@ -64,13 +64,9 @@ static valueType libPath[MAX_OSPATH] = { 0 };
 #ifndef DEDICATED
 static bool SDL_VIDEODRIVER_externallySet = false;
 #endif
-
-typedef bool(__stdcall *SteamAPIInit_Type)();
-typedef void(__stdcall *SteamAPIShutdown_Type)();
-static SteamAPIInit_Type SteamAPI_Init;
-static SteamAPIShutdown_Type SteamAPI_Shutdown;
-static void *steamLibrary = nullptr;
 #endif
+
+static sint sys_monkeySpank;
 
 #ifdef DEDICATED
 #   define PID_FILENAME PRODUCT_NAME_UPPPER "_server.pid"
@@ -178,6 +174,7 @@ public:
     virtual void Init(void *windowData);
     virtual void Shutdown(void);
     virtual valueType *Cwd(void);
+    virtual sint MonkeyShouldBeSpanked(void);
 
     static void SetBinaryPath(pointer path);
     static void SetFloatEnv(void);

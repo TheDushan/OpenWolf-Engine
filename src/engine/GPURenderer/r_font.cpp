@@ -111,14 +111,15 @@ FT_Bitmap *R_RenderGlyph(FT_GlyphSlot glyph, glyphInfo_t *glyphOut) {
     if(glyph->format == ft_glyph_format_outline) {
         size   = pitch * height;
 
-        bit2 = (FT_Bitmap *)CL_RefMalloc(sizeof(FT_Bitmap));
+        bit2 = (FT_Bitmap *)clientRendererSystem->RefMalloc(sizeof(FT_Bitmap));
 
         bit2->width      = width;
         bit2->rows       = height;
         bit2->pitch      = pitch;
         bit2->pixel_mode = ft_pixel_mode_grays;
         //bit2->pixel_mode = ft_pixel_mode_mono;
-        bit2->buffer     = static_cast<uchar8 *>(CL_RefMalloc(pitch * height));
+        bit2->buffer     = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                               pitch * height));
         bit2->num_grays = 256;
 
         ::memset(bit2->buffer, 0, size);
@@ -134,7 +135,8 @@ FT_Bitmap *R_RenderGlyph(FT_GlyphSlot glyph, glyphInfo_t *glyphOut) {
 
         return bit2;
     } else {
-        CL_RefPrintf(PRINT_ALL, "Non-outline fonts are not supported\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Non-outline fonts are not supported\n");
     }
 
     return nullptr;
@@ -147,7 +149,8 @@ void WriteTGA(valueType *filename, uchar8 *data, sint width, sint height) {
     uchar8  *flip;
     uchar8  *src, *dst;
 
-    buffer = static_cast<uchar8 *>(CL_RefMalloc(width * height * 4 + 18));
+    buffer = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                                       width * height * 4 + 18));
     ::memset(buffer, 0, 18);
     buffer[2] = 2;      // uncompressed type
     buffer[12] = width & 255;
@@ -167,7 +170,7 @@ void WriteTGA(valueType *filename, uchar8 *data, sint width, sint height) {
     }
 
     // flip upside down
-    flip = static_cast<uchar8 *>(CL_RefMalloc(width * 4));
+    flip = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(width * 4));
 
     for(row = 0; row < height / 2; row++) {
         src = buffer + 18 + row * 4 * width;
@@ -359,8 +362,8 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
     valueType name[1024];
 
     if(!fontName) {
-        CL_RefPrintf(PRINT_ALL,
-                     "idRenderSystemLocal::RegisterFont: called with empty name\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "idRenderSystemLocal::RegisterFont: called with empty name\n");
         return;
     }
 
@@ -371,8 +374,8 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
     R_IssuePendingRenderCommands();
 
     if(registeredFontCount >= MAX_FONTS) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "idRenderSystemLocal::RegisterFont: Too many fonts registered already.\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "idRenderSystemLocal::RegisterFont: Too many fonts registered already.\n");
         return;
     }
 
@@ -429,37 +432,37 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
     }
 
 #ifndef BUILD_FREETYPE
-    CL_RefPrintf(PRINT_WARNING,
-                 "idRenderSystemLocal::RegisterFont: FreeType code not available\n");
+    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                    "idRenderSystemLocal::RegisterFont: FreeType code not available\n");
 #else
 
     if(ftLibrary == nullptr) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "idRenderSystemLocal::RegisterFont: FreeType not initialized.\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "idRenderSystemLocal::RegisterFont: FreeType not initialized.\n");
         return;
     }
 
     len = fileSystem->ReadFile(fontName, &faceData);
 
     if(len <= 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "idRenderSystemLocal::RegisterFont: Unable to read font file '%s'\n",
-                     fontName);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "idRenderSystemLocal::RegisterFont: Unable to read font file '%s'\n",
+                                        fontName);
         return;
     }
 
     // allocate on the stack first in case we fail
     if(FT_New_Memory_Face(ftLibrary, (const FT_Byte *)faceData, len, 0,
                           &face)) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "idRenderSystemLocal::RegisterFont: FreeType, unable to allocate new face.\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "idRenderSystemLocal::RegisterFont: FreeType, unable to allocate new face.\n");
         return;
     }
 
 
     if(FT_Set_Char_Size(face, pointSize << 6, pointSize << 6, dpi, dpi)) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "idRenderSystemLocal::RegisterFont: FreeType, unable to set face char size.\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "idRenderSystemLocal::RegisterFont: FreeType, unable to set face char size.\n");
         return;
     }
 
@@ -468,11 +471,11 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
     // make a 256x256 image buffer, once it is full, register it, clean it and keep going
     // until all glyphs are rendered
 
-    out = static_cast<uchar8 *>(CL_RefMalloc(256 * 256));
+    out = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(256 * 256));
 
     if(out == nullptr) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "idRenderSystemLocal::RegisterFont: CL_RefMalloc failure during output image creation.\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "idRenderSystemLocal::RegisterFont: clientRendererSystem->RefMalloc failure during output image creation.\n");
         return;
     }
 
@@ -508,7 +511,8 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
 
             scaledSize = 256 * 256;
             newSize = scaledSize * 4;
-            imageBuff = static_cast<uchar8 *>(CL_RefMalloc(newSize));
+            imageBuff = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                                                  newSize));
             left = 0;
             max = 0;
 
@@ -590,8 +594,8 @@ void R_InitFreeType(void) {
 #ifdef BUILD_FREETYPE
 
     if(FT_Init_FreeType(&ftLibrary)) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_InitFreeType: Unable to initialize FreeType.\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_InitFreeType: Unable to initialize FreeType.\n");
     }
 
 #endif

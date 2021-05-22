@@ -319,7 +319,8 @@ static bool RB_UpdateSunFlareVis(void) {
             }
         }
 
-        CL_RefPrintf(PRINT_DEVELOPER, "Waited %d iterations\n", iter);
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER, "Waited %d iterations\n",
+                                        iter);
     }
 
     qglGetQueryObjectuiv(tr.sunFlareQuery[tr.sunFlareQueryIndex],
@@ -789,7 +790,7 @@ void RB_HDR(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo, ivec4_t ldrBox) {
 
         GLSL_SetUniformVec2(&tr.hdrShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     FBO_Blit(hdrFbo, hdrBox, nullptr, ldrFbo, ldrBox, &tr.hdrShader, color,
@@ -831,7 +832,7 @@ void RB_Anaglyph(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
 
         GLSL_SetUniformVec2(&tr.anaglyphShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     {
@@ -879,7 +880,7 @@ void RB_TextureClean(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
         GLSL_SetUniformVec2(&tr.texturecleanShader, UNIFORM_DIMENSIONS,
                             screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     {
@@ -929,7 +930,7 @@ void RB_ESharpening(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
 
         GLSL_SetUniformVec2(&tr.esharpeningShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     //{
@@ -1803,7 +1804,7 @@ void RB_SSGI(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
 
         GLSL_SetUniformVec2(&tr.ssgiShader, UNIFORM_DIMENSIONS, screensize);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     {
@@ -1815,7 +1816,7 @@ void RB_SSGI(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
 
         VectorSet4(viewInfo, zmin, zmax, zmax / zmin, 0.0);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent zmin %f, zmax %f, zmax/zmin %f.\n", zmin, zmax, zmax / zmin);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent zmin %f, zmax %f, zmax/zmin %f.\n", zmin, zmax, zmax / zmin);
 
         GLSL_SetUniformVec4(&tr.ssgiShader, UNIFORM_VIEWINFO, viewInfo);
     }
@@ -1829,7 +1830,7 @@ void RB_SSGI(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
 
         GLSL_SetUniformVec4(&tr.ssgiShader, UNIFORM_LOCAL0, local0);
 
-        //CL_RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
+        //clientRendererSystem->RefPrintf(PRINT_WARNING, "Sent dimensions %f %f.\n", screensize[0], screensize[1]);
     }
 
     FBO_Blit(hdrFbo, hdrBox, nullptr, ldrFbo, ldrBox, &tr.ssgiShader, color,

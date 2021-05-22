@@ -63,6 +63,15 @@ idSystemLocal::~idSystemLocal(void) {
 }
 
 /*
+===============
+idSystemLocal::MonkeyShouldBeSpanked
+===============
+*/
+sint idSystemLocal::MonkeyShouldBeSpanked(void) {
+    return sys_monkeySpank;
+}
+
+/*
 =================
 idSystemLocal::SetBinaryPath
 =================
@@ -332,7 +341,7 @@ void idSystemLocal::Error(pointer error, ...) {
     Print("\n");
 
 #if !defined (DEDICATED)
-    CL_Shutdown();
+    clientMainSystem->Shutdown();
 #endif
     ErrorDialog(string);
 
@@ -563,7 +572,7 @@ void idSystemLocal::SigHandler(sint signal) {
     } else {
         signalcaught = true;
 #if !defined (DEDICATED)
-        CL_Shutdown();
+        clientMainSystem->Shutdown();
         serverInitSystem->Shutdown(va("Received signal %d", signal));
 #endif
     }
@@ -670,7 +679,7 @@ Q_EXPORT sint engineMain(sint argc, valueType * *argv)
         try {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
             soundSystem->Shutdown();
-            CL_ShutdownRef();
+            clientRendererSystem->ShutdownRef();
 #endif
         }
 

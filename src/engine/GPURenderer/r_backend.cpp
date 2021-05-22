@@ -57,7 +57,8 @@ void GL_BindToTMU(image_t *image, sint tmu) {
         image->frameUsed = tr.frameCount;
         texture = image->texnum;
     } else {
-        CL_RefPrintf(PRINT_WARNING, "GL_BindToTMU: nullptr image\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "GL_BindToTMU: nullptr image\n");
         image = tr.defaultImage;
     }
 
@@ -665,7 +666,7 @@ void    RB_SetGL2D(void) {
     GL_Cull(CT_TWO_SIDED);
 
     // set time for 2D shaders
-    backEnd.refdef.time = CL_ScaledMilliseconds();
+    backEnd.refdef.time = clientRendererSystem->ScaledMilliseconds();
     backEnd.refdef.floatTime = backEnd.refdef.time * 0.001;
 }
 
@@ -702,7 +703,7 @@ void idRenderSystemLocal::DrawStretchRaw(sint x, sint y, sint w, sint h,
     start = 0;
 
     if(r_speeds->integer) {
-        start = CL_ScaledMilliseconds();
+        start = clientRendererSystem->ScaledMilliseconds();
     }
 
     // make sure rows and cols are powers of 2
@@ -721,9 +722,10 @@ void idRenderSystemLocal::DrawStretchRaw(sint x, sint y, sint w, sint h,
     GL_BindToTMU(tr.scratchImage[client], TB_COLORMAP);
 
     if(r_speeds->integer) {
-        end = CL_ScaledMilliseconds();
-        CL_RefPrintf(PRINT_ALL, "glTexSubImage2D %i, %i: %i msec\n", cols, rows,
-                     end - start);
+        end = clientRendererSystem->ScaledMilliseconds();
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "glTexSubImage2D %i, %i: %i msec\n", cols, rows,
+                                        end - start);
     }
 
     // FIXME: HUGE hack
@@ -763,8 +765,8 @@ void idRenderSystemLocal::UploadCinematic(sint w, sint h, sint cols,
     R_IssuePendingRenderCommands();
 
     if(!tr.scratchImage[client]) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "idRenderSystemLocal::UploadCinematic: scratch images not initialized\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "idRenderSystemLocal::UploadCinematic: scratch images not initialized\n");
         return;
     }
 
@@ -1357,7 +1359,7 @@ void RB_ShowImages(void) {
 
     qglFinish();
 
-    start = CL_ScaledMilliseconds();
+    start = clientRendererSystem->ScaledMilliseconds();
 
     for(i = 0 ; i < tr.numImages ; i++) {
         image = tr.images[i];
@@ -1389,8 +1391,9 @@ void RB_ShowImages(void) {
 
     qglFinish();
 
-    end = CL_ScaledMilliseconds();
-    CL_RefPrintf(PRINT_ALL, "%i msec to draw all images\n", end - start);
+    end = clientRendererSystem->ScaledMilliseconds();
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%i msec to draw all images\n",
+                                    end - start);
 
 }
 
@@ -1922,14 +1925,15 @@ const void *RB_ExportCubemaps(const void *data) {
 
     if(!glRefConfig.framebufferObject || !tr.world || tr.numCubemaps == 0) {
         // do nothing
-        CL_RefPrintf(PRINT_ALL, "Nothing to export!\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL, "Nothing to export!\n");
         return (const void *)(cmd + 1);
     }
 
     if(cmd) {
         FBO_t *oldFbo = glState.currentFBO;
         sint sideSize = r_cubemapSize->integer * r_cubemapSize->integer * 4;
-        uchar8 *cubemapPixels = static_cast<uchar8 *>(CL_RefMalloc(sideSize * 6));
+        uchar8 *cubemapPixels = static_cast<uchar8 *>
+                                (clientRendererSystem->RefMalloc(sideSize * 6));
         sint i, j;
 
         FBO_Bind(tr.renderCubeFbo);
@@ -1957,7 +1961,8 @@ const void *RB_ExportCubemaps(const void *data) {
 
             R_SaveDDS(filename, cubemapPixels, r_cubemapSize->integer,
                       r_cubemapSize->integer, 6);
-            CL_RefPrintf(PRINT_ALL, "Saved cubemap %d as %s\n", i, filename);
+            clientRendererSystem->RefPrintf(PRINT_ALL, "Saved cubemap %d as %s\n", i,
+                                            filename);
         }
 
         FBO_Bind(oldFbo);
@@ -1977,7 +1982,7 @@ RB_ExecuteRenderCommands
 void RB_ExecuteRenderCommands(const void *data) {
     sint        t1, t2;
 
-    t1 = CL_ScaledMilliseconds();
+    t1 = clientRendererSystem->ScaledMilliseconds();
 
     while(1) {
         data = PADP(data, sizeof(void *));
@@ -2044,7 +2049,7 @@ void RB_ExecuteRenderCommands(const void *data) {
                 }
 
                 // stop rendering
-                t2 = CL_ScaledMilliseconds();
+                t2 = clientRendererSystem->ScaledMilliseconds();
                 backEnd.pc.msec = t2 - t1;
                 return;
         }

@@ -36,8 +36,7 @@ idRenderSystemBSPTech2Local renderSystemBSPTechLocal;
 idRenderSystemBSPTech2Local::idRenderSystemBSPTech2Local
 ===============
 */
-idRenderSystemBSPTech2Local::idRenderSystemBSPTech2Local( void )
-{
+idRenderSystemBSPTech2Local::idRenderSystemBSPTech2Local(void) {
 }
 
 /*
@@ -45,8 +44,7 @@ idRenderSystemBSPTech2Local::idRenderSystemBSPTech2Local( void )
 idRenderSystemBSPTech2Local::~idRenderSystemBSPTech2Local
 ===============
 */
-idRenderSystemBSPTech2Local::~idRenderSystemBSPTech2Local( void )
-{
+idRenderSystemBSPTech2Local::~idRenderSystemBSPTech2Local(void) {
 }
 
 model_t *tech2_loadModel;
@@ -60,7 +58,8 @@ Converts the 24 bit lighting down to 8 bit
 by taking the brightest component
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadLighting(const lump_t *l) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadLighting(
+    const lump_t *l) {
     sint     i, size;
     byte *in;
 
@@ -116,7 +115,8 @@ void idRenderSystemBSPTech2Local::NumberLeafs(mNode_t *node) {
 idRenderSystemBSPTech2Local::Tech2_LoadVisibility
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadVisibility(const lump_t *l) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadVisibility(
+    const lump_t *l) {
     sint     i;
 
     if(!l->filelen) {
@@ -124,17 +124,18 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadVisibility(const lump_t *l) {
         return;
     }
 
-    idtech2_loadModel->vis = static_Cast<idtech2_dVis_t *>(Hunk_Alloc(l->filelen, h_low));
+    idtech2_loadModel->vis = static_Cast<idtech2_dVis_t *>(Hunk_Alloc(
+                                 l->filelen, h_low));
     memcpy(idtech2_loadModel->vis, fileBase + l->fileofs, l->filelen);
 
     idtech2_loadModel->vis->numclusters = LittleLong(
-                                         idtech2_loadModel->vis->numclusters);
+            idtech2_loadModel->vis->numclusters);
 
     for(i = 0; i < idtech2_loadModel->vis->numclusters; i++) {
         idtech2_loadModel->vis->bitofs[i][0] = LittleLong(
-                                              idtech2_loadModel->vis->bitofs[i][0]);
+                idtech2_loadModel->vis->bitofs[i][0]);
         idtech2_loadModel->vis->bitofs[i][1] = LittleLong(
-                                              idtech2_loadModel->vis->bitofs[i][1]);
+                idtech2_loadModel->vis->bitofs[i][1]);
     }
 }
 
@@ -144,7 +145,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadVisibility(const lump_t *l) {
 idRenderSystemBSPTech2Local::Tech2_LoadVertexes
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadVertexes(const lump_t *l) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadVertexes(
+    const lump_t *l) {
     idtech2_dVertex_t *in;
     idtech2_mVertex_t *out;
     sint         i, count;
@@ -157,8 +159,9 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadVertexes(const lump_t *l) {
     }
 
     count = l->filelen / sizeof(*in);
-    out = static_cast<idtech2_mVertex_t *>(Hunk_Alloc((count + 8) * sizeof(*out),
-                                     h_low));    // extra for skybox
+    out = static_cast<idtech2_mVertex_t *>(Hunk_Alloc((count + 8) * sizeof(
+            *out),
+                                           h_low));    // extra for skybox
     idtech2_loadModel->vertexes = out;
     idtech2_loadModel->numvertexes = count;
 
@@ -176,7 +179,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadVertexes(const lump_t *l) {
 idRenderSystemBSPTech2Local::Tech2_LoadSubmodels
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadSubmodels(const lump_t *l) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadSubmodels(
+    const lump_t *l) {
     idtech2_dModel_t *in;
     idtech2_mModel_t *out;
     sint         i, j, count;
@@ -190,7 +194,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadSubmodels(const lump_t *l) {
     }
 
     count = l->filelen / sizeof(*in);
-    out = static_cast<idtech2_mModel_t *>(Hunk_Alloc(count * sizeof(*out), h_low));
+    out = static_cast<idtech2_mModel_t *>(Hunk_Alloc(count * sizeof(*out),
+                                          h_low));
 
     idtech2_loadModel->submodels = out;
     idtech2_loadModel->numsubmodels = count;
@@ -233,13 +238,14 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadEdges(const lump_t *l) {
 
     count = l->filelen / sizeof(*in);
     out = static_cast<idtech2_mEdge_t *>Hunk_Alloc((count + 13) * sizeof(*out),
-                                   h_low);
+            h_low);
     idtech2_loadModel->edges = out;
     idtech2_loadModel->numedges = count;
 
     for(i = 0; i < count; i++, in++, out++) {
         out->v[0] = (unsigned short)LittleShort(in->v[0]);
         out->v[1] = (unsigned short)LittleShort(in->v[1]);
+
         if(out->v[0] >= idtech2_loadModel->numvertexes ||
                 out->v[1] >= idtech2_loadModel->numvertexes) {
             Com_Error(ERR_DROP, "%s: bad vertexnum", __func__);
@@ -351,7 +357,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadFaces(const lump_t *l) {
         }
 
         // create lightmaps and polygons
-        if(!(out->texinfo->flags & (SURF_SKY | SURF_IDTECH2_TRANS33 | SURF_IDTECH2_TRANS66 |
+        if(!(out->texinfo->flags & (SURF_SKY | SURF_IDTECH2_TRANS33 |
+                                    SURF_IDTECH2_TRANS66 |
                                     SURF_IDTECH2_WARP))) {
             GL_CreateSurfaceLightmap(out);
         }
@@ -381,7 +388,8 @@ static  void R_SetParent(mNode_t *node, mNode_t *parent) {
 idRenderSystemBSPTech2Local::Tech2_LoadNodes
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadNodes(const lump_t *nodeLump) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadNodes(
+    const lump_t *nodeLump) {
     sint         i, j, count, p;
     idtech2_dNode_t *in;
     mNode_t *out;
@@ -431,7 +439,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadNodes(const lump_t *nodeLump)
 idRenderSystemBSPTech2Local::Tech2_LoadLeafs
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadLeafs(const lump_t *leafLump) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadLeafs(
+    const lump_t *leafLump) {
     idtech2_dLeaf_t *in;
     idtech2_mLeaf_t *out;
     sint         i, j, count, p;
@@ -487,7 +496,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadLeafs(const lump_t *leafLump)
 idRenderSystemBSPTech2Local::Tech2_LoadMarkSurfaces
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadMarkSurfaces(const lump_t *l) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadMarkSurfaces(
+    const lump_t *l) {
     sint         i, j, count;
     short *in;
     msurface_t **out;
@@ -522,7 +532,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadMarkSurfaces(const lump_t *l)
 idRenderSystemBSPTech2Local::Tech2_LoadSurfEdges
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadSurfEdges(const lump_t *l) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadSurfEdges(
+    const lump_t *l) {
     sint     i, count;
     sint *in, * out;
 
@@ -560,7 +571,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadSurfEdges(const lump_t *l) {
 idRenderSystemBSPTech2Local::Tech2_LoadPlanes
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadPlanes(const lump_t *l) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadPlanes(
+    const lump_t *l) {
     sint            i, j;
     cPlane_t *out;
     idtech2_dPlane_t *in;
@@ -602,7 +614,8 @@ static void idRenderSystemBSPTech2Local::Tech2_LoadPlanes(const lump_t *l) {
 idRenderSystemBSPTech2Local::Tech2_LoadTexInfo
 =================
 */
-static void idRenderSystemBSPTech2Local::Tech2_LoadTexInfo(const lump_t *l) {
+static void idRenderSystemBSPTech2Local::Tech2_LoadTexInfo(
+    const lump_t *l) {
     idtech2_texInfo_t *in;
     idtech2_mTexinfo_t *out, * step;
     sint             i, j, count;

@@ -255,7 +255,7 @@ void idClientKeysSystemLocal::Key(sint key) {
             }
 
             if(buffer[0]) {
-                CL_AddReliableCommand(buffer);
+                clientReliableCommandsSystem->AddReliableCommand(buffer);
             }
         }
 
@@ -984,7 +984,7 @@ void idClientKeysSystemLocal::KeyEvent(sint key, sint down, sint time) {
             if((key == K_ESCAPE ||
                     key == K_SPACE ||
                     key == K_ENTER) && down) {
-                CL_AddReliableCommand("cameraInterrupt");
+                clientReliableCommandsSystem->AddReliableCommand("cameraInterrupt");
                 return;
             }
 
@@ -1045,7 +1045,7 @@ void idClientKeysSystemLocal::KeyEvent(sint key, sint down, sint time) {
                     uiManager->SetActiveMenu(UIMENU_INGAME);
                 }
             } else {
-                CL_Disconnect_f();
+                idClientConsoleCommandsSystemLocal::Disconnect_f();
                 soundSystem->StopAllSounds();
                 uiManager->SetActiveMenu(UIMENU_MAIN);
             }

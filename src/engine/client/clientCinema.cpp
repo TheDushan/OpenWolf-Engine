@@ -926,7 +926,7 @@ redump:
                 readQuadInfo(framedata);
                 setupQuad(0, 0);
                 cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime =
-                                                        CL_ScaledMilliseconds();
+                                                        clientRendererSystem->ScaledMilliseconds();
             }
 
             if(cinTable[currentHandle].numQuads != 1) {
@@ -1015,7 +1015,7 @@ idClientCinemaSystemLocal::RoQShutdown
 */
 void idClientCinemaSystemLocal::RoQ_init(void) {
     cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime =
-                                            CL_ScaledMilliseconds();
+                                            clientRendererSystem->ScaledMilliseconds();
 
     cinTable[currentHandle].RoQPlayed = 24;
 
@@ -1162,7 +1162,7 @@ e_status idClientCinemaSystemLocal::CinemaRunCinematic(sint handle) {
         return cinTable[currentHandle].status;
     }
 
-    thisTime = CL_ScaledMilliseconds();
+    thisTime = clientRendererSystem->ScaledMilliseconds();
 
     if(cinTable[currentHandle].shader &&
             (thisTime - cinTable[currentHandle].lastTime) > 100) {
@@ -1171,8 +1171,9 @@ e_status idClientCinemaSystemLocal::CinemaRunCinematic(sint handle) {
     }
 
     //----(SA)  modified to use specified fps for roq's
-    cinTable[currentHandle].tfps = (((CL_ScaledMilliseconds() -
-                                      cinTable[currentHandle].startTime) * cinTable[currentHandle].roqFPS) /
+    cinTable[currentHandle].tfps = (((
+                                         clientRendererSystem->ScaledMilliseconds() -
+                                         cinTable[currentHandle].startTime) * cinTable[currentHandle].roqFPS) /
                                     1000);
 
     start = cinTable[currentHandle].startTime;
@@ -1182,8 +1183,9 @@ e_status idClientCinemaSystemLocal::CinemaRunCinematic(sint handle) {
         RoQInterrupt();
 
         if(start != cinTable[currentHandle].startTime) {
-            cinTable[currentHandle].tfps = (((CL_ScaledMilliseconds() -
-                                              cinTable[currentHandle].startTime) * cinTable[currentHandle].roqFPS) /
+            cinTable[currentHandle].tfps = (((
+                                                 clientRendererSystem->ScaledMilliseconds() -
+                                                 cinTable[currentHandle].startTime) * cinTable[currentHandle].roqFPS) /
                                             1000);
 
             start = cinTable[currentHandle].startTime;

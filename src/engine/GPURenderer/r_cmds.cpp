@@ -46,49 +46,54 @@ void R_PerformanceCounters(void) {
     }
 
     if(r_speeds->integer == 1) {
-        CL_RefPrintf(PRINT_ALL,
-                     "%i/%i/%i shaders/batches/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
-                     backEnd.pc.c_shaders, backEnd.pc.c_surfBatches, backEnd.pc.c_surfaces,
-                     tr.pc.c_leafs, backEnd.pc.c_vertexes,
-                     backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3,
-                     R_SumOfUsedImages() / (1000000.0f),
-                     backEnd.pc.c_overDraw / static_cast<float32>(glConfig.vidWidth) *
-                     static_cast<float32>(glConfig.vidHeight));
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "%i/%i/%i shaders/batches/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
+                                        backEnd.pc.c_shaders, backEnd.pc.c_surfBatches, backEnd.pc.c_surfaces,
+                                        tr.pc.c_leafs, backEnd.pc.c_vertexes,
+                                        backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3,
+                                        R_SumOfUsedImages() / (1000000.0f),
+                                        backEnd.pc.c_overDraw / static_cast<float32>(glConfig.vidWidth) *
+                                        static_cast<float32>(glConfig.vidHeight));
     } else if(r_speeds->integer == 2) {
-        CL_RefPrintf(PRINT_ALL,
-                     "(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
-                     tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip,
-                     tr.pc.c_sphere_cull_patch_out,
-                     tr.pc.c_box_cull_patch_in, tr.pc.c_box_cull_patch_clip,
-                     tr.pc.c_box_cull_patch_out);
-        CL_RefPrintf(PRINT_ALL,
-                     "(md3) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
-                     tr.pc.c_sphere_cull_md3_in, tr.pc.c_sphere_cull_md3_clip,
-                     tr.pc.c_sphere_cull_md3_out,
-                     tr.pc.c_box_cull_md3_in, tr.pc.c_box_cull_md3_clip,
-                     tr.pc.c_box_cull_md3_out);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
+                                        tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip,
+                                        tr.pc.c_sphere_cull_patch_out,
+                                        tr.pc.c_box_cull_patch_in, tr.pc.c_box_cull_patch_clip,
+                                        tr.pc.c_box_cull_patch_out);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "(md3) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
+                                        tr.pc.c_sphere_cull_md3_in, tr.pc.c_sphere_cull_md3_clip,
+                                        tr.pc.c_sphere_cull_md3_out,
+                                        tr.pc.c_box_cull_md3_in, tr.pc.c_box_cull_md3_clip,
+                                        tr.pc.c_box_cull_md3_out);
     } else if(r_speeds->integer == 3) {
-        CL_RefPrintf(PRINT_ALL, "viewcluster: %i\n", tr.viewCluster);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "viewcluster: %i\n",
+                                        tr.viewCluster);
     } else if(r_speeds->integer == 4) {
         if(backEnd.pc.c_dlightVertexes) {
-            CL_RefPrintf(PRINT_ALL, "dlight srf:%i  culled:%i  verts:%i  tris:%i\n",
-                         tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
-                         backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "dlight srf:%i  culled:%i  verts:%i  tris:%i\n",
+                                            tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
+                                            backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
         }
     } else if(r_speeds->integer == 5) {
-        CL_RefPrintf(PRINT_ALL, "zFar: %.0f\n", tr.viewParms.zFar);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "zFar: %.0f\n",
+                                        tr.viewParms.zFar);
     } else if(r_speeds->integer == 6) {
-        CL_RefPrintf(PRINT_ALL, "flare adds:%i tests:%i renders:%i\n",
-                     backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests,
-                     backEnd.pc.c_flareRenders);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "flare adds:%i tests:%i renders:%i\n",
+                                        backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests,
+                                        backEnd.pc.c_flareRenders);
     } else if(r_speeds->integer == 7) {
-        CL_RefPrintf(PRINT_ALL, "VAO draws: static %i dynamic %i\n",
-                     backEnd.pc.c_staticVaoDraws, backEnd.pc.c_dynamicVaoDraws);
-        CL_RefPrintf(PRINT_ALL,
-                     "GLSL binds: %i  draws: gen %i light %i fog %i dlight %i\n",
-                     backEnd.pc.c_glslShaderBinds, backEnd.pc.c_genericDraws,
-                     backEnd.pc.c_lightallDraws, backEnd.pc.c_fogDraws,
-                     backEnd.pc.c_dlightDraws);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "VAO draws: static %i dynamic %i\n",
+                                        backEnd.pc.c_staticVaoDraws, backEnd.pc.c_dynamicVaoDraws);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "GLSL binds: %i  draws: gen %i light %i fog %i dlight %i\n",
+                                        backEnd.pc.c_glslShaderBinds, backEnd.pc.c_genericDraws,
+                                        backEnd.pc.c_lightallDraws, backEnd.pc.c_fogDraws,
+                                        backEnd.pc.c_dlightDraws);
     }
 
     ::memset(&tr.pc, 0, sizeof(tr.pc));
@@ -463,14 +468,14 @@ void idRenderSystemLocal::BeginFrame(stereoFrame_t stereoFrame) {
     //
     if(r_measureOverdraw->integer) {
         if(glConfig.stencilBits < 4) {
-            CL_RefPrintf(PRINT_ALL,
-                         "Warning: not enough stencil bits to measure overdraw: %d\n",
-                         glConfig.stencilBits);
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "Warning: not enough stencil bits to measure overdraw: %d\n",
+                                            glConfig.stencilBits);
             cvarSystem->Set("r_measureOverdraw", "0");
             r_measureOverdraw->modified = false;
         } else if(r_shadows->integer == 2) {
-            CL_RefPrintf(PRINT_ALL,
-                         "Warning: stencil shadows and overdraw measurement are mutually exclusive\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "Warning: stencil shadows and overdraw measurement are mutually exclusive\n");
             cvarSystem->Set("r_measureOverdraw", "0");
             r_measureOverdraw->modified = false;
         } else {

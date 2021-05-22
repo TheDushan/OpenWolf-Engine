@@ -132,9 +132,9 @@ static void GLimp_DetectAvailableModes(void) {
     sint display = SDL_GetWindowDisplayIndex(SDL_window);
 
     if(display < 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "Couldn't get window display index, no resolutions detected: %s\n",
-                     SDL_GetError());
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "Couldn't get window display index, no resolutions detected: %s\n",
+                                        SDL_GetError());
         return;
     }
 
@@ -142,9 +142,9 @@ static void GLimp_DetectAvailableModes(void) {
 
     if(SDL_GetWindowDisplayMode(SDL_window, &windowMode) < 0 ||
             numSDLModes <= 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "Couldn't get window display mode, no resolutions detected: %s\n",
-                     SDL_GetError());
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "Couldn't get window display mode, no resolutions detected: %s\n",
+                                        SDL_GetError());
         return;
     }
 
@@ -163,7 +163,8 @@ static void GLimp_DetectAvailableModes(void) {
         }
 
         if(!mode.w || !mode.h) {
-            CL_RefPrintf(PRINT_ALL, "Display supports any resolution\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "Display supports any resolution\n");
             SDL_free(modes);
             return;
         }
@@ -199,14 +200,15 @@ static void GLimp_DetectAvailableModes(void) {
         if(strlen(newModeString) < static_cast<sint>(sizeof(buf)) - strlen(buf)) {
             Q_strcat(buf, sizeof(buf), newModeString);
         } else {
-            CL_RefPrintf(PRINT_WARNING, "Skipping mode %ux%u, buffer too small\n",
-                         modes[ i ].w, modes[ i ].h);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "Skipping mode %ux%u, buffer too small\n",
+                                            modes[ i ].w, modes[ i ].h);
         }
     }
 
     if(*buf) {
         buf[ strlen(buf) - 1 ] = 0;
-        CL_RefPrintf(PRINT_ALL, "Available modes: '%s'\n", buf);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "Available modes: '%s'\n", buf);
         cvarSystem->Set("r_availableModes", buf);
     }
 
@@ -229,7 +231,7 @@ static bool GLimp_GetProcAddresses(bool fixedFunction) {
 #else
 #define GLE( ret, name, ... ) qgl##name = (name##proc *) SDL_GL_GetProcAddress("gl" #name); \
     if ( qgl##name == nullptr ) { \
-        CL_RefPrintf( PRINT_ALL, "ERROR: Missing OpenGL function %s\n", "gl" #name ); \
+        clientRendererSystem->RefPrintf( PRINT_ALL, "ERROR: Missing OpenGL function %s\n", "gl" #name ); \
         success = false; \
     }
 #endif
@@ -404,7 +406,8 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
     sint display = 0;
     sint x = SDL_WINDOWPOS_UNDEFINED, y = SDL_WINDOWPOS_UNDEFINED;
 
-    CL_RefPrintf(PRINT_ALL, "Initializing OpenGL display\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "Initializing OpenGL display\n");
 
     if(r_allowResize->integer) {
         flags |= SDL_WINDOW_RESIZABLE;
@@ -415,8 +418,9 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
         display = SDL_GetWindowDisplayIndex(SDL_window);
 
         if(display < 0) {
-            CL_RefPrintf(PRINT_DEVELOPER, "SDL_GetWindowDisplayIndex() failed: %s\n",
-                         SDL_GetError());
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "SDL_GetWindowDisplayIndex() failed: %s\n",
+                                            SDL_GetError());
         }
     }
 
@@ -424,15 +428,16 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
         displayAspect = static_cast<float32>(desktopMode.w) / static_cast<float32>
                         (desktopMode.h);
 
-        CL_RefPrintf(PRINT_ALL, "Display aspect: %.3f\n", displayAspect);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "Display aspect: %.3f\n",
+                                        displayAspect);
     } else {
         ::memset(&desktopMode, 0, sizeof(SDL_DisplayMode));
 
-        CL_RefPrintf(PRINT_ALL,
-                     "Cannot determine display aspect, assuming 1.333\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Cannot determine display aspect, assuming 1.333\n");
     }
 
-    CL_RefPrintf(PRINT_ALL, "...setting mode %d:", mode);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "...setting mode %d:", mode);
 
     if(mode == -2) {
         // use desktop video resolution
@@ -442,19 +447,20 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
         } else {
             glConfig.vidWidth = 640;
             glConfig.vidHeight = 480;
-            CL_RefPrintf(PRINT_ALL,
-                         "Cannot determine display resolution, assuming 640x480\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "Cannot determine display resolution, assuming 640x480\n");
         }
 
         glConfig.windowAspect = static_cast<float32>(glConfig.vidWidth) /
                                 static_cast<float32>(glConfig.vidHeight);
     } else if(!R_GetModeInfo(&glConfig.vidWidth, &glConfig.vidHeight,
                              &glConfig.windowAspect, mode)) {
-        CL_RefPrintf(PRINT_ALL, " invalid mode\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL, " invalid mode\n");
         return RSERR_INVALID_MODE;
     }
 
-    CL_RefPrintf(PRINT_ALL, " %d %d\n", glConfig.vidWidth, glConfig.vidHeight);
+    clientRendererSystem->RefPrintf(PRINT_ALL, " %d %d\n", glConfig.vidWidth,
+                                    glConfig.vidHeight);
 
     // Center window
     if(r_centerWindow->integer && !fullscreen) {
@@ -471,8 +477,8 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
 
     if(SDL_window != nullptr) {
         SDL_GetWindowPosition(SDL_window, &x, &y);
-        CL_RefPrintf(PRINT_DEVELOPER,
-                     "Existing window at %dx%d before being destroyed\n", x, y);
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "Existing window at %dx%d before being destroyed\n", x, y);
         SDL_DestroyWindow(SDL_window);
         SDL_window = nullptr;
     }
@@ -600,8 +606,9 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
 
         if((SDL_window = SDL_CreateWindow(CLIENT_WINDOW_TITLE, x, y,
                                           glConfig.vidWidth, glConfig.vidHeight, flags)) == nullptr) {
-            CL_RefPrintf(PRINT_DEVELOPER, "SDL_CreateWindow failed: %s\n",
-                         SDL_GetError());
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "SDL_CreateWindow failed: %s\n",
+                                            SDL_GetError());
             continue;
         }
 
@@ -618,8 +625,9 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
                     break;
 
                 default:
-                    CL_RefPrintf(PRINT_DEVELOPER, "testColorBits is %d, can't fullscreen\n",
-                                 testColorBits);
+                    clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                                    "testColorBits is %d, can't fullscreen\n",
+                                                    testColorBits);
                     continue;
             }
 
@@ -636,8 +644,9 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
             vidMode.driverdata = nullptr;
 
             if(SDL_SetWindowDisplayMode(SDL_window, &vidMode) < 0) {
-                CL_RefPrintf(PRINT_DEVELOPER, "SDL_SetWindowDisplayMode failed: %s\n",
-                             SDL_GetError());
+                clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                                "SDL_SetWindowDisplayMode failed: %s\n",
+                                                SDL_GetError());
                 continue;
             }
         }
@@ -652,12 +661,15 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-            CL_RefPrintf(PRINT_ALL, "Trying to get an OpenGL %i.%i context\n", 3, 3);
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "Trying to get an OpenGL %i.%i context\n", 3, 3);
 
             if((SDL_glContext = SDL_GL_CreateContext(SDL_window)) == nullptr) {
-                CL_RefPrintf(PRINT_ALL, "SDL_GL_CreateContext failed: %s\n",
-                             SDL_GetError());
-                CL_RefPrintf(PRINT_ALL, "Reverting to default context\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "SDL_GL_CreateContext failed: %s\n",
+                                                SDL_GetError());
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "Reverting to default context\n");
 
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 1);
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -665,21 +677,23 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
             } else {
                 pointer renderer;
 
-                CL_RefPrintf(PRINT_ALL, "SDL_GL_CreateContext succeeded.\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "SDL_GL_CreateContext succeeded.\n");
 
                 if(GLimp_GetProcAddresses(fixedFunction)) {
                     renderer = reinterpret_cast<pointer>(qglGetString(GL_RENDERER));
                 } else {
-                    CL_RefPrintf(PRINT_ALL,
-                                 "GLimp_GetProcAdvedresses() failed for OpenGL 3.2 core context\n");
+                    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                    "GLimp_GetProcAdvedresses() failed for OpenGL 3.2 core context\n");
                     renderer = nullptr;
                 }
 
                 if(!renderer || (strstr(renderer, "Software Renderer") ||
                                  strstr(renderer, "Software Rasterizer"))) {
                     if(renderer) {
-                        CL_RefPrintf(PRINT_ALL, "GL_RENDERER is %s, rejecting context\n",
-                                     renderer);
+                        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                        "GL_RENDERER is %s, rejecting context\n",
+                                                        renderer);
                     }
 
                     GLimp_ClearProcAddresses();
@@ -697,15 +711,17 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
 
         if(!SDL_glContext) {
             if((SDL_glContext = SDL_GL_CreateContext(SDL_window)) == nullptr) {
-                CL_RefPrintf(PRINT_DEVELOPER, "SDL_GL_CreateContext failed: %s\n",
-                             SDL_GetError());
+                clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                                "SDL_GL_CreateContext failed: %s\n",
+                                                SDL_GetError());
                 SDL_DestroyWindow(SDL_window);
                 SDL_window = nullptr;
                 continue;
             }
 
             if(!GLimp_GetProcAddresses(fixedFunction)) {
-                CL_RefPrintf(PRINT_ALL, "GLimp_GetProcAddresses() failed\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "GLimp_GetProcAddresses() failed\n");
                 GLimp_ClearProcAddresses();
                 SDL_GL_DeleteContext(SDL_glContext);
                 SDL_glContext = nullptr;
@@ -722,8 +738,9 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
         R_IssuePendingRenderCommands();
 
         if(SDL_GL_SetSwapInterval(r_swapInterval->integer) == -1) {
-            CL_RefPrintf(PRINT_DEVELOPER, "SDL_GL_SetSwapInterval failed: %s\n",
-                         SDL_GetError());
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "SDL_GL_SetSwapInterval failed: %s\n",
+                                            SDL_GetError());
         }
 
         SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &realColorBits[0]);
@@ -735,9 +752,9 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
         glConfig.colorBits = realColorBits[0] + realColorBits[1] +
                              realColorBits[2];
 
-        CL_RefPrintf(PRINT_ALL,
-                     "Using %d color bits, %d depth, %d stencil display.\n", glConfig.colorBits,
-                     glConfig.depthBits, glConfig.stencilBits);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Using %d color bits, %d depth, %d stencil display.\n", glConfig.colorBits,
+                                        glConfig.depthBits, glConfig.stencilBits);
         break;
     }
 
@@ -747,14 +764,14 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
     }
 
     if(!SDL_window) {
-        CL_RefPrintf(PRINT_ALL, "Couldn't get a visual\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL, "Couldn't get a visual\n");
         return RSERR_INVALID_MODE;
     }
 
     GLimp_DetectAvailableModes();
 
     glstring = (valueType *)qglGetString(GL_RENDERER);
-    CL_RefPrintf(PRINT_ALL, "GL_RENDERER: %s\n", glstring);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "GL_RENDERER: %s\n", glstring);
 
     SDL_MinimizeWindow(SDL_window);
     SDL_RestoreWindow(SDL_window);
@@ -776,18 +793,21 @@ static bool GLimp_StartDriverAndSetMode(sint mode, bool fullscreen,
         pointer driverName;
 
         if(SDL_Init(SDL_INIT_VIDEO) != 0) {
-            CL_RefPrintf(PRINT_DEVELOPER, "SDL_Init( SDL_INIT_VIDEO ) FAILED (%s)\n",
-                         SDL_GetError());
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "SDL_Init( SDL_INIT_VIDEO ) FAILED (%s)\n",
+                                            SDL_GetError());
             return false;
         }
 
         driverName = SDL_GetCurrentVideoDriver();
-        CL_RefPrintf(PRINT_DEVELOPER, "SDL using driver \"%s\"\n", driverName);
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "SDL using driver \"%s\"\n", driverName);
         cvarSystem->Set("r_sdlDriver", driverName);
     }
 
     if(fullscreen && in_nograb->integer) {
-        CL_RefPrintf(PRINT_DEVELOPER, "Fullscreen not allowed with in_nograb 1\n");
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "Fullscreen not allowed with in_nograb 1\n");
         cvarSystem->Set("r_fullscreen", "0");
         r_fullscreen->modified = false;
         fullscreen = false;
@@ -803,13 +823,13 @@ static bool GLimp_StartDriverAndSetMode(sint mode, bool fullscreen,
 
     switch(err) {
         case RSERR_INVALID_FULLSCREEN:
-            CL_RefPrintf(PRINT_DEVELOPER,
-                         "...WARNING: fullscreen unavailable in this mode\n");
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "...WARNING: fullscreen unavailable in this mode\n");
             return false;
 
         case RSERR_INVALID_MODE:
-            CL_RefPrintf(PRINT_DEVELOPER,
-                         "...WARNING: could not set the given mode (%d)\n", mode);
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "...WARNING: could not set the given mode (%d)\n", mode);
             return false;
 
         default:
@@ -843,12 +863,14 @@ GLimp_InitExtensions
 */
 void GLimp_InitExtensions(void) {
     if(!r_allowExtensions->integer) {
-        CL_RefPrintf(PRINT_ALL, "* IGNORING OPENGL EXTENSIONS *\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "* IGNORING OPENGL EXTENSIONS *\n");
         return;
     }
 
     if(!r_verbose) {
-        CL_RefPrintf(PRINT_ALL, "Initializing OpenGL extensions\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Initializing OpenGL extensions\n");
 
         glConfig.textureCompression = TC_NONE;
 
@@ -857,12 +879,15 @@ void GLimp_InitExtensions(void) {
                 GLimp_HaveExtension("GL_EXT_texture_compression_s3tc")) {
             if(r_ext_compressed_textures->value) {
                 glConfig.textureCompression = TC_S3TC_ARB;
-                CL_RefPrintf(PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "...using GL_EXT_texture_compression_s3tc\n");
             } else {
-                CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "...ignoring GL_EXT_texture_compression_s3tc\n");
             }
         } else {
-            CL_RefPrintf(PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "...GL_EXT_texture_compression_s3tc not found\n");
         }
 
         // GL_S3_s3tc ... legacy extension before GL_EXT_texture_compression_s3tc.
@@ -870,12 +895,12 @@ void GLimp_InitExtensions(void) {
             if(GLimp_HaveExtension("GL_S3_s3tc")) {
                 if(r_ext_compressed_textures->value) {
                     glConfig.textureCompression = TC_S3TC;
-                    CL_RefPrintf(PRINT_ALL, "...using GL_S3_s3tc\n");
+                    clientRendererSystem->RefPrintf(PRINT_ALL, "...using GL_S3_s3tc\n");
                 } else {
-                    CL_RefPrintf(PRINT_ALL, "...ignoring GL_S3_s3tc\n");
+                    clientRendererSystem->RefPrintf(PRINT_ALL, "...ignoring GL_S3_s3tc\n");
                 }
             } else {
-                CL_RefPrintf(PRINT_ALL, "...GL_S3_s3tc not found\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL, "...GL_S3_s3tc not found\n");
             }
         }
 
@@ -885,13 +910,16 @@ void GLimp_InitExtensions(void) {
         if(GLimp_HaveExtension("EXT_texture_env_add")) {
             if(r_ext_texture_env_add->integer) {
                 glConfig.textureEnvAddAvailable = true;
-                CL_RefPrintf(PRINT_ALL, "...using GL_EXT_texture_env_add\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "...using GL_EXT_texture_env_add\n");
             } else {
                 glConfig.textureEnvAddAvailable = false;
-                CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "...ignoring GL_EXT_texture_env_add\n");
             }
         } else {
-            CL_RefPrintf(PRINT_ALL, "...GL_EXT_texture_env_add not found\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "...GL_EXT_texture_env_add not found\n");
         }
 
         // GL_ARB_multitexture
@@ -914,27 +942,31 @@ void GLimp_InitExtensions(void) {
                     glConfig.numTextureUnits = static_cast<sint>(glint);
 
                     if(glConfig.numTextureUnits > 1) {
-                        CL_RefPrintf(PRINT_ALL, "...using GL_ARB_multitexture\n");
+                        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                        "...using GL_ARB_multitexture\n");
                     } else {
                         qglMultiTexCoord2fARB = nullptr;
                         qglActiveTextureARB = nullptr;
                         qglClientActiveTextureARB = nullptr;
-                        CL_RefPrintf(PRINT_ALL,
-                                     "...not using GL_ARB_multitexture, < 2 texture units\n");
+                        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                        "...not using GL_ARB_multitexture, < 2 texture units\n");
                     }
                 }
             } else {
-                CL_RefPrintf(PRINT_ALL, "...ignoring GL_ARB_multitexture\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "...ignoring GL_ARB_multitexture\n");
             }
         } else {
-            CL_RefPrintf(PRINT_ALL, "...GL_ARB_multitexture not found\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "...GL_ARB_multitexture not found\n");
         }
 
 
         // GL_EXT_compiled_vertex_array
         if(GLimp_HaveExtension("GL_EXT_compiled_vertex_array")) {
             if(r_ext_compiled_vertex_array->value) {
-                CL_RefPrintf(PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "...using GL_EXT_compiled_vertex_array\n");
                 qglLockArraysEXT = (void (APIENTRY *)(sint,
                                                       sint)) SDL_GL_GetProcAddress("glLockArraysEXT");
                 qglUnlockArraysEXT = (void (APIENTRY *)(void))
@@ -944,10 +976,12 @@ void GLimp_InitExtensions(void) {
                     Com_Error(ERR_FATAL, "bad getprocaddress");
                 }
             } else {
-                CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "...ignoring GL_EXT_compiled_vertex_array\n");
             }
         } else {
-            CL_RefPrintf(PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "...GL_EXT_compiled_vertex_array not found\n");
         }
 
         glConfig.textureFilterAnisotropic = false;
@@ -958,21 +992,22 @@ void GLimp_InitExtensions(void) {
                                static_cast<sint *>(&glConfig.maxAnisotropy));
 
                 if(glConfig.maxAnisotropy <= 0) {
-                    CL_RefPrintf(PRINT_ALL,
-                                 "...GL_EXT_texture_filter_anisotropic not properly supported!\n");
+                    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                    "...GL_EXT_texture_filter_anisotropic not properly supported!\n");
                     glConfig.maxAnisotropy = 0;
                 } else {
-                    CL_RefPrintf(PRINT_ALL,
-                                 "...using GL_EXT_texture_filter_anisotropic (max: %i)\n",
-                                 glConfig.maxAnisotropy);
+                    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                    "...using GL_EXT_texture_filter_anisotropic (max: %i)\n",
+                                                    glConfig.maxAnisotropy);
                     glConfig.textureFilterAnisotropic = true;
                 }
             } else {
-                CL_RefPrintf(PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n");
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "...ignoring GL_EXT_texture_filter_anisotropic\n");
             }
         } else {
-            CL_RefPrintf(PRINT_ALL,
-                         "...GL_EXT_texture_filter_anisotropic not found\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "...GL_EXT_texture_filter_anisotropic not found\n");
         }
     }
 }
@@ -1029,7 +1064,7 @@ of OpenGL
 ===============
 */
 void GLimp_Init(bool fixedFunction) {
-    CL_RefPrintf(PRINT_DEVELOPER, "Glimp_Init( )\n");
+    clientRendererSystem->RefPrintf(PRINT_DEVELOPER, "Glimp_Init( )\n");
 
     if(com_abnormalExit->integer) {
         cvarSystem->Set("r_mode", va("%d", R_MODE_FALLBACK));
@@ -1056,9 +1091,9 @@ void GLimp_Init(bool fixedFunction) {
 
     // Finally, try the default screen resolution
     if(r_mode->integer != R_MODE_FALLBACK) {
-        CL_RefPrintf(PRINT_ALL,
-                     "Setting r_mode %d failed, falling back on r_mode %d\n", r_mode->integer,
-                     R_MODE_FALLBACK);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Setting r_mode %d failed, falling back on r_mode %d\n", r_mode->integer,
+                                        R_MODE_FALLBACK);
 
         if(GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, false, false,
                                        fixedFunction)) {
@@ -1239,16 +1274,17 @@ GLimp_SpawnRenderThread
 */
 bool GLimp_SpawnRenderThread(void (*function)(void)) {
     if(renderThread != nullptr) { // hopefully just a zombie at this point...
-        CL_RefPrintf(PRINT_WARNING,
-                     "Already a render thread? Trying to clean it up...\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "Already a render thread? Trying to clean it up...\n");
         GLimp_ShutdownRenderThread();
     }
 
     smpMutex = SDL_CreateMutex();
 
     if(smpMutex == nullptr) {
-        CL_RefPrintf(PRINT_WARNING, "smpMutex creation failed: %s\n",
-                     SDL_GetError());
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "smpMutex creation failed: %s\n",
+                                        SDL_GetError());
         GLimp_ShutdownRenderThread();
         return false;
     }
@@ -1256,8 +1292,9 @@ bool GLimp_SpawnRenderThread(void (*function)(void)) {
     renderCommandsEvent = SDL_CreateCond();
 
     if(renderCommandsEvent == nullptr) {
-        CL_RefPrintf(PRINT_WARNING, "renderCommandsEvent creation failed: %s\n",
-                     SDL_GetError());
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "renderCommandsEvent creation failed: %s\n",
+                                        SDL_GetError());
         GLimp_ShutdownRenderThread();
         return false;
     }
@@ -1265,8 +1302,9 @@ bool GLimp_SpawnRenderThread(void (*function)(void)) {
     renderCompletedEvent = SDL_CreateCond();
 
     if(renderCompletedEvent == nullptr) {
-        CL_RefPrintf(PRINT_WARNING, "renderCompletedEvent creation failed: %s\n",
-                     SDL_GetError());
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "renderCompletedEvent creation failed: %s\n",
+                                        SDL_GetError());
         GLimp_ShutdownRenderThread();
         return false;
     }
@@ -1276,8 +1314,9 @@ bool GLimp_SpawnRenderThread(void (*function)(void)) {
                                     nullptr);
 
     if(renderThread == nullptr) {
-        CL_RefPrintf(PRINT_WARNING, "SDL_CreateThread() returned %s",
-                     SDL_GetError());
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "SDL_CreateThread() returned %s",
+                                        SDL_GetError());
         GLimp_ShutdownRenderThread();
         return false;
     }

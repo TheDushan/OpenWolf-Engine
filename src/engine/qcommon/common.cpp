@@ -305,8 +305,8 @@ void Com_Error( sint code, pointer fmt, ... )
             serverInitSystem->Shutdown("Server disconnected");
 
 #ifndef DEDICATED
-            CL_Disconnect(true, nullptr);
-            CL_FlushMemory();
+            clientConsoleCommandSystem->Disconnect(true, nullptr);
+            clientMainSystem->FlushMemory();
 #endif
 
             // make sure we can get at our local stuff
@@ -323,8 +323,8 @@ void Com_Error( sint code, pointer fmt, ... )
             serverInitSystem->Shutdown(va("Server crashed: %s\n", com_errorMessage));
             idsystem->WriteDump("Debug Dump\nCom_Error: %s", com_errorMessage);
 #ifndef DEDICATED
-            CL_Disconnect(true, "Server crashed");
-            CL_FlushMemory();
+            clientConsoleCommandSystem->Disconnect(true, "Server crashed");
+            clientMainSystem->FlushMemory();
 #endif
 
             // make sure we can get at our local stuff
@@ -339,19 +339,19 @@ void Com_Error( sint code, pointer fmt, ... )
             serverInitSystem->Shutdown("Autoupdate server disconnected");
 
 #ifndef DEDICATED
-            CL_Disconnect(true, "Autoupdate server crashed");
+            clientConsoleCommandSystem->Disconnect(true, "Autoupdate server crashed");
 #endif
 
-            CL_FlushMemory();
+            clientMainSystem->FlushMemory();
 
             // make sure we can get at our local stuff
             fileSystem->PureServerSetLoadedPaks("", "");
 
             com_errorEntered = false;
 
-            if (!Q_stricmpn(com_errorMessage, "Server is full", 14) && CL_NextUpdateServer())
+            if (!Q_stricmpn(com_errorMessage, "Server is full", 14) && clientAutoUpdateSystem->NextUpdateServer())
             {
-                CL_GetAutoUpdate();
+                clientAutoUpdateSystem->GetAutoUpdate();
             }
             else
             {
@@ -362,7 +362,7 @@ void Com_Error( sint code, pointer fmt, ... )
         default:
         {
 #ifndef DEDICATED
-            CL_Shutdown();
+            clientMainSystem->Shutdown();
 #endif
             serverInitSystem->Shutdown(va("Server fatal crashed: %s\n", com_errorMessage));
         }
@@ -499,7 +499,7 @@ void Com_Quit_f( void )
 //bani
 #ifndef DEDICATED
         clientGameSystem->ShutdownCGame();
-        CL_Shutdown();
+        clientMainSystem->Shutdown();
 #endif
         Com_Shutdown( false );
 
@@ -2665,7 +2665,7 @@ sint Com_EventLoop( void )
             while( networkChainSystem->GetLoopPacket( NS_CLIENT, &evFrom, &buf ) )
             {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                CL_PacketEvent( evFrom, &buf );
+                clientMainSystem->PacketEvent( evFrom, &buf );
 #endif
             }
 
@@ -2765,7 +2765,7 @@ sint Com_EventLoop( void )
                 else
                 {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                    CL_PacketEvent( evFrom, &buf );
+                    clientMainSystem->PacketEvent( evFrom, &buf );
 #endif
                 }
                 break;
@@ -3291,7 +3291,7 @@ void Com_Init( valueType* commandLine )
     if( !dedicated->integer )
     {
 #ifndef DEDICATED
-        CL_Init();
+        clientMainSystem->Init();
 #endif
     }
 
@@ -3307,7 +3307,7 @@ void Com_Init( valueType* commandLine )
     }
 
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-    CL_StartHunkUsers(false);
+    clientMainSystem->StartHunkUsers(false);
 #endif
 
     if( !dedicated->integer && !Com_AddStartupCommands() )
@@ -3611,13 +3611,13 @@ void Com_Frame( void )
         if( !dedicated->integer )
         {
 #ifndef DEDICATED
-            CL_Init();
+            clientMainSystem->Init();
 #endif
         }
         else
         {
 #ifndef DEDICATED
-            CL_Shutdown();
+            clientMainSystem->Shutdown();
 #endif
         }
     }
@@ -3647,7 +3647,7 @@ void Com_Frame( void )
         }
 
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-        CL_Frame( msec );
+        clientMainSystem->Frame( msec );
 #endif
 
         if( com_speeds->integer )

@@ -1180,7 +1180,7 @@ bool R_GetPortalOrientations(drawSurf_t *drawSurf, sint entityNum,
     // to see a surface before the server has communicated the matching
     // portal surface entity, so we don't want to print anything here...
 
-    //CL_RefPrintf( PRINT_ALL, "Portal surface without a portal entity\n" );
+    //clientRendererSystem->RefPrintf( PRINT_ALL, "Portal surface without a portal entity\n" );
 
     return false;
 }
@@ -1354,7 +1354,8 @@ bool R_MirrorViewBySurface(drawSurf_t *drawSurf, sint entityNum) {
 
     // don't recursively mirror
     if(tr.viewParms.isPortal) {
-        CL_RefPrintf(PRINT_DEVELOPER, "WARNING: recursive mirror/portal found\n");
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "WARNING: recursive mirror/portal found\n");
         return false;
     }
 
@@ -1564,7 +1565,7 @@ void R_SortDrawSurfs(drawSurf_t *drawSurfs, sint numDrawSurfs) {
     sint             pshadowed;
     sint                i;
 
-    //CL_RefPrintf(PRINT_ALL, "firstDrawSurf %d numDrawSurfs %d\n", (sint)(drawSurfs - tr.refdef.drawSurfs), numDrawSurfs);
+    //clientRendererSystem->RefPrintf(PRINT_ALL, "firstDrawSurf %d numDrawSurfs %d\n", (sint)(drawSurfs - tr.refdef.drawSurfs), numDrawSurfs);
 
     // it is possible for some views to not have any surfaces
     if(numDrawSurfs < 1) {
@@ -2565,8 +2566,8 @@ void R_RenderSunShadowMaps(const refdef_t *fd, sint level) {
             VectorScale(lightviewBounds[1], worldUnitsPerTexel, lightviewBounds[1]);
         }
 
-        //CL_RefPrintf(PRINT_ALL, "level %d znear %f zfar %f\n", level, lightviewBounds[0][0], lightviewBounds[1][0]);
-        //CL_RefPrintf(PRINT_ALL, "xmin %f xmax %f ymin %f ymax %f\n", lightviewBounds[0][1], lightviewBounds[1][1], -lightviewBounds[1][2], -lightviewBounds[0][2]);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "level %d znear %f zfar %f\n", level, lightviewBounds[0][0], lightviewBounds[1][0]);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "xmin %f xmax %f ymin %f ymax %f\n", lightviewBounds[0][1], lightviewBounds[1][1], -lightviewBounds[1][2], -lightviewBounds[0][2]);
     }
 
     {
@@ -2726,10 +2727,10 @@ void R_RenderCubemapSide(sint cubemapIndex, sint cubemapSide,
 
         // only print message for first side
         if(scale < 1.0001f && cubemapSide == 0) {
-            CL_RefPrintf(PRINT_ALL,
-                         "cubemap %d %s (%f, %f, %f) is outside the lightgrid or inside a wall!\n",
-                         cubemapIndex, tr.cubemaps[cubemapIndex].name, tr.refdef.vieworg[0],
-                         tr.refdef.vieworg[1], tr.refdef.vieworg[2]);
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "cubemap %d %s (%f, %f, %f) is outside the lightgrid or inside a wall!\n",
+                                            cubemapIndex, tr.cubemaps[cubemapIndex].name, tr.refdef.vieworg[0],
+                                            tr.refdef.vieworg[1], tr.refdef.vieworg[2]);
         }
     }
 

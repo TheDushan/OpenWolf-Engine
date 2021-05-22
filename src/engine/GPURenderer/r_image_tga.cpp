@@ -129,7 +129,8 @@ void R_LoadTGA(pointer name, uchar8 **pic, sint *width, sint *height) {
     }
 
 
-    targa_rgba = static_cast<uchar8 *>(CL_RefMalloc(numPixels));
+    targa_rgba = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                                           numPixels));
 
     if(targa_header.id_length != 0) {
         if(buf_p + targa_header.id_length > end) {
@@ -335,8 +336,8 @@ breakOut:
 
     // instead we just print a warning
     if(targa_header.attributes & 0x20) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: '%s' TGA file header declares top-down image, ignoring\n", name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: '%s' TGA file header declares top-down image, ignoring\n", name);
     }
 
 #endif

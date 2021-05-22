@@ -101,7 +101,7 @@ void GL_TextureMode(pointer string) {
     }
 
     if(i == 6) {
-        CL_RefPrintf(PRINT_ALL, "bad filter name\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL, "bad filter name\n");
         return;
     }
 
@@ -150,8 +150,8 @@ void R_ImageList_f(void) {
     sint i;
     sint estTotalSize = 0;
 
-    CL_RefPrintf(PRINT_ALL,
-                 "\n      -w-- -h-- -type-- -size- --name-------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "\n      -w-- -h-- -type-- -size- --name-------\n");
 
     for(i = 0 ; i < tr.numImages ; i++) {
         image_t *image = tr.images[i];
@@ -325,15 +325,17 @@ void R_ImageList_f(void) {
             sizeSuffix = "Gb";
         }
 
-        CL_RefPrintf(PRINT_ALL, "%4i: %4ix%4i %s %4i%s %s\n", i,
-                     image->uploadWidth, image->uploadHeight, format, displaySize, sizeSuffix,
-                     image->imgName);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "%4i: %4ix%4i %s %4i%s %s\n", i,
+                                        image->uploadWidth, image->uploadHeight, format, displaySize, sizeSuffix,
+                                        image->imgName);
         estTotalSize += estSize;
     }
 
-    CL_RefPrintf(PRINT_ALL, " ---------\n");
-    CL_RefPrintf(PRINT_ALL, " approx %i bytes\n", estTotalSize);
-    CL_RefPrintf(PRINT_ALL, " %i total images\n\n", tr.numImages);
+    clientRendererSystem->RefPrintf(PRINT_ALL, " ---------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, " approx %i bytes\n",
+                                    estTotalSize);
+    clientRendererSystem->RefPrintf(PRINT_ALL, " %i total images\n\n",
+                                    tr.numImages);
 }
 
 //=======================================================================
@@ -1513,7 +1515,7 @@ static bool RawImage_ScaleToPower2(uchar8 **data, sint *inout_width,
         sint finalwidth, finalheight;
         //sint startTime, endTime;
 
-        //startTime = CL_ScaledMilliseconds();
+        //startTime = clientRendererSystem->ScaledMilliseconds();
 
         finalwidth = scaled_width << r_imageUpsample->integer;
         finalheight = scaled_height << r_imageUpsample->integer;
@@ -1561,9 +1563,9 @@ static bool RawImage_ScaleToPower2(uchar8 **data, sint *inout_width,
                               scaled_height);
         }
 
-        //endTime = CL_ScaledMilliseconds();
+        //endTime = clientRendererSystem->ScaledMilliseconds();
 
-        //CL_RefPrintf(PRINT_ALL, "upsampled %dx%d to %dx%d in %dms\n", width, height, scaled_width, scaled_height, endTime - startTime);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "upsampled %dx%d to %dx%d in %dms\n", width, height, scaled_width, scaled_height, endTime - startTime);
 
         *data = *resampledBuffer;
     } else if(scaled_width != width || scaled_height != height) {
@@ -1879,7 +1881,8 @@ static sint CalculateMipSize(sint width, sint height, uint picFormat) {
             return numPixels * 8;
 
         default:
-            CL_RefPrintf(PRINT_ALL, "Unsupported texture format %08x\n", picFormat);
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "Unsupported texture format %08x\n", picFormat);
             return 0;
     }
 
@@ -2346,8 +2349,8 @@ void R_LoadImage(pointer name, uchar8 **pic, sint *width, sint *height,
         if(*pic) {
             if(orgNameFailed) {
 #ifdef _DEBUG
-                CL_RefPrintf(PRINT_DEVELOPER,
-                             "WARNING: %s not present, using %s instead\n", name, altName);
+                clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                                "WARNING: %s not present, using %s instead\n", name, altName);
 #endif
             }
 
@@ -2389,9 +2392,9 @@ image_t    *R_FindImageFile(pointer name, imgType_t type,
             // the white image can be used with any set of parms, but other mismatches are errors
             if(strcmp(name, "*white")) {
                 if(image->flags != flags) {
-                    CL_RefPrintf(PRINT_DEVELOPER,
-                                 "WARNING: reused image %s with mixed flags (%i vs %i)\n", name,
-                                 image->flags, flags);
+                    clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                                    "WARNING: reused image %s with mixed flags (%i vs %i)\n", name,
+                                                    image->flags, flags);
                 }
             }
 
@@ -2405,8 +2408,9 @@ image_t    *R_FindImageFile(pointer name, imgType_t type,
     R_LoadImage(name, &pic, &width, &height, &picFormat, &picNumMips);
 
     if(pic == nullptr) {
-        CL_RefPrintf(PRINT_DEVELOPER, "R_FindImageFile(%s, %i, %i) failed\n", name,
-                     type, flags);
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "R_FindImageFile(%s, %i, %i) failed\n", name,
+                                        type, flags);
         return nullptr;
     }
 
@@ -2437,7 +2441,8 @@ image_t    *R_FindImageFile(pointer name, imgType_t type,
 
             normalWidth = width;
             normalHeight = height;
-            normalPic = static_cast<uchar8 *>(CL_RefMalloc(width * height * 4));
+            normalPic = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                                                  width * height * 4));
             RGBAtoNormal(pic, normalPic, width, height, flags & IMGFLAG_CLAMPTOEDGE);
 
 #if 1
@@ -2463,7 +2468,7 @@ image_t    *R_FindImageFile(pointer name, imgType_t type,
                 uchar8 *blurPic;
 
                 RGBAtoYCoCgA(pic, pic, width, height);
-                blurPic = CL_RefMalloc(width * height);
+                blurPic = clientRendererSystem->RefMalloc(width * height);
 
                 for(y = 1; y < height - 1; y++) {
                     uchar8 *picbyte  = pic     + y * width * 4;
@@ -3316,13 +3321,14 @@ qhandle_t idRenderSystemLocal::RegisterSkin(pointer name) {
     valueType       surfName[MAX_QPATH];
 
     if(!name || !name[0]) {
-        CL_RefPrintf(PRINT_DEVELOPER,
-                     "Empty name passed to idRenderSystemLocal::RegisterSkin\n");
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "Empty name passed to idRenderSystemLocal::RegisterSkin\n");
         return 0;
     }
 
     if(strlen(name) >= MAX_QPATH) {
-        CL_RefPrintf(PRINT_DEVELOPER, "Skin name exceeds MAX_QPATH\n");
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "Skin name exceeds MAX_QPATH\n");
         return 0;
     }
 
@@ -3342,9 +3348,9 @@ qhandle_t idRenderSystemLocal::RegisterSkin(pointer name) {
 
     // allocate a new skin
     if(tr.numSkins == MAX_SKINS) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: idRenderSystemLocal::RegisterSkin( '%s' ) MAX_SKINS hit\n",
-                     name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: idRenderSystemLocal::RegisterSkin( '%s' ) MAX_SKINS hit\n",
+                                        name);
         return 0;
     }
 
@@ -3411,9 +3417,9 @@ qhandle_t idRenderSystemLocal::RegisterSkin(pointer name) {
     fileSystem->FreeFile(text.v);
 
     if(totalSurfaces > MAX_SKIN_SURFACES) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: Ignoring excess surfaces (found %d, max is %d) in skin '%s'!\n",
-                     totalSurfaces, MAX_SKIN_SURFACES, name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: Ignoring excess surfaces (found %d, max is %d) in skin '%s'!\n",
+                                        totalSurfaces, MAX_SKIN_SURFACES, name);
     }
 
     // never let a skin have 0 shaders
@@ -3471,19 +3477,21 @@ void    R_SkinList_f(void) {
     sint            i, j;
     skin_t     *skin;
 
-    CL_RefPrintf(PRINT_ALL, "------------------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "------------------\n");
 
     for(i = 0 ; i < tr.numSkins ; i++) {
         skin = tr.skins[i];
 
-        CL_RefPrintf(PRINT_ALL, "%3i:%s (%d surfaces)\n", i, skin->name,
-                     skin->numSurfaces);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "%3i:%s (%d surfaces)\n", i,
+                                        skin->name,
+                                        skin->numSurfaces);
 
         for(j = 0 ; j < skin->numSurfaces ; j++) {
-            CL_RefPrintf(PRINT_ALL, "       %s = %s\n", skin->surfaces[j].name,
-                         skin->surfaces[j].shader->name);
+            clientRendererSystem->RefPrintf(PRINT_ALL, "       %s = %s\n",
+                                            skin->surfaces[j].name,
+                                            skin->surfaces[j].shader->name);
         }
     }
 
-    CL_RefPrintf(PRINT_ALL, "------------------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "------------------\n");
 }

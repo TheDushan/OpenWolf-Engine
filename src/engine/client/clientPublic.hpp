@@ -193,7 +193,7 @@ typedef struct {
 
     // NERVE - SMF
     // NOTE TTimo - UI uses LIMBOCHAT_WIDTH strings (140),
-    // but for the processing in CL_AddToLimboChat we need some safe room
+    // but for the processing in idClientMainSystemLocal::AddToLimboChat we need some safe room
     valueType            limboChatMsgs[LIMBOCHAT_HEIGHT][LIMBOCHAT_WIDTH * 3 +
             1];
     sint             limboChatPos;
@@ -407,7 +407,7 @@ typedef struct {
     fontInfo_t      consoleFont;
     // www downloading
     // in the static stuff since this may have to survive server disconnects
-    // if new stuff gets added, CL_ClearStaticDownload code needs to be updated for clear up
+    // if new stuff gets added, idClientDownloadSystemLocal::ClearStaticDownload code needs to be updated for clear up
     bool
     bWWWDlDisconnected;                                             // keep going with the download after server disconnect
     valueType            downloadName[MAX_OSPATH];

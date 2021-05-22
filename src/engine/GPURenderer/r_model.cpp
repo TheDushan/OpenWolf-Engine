@@ -81,8 +81,9 @@ qhandle_t R_RegisterMD3(pointer name, model_t *mod) {
 
         // We want to know when something is missing
         if(!lod && !buf.u) {
-            CL_RefPrintf(PRINT_DEVELOPER, "Could not find MD3 model file %s\n",
-                         namebuf);
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "Could not find MD3 model file %s\n",
+                                            namebuf);
         }
 
         if(!buf.u) {
@@ -94,8 +95,9 @@ qhandle_t R_RegisterMD3(pointer name, model_t *mod) {
         if(ident == MD3_IDENT) {
             loaded = R_LoadMD3(mod, lod, buf.u, size, name);
         } else {
-            CL_RefPrintf(PRINT_WARNING, "R_RegisterMD3: unknown fileid for %s\n",
-                         name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_RegisterMD3: unknown fileid for %s\n",
+                                            name);
         }
 
         fileSystem->FreeFile(buf.v);
@@ -119,7 +121,8 @@ qhandle_t R_RegisterMD3(pointer name, model_t *mod) {
         return mod->index;
     }
 
-    CL_RefPrintf(PRINT_DEVELOPER, "R_RegisterMD3: couldn't load %s\n", name);
+    clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                    "R_RegisterMD3: couldn't load %s\n", name);
 
     mod->type = MOD_BAD;
     return 0;
@@ -155,8 +158,9 @@ qhandle_t R_RegisterMDR(pointer name, model_t *mod) {
     fileSystem->FreeFile(buf.v);
 
     if(!loaded) {
-        CL_RefPrintf(PRINT_WARNING, "R_RegisterMDR: couldn't load mdr file %s\n",
-                     name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_RegisterMDR: couldn't load mdr file %s\n",
+                                        name);
         mod->type = MOD_BAD;
         return 0;
     }
@@ -189,8 +193,9 @@ qhandle_t R_RegisterIQM(pointer name, model_t *mod) {
     fileSystem->FreeFile(buf.v);
 
     if(!loaded) {
-        CL_RefPrintf(PRINT_WARNING, "R_RegisterIQM: couldn't load iqm file %s\n",
-                     name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_RegisterIQM: couldn't load iqm file %s\n",
+                                        name);
         mod->type = MOD_BAD;
         return 0;
     }
@@ -300,13 +305,14 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
     valueType       altName[ MAX_QPATH ];
 
     if(!name || !name[0]) {
-        CL_RefPrintf(PRINT_ALL,
-                     "idRenderSystemLocal::RegisterModel: nullptr name\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "idRenderSystemLocal::RegisterModel: nullptr name\n");
         return 0;
     }
 
     if(strlen(name) >= MAX_QPATH) {
-        CL_RefPrintf(PRINT_ALL, "Model name exceeds MAX_QPATH\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Model name exceeds MAX_QPATH\n");
         return 0;
     }
 
@@ -328,9 +334,9 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
     // allocate a new model_t
 
     if((mod = R_AllocModel()) == nullptr) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "idRenderSystemLocal::RegisterModel: R_AllocModel() failed for '%s'\n",
-                     name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "idRenderSystemLocal::RegisterModel: R_AllocModel() failed for '%s'\n",
+                                        name);
         return 0;
     }
 
@@ -390,8 +396,8 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
         if(hModel) {
             if(orgNameFailed) {
 #ifdef _DEBUG
-                CL_RefPrintf(PRINT_DEVELOPER,
-                             "WARNING: %s not present, using %s instead\n", name, altName);
+                clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                                "WARNING: %s not present, using %s instead\n", name, altName);
 #endif
             }
 
@@ -438,9 +444,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
     version = LittleLong(md3Model->version);
 
     if(version != MD3_VERSION) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_LoadMD3: %s has wrong version (%i should be %i)\n", modName, version,
-                     MD3_VERSION);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadMD3: %s has wrong version (%i should be %i)\n", modName, version,
+                                        MD3_VERSION);
         return false;
     }
 
@@ -463,7 +469,8 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
     LL(md3Model->ofsEnd);
 
     if(md3Model->numFrames < 1) {
-        CL_RefPrintf(PRINT_WARNING, "R_LoadMD3: %s has no frames\n", modName);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadMD3: %s has no frames\n", modName);
         return false;
     }
 
@@ -536,20 +543,20 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
         LL(md3Surf->ofsEnd);
 
         if(md3Surf->numVerts >= SHADER_MAX_VERTEXES) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_LoadMD3: %s has more than %i verts on %s (%i).\n",
-                         modName, SHADER_MAX_VERTEXES - 1,
-                         md3Surf->name[0] ? md3Surf->name : "a surface",
-                         md3Surf->numVerts);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_LoadMD3: %s has more than %i verts on %s (%i).\n",
+                                            modName, SHADER_MAX_VERTEXES - 1,
+                                            md3Surf->name[0] ? md3Surf->name : "a surface",
+                                            md3Surf->numVerts);
             return false;
         }
 
         if(md3Surf->numTriangles * 3 >= SHADER_MAX_INDEXES) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_LoadMD3: %s has more than %i triangles on %s (%i).\n",
-                         modName, (SHADER_MAX_INDEXES / 3) - 1,
-                         md3Surf->name[0] ? md3Surf->name : "a surface",
-                         md3Surf->numTriangles);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_LoadMD3: %s has more than %i triangles on %s (%i).\n",
+                                            modName, (SHADER_MAX_INDEXES / 3) - 1,
+                                            md3Surf->name[0] ? md3Surf->name : "a surface",
+                                            md3Surf->numTriangles);
             return false;
         }
 
@@ -657,10 +664,12 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
 
         // calc tangent spaces
         {
-            vec3_t *sdirs = (vec3_t *)CL_RefMalloc(sizeof(*sdirs) * surf->numVerts *
-                                                   mdvModel->numFrames);
-            vec3_t *tdirs = (vec3_t *)CL_RefMalloc(sizeof(*tdirs) * surf->numVerts *
-                                                   mdvModel->numFrames);
+            vec3_t *sdirs = (vec3_t *)clientRendererSystem->RefMalloc(sizeof(
+                                *sdirs) * surf->numVerts *
+                            mdvModel->numFrames);
+            vec3_t *tdirs = (vec3_t *)clientRendererSystem->RefMalloc(sizeof(
+                                *tdirs) * surf->numVerts *
+                            mdvModel->numFrames);
 
             for(j = 0, v = surf->verts; j < (surf->numVerts * mdvModel->numFrames);
                     j++, v++) {
@@ -764,7 +773,7 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
             }
 
 
-            data = static_cast<uchar8 *>(CL_RefMalloc(dataSize));
+            data = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(dataSize));
             dataOfs = 0;
 
             if(mdvModel->numFrames > 1) {
@@ -902,17 +911,17 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
     pinmodel->version = LittleLong(pinmodel->version);
 
     if(pinmodel->version != MDR_VERSION) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_LoadMDR: %s has wrong version (%i should be %i)\n", mod_name,
-                     pinmodel->version, MDR_VERSION);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadMDR: %s has wrong version (%i should be %i)\n", mod_name,
+                                        pinmodel->version, MDR_VERSION);
         return false;
     }
 
     size = LittleLong(pinmodel->ofsEnd);
 
     if(size > filesize) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_LoadMDR: Header of %s is broken. Wrong filesize declared!\n", mod_name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadMDR: Header of %s is broken. Wrong filesize declared!\n", mod_name);
         return false;
     }
 
@@ -936,8 +945,9 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
     if(pinmodel->numBones < 0 ||
             sizeof(*mdr) + pinmodel->numFrames * (sizeof(*frame) +
                     (pinmodel->numBones - 1) * sizeof(*frame->bones)) > size) {
-        CL_RefPrintf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n",
-                     mod_name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadMDR: %s has broken structure.\n",
+                                        mod_name);
         return false;
     }
 
@@ -960,7 +970,8 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
     mod->numLods = mdr->numLODs;
 
     if(mdr->numFrames < 1) {
-        CL_RefPrintf(PRINT_WARNING, "R_LoadMDR: %s has no frames\n", mod_name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadMDR: %s has no frames\n", mod_name);
         return false;
     }
 
@@ -1048,8 +1059,9 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
         // simple bounds check
         if(reinterpret_cast<uchar8 *>((lod) + 1) > reinterpret_cast<uchar8 *>
                 (mdr) + size) {
-            CL_RefPrintf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n",
-                         mod_name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_LoadMDR: %s has broken structure.\n",
+                                            mod_name);
             return false;
         }
 
@@ -1066,8 +1078,9 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
             // simple bounds check
             if(reinterpret_cast<uchar8 *>((surf) + 1) > reinterpret_cast<uchar8 *>
                     (mdr) + size) {
-                CL_RefPrintf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n",
-                             mod_name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "R_LoadMDR: %s has broken structure.\n",
+                                                mod_name);
                 return false;
             }
 
@@ -1086,20 +1099,20 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
 
             // now do the checks that may fail.
             if(surf->numVerts >= SHADER_MAX_VERTEXES) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "R_LoadMDR: %s has more than %i verts on %s (%i).\n",
-                             mod_name, SHADER_MAX_VERTEXES - 1,
-                             surf->name[0] ? surf->name : "a surface",
-                             surf->numVerts);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "R_LoadMDR: %s has more than %i verts on %s (%i).\n",
+                                                mod_name, SHADER_MAX_VERTEXES - 1,
+                                                surf->name[0] ? surf->name : "a surface",
+                                                surf->numVerts);
                 return false;
             }
 
             if(surf->numTriangles * 3 >= SHADER_MAX_INDEXES) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "R_LoadMDR: %s has more than %i triangles on %s (%i).\n",
-                             mod_name, (SHADER_MAX_INDEXES / 3) - 1,
-                             surf->name[0] ? surf->name : "a surface",
-                             surf->numTriangles);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "R_LoadMDR: %s has more than %i triangles on %s (%i).\n",
+                                                mod_name, (SHADER_MAX_INDEXES / 3) - 1,
+                                                surf->name[0] ? surf->name : "a surface",
+                                                surf->numTriangles);
                 return false;
             }
 
@@ -1129,8 +1142,9 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
                 if(curv->numWeights < 0 ||
                         reinterpret_cast<uchar8 *>(v + 1) + (curv->numWeights - 1) * sizeof(
                             *weight) > reinterpret_cast<uchar8 *>(mdr) + size) {
-                    CL_RefPrintf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n",
-                                 mod_name);
+                    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                    "R_LoadMDR: %s has broken structure.\n",
+                                                    mod_name);
                     return false;
                 }
 
@@ -1173,8 +1187,9 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
             if(surf->numTriangles < 0 ||
                     reinterpret_cast<uchar8 *>(tri) + surf->numTriangles >
                     reinterpret_cast<uchar8 *>(mdr) + size) {
-                CL_RefPrintf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n",
-                             mod_name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "R_LoadMDR: %s has broken structure.\n",
+                                                mod_name);
                 return false;
             }
 
@@ -1218,8 +1233,9 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
     if(mdr->numTags < 0 ||
             reinterpret_cast<uchar8 *>(tag) + mdr->numTags >
             reinterpret_cast<uchar8 *>(mdr) + size) {
-        CL_RefPrintf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n",
-                     mod_name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadMDR: %s has broken structure.\n",
+                                        mod_name);
         return false;
     }
 
@@ -1310,17 +1326,19 @@ void R_Modellist_f(void) {
             }
         }
 
-        CL_RefPrintf(PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, lods, mod->name);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "%8i : (%i) %s\n",
+                                        mod->dataSize, lods, mod->name);
         total += mod->dataSize;
     }
 
-    CL_RefPrintf(PRINT_ALL, "%8i : Total models\n", total);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%8i : Total models\n", total);
 
 #if 0       // not working right with new hunk
 
     if(tr.world) {
-        CL_RefPrintf(PRINT_ALL, "\n%8i : %s\n", tr.world->dataSize,
-                     tr.world->name);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "\n%8i : %s\n",
+                                        tr.world->dataSize,
+                                        tr.world->name);
     }
 
 #endif

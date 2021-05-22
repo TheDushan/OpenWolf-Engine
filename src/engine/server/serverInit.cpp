@@ -646,13 +646,13 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     Com_Printf("------ Server Initialization ------\n");
     Com_Printf("Server: %s\n", server);
 
-    // if not running a dedicated server CL_MapLoading will connect the client to the server
+    // if not running a dedicated server idClientMainSystemLocal::MapLoading will connect the client to the server
     // also print some status stuff
 #if !defined (DEDICATED)
-    CL_MapLoading();
+    clientMainSystem->MapLoading();
 
     // make sure all the client stuff is unloaded
-    CL_ShutdownAll(false);
+    clientMainSystem->ShutdownAll(false);
 #endif
 
     // clear the whole hunk because we're (re)loading the server
@@ -1145,6 +1145,6 @@ void idServerInitSystemLocal::Shutdown(valueType *finalmsg) {
 
     // disconnect any local clients
 #ifndef DEDICATED
-    CL_Disconnect(false, "Server shutdown");
+    clientConsoleCommandSystem->Disconnect(false, "Server shutdown");
 #endif
 }

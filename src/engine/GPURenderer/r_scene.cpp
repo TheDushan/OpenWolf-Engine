@@ -135,7 +135,7 @@ void idRenderSystemLocal::AddPolyToScene(qhandle_t hShader, sint numVerts,
     if(!hShader) {
         // This isn't a useful warning, and an hShader of zero isn't a null shader, it's
         // the default shader.
-        //CL_RefPrintf( PRINT_WARNING, "WARNING: idRenderSystemLocal::AddPolyToScene: nullptr poly shader\n");
+        //clientRendererSystem->RefPrintf( PRINT_WARNING, "WARNING: idRenderSystemLocal::AddPolyToScene: nullptr poly shader\n");
         //return;
     }
 
@@ -151,8 +151,8 @@ void idRenderSystemLocal::AddPolyToScene(qhandle_t hShader, sint numVerts,
 
             if(tr.refdef.time / 1000 > lastWarning) {
                 lastWarning = tr.refdef.time / 1000;
-                CL_RefPrintf(PRINT_DEVELOPER,
-                             "WARNING: idRenderSystemLocal::AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
+                clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                                "WARNING: idRenderSystemLocal::AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
             }
 
             return;
@@ -225,8 +225,8 @@ void idRenderSystemLocal::AddRefEntityToScene(const refEntity_t *ent) {
     }
 
     if(r_numentities >= MAX_REFENTITIES) {
-        CL_RefPrintf(PRINT_DEVELOPER,
-                     "idRenderSystemLocal::AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES\n");
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "idRenderSystemLocal::AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES\n");
         return;
     }
 
@@ -236,8 +236,8 @@ void idRenderSystemLocal::AddRefEntityToScene(const refEntity_t *ent) {
 
         if(firstTime) {
             firstTime = false;
-            CL_RefPrintf(PRINT_WARNING,
-                         "idRenderSystemLocal::AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "idRenderSystemLocal::AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
         }
 
         return;
@@ -494,7 +494,7 @@ void idRenderSystemLocal::RenderScene(const refdef_t *fd) {
         return;
     }
 
-    startTime = CL_ScaledMilliseconds();
+    startTime = clientRendererSystem->ScaledMilliseconds();
 
     if(!tr.world && !(fd->rdflags & RDF_NOWORLDMODEL)) {
         Com_Error(ERR_DROP,
@@ -590,5 +590,5 @@ void idRenderSystemLocal::RenderScene(const refdef_t *fd) {
 
     RE_EndScene();
 
-    tr.frontEndMsec += CL_ScaledMilliseconds() - startTime;
+    tr.frontEndMsec += clientRendererSystem->ScaledMilliseconds() - startTime;
 }

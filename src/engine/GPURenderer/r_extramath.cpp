@@ -147,14 +147,18 @@ bool Mat4Compare(const mat4_t a, const mat4_t b) {
 }
 
 void Mat4Dump(const mat4_t in) {
-    CL_RefPrintf(PRINT_ALL, "%3.5f %3.5f %3.5f %3.5f\n", in[ 0], in[ 4],
-                 in[ 8], in[12]);
-    CL_RefPrintf(PRINT_ALL, "%3.5f %3.5f %3.5f %3.5f\n", in[ 1], in[ 5],
-                 in[ 9], in[13]);
-    CL_RefPrintf(PRINT_ALL, "%3.5f %3.5f %3.5f %3.5f\n", in[ 2], in[ 6],
-                 in[10], in[14]);
-    CL_RefPrintf(PRINT_ALL, "%3.5f %3.5f %3.5f %3.5f\n", in[ 3], in[ 7],
-                 in[11], in[15]);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%3.5f %3.5f %3.5f %3.5f\n",
+                                    in[ 0], in[ 4],
+                                    in[ 8], in[12]);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%3.5f %3.5f %3.5f %3.5f\n",
+                                    in[ 1], in[ 5],
+                                    in[ 9], in[13]);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%3.5f %3.5f %3.5f %3.5f\n",
+                                    in[ 2], in[ 6],
+                                    in[10], in[14]);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%3.5f %3.5f %3.5f %3.5f\n",
+                                    in[ 3], in[ 7],
+                                    in[11], in[15]);
 }
 
 void Mat4Translation(vec3_t vec, mat4_t out) {

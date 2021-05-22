@@ -228,9 +228,9 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
     LL(header->version);
 
     if(header->version != IQM_VERSION) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_LoadIQM: %s is a unsupported IQM version (%d), only version %d is supported.\n",
-                     mod_name, header->version, IQM_VERSION);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadIQM: %s is a unsupported IQM version (%d), only version %d is supported.\n",
+                                        mod_name, header->version, IQM_VERSION);
         return false;
     }
 
@@ -268,9 +268,9 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
 
     // check ioq3 joint limit
     if(header->num_joints > IQM_MAX_JOINTS) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_LoadIQM: %s has more than %d joints (%d).\n",
-                     mod_name, IQM_MAX_JOINTS, header->num_joints);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadIQM: %s has more than %d joints (%d).\n",
+                                        mod_name, IQM_MAX_JOINTS, header->num_joints);
         return false;
     }
 
@@ -409,18 +409,18 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
         if(vertexArrayFormat[IQM_POSITION] == -1 ||
                 vertexArrayFormat[IQM_NORMAL] == -1 ||
                 vertexArrayFormat[IQM_TEXCOORD] == -1) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_LoadIQM: %s is missing IQM_POSITION, IQM_NORMAL, and/or IQM_TEXCOORD array.\n",
-                         mod_name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_LoadIQM: %s is missing IQM_POSITION, IQM_NORMAL, and/or IQM_TEXCOORD array.\n",
+                                            mod_name);
             return false;
         }
 
         if(header->num_joints) {
             if(vertexArrayFormat[IQM_BLENDINDEXES] == -1 ||
                     vertexArrayFormat[IQM_BLENDWEIGHTS] == -1) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "R_LoadIQM: %s is missing IQM_BLENDINDEXES and/or IQM_BLENDWEIGHTS array.\n",
-                             mod_name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "R_LoadIQM: %s is missing IQM_BLENDINDEXES and/or IQM_BLENDWEIGHTS array.\n",
+                                                mod_name);
                 return false;
             }
         } else {
@@ -431,8 +431,8 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
 
         // opengl2 renderer requires tangents
         if(vertexArrayFormat[IQM_TANGENT] == -1) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_LoadIQM: %s is missing IQM_TANGENT array.\n", mod_name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_LoadIQM: %s is missing IQM_TANGENT array.\n", mod_name);
             return false;
         }
 
@@ -483,19 +483,19 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
 
             // check ioq3 limits
             if(mesh->num_vertexes >= SHADER_MAX_VERTEXES) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "R_LoadIQM: %s has more than %i verts on %s (%i).\n",
-                             mod_name, SHADER_MAX_VERTEXES - 1, meshName[0] ? meshName : "a surface",
-                             mesh->num_vertexes);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "R_LoadIQM: %s has more than %i verts on %s (%i).\n",
+                                                mod_name, SHADER_MAX_VERTEXES - 1, meshName[0] ? meshName : "a surface",
+                                                mesh->num_vertexes);
                 return false;
             }
 
             if(mesh->num_triangles * 3 >= SHADER_MAX_INDEXES) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "R_LoadIQM: %s has more than %i triangles on %s (%i).\n",
-                             mod_name, (SHADER_MAX_INDEXES / 3) - 1,
-                             meshName[0] ? meshName : "a surface",
-                             mesh->num_triangles);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "R_LoadIQM: %s has more than %i triangles on %s (%i).\n",
+                                                mod_name, (SHADER_MAX_INDEXES / 3) - 1,
+                                                meshName[0] ? meshName : "a surface",
+                                                mesh->num_triangles);
                 return false;
             }
 
@@ -545,9 +545,9 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
     }
 
     if(header->num_poses != header->num_joints && header->num_poses != 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_LoadIQM: %s has %d poses and %d joints, must have the same number or 0 poses\n",
-                     mod_name, header->num_poses, header->num_joints);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_LoadIQM: %s has %d poses and %d joints, must have the same number or 0 poses\n",
+                                        mod_name, header->num_poses, header->num_joints);
         return false;
     }
 
@@ -1430,10 +1430,10 @@ void R_AddIQMSurfaces(trRefEntity_t *ent) {
             || (ent->e.oldframe >= data->num_frames)
             || (ent->e.oldframe < 0)) {
         if((ent->e.oldframe && ent->e.frame))
-            CL_RefPrintf(PRINT_DEVELOPER,
-                         "R_AddIQMSurfaces: no such frame %d to %d for '%s'\n",
-                         ent->e.oldframe, ent->e.frame,
-                         tr.currentModel->name);
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "R_AddIQMSurfaces: no such frame %d to %d for '%s'\n",
+                                            ent->e.oldframe, ent->e.frame,
+                                            tr.currentModel->name);
 
         ent->e.frame = 0;
         ent->e.oldframe = 0;

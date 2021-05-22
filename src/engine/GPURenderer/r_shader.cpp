@@ -115,9 +115,9 @@ void idRenderSystemLocal::RemapShader(pointer shaderName,
     }
 
     if(sh == nullptr || sh == tr.defaultShader) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: idRenderSystemLocal::RemapShader: shader %s not found\n",
-                     shaderName);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: idRenderSystemLocal::RemapShader: shader %s not found\n",
+                                        shaderName);
         return;
     }
 
@@ -129,9 +129,9 @@ void idRenderSystemLocal::RemapShader(pointer shaderName,
     }
 
     if(sh2 == nullptr || sh2 == tr.defaultShader) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: idRenderSystemLocal::RemapShader: new shader %s not found\n",
-                     newShaderName);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: idRenderSystemLocal::RemapShader: new shader %s not found\n",
+                                        newShaderName);
         return;
     }
 
@@ -168,8 +168,8 @@ static bool ParseVector(valueType **text, sint count, float32 *v) {
     token = COM_ParseExt2(text, false);
 
     if(strcmp(token, "(")) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing parenthesis in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing parenthesis in shader '%s'\n", shader.name);
         return false;
     }
 
@@ -177,8 +177,8 @@ static bool ParseVector(valueType **text, sint count, float32 *v) {
         token = COM_ParseExt2(text, false);
 
         if(!token[0]) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing vector element in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing vector element in shader '%s'\n", shader.name);
             return false;
         }
 
@@ -188,8 +188,8 @@ static bool ParseVector(valueType **text, sint count, float32 *v) {
     token = COM_ParseExt2(text, false);
 
     if(strcmp(token, ")")) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing parenthesis in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing parenthesis in shader '%s'\n", shader.name);
         return false;
     }
 
@@ -211,9 +211,9 @@ static uint NameToAFunc(pointer funcname) {
         return GLS_ATEST_GE_80;
     }
 
-    CL_RefPrintf(PRINT_WARNING,
-                 "WARNING: invalid alphaFunc name '%s' in shader '%s'\n", funcname,
-                 shader.name);
+    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                    "WARNING: invalid alphaFunc name '%s' in shader '%s'\n", funcname,
+                                    shader.name);
     return 0;
 }
 
@@ -252,9 +252,9 @@ static sint NameToSrcBlendMode(pointer name) {
         return GLS_SRCBLEND_ALPHA_SATURATE;
     }
 
-    CL_RefPrintf(PRINT_WARNING,
-                 "WARNING: unknown blend mode '%s' in shader '%s', substituting GL_ONE\n",
-                 name, shader.name);
+    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                    "WARNING: unknown blend mode '%s' in shader '%s', substituting GL_ONE\n",
+                                    name, shader.name);
     return GLS_SRCBLEND_ONE;
 }
 
@@ -290,9 +290,9 @@ static sint NameToDstBlendMode(pointer name) {
         return GLS_DSTBLEND_ONE_MINUS_SRC_COLOR;
     }
 
-    CL_RefPrintf(PRINT_WARNING,
-                 "WARNING: unknown blend mode '%s' in shader '%s', substituting GL_ONE\n",
-                 name, shader.name);
+    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                    "WARNING: unknown blend mode '%s' in shader '%s', substituting GL_ONE\n",
+                                    name, shader.name);
     return GLS_DSTBLEND_ONE;
 }
 
@@ -316,9 +316,9 @@ static genFunc_t NameToGenFunc(pointer funcname) {
         return GF_NOISE;
     }
 
-    CL_RefPrintf(PRINT_WARNING,
-                 "WARNING: invalid genfunc name '%s' in shader '%s'\n", funcname,
-                 shader.name);
+    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                    "WARNING: invalid genfunc name '%s' in shader '%s'\n", funcname,
+                                    shader.name);
     return GF_SIN;
 }
 
@@ -334,8 +334,8 @@ static void ParseWaveForm(valueType **text, waveForm_t *wave) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing waveform parm in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing waveform parm in shader '%s'\n", shader.name);
         return;
     }
 
@@ -345,8 +345,8 @@ static void ParseWaveForm(valueType **text, waveForm_t *wave) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing waveform parm in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing waveform parm in shader '%s'\n", shader.name);
         return;
     }
 
@@ -355,8 +355,8 @@ static void ParseWaveForm(valueType **text, waveForm_t *wave) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing waveform parm in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing waveform parm in shader '%s'\n", shader.name);
         return;
     }
 
@@ -365,8 +365,8 @@ static void ParseWaveForm(valueType **text, waveForm_t *wave) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing waveform parm in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing waveform parm in shader '%s'\n", shader.name);
         return;
     }
 
@@ -375,8 +375,8 @@ static void ParseWaveForm(valueType **text, waveForm_t *wave) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing waveform parm in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing waveform parm in shader '%s'\n", shader.name);
         return;
     }
 
@@ -412,8 +412,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing tcMod turb parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing tcMod turb parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -421,8 +421,9 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing tcMod turb in shader '%s'\n",
+                                            shader.name);
             return;
         }
 
@@ -430,8 +431,9 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing tcMod turb in shader '%s'\n",
+                                            shader.name);
             return;
         }
 
@@ -439,8 +441,9 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing tcMod turb in shader '%s'\n",
+                                            shader.name);
             return;
         }
 
@@ -455,8 +458,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing scale parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing scale parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -465,8 +468,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing scale parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing scale parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -480,8 +483,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing scale scroll parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing scale scroll parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -489,8 +492,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing scale scroll parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing scale scroll parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -504,8 +507,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing stretch parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing stretch parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -514,8 +517,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing stretch parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing stretch parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -524,8 +527,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing stretch parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing stretch parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -534,8 +537,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing stretch parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing stretch parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -544,8 +547,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing stretch parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing stretch parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -560,8 +563,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing transform parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing transform parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -570,8 +573,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing transform parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing transform parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -580,8 +583,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing transform parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing transform parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -590,8 +593,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing transform parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing transform parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -600,8 +603,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing transform parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing transform parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -610,8 +613,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing transform parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing transform parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -626,8 +629,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing tcMod rotate parms in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing tcMod rotate parms in shader '%s'\n", shader.name);
             return;
         }
 
@@ -640,8 +643,9 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
     else if(!Q_stricmp(token, "entityTranslate")) {
         tmi->type = TMOD_ENTITY_TRANSLATE;
     } else {
-        CL_RefPrintf(PRINT_WARNING, "WARNING: unknown tcMod '%s' in shader '%s'\n",
-                     token, shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: unknown tcMod '%s' in shader '%s'\n",
+                                        token, shader.name);
     }
 }
 
@@ -663,7 +667,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
         token = COM_ParseExt2(text, true);
 
         if(!token[0]) {
-            CL_RefPrintf(PRINT_WARNING, "WARNING: no matching '}' found\n");
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: no matching '}' found\n");
             return false;
         }
 
@@ -677,9 +682,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for 'map' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for 'map' keyword in shader '%s'\n",
+                                                shader.name);
                 return false;
             }
 
@@ -698,9 +703,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                 continue;
             } else if(!Q_stricmp(token, "$deluxemap")) {
                 if(!tr.worldDeluxeMapping) {
-                    CL_RefPrintf(PRINT_WARNING,
-                                 "WARNING: shader '%s' wants a deluxe map in a map compiled without them\n",
-                                 shader.name);
+                    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                    "WARNING: shader '%s' wants a deluxe map in a map compiled without them\n",
+                                                    shader.name);
                     return false;
                 }
 
@@ -741,9 +746,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                 stage->bundle[0].image[0] = R_FindImageFile(token, type, flags);
 
                 if(!stage->bundle[0].image[0]) {
-                    CL_RefPrintf(PRINT_WARNING,
-                                 "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
-                                 shader.name);
+                    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                    "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
+                                                    shader.name);
                     return false;
                 }
             }
@@ -758,9 +763,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for 'clampmap' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for 'clampmap' keyword in shader '%s'\n",
+                                                shader.name);
                 return false;
             }
 
@@ -789,9 +794,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             stage->bundle[0].image[0] = R_FindImageFile(token, type, flags);
 
             if(!stage->bundle[0].image[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
+                                                shader.name);
                 return false;
             }
         }
@@ -802,9 +807,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for 'lightmap' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for 'lightmap' keyword in shader '%s'\n",
+                                                shader.name);
                 return false;
             }
 
@@ -836,9 +841,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                                             GL_CLAMP);
 
                 if(!stage->bundle[0].image[0]) {
-                    CL_RefPrintf(PRINT_WARNING,
-                                 "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
-                                 shader.name);
+                    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                    "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
+                                                    shader.name);
                     return false;
                 }
 
@@ -854,9 +859,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for 'animMap' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for 'animMap' keyword in shader '%s'\n",
+                                                shader.name);
                 return false;
             }
 
@@ -889,9 +894,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                                                   flags);
 
                     if(!stage->bundle[0].image[num]) {
-                        CL_RefPrintf(PRINT_WARNING,
-                                     "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
-                                     shader.name);
+                        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                        "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
+                                                        shader.name);
                         return false;
                     }
 
@@ -902,17 +907,17 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             }
 
             if(totalImages > MAX_IMAGE_ANIMATIONS) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: ignoring excess images for 'animMap' (found %d, max is %d) in shader '%s'\n",
-                             totalImages, MAX_IMAGE_ANIMATIONS, shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: ignoring excess images for 'animMap' (found %d, max is %d) in shader '%s'\n",
+                                                totalImages, MAX_IMAGE_ANIMATIONS, shader.name);
             }
         } else if(!Q_stricmp(token, "videoMap")) {
             token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for 'videoMap' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for 'videoMap' keyword in shader '%s'\n",
+                                                shader.name);
                 return false;
             }
 
@@ -925,9 +930,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                 stage->bundle[0].image[0] =
                     tr.scratchImage[stage->bundle[0].videoMapHandle];
             } else {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: could not load '%s' for 'videoMap' keyword in shader '%s'\n",
-                             token, shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: could not load '%s' for 'videoMap' keyword in shader '%s'\n",
+                                                token, shader.name);
             }
         }
         //
@@ -937,9 +942,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for 'alphaFunc' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for 'alphaFunc' keyword in shader '%s'\n",
+                                                shader.name);
                 return false;
             }
 
@@ -952,9 +957,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for 'depthfunc' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for 'depthfunc' keyword in shader '%s'\n",
+                                                shader.name);
                 return false;
             }
 
@@ -963,8 +968,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             } else if(!Q_stricmp(token, "equal")) {
                 depthFuncBits = GLS_DEPTHFUNC_EQUAL;
             } else {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: unknown depthfunc '%s' in shader '%s'\n", token, shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: unknown depthfunc '%s' in shader '%s'\n", token, shader.name);
                 continue;
             }
         }
@@ -977,8 +982,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parm for fog in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parm for fog in shader '%s'\n", shader.name);
                 continue;
             }
 
@@ -996,8 +1001,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parm for blendFunc in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parm for blendFunc in shader '%s'\n", shader.name);
                 continue;
             }
 
@@ -1018,8 +1023,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                 token = COM_ParseExt2(text, false);
 
                 if(token[0] == 0) {
-                    CL_RefPrintf(PRINT_WARNING,
-                                 "WARNING: missing parm for blendFunc in shader '%s'\n", shader.name);
+                    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                    "WARNING: missing parm for blendFunc in shader '%s'\n", shader.name);
                     continue;
                 }
 
@@ -1038,8 +1043,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameters for stage in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameters for stage in shader '%s'\n", shader.name);
                 continue;
             }
 
@@ -1063,9 +1068,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                 stage->type = ST_SPECULARMAP;
                 VectorSet4(stage->specularScale, 1.0f, 1.0f, 1.0f, 1.0f);
             } else {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: unknown stage parameter '%s' in shader '%s'\n", token,
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: unknown stage parameter '%s' in shader '%s'\n", token,
+                                                shader.name);
                 continue;
             }
         }
@@ -1076,9 +1081,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for specular reflectance in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for specular reflectance in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -1100,9 +1105,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for specular exponent in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for specular exponent in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -1126,8 +1131,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for gloss in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for gloss in shader '%s'\n", shader.name);
                 continue;
             }
 
@@ -1148,8 +1153,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for roughness in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for roughness in shader '%s'\n", shader.name);
                 continue;
             }
 
@@ -1172,9 +1177,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for parallaxDepth in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for parallaxDepth in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -1189,9 +1194,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for normalScale in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for normalScale in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -1226,9 +1231,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for specularScale in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for specularScale in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -1237,9 +1242,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameter for specularScale in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameter for specularScale in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -1282,8 +1287,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameters for rgbGen in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameters for rgbGen in shader '%s'\n", shader.name);
                 continue;
             }
 
@@ -1330,9 +1335,9 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             } else if(!Q_stricmp(token, "oneMinusVertex")) {
                 stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
             } else {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: unknown rgbGen parameter '%s' in shader '%s'\n", token,
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: unknown rgbGen parameter '%s' in shader '%s'\n", token,
+                                                shader.name);
                 continue;
             }
         }
@@ -1343,8 +1348,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parameters for alphaGen in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parameters for alphaGen in shader '%s'\n", shader.name);
                 continue;
             }
 
@@ -1373,16 +1378,16 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
 
                 if(token[0] == 0) {
                     shader.portalRange = 256;
-                    CL_RefPrintf(PRINT_WARNING,
-                                 "WARNING: missing range parameter for alphaGen portal in shader '%s', defaulting to 256\n",
-                                 shader.name);
+                    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                    "WARNING: missing range parameter for alphaGen portal in shader '%s', defaulting to 256\n",
+                                                    shader.name);
                 } else {
                     shader.portalRange = atof(token);
                 }
             } else {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: unknown alphaGen parameter '%s' in shader '%s'\n", token,
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: unknown alphaGen parameter '%s' in shader '%s'\n", token,
+                                                shader.name);
                 continue;
             }
         }
@@ -1393,8 +1398,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing texgen parm in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing texgen parm in shader '%s'\n", shader.name);
                 continue;
             }
 
@@ -1410,8 +1415,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
 
                 stage->bundle[0].tcGen = TCGEN_VECTOR;
             } else {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: unknown texgen parm in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: unknown texgen parm in shader '%s'\n", shader.name);
             }
         }
         //
@@ -1444,8 +1449,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
 
             continue;
         } else {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name);
             return false;
         }
     }
@@ -1513,14 +1518,15 @@ static void ParseDeform(valueType **text) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing deform parm in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing deform parm in shader '%s'\n", shader.name);
         return;
     }
 
     if(shader.numDeforms == MAX_SHADER_DEFORMS) {
-        CL_RefPrintf(PRINT_WARNING, "WARNING: MAX_SHADER_DEFORMS in '%s'\n",
-                     shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: MAX_SHADER_DEFORMS in '%s'\n",
+                                        shader.name);
         return;
     }
 
@@ -1559,9 +1565,9 @@ static void ParseDeform(valueType **text) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing deformVertexes bulge parm in shader '%s'\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing deformVertexes bulge parm in shader '%s'\n",
+                                            shader.name);
             return;
         }
 
@@ -1570,9 +1576,9 @@ static void ParseDeform(valueType **text) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing deformVertexes bulge parm in shader '%s'\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing deformVertexes bulge parm in shader '%s'\n",
+                                            shader.name);
             return;
         }
 
@@ -1581,9 +1587,9 @@ static void ParseDeform(valueType **text) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing deformVertexes bulge parm in shader '%s'\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing deformVertexes bulge parm in shader '%s'\n",
+                                            shader.name);
             return;
         }
 
@@ -1597,8 +1603,8 @@ static void ParseDeform(valueType **text) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name);
             return;
         }
 
@@ -1606,9 +1612,9 @@ static void ParseDeform(valueType **text) {
             ds->deformationSpread = 1.0f / atof(token);
         } else {
             ds->deformationSpread = 100.0f;
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: illegal div value of 0 in deformVertexes command for shader '%s'\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: illegal div value of 0 in deformVertexes command for shader '%s'\n",
+                                            shader.name);
         }
 
         ParseWaveForm(text, &ds->deformationWave);
@@ -1620,8 +1626,8 @@ static void ParseDeform(valueType **text) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name);
             return;
         }
 
@@ -1630,8 +1636,8 @@ static void ParseDeform(valueType **text) {
         token = COM_ParseExt2(text, false);
 
         if(token[0] == 0) {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name);
             return;
         }
 
@@ -1648,8 +1654,8 @@ static void ParseDeform(valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name);
                 return;
             }
 
@@ -1661,9 +1667,9 @@ static void ParseDeform(valueType **text) {
         return;
     }
 
-    CL_RefPrintf(PRINT_WARNING,
-                 "WARNING: unknown deformVertexes subtype '%s' found in shader '%s'\n",
-                 token, shader.name);
+    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                    "WARNING: unknown deformVertexes subtype '%s' found in shader '%s'\n",
+                                    token, shader.name);
 }
 
 
@@ -1685,8 +1691,8 @@ static void ParseSkyParms(valueType **text) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: 'skyParms' missing parameter in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: 'skyParms' missing parameter in shader '%s'\n", shader.name);
         return;
     }
 
@@ -1707,8 +1713,8 @@ static void ParseSkyParms(valueType **text) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: 'skyParms' missing parameter in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: 'skyParms' missing parameter in shader '%s'\n", shader.name);
         return;
     }
 
@@ -1725,8 +1731,8 @@ static void ParseSkyParms(valueType **text) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: 'skyParms' missing parameter in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: 'skyParms' missing parameter in shader '%s'\n", shader.name);
         return;
     }
 
@@ -1758,8 +1764,8 @@ void ParseSort(valueType **text) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: missing sort parameter in shader '%s'\n", shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: missing sort parameter in shader '%s'\n", shader.name);
         return;
     }
 
@@ -1972,9 +1978,9 @@ static bool ParseShader(pointer name, valueType **text) {
     token = COM_ParseExt2(text, true);
 
     if(token[0] != '{') {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: expecting '{', found '%s' instead in shader '%s'\n", token,
-                     shader.name);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: expecting '{', found '%s' instead in shader '%s'\n", token,
+                                        shader.name);
         return false;
     }
 
@@ -1982,8 +1988,9 @@ static bool ParseShader(pointer name, valueType **text) {
         token = COM_ParseExt2(text, true);
 
         if(!token[0]) {
-            CL_RefPrintf(PRINT_WARNING, "WARNING: no concluding '}' in shader %s\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: no concluding '}' in shader %s\n",
+                                            shader.name);
             return false;
         }
 
@@ -1994,15 +2001,16 @@ static bool ParseShader(pointer name, valueType **text) {
         // stage definition
         else if(token[0] == '{') {
             if(s >= lengthof(stages)) {
-                CL_RefPrintf(PRINT_WARNING, "WARNING: too many stages in shader %s\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: too many stages in shader %s\n",
+                                                shader.name);
                 return false;
             }
 
             if(s >= MAX_SHADER_STAGES) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: too many stages in shader %s (max is %i)\n", shader.name,
-                             MAX_SHADER_STAGES);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: too many stages in shader %s (max is %i)\n", shader.name,
+                                                MAX_SHADER_STAGES);
                 return false;
             }
 
@@ -2156,8 +2164,8 @@ static bool ParseShader(pointer name, valueType **text) {
             token = COM_ParseExt(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: '%s' missing shader name for 'sunShader'\n", shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: '%s' missing shader name for 'sunShader'\n", shader.name);
                 continue;
             }
 
@@ -2173,9 +2181,9 @@ static bool ParseShader(pointer name, valueType **text) {
             tr.sunShaderScale = atof(token);
 
             if(tr.sunShaderScale <= 0) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: '%s' scale for 'sunShader' must be more than 0, using scale 1.0 instead.\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: '%s' scale for 'sunShader' must be more than 0, using scale 1.0 instead.\n",
+                                                shader.name);
                 tr.sunShaderScale = 1.0f;
             }
 
@@ -2188,9 +2196,9 @@ static bool ParseShader(pointer name, valueType **text) {
             token = COM_ParseExt(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parm for 'lightgridmulamb' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parm for 'lightgridmulamb' keyword in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -2207,9 +2215,9 @@ static bool ParseShader(pointer name, valueType **text) {
             token = COM_ParseExt(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parm for 'lightgridmuldir' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parm for 'lightgridmuldir' keyword in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -2247,9 +2255,9 @@ static bool ParseShader(pointer name, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -2281,14 +2289,14 @@ static bool ParseShader(pointer name, valueType **text) {
             token = COM_ParseExt(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing density value for sky fog\n");
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing density value for sky fog\n");
                 continue;
             }
 
             if(atof(token) > 1) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: last value for skyfogvars is 'density' which needs to be 0.0-1.0\n");
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: last value for skyfogvars is 'density' which needs to be 0.0-1.0\n");
                 continue;
             }
 
@@ -2306,8 +2314,8 @@ static bool ParseShader(pointer name, valueType **text) {
             token = COM_ParseExt(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing density/distance value for water fog\n");
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing density/distance value for water fog\n");
                 continue;
             }
 
@@ -2354,8 +2362,8 @@ static bool ParseShader(pointer name, valueType **text) {
             token = COM_ParseExt(text, false);
 
             if(!token[0]) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: missing density value for the fog\n");
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing density value for the fog\n");
                 continue;
             }
 
@@ -2394,8 +2402,9 @@ static bool ParseShader(pointer name, valueType **text) {
             token = COM_ParseExt2(text, false);
 
             if(token[0] == 0) {
-                CL_RefPrintf(PRINT_WARNING, "WARNING: missing cull parms in shader '%s'\n",
-                             shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: missing cull parms in shader '%s'\n",
+                                                shader.name);
                 continue;
             }
 
@@ -2406,8 +2415,8 @@ static bool ParseShader(pointer name, valueType **text) {
                       !Q_stricmp(token, "backsided")) {
                 shader.cullType = CT_BACK_SIDED;
             } else {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: invalid cull parm '%s' in shader '%s'\n", token, shader.name);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: invalid cull parm '%s' in shader '%s'\n", token, shader.name);
             }
 
             continue;
@@ -2456,9 +2465,9 @@ static bool ParseShader(pointer name, valueType **text) {
 
             continue;
         } else {
-            CL_RefPrintf(PRINT_WARNING,
-                         "WARNING: unknown general shader parameter '%s' in '%s'\n", token,
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: unknown general shader parameter '%s' in '%s'\n", token,
+                                            shader.name);
             return false;
         }
     }
@@ -2559,9 +2568,9 @@ static bool ParseShader(pointer name, valueType **text) {
             shader.surfaceFlags |= MATERIAL_CARPET;
         } else {
 #ifdef _DEBUG
-            CL_RefPrintf(PRINT_DEVELOPER,
-                         "Could not work out a default surface type for shader %s. It will fallback to default parallax and specular.\n",
-                         name);
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "Could not work out a default surface type for shader %s. It will fallback to default parallax and specular.\n",
+                                            name);
 #endif
         }
     }
@@ -2755,13 +2764,13 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
                                      bool useLightVector, bool useLightVertex, bool parallax, bool tcgen) {
     sint defs = 0;
 
-    //CL_RefPrintf(PRINT_ALL, "shader %s has diffuse %s", shader.name, diffuse->bundle[0].image[0]->imgName);
+    //clientRendererSystem->RefPrintf(PRINT_ALL, "shader %s has diffuse %s", shader.name, diffuse->bundle[0].image[0]->imgName);
 
     // reuse diffuse, mark others inactive
     diffuse->type = ST_GLSL;
 
     if(lightmap) {
-        //CL_RefPrintf(PRINT_ALL, ", lightmap");
+        //clientRendererSystem->RefPrintf(PRINT_ALL, ", lightmap");
         diffuse->bundle[TB_LIGHTMAP] = lightmap->bundle[0];
         defs |= LIGHTDEF_USE_LIGHTMAP;
     } else if(useLightVector) {
@@ -2772,7 +2781,7 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 
     if(r_deluxeMapping->integer && tr.worldDeluxeMapping && lightmap &&
             shader.lightmapIndex >= 0) {
-        //CL_RefPrintf(PRINT_ALL, ", deluxemap");
+        //clientRendererSystem->RefPrintf(PRINT_ALL, ", deluxemap");
         diffuse->bundle[TB_DELUXEMAP] = lightmap->bundle[0];
         diffuse->bundle[TB_DELUXEMAP].image[0] =
             tr.deluxemaps[shader.lightmapIndex];
@@ -2782,7 +2791,7 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
         image_t *diffuseImg;
 
         if(normal) {
-            //CL_RefPrintf(PRINT_ALL, ", normalmap %s", normal->bundle[0].image[0]->imgName);
+            //clientRendererSystem->RefPrintf(PRINT_ALL, ", normalmap %s", normal->bundle[0].image[0]->imgName);
             diffuse->bundle[TB_NORMALMAP] = normal->bundle[0];
 
             if(parallax && r_parallaxMapping->integer) {
@@ -2830,7 +2839,7 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
         image_t *diffuseImg;
 
         if(specular) {
-            //CL_RefPrintf(PRINT_ALL, ", specularmap %s", specular->bundle[0].image[0]->imgName);
+            //clientRendererSystem->RefPrintf(PRINT_ALL, ", specularmap %s", specular->bundle[0].image[0]->imgName);
             diffuse->bundle[TB_SPECULARMAP] = specular->bundle[0];
             VectorCopy4(specular->specularScale, diffuse->specularScale);
         } else if((lightmap || useLightVector || useLightVertex) &&
@@ -2860,7 +2869,7 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
         defs |= LIGHTDEF_USE_TCGEN_AND_TCMOD;
     }
 
-    //CL_RefPrintf(PRINT_ALL, ".\n");
+    //clientRendererSystem->RefPrintf(PRINT_ALL, ".\n");
 
     diffuse->glslShaderGroup = tr.lightallShader;
     diffuse->glslShaderIndex = defs;
@@ -3293,8 +3302,8 @@ static shader_t *GeneratePermanentShader(void) {
     sint            size, hash;
 
     if(tr.numShaders == MAX_SHADERS) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: GeneratePermanentShader - MAX_SHADERS hit\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: GeneratePermanentShader - MAX_SHADERS hit\n");
         return tr.defaultShader;
     }
 
@@ -3569,8 +3578,9 @@ static shader_t *FinishShader(void) {
 
         // check for a missing texture
         if(!pStage->bundle[0].image[0]) {
-            CL_RefPrintf(PRINT_WARNING, "Shader %s has a stage with no image\n",
-                         shader.name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "Shader %s has a stage with no image\n",
+                                            shader.name);
             pStage->active = false;
             stage++;
             continue;
@@ -3694,11 +3704,11 @@ static shader_t *FinishShader(void) {
 
     if(shader.lightmapIndex >= 0 && !hasLightmapStage) {
         if(vertexLightmap) {
-            CL_RefPrintf(PRINT_DEVELOPER,
-                         "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name);
         } else {
-            CL_RefPrintf(PRINT_DEVELOPER,
-                         "WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name);
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name);
             // Don't set this, it will just add duplicate shaders to the hash
             //shader.lightmapIndex = LIGHTMAP_NONE;
         }
@@ -3847,9 +3857,9 @@ shader_t *R_FindShader(pointer name, sint lightmapIndex,
         lightmapIndex = LIGHTMAP_BY_VERTEX;
     } else if(lightmapIndex < LIGHTMAP_2D) {
         // negative lightmap indexes cause stray pointers (think tr.lightmaps[lightmapIndex])
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: shader '%s' has invalid lightmap index of %d\n", name,
-                     lightmapIndex);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: shader '%s' has invalid lightmap index of %d\n", name,
+                                        lightmapIndex);
         lightmapIndex = LIGHTMAP_BY_VERTEX;
     }
 
@@ -3883,7 +3893,7 @@ shader_t *R_FindShader(pointer name, sint lightmapIndex,
         // enable this when building a pak file to get a global list
         // of all explicit shaders
         if(r_printShaders->integer) {
-            CL_RefPrintf(PRINT_ALL, "*SHADER* %s\n", name);
+            clientRendererSystem->RefPrintf(PRINT_ALL, "*SHADER* %s\n", name);
         }
 
         if(!ParseShader(name, &shaderText)) {
@@ -3938,8 +3948,9 @@ shader_t *R_FindShader(pointer name, sint lightmapIndex,
         image = R_FindImageFile(fileName, IMGTYPE_COLORALPHA, flags);
 
         if(!image) {
-            CL_RefPrintf(PRINT_DEVELOPER, "Couldn't find image file for shader %s\n",
-                         name);
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "Couldn't find image file for shader %s\n",
+                                            name);
             shader.defaultShader = true;
             return FinishShader();
         }
@@ -4125,7 +4136,8 @@ qhandle_t RE_RegisterShaderLightMap(pointer name, sint lightmapIndex) {
     shader_t   *sh;
 
     if(strlen(name) >= MAX_QPATH) {
-        CL_RefPrintf(PRINT_ALL, "Shader name exceeds MAX_QPATH\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Shader name exceeds MAX_QPATH\n");
         return 0;
     }
 
@@ -4159,7 +4171,8 @@ qhandle_t idRenderSystemLocal::RegisterShader(pointer name) {
     shader_t   *sh;
 
     if(strlen(name) >= MAX_QPATH) {
-        CL_RefPrintf(PRINT_ALL, "Shader name exceeds MAX_QPATH\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Shader name exceeds MAX_QPATH\n");
         return 0;
     }
 
@@ -4189,7 +4202,8 @@ qhandle_t idRenderSystemLocal::RegisterShaderNoMip(pointer name) {
     shader_t   *sh;
 
     if(strlen(name) >= MAX_QPATH) {
-        CL_RefPrintf(PRINT_ALL, "Shader name exceeds MAX_QPATH\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Shader name exceeds MAX_QPATH\n");
         return 0;
     }
 
@@ -4217,14 +4231,14 @@ it and returns a valid (possibly default) shader_t to be used internally.
 */
 shader_t *R_GetShaderByHandle(qhandle_t hShader) {
     if(hShader < 0) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_GetShaderByHandle: out of range hShader '%d'\n", hShader);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_GetShaderByHandle: out of range hShader '%d'\n", hShader);
         return tr.defaultShader;
     }
 
     if(hShader >= tr.numShaders) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "R_GetShaderByHandle: out of range hShader '%d'\n", hShader);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "R_GetShaderByHandle: out of range hShader '%d'\n", hShader);
         return tr.defaultShader;
     }
 
@@ -4256,7 +4270,7 @@ void    R_ShaderList_f(void) {
     sint            count;
     shader_t   *shader;
 
-    CL_RefPrintf(PRINT_ALL, "-----------------------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "-----------------------\n");
 
     count = 0;
 
@@ -4267,39 +4281,41 @@ void    R_ShaderList_f(void) {
             shader = tr.shaders[i];
         }
 
-        CL_RefPrintf(PRINT_ALL, "%i ", shader->numUnfoggedPasses);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "%i ",
+                                        shader->numUnfoggedPasses);
 
         if(shader->lightmapIndex >= 0) {
-            CL_RefPrintf(PRINT_ALL, "L ");
+            clientRendererSystem->RefPrintf(PRINT_ALL, "L ");
         } else {
-            CL_RefPrintf(PRINT_ALL, "  ");
+            clientRendererSystem->RefPrintf(PRINT_ALL, "  ");
         }
 
         if(shader->explicitlyDefined) {
-            CL_RefPrintf(PRINT_ALL, "E ");
+            clientRendererSystem->RefPrintf(PRINT_ALL, "E ");
         } else {
-            CL_RefPrintf(PRINT_ALL, "  ");
+            clientRendererSystem->RefPrintf(PRINT_ALL, "  ");
         }
 
         if(shader->optimalStageIteratorFunc == RB_StageIteratorGeneric) {
-            CL_RefPrintf(PRINT_ALL, "gen ");
+            clientRendererSystem->RefPrintf(PRINT_ALL, "gen ");
         } else if(shader->optimalStageIteratorFunc == RB_StageIteratorSky) {
-            CL_RefPrintf(PRINT_ALL, "sky ");
+            clientRendererSystem->RefPrintf(PRINT_ALL, "sky ");
         } else {
-            CL_RefPrintf(PRINT_ALL, "    ");
+            clientRendererSystem->RefPrintf(PRINT_ALL, "    ");
         }
 
         if(shader->defaultShader) {
-            CL_RefPrintf(PRINT_ALL,  ": %s (DEFAULTED)\n", shader->name);
+            clientRendererSystem->RefPrintf(PRINT_ALL,  ": %s (DEFAULTED)\n",
+                                            shader->name);
         } else {
-            CL_RefPrintf(PRINT_ALL,  ": %s\n", shader->name);
+            clientRendererSystem->RefPrintf(PRINT_ALL,  ": %s\n", shader->name);
         }
 
         count++;
     }
 
-    CL_RefPrintf(PRINT_ALL, "%i total shaders\n", count);
-    CL_RefPrintf(PRINT_ALL, "------------------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%i total shaders\n", count);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "------------------\n");
 }
 
 /*
@@ -4334,8 +4350,9 @@ static void LoadShaderFromBuffer(valueType *buff) {
         if(nameLength >= MAX_SHADERNAME_LENGTH) {
             strncpy(shadername, name, MAX_SHADERNAME_LENGTH);
             shadername[MAX_SHADERNAME_LENGTH] = '\0';
-            CL_RefPrintf(PRINT_DEVELOPER, "Warning: Shader name too long '%s'...\n",
-                         shadername);
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                            "Warning: Shader name too long '%s'...\n",
+                                            shadername);
             continue;
         }
 
@@ -4390,14 +4407,16 @@ static void ScanAndLoadShaderFiles(void) {
     shaderFiles = fileSystem->ListFiles("scripts", ".shader", &numShaderFiles);
 
     if(!shaderFiles || !numShaderFiles) {
-        CL_RefPrintf(PRINT_WARNING, "WARNING: no shader files found\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: no shader files found\n");
         return;
     }
 
     for(i = numShaderFiles - 1; i >= 0; i--) {
         Q_vsprintf_s(filename, sizeof(filename), sizeof(filename), "scripts/%s",
                      shaderFiles[i]);
-        CL_RefPrintf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER, "...loading '%s'\n",
+                                        filename);
 
         fileSystem->ReadFile(filename, (void **)&buffer);
 
@@ -4487,7 +4506,7 @@ R_InitShaders
 void R_InitShaders(void) {
     sint time, mem;
 
-    CL_RefPrintf(PRINT_ALL, "Initializing Shaders\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "Initializing Shaders\n");
 
     COM_BeginParseSession("R_InitShaders");
     time = idsystem->Milliseconds();
@@ -4508,13 +4527,18 @@ void R_InitShaders(void) {
     time = idsystem->Milliseconds() - time;
     mem = mem - Hunk_MemoryRemaining();
 
-    CL_RefPrintf(PRINT_ALL, "-------------------------\n");
-    CL_RefPrintf(PRINT_ALL, "%d shader files read \n", fileShaderCount);
-    CL_RefPrintf(PRINT_ALL, "%d shaders found\n", shaderCount);
-    CL_RefPrintf(PRINT_ALL, "%d code lines\n", COM_GetCurrentParseLine());
-    CL_RefPrintf(PRINT_ALL, "%.2f MB shader data\n", mem / 1024.0f / 1024.0f);
-    CL_RefPrintf(PRINT_ALL, "%.3f seconds\n", time / 1000.0f);
-    CL_RefPrintf(PRINT_ALL, "-------------------------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "-------------------------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%d shader files read \n",
+                                    fileShaderCount);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%d shaders found\n",
+                                    shaderCount);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%d code lines\n",
+                                    COM_GetCurrentParseLine());
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%.2f MB shader data\n",
+                                    mem / 1024.0f / 1024.0f);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%.3f seconds\n",
+                                    time / 1000.0f);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "-------------------------\n");
 
     COM_BeginParseSession("");
 }

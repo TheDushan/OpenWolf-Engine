@@ -55,10 +55,6 @@ QGL_ARB_vertex_array_object_PROCS;
 QGL_EXT_direct_state_access_PROCS;
 #undef GLE
 
-// these are just here temp while I port everything to c++.
-sint CL_ScaledMilliseconds(void);
-void *CL_RefMalloc(sint size);
-
 #define GL_INDEX_TYPE       GL_UNSIGNED_INT
 
 #define BUFFER_OFFSET(i) ((valueType *)nullptr + (i))

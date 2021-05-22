@@ -337,7 +337,7 @@ static void LogLight(trRefEntity_t *ent) {
         max2 = ent->directedLight[2];
     }
 
-    CL_RefPrintf(PRINT_ALL, "amb:%i  dir:%i\n", max1, max2);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "amb:%i  dir:%i\n", max1, max2);
 }
 
 /*

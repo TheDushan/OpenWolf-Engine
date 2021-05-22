@@ -377,6 +377,26 @@ set( CLIENTLIST_HEADERS
 	${MOUNT_DIR}/client/clientInput.hpp
 	${MOUNT_DIR}/API/clientKeys_api.hpp
 	${MOUNT_DIR}/client/clientKeys.hpp
+	${MOUNT_DIR}/API/clientMain_api.hpp
+	${MOUNT_DIR}/client/clientMain.hpp
+	${MOUNT_DIR}/client/clientAuthorization.hpp
+	${MOUNT_DIR}/API/clientAutoUpdate_api.hpp
+	${MOUNT_DIR}/client/clientAutoUpdate.hpp
+	${MOUNT_DIR}/API/clientConsoleCommands_api.hpp
+	${MOUNT_DIR}/client/clientConsoleCommands.hpp
+	${MOUNT_DIR}/client/clientDemo.hpp
+	${MOUNT_DIR}/API/clientDownload_api.hpp
+	${MOUNT_DIR}/client/clientDownload.hpp
+	${MOUNT_DIR}/client/clientGUID.hpp
+	${MOUNT_DIR}/client/clientInput.hpp
+	${MOUNT_DIR}/client/clientKeys.hpp
+	${MOUNT_DIR}/client/clientMotd.hpp
+	${MOUNT_DIR}/API/clientReliableCommands_api.hpp
+	${MOUNT_DIR}/client/clientReliableCommands.hpp
+	${MOUNT_DIR}/API/clientRenderer_api.hpp
+	${MOUNT_DIR}/client/clientRenderer.hpp
+	${MOUNT_DIR}/client/clientStartUpCache.hpp
+	${MOUNT_DIR}/client/clientWave.hpp
 )
 
 set( CLIENTLIST_SOURCES
@@ -386,7 +406,7 @@ set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/clientConsole.cpp
 	${MOUNT_DIR}/client/clientInput.cpp
 	${MOUNT_DIR}/client/clientKeys.cpp
-	${MOUNT_DIR}/client/cl_main.cpp
+	${MOUNT_DIR}/client/clientMain.cpp
 	${MOUNT_DIR}/client/clientNetChan.cpp
 	${MOUNT_DIR}/client/clientParse.cpp
 	${MOUNT_DIR}/client/clientScreen.cpp
@@ -394,6 +414,19 @@ set( CLIENTLIST_SOURCES
 	${MOUNT_DIR}/client/clientGUI.cpp
 	${MOUNT_DIR}/client/clientLAN.cpp
 	${MOUNT_DIR}/client/clientLocalization.cpp
+	${MOUNT_DIR}/client/clientAuthorization.cpp
+	${MOUNT_DIR}/client/clientAutoUpdate.cpp
+	${MOUNT_DIR}/client/clientConsoleCommands.cpp
+	${MOUNT_DIR}/client/clientDemo.cpp
+	${MOUNT_DIR}/client/clientDownload.cpp
+	${MOUNT_DIR}/client/clientGUID.cpp
+	${MOUNT_DIR}/client/clientInput.cpp
+	${MOUNT_DIR}/client/clientKeys.cpp
+	${MOUNT_DIR}/client/clientMotd.cpp
+	${MOUNT_DIR}/client/clientReliableCommands.cpp
+	${MOUNT_DIR}/client/clientRenderer.cpp
+	${MOUNT_DIR}/client/clientStartUpCache.cpp
+	${MOUNT_DIR}/client/clientWave.cpp
 )
 
 set( AUDIO_HEADERS

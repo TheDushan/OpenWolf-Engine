@@ -53,7 +53,7 @@ static void R_JPGErrorExit(j_common_ptr cinfo) {
 
     (*cinfo->err->format_message)(cinfo, buffer);
 
-    CL_RefPrintf(PRINT_ALL, "Error: %s", buffer);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "Error: %s", buffer);
 
     /* Return control to the setjmp point */
     longjmp(jerr->setjmp_buffer, 1);
@@ -66,7 +66,7 @@ static void R_JPGOutputMessage(j_common_ptr cinfo) {
     (*cinfo->err->format_message)(cinfo, buffer);
 
     /* Send it to stderr, adding a newline */
-    CL_RefPrintf(PRINT_ALL, "%s\n", buffer);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "%s\n", buffer);
 }
 
 void R_LoadJPG(pointer filename, uchar8 **pic, sint *width, sint *height) {
@@ -134,7 +134,8 @@ void R_LoadJPG(pointer filename, uchar8 **pic, sint *width, sint *height) {
         fileSystem->FreeFile(fbuffer.v);
 
         /* Append the filename to the error for easier debugging */
-        CL_RefPrintf(PRINT_ALL, ", loading file %s\n", filename);
+        clientRendererSystem->RefPrintf(PRINT_ALL, ", loading file %s\n",
+                                        filename);
         return;
     }
 
@@ -197,7 +198,7 @@ void R_LoadJPG(pointer filename, uchar8 **pic, sint *width, sint *height) {
     memcount = pixelcount * 4;
     row_stride = cinfo.output_width * cinfo.output_components;
 
-    out = static_cast<uchar8 *>(CL_RefMalloc(memcount));
+    out = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(memcount));
 
     *width = cinfo.output_width;
     *height = cinfo.output_height;
@@ -391,7 +392,7 @@ uint32 RE_SaveJPGToBuffer(uchar8 *buffer, uint32 bufSize, sint quality,
          */
         jpeg_destroy_compress(&cinfo);
 
-        CL_RefPrintf(PRINT_ALL, "\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL, "\n");
         return 0;
     }
 

@@ -472,7 +472,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
                              time.tm_hour, time.tm_min, time.tm_sec,
                              com_protocol->integer);
 
-                CL_Record(name);
+                idClientDemoSystemLocal::Record(name);
             }
         }
     } else {
@@ -669,13 +669,13 @@ void idClientParseSystemLocal::SystemInfoChanged(void) {
     //cl_connectedToPureServer = cvarSystem->VariableValue( "sv_pure" );
     if(cvarSystem->VariableValue("sv_pure")) {
         if(!cl_connectedToPureServer && cls.state <= CA_CONNECTED) {
-            CL_PurgeCache();
+            idClientMainSystemLocal::PurgeCache();
         }
 
         cl_connectedToPureServer = true;
     } else {
         if(cl_connectedToPureServer && cls.state <= CA_CONNECTED) {
-            CL_PurgeCache();
+            idClientMainSystemLocal::PurgeCache();
         }
 
         cl_connectedToPureServer = false;
@@ -700,7 +700,7 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
     clc.connectPacketCount = 0;
 
     // wipe local client state
-    CL_ClearState();
+    clientMainSystem->ClearState();
 
     // a gamestate always marks a server command sequence
     clc.serverCommandSequence = MSG_ReadLong(msg);
@@ -768,9 +768,9 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
     // reinitialize the filesystem if the game directory has changed
     fileSystem->ConditionalRestart(clc.checksumFeed);
 
-    // This used to call CL_StartHunkUsers, but now we enter the download state before loading the
+    // This used to call idClientMainSystemLocal::StartHunkUsers, but now we enter the download state before loading the
     // cgame
-    CL_InitDownloads();
+    idClientDownloadSystemLocal::InitDownloads();
 
     // make sure the game starts
     cvarSystem->Set("cl_paused", "0");
@@ -790,7 +790,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
 
     if(!*cls.downloadTempName) {
         Com_Printf("Server sending download, but no download was requested\n");
-        CL_AddReliableCommand("stopdl");
+        clientReliableCommandsSystem->AddReliableCommand("stopdl");
         return;
     }
 
@@ -812,7 +812,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
             if(clc.downloadFlags & (1 << DL_FLAG_URL)) {
                 idsystem->OpenURL(cls.downloadName, true);
                 cmdBufferSystem->ExecuteText(EXEC_APPEND, "quit\n");
-                CL_AddReliableCommand("wwwdl bbl8r");    // not sure if that's the right msg
+                clientReliableCommandsSystem->AddReliableCommand("wwwdl bbl8r");    // not sure if that's the right msg
                 clc.bWWWDlAborting = true;
                 return;
             }
@@ -824,13 +824,13 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
             }
 
             clc.bWWWDl = true;  // activate wwwdl client loop
-            CL_AddReliableCommand("wwwdl ack");
+            clientReliableCommandsSystem->AddReliableCommand("wwwdl ack");
 
             // make sure the server is not trying to redirect us again on a bad checksum
             if(strstr(clc.badChecksumList, va("@%s", cls.originalDownloadName))) {
                 Com_Printf("refusing redirect to %s by server (bad checksum)\n",
                            cls.downloadName);
-                CL_AddReliableCommand("wwwdl fail");
+                clientReliableCommandsSystem->AddReliableCommand("wwwdl fail");
                 clc.bWWWDlAborting = true;
                 return;
             }
@@ -848,7 +848,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
                 // not sure why, but I suspect we have to eat all remaining block -1 that the server has sent us
                 // still leave a flag so that CL_WWWDownload is inactive
                 // we count on server sending us a gamestate to start up clean again
-                CL_AddReliableCommand("wwwdl fail");
+                clientReliableCommandsSystem->AddReliableCommand("wwwdl fail");
                 clc.bWWWDlAborting = true;
                 Com_Printf("Failed to initialize download for '%s'\n", cls.downloadName);
             }
@@ -856,7 +856,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
             // Check for a disconnected download
             // we'll let the server disconnect us when it gets the bbl8r message
             if(clc.downloadFlags & (1 << DL_FLAG_DISCON)) {
-                CL_AddReliableCommand("wwwdl bbl8r");
+                clientReliableCommandsSystem->AddReliableCommand("wwwdl bbl8r");
                 cls.bWWWDlDisconnected = true;
             }
 
@@ -908,8 +908,8 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
 
         if(!clc.download) {
             Com_Printf("Could not create %s\n", cls.downloadTempName);
-            CL_AddReliableCommand("stopdl");
-            CL_NextDownload();
+            clientReliableCommandsSystem->AddReliableCommand("stopdl");
+            idClientDownloadSystemLocal::NextDownload();
             return;
         }
     }
@@ -918,7 +918,8 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
         fileSystem->Write(data, size, clc.download);
     }
 
-    CL_AddReliableCommand(va("nextdl %d", clc.downloadBlock));
+    clientReliableCommandsSystem->AddReliableCommand(va("nextdl %d",
+            clc.downloadBlock));
     clc.downloadBlock++;
 
     clc.downloadCount += size;
@@ -948,7 +949,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
         clientInputSystem->WritePacket();
 
         // get another file if needed
-        CL_NextDownload();
+        idClientDownloadSystemLocal::NextDownload();
     }
 }
 

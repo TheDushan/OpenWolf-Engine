@@ -1755,7 +1755,7 @@ void idCmdSystemLocal::ExecuteString(pointer text) {
     // send it as a server command if we are connected
     // this will usually result in a chat message
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-    CL_ForwardCommandToServer(text);
+    clientMainSystem->ForwardCommandToServer(text);
 #endif
 }
 

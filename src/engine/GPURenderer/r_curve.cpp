@@ -417,22 +417,26 @@ void R_CreateSurfaceGridMesh(srfBspSurface_t *grid, sint width,
     ::memset(grid, 0, sizeof(*grid));
 
 #ifdef PATCH_STITCHING
-    grid->widthLodError = static_cast<float32 *>(/*Hunk_Alloc*/ CL_RefMalloc(
-                              width * 4));
+    grid->widthLodError = static_cast<float32 *>(/*Hunk_Alloc*/
+                              clientRendererSystem->RefMalloc(
+                                  width * 4));
     ::memcpy(grid->widthLodError, errorTable[0], width * 4);
 
-    grid->heightLodError = static_cast<float32 *>(/*Hunk_Alloc*/ CL_RefMalloc(
-                               height * 4));
+    grid->heightLodError = static_cast<float32 *>(/*Hunk_Alloc*/
+                               clientRendererSystem->RefMalloc(
+                                   height * 4));
     ::memcpy(grid->heightLodError, errorTable[1], height * 4);
 
     grid->numIndexes = numIndexes;
-    grid->indexes = static_cast<uint *>(CL_RefMalloc(grid->numIndexes * sizeof(
-                                            uint)));
+    grid->indexes = static_cast<uint *>(clientRendererSystem->RefMalloc(
+                                            grid->numIndexes * sizeof(
+                                                    uint)));
     ::memcpy(grid->indexes, indexes, numIndexes * sizeof(uint));
 
     grid->numVerts = (width * height);
-    grid->verts = (srfVert_t *)CL_RefMalloc(grid->numVerts * sizeof(
-            srfVert_t));
+    grid->verts = (srfVert_t *)clientRendererSystem->RefMalloc(
+                      grid->numVerts * sizeof(
+                          srfVert_t));
 #else
     grid->widthLodError = Hunk_Alloc(width * 4);
     ::memcpy(grid->widthLodError, errorTable[0], width * 4);

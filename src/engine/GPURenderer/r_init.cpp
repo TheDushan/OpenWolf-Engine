@@ -97,20 +97,21 @@ static void InitOpenGL(void) {
 
         glConfig.smpActive = false;
 
-        CL_RefPrintf(PRINT_DEVELOPER, "Trying SMP acceleration...\n");
+        clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
+                                        "Trying SMP acceleration...\n");
 
         if(GLimp_SpawnRenderThread(RB_RenderThread)) {
-            CL_RefPrintf(PRINT_DEVELOPER, "...succeeded.\n");
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER, "...succeeded.\n");
             glConfig.smpActive = true;
         } else {
-            CL_RefPrintf(PRINT_DEVELOPER, "...failed.\n");
+            clientRendererSystem->RefPrintf(PRINT_DEVELOPER, "...failed.\n");
         }
     }
 
     // check for GLSL function textureCubeLod()
     if(r_cubeMapping->integer && !QGL_VERSION_ATLEAST(3, 0)) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "WARNING: Disabled r_cubeMapping because it requires OpenGL 3.0\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: Disabled r_cubeMapping because it requires OpenGL 3.0\n");
         cvarSystem->Set("r_cubeMapping", "0");
     }
 
@@ -255,13 +256,14 @@ bool R_GetModeInfo(sint *width, sint *height, float32 *windowAspect,
 static void R_ModeList_f(void) {
     sint i;
 
-    CL_RefPrintf(PRINT_ALL, "\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "\n");
 
     for(i = 0; i < s_numVidModes; i++) {
-        CL_RefPrintf(PRINT_ALL, "Mode %-2d: %s\n", i, r_vidModes[ i ].description);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "Mode %-2d: %s\n", i,
+                                        r_vidModes[ i ].description);
     }
 
-    CL_RefPrintf(PRINT_ALL, "\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "\n");
 }
 
 
@@ -571,7 +573,7 @@ void R_LevelShot(void) {
     Hunk_FreeTempMemory(buffer);
     Hunk_FreeTempMemory(allsource);
 
-    CL_RefPrintf(PRINT_ALL, "Wrote %s\n", checkname);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "Wrote %s\n", checkname);
 }
 
 /*
@@ -626,7 +628,8 @@ void R_ScreenShot_f(void) {
         }
 
         if(lastNumber >= 9999) {
-            CL_RefPrintf(PRINT_ALL, "ScreenShot: Couldn't create a file\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "ScreenShot: Couldn't create a file\n");
             return;
         }
 
@@ -637,7 +640,7 @@ void R_ScreenShot_f(void) {
                      false);
 
     if(!silent) {
-        CL_RefPrintf(PRINT_ALL, "Wrote %s\n", checkname);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "Wrote %s\n", checkname);
     }
 }
 
@@ -681,7 +684,8 @@ void R_ScreenShotJPEG_f(void) {
         }
 
         if(lastNumber == 10000) {
-            CL_RefPrintf(PRINT_ALL, "ScreenShot: Couldn't create a file\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "ScreenShot: Couldn't create a file\n");
             return;
         }
 
@@ -692,7 +696,7 @@ void R_ScreenShotJPEG_f(void) {
                      true);
 
     if(!silent) {
-        CL_RefPrintf(PRINT_ALL, "Wrote %s\n", checkname);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "Wrote %s\n", checkname);
     }
 }
 
@@ -862,7 +866,7 @@ void GL_SetDefaultState(void) {
 ================
 R_PrintLongString
 
-Workaround for CL_RefPrintf's 1024 characters buffer limit.
+Workaround for clientRendererSystem->RefPrintf's 1024 characters buffer limit.
 ================
 */
 void R_PrintLongString(pointer string) {
@@ -874,7 +878,7 @@ void R_PrintLongString(pointer string) {
 
     while(p < &string[size]) {
         Q_strncpyz(buffer, p, sizeof(buffer));
-        CL_RefPrintf(PRINT_ALL, "%s", buffer);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "%s", buffer);
         p += 1023;
         size -= 1023;
     }
@@ -895,9 +899,12 @@ void GfxInfo_f(void) {
         "fullscreen"
     };
 
-    CL_RefPrintf(PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string);
-    CL_RefPrintf(PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string);
-    CL_RefPrintf(PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "GL_VENDOR: %s\n",
+                                    glConfig.vendor_string);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "GL_RENDERER: %s\n",
+                                    glConfig.renderer_string);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "GL_VERSION: %s\n",
+                                    glConfig.version_string);
 
 #ifdef _DEBUG
 
@@ -908,57 +915,67 @@ void GfxInfo_f(void) {
         qglGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
 
         for(i = 0; i < numExtensions; i++) {
-            CL_RefPrintf(PRINT_ALL, "%s ", qglGetStringi(GL_EXTENSIONS, i));
+            clientRendererSystem->RefPrintf(PRINT_ALL, "%s ",
+                                            qglGetStringi(GL_EXTENSIONS, i));
         }
     } else {
         R_PrintLongString(glConfig.extensions_string);
     }
 
 #endif
-    CL_RefPrintf(PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n",
-                 glConfig.maxTextureSize);
-    CL_RefPrintf(PRINT_ALL, "GL_MAX_TEXTURE_IMAGE_UNITS: %d\n",
-                 glConfig.numTextureUnits);
-    CL_RefPrintf(PRINT_ALL,
-                 "PIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n",
-                 glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits);
-    CL_RefPrintf(PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer,
-                 glConfig.vidWidth, glConfig.vidHeight,
-                 fsstrings[r_fullscreen->integer == 1]);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n",
+                                    glConfig.maxTextureSize);
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "GL_MAX_TEXTURE_IMAGE_UNITS: %d\n",
+                                    glConfig.numTextureUnits);
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "PIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n",
+                                    glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "MODE: %d, %d x %d %s hz:",
+                                    r_mode->integer,
+                                    glConfig.vidWidth, glConfig.vidHeight,
+                                    fsstrings[r_fullscreen->integer == 1]);
 
     if(glConfig.displayFrequency) {
-        CL_RefPrintf(PRINT_ALL, "%d\n", glConfig.displayFrequency);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "%d\n",
+                                        glConfig.displayFrequency);
     } else {
-        CL_RefPrintf(PRINT_ALL, "N/A\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL, "N/A\n");
     }
 
-    CL_RefPrintf(PRINT_ALL, "Display Scale: %d%%\n",
-                 (sint)glConfig.displayScale * 100);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "Display Scale: %d%%\n",
+                                    (sint)glConfig.displayScale * 100);
 
     if(glConfig.deviceSupportsGamma) {
-        CL_RefPrintf(PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n",
-                     tr.overbrightBits);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "GAMMA: hardware w/ %d overbright bits\n",
+                                        tr.overbrightBits);
     } else {
-        CL_RefPrintf(PRINT_ALL, "GAMMA: software w/ %d overbright bits\n",
-                     tr.overbrightBits);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "GAMMA: software w/ %d overbright bits\n",
+                                        tr.overbrightBits);
     }
 
-    CL_RefPrintf(PRINT_ALL, "texturemode: %s\n", r_textureMode->string);
-    CL_RefPrintf(PRINT_ALL, "picmip: %d\n", r_picmip->integer);
-    CL_RefPrintf(PRINT_ALL, "texture bits: %d\n", r_texturebits->integer);
-    CL_RefPrintf(PRINT_ALL, "compiled vertex arrays: %s\n",
-                 enablestrings[qglLockArraysEXT != 0 ]);
-    CL_RefPrintf(PRINT_ALL, "texenv add: %s\n",
-                 enablestrings[glConfig.textureEnvAddAvailable != 0]);
-    CL_RefPrintf(PRINT_ALL, "compressed textures: %s\n",
-                 enablestrings[glConfig.textureCompression != TC_NONE]);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "texturemode: %s\n",
+                                    r_textureMode->string);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "picmip: %d\n",
+                                    r_picmip->integer);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "texture bits: %d\n",
+                                    r_texturebits->integer);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "compiled vertex arrays: %s\n",
+                                    enablestrings[qglLockArraysEXT != 0 ]);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "texenv add: %s\n",
+                                    enablestrings[glConfig.textureEnvAddAvailable != 0]);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "compressed textures: %s\n",
+                                    enablestrings[glConfig.textureCompression != TC_NONE]);
 
     if(r_vertexLight->integer) {
-        CL_RefPrintf(PRINT_ALL, "HACK: using vertex lightmap approximation\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "HACK: using vertex lightmap approximation\n");
     }
 
     if(r_finish->integer) {
-        CL_RefPrintf(PRINT_ALL, "Forcing glFinish\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL, "Forcing glFinish\n");
     }
 }
 
@@ -1024,7 +1041,7 @@ void R_Init(void) {
     sint i;
     uchar8 *ptr = nullptr;
 
-    CL_RefPrintf(PRINT_ALL, "----- R_Init -----\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL, "----- R_Init -----\n");
 
     // clear all our internal state
     ::memset(&tr, 0, sizeof(tr));
@@ -1034,7 +1051,8 @@ void R_Init(void) {
     //  Swap_Init();
 
     if(reinterpret_cast<sint64>(tess.xyz) & 15) {
-        CL_RefPrintf(PRINT_WARNING, "tess.xyz not 16 byte aligned\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "tess.xyz not 16 byte aligned\n");
     }
 
     //::memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
@@ -1114,7 +1132,7 @@ void R_Init(void) {
     err = qglGetError();
 
     if(err != GL_NO_ERROR) {
-        CL_RefPrintf(PRINT_ALL, "glGetError() = 0x%x\n", err);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "glGetError() = 0x%x\n", err);
     }
 
     // print info
@@ -1122,7 +1140,8 @@ void R_Init(void) {
         GfxInfo_f();
     }
 
-    CL_RefPrintf(PRINT_ALL, "----- finished R_Init -----\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "----- finished R_Init -----\n");
 }
 
 /*
@@ -1132,8 +1151,9 @@ idRenderSystemLocal::Shutdown
 */
 void idRenderSystemLocal::Shutdown(bool destroyWindow) {
 
-    CL_RefPrintf(PRINT_ALL, "idRenderSystemLocal::Shutdown( %i )\n",
-                 destroyWindow);
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "idRenderSystemLocal::Shutdown( %i )\n",
+                                    destroyWindow);
 
     cmdSystem->RemoveCommand("exportCubemaps");
     cmdSystem->RemoveCommand("gfxinfo");
@@ -1174,6 +1194,7 @@ void idRenderSystemLocal::Shutdown(bool destroyWindow) {
         textureFilterAnisotropic = false;
         maxAnisotropy = 0;
         displayAspect = 0.0f;
+        clientRendererSystem->RefTagFree();
     }
 
     tr.registered = false;

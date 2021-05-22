@@ -484,59 +484,6 @@ void            Com_Init(valueType *commandLine);
 void            Com_Frame(void);
 void            Com_Shutdown(bool badProfile);
 
-/*
-==============================================================
-
-CLIENT / SERVER SYSTEMS
-
-==============================================================
-*/
-
-// the keyboard binding interface must be setup before execing
-// config files, but the rest of client startup will happen later
-
-void            CL_Init(void);
-void            CL_ClearStaticDownload(void);
-void CL_Disconnect(bool showMainMenu, pointer reason);
-void            CL_Shutdown(void);
-void            CL_Frame(sint msec);
-void       CL_RefPrintf(sint print_level, pointer fmt, ...);
-
-// valueType events are for field typing, not game control
-
-void            CL_PacketEvent(netadr_t from, msg_t *msg);
-
-void            CL_MapLoading(void);
-
-// do a screen update before starting to load a map
-// when the server is going to load a new map, the entire hunk
-// will be cleared, so the client must shutdown cgame, ui, and
-// the renderer
-
-void            CL_ForwardCommandToServer(pointer string);
-
-// adds the current command line as a clc_clientCommand to the client message.
-// things like godmode, noclip, etc, are commands directed to the server,
-// so when they are typed in at the console, they will need to be forwarded.
-
-void            CL_ShutdownAll(bool shutdownRen);
-
-// shutdown all the client stuff
-
-void CL_FlushMemory(void);
-
-// dump all memory on an error
-
-void            CL_StartHunkUsers(bool rendererOnly);
-
-// start all the client stuff using the hunk
-
-#if !defined(UPDATE_SERVER)
-void            CL_CheckAutoUpdate(void);
-bool            CL_NextUpdateServer(void);
-void            CL_GetAutoUpdate(void);
-#endif
-
 
 // AVI files have the start of pixel lines 4 uchar8-aligned
 #define AVI_LINE_PADDING 4

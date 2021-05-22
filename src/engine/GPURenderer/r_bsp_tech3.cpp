@@ -242,8 +242,9 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
         }
     }
 
-    image = static_cast<uchar8 *>(CL_RefMalloc(tr.lightmapSize *
-                                  tr.lightmapSize * 4 * 2));
+    image = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                                      tr.lightmapSize *
+                                      tr.lightmapSize * 4 * 2));
 
     if(tr.worldDeluxeMapping) {
         numLightmaps >>= 1;
@@ -336,14 +337,14 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
                 Q_vsprintf_s(filename, sizeof(filename), sizeof(filename),
                              "maps/%s/lm_%04d.hdr", s_worldData.baseName,
                              i * (tr.worldDeluxeMapping ? 2 : 1));
-                //CL_RefPrintf(PRINT_ALL, "looking for %s\n", filename);
+                //clientRendererSystem->RefPrintf(PRINT_ALL, "looking for %s\n", filename);
 
                 size = fileSystem->ReadFile(filename, (void **)&hdrLightmap);
             }
 
             if(hdrLightmap) {
                 uchar8 *p = hdrLightmap, *end = hdrLightmap + size;
-                //CL_RefPrintf(PRINT_ALL, "found!\n");
+                //clientRendererSystem->RefPrintf(PRINT_ALL, "found!\n");
 
                 /* FIXME: don't just skip over this header and actually parse it */
                 while(p < end && !(*p == '\n' && *(p + 1) == '\n')) {
@@ -510,8 +511,9 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
     }
 
     if(r_lightmap->integer == 2) {
-        CL_RefPrintf(PRINT_ALL, "Brightest lightmap value: %d\n",
-                     static_cast<sint>(maxIntensity * 255));
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "Brightest lightmap value: %d\n",
+                                        static_cast<sint>(maxIntensity * 255));
     }
 
     Z_Free(image);
@@ -736,8 +738,9 @@ static void ParseFace(dsurface_t *ds, drawVert_t *verts,
     numVerts = LittleLong(ds->numVerts);
 
     if(numVerts > 512) {
-        CL_RefPrintf(PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n",
-                     numVerts);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: MAX_FACE_POINTS exceeded: %i\n",
+                                        numVerts);
         numVerts = 512;
         surf->shader = tr.defaultShader;
     }
@@ -787,10 +790,10 @@ static void ParseFace(dsurface_t *ds, drawVert_t *verts,
     }
 
     if(badTriangles) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "Face has bad triangles, originally shader %s %d tris %d verts, now %d tris\n",
-                     surf->shader->name, numIndexes / 3, numVerts,
-                     numIndexes / 3 - badTriangles);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "Face has bad triangles, originally shader %s %d tris %d verts, now %d tris\n",
+                                        surf->shader->name, numIndexes / 3, numVerts,
+                                        numIndexes / 3 - badTriangles);
         cv->numIndexes -= badTriangles * 3;
     }
 
@@ -969,10 +972,10 @@ static void ParseTriSurf(dsurface_t *ds, drawVert_t *verts,
     }
 
     if(badTriangles) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "Trisurf has bad triangles, originally shader %s %d tris %d verts, now %d tris\n",
-                     surf->shader->name, numIndexes / 3, numVerts,
-                     numIndexes / 3 - badTriangles);
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "Trisurf has bad triangles, originally shader %s %d tris %d verts, now %d tris\n",
+                                        surf->shader->name, numIndexes / 3, numVerts,
+                                        numIndexes / 3 - badTriangles);
         cv->numIndexes -= badTriangles * 3;
     }
 
@@ -1437,7 +1440,7 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
                     }
 
                     //
-                    //CL_RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
+                    //clientRendererSystem->RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
                     // insert column into grid2 right after after column l
                     if(m) {
                         row = grid2->height - 1;
@@ -1508,7 +1511,7 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
                     }
 
                     //
-                    //CL_RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
+                    //clientRendererSystem->RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
                     // insert row into grid2 right after after row l
                     if(m) {
                         column = grid2->width - 1;
@@ -1594,7 +1597,7 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
                     }
 
                     //
-                    //CL_RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
+                    //clientRendererSystem->RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
                     // insert column into grid2 right after after column l
                     if(m) {
                         row = grid2->height - 1;
@@ -1666,7 +1669,7 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
                     }
 
                     //
-                    //CL_RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
+                    //clientRendererSystem->RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
                     // insert row into grid2 right after after row l
                     if(m) {
                         column = grid2->width - 1;
@@ -1754,7 +1757,7 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
                     }
 
                     //
-                    //CL_RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
+                    //clientRendererSystem->RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
                     // insert column into grid2 right after after column l
                     if(m) {
                         row = grid2->height - 1;
@@ -1825,7 +1828,7 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
                     }
 
                     //
-                    //CL_RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
+                    //clientRendererSystem->RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
                     // insert row into grid2 right after after row l
                     if(m) {
                         column = grid2->width - 1;
@@ -1916,7 +1919,7 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
                     }
 
                     //
-                    //CL_RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
+                    //clientRendererSystem->RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
                     // insert column into grid2 right after after column l
                     if(m) {
                         row = grid2->height - 1;
@@ -1988,7 +1991,7 @@ sint R_StitchPatches(sint grid1num, sint grid2num) {
                     }
 
                     //
-                    //CL_RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
+                    //clientRendererSystem->RefPrintf( PRINT_ALL, "found highest LoD crack between two patches\n" );
                     // insert row into grid2 right after after row l
                     if(m) {
                         column = grid2->width - 1;
@@ -2102,7 +2105,8 @@ void R_StitchAllPatches(void) {
         }
     } while(stitched);
 
-    CL_RefPrintf(PRINT_ALL, "stitched %d LoD cracks\n", numstitches);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "stitched %d LoD cracks\n",
+                                    numstitches);
 }
 
 /*
@@ -2211,12 +2215,12 @@ static  void R_LoadSurfaces(lump_t *surfs, lump_t *verts,
 
         Q_vsprintf_s(filename, sizeof(filename), sizeof(filename),
                      "maps/%s/vertlight.raw", s_worldData.baseName);
-        //CL_RefPrintf(PRINT_ALL, "looking for %s\n", filename);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "looking for %s\n", filename);
 
         size = fileSystem->ReadFile(filename, (void **)&hdrVertColors);
 
         if(hdrVertColors) {
-            //CL_RefPrintf(PRINT_ALL, "Found!\n");
+            //clientRendererSystem->RefPrintf(PRINT_ALL, "Found!\n");
             if(size != sizeof(float32) * 3 * (verts->filelen / sizeof(*dv))) {
                 Com_Error(ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size,
                           static_cast<sint>((sizeof(float32)) * 3 * (verts->filelen / sizeof(
@@ -2303,9 +2307,9 @@ static  void R_LoadSurfaces(lump_t *surfs, lump_t *verts,
     R_MovePatchSurfacesToHunk();
 #endif
 
-    CL_RefPrintf(PRINT_ALL,
-                 "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n",
-                 numFaces, numMeshes, numTriSurfs, numFlares);
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n",
+                                    numFaces, numMeshes, numTriSurfs, numFlares);
 }
 
 
@@ -2679,7 +2683,8 @@ static  void R_LoadFogs(lump_t *l, lump_t *brushesLump,
             sint sideOffset = firstSide + sideNum;
 
             if(sideOffset >= sidesCount) {
-                CL_RefPrintf(PRINT_WARNING, "bad fog side offset %i\n", sideOffset);
+                clientRendererSystem->RefPrintf(PRINT_WARNING, "bad fog side offset %i\n",
+                                                sideOffset);
                 out->hasSurface = false;
             } else {
                 out->hasSurface = true;
@@ -2729,7 +2734,8 @@ void R_LoadLightGrid(lump_t *l) {
                     w->lightGridBounds[2];
 
     if(l->filelen != numGridPoints * 8) {
-        CL_RefPrintf(PRINT_WARNING, "WARNING: light grid mismatch\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "WARNING: light grid mismatch\n");
         w->lightGridData = nullptr;
         return;
     }
@@ -2755,12 +2761,12 @@ void R_LoadLightGrid(lump_t *l) {
 
         Q_vsprintf_s(filename, sizeof(filename), sizeof(filename),
                      "maps/%s/lightgrid.raw", s_worldData.baseName);
-        //CL_RefPrintf(PRINT_ALL, "looking for %s\n", filename);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "looking for %s\n", filename);
 
         size = fileSystem->ReadFile(filename, (void **)&hdrLightGrid);
 
         if(hdrLightGrid) {
-            //CL_RefPrintf(PRINT_ALL, "found!\n");
+            //clientRendererSystem->RefPrintf(PRINT_ALL, "found!\n");
 
             if(size != sizeof(float32) * 6 * numGridPoints) {
                 Com_Error(ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size,
@@ -2866,8 +2872,8 @@ void R_LoadEntities(lump_t *l) {
             s = strchr(value, ';');
 
             if(!s) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: no semi colon in vertexshaderremap '%s'\n", value);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: no semi colon in vertexshaderremap '%s'\n", value);
                 break;
             }
 
@@ -2885,8 +2891,9 @@ void R_LoadEntities(lump_t *l) {
             s = strchr(value, ';');
 
             if(!s) {
-                CL_RefPrintf(PRINT_WARNING, "WARNING: no semi colon in shaderremap '%s'\n",
-                             value);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: no semi colon in shaderremap '%s'\n",
+                                                value);
                 break;
             }
 
@@ -2901,8 +2908,8 @@ void R_LoadEntities(lump_t *l) {
         if(!Q_stricmp(keyname, "gridsize")) {
             if(sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1],
                       &w->lightGridSize[2]) != 3) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: invalid argument count for gridsize '%s'", value);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: invalid argument count for gridsize '%s'", value);
                 VectorSet(w->lightGridSize, 64.0f, 64.0f, 128.0f);
             }
 
@@ -2915,8 +2922,8 @@ void R_LoadEntities(lump_t *l) {
 
             if(sscanf(value, "%f %f", &tr.autoExposureMinMax[0],
                       &tr.autoExposureMinMax[1]) != 2) {
-                CL_RefPrintf(PRINT_WARNING,
-                             "WARNING: invalid argument count for autoExposureMinMax '%s'", value);
+                clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                "WARNING: invalid argument count for autoExposureMinMax '%s'", value);
             }
 
             continue;
@@ -2963,8 +2970,9 @@ bool R_ParseSpawnVars(valueType *spawnVarChars, sint maxSpawnVarChars,
     }
 
     if(com_token[0] != '{') {
-        CL_RefPrintf(PRINT_ALL, "R_ParseSpawnVars: found %s when expecting {\n",
-                     com_token);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "R_ParseSpawnVars: found %s when expecting {\n",
+                                        com_token);
         return false;
     }
 
@@ -2974,7 +2982,8 @@ bool R_ParseSpawnVars(valueType *spawnVarChars, sint maxSpawnVarChars,
 
         // parse key
         if(!renderSystemLocal.GetEntityToken(keyname, sizeof(keyname))) {
-            CL_RefPrintf(PRINT_ALL, "R_ParseSpawnVars: EOF without closing brace\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "R_ParseSpawnVars: EOF without closing brace\n");
             return false;
         }
 
@@ -2984,17 +2993,20 @@ bool R_ParseSpawnVars(valueType *spawnVarChars, sint maxSpawnVarChars,
 
         // parse value
         if(!renderSystemLocal.GetEntityToken(com_token, sizeof(com_token))) {
-            CL_RefPrintf(PRINT_ALL, "R_ParseSpawnVars: EOF without closing brace\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "R_ParseSpawnVars: EOF without closing brace\n");
             return false;
         }
 
         if(com_token[0] == '}') {
-            CL_RefPrintf(PRINT_ALL, "R_ParseSpawnVars: closing brace without data\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "R_ParseSpawnVars: closing brace without data\n");
             return false;
         }
 
         if(*numSpawnVars == MAX_SPAWN_VARS) {
-            CL_RefPrintf(PRINT_ALL, "R_ParseSpawnVars: MAX_SPAWN_VARS\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "R_ParseSpawnVars: MAX_SPAWN_VARS\n");
             return false;
         }
 
@@ -3002,7 +3014,8 @@ bool R_ParseSpawnVars(valueType *spawnVarChars, sint maxSpawnVarChars,
         tokenLength = strlen(com_token) + 1;
 
         if(numSpawnVarChars + keyLength + tokenLength > maxSpawnVarChars) {
-            CL_RefPrintf(PRINT_ALL, "R_ParseSpawnVars: MAX_SPAWN_VAR_CHARS\n");
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "R_ParseSpawnVars: MAX_SPAWN_VAR_CHARS\n");
             return false;
         }
 
@@ -3249,12 +3262,12 @@ void R_AssignCubemapsToWorldSurfaces(void) {
             surfOrigin[2] = (surf->cullinfo.bounds[0][2] + surf->cullinfo.bounds[1][2])
                             * 0.5f;
         } else {
-            //CL_RefPrintf(PRINT_ALL, "surface %d has no cubemap\n", i);
+            //clientRendererSystem->RefPrintf(PRINT_ALL, "surface %d has no cubemap\n", i);
             continue;
         }
 
         surf->cubemapIndex = R_CubemapForPoint(surfOrigin);
-        //CL_RefPrintf(PRINT_ALL, "surface %d has cubemap %d\n", i, surf->cubemapIndex);
+        //clientRendererSystem->RefPrintf(PRINT_ALL, "surface %d has cubemap %d\n", i, surf->cubemapIndex);
     }
 }
 
@@ -3474,7 +3487,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
         lightGridSize = w->lightGridBounds[0] * w->lightGridBounds[1] *
                         w->lightGridBounds[2];
-        primaryLightGrid = static_cast<uchar8 *>(CL_RefMalloc(
+        primaryLightGrid = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
                                lightGridSize * sizeof(*primaryLightGrid)));
 
         memset(primaryLightGrid, 0, lightGridSize * sizeof(*primaryLightGrid));
@@ -3519,8 +3532,9 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
         if(0) {
             sint i;
-            uchar8 *buffer = static_cast<uchar8 *>(CL_RefMalloc(w->lightGridBounds[0] *
-                                                   w->lightGridBounds[1] * 3 + 18));
+            uchar8 *buffer = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
+                    w->lightGridBounds[0] *
+                    w->lightGridBounds[1] * 3 + 18));
             uchar8 *out;
             uchar8 *in;
             valueType fileName[MAX_QPATH];
@@ -3574,7 +3588,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
             if(ci->type & CULLINFO_PLANE) {
                 if(DotProduct(ci->plane.normal, tr.sunDirection) <= 0.0f) {
-                    //CL_RefPrintf(PRINT_ALL, "surface %d is not oriented towards sunlight\n", i);
+                    //clientRendererSystem->RefPrintf(PRINT_ALL, "surface %d is not oriented towards sunlight\n", i);
                     continue;
                 }
             }
@@ -3604,7 +3618,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
                 ibounds[1][2] = CLAMP(ibounds[1][2], 0, w->lightGridSize[2]);
 
                 /*
-                CL_RefPrintf(PRINT_ALL, "surf %d bounds (%f %f %f)-(%f %f %f) ibounds (%d %d %d)-(%d %d %d)\n", i,
+                clientRendererSystem->RefPrintf(PRINT_ALL, "surf %d bounds (%f %f %f)-(%f %f %f) ibounds (%d %d %d)-(%d %d %d)\n", i,
                     ci->bounds[0][0], ci->bounds[0][1], ci->bounds[0][2],
                     ci->bounds[1][0], ci->bounds[1][1], ci->bounds[1][2],
                     ibounds[0][0], ibounds[0][1], ibounds[0][2],
@@ -3636,7 +3650,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
                 // FIXME: magic number for determining whether object is mostly in sunlight
                 if(goodSamples > numSamples * 0.75f) {
-                    //CL_RefPrintf(PRINT_ALL, "surface %d is in sunlight\n", i);
+                    //clientRendererSystem->RefPrintf(PRINT_ALL, "surface %d is in sunlight\n", i);
                     //surf->primaryLight = 1;
                 }
             }
@@ -3662,9 +3676,10 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
     s_worldData.dataSize = static_cast<sint>((uchar8 *)Hunk_Alloc(0,
                            h_low) - startMarker);
 
-    CL_RefPrintf(PRINT_ALL, "total world data size: %d.%02d MB\n",
-                 s_worldData.dataSize / (1024 * 1024),
-                 (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "total world data size: %d.%02d MB\n",
+                                    s_worldData.dataSize / (1024 * 1024),
+                                    (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
 
     // only set tr.world now that we know the entire level has loaded properly
     tr.world = &s_worldData;

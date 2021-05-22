@@ -41,7 +41,8 @@ void GLimp_InitExtraExtensions(void) {
         Com_Error(ERR_FATAL, "OpenGL 2.0 required!");
     }
 
-    CL_RefPrintf(PRINT_ALL, "...using OpenGL %s\n", glConfig.version_string);
+    clientRendererSystem->RefPrintf(PRINT_ALL, "...using OpenGL %s\n",
+                                    glConfig.version_string);
 
     q_gl_version_at_least_3_0 = QGL_VERSION_ATLEAST(3, 0);
     q_gl_version_at_least_3_2 = QGL_VERSION_ATLEAST(3, 2);
@@ -98,9 +99,10 @@ void GLimp_InitExtraExtensions(void) {
 
         QGL_ARB_framebuffer_object_PROCS;
 
-        CL_RefPrintf(PRINT_ALL, result[glRefConfig.framebufferObject], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        result[glRefConfig.framebufferObject], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     // OpenGL 3.0 - GL_ARB_vertex_array_object
@@ -117,9 +119,10 @@ void GLimp_InitExtraExtensions(void) {
 
         QGL_ARB_vertex_array_object_PROCS;
 
-        CL_RefPrintf(PRINT_ALL, result[glRefConfig.vertexArrayObject], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        result[glRefConfig.vertexArrayObject], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     // OpenGL 3.0 - GL_ARB_texture_float
@@ -129,9 +132,10 @@ void GLimp_InitExtraExtensions(void) {
     if(q_gl_version_at_least_3_0 || SDL_GL_ExtensionSupported(extension)) {
         glRefConfig.textureFloat = !!r_ext_texture_float->integer;
 
-        CL_RefPrintf(PRINT_ALL, result[glRefConfig.textureFloat], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        result[glRefConfig.textureFloat], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     // OpenGL 3.2 - GL_ARB_depth_clamp
@@ -141,9 +145,10 @@ void GLimp_InitExtraExtensions(void) {
     if(q_gl_version_at_least_3_2 || SDL_GL_ExtensionSupported(extension)) {
         glRefConfig.depthClamp = true;
 
-        CL_RefPrintf(PRINT_ALL, result[glRefConfig.depthClamp], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[glRefConfig.depthClamp],
+                                        extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     // OpenGL 3.2 - GL_ARB_seamless_cube_map
@@ -153,9 +158,10 @@ void GLimp_InitExtraExtensions(void) {
     if(q_gl_version_at_least_3_2 || SDL_GL_ExtensionSupported(extension)) {
         glRefConfig.seamlessCubeMap = !!r_arb_seamless_cube_map->integer;
 
-        CL_RefPrintf(PRINT_ALL, result[glRefConfig.seamlessCubeMap], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        result[glRefConfig.seamlessCubeMap], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     if(!qglGetString) {
@@ -173,7 +179,8 @@ void GLimp_InitExtraExtensions(void) {
         sscanf(version, "%d.%d", &glRefConfig.glslMajorVersion,
                &glRefConfig.glslMinorVersion);
 
-        CL_RefPrintf(PRINT_ALL, "...using GLSL version %s\n", version);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "...using GLSL version %s\n",
+                                        version);
     }
 
     glRefConfig.memInfo = MI_NONE;
@@ -184,9 +191,9 @@ void GLimp_InitExtraExtensions(void) {
     if(SDL_GL_ExtensionSupported(extension)) {
         glRefConfig.memInfo = MI_NVX;
 
-        CL_RefPrintf(PRINT_ALL, result[1], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[1], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     // GL_ATI_meminfo
@@ -196,12 +203,12 @@ void GLimp_InitExtraExtensions(void) {
         if(glRefConfig.memInfo == MI_NONE) {
             glRefConfig.memInfo = MI_ATI;
 
-            CL_RefPrintf(PRINT_ALL, result[1], extension);
+            clientRendererSystem->RefPrintf(PRINT_ALL, result[1], extension);
         } else {
-            CL_RefPrintf(PRINT_ALL, result[0], extension);
+            clientRendererSystem->RefPrintf(PRINT_ALL, result[0], extension);
         }
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     glRefConfig.textureCompression = TCR_NONE;
@@ -216,9 +223,9 @@ void GLimp_InitExtraExtensions(void) {
             glRefConfig.textureCompression |= TCR_RGTC;
         }
 
-        CL_RefPrintf(PRINT_ALL, result[useRgtc], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[useRgtc], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     glRefConfig.swizzleNormalmap = r_ext_compressed_textures->integer &&
@@ -234,17 +241,17 @@ void GLimp_InitExtraExtensions(void) {
             glRefConfig.textureCompression |= TCR_BPTC;
         }
 
-        CL_RefPrintf(PRINT_ALL, result[useBptc], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[useBptc], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     extension = "GL_EXT_shadow_samplers";
 
     if(SDL_GL_ExtensionSupported(extension)) {
-        CL_RefPrintf(PRINT_ALL, result[1], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[1], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
     // GL_EXT_direct_state_access
@@ -259,9 +266,10 @@ void GLimp_InitExtraExtensions(void) {
             QGL_EXT_direct_state_access_PROCS;
         }
 
-        CL_RefPrintf(PRINT_ALL, result[glRefConfig.directStateAccess], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        result[glRefConfig.directStateAccess], extension);
     } else {
-        CL_RefPrintf(PRINT_ALL, result[2], extension);
+        clientRendererSystem->RefPrintf(PRINT_ALL, result[2], extension);
     }
 
 #undef GLE

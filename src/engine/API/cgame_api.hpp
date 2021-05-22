@@ -50,25 +50,9 @@ typedef enum cgameEvent_e {
 
 struct cgameImports_t {
     void(*Print)(pointer fmt, ...);
-    void(*AddCommand)(pointer cmdName, pointer cmdDesc);
-    void(*RemoveCommand)(pointer cmdName);
-    void(*SendClientCommand)(pointer s);
-    void(*GetCurrentSnapshotNumber)(sint *snapshotNumber, sint *serverTime);
-    sint(*MemoryRemaining)(void);
-    bool(*loadCamera)(sint camNum, pointer name);
-    void(*startCamera)(sint camNum, sint time);
-    void(*stopCamera)(sint camNum);
-    bool(*getCameraInfo)(sint camNum, sint time, vec3_t *origin,
-                         vec3_t *angles, float32 *fov);
     sint(*RealTime)(qtime_t *qtime);
-
-    void(*UI_LimboChat)(pointer arg0);
-    void (*AddReliableCommand)(pointer cmd);
-    void (*Cvar_LatchedVariableStringBuffer)(pointer var_name,
-            valueType *buffer, uint64 bufsize);
     void (*Com_GetHunkInfo)(sint *hunkused, sint *hunkexpected);
     uint64(*Hunk_MemoryRemaining)(void);
-    void(*SetValue)(pointer var_name, float32 value);
 
     idClientGameSystem *clientGameSystem;
     idRenderSystem *renderSystem;
@@ -86,6 +70,7 @@ struct cgameImports_t {
     idClientCinemaSystem *clientCinemaSystem;
     idClientLocalizationSystem *clientLocalization;
     idClientKeysSystem *clientKeysSystem;
+    idClientReliableCommandsSystemAPI *clientReliableCommandsSystem;
 #endif
 };
 

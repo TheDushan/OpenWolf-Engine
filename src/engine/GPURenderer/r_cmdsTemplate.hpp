@@ -51,9 +51,9 @@ T GetCommandBuffer(B bytes, T type) {
             Com_Error(ERR_FATAL, "GetCommandBuffer: bad size %i", bytes);
         }
 
-        CL_RefPrintf(PRINT_ALL,
-                     "R_GetCommandBufferReserved (%i, %i): out of room, dropping command\n",
-                     bytes, type);
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "R_GetCommandBufferReserved (%i, %i): out of room, dropping command\n",
+                                        bytes, type);
 
         // if we run out of room, just start dropping commands
         return nullptr;

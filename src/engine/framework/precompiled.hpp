@@ -129,6 +129,7 @@ extern "C"
 #include <cm/cm_patch.hpp>
 #include <GPURenderer/r_types.hpp>
 #include <API/renderer_api.hpp>
+#include <API/clientDownload_api.hpp>
 #include <API/FileSystem_api.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <API/download_api.hpp>
@@ -160,6 +161,25 @@ extern "C"
 #include <client/clientConsole.hpp>
 #include <API/clientInput_api.hpp>
 #include <client/clientInput.hpp>
+#include <API/clientMain_api.hpp>
+#include <client/clientAuthorization.hpp>
+#include <API/clientAutoUpdate_api.hpp>
+#include <client/clientAutoUpdate.hpp>
+#include <API/clientConsoleCommands_api.hpp>
+#include <client/clientConsoleCommands.hpp>
+#include <client/clientDemo.hpp>
+#include <client/clientDownload.hpp>
+#include <client/clientGUID.hpp>
+#include <client/clientInput.hpp>
+#include <framework/keycodes.hpp>
+#include <client/clientMotd.hpp>
+#include <API/clientReliableCommands_api.hpp>
+#include <client/clientReliableCommands.hpp>
+#include <API/clientRenderer_api.hpp>
+#include <client/clientRenderer.hpp>
+#include <client/clientStartUpCache.hpp>
+#include <client/clientWave.hpp>
+#include <client/clientMain.hpp>
 
 #include <cm/cm_local.hpp>
 
@@ -183,7 +203,6 @@ extern "C"
 #include <soundSystem/sndSystem_codec.hpp>
 #include <API/soundSystem_api.hpp>
 #include <soundSystem/sndSystem_local.hpp>
-#include <framework/keycodes.hpp>
 #include <framework/CmdSystem.hpp>
 #include <API/CmdCompletion_api.hpp>
 #include <framework/CmdCompletion.hpp>

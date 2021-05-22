@@ -656,14 +656,11 @@ idClientGameSystemLocal::CreateExportTable
 void idClientGameSystemLocal::CreateExportTable(void) {
     exports.Print = Com_Printf;
 
-    exports.AddReliableCommand = CL_AddReliableCommand;
-
     exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
 
     exports.RealTime = Com_RealTime;
 
     exports.Com_GetHunkInfo = Com_GetHunkInfo;
-    exports.UI_LimboChat = CL_AddToLimboChat;
 
     exports.clientCinemaSystem = clientCinemaSystem;
     exports.clientGameSystem = clientGameSystem;
@@ -680,6 +677,7 @@ void idClientGameSystemLocal::CreateExportTable(void) {
     exports.parseSystem = ParseSystem;
     exports.clientLocalization = clientLocalizationSystem;
     exports.clientKeysSystem = clientKeysSystem;
+    exports.clientReliableCommandsSystem = clientReliableCommandsSystem;
 }
 
 /*
@@ -792,7 +790,7 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage(void) {
 ====================
 idClientGameSystemLocal::InitCGame
 
-Should only by called by CL_StartHunkUsers
+Should only by called by idClientMainSystemLocal::StartHunkUsers
 ====================
 */
 void idClientGameSystemLocal::InitCGame(void) {
@@ -1039,7 +1037,7 @@ void idClientGameSystemLocal::SetCGameTime(void) {
                 return;
             }
 
-            CL_ReadDemoMessage();
+            idClientDemoSystemLocal::ReadDemoMessage();
         }
 
         if(cl.newSnapshots) {
@@ -1148,7 +1146,7 @@ void idClientGameSystemLocal::SetCGameTime(void) {
     while(cl.serverTime >= cl.snapServer.serverTime) {
         // feed another messag, which should change
         // the contents of cl.snap
-        CL_ReadDemoMessage();
+        idClientDemoSystemLocal::ReadDemoMessage();
 
         if(cls.state != CA_ACTIVE) {
             cvarSystem->Set("timescale", "1");

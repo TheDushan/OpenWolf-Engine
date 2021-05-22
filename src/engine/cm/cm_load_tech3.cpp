@@ -118,7 +118,7 @@ bool StringsContainWord(pointer heystack, pointer heystack2,
 }
 
 sint GetMaterialType(pointer name) {
-    //CL_RefPrintf(PRINT_WARNING, "Check material type for %s.\n", name);
+    //clientRendererSystem->RefPrintf(PRINT_WARNING, "Check material type for %s.\n", name);
 
     //
     // Special cases - where we are pretty sure we want lots of specular and reflection...

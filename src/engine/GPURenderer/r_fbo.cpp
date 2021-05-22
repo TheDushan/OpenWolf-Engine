@@ -46,36 +46,37 @@ bool R_CheckFBO(const FBO_t *fbo) {
     // an error occured
     switch(code) {
         case GL_FRAMEBUFFER_UNSUPPORTED:
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_CheckFBO: (%s) Unsupported framebuffer format\n", fbo->name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_CheckFBO: (%s) Unsupported framebuffer format\n", fbo->name);
             break;
 
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_CheckFBO: (%s) Framebuffer incomplete attachment\n", fbo->name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_CheckFBO: (%s) Framebuffer incomplete attachment\n", fbo->name);
             break;
 
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_CheckFBO: (%s) Framebuffer incomplete, missing attachment\n",
-                         fbo->name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_CheckFBO: (%s) Framebuffer incomplete, missing attachment\n",
+                                            fbo->name);
             break;
 
         case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_CheckFBO: (%s) Framebuffer incomplete, missing draw buffer\n",
-                         fbo->name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_CheckFBO: (%s) Framebuffer incomplete, missing draw buffer\n",
+                                            fbo->name);
             break;
 
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-            CL_RefPrintf(PRINT_WARNING,
-                         "R_CheckFBO: (%s) Framebuffer incomplete, missing read buffer\n",
-                         fbo->name);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_CheckFBO: (%s) Framebuffer incomplete, missing read buffer\n",
+                                            fbo->name);
             break;
 
         default:
-            CL_RefPrintf(PRINT_WARNING, "R_CheckFBO: (%s) unknown error 0x%X\n",
-                         fbo->name, code);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "R_CheckFBO: (%s) unknown error 0x%X\n",
+                                            fbo->name, code);
             break;
     }
 
@@ -170,8 +171,9 @@ void FBO_CreateBuffer(FBO_t *fbo, sint format, sint index,
             break;
 
         default:
-            CL_RefPrintf(PRINT_WARNING, "FBO_CreateBuffer: invalid format %d\n",
-                         format);
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "FBO_CreateBuffer: invalid format %d\n",
+                                            format);
             return;
     }
 
@@ -233,8 +235,8 @@ FBO_Bind
 */
 void FBO_Bind(FBO_t *fbo) {
     if(!glRefConfig.framebufferObject) {
-        CL_RefPrintf(PRINT_WARNING,
-                     "FBO_Bind() called without framebuffers enabled!\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "FBO_Bind() called without framebuffers enabled!\n");
         return;
     }
 
@@ -261,7 +263,8 @@ void idRenderSystemLocal::FBOInit(void) {
     sint             i;
     sint             hdrFormat, multisample = 0;
 
-    CL_RefPrintf(PRINT_ALL, "------- idRenderSystemLocal::FBOInit -------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "------- idRenderSystemLocal::FBOInit -------\n");
 
     if(!glRefConfig.framebufferObject) {
         return;
@@ -535,8 +538,8 @@ void idRenderSystemLocal::FBOShutdown(void) {
     sint             i, j;
     FBO_t          *fbo;
 
-    CL_RefPrintf(PRINT_ALL,
-                 "------- idRenderSystemLocal::FBOShutdown -------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "------- idRenderSystemLocal::FBOShutdown -------\n");
 
     if(!glRefConfig.framebufferObject) {
         return;
@@ -577,22 +580,25 @@ void R_FBOList_f(void) {
     FBO_t          *fbo;
 
     if(!glRefConfig.framebufferObject) {
-        CL_RefPrintf(PRINT_ALL, "GL_EXT_framebuffer_object is not available.\n");
+        clientRendererSystem->RefPrintf(PRINT_ALL,
+                                        "GL_EXT_framebuffer_object is not available.\n");
         return;
     }
 
-    CL_RefPrintf(PRINT_ALL, "             size       name\n");
-    CL_RefPrintf(PRINT_ALL,
-                 "----------------------------------------------------------\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "             size       name\n");
+    clientRendererSystem->RefPrintf(PRINT_ALL,
+                                    "----------------------------------------------------------\n");
 
     for(i = 0; i < tr.numFBOs; i++) {
         fbo = tr.fbos[i];
 
-        CL_RefPrintf(PRINT_ALL, "  %4i: %4i %4i %s\n", i, fbo->width, fbo->height,
-                     fbo->name);
+        clientRendererSystem->RefPrintf(PRINT_ALL, "  %4i: %4i %4i %s\n", i,
+                                        fbo->width, fbo->height,
+                                        fbo->name);
     }
 
-    CL_RefPrintf(PRINT_ALL, " %i FBOs\n", tr.numFBOs);
+    clientRendererSystem->RefPrintf(PRINT_ALL, " %i FBOs\n", tr.numFBOs);
 }
 
 void FBO_BlitFromTexture(struct image_s *src, vec4_t inSrcTexCorners,
@@ -608,7 +614,8 @@ void FBO_BlitFromTexture(struct image_s *src, vec4_t inSrcTexCorners,
     sint width, height;
 
     if(!src) {
-        CL_RefPrintf(PRINT_WARNING, "Tried to blit from a nullptr texture!\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "Tried to blit from a nullptr texture!\n");
         return;
     }
 
@@ -696,7 +703,8 @@ void FBO_Blit(FBO_t *src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t *dst,
     vec4_t srcTexCorners;
 
     if(!src) {
-        CL_RefPrintf(PRINT_WARNING, "Tried to blit from a nullptr FBO!\n");
+        clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                        "Tried to blit from a nullptr FBO!\n");
         return;
     }
 
