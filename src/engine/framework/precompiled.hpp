@@ -114,11 +114,6 @@
 #include <ifaddrs.h>
 #endif
 
-extern "C"
-{
-#include <jpeglib.h>
-}
-
 #include <framework/appConfig.hpp>
 #include <framework/types.hpp>
 #include <qcommon/q_platform.hpp>
@@ -127,17 +122,14 @@ extern "C"
 #include <API/cm_api.hpp>
 #include <cm/cm_polylib.hpp>
 #include <cm/cm_patch.hpp>
-#include <GPURenderer/r_types.hpp>
 #include <API/Memory_api.hpp>
 #include <framework/Memory.hpp>
-#include <API/renderer_api.hpp>
 #include <API/clientDownload_api.hpp>
 #include <API/FileSystem_api.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <API/download_api.hpp>
 #include <qcommon/qcommon.hpp>
 #include <framework/CommonConsoleVars.hpp>
-#include <GPURenderer/r_ConsoleVars.hpp>
 #include <API/serverGame_api.hpp>
 #include <server/server.hpp>
 #include <API/serverWorld_api.hpp>
@@ -145,6 +137,7 @@ extern "C"
 #include <API/CmdBuffer_api.hpp>
 #include <API/CmdSystem_api.hpp>
 #include <API/system_api.hpp>
+#include <renderSystem/r_types.hpp>
 #include <API/clientScreen_api.hpp>
 #include <client/clientScreen.hpp>
 #include <API/clientGame_api.hpp>
@@ -182,23 +175,12 @@ extern "C"
 #include <client/clientStartUpCache.hpp>
 #include <client/clientWave.hpp>
 #include <client/clientMain.hpp>
+#include <API/renderer_api.hpp>
 
 #include <cm/cm_local.hpp>
 
 #include <API/download_api.hpp>
 #include <download/downloadLocal.hpp>
-#include <GPURenderer/qgl.hpp>
-#include <API/renderer_api.hpp>
-#include <GPURenderer/iqm.hpp>
-#include <GPURenderer/r_splash.hpp>
-#include <GPURenderer/r_common.hpp>
-#include <GPURenderer/r_extratypes.hpp>
-#include <GPURenderer/r_extramath.hpp>
-#include <GPURenderer/r_fbo.hpp>
-#include <GPURenderer/r_postprocess.hpp>
-#include <GPURenderer/r_dsa.hpp>
-#include <GPURenderer/r_local.hpp>
-#include <GPURenderer/r_cmdsTemplate.hpp>
 
 #include <API/Parse_api.hpp>
 #include <framework/Parse.hpp>
@@ -224,23 +206,6 @@ extern "C"
 #include <framework/Puff.hpp>
 #include <framework/SurfaceFlags_Tech3.hpp>
 #include <platform/systemLocal.hpp>
-
-#ifdef _WIN32
-#include <freetype/ft2build.h>
-#include <freetype/freetype.h>
-#include <freetype/fterrors.h>
-#include <freetype/ftsystem.h>
-#include <freetype/ftimage.h>
-#include <freetype/ftoutln.h>
-#else
-#include <freetype2/ft2build.h>
-#include <freetype2/freetype/freetype.h>
-#include <freetype2/freetype/fterrors.h>
-#include <freetype2/freetype/ftsystem.h>
-#include <freetype2/freetype/ftimage.h>
-#include <freetype2/freetype/ftoutln.h>
-#endif
-#undef getch
 
 #ifdef __LINUX_
 #include <stdint.h>

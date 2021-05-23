@@ -165,62 +165,67 @@ set( SHAREDLIST_SOURCES
 	${MOUNT_DIR}/qcommon/q_math.cpp
 )
 
-set( GPURENDERER_HEADERS 
-	${MOUNT_DIR}/GPURenderer/iqm.hpp
-	${MOUNT_DIR}/GPURenderer/qgl.hpp
-	${MOUNT_DIR}/GPURenderer/r_common.hpp
-	${MOUNT_DIR}/GPURenderer/r_dsa.hpp
-	${MOUNT_DIR}/GPURenderer/r_extramath.hpp
-	${MOUNT_DIR}/GPURenderer/r_extratypes.hpp
-	${MOUNT_DIR}/GPURenderer/r_fbo.hpp
-	${MOUNT_DIR}/GPURenderer/r_local.hpp
-	${MOUNT_DIR}/GPURenderer/r_postprocess.hpp
-	${MOUNT_DIR}/GPURenderer/r_splash.hpp
+set( RENDERSYSTEM_HEADERS
+	${MOUNT_DIR}/framework/Puff.hpp
+	${MOUNT_DIR}/renderSystem/r_precompiled.hpp
+	${MOUNT_DIR}/renderSystem/iqm.hpp
+	${MOUNT_DIR}/renderSystem/qgl.hpp
+	${MOUNT_DIR}/renderSystem/r_common.hpp
+	${MOUNT_DIR}/renderSystem/r_dsa.hpp
+	${MOUNT_DIR}/renderSystem/r_extramath.hpp
+	${MOUNT_DIR}/renderSystem/r_extratypes.hpp
+	${MOUNT_DIR}/renderSystem/r_fbo.hpp
+	${MOUNT_DIR}/renderSystem/r_local.hpp
+	${MOUNT_DIR}/renderSystem/r_postprocess.hpp
+	${MOUNT_DIR}/renderSystem/r_splash.hpp
 	${MOUNT_DIR}/API/renderer_api.hpp
-	${MOUNT_DIR}/GPURenderer/r_types.hpp
-	${MOUNT_DIR}/GPURenderer/r_cmdsTemplate.hpp
-	${MOUNT_DIR}/GPURenderer/r_ConsoleVars.hpp
+	${MOUNT_DIR}/renderSystem/r_types.hpp
+	${MOUNT_DIR}/renderSystem/r_cmdsTemplate.hpp
+	${MOUNT_DIR}/renderSystem/r_ConsoleVars.hpp
 )
 
-set( GPURENDERER_SOURCES
-	${MOUNT_DIR}/GPURenderer/r_animation.cpp
-	${MOUNT_DIR}/GPURenderer/r_backend.cpp
-	${MOUNT_DIR}/GPURenderer/r_bsp_tech3.cpp
-	${MOUNT_DIR}/GPURenderer/r_cmds.cpp
-	${MOUNT_DIR}/GPURenderer/r_curve.cpp
-	${MOUNT_DIR}/GPURenderer/r_dsa.cpp
-	${MOUNT_DIR}/GPURenderer/r_extensions.cpp
-	${MOUNT_DIR}/GPURenderer/r_extramath.cpp
-	${MOUNT_DIR}/GPURenderer/r_fbo.cpp
-	${MOUNT_DIR}/GPURenderer/r_flares.cpp
-	${MOUNT_DIR}/GPURenderer/r_font.cpp
-	${MOUNT_DIR}/GPURenderer/r_glsl.cpp
-	${MOUNT_DIR}/GPURenderer/r_image.cpp
-	${MOUNT_DIR}/GPURenderer/r_image_dds.cpp
-	${MOUNT_DIR}/GPURenderer/r_image_jpg.cpp
-	${MOUNT_DIR}/GPURenderer/r_image_png.cpp
-	${MOUNT_DIR}/GPURenderer/r_image_tga.cpp
-	${MOUNT_DIR}/GPURenderer/r_init.cpp
-	${MOUNT_DIR}/GPURenderer/r_light.cpp
-	${MOUNT_DIR}/GPURenderer/r_main.cpp
-	${MOUNT_DIR}/GPURenderer/r_marks.cpp
-	${MOUNT_DIR}/GPURenderer/r_mesh.cpp
-	${MOUNT_DIR}/GPURenderer/r_model.cpp
-	${MOUNT_DIR}/GPURenderer/r_model_iqm.cpp
-	${MOUNT_DIR}/GPURenderer/r_model_obj.cpp
-	${MOUNT_DIR}/GPURenderer/r_noise.cpp
-	${MOUNT_DIR}/GPURenderer/r_postprocess.cpp
-	${MOUNT_DIR}/GPURenderer/r_scene.cpp
-	${MOUNT_DIR}/GPURenderer/r_shade.cpp
-	${MOUNT_DIR}/GPURenderer/r_shade_calc.cpp
-	${MOUNT_DIR}/GPURenderer/r_shader.cpp
-	${MOUNT_DIR}/GPURenderer/r_shadows.cpp
-	${MOUNT_DIR}/GPURenderer/r_sky.cpp
-	${MOUNT_DIR}/GPURenderer/r_surface.cpp
-	${MOUNT_DIR}/GPURenderer/r_vbo.cpp
-	${MOUNT_DIR}/GPURenderer/r_world.cpp
-	${MOUNT_DIR}/GPURenderer/r_glimp.cpp
-	${MOUNT_DIR}/GPURenderer/r_ConsoleVars.cpp
+set( RENDERSYSTEM_SOURCES
+	${MOUNT_DIR}/framework/Puff.cpp
+	${MOUNT_DIR}/renderSystem/r_precompiled.cpp
+	${MOUNT_DIR}/renderSystem/r_api.cpp
+	${MOUNT_DIR}/renderSystem/r_animation.cpp
+	${MOUNT_DIR}/renderSystem/r_backend.cpp
+	${MOUNT_DIR}/renderSystem/r_bsp_tech3.cpp
+	${MOUNT_DIR}/renderSystem/r_cmds.cpp
+	${MOUNT_DIR}/renderSystem/r_curve.cpp
+	${MOUNT_DIR}/renderSystem/r_dsa.cpp
+	${MOUNT_DIR}/renderSystem/r_extensions.cpp
+	${MOUNT_DIR}/renderSystem/r_extramath.cpp
+	${MOUNT_DIR}/renderSystem/r_fbo.cpp
+	${MOUNT_DIR}/renderSystem/r_flares.cpp
+	${MOUNT_DIR}/renderSystem/r_font.cpp
+	${MOUNT_DIR}/renderSystem/r_glsl.cpp
+	${MOUNT_DIR}/renderSystem/r_image.cpp
+	${MOUNT_DIR}/renderSystem/r_image_dds.cpp
+	${MOUNT_DIR}/renderSystem/r_image_jpg.cpp
+	${MOUNT_DIR}/renderSystem/r_image_png.cpp
+	${MOUNT_DIR}/renderSystem/r_image_tga.cpp
+	${MOUNT_DIR}/renderSystem/r_init.cpp
+	${MOUNT_DIR}/renderSystem/r_light.cpp
+	${MOUNT_DIR}/renderSystem/r_main.cpp
+	${MOUNT_DIR}/renderSystem/r_marks.cpp
+	${MOUNT_DIR}/renderSystem/r_mesh.cpp
+	${MOUNT_DIR}/renderSystem/r_model.cpp
+	${MOUNT_DIR}/renderSystem/r_model_iqm.cpp
+	${MOUNT_DIR}/renderSystem/r_model_obj.cpp
+	${MOUNT_DIR}/renderSystem/r_noise.cpp
+	${MOUNT_DIR}/renderSystem/r_postprocess.cpp
+	${MOUNT_DIR}/renderSystem/r_scene.cpp
+	${MOUNT_DIR}/renderSystem/r_shade.cpp
+	${MOUNT_DIR}/renderSystem/r_shade_calc.cpp
+	${MOUNT_DIR}/renderSystem/r_shader.cpp
+	${MOUNT_DIR}/renderSystem/r_shadows.cpp
+	${MOUNT_DIR}/renderSystem/r_sky.cpp
+	${MOUNT_DIR}/renderSystem/r_surface.cpp
+	${MOUNT_DIR}/renderSystem/r_vbo.cpp
+	${MOUNT_DIR}/renderSystem/r_world.cpp
+	${MOUNT_DIR}/renderSystem/r_glimp.cpp
+	${MOUNT_DIR}/renderSystem/r_ConsoleVars.cpp
 )
 
 set( SERVERLIST_HEADERS
@@ -638,7 +643,6 @@ if( BUILD_CLIENT )
 	# Dushan - This is how visual studio directories (or filters) are generated
 	if( WIN32 )
 		SOURCE_GROUP( Header\ Files\\SharedList                               FILES ${SHAREDLIST_HEADERS} )
-		SOURCE_GROUP( Header\ Files\\GPURenderer                              FILES ${GPURENDERER_HEADERS} )
 		SOURCE_GROUP( Header\ Files\\Server                                   FILES ${SERVERLIST_HEADERS} )
 		SOURCE_GROUP( Header\ Files\\CM                                       FILES ${COLLISIONMODEL_HEADERS} )
 		SOURCE_GROUP( Header\ Files\\QCommon                                  FILES ${QCOMMONLIST_HEADERS} )
@@ -648,7 +652,6 @@ if( BUILD_CLIENT )
 		SOURCE_GROUP( Header\ Files\\Audio                                    FILES ${AUDIO_HEADERS} )
 		SOURCE_GROUP( Header\ Files\\Platform                                 FILES ${PLATFORMLIST_HEADERS} )
 		SOURCE_GROUP( Source\ Files\\SharedList                               FILES ${SHAREDLIST_SOURCES} )
-		SOURCE_GROUP( Source\ Files\\GPURenderer                              FILES ${GPURENDERER_SOURCES} )
 		SOURCE_GROUP( Source\ Files\\Server                                   FILES ${SERVERLIST_SOURCES} )
 		SOURCE_GROUP( Source\ Files\\CM                                       FILES ${COLLISIONMODEL_SOURCES} )
 		SOURCE_GROUP( Source\ Files\\QCommon                                  FILES ${QCOMMONLIST_SOURCES} )
@@ -660,7 +663,7 @@ if( BUILD_CLIENT )
 		SOURCE_GROUP( Source\ Files\\SDL                                      FILES ${SDLLIST} )
 	endif( WIN32 )
 
-	add_library( engine SHARED ${SHAREDLIST_HEADERS} ${GPURENDERER_HEADERS} ${FRAMEWORKS_HEADERS} ${QCOMMONLIST_HEADERS} ${SERVERLIST_HEADERS} ${COLLISIONMODEL_HEADERS} ${CLIENTLIST_HEADERS} ${AUDIO_HEADERS} ${SHAREDLIST_SOURCES} ${GPURENDERER_SOURCES} ${SERVERLIST_SOURCES} ${COLLISIONMODEL_SOURCES} ${QCOMMONLIST_SOURCES} ${CLIENTLIST_SOURCES} ${AUDIO_SOURCES} ${FRAMEWORKS_SOURCES} ${PLATFORMLIST} ${SDLLIST} ${PLATFORMLIST_SOURCES} ${PLATFORMLIST_HEADERS} ${MOUNT_DIR}/framework/precompiled.hpp ${MOUNT_DIR}/framework/precompiled.cpp ${DOWNLOADLIST_HEADERS} ${DOWNLOADLIST_SOURCES} )
+	add_library( engine SHARED ${SHAREDLIST_HEADERS} ${FRAMEWORKS_HEADERS} ${QCOMMONLIST_HEADERS} ${SERVERLIST_HEADERS} ${COLLISIONMODEL_HEADERS} ${CLIENTLIST_HEADERS} ${AUDIO_HEADERS} ${SHAREDLIST_SOURCES} ${SERVERLIST_SOURCES} ${COLLISIONMODEL_SOURCES} ${QCOMMONLIST_SOURCES} ${CLIENTLIST_SOURCES} ${AUDIO_SOURCES} ${FRAMEWORKS_SOURCES} ${PLATFORMLIST} ${SDLLIST} ${PLATFORMLIST_SOURCES} ${PLATFORMLIST_HEADERS} ${MOUNT_DIR}/framework/precompiled.hpp ${MOUNT_DIR}/framework/precompiled.cpp ${DOWNLOADLIST_HEADERS} ${DOWNLOADLIST_SOURCES} )
 	
 if( MSVC )
 	SET_TARGET_PROPERTIES( engine PROPERTIES LINK_FLAGS "/DEF:\"${MOUNT_DIR}/platform/engineMain.def" )
@@ -677,13 +680,9 @@ endif()
   	set_target_properties( engine PROPERTIES OUTPUT_NAME "engine.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
 	# This section finds and provides REQUIRED dependencies to target client
-	find_package( OpenGL REQUIRED )
-	find_package( JPEG REQUIRED )
 	find_package( SDL REQUIRED )
-	find_package( Freetype REQUIRED )
 	find_package( CURL REQUIRED )
 	find_package( Zlib REQUIRED )
-	find_package( PNG REQUIRED )
 	find_package( BZ2 REQUIRED )
 	find_package( OpenAL REQUIRED )
 	find_package( OggVorbis REQUIRED )
@@ -697,9 +696,9 @@ endif()
 		find_package( Curses REQUIRED )
 	endif()
 
-	TARGET_INCLUDE_DIRECTORIES( engine PRIVATE ${OPENSSL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PNG_INCLUDE_DIR} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} ${JPEG_INCLUDE_DIR} ${BZ2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR} ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR} )
+	TARGET_INCLUDE_DIRECTORIES( engine PRIVATE ${OPENSSL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${PDCURSES_INCLUDE_DIR} ${MOUNT_DIR} ${BZ2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR} ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR} )
 
-	TARGET_LINK_LIBRARIES( engine ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PNG_LIBRARIES} ${PDCURSES_LIBRARY} ${JPEG_LIBRARIES} ${LINK_LIBRARY} ${BZ2_LIBRARY} ${OPENAL_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARY} )
+	TARGET_LINK_LIBRARIES( engine ${OPENSSL_LIBRARIES} ${SDL2_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${PDCURSES_LIBRARY} ${LINK_LIBRARY} ${BZ2_LIBRARY} ${OPENAL_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARY} )
 
 	if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 		link_directories( /opt/local/lib )
@@ -753,6 +752,40 @@ endif()
 if( MSVC )
 	set_target_properties( client PROPERTIES LINK_FLAGS  /SUBSYSTEM:CONSOLE )
 endif( MSVC )
+
+add_library( renderSystem SHARED ${SHAREDLIST_HEADERS} ${SHAREDLIST_SOURCES} ${RENDERSYSTEM_HEADERS} ${RENDERSYSTEM_SOURCES} )
+	if( MSVC )
+		SOURCE_GROUP( Header\ Files\\SharedList                               FILES ${SHAREDLIST_HEADERS} )
+		SOURCE_GROUP( Header\ Files\\RenderSystem                             FILES ${RENDERSYSTEM_HEADERS} )
+		SOURCE_GROUP( Source\ Files\\SharedList                               FILES ${SHAREDLIST_SOURCES} )
+		SOURCE_GROUP( Source\ Files\\RenderSystem                             FILES ${RENDERSYSTEM_SOURCES} )
+
+		target_precompile_headers( renderSystem PRIVATE "${MOUNT_DIR}/renderSystem/r_precompiled.hpp" )
+		SET_TARGET_PROPERTIES( renderSystem PROPERTIES LINK_FLAGS "/DEF:\"${MOUNT_DIR}/renderSystem/renderSystem.def" )
+	endif( MSVC )
+
+	# This section finds and provides REQUIRED dependencies to target engine
+	find_package( OpenGL REQUIRED )
+	find_package( JPEG REQUIRED )
+	find_package( SDL REQUIRED )
+	find_package( Freetype REQUIRED )
+	find_package( PNG REQUIRED )
+
+	TARGET_INCLUDE_DIRECTORIES( renderSystem PRIVATE ${OPENGL_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${MOUNT_DIR} ${JPEG_INCLUDE_DIR} )
+	
+	TARGET_LINK_LIBRARIES( renderSystem ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES} ${LINK_LIBRARY})
+	
+	if(MSVC)
+		set_property( TARGET renderSystem PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ RENDERSYSTEM BUILD_FREETYPE HAVE_BOOLEAN  )
+	elseif( UNIX )
+		set_property( TARGET renderSystem PROPERTY COMPILE_DEFINITIONS LINUX __amd64__ __linux__ __x86_64__ __LINUX__ RENDERSYSTEM BUILD_FREETYPE HAVE_BOOLEAN   )
+	endif()
+	
+	set_target_properties( renderSystem PROPERTIES
+		OUTPUT_NAME "renderSystem${BUILD_ARCH}"
+		PREFIX ""
+		LIBRARY_OUTPUT_DIRECTORY "main"
+	)
 	
 endif()
 

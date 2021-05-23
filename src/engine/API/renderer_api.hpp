@@ -62,6 +62,25 @@ typedef struct {
 } fontInfo_t;
 
 //
+// system functions provided by the main engine
+//
+struct rendererImports_t {
+    void(*Printf)(pointer fmt, ...);
+    void(*Error)(sint level, pointer fmt, ...);
+
+    idCollisionModelManager *collisionModelManager;
+    idFileSystem *fileSystem;
+    idCVarSystem *cvarSystem;
+    idCmdBufferSystem *cmdBufferSystem;
+    idCmdSystem *cmdSystem;
+    idSystem *idsystem;
+    idClientAVISystemAPI *clientAVISystem;
+    idMemorySystem *memorySystem;
+    idClientCinemaSystem *clientCinemaSystem;
+    idClientRendererSystemAPI *clientRendererSystem;
+};
+
+//
 // idRenderSystem
 //
 class idRenderSystem {

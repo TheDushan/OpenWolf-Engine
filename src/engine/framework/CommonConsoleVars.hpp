@@ -395,5 +395,6 @@ extern convar_t *debuggraph;
 extern convar_t *graphheight;
 extern convar_t *graphscale;
 extern convar_t *graphshift;
+extern convar_t *r_fullscreen;
 
 #endif //!__COMMONCONSOLEVARS_HPP__

@@ -73,6 +73,8 @@
 #include <server/serverAutoPrecompiled.hpp>
 #elif DEDICATED
 #include <server/serverDedPrecompiled.hpp>
+#elif defined RENDERSYSTEM
+#include <renderSystem/r_precompiled.hpp>
 #else
 #include <framework/precompiled.hpp>
 #endif

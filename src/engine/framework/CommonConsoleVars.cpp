@@ -415,6 +415,7 @@ convar_t *savegame_loading;
 convar_t *s_initsound;
 convar_t *hunk_soundadjust;
 convar_t *cl_maxPing;
+convar_t *r_fullscreen;
 
 /*
 ===============
@@ -1232,6 +1233,9 @@ void Com_InitCommonConsoleVars(void) {
 
     hunk_soundadjust = cvarSystem->Get("hunk_soundadjust", "", CVAR_ARCHIVE,
                                        "");
-
     g_reloading = cvarSystem->Get("g_reloading", "", CVAR_ARCHIVE, "");
+
+    r_fullscreen = cvarSystem->Get("r_fullscreen", "1",
+                                   CVAR_ARCHIVE | CVAR_LATCH, "Enables fullscreen view");
+
 }

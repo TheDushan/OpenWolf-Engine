@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -18,7 +18,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   clientRenderer.hpp
+// File name:   r_precompiled.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -26,31 +26,4 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENTRENDERER_HPP__
-#define __CLIENTRENDERER_HPP__
-
-static sint cl_faketime = 0;
-
-//
-// idClientRendererSystemLocal
-//
-class idClientRendererSystemLocal : public idClientRendererSystemAPI {
-public:
-    idClientRendererSystemLocal();
-    ~idClientRendererSystemLocal();
-
-    virtual void RefPrintf(sint print_level, pointer fmt, ...);
-    virtual void *RefMalloc(sint size);
-    virtual void RefTagFree(void);
-    virtual sint ScaledMilliseconds(void);
-    virtual void ShutdownRef(void);
-
-    static void InitRenderer(void);
-    static void InitRef(void);
-    static void InitExportTable(void);
-};
-
-extern idClientRendererSystemLocal clientRendererLocal;
-
-#endif //__CLIENTRENDERER_HPP__
-
+#include <renderSystem/r_precompiled.hpp>

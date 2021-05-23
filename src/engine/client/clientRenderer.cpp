@@ -56,6 +56,12 @@ idClientRendererSystemLocal::~idClientRendererSystemLocal
 idClientRendererSystemLocal::~idClientRendererSystemLocal(void) {
 }
 
+idRenderSystem *renderSystem;
+idRenderSystem *(*rendererEntry)(rendererImports_t *imports);
+
+void *rendererName;
+static rendererImports_t exports;
+
 /*
 ================
 idClientRendererSystemLocal::RefPrintf
@@ -155,13 +161,70 @@ sint idClientRendererSystemLocal::ScaledMilliseconds(void) {
 }
 
 /*
+====================
+idClientMainSystemLocal::InitExportTable
+====================
+*/
+void idClientRendererSystemLocal::InitExportTable(void) {
+    exports.Printf = Com_Printf;
+    exports.Error = Com_Error;
+    exports.collisionModelManager = collisionModelManager;
+    exports.fileSystem = fileSystem;
+    exports.cvarSystem = cvarSystem;
+    exports.cmdBufferSystem = cmdBufferSystem;
+    exports.cmdSystem = cmdSystem;
+    exports.idsystem = idsystem;
+    exports.clientAVISystem = clientAVISystem;
+    exports.memorySystem = memorySystem;
+    exports.clientAVISystem = clientAVISystem;
+    exports.clientCinemaSystem = clientCinemaSystem;
+    exports.clientRendererSystem = clientRendererSystem;
+}
+
+/*
 ============
 idClientRendererSystemLocal::InitRef
 ============
 */
+static void *rendererLib = nullptr;
 void idClientRendererSystemLocal::InitRef(void) {
+    valueType dllName[MAX_OSPATH];
+
     Com_Printf("----- idClientRendererSystemLocal::InitRef ----\n");
 
+    ::snprintf(dllName, sizeof(dllName), "renderSystem" ARCH_STRING DLL_EXT);
+
+    Com_Printf("Loading \"%s\"...\n", dllName);
+
+    if((rendererLib = SDL_LoadObject(dllName)) == 0) {
+        valueType fn[1024];
+
+        Q_strncpyz(fn, idsystem->Cwd(), sizeof(fn));
+
+        ::strncat(fn, "/", sizeof(fn) - (sint)Q_strlen(fn) - 1);
+        ::strncat(fn, dllName, sizeof(fn) - (sint)Q_strlen(fn) - 1);
+
+        Com_Printf("Loading \"%s\"...", fn);
+
+        if((rendererLib = SDL_LoadObject(fn)) == 0) {
+            Com_Error(ERR_FATAL, "failed:\n\"%s\"", SDL_GetError());
+        }
+    }
+
+    // Get the entry point.
+    rendererEntry = (idRenderSystem * (QDECL *)(rendererImports_t *))
+                    idsystem->GetProcAddress(rendererLib, "rendererEntry");
+
+    if(!rendererEntry) {
+        Com_Error(ERR_FATAL, "rendererEntry on RenderSystem failed.\n");
+    }
+
+    // Init the export table.
+    InitExportTable();
+
+    renderSystem = rendererEntry(&exports);
+
+    Com_Printf("-------------------------------\n");
     // unpause so the cgame definately gets a snapshot and renders a frame
     cvarSystem->Set("cl_paused", "0");
 }

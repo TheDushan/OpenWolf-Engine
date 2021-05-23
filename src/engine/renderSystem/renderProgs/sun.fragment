@@ -1,0 +1,130 @@
+// (C) Eben Kadile 2017
+
+uniform sampler2D u_DiffuseMap;
+
+uniform vec2	u_Dimensions;
+uniform float	u_Time;
+
+varying vec3	var_Normal;
+varying vec3	var_vertPos;
+varying vec2    var_TexCoords;
+
+#define urx 192U
+#define ury 108U
+
+#define sunCenter vec3(0.0)
+#define sunRad .25
+#define fractalIterations 4
+#define fractalScale 10.0
+#define fractalFreq 2.0
+#define sunBrightness .87
+#define redMean .55
+#define greenMean .35
+#define blueMean .0
+//corona
+#define coronaCol vec3(.8, .5, .1)
+#define coronaDropOff 15.0
+
+float iSphere(vec3 ray, vec3 dir, vec3 center, float radius)
+{
+	vec3 rc = ray-center;
+	float c = dot(rc, rc) - (radius*radius);
+	float b = dot(dir, rc);
+	float d = b*b - c;
+	float t = -b - sqrt(abs(d));
+	float st = step(0.0, min(t,d));
+	return mix(-1.0, t, st);
+}
+
+
+vec4 iPlane(vec3 ro, vec3 rd, vec3 po, vec3 pd){
+    float d = dot(po - ro, pd) / dot(rd, pd);
+    return vec4(d * rd + ro, d);
+}
+
+vec3 r(vec3 v, vec2 r){//rodolphito's rotation
+    vec4 t = sin(vec4(r, r + 1.5707963268));
+    float g = dot(v.yz, t.yw);
+    return vec3(v.x * t.z - g * t.x,
+                v.y * t.w - v.z * t.y,
+                v.x * t.x + g * t.z);
+}
+
+float hash(uint n){//Hugo Elias's hash
+	n = (n << 13U) ^ n;
+    n = n * (n * n * 15731U + 789221U) + 1376312589U;
+    return 1.0 - float(n & 0x7fffffffU)/float(0x7fffffff);
+}
+
+float hashNoise3(vec3 x){
+    vec3 fr = fract(x);
+    fr = smoothstep(0.0, 1.0, fr);
+    uvec3 p = uvec3(x);
+    return mix(mix(mix(hash(p.x + ury * p.y + urx * p.z), 
+                        hash(p.x + 1U + ury * p.y + urx * p.z),fr.x),
+                   mix(hash(p.x + ury * (p.y + 1U) + urx * p.z), 
+                        hash(p.x + 1U + ury * (p.y + 1U) + urx * p.z),fr.x),fr.y),
+               mix(mix(hash(p.x + ury * p.y + urx * (p.z + 1U)), 
+                        hash(p.x + 1U + ury * p.y + urx * (p.z + 1U)),fr.x),
+                   mix(hash(p.x + ury * (p.y + 1U) + urx * (p.z + 1U)), 
+                        hash(p.x + 1U + ury * (p.y + 1U) + urx * (p.z + 1U)),fr.x),fr.y),fr.z);
+}
+
+float fractalNoise3(vec3 pos){
+    float acc = 0.0;
+    float scale = 1.0;
+    for(int n = 0; n < fractalIterations; n++){
+        acc += hashNoise3(scale * pos) / scale;
+        scale *= 2.0;
+    }
+    return acc / 2.0;
+}
+
+vec3 colorSun(float x){
+    vec3 result = vec3(0.0);
+    result.x += exp(-(x - redMean) * (x - redMean) * 16.0);
+    result.y += exp(-(x - greenMean) * (x - greenMean) * 16.0);
+    result.z += exp(-(x - blueMean) * (x - blueMean) * 16.0);
+    if(result.y > .5) result.x += result.y;
+    return result;
+}
+
+vec3 render(vec3 rd, vec3 ro){
+    float d = iSphere(ro, rd, sunCenter, sunRad);
+    if(d > 0.0){
+        vec3 n = normalize(d * rd + ro - sunCenter);
+        float f = fractalNoise3(fractalScale * n + (.3 + .2 * sin(fractalFreq * u_Time)
+                                      + fractalFreq * vec3(u_Time + 13.0)));
+        vec3 col = colorSun(f);
+        return col + dot(rd, n) * (1.0 - sunBrightness);
+    }
+    else{
+        vec4 intersect = iPlane(ro, rd, sunCenter, normalize(sunCenter - ro));
+        return pow(coronaCol, vec3(coronaDropOff * (length(intersect.xyz - sunCenter) - sunRad)));
+    }
+}
+
+void getSun(out vec4 fragColor, vec2 fragCoord){
+	vec2 xy = (-u_Dimensions.xy + 2.0*fragCoord.xy) / u_Dimensions.y;
+    vec3 cam = vec3(0.0, 0.0, -1.0);
+    vec3 dir = normalize(vec3(xy, 2.5));
+    float time=u_Time;
+    
+	float mx = time*0.025;
+    float my = -0.6;
+    vec2 rotate = vec2(mx,my);
+
+    dir = r(dir, rotate);
+    cam = r(cam, rotate);
+    fragColor.xyz = render(dir, cam);
+}
+
+void main()
+{
+	vec2 texCoords = var_TexCoords.xy * u_Dimensions.xy;
+	
+	getSun( gl_FragColor, texCoords );
+	
+	gl_FragColor.rgb *= 0.4;
+	gl_FragColor.a = 1.0;
+}
