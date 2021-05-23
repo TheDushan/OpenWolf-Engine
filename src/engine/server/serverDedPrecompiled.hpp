@@ -113,8 +113,6 @@
 #include <API/cm_api.hpp>
 #include <cm/cm_polylib.hpp>
 #include <cm/cm_patch.hpp>
-#include <GPURenderer/r_types.hpp>
-#include <API/renderer_api.hpp>
 #include <API/FileSystem_api.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <API/download_api.hpp>
@@ -127,6 +125,8 @@
 #include <API/CmdBuffer_api.hpp>
 #include <API/CmdSystem_api.hpp>
 #include <API/system_api.hpp>
+#include <renderSystem/r_types.hpp>
+#include <API/renderer_api.hpp>
 #include <API/Parse_api.hpp>
 #include <framework/Parse.hpp>
 #include <soundSystem/sndSystem_codec.hpp>
@@ -150,6 +150,7 @@
 
 #include <zlib.h>
 #include <bzlib.h>
+
 #include <openssl/md4.h>
 #include <openssl/md5.h>
 

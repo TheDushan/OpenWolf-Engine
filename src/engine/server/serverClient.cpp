@@ -156,11 +156,11 @@ void idServerClientSystemLocal::GetChallenge(netadr_t from) {
         challenge->firstPing = 0;
         challenge->connected = false;
         challenge->authenticated = false;
+        challenge->wasrefused = false;
     }
 
     // always generate a new challenge number, so the client cannot circumvent sv_maxping
     challenge->challenge = ((rand() << 16) ^ rand()) ^ svs.time;
-    challenge->wasrefused = false;
     challenge->time = svs.time;
 
     Q_strncpyz(challenge->guid, guid, sizeof(challenge->guid));
@@ -316,7 +316,7 @@ A "connect" OOB command has been received
 ==================
 */
 void idServerClientSystemLocal::DirectConnect(netadr_t from) {
-    valueType userinfo[MAX_INFO_STRING], *denied, *ip, guid[GUIDKEY_SIZE],
+    valueType userinfo[MAX_INFO_STRING], *denied, *ip, *guid,
               *password;
     sint i, clientNum, qport, challenge, startIndex, count, oldInfoLen2,
          newInfoLen2;

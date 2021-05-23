@@ -74,10 +74,12 @@ struct rendererImports_t {
     idCmdBufferSystem *cmdBufferSystem;
     idCmdSystem *cmdSystem;
     idSystem *idsystem;
-    idClientAVISystemAPI *clientAVISystem;
     idMemorySystem *memorySystem;
+#ifndef DEDICATED
+    idClientAVISystemAPI *clientAVISystem;
     idClientCinemaSystem *clientCinemaSystem;
     idClientRendererSystemAPI *clientRendererSystem;
+#endif
 };
 
 //
