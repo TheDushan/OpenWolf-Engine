@@ -353,6 +353,11 @@ extern vec4_t colorOrange;
 extern vec4_t colorMagenta;
 extern vec4_t colorCyan;
 extern vec4_t colorWhite;
+extern vec4_t colorLtGrey;
+extern vec4_t colorMdGrey;
+extern vec4_t colorDkGrey;
+extern vec4_t colorMdRed;
+extern vec4_t colorMdGreen;
 extern vec4_t colorGray;
 extern vec4_t colorOrange;
 extern vec4_t colorRoseBud;
@@ -1758,6 +1763,12 @@ enum cullType_t {
 #define LERP( a, b, w ) ( ( a ) * ( 1.0f - ( w ) ) + ( b ) * ( w ) )
 #define LUMA( red, green, blue ) ( 0.2126f * ( red ) + 0.7152f * ( green ) + 0.0722f * ( blue ) )
 
+#define SAY_ALL     0
+#define SAY_TEAM    1
+#define SAY_TELL    2
+#define SAY_ACTION      3
+#define SAY_ACTION_T    4
+#define SAY_ADMINS    5
 
 void Com_MatchToken(pointer(*buf_p), pointer match, bool warning = false);
 pointer Com_Parse(pointer(*data_p));
