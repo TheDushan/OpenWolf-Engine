@@ -2,6 +2,8 @@
     * [Linux] Fixed compiling on the Linux platform
 	* [Engine] Moved memory system to C++ file
 	* [RenderSystem] Moved renderer system to dynamic module
+	* [Engine] Synced with the gamelogic repository
+	* [Misc] Misc changes
     
 2021-05-21 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client main in several C++ files

@@ -1131,10 +1131,10 @@ enum soundChannel_t {
 //
 // per-level limits
 //
-#define CLIENTNUM_BITS      8
+#define CLIENTNUM_BITS      7
 #define MAX_CLIENTS         (1<<CLIENTNUM_BITS)     // absolute limit
 
-#define GENTITYNUM_BITS     12  // JPW NERVE put q3ta default back for testing  // don't need to send any more
+#define GENTITYNUM_BITS     11  // JPW NERVE put q3ta default back for testing  // don't need to send any more
 
 #define MAX_GENTITIES       ( 1 << GENTITYNUM_BITS )
 
