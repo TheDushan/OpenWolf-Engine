@@ -61,8 +61,8 @@ typedef struct {
     sint         acLength; // Arnout: autocomplete buffer length
 } console_t;
 
-extern console_t    con[NUMBER_TABS];
-extern console_t *activeCon;
+static console_t con[NUMBER_TABS];
+static console_t *activeCon;
 
 //
 // idClientConsoleSystemAPI

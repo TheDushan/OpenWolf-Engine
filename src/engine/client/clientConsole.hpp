@@ -58,8 +58,6 @@ const sint consoleColors[] = {
     6
 };
 
-static console_t con[NUMBER_TABS];
-static console_t *activeCon = con;
 static vec4_t console_highlightcolor = { 0.5, 0.5, 0.2, 0.45 };
 static sint dump_time;
 static sint dump_count;
