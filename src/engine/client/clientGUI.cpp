@@ -155,7 +155,7 @@ void idClientGUISystemLocal::GUIGetClipboardData(valueType *buf,
 
         Q_strncpyz(buf, cbd, buflen);
 
-        Z_Free(cbd);
+        memorySystem->Free(cbd);
     } else {
         buf[0] = '\0';
     }
@@ -269,10 +269,7 @@ idClientGUISystemLocal::CreateExportTable
 void idClientGUISystemLocal::CreateExportTable(void) {
     exports.Print = Com_Printf;
     exports.Error = Com_Error;
-
     exports.RealTime = Com_RealTime;
-    exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
-    exports.GetHunkInfo = Com_GetHunkInfo;
 
     exports.clientCinemaSystem = clientCinemaSystem;
     exports.renderSystem = renderSystem;
@@ -291,6 +288,7 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.clientKeysSystem = clientKeysSystem;
     exports.clientAutoUpdateSystem = clientAutoUpdateSystem;
     exports.clientMainSystem = clientMainSystem;
+    exports.memorySystem = memorySystem;
 }
 
 /*

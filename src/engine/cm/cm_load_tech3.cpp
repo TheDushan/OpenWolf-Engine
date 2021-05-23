@@ -425,7 +425,8 @@ void CMod_LoadShaders(lump_t *l) {
         Com_Error(ERR_DROP, "Map with no shaders");
     }
 
-    cm.shaders = (dshader_t *)Hunk_Alloc(count * sizeof(*cm.shaders), h_high);
+    cm.shaders = (dshader_t *)memorySystem->Alloc(count * sizeof(*cm.shaders),
+                 h_high);
     cm.numShaders = count;
 
     ::memcpy(cm.shaders, in, count * sizeof(*cm.shaders));
@@ -468,7 +469,8 @@ void CMod_LoadSubmodels(lump_t *l) {
         Com_Error(ERR_DROP, "Map with no models");
     }
 
-    cm.cmodels = (cmodel_t *)Hunk_Alloc(count * sizeof(*cm.cmodels), h_high);
+    cm.cmodels = (cmodel_t *)memorySystem->Alloc(count * sizeof(*cm.cmodels),
+                 h_high);
     cm.numSubModels = count;
 
     if(count > MAX_SUBMODELS) {
@@ -489,7 +491,8 @@ void CMod_LoadSubmodels(lump_t *l) {
 
         // make a "leaf" just to hold the model's brushes and surfaces
         out->leaf.numLeafBrushes = LittleLong(in->numBrushes);
-        indexes = static_cast<sint *>(Hunk_Alloc(out->leaf.numLeafBrushes * 4,
+        indexes = static_cast<sint *>(memorySystem->Alloc(out->leaf.numLeafBrushes
+                                      * 4,
                                       h_high));
         out->leaf.firstLeafBrush = indexes - cm.leafbrushes;
 
@@ -498,7 +501,8 @@ void CMod_LoadSubmodels(lump_t *l) {
         }
 
         out->leaf.numLeafSurfaces = LittleLong(in->numSurfaces);
-        indexes = static_cast<sint *>(Hunk_Alloc(out->leaf.numLeafSurfaces * 4,
+        indexes = static_cast<sint *>(memorySystem->Alloc(out->leaf.numLeafSurfaces
+                                      * 4,
                                       h_high));
         out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;
 
@@ -531,7 +535,8 @@ void CMod_LoadNodes(lump_t *l) {
         Com_Error(ERR_DROP, "Map has no nodes");
     }
 
-    cm.nodes = (cNode_t *)Hunk_Alloc(count * sizeof(*cm.nodes), h_high);
+    cm.nodes = (cNode_t *)memorySystem->Alloc(count * sizeof(*cm.nodes),
+               h_high);
     cm.numNodes = count;
 
     out = cm.nodes;
@@ -582,8 +587,9 @@ void CMod_LoadBrushes(lump_t *l) {
 
     count = l->filelen / sizeof(*in);
 
-    cm.brushes = (cbrush_t *)Hunk_Alloc((BOX_BRUSHES + count) * sizeof(
-                                            *cm.brushes), h_high);
+    cm.brushes = (cbrush_t *)memorySystem->Alloc((BOX_BRUSHES + count) *
+                 sizeof(
+                     *cm.brushes), h_high);
     cm.numBrushes = count;
 
     out = cm.brushes;
@@ -627,8 +633,9 @@ void CMod_LoadLeafs(lump_t *l) {
         Com_Error(ERR_DROP, "Map with no leafs");
     }
 
-    cm.leafs = (cLeaf_t *)Hunk_Alloc((BOX_LEAFS + count) * sizeof(*cm.leafs),
-                                     h_high);
+    cm.leafs = (cLeaf_t *)memorySystem->Alloc((BOX_LEAFS + count) * sizeof(
+                   *cm.leafs),
+               h_high);
     cm.numLeafs = count;
 
     out = cm.leafs;
@@ -650,9 +657,11 @@ void CMod_LoadLeafs(lump_t *l) {
         }
     }
 
-    cm.areas = (cArea_t *)Hunk_Alloc(cm.numAreas * sizeof(*cm.areas), h_high);
-    cm.areaPortals = static_cast<sint *>(Hunk_Alloc(cm.numAreas * cm.numAreas *
-                                         sizeof(*cm.areaPortals), h_high));
+    cm.areas = (cArea_t *)memorySystem->Alloc(cm.numAreas * sizeof(*cm.areas),
+               h_high);
+    cm.areaPortals = static_cast<sint *>(memorySystem->Alloc(
+            cm.numAreas * cm.numAreas *
+            sizeof(*cm.areaPortals), h_high));
 }
 
 /*
@@ -677,8 +686,8 @@ void CMod_LoadPlanes(lump_t *l) {
         Com_Error(ERR_DROP, "Map with no planes");
     }
 
-    cm.planes = (cplane_t *)Hunk_Alloc((BOX_PLANES + count) * sizeof(
-                                           *cm.planes), h_high);
+    cm.planes = (cplane_t *)memorySystem->Alloc((BOX_PLANES + count) * sizeof(
+                    *cm.planes), h_high);
     cm.numPlanes = count;
 
     out = cm.planes;
@@ -717,7 +726,8 @@ void CMod_LoadLeafBrushes(lump_t *l) {
     count = l->filelen / sizeof(*in);
 
     // ydnar: more than <count> brushes are stored in leafbrushes...
-    cm.leafbrushes = static_cast<sint *>(Hunk_Alloc((BOX_LEAF_BRUSHES + count)
+    cm.leafbrushes = static_cast<sint *>(memorySystem->Alloc((
+            BOX_LEAF_BRUSHES + count)
                                          * sizeof(*cm.leafbrushes), h_high));
     cm.numLeafBrushes = count;
 
@@ -744,7 +754,7 @@ void CMod_LoadLeafSurfaces(lump_t *l) {
 
     count = l->filelen / sizeof(*in);
 
-    cm.leafsurfaces = static_cast<sint *>(Hunk_Alloc(count * sizeof(
+    cm.leafsurfaces = static_cast<sint *>(memorySystem->Alloc(count * sizeof(
             *cm.leafsurfaces), h_high));
     cm.numLeafSurfaces = count;
 
@@ -793,7 +803,8 @@ void CMod_LoadBrushSides(lump_t *l) {
 
     count = l->filelen / sizeof(*in);
 
-    cm.brushsides = (cbrushside_t *)Hunk_Alloc((BOX_SIDES + count) * sizeof(
+    cm.brushsides = (cbrushside_t *)memorySystem->Alloc((
+                        BOX_SIDES + count) * sizeof(
                         *cm.brushsides), h_high);
     cm.numBrushSides = count;
 
@@ -914,7 +925,8 @@ static void CMod_CreateBrushSideWindings(void) {
         }
 
         // Allocate a temporary buffer of the maximal size
-        tempEdges = (cbrushedge_t *) Z_Malloc(sizeof(cbrushedge_t) * numEdges);
+        tempEdges = (cbrushedge_t *) memorySystem->Malloc(sizeof(
+                        cbrushedge_t) * numEdges);
         brush->numEdges = 0;
 
         // compose the points into edges
@@ -940,13 +952,13 @@ static void CMod_CreateBrushSideWindings(void) {
         // Allocate a buffer of the actual size
         edgesAlloc = sizeof(cbrushedge_t) * brush->numEdges;
         totalEdgesAlloc += edgesAlloc;
-        brush->edges = (cbrushedge_t *) Hunk_Alloc(edgesAlloc, h_low);
+        brush->edges = (cbrushedge_t *) memorySystem->Alloc(edgesAlloc, h_low);
 
         // Copy temporary buffer to permanent buffer
         ::memcpy(brush->edges, tempEdges, edgesAlloc);
 
         // Free temporary buffer
-        Z_Free(tempEdges);
+        memorySystem->Free(tempEdges);
 
         totalEdges += brush->numEdges;
     }
@@ -965,7 +977,8 @@ CMod_LoadEntityString
 void CMod_LoadEntityString(lump_t *l) {
     valueType *p, *token, keyname[MAX_TOKEN_CHARS], value[MAX_TOKEN_CHARS];
 
-    cm.entityString = static_cast<valueType *>(Z_Malloc(l->filelen));
+    cm.entityString = static_cast<valueType *>(memorySystem->Malloc(
+                          l->filelen));
     cm.numEntityChars = l->filelen;
     ::memcpy(cm.entityString, cmod_base + l->fileofs, l->filelen);
 
@@ -1030,7 +1043,8 @@ void CMod_LoadVisibility(lump_t *l) {
 
     if(!len) {
         cm.clusterBytes = (cm.numClusters + 31) & ~31;
-        cm.visibility = static_cast<uchar8 *>(Hunk_Alloc(cm.clusterBytes, h_high));
+        cm.visibility = static_cast<uchar8 *>(memorySystem->Alloc(cm.clusterBytes,
+                                              h_high));
         ::memset(cm.visibility, 255, cm.clusterBytes);
         return;
     }
@@ -1038,7 +1052,7 @@ void CMod_LoadVisibility(lump_t *l) {
     buf = cmod_base + l->fileofs;
 
     cm.vised = true;
-    cm.visibility = static_cast<uchar8 *>(Hunk_Alloc(len, h_high));
+    cm.visibility = static_cast<uchar8 *>(memorySystem->Alloc(len, h_high));
     cm.numClusters = LittleLong((reinterpret_cast<sint *>(buf)[0]));
     cm.clusterBytes = LittleLong((reinterpret_cast<sint *>(buf)[1]));
     ::memcpy(cm.visibility, buf + VIS_HEADER, len - VIS_HEADER);
@@ -1072,8 +1086,8 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
     }
 
     cm.numSurfaces = count = surfs->filelen / sizeof(*in);
-    cm.surfaces = (cSurface_t **)Hunk_Alloc(cm.numSurfaces * sizeof(
-            cm.surfaces[0]), h_high);
+    cm.surfaces = (cSurface_t **)memorySystem->Alloc(cm.numSurfaces * sizeof(
+                      cm.surfaces[0]), h_high);
 
     dv = (drawVert_t *)(cmod_base + verts->fileofs);
 
@@ -1094,7 +1108,8 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
                  colLimit = in->patchWidth - 1;
 
             // FIXME: check for non-colliding patches
-            cm.surfaces[i] = surface = (cSurface_t *)Hunk_Alloc(sizeof(*surface),
+            cm.surfaces[i] = surface = (cSurface_t *)memorySystem->Alloc(sizeof(
+                                           *surface),
                                        h_high);
             surface->type = MST_PATCH;
 
@@ -1130,7 +1145,8 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
                   )) {
             // FIXME: check for non-colliding triangle soups
 
-            cm.surfaces[i] = surface = (cSurface_t *)Hunk_Alloc(sizeof(*surface),
+            cm.surfaces[i] = surface = (cSurface_t *)memorySystem->Alloc(sizeof(
+                                           *surface),
                                        h_high);
             surface->type = MST_TRIANGLE_SOUP;
 
@@ -1246,7 +1262,7 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
         cm.numLeafs = 1;
         cm.numClusters = 1;
         cm.numAreas = 1;
-        cm.cmodels = (cmodel_t *)Hunk_Alloc(sizeof(*cm.cmodels), h_high);
+        cm.cmodels = (cmodel_t *)memorySystem->Alloc(sizeof(*cm.cmodels), h_high);
         *checksum = 0;
         return;
     }
@@ -1442,7 +1458,8 @@ void CM_InitBoxHull(void) {
     box_brush->numsides = 6;
     box_brush->sides = cm.brushsides + cm.numBrushSides;
     box_brush->contents = CONTENTS_BODY;
-    box_brush->edges = (cbrushedge_t *) Hunk_Alloc(sizeof(cbrushedge_t) * 12,
+    box_brush->edges = (cbrushedge_t *) memorySystem->Alloc(sizeof(
+                           cbrushedge_t) * 12,
                        h_low);
     box_brush->numEdges = 12;
 

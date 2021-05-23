@@ -196,8 +196,8 @@ void idServerInitSystemLocal::SetConfigstringNoUpdate(sint index,
     }
 
     // change the string in sv
-    Z_Free(sv.configstrings[index].s);
-    sv.configstrings[index].s = CopyString(val);
+    memorySystem->Free(sv.configstrings[index].s);
+    sv.configstrings[index].s = memorySystem->CopyString(val);
 }
 
 /*
@@ -224,8 +224,8 @@ void idServerInitSystemLocal::SetConfigstring(sint index, pointer val) {
     }
 
     // change the string in sv
-    Z_Free(sv.configstrings[index].s);
-    sv.configstrings[index].s = CopyString(val);
+    memorySystem->Free(sv.configstrings[index].s);
+    sv.configstrings[index].s = memorySystem->CopyString(val);
 
     // send it to all the clients if we aren't
     // spawning a new server
@@ -483,7 +483,7 @@ void idServerInitSystemLocal::ChangeMaxClients(void) {
         return;
     }
 
-    oldClients = (client_t *)(Hunk_AllocateTempMemory(count * sizeof(
+    oldClients = (client_t *)(memorySystem->AllocateTempMemory(count * sizeof(
                                   client_t)));
 
     // copy the clients to hunk memory
@@ -496,7 +496,7 @@ void idServerInitSystemLocal::ChangeMaxClients(void) {
     }
 
     // free old clients arrays
-    //Z_Free( svs.clients );
+    //memorySystem->Free( svs.clients );
     free(svs.clients);   // RF, avoid trying to allocate large chunk on a fragmented zone
 
     // allocate new clients
@@ -519,7 +519,7 @@ void idServerInitSystemLocal::ChangeMaxClients(void) {
     }
 
     // free the old clients on the hunk
-    Hunk_FreeTempMemory(oldClients);
+    memorySystem->FreeTempMemory(oldClients);
 
     // allocate new snapshot entities
     if(dedicated->integer) {
@@ -546,7 +546,7 @@ void idServerInitSystemLocal::SetExpectedHunkUsage(valueType *mapname) {
     len = fileSystem->FOpenFileByMode(memlistfile, &handle, FS_READ);
 
     if(len >= 0) { // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
-        buf = static_cast< valueType * >(Z_Malloc(len + 1));
+        buf = static_cast< valueType * >(memorySystem->Malloc(len + 1));
         ::memset(buf, 0, len + 1);
 
         fileSystem->Read(reinterpret_cast<void *>(buf), len, handle);
@@ -563,13 +563,13 @@ void idServerInitSystemLocal::SetExpectedHunkUsage(valueType *mapname) {
                 if(token && token[0]) {
                     // this is the usage
                     com_expectedhunkusage = atoi(token);
-                    Z_Free(buf);
+                    memorySystem->Free(buf);
                     return;
                 }
             }
         }
 
-        Z_Free(buf);
+        memorySystem->Free(buf);
     }
 
     // just set it to a negative number,so the cgame knows not to draw the percent bar
@@ -586,7 +586,7 @@ void idServerInitSystemLocal::ClearServer(void) {
 
     for(i = 0; i < MAX_CONFIGSTRINGS; i++) {
         if(sv.configstrings[i].s) {
-            Z_Free(sv.configstrings[i].s);
+            memorySystem->Free(sv.configstrings[i].s);
         }
     }
 
@@ -656,7 +656,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
 #endif
 
     // clear the whole hunk because we're (re)loading the server
-    Hunk_Clear();
+    memorySystem->Clear();
 
     // clear collision map data     // (SA) NOTE: TODO: used in missionpack
     collisionModelManager->ClearMap();
@@ -672,7 +672,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
 
     // allocate empty config strings
     for(i = 0; i < MAX_CONFIGSTRINGS; i++) {
-        sv.configstrings[i].s = CopyString("");
+        sv.configstrings[i].s = memorySystem->CopyString("");
         sv.configstringsmodified[i] = false;
     }
 
@@ -886,7 +886,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     // send a heartbeat now so the master will get up to date info
     serverCcmdsLocal.Heartbeat_f();
 
-    Hunk_SetMark();
+    memorySystem->SetMark();
 
     UpdateConfigStrings();
 
@@ -927,7 +927,7 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
 
     // the file exists
     if(len >= 0) {
-        buf = static_cast<valueType *>(Z_Malloc(len + 1));
+        buf = static_cast<valueType *>(memorySystem->Malloc(len + 1));
         memset(buf, 0, len + 1);
 
         fileSystem->Read(reinterpret_cast<void *>(buf), len, handle);
@@ -939,7 +939,7 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
         token = COM_Parse(&buftrav);
 
         if(strcmp(token, "OpenWolf-VersionMap")) {
-            Z_Free(buf);
+            memorySystem->Free(buf);
             Com_Error(ERR_FATAL, "invalid versionmap.cfg");
             return;
         }
@@ -956,7 +956,7 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
             if(token && token[0]) {
                 Q_strcpy_s(versionMap[ numVersions ].platform, token);
             } else {
-                Z_Free(buf);
+                memorySystem->Free(buf);
                 Com_Error(ERR_FATAL, "error parsing versionmap.cfg, after %s",
                           versionMap[numVersions].platform);
                 return;
@@ -968,7 +968,7 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
             if(token && token[0]) {
                 Q_strcpy_s(versionMap[ numVersions ].installer, token);
             } else {
-                Z_Free(buf);
+                memorySystem->Free(buf);
                 Com_Error(ERR_FATAL, "error parsing versionmap.cfg, after %s",
                           versionMap[numVersions].installer);
                 return;
@@ -977,7 +977,7 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
             numVersions++;
 
             if(numVersions >= MAX_UPDATE_VERSIONS) {
-                Z_Free(buf);
+                memorySystem->Free(buf);
                 Com_Error(ERR_FATAL, "Exceeded maximum number of mappings(%d)",
                           MAX_UPDATE_VERSIONS);
                 return;
@@ -988,7 +988,7 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
         Com_Printf(" found %d mapping%c\n--------------------------------------\n\n",
                    numVersions, numVersions > 1 ? 's' : ' ');
 
-        Z_Free(buf);
+        memorySystem->Free(buf);
     } else {
         Com_Error(ERR_FATAL, "Couldn't open versionmap.cfg");
     }
@@ -1038,7 +1038,7 @@ void idServerInitSystemLocal::Init(void) {
         sint i;
 
         for(i = 0 ; i < MAX_CONFIGSTRINGS ; i++) {
-            sv.configstrings[i].s = CopyString("");
+            sv.configstrings[i].s = memorySystem->CopyString("");
         }
     }
 #endif
@@ -1132,7 +1132,7 @@ void idServerInitSystemLocal::Shutdown(valueType *finalmsg) {
             serverClientSystem->FreeClient(&svs.clients[index]);
         }
 
-        //Z_Free( svs.clients );
+        //memorySystem->Free( svs.clients );
         free(svs.clients);   // RF, avoid trying to allocate large chunk on a fragmented zone
     }
 

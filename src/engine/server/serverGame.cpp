@@ -468,6 +468,7 @@ void idServerGameSystemLocal::InitExportTable(void) {
     exports.cmdSystem = cmdSystem;
     exports.idsystem = idsystem;
     exports.parseSystem = ParseSystem;
+    exports.memorySystem = memorySystem;
 }
 
 /*

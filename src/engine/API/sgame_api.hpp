@@ -77,7 +77,7 @@ struct gameImports_t {
     idServerMainSystem *serverMainSystem;
     idCmdBufferSystem *cmdBufferSystem;
     idCmdSystem *cmdSystem;
-
+    idMemorySystem *memorySystem;
     idSystem *idsystem;
     idParseSystem *parseSystem;
 };

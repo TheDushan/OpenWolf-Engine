@@ -262,14 +262,6 @@ enum ha_pref {
     h_dontcare
 };
 
-#ifdef HUNK_DEBUG
-#define Hunk_Alloc( size, preference ) Hunk_AllocDebug( size, preference, # size, __FILE__, __LINE__ )
-void *Hunk_AllocDebug(uint64 size, ha_pref preference, valueType *label,
-                      valueType *file, sint line);
-#else
-void *Hunk_Alloc(uint64 size, ha_pref preference);
-#endif
-
 #define CIN_system  1
 #define CIN_loop    2
 #define CIN_hold    4

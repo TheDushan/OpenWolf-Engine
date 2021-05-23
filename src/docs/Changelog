@@ -1,5 +1,6 @@
 2021-05-23 Dusan Jocic <dusanjocic@msn>
     * [Linux] Fixed compiling on the Linux platform
+	* [Engine] Moved memory system to C++ file
     
 2021-05-21 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client main in several C++ files

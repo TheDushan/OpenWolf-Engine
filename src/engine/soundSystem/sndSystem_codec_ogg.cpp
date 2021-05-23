@@ -238,7 +238,8 @@ snd_stream_t *codec_ogg_open(pointer filename) {
     }
 
     // alloctate the OggVorbis_File
-    vf = static_cast<OggVorbis_File *>(Z_Malloc(sizeof(OggVorbis_File)));
+    vf = static_cast<OggVorbis_File *>(memorySystem->Malloc(sizeof(
+                                           OggVorbis_File)));
 
     if(!vf) {
         codec_util_close(stream);
@@ -248,7 +249,7 @@ snd_stream_t *codec_ogg_open(pointer filename) {
 
     // open the codec with our callbacks and stream as the generic pointer
     if(ov_open_callbacks(stream, vf, nullptr, 0, S_OGG_Callbacks) != 0) {
-        Z_Free(vf);
+        memorySystem->Free(vf);
 
         codec_util_close(stream);
 
@@ -259,7 +260,7 @@ snd_stream_t *codec_ogg_open(pointer filename) {
     if(!ov_seekable(vf)) {
         ov_clear(vf);
 
-        Z_Free(vf);
+        memorySystem->Free(vf);
 
         codec_util_close(stream);
 
@@ -270,7 +271,7 @@ snd_stream_t *codec_ogg_open(pointer filename) {
     if(ov_streams(vf) != 1) {
         ov_clear(vf);
 
-        Z_Free(vf);
+        memorySystem->Free(vf);
 
         codec_util_close(stream);
 
@@ -283,7 +284,7 @@ snd_stream_t *codec_ogg_open(pointer filename) {
     if(!OGGInfo) {
         ov_clear(vf);
 
-        Z_Free(vf);
+        memorySystem->Free(vf);
 
         codec_util_close(stream);
 
@@ -323,7 +324,7 @@ void codec_ogg_close(snd_stream_t *stream) {
     ov_clear((OggVorbis_File *) stream->ptr);
 
     // free the OGG codec control struct
-    Z_Free(stream->ptr);
+    memorySystem->Free(stream->ptr);
 
     // close the stream
     codec_util_close(stream);
@@ -419,7 +420,8 @@ void *codec_ogg_load(pointer filename, snd_info_t *info) {
 
     // allocate a buffer
     // this buffer must be free-ed by the caller of this function
-    buffer = static_cast<uchar8 *>(Hunk_AllocateTempMemory(info->size));
+    buffer = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(
+                                       info->size));
 
     if(!buffer) {
         codec_ogg_close(stream);
@@ -432,7 +434,7 @@ void *codec_ogg_load(pointer filename, snd_info_t *info) {
 
     // we don't even have read a single uchar8
     if(bytesRead <= 0) {
-        Hunk_FreeTempMemory(buffer);
+        memorySystem->FreeTempMemory(buffer);
         codec_ogg_close(stream);
         return nullptr;
     }

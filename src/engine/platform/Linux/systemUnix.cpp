@@ -186,7 +186,7 @@ valueType *idSystemLocal::SysGetClipboardData(void) {
         if(cliptext[0] != '\0') {
             size_t bufsize = strlen(cliptext) + 1;
 
-            data = (valueType *)Z_Malloc(bufsize);
+            data = (valueType *)memorySystem->Malloc(bufsize);
             Q_strncpyz(data, cliptext, bufsize);
 
             // find first listed valueType and set to '\0'
@@ -332,7 +332,7 @@ void idSystemLocal::ListFilteredFiles(pointer basedir, valueType *subdirs,
             continue;
         }
 
-        list[*numfiles] = CopyString(filename);
+        list[*numfiles] = memorySystem->CopyString(filename);
         (*numfiles)++;
     }
 
@@ -369,7 +369,8 @@ valueType **idSystemLocal::ListFiles(pointer directory, pointer extension,
             return nullptr;
         }
 
-        listCopy = (valueType **)Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+        listCopy = (valueType **)memorySystem->Malloc((nfiles + 1) * sizeof(
+                       *listCopy));
 
         for(i = 0 ; i < nfiles ; i++) {
             listCopy[i] = list[i];
@@ -425,7 +426,7 @@ valueType **idSystemLocal::ListFiles(pointer directory, pointer extension,
             break;
         }
 
-        list[ nfiles ] = CopyString(d->d_name);
+        list[ nfiles ] = memorySystem->CopyString(d->d_name);
         nfiles++;
     }
 
@@ -440,7 +441,8 @@ valueType **idSystemLocal::ListFiles(pointer directory, pointer extension,
         return nullptr;
     }
 
-    listCopy = (valueType **)Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+    listCopy = (valueType **)memorySystem->Malloc((nfiles + 1) * sizeof(
+                   *listCopy));
 
     for(i = 0 ; i < nfiles ; i++) {
         listCopy[i] = list[i];
@@ -464,10 +466,10 @@ void idSystemLocal::FreeFileList(valueType **list) {
     }
 
     for(i = 0 ; list[i] ; i++) {
-        Z_Free(list[i]);
+        memorySystem->Free(list[i]);
     }
 
-    Z_Free(list);
+    memorySystem->Free(list);
 }
 
 /*

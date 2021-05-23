@@ -433,8 +433,8 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
         if((var->flags & CVAR_USER_CREATED) && !(flags & CVAR_USER_CREATED) &&
                 var_value[0]) {
             var->flags &= ~CVAR_USER_CREATED;
-            Z_Free(var->resetString);
-            var->resetString = CopyString(var_value);
+            memorySystem->Free(var->resetString);
+            var->resetString = memorySystem->CopyString(var_value);
         }
 
         var->flags |= flags;
@@ -446,8 +446,8 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
         // only allow one non-empty reset string without a warning
         if(!var->resetString[0]) {
             // we don't have a reset string yet
-            Z_Free(var->resetString);
-            var->resetString = CopyString(var_value);
+            memorySystem->Free(var->resetString);
+            var->resetString = memorySystem->CopyString(var_value);
         } else if(var_value[0] && strcmp(var->resetString, var_value)) {
             if(developer->integer) {
                 Com_Printf("idCVarSystemLocal::Get: Warning: convar \"%s\" given initial values: \"%s\" and \"%s\"\n",
@@ -463,7 +463,7 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
             var->latchedString =
                 nullptr;   // otherwise idCVarSystemLocal::GetSet2 would free it
             GetSet2(var_name, s, true);
-            Z_Free(s);
+            memorySystem->Free(s);
         }
 
         // TTimo
@@ -481,10 +481,10 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
 
         if(description) {
             if(var->description) {
-                Z_Free(var->description);
+                memorySystem->Free(var->description);
             }
 
-            var->description = CopyString(description);
+            var->description = memorySystem->CopyString(description);
         }
 
         // use a CVAR_SET for rom sets, get won't override
@@ -510,11 +510,11 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
 
     var = &cvar_indexes[cvar_numIndexes];
     cvar_numIndexes++;
-    var->name = CopyString(var_name);
-    var->string = CopyString(var_value);
+    var->name = memorySystem->CopyString(var_name);
+    var->string = memorySystem->CopyString(var_value);
 
     if(description) {
-        var->description = CopyString(description);
+        var->description = memorySystem->CopyString(description);
     }
 
     var->modified = true;
@@ -522,7 +522,7 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
     float64 strValue = strtod(var->string, nullptr);
     var->value = strValue;
     var->integer = strValue;
-    var->resetString = CopyString(var_value);
+    var->resetString = memorySystem->CopyString(var_value);
 
     // link the variable in
     var->next = cvar_vars;
@@ -609,7 +609,7 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
         if((var->flags & CVAR_LATCH) && var->latchedString) {
             Com_Printf("Cvar %s is no longer latched to \"%s\".\n", var->name,
                        var->latchedString);
-            Z_Free(var->latchedString);
+            memorySystem->Free(var->latchedString);
             var->latchedString = nullptr;
             var->modified = true;
             var->modificationCount++;
@@ -656,7 +656,7 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
                     return var;
                 }
 
-                Z_Free(var->latchedString);
+                memorySystem->Free(var->latchedString);
             } else {
                 if(strcmp(value, var->string) == 0) {
                     return var;
@@ -666,14 +666,14 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
             Com_Printf("%s will be changed to \"%s\" upon restarting.\n", var_name,
                        value);
 
-            var->latchedString = CopyString(value);
+            var->latchedString = memorySystem->CopyString(value);
             var->modified = true;
             var->modificationCount++;
             return var;
         }
     } else {
         if(var->latchedString) {
-            Z_Free(var->latchedString);
+            memorySystem->Free(var->latchedString);
             var->latchedString = nullptr;
         }
     }
@@ -686,9 +686,9 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
     var->modified = true;
     var->modificationCount++;
 
-    Z_Free(var->string);         // free the old value string
+    memorySystem->Free(var->string);         // free the old value string
 
-    var->string = CopyString(value);
+    var->string = memorySystem->CopyString(value);
     float64 strValue = strtod(var->string, nullptr);
     var->value = strValue;
     var->integer = strValue;
@@ -1235,23 +1235,23 @@ void idCVarSystemLocal::Restart_f(void) {
             *prev = var->next;
 
             if(var->name) {
-                Z_Free(var->name);
+                memorySystem->Free(var->name);
             }
 
             if(var->string) {
-                Z_Free(var->string);
+                memorySystem->Free(var->string);
             }
 
             if(var->latchedString) {
-                Z_Free(var->latchedString);
+                memorySystem->Free(var->latchedString);
             }
 
             if(var->resetString) {
-                Z_Free(var->resetString);
+                memorySystem->Free(var->resetString);
             }
 
             if(var->description) {
-                Z_Free(var->description);
+                memorySystem->Free(var->description);
             }
 
             // clear the var completely, since we

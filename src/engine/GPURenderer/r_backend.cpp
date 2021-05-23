@@ -1485,7 +1485,7 @@ const void *RB_SwapBuffers(const void *data) {
         sint32 sum = 0;
         uchar8 *stencilReadback = nullptr;
 
-        stencilReadback = static_cast<uchar8 *>(Hunk_AllocateTempMemory(
+        stencilReadback = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(
                 glConfig.vidWidth * glConfig.vidHeight));
         qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight,
                       GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback);
@@ -1495,7 +1495,7 @@ const void *RB_SwapBuffers(const void *data) {
         }
 
         backEnd.pc.c_overDraw += sum;
-        Hunk_FreeTempMemory(stencilReadback);
+        memorySystem->FreeTempMemory(stencilReadback);
     }
 
     if(glRefConfig.framebufferObject) {
@@ -1967,7 +1967,7 @@ const void *RB_ExportCubemaps(const void *data) {
 
         FBO_Bind(oldFbo);
 
-        Z_Free(cubemapPixels);
+        memorySystem->Free(cubemapPixels);
     }
 
     return (const void *)(cmd + 1);

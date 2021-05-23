@@ -79,7 +79,7 @@ winding_t *AllocWinding(sint points) {
     }
 
     s = sizeof(vec3_t) * points + sizeof(sint);
-    w = (winding_t *)Z_Malloc(s);
+    w = (winding_t *)memorySystem->Malloc(s);
     ::memset(w, 0, s);
     return w;
 }
@@ -97,7 +97,7 @@ void FreeWinding(winding_t *w) {
     *reinterpret_cast<uint *>(w) = 0xdeaddead;
 
     c_active_windings--;
-    Z_Free(w);
+    memorySystem->Free(w);
 }
 
 /*

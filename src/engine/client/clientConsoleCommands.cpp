@@ -212,10 +212,10 @@ void idClientConsoleCommandsSystemLocal::Vid_Restart_f(void) {
     if(!sv_running->integer) {
         //collisionModelManager->ClearMap();
         // clear the whole hunk
-        Hunk_Clear();
+        memorySystem->Clear();
     } else {
         // clear all the client data on the hunk
-        Hunk_ClearToMark();
+        memorySystem->ClearToMark();
     }
 
     // initialize the renderer interface

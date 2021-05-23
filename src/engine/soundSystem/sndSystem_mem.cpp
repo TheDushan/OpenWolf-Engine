@@ -107,7 +107,8 @@ void SND_setup() {
 
     // allocate the stack based hunk allocator
     sfxScratchBuffer = static_cast<schar16 *>(malloc(SND_CHUNK_SIZE * sizeof(
-                           schar16) * 4));    //Hunk_Alloc(SND_CHUNK_SIZE * sizeof(schar16) * 4);
+                           schar16) *
+                       4));    //memorySystem->Alloc(SND_CHUNK_SIZE * sizeof(schar16) * 4);
     sfxScratchPointer = nullptr;
 
     inUse = scs * sizeof(sndBuffer);
@@ -255,7 +256,7 @@ bool S_LoadSound(sfx_t *sfx) {
         }
     }
 
-    samples = static_cast<schar16 *>(Hunk_AllocateTempMemory(
+    samples = static_cast<schar16 *>(memorySystem->AllocateTempMemory(
                                          info.samples * sizeof(schar16) * 2));
 
     sfx->lastTimeUsed = Com_Milliseconds() + 1;
@@ -293,8 +294,8 @@ bool S_LoadSound(sfx_t *sfx) {
         ResampleSfx(sfx, info.rate, info.width, data + info.dataofs, false);
     }
 
-    Hunk_FreeTempMemory(samples);
-    Hunk_FreeTempMemory(data);
+    memorySystem->FreeTempMemory(samples);
+    memorySystem->FreeTempMemory(data);
 
     return true;
 }

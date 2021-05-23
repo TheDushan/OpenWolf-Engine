@@ -115,6 +115,7 @@
 #include <framework/types.hpp>
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
+#include <API/Memory_api.hpp>
 #include <API/system_api.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <API/CmdSystem_api.hpp>

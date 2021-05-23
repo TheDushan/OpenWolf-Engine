@@ -555,7 +555,7 @@ void idClientGameSystemLocal::SetExpectedHunkUsage(pointer mapname) {
 
     if(len >= 0) {
         // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
-        buf = static_cast<valueType *>(Z_Malloc(len + 1));
+        buf = static_cast<valueType *>(memorySystem->Malloc(len + 1));
         ::memset(buf, 0, len + 1);
 
         fileSystem->Read(static_cast<void *>(buf), len, handle);
@@ -573,13 +573,13 @@ void idClientGameSystemLocal::SetExpectedHunkUsage(pointer mapname) {
                 if(token && *token) {
                     // this is the usage
                     com_expectedhunkusage = atoi(token);
-                    Z_Free(buf);
+                    memorySystem->Free(buf);
                     return;
                 }
             }
         }
 
-        Z_Free(buf);
+        memorySystem->Free(buf);
     }
 
     // just set it to a negative number,so the cgame knows not to draw the percent bar
@@ -655,12 +655,7 @@ idClientGameSystemLocal::CreateExportTable
 */
 void idClientGameSystemLocal::CreateExportTable(void) {
     exports.Print = Com_Printf;
-
-    exports.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
-
     exports.RealTime = Com_RealTime;
-
-    exports.Com_GetHunkInfo = Com_GetHunkInfo;
 
     exports.clientCinemaSystem = clientCinemaSystem;
     exports.clientGameSystem = clientGameSystem;
@@ -678,6 +673,7 @@ void idClientGameSystemLocal::CreateExportTable(void) {
     exports.clientLocalization = clientLocalizationSystem;
     exports.clientKeysSystem = clientKeysSystem;
     exports.clientReliableCommandsSystem = clientReliableCommandsSystem;
+    exports.memorySystem = memorySystem;
 }
 
 /*
@@ -704,10 +700,10 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage(void) {
 
     if(len >= 0) {
         // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
-        buf = static_cast< valueType *>(Z_Malloc(len + 1));
+        buf = static_cast< valueType *>(memorySystem->Malloc(len + 1));
         ::memset(buf, 0, len + 1);
 
-        outbuf = static_cast<valueType *>(Z_Malloc(len + 1));
+        outbuf = static_cast<valueType *>(memorySystem->Malloc(len + 1));
         ::memset(outbuf, 0, len + 1);
 
         fileSystem->Read(static_cast<void *>(buf), len, handle);
@@ -726,8 +722,8 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage(void) {
                 if(token && token[0]) {
                     if(atoi(token) == memusage) {
                         // if it is the same, abort this process
-                        Z_Free(buf);
-                        Z_Free(outbuf);
+                        memorySystem->Free(buf);
+                        memorySystem->Free(outbuf);
                         return;
                     }
                 }
@@ -761,8 +757,8 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage(void) {
 
         fileSystem->FCloseFile(handle);
 
-        Z_Free(buf);
-        Z_Free(outbuf);
+        memorySystem->Free(buf);
+        memorySystem->Free(outbuf);
     }
 
     // now append the current map to the current file
@@ -856,7 +852,7 @@ void idClientGameSystemLocal::InitCGame(void) {
     renderSystem->EndRegistration();
 
     if(!idsystem->LowPhysicalMemory()) {
-        Com_TouchMemory();
+        memorySystem->TouchMemory();
     }
 
     // clear anything that got printed

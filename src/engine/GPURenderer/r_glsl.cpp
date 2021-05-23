@@ -218,7 +218,7 @@ static void GLSL_PrintLog(uint programOrShader, glslPrintLog_t type,
 
         clientRendererSystem->RefPrintf(printLevel, "\n");
 
-        Z_Free(msg);
+        memorySystem->Free(msg);
     }
 
 }
@@ -945,7 +945,7 @@ void GLSL_DeleteGPUShader(shaderProgram_t *program) {
         qglDeleteProgram(program->program);
 
         if(program->uniformBuffer) {
-            Z_Free(program->uniformBuffer);
+            memorySystem->Free(program->uniformBuffer);
         }
 
         ::memset(program, 0, sizeof(*program));

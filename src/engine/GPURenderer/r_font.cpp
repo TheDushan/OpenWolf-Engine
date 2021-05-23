@@ -181,7 +181,7 @@ void WriteTGA(valueType *filename, uchar8 *data, sint width, sint height) {
         ::memcpy(dst, flip, width * 4);
     }
 
-    Z_Free(flip);
+    memorySystem->Free(flip);
 
     fileSystem->WriteFile(filename, buffer, c);
 
@@ -189,7 +189,7 @@ void WriteTGA(valueType *filename, uchar8 *data, sint width, sint height) {
     //fwrite (buffer, 1, c, f);
     //fclose (f);
 
-    Z_Free(buffer);
+    memorySystem->Free(buffer);
 }
 
 static glyphInfo_t *RE_ConstructGlyphInfo(uchar8 *imageOut, sint *xOut,
@@ -219,8 +219,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(uchar8 *imageOut, sint *xOut,
         }
 
         if(calcHeight) {
-            Z_Free(bitmap->buffer);
-            Z_Free(bitmap);
+            memorySystem->Free(bitmap->buffer);
+            memorySystem->Free(bitmap);
             return &glyph;
         }
 
@@ -245,8 +245,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(uchar8 *imageOut, sint *xOut,
         if(*yOut + *maxHeight + 1 >= 255) {
             *yOut = -1;
             *xOut = -1;
-            Z_Free(bitmap->buffer);
-            Z_Free(bitmap);
+            memorySystem->Free(bitmap->buffer);
+            memorySystem->Free(bitmap);
             return &glyph;
         }
 
@@ -303,8 +303,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(uchar8 *imageOut, sint *xOut,
 
         *xOut += scaled_width + 1;
 
-        Z_Free(bitmap->buffer);
-        Z_Free(bitmap);
+        memorySystem->Free(bitmap->buffer);
+        memorySystem->Free(bitmap);
     }
 
     return &glyph;
@@ -556,7 +556,7 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
             ::memset(out, 0, 256 * 256);
             xOut = 0;
             yOut = 0;
-            Z_Free(imageBuff);
+            memorySystem->Free(imageBuff);
 
             if(i == GLYPH_END + 1) {
                 i++;
@@ -582,7 +582,7 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
                               sizeof(fontInfo_t));
     }
 
-    Z_Free(out);
+    memorySystem->Free(out);
 
     fileSystem->FreeFile(faceData);
 #endif

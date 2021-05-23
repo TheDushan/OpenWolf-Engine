@@ -81,8 +81,9 @@ void idParseSystemLocal::CreatePunctuationTable(script_t *script,
 
     //get memory for the table
     if(!script->punctuationtable) {
-        script->punctuationtable = (punctuation_t **)Z_Malloc(256 * sizeof(
-                                       punctuation_t *));
+        script->punctuationtable = (punctuation_t **)memorySystem->Malloc(
+                                       256 * sizeof(
+                                           punctuation_t *));
     }
 
     ::memset(script->punctuationtable, 0, 256 * sizeof(punctuation_t *));
@@ -940,7 +941,7 @@ script_t *idParseSystemLocal::LoadScriptFile(pointer filename) {
         return nullptr;
     }
 
-    buffer = Z_Malloc(sizeof(script_t) + length + 1);
+    buffer = memorySystem->Malloc(sizeof(script_t) + length + 1);
     ::memset(buffer, 0, sizeof(script_t) + length + 1);
 
     script = (script_t *) buffer;
@@ -987,7 +988,7 @@ script_t *idParseSystemLocal::LoadScriptMemory(valueType *ptr, sint length,
     void *buffer;
     script_t *script;
 
-    buffer = Z_Malloc(sizeof(script_t) + length + 1);
+    buffer = memorySystem->Malloc(sizeof(script_t) + length + 1);
     ::memset(buffer, 0, sizeof(script_t) + length + 1);
 
     script = (script_t *) buffer;
@@ -1030,10 +1031,10 @@ idParseSystemLocal::FreeScript
 */
 void idParseSystemLocal::FreeScript(script_t *script) {
     if(script->punctuationtable) {
-        Z_Free(script->punctuationtable);
+        memorySystem->Free(script->punctuationtable);
     }
 
-    Z_Free(script);
+    memorySystem->Free(script);
 }
 
 /*
@@ -1081,7 +1082,7 @@ void idParseSystemLocal::PushIndent(source_t *source, sint type,
                                     sint skip) {
     indent_t *indent;
 
-    indent = (indent_t *)Z_Malloc(sizeof(indent_t));
+    indent = (indent_t *)memorySystem->Malloc(sizeof(indent_t));
     indent->type = type;
     indent->script = source->scriptstack;
     indent->skip = (skip != 0);
@@ -1117,7 +1118,7 @@ void idParseSystemLocal::PopIndent(source_t *source, sint *type,
     *skip = indent->skip;
     source->indentstack = source->indentstack->next;
     source->skip -= indent->skip;
-    Z_Free(indent);
+    memorySystem->Free(indent);
 }
 
 /*
@@ -1148,7 +1149,7 @@ idParseSystemLocal::CopyToken
 token_t *idParseSystemLocal::CopyToken(token_t *token) {
     token_t *t;
 
-    t = (token_t *)Z_Malloc(sizeof(token_t));
+    t = (token_t *)memorySystem->Malloc(sizeof(token_t));
 
     if(!t) {
         Com_Error(ERR_FATAL, "out of token space\n");
@@ -1168,7 +1169,7 @@ idParseSystemLocal::FreeToken
 ===============
 */
 void idParseSystemLocal::FreeToken(token_t *token) {
-    Z_Free(token);
+    memorySystem->Free(token);
     numtokens--;
 }
 
@@ -1501,7 +1502,7 @@ void idParseSystemLocal::FreeDefine(define_t *define) {
     }
 
     //free the define
-    Z_Free(define);
+    memorySystem->Free(define);
 }
 
 /*
@@ -3233,8 +3234,8 @@ sint idParseSystemLocal::Directive_define(source_t *source) {
     }
 
     //allocate define
-    define = (define_t *)Z_Malloc(sizeof(define_t) + ::strlen(
-                                      token.string) + 1);
+    define = (define_t *)memorySystem->Malloc(sizeof(define_t) + ::strlen(
+                 token.string) + 1);
     ::memset(define, 0, sizeof(define_t));
 
     define->name = reinterpret_cast<valueType *>(define) + sizeof(define_t);
@@ -3653,8 +3654,8 @@ define_t *idParseSystemLocal::DefineFromString(valueType *string) {
     ::strncpy(src.filename, "*extern", MAX_QPATH);
 
     src.scriptstack = script;
-    src.definehash = (define_t **)Z_Malloc(DEFINEHASHSIZE * sizeof(
-            define_t *));
+    src.definehash = (define_t **)memorySystem->Malloc(DEFINEHASHSIZE * sizeof(
+                         define_t *));
     ::memset(src.definehash, 0, DEFINEHASHSIZE * sizeof(define_t *));
 
     //create a define from the source
@@ -3676,7 +3677,7 @@ define_t *idParseSystemLocal::DefineFromString(valueType *string) {
     }
 
     //
-    Z_Free(src.definehash);
+    memorySystem->Free(src.definehash);
 
     //
     FreeScript(script);
@@ -3761,8 +3762,8 @@ define_t *idParseSystemLocal::CopyDefine(source_t *source,
     define_t *newdefine;
     token_t *token, *newtoken, *lasttoken;
 
-    newdefine = (define_t *)Z_Malloc(sizeof(define_t) + ::strlen(
-                                         define->name) + 1);
+    newdefine = (define_t *)memorySystem->Malloc(sizeof(define_t) + ::strlen(
+                    define->name) + 1);
 
     //copy the define name
     newdefine->name = reinterpret_cast<valueType *>(newdefine) + sizeof(
@@ -3844,7 +3845,7 @@ source_t *idParseSystemLocal::LoadSourceFile(pointer filename) {
 
     script->next = nullptr;
 
-    source = (source_t *)Z_Malloc(sizeof(source_t));
+    source = (source_t *)memorySystem->Malloc(sizeof(source_t));
     ::memset(source, 0, sizeof(source_t));
 
     ::strncpy(source->filename, filename, MAX_QPATH);
@@ -3854,8 +3855,9 @@ source_t *idParseSystemLocal::LoadSourceFile(pointer filename) {
     source->indentstack = nullptr;
     source->skip = 0;
 
-    source->definehash = (define_t **)Z_Malloc(DEFINEHASHSIZE * sizeof(
-                             define_t *));
+    source->definehash = (define_t **)memorySystem->Malloc(
+                             DEFINEHASHSIZE * sizeof(
+                                 define_t *));
     ::memset(source->definehash, 0, DEFINEHASHSIZE * sizeof(define_t *));
 
     AddGlobalDefinesToSource(source);
@@ -3900,16 +3902,16 @@ void idParseSystemLocal::FreeSource(source_t *source) {
     while(source->indentstack) {
         indent = source->indentstack;
         source->indentstack = source->indentstack->next;
-        Z_Free(indent);
+        memorySystem->Free(indent);
     }
 
     //
     if(source->definehash) {
-        Z_Free(source->definehash);
+        memorySystem->Free(source->definehash);
     }
 
     //free the source itself
-    Z_Free(source);
+    memorySystem->Free(source);
 }
 
 /*

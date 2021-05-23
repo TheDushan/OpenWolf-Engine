@@ -579,8 +579,8 @@ void idNetworkChainSystemLocal::QueuePacket(sint length, const void *data,
         offset = 999;
     }
 
-    _new = (packetQueue_t *)S_Malloc(sizeof(packetQueue_t));
-    _new->data = static_cast<uchar8 *>(S_Malloc(length));
+    _new = (packetQueue_t *)memorySystem->SMalloc(sizeof(packetQueue_t));
+    _new->data = static_cast<uchar8 *>(memorySystem->SMalloc(length));
     ::memcpy(_new->data, data, length);
     _new->length = length;
     _new->to = to;
@@ -618,8 +618,8 @@ void idNetworkChainSystemLocal::FlushPacketQueue(void) {
                                   packetQueue->to);
         last = packetQueue;
         packetQueue = packetQueue->next;
-        Z_Free(last->data);
-        Z_Free(last);
+        memorySystem->Free(last->data);
+        memorySystem->Free(last);
     }
 }
 

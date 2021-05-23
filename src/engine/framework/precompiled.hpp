@@ -128,6 +128,8 @@ extern "C"
 #include <cm/cm_polylib.hpp>
 #include <cm/cm_patch.hpp>
 #include <GPURenderer/r_types.hpp>
+#include <API/Memory_api.hpp>
+#include <framework/Memory.hpp>
 #include <API/renderer_api.hpp>
 #include <API/clientDownload_api.hpp>
 #include <API/FileSystem_api.hpp>
@@ -272,7 +274,6 @@ extern "C"
 #include <openssl/md4.h>
 #include <openssl/md5.h>
 
-#include <API/FileSystem_api.hpp>
 #include <framework/FileSystem.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <framework/CVarSystem.hpp>

@@ -504,5 +504,5 @@ void R_SaveDDS(pointer filename, uchar8 *pic, sint width, sint height,
 
     fileSystem->WriteFile(filename, data, size);
 
-    Z_Free(data);
+    memorySystem->Free(data);
 }

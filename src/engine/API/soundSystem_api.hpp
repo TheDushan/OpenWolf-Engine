@@ -140,18 +140,6 @@ typedef struct openALImports_s {
                          ...) __attribute__((format(printf, 2, 3)));
     void (QDECL *Error)(sint errorLevel, pointer fmt,
                         ...) __attribute__((format(printf, 2, 3)));
-#ifdef HUNK_DEBUG
-    void *(*Hunk_AllocDebug)(uint64 size, ha_pref preference, valueType *label,
-                             valueType *file, sint line);
-#else
-    void *(*Hunk_Alloc)(uint64 size, ha_pref preference);
-#endif
-    void *(*Hunk_AllocateTempMemory)(uint64 size);
-    void (*Hunk_FreeTempMemory)(void *block);
-
-    // dynamic memory allocator for things that need to be freed
-    void *(*Malloc)(uint64 size);
-    void (*Free)(void *buf);
 
 #if !defined (DEDICATED) || !defined (GAMEDLL) || !defined (CGAMEDLL) || !defined (GUI)
     idAudioOpenALSystem *soundOpenALSystem;
@@ -161,6 +149,7 @@ typedef struct openALImports_s {
     idCmdSystem *cmdSystem;
     idParseSystem *parseSystem;
     idSystem *idsystem;
+    idMemorySystem *memorySystem;
 #endif
 } openALImports_t;
 

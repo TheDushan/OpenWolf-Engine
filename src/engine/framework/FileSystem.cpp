@@ -521,35 +521,35 @@ void idFileSystemLocal::FSCopyFile(valueType *fromOSPath,
     len = ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    buf = static_cast< uchar8 * >(Z_Malloc(len));
+    buf = static_cast< uchar8 * >(memorySystem->Malloc(len));
 
     if(fread(buf, 1, len, f) != len) {
-        Z_Free(buf);
+        memorySystem->Free(buf);
         Com_Error(ERR_FATAL, "Short read in idFileSystemLocal::Copyfiles()\n");
     }
 
     fclose(f);
 
     if(CreatePath(toOSPath)) {
-        Z_Free(buf);
+        memorySystem->Free(buf);
         return;
     }
 
     f = fopen(toOSPath, "wb");
 
     if(!f) {
-        Z_Free(buf);      //DAJ free as well
+        memorySystem->Free(buf);      //DAJ free as well
         return;
     }
 
     if(fwrite(buf, 1, len, f) != len) {
-        Z_Free(buf);
+        memorySystem->Free(buf);
         Com_Error(ERR_FATAL, "Short write in idFileSystemLocal::Copyfiles()\n");
     }
 
     fclose(f);
 
-    Z_Free(buf);
+    memorySystem->Free(buf);
 }
 
 /*
@@ -1402,11 +1402,11 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
                         if ( !f ) {
                             Com_Printf( "idFileSystemLocal::FOpenFileRead Failed to open %s for copying\n", filename );
                         } else {
-                            srcData = Hunk_AllocateTempMemory( len) ;
+                            srcData = memorySystem->AllocateTempMemory( len) ;
                             Read( srcData, len, *file );
                             Write( srcData, len, f );
                             FCloseFile( f );
-                            Hunk_FreeTempMemory( srcData );
+                            memorySystem->FreeTempMemory( srcData );
 
                             if (rename( netpath, copypath )) {
                                 // Failed, try copying it and deleting the original
@@ -1570,7 +1570,7 @@ bool idFileSystemLocal::CL_ExtractFromPakFile(pointer base,
         fseek(destHandle, 0, SEEK_SET);
 
         if(destLength > 0) {
-            destData = static_cast<uchar8 *>(Z_Malloc(destLength));
+            destData = static_cast<uchar8 *>(memorySystem->Malloc(destLength));
 
             fread(destData, destLength, 1, destHandle);
 
@@ -1589,7 +1589,7 @@ bool idFileSystemLocal::CL_ExtractFromPakFile(pointer base,
                 }
             }
 
-            Z_Free(destData);   // TTimo
+            memorySystem->Free(destData);   // TTimo
         }
 
         fclose(destHandle);
@@ -2201,9 +2201,9 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
                 return len;
             }
 
-            buf = static_cast<uchar8 *>(Z_Malloc(len + 1));
+            buf = static_cast<uchar8 *>(memorySystem->Malloc(len + 1));
             buf[len] =
-                '\0';    // because we're not calling Z_Malloc with optional trailing 'bZeroIt' bool
+                '\0';    // because we're not calling memorySystem->Malloc with optional trailing 'bZeroIt' bool
             *buffer = buf;
 
             r = Read(buf, len, com_journalDataFile);
@@ -2260,7 +2260,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
         return len;
     }
 
-    buf = static_cast<uchar8 *>(Hunk_AllocateTempMemory(len + 1));
+    buf = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(len + 1));
     *buffer = buf;
 
     Read(buf, len, h);
@@ -2303,11 +2303,11 @@ void idFileSystemLocal::FreeFile(void *buffer) {
 
     fs_loadStack--;
 
-    Hunk_FreeTempMemory(buffer);
+    memorySystem->FreeTempMemory(buffer);
 
     // if all of our temp files are free, clear all of our space
     if(fs_loadStack == 0) {
-        Hunk_ClearTempMemory();
+        memorySystem->ClearTempMemory();
     }
 }
 
@@ -2397,11 +2397,13 @@ pack_t *idFileSystemLocal::LoadZipFile(pointer zipfile, pointer basename) {
         unzGoToNextFile(uf);
     }
 
-    buildBuffer = (fileInPack_t *)Z_Malloc((gi.number_entry * sizeof(
-            fileInPack_t)) + len);
+    buildBuffer = (fileInPack_t *)memorySystem->Malloc((gi.number_entry *
+                  sizeof(
+                      fileInPack_t)) + len);
     namePtr = reinterpret_cast<valueType *>(buildBuffer) + gi.number_entry *
               sizeof(fileInPack_t);
-    fs_headerLongs = static_cast<sint *>(Z_Malloc((gi.number_entry + 1) *
+    fs_headerLongs = static_cast<sint *>(memorySystem->Malloc((
+            gi.number_entry + 1) *
                                          sizeof(sint)));
     fs_headerLongs[ fs_numHeaderLongs++ ] = LittleLong(fs_checksumFeed);
 
@@ -2413,7 +2415,8 @@ pack_t *idFileSystemLocal::LoadZipFile(pointer zipfile, pointer basename) {
         }
     }
 
-    pack = (pack_t *)Z_Malloc(sizeof(pack_t) + i * sizeof(fileInPack_t *));
+    pack = (pack_t *)memorySystem->Malloc(sizeof(pack_t) + i * sizeof(
+            fileInPack_t *));
     pack->hashSize = i;
     pack->hashTable = (fileInPack_t **)(reinterpret_cast<valueType *>
                                         (pack) + sizeof(pack_t));
@@ -2476,7 +2479,7 @@ pack_t *idFileSystemLocal::LoadZipFile(pointer zipfile, pointer basename) {
     pack->checksum = LittleLong(pack->checksum);
     pack->pure_checksum = LittleLong(pack->pure_checksum);
 
-    Z_Free(fs_headerLongs);
+    memorySystem->Free(fs_headerLongs);
 
     pack->buildBuffer = buildBuffer;
 
@@ -2533,7 +2536,7 @@ sint idFileSystemLocal::AddFileToList(valueType *name,
         }
     }
 
-    list[nfiles] = CopyString(name);
+    list[nfiles] = memorySystem->CopyString(name);
     nfiles++;
 
     return nfiles;
@@ -2671,7 +2674,8 @@ valueType **idFileSystemLocal::ListFilteredFiles(pointer path,
         return nullptr;
     }
 
-    listCopy = (valueType **)Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+    listCopy = (valueType **)memorySystem->Malloc((nfiles + 1) * sizeof(
+                   *listCopy));
 
     for(i = 0 ; i < nfiles ; i++) {
         listCopy[i] = list[i];
@@ -2710,10 +2714,10 @@ void idFileSystemLocal::FreeFileList(valueType **list) {
     }
 
     for(i = 0 ; list[i] ; i++) {
-        Z_Free(list[i]);
+        memorySystem->Free(list[i]);
     }
 
-    Z_Free(list);
+    memorySystem->Free(list);
 }
 
 /*
@@ -2793,8 +2797,8 @@ valueType **idFileSystemLocal::ConcatenateFileLists(valueType **list0,
     totalLength += CountFileList(list2);
 
     /* Create new list. */
-    dst = cat = (valueType **)Z_Malloc((totalLength + 1) * sizeof(
-                                           valueType *));
+    dst = cat = (valueType **)memorySystem->Malloc((totalLength + 1) * sizeof(
+                    valueType *));
 
     /* Copy over lists. */
     if(list0) {
@@ -2821,15 +2825,15 @@ valueType **idFileSystemLocal::ConcatenateFileLists(valueType **list0,
     // Free our old lists.
     // NOTE: not freeing their content, it's been merged in dst and still being used
     if(list0) {
-        Z_Free(list0);
+        memorySystem->Free(list0);
     }
 
     if(list1) {
-        Z_Free(list1);
+        memorySystem->Free(list1);
     }
 
     if(list2) {
-        Z_Free(list2);
+        memorySystem->Free(list2);
     }
 
     return cat;
@@ -3066,7 +3070,8 @@ void idFileSystemLocal::SortFileList(valueType **filelist,
     sint i, j, k, numsortedfiles;
     valueType **sortedlist;
 
-    sortedlist = (valueType **)Z_Malloc((numfiles + 1) * sizeof(*sortedlist));
+    sortedlist = (valueType **)memorySystem->Malloc((numfiles + 1) * sizeof(
+                     *sortedlist));
     sortedlist[0] = nullptr;
     numsortedfiles = 0;
 
@@ -3086,7 +3091,7 @@ void idFileSystemLocal::SortFileList(valueType **filelist,
     }
 
     ::memcpy(filelist, sortedlist, numfiles * sizeof(*filelist));
-    Z_Free(sortedlist);
+    memorySystem->Free(sortedlist);
 }
 
 /*
@@ -3402,7 +3407,7 @@ void idFileSystemLocal::AddGameDirectory(pointer path, pointer dir) {
 
             fs_packFiles += pak->numfiles;
 
-            search = (searchpath_t *)Z_Malloc(sizeof(searchpath_t));
+            search = (searchpath_t *)memorySystem->Malloc(sizeof(searchpath_t));
             search->pack = pak;
             search->next = fs_searchpaths;
             fs_searchpaths = search;
@@ -3423,8 +3428,8 @@ void idFileSystemLocal::AddGameDirectory(pointer path, pointer dir) {
             Com_Printf(" pk3dir: %s\n", pakfile);
 
             // add the directory to the search path
-            search = (searchpath_t *)Z_Malloc(sizeof(searchpath_t));
-            search->dir = (directory_t *)Z_Malloc(sizeof(*search->dir));
+            search = (searchpath_t *)memorySystem->Malloc(sizeof(searchpath_t));
+            search->dir = (directory_t *)memorySystem->Malloc(sizeof(*search->dir));
 
             Q_strncpyz(search->dir->path, curpath,
                        sizeof(search->dir->path));        // c:\xreal\base
@@ -3445,8 +3450,8 @@ void idFileSystemLocal::AddGameDirectory(pointer path, pointer dir) {
     idsystem->FreeFileList(pakdirs);
 
     // add the directory to the search path
-    search = (searchpath_t *)Z_Malloc(sizeof(searchpath_t));
-    search->dir = (directory_t *)Z_Malloc(sizeof(*search->dir));
+    search = (searchpath_t *)memorySystem->Malloc(sizeof(searchpath_t));
+    search->dir = (directory_t *)memorySystem->Malloc(sizeof(*search->dir));
 
     Q_strncpyz(search->dir->path, path, sizeof(search->dir->path));
     Q_strncpyz(search->dir->fullpath, curpath, sizeof(search->dir->fullpath));
@@ -3694,15 +3699,15 @@ void idFileSystemLocal::Shutdown(bool closemfp) {
 
         if(p->pack) {
             unzClose(p->pack->handle);
-            Z_Free(p->pack->buildBuffer);
-            Z_Free(p->pack);
+            memorySystem->Free(p->pack->buildBuffer);
+            memorySystem->Free(p->pack);
         }
 
         if(p->dir) {
-            Z_Free(p->dir);
+            memorySystem->Free(p->dir);
         }
 
-        Z_Free(p);
+        memorySystem->Free(p);
     }
 
     // any idFileSystemLocal:: calls will now be an error until reinitialized
@@ -4192,7 +4197,7 @@ void idFileSystemLocal::PureServerSetLoadedPaks(pointer pakSums,
 
     for(i = 0 ; i < c ; i++) {
         if(fs_serverPakNames[i]) {
-            Z_Free(fs_serverPakNames[i]);
+            memorySystem->Free(fs_serverPakNames[i]);
         }
 
         fs_serverPakNames[i] = nullptr;
@@ -4208,7 +4213,7 @@ void idFileSystemLocal::PureServerSetLoadedPaks(pointer pakSums,
         }
 
         for(i = 0 ; i < d ; i++) {
-            fs_serverPakNames[i] = CopyString(cmdSystem->Argv(i));
+            fs_serverPakNames[i] = memorySystem->CopyString(cmdSystem->Argv(i));
         }
     }
 }
@@ -4240,7 +4245,7 @@ void idFileSystemLocal::PureServerSetReferencedPaks(pointer pakSums,
 
     for(i = 0 ; i < c ; i++) {
         if(fs_serverReferencedPakNames[i]) {
-            Z_Free(fs_serverReferencedPakNames[i]);
+            memorySystem->Free(fs_serverReferencedPakNames[i]);
         }
 
         fs_serverReferencedPakNames[i] = nullptr;
@@ -4256,7 +4261,8 @@ void idFileSystemLocal::PureServerSetReferencedPaks(pointer pakSums,
         }
 
         for(i = 0 ; i < d ; i++) {
-            fs_serverReferencedPakNames[i] = CopyString(cmdSystem->Argv(i));
+            fs_serverReferencedPakNames[i] = memorySystem->CopyString(cmdSystem->Argv(
+                                                 i));
         }
     }
 

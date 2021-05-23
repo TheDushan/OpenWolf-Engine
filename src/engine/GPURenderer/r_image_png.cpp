@@ -264,7 +264,7 @@ static struct BufferedFile *ReadBufferedFile(pointer name) {
      */
 
     if(!(BF->Buffer && (BF->Length > 0))) {
-        Z_Free(BF);
+        memorySystem->Free(BF);
 
         return(nullptr);
     }
@@ -289,7 +289,7 @@ static void CloseBufferedFile(struct BufferedFile *BF) {
             fileSystem->FreeFile(BF->Buffer);
         }
 
-        Z_Free(BF);
+        memorySystem->Free(BF);
     }
 }
 
@@ -619,7 +619,7 @@ static uint DecompressIDATs(struct BufferedFile *BF, uchar8 **Buffer) {
         CH = (struct PNG_ChunkHeader *)BufferedFileRead(BF, PNG_ChunkHeader_Size);
 
         if(!CH) {
-            Z_Free(CompressedData);
+            memorySystem->Free(CompressedData);
 
             return(-1);
         }
@@ -651,13 +651,13 @@ static uint DecompressIDATs(struct BufferedFile *BF, uchar8 **Buffer) {
             OrigCompressedData = static_cast<uchar8 *>(BufferedFileRead(BF, Length));
 
             if(!OrigCompressedData) {
-                Z_Free(CompressedData);
+                memorySystem->Free(CompressedData);
 
                 return(-1);
             }
 
             if(!BufferedFileSkip(BF, PNG_ChunkCRC_Size)) {
-                Z_Free(CompressedData);
+                memorySystem->Free(CompressedData);
 
                 return(-1);
             }
@@ -689,7 +689,7 @@ static uint DecompressIDATs(struct BufferedFile *BF, uchar8 **Buffer) {
     puffResult = puff(puffDest, &puffDestLen, puffSrc, &puffSrcLen);
 
     if(!((puffResult == 0) && (puffDestLen > 0))) {
-        Z_Free(CompressedData);
+        memorySystem->Free(CompressedData);
 
         return(-1);
     }
@@ -702,7 +702,7 @@ static uint DecompressIDATs(struct BufferedFile *BF, uchar8 **Buffer) {
                            puffDestLen));
 
     if(!DecompressedData) {
-        Z_Free(CompressedData);
+        memorySystem->Free(CompressedData);
 
         return(-1);
     }
@@ -726,14 +726,14 @@ static uint DecompressIDATs(struct BufferedFile *BF, uchar8 **Buffer) {
      *  The compressed data is not needed anymore.
      */
 
-    Z_Free(CompressedData);
+    memorySystem->Free(CompressedData);
 
     /*
      *  Check if the last puff() was successfull.
      */
 
     if(!((puffResult == 0) && (puffDestLen > 0))) {
-        Z_Free(DecompressedData);
+        memorySystem->Free(DecompressedData);
 
         return(-1);
     }
@@ -2243,7 +2243,7 @@ void R_LoadPNG(pointer name, uchar8 **pic, sint *width, sint *height) {
                                           Q3IMAGE_BYTESPERPIXEL));
 
     if(!OutBuffer) {
-        Z_Free(DecompressedData);
+        memorySystem->Free(DecompressedData);
         CloseBufferedFile(ThePNG);
 
         return;
@@ -2257,8 +2257,8 @@ void R_LoadPNG(pointer name, uchar8 **pic, sint *width, sint *height) {
         case PNG_InterlaceMethod_NonInterlaced : {
             if(!DecodeImageNonInterlaced(IHDR, OutBuffer, DecompressedData,
                                          DecompressedDataLength, HasTransparentColour, TransparentColour, OutPal)) {
-                Z_Free(OutBuffer);
-                Z_Free(DecompressedData);
+                memorySystem->Free(OutBuffer);
+                memorySystem->Free(DecompressedData);
                 CloseBufferedFile(ThePNG);
 
                 return;
@@ -2270,8 +2270,8 @@ void R_LoadPNG(pointer name, uchar8 **pic, sint *width, sint *height) {
         case PNG_InterlaceMethod_Interlaced : {
             if(!DecodeImageInterlaced(IHDR, OutBuffer, DecompressedData,
                                       DecompressedDataLength, HasTransparentColour, TransparentColour, OutPal)) {
-                Z_Free(OutBuffer);
-                Z_Free(DecompressedData);
+                memorySystem->Free(OutBuffer);
+                memorySystem->Free(DecompressedData);
                 CloseBufferedFile(ThePNG);
 
                 return;
@@ -2281,8 +2281,8 @@ void R_LoadPNG(pointer name, uchar8 **pic, sint *width, sint *height) {
         }
 
         default : {
-            Z_Free(OutBuffer);
-            Z_Free(DecompressedData);
+            memorySystem->Free(OutBuffer);
+            memorySystem->Free(DecompressedData);
             CloseBufferedFile(ThePNG);
 
             return;
@@ -2311,7 +2311,7 @@ void R_LoadPNG(pointer name, uchar8 **pic, sint *width, sint *height) {
      *  DecompressedData is not needed anymore.
      */
 
-    Z_Free(DecompressedData);
+    memorySystem->Free(DecompressedData);
 
     /*
      *  We have all data, so close the file.

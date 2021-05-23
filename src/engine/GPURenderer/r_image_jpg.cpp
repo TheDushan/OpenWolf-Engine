@@ -456,11 +456,11 @@ void RE_SaveJPG(valueType *filename, sint quality, sint image_width,
     uint32 bufSize;
 
     bufSize = image_width * image_height * 3;
-    out = static_cast<uchar8 *>(Hunk_AllocateTempMemory(bufSize));
+    out = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(bufSize));
 
     bufSize = RE_SaveJPGToBuffer(out, bufSize, quality, image_width,
                                  image_height, image_buffer, padding);
     fileSystem->WriteFile(filename, out, bufSize);
 
-    Hunk_FreeTempMemory(out);
+    memorySystem->FreeTempMemory(out);
 }

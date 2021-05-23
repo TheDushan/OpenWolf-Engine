@@ -221,7 +221,6 @@ extern idAudioOpenALSystemLocal soundOpenALSystemLocal;
 
 void trap_Printf(sint printLevel, pointer fmt, ...);
 void trap_Error(sint errorLevel, pointer fmt, ...);
-void *Hunk_AllocateTempMemory(uint64 size);
 void *trap_Hunk_Alloc(uint64 size, ha_pref preference);
 void trap_Hunk_FreeTempMemory(void *buf);
 void *trap_Malloc(uint64 size);

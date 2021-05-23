@@ -76,7 +76,7 @@ S_StartCapture
 ===============
 */
 void *Snd_Malloc(uint64 size) {
-    return Z_Malloc(size);
+    return memorySystem->Malloc(size);
 }
 
 /*
@@ -85,7 +85,7 @@ Snd_Free
 ===============
 */
 void Snd_Free(void *ptr) {
-    return Z_Free(ptr);
+    return memorySystem->Free(ptr);
 }
 
 /*
@@ -96,15 +96,6 @@ idClientGameSystemLocal::CreateExportTable
 static void CreateExportTable(void) {
     exports.Printf = SndPrintf;
     exports.Error = Com_Error;
-#ifdef HUNK_DEBUG
-    exports.Hunk_AllocDebug = Hunk_AllocDebug;
-#else
-    exports.Hunk_Alloc = Hunk_Alloc;
-#endif
-    exports.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
-    exports.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
-    exports.Malloc = Snd_Malloc;
-    exports.Free = Snd_Free;
 
     exports.soundOpenALSystem = soundOpenALSystem;
     exports.soundSystem = soundSystem;
@@ -113,6 +104,7 @@ static void CreateExportTable(void) {
     exports.cmdSystem = cmdSystem;
     exports.idsystem = idsystem;
     exports.parseSystem = ParseSystem;
+    exports.memorySystem = memorySystem;
 }
 
 /*

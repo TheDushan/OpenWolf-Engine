@@ -201,10 +201,7 @@ sint trap_LastAttacker(void);
 struct guiImports_t {
     void(*Print)(pointer fmt, ...);
     void(*Error)(sint level, pointer fmt, ...);
-
-    uint64(*Hunk_MemoryRemaining)(void);
     sint(*RealTime)(qtime_t *qtime);
-    void (*GetHunkInfo)(sint *hunkused, sint *hunkexpected);
 
     idRenderSystem *renderSystem;
     idSoundSystem *soundSystem;
@@ -213,6 +210,7 @@ struct guiImports_t {
     idCmdBufferSystem *cmdBufferSystem;
     idCmdSystem *cmdSystem;
     idSystem *idsystem;
+    idMemorySystem *memorySystem;
 #ifndef DEDICATED
     idCGame *idcgame;
     idClientLANSystem *idLANSystem;

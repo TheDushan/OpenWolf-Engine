@@ -1532,7 +1532,7 @@ static bool RawImage_ScaleToPower2(uchar8 **data, sint *inout_width,
             finalheight >>= 1;
         }
 
-        *resampledBuffer = static_cast<uchar8 *>(Hunk_AllocateTempMemory(
+        *resampledBuffer = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(
                                finalwidth * finalheight * 4));
 
         if(scaled_width != width || scaled_height != height) {
@@ -1570,7 +1570,7 @@ static bool RawImage_ScaleToPower2(uchar8 **data, sint *inout_width,
         *data = *resampledBuffer;
     } else if(scaled_width != width || scaled_height != height) {
         if(data && resampledBuffer) {
-            *resampledBuffer = static_cast<uchar8 *>(Hunk_AllocateTempMemory(
+            *resampledBuffer = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(
                                    scaled_width * scaled_height * 4));
             ResampleTexture(*data, width, height, *resampledBuffer, scaled_width,
                             scaled_height);
@@ -1809,7 +1809,8 @@ static void RawImage_UploadToRgtc2Texture(uint texture, sint miplevel,
     hBlocks = (height + 3) / 4;
     size = wBlocks * hBlocks * 16;
 
-    p = compressedData = static_cast<uchar8 *>(Hunk_AllocateTempMemory(size));
+    p = compressedData = static_cast<uchar8 *>
+                         (memorySystem->AllocateTempMemory(size));
 
     for(iy = 0; iy < height; iy += 4) {
         sint oh = MIN(4, height - iy);
@@ -1845,7 +1846,7 @@ static void RawImage_UploadToRgtc2Texture(uint texture, sint miplevel,
     qglCompressedTextureSubImage2DEXT(texture, GL_TEXTURE_2D, miplevel, x, y,
                                       width, height, GL_COMPRESSED_RG_RGTC2, size, compressedData);
 
-    Hunk_FreeTempMemory(compressedData);
+    memorySystem->FreeTempMemory(compressedData);
 }
 
 static sint CalculateMipSize(sint width, sint height, uint picFormat) {
@@ -2081,8 +2082,9 @@ image_t *R_CreateImage2(pointer name, uchar8 *pic, sint width, sint height,
         return nullptr;
     }
 
-    image = tr.images[tr.numImages] = reinterpret_cast<image_t *>(Hunk_Alloc(
-                                          sizeof(image_t), h_low));
+    image = tr.images[tr.numImages] = reinterpret_cast<image_t *>
+                                      (memorySystem->Alloc(
+                                           sizeof(image_t), h_low));
     qglGenTextures(1, &image->texnum);
     tr.numImages++;
 
@@ -2173,7 +2175,7 @@ image_t *R_CreateImage2(pointer name, uchar8 *pic, sint width, sint height,
     }
 
     if(resampledBuffer != nullptr) {
-        Hunk_FreeTempMemory(resampledBuffer);
+        memorySystem->FreeTempMemory(resampledBuffer);
     }
 
     // Set all necessary texture parameters.
@@ -2510,7 +2512,7 @@ image_t    *R_FindImageFile(pointer name, imgType_t type,
                     }
                 }
 
-                Z_Free(blurPic);
+                memorySystem->Free(blurPic);
 
                 YCoCgAtoRGBA(pic, pic, width, height);
             }
@@ -2518,7 +2520,7 @@ image_t    *R_FindImageFile(pointer name, imgType_t type,
 
             R_CreateImage(normalName, normalPic, normalWidth, normalHeight,
                           IMGTYPE_NORMAL, normalFlags, 0);
-            Z_Free(normalPic);
+            memorySystem->Free(normalPic);
         }
     }
 
@@ -2540,7 +2542,7 @@ image_t    *R_FindImageFile(pointer name, imgType_t type,
 
     image = R_CreateImage2(const_cast< valueType * >(name), pic, width, height,
                            picFormat, picNumMips, type, flags, 0);
-    Z_Free(pic);
+    memorySystem->Free(pic);
     return image;
 }
 
@@ -2652,7 +2654,8 @@ static void R_CreateFogImage(void) {
     uchar8 *data = nullptr;
     float32 d;
 
-    data = static_cast<uchar8 *>(Hunk_AllocateTempMemory(FOG_S * FOG_T * 4));
+    data = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(
+                                     FOG_S * FOG_T * 4));
 
     // S is distance, T is depth
     for(x = 0 ; x < FOG_S ; x++) {
@@ -2668,7 +2671,7 @@ static void R_CreateFogImage(void) {
 
     tr.fogImage = R_CreateImage("*fog", reinterpret_cast<uchar8 *>(data),
                                 FOG_S, FOG_T, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0);
-    Hunk_FreeTempMemory(data);
+    memorySystem->FreeTempMemory(data);
 }
 
 /*
@@ -3355,7 +3358,8 @@ qhandle_t idRenderSystemLocal::RegisterSkin(pointer name) {
     }
 
     tr.numSkins++;
-    skin = reinterpret_cast<skin_t *>(Hunk_Alloc(sizeof(skin_t), h_low));
+    skin = reinterpret_cast<skin_t *>(memorySystem->Alloc(sizeof(skin_t),
+                                      h_low));
     tr.skins[hSkin] = skin;
     Q_strncpyz(skin->name, name, sizeof(skin->name));
     skin->numSurfaces = 0;
@@ -3365,8 +3369,9 @@ qhandle_t idRenderSystemLocal::RegisterSkin(pointer name) {
     // If not a .skin file, load as a single shader
     if(strcmp(name + strlen(name) - 5, ".skin")) {
         skin->numSurfaces = 1;
-        skin->surfaces = reinterpret_cast<skinSurface_t *>(Hunk_Alloc(sizeof(
-                             skinSurface_t), h_low));
+        skin->surfaces = reinterpret_cast<skinSurface_t *>(memorySystem->Alloc(
+                             sizeof(
+                                 skinSurface_t), h_low));
         skin->surfaces[0].shader = R_FindShader(name, LIGHTMAP_NONE, true);
         return hSkin;
     }
@@ -3428,7 +3433,7 @@ qhandle_t idRenderSystemLocal::RegisterSkin(pointer name) {
     }
 
     // copy surfaces to skin
-    skin->surfaces = reinterpret_cast<skinSurface_t *>(Hunk_Alloc(
+    skin->surfaces = reinterpret_cast<skinSurface_t *>(memorySystem->Alloc(
                          skin->numSurfaces * sizeof(skinSurface_t), h_low));
     memcpy(skin->surfaces, parseSurfaces,
            skin->numSurfaces * sizeof(skinSurface_t));
@@ -3448,10 +3453,11 @@ void    R_InitSkins(void) {
     tr.numSkins = 1;
 
     // make the default skin have all default shaders
-    skin = tr.skins[0] = (skin_t *)Hunk_Alloc(sizeof(skin_t), h_low);
+    skin = tr.skins[0] = (skin_t *)memorySystem->Alloc(sizeof(skin_t), h_low);
     Q_strncpyz(skin->name, "<default skin>", sizeof(skin->name));
     skin->numSurfaces = 1;
-    skin->surfaces = (skinSurface_t *)Hunk_Alloc(sizeof(skinSurface_t), h_low);
+    skin->surfaces = (skinSurface_t *)memorySystem->Alloc(sizeof(
+                         skinSurface_t), h_low);
     skin->surfaces[0].shader = tr.defaultShader;
 }
 

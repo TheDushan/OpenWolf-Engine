@@ -363,7 +363,6 @@ extern gameInfo_t com_gameInfo;
 // centralized and cleaned, that's the max string you can send to a Com_Printf (above gets truncated)
 #define MAXPRINTMSG 8192
 
-valueType           *CopyString(pointer in);
 void            Info_Print(pointer s);
 
 void            Com_BeginRedirect(valueType *buffer, uint64 buffersize,
@@ -406,77 +405,6 @@ extern bool com_errorEntered;
 
 extern fileHandle_t com_journalFile;
 extern fileHandle_t com_journalDataFile;
-
-enum memtag_t {
-    TAG_FREE,
-    TAG_GENERAL,
-    TAG_BOTLIB,
-    TAG_RENDERER,
-    TAG_SMALL,
-    TAG_STATIC
-};
-
-/*
-
---- low memory ----
-server vm
-server clipmap
----mark---
-renderer initialization (shaders, etc)
-UI vm
-cgame vm
-renderer map
-renderer models
-
----free---
-
-temp file loading
---- high memory ---
-
-*/
-
-#if defined( _DEBUG ) && !defined( BSPC )
-#define ZONE_DEBUG
-#endif
-
-#ifdef ZONE_DEBUG
-#define Z_TagMalloc( size, tag )          Z_TagMallocDebug( size, tag, # size, __FILE__, __LINE__ )
-#define Z_Malloc( size )                  Z_MallocDebug( size, # size, __FILE__, __LINE__ )
-#define S_Malloc( size )                  S_MallocDebug( size, # size, __FILE__, __LINE__ )
-void           *Z_TagMallocDebug(uint64 size, memtag_t tag,
-                                 valueType *label, valueType *file, sint line);  // NOT 0 filled memory
-void           *Z_MallocDebug(uint64 size, valueType *label,
-                              valueType *file, sint line);   // returns 0 filled memory
-void           *S_MallocDebug(uint64 size, valueType *label,
-                              valueType *file, sint line);   // returns 0 filled memory
-#else
-void           *Z_TagMalloc(uint64 size,
-                            memtag_t tag);      // NOT 0 filled memory
-void           *Z_Malloc(uint64 size);   // returns 0 filled memory
-void           *S_Malloc(uint64
-                         size);   // NOT 0 filled memory only for small allocations
-#endif
-void            Z_Free(void *ptr);
-void            Z_FreeTags(memtag_t tag);
-uint64 Z_AvailableMemory(void);
-void            Z_LogHeap(void);
-
-void            Hunk_Clear(void);
-void            Hunk_ClearToMark(void);
-void            Hunk_SetMark(void);
-bool        Hunk_CheckMark(void);
-
-//void *Hunk_Alloc( sint size );
-// void *Hunk_Alloc( sint size, ha_pref preference );
-void            Hunk_ClearTempMemory(void);
-void           *Hunk_AllocateTempMemory(uint64 size);
-void            Hunk_FreeTempMemory(void *buf);
-uint64             Hunk_MemoryRemaining(void);
-void            Hunk_SmallLog(void);
-void            Hunk_Log(void);
-
-void            Com_TouchMemory(void);
-void            Com_ReleaseMemory(void);
 
 void Com_InitCommonConsoleVars(void);
 // commandLine should not include the executable name (argv[0])
@@ -534,7 +462,6 @@ sysEvent_t      Com_GetSystemEvent(void);
 #define CL_ENCODE_START     12
 #define CL_DECODE_START     4
 
-void            Com_GetHunkInfo(sint *hunkused, sint *hunkexpected);
 void            Com_RandomBytes(uchar8 *string, sint len);
 
 #if !defined ( BSPC )

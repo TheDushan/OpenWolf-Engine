@@ -684,10 +684,10 @@ Q_EXPORT sint engineMain(sint argc, valueType * *argv)
         }
 
         catch(...) {
-            Com_ReleaseMemory();
+            memorySystem->ReleaseMemory();
         }
 
-        Com_ReleaseMemory();
+        memorySystem->ReleaseMemory();
         return sys_retcode;
     }
 

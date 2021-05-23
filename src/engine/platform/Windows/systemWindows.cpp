@@ -185,7 +185,7 @@ valueType *idSystemLocal::SysGetClipboardData(void) {
             if((cliptext = reinterpret_cast<valueType *>(GlobalLock(
                                hClipboardData))) != 0) {
                 data = (const_cast<valueType *>(reinterpret_cast<pointer>
-                                                (Z_Malloc(GlobalSize(hClipboardData)))) + 1);
+                                                (memorySystem->Malloc(GlobalSize(hClipboardData)))) + 1);
                 Q_strncpyz(data, cliptext, GlobalSize(hClipboardData));
                 GlobalUnlock(hClipboardData);
 
@@ -348,7 +348,7 @@ void idSystemLocal::ListFilteredFiles(pointer basedir, valueType *subdirs,
             continue;
         }
 
-        list[*numfiles] = CopyString(filename);
+        list[*numfiles] = memorySystem->CopyString(filename);
 
         (*numfiles)++;
     } while(_findnext(findhandle, &findinfo) != -1);
@@ -408,7 +408,8 @@ valueType **idSystemLocal::ListFiles(pointer directory, pointer extension,
             return nullptr;
         }
 
-        listCopy = (valueType **)Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+        listCopy = (valueType **)memorySystem->Malloc((nfiles + 1) * sizeof(
+                       *listCopy));
 
         for(i = 0 ; i < nfiles ; i++) {
             listCopy[i] = list[i];
@@ -451,7 +452,7 @@ valueType **idSystemLocal::ListFiles(pointer directory, pointer extension,
                 break;
             }
 
-            list[ nfiles ] = CopyString(findinfo.name);
+            list[ nfiles ] = memorySystem->CopyString(findinfo.name);
             nfiles++;
         }
     } while(_findnext(findhandle, &findinfo) != -1);
@@ -467,7 +468,8 @@ valueType **idSystemLocal::ListFiles(pointer directory, pointer extension,
         return nullptr;
     }
 
-    listCopy = (valueType **)Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+    listCopy = (valueType **)memorySystem->Malloc((nfiles + 1) * sizeof(
+                   *listCopy));
 
     for(i = 0 ; i < nfiles ; i++) {
         listCopy[i] = list[i];
@@ -505,10 +507,10 @@ void idSystemLocal::FreeFileList(valueType **list) {
     }
 
     for(i = 0 ; list[i] ; i++) {
-        Z_Free(list[i]);
+        memorySystem->Free(list[i]);
     }
 
-    Z_Free(list);
+    memorySystem->Free(list);
 }
 
 

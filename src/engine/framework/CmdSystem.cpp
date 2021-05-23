@@ -171,12 +171,12 @@ void idCmdSystemLocal::Exec_f(void) {
 
     if(h) {
         success = true;
-        f.v = Hunk_AllocateTempMemory(len + 1);
+        f.v = memorySystem->AllocateTempMemory(len + 1);
         fileSystem->Read(f.v, len, h);
         f.c[len] = 0;
         fileSystem->FCloseFile(h);
         ExecFile(f.c);
-        Hunk_FreeTempMemory(f.v);
+        memorySystem->FreeTempMemory(f.v);
     }
 
     fileSystem->ReadFile(filename, &f.v);
@@ -914,9 +914,9 @@ void idCmdSystemLocal::ClearAliases(void) {
 
         cmdSystemLocal.RemoveCommand(alias->name);
 
-        Z_Free(alias->name);
-        Z_Free(alias->exec);
-        Z_Free(alias);
+        memorySystem->Free(alias->name);
+        memorySystem->Free(alias->exec);
+        memorySystem->Free(alias);
 
         alias = next;
     }
@@ -956,9 +956,9 @@ void idCmdSystemLocal::UnAlias(void) {
         if(!Q_stricmp(name, alias->name)) {
             *back = alias->next;
 
-            Z_Free(alias->name);
-            Z_Free(alias->exec);
-            Z_Free(alias);
+            memorySystem->Free(alias->name);
+            memorySystem->Free(alias->exec);
+            memorySystem->Free(alias);
 
             cmdSystemLocal.RemoveCommand(name);
 
@@ -1017,16 +1017,16 @@ void idCmdSystemLocal::Alias(void) {
 
         // Create/update an alias
         if(!alias) {
-            alias = (cmd_alias_t *)S_Malloc(sizeof(cmd_alias_t));
-            alias->name = CopyString(name);
-            alias->exec = CopyString(cmdSystemLocal.ArgsFrom(2));
+            alias = (cmd_alias_t *)memorySystem->SMalloc(sizeof(cmd_alias_t));
+            alias->name = memorySystem->CopyString(name);
+            alias->exec = memorySystem->CopyString(cmdSystemLocal.ArgsFrom(2));
             alias->next = cmd_aliases;
             cmd_aliases = alias;
             cmdSystemLocal.AddCommand(name, RunAlias, nullptr);
         } else {
             // Reallocate the exec string
-            Z_Free(alias->exec);
-            alias->exec = CopyString(cmdSystemLocal.ArgsFrom(2));
+            memorySystem->Free(alias->exec);
+            alias->exec = memorySystem->CopyString(cmdSystemLocal.ArgsFrom(2));
             cmdSystemLocal.AddCommand(name, RunAlias, nullptr);
         }
     }
@@ -1597,9 +1597,9 @@ void idCmdSystemLocal::AddCommand(pointer cmd_name, xcommand_t function,
     }
 
     // use a small malloc to avoid zone fragmentation
-    cmd = (cmd_function_t *)S_Malloc(sizeof(cmd_function_t));
-    cmd->name = CopyString(cmd_name);
-    cmd->desc = CopyString(cmd_desc);
+    cmd = (cmd_function_t *)memorySystem->SMalloc(sizeof(cmd_function_t));
+    cmd->name = memorySystem->CopyString(cmd_name);
+    cmd->desc = memorySystem->CopyString(cmd_desc);
     cmd->function = function;
     cmd->next = cmd_functions;
     cmd->complete = nullptr;
@@ -1642,10 +1642,10 @@ void idCmdSystemLocal::RemoveCommand(pointer cmd_name) {
             *back = cmd->next;
 
             if(cmd->name) {
-                Z_Free(cmd->name);
+                memorySystem->Free(cmd->name);
             }
 
-            Z_Free(cmd);
+            memorySystem->Free(cmd);
             return;
         }
 

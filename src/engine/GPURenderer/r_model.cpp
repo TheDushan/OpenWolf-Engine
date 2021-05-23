@@ -273,7 +273,7 @@ model_t *R_AllocModel(void) {
         return nullptr;
     }
 
-    mod = reinterpret_cast<model_t *>(Hunk_Alloc(sizeof(
+    mod = reinterpret_cast<model_t *>(memorySystem->Alloc(sizeof(
                                           *tr.models[tr.numModels]), h_low));
     mod->index = tr.numModels;
     tr.models[tr.numModels] = mod;
@@ -453,8 +453,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
     mod->type = MOD_MESH;
     size = LittleLong(md3Model->ofsEnd);
     mod->dataSize += size;
-    mdvModel = mod->mdv[lod] = reinterpret_cast<mdvModel_t *>(Hunk_Alloc(
-                                   sizeof(mdvModel_t), h_low));
+    mdvModel = mod->mdv[lod] = reinterpret_cast<mdvModel_t *>
+                               (memorySystem->Alloc(
+                                    sizeof(mdvModel_t), h_low));
 
     //  ::memcpy(mod->md3[lod], buffer, LittleLong(md3Model->ofsEnd));
 
@@ -476,8 +477,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
 
     // swap all the frames
     mdvModel->numFrames = md3Model->numFrames;
-    mdvModel->frames = frame = reinterpret_cast<mdvFrame_t *>(Hunk_Alloc(
-                                   sizeof(*frame) * md3Model->numFrames, h_low));
+    mdvModel->frames = frame = reinterpret_cast<mdvFrame_t *>
+                               (memorySystem->Alloc(
+                                    sizeof(*frame) * md3Model->numFrames, h_low));
 
     md3Frame = (md3Frame_t *)(reinterpret_cast<uchar8 *>(md3Model) +
                               md3Model->ofsFrames);
@@ -494,8 +496,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
 
     // swap all the tags
     mdvModel->numTags = md3Model->numTags;
-    mdvModel->tags = tag = reinterpret_cast<mdvTag_t *>(Hunk_Alloc(sizeof(
-                               *tag) * (md3Model->numTags * md3Model->numFrames), h_low));
+    mdvModel->tags = tag = reinterpret_cast<mdvTag_t *>(memorySystem->Alloc(
+                               sizeof(
+                                   *tag) * (md3Model->numTags * md3Model->numFrames), h_low));
 
     md3Tag = (md3Tag_t *)(reinterpret_cast<uchar8 *>(md3Model) +
                           md3Model->ofsTags);
@@ -511,8 +514,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
     }
 
 
-    mdvModel->tagNames = tagName = reinterpret_cast<mdvTagName_t *>(Hunk_Alloc(
-                                       sizeof(*tagName) * (md3Model->numTags), h_low));
+    mdvModel->tagNames = tagName = reinterpret_cast<mdvTagName_t *>
+                                   (memorySystem->Alloc(
+                                        sizeof(*tagName) * (md3Model->numTags), h_low));
 
     md3Tag = (md3Tag_t *)(reinterpret_cast<uchar8 *>(md3Model) +
                           md3Model->ofsTags);
@@ -523,8 +527,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
 
     // swap all the surfaces
     mdvModel->numSurfaces = md3Model->numSurfaces;
-    mdvModel->surfaces = surf = reinterpret_cast<mdvSurface_t *>(Hunk_Alloc(
-                                    sizeof(*surf) * md3Model->numSurfaces, h_low));
+    mdvModel->surfaces = surf = reinterpret_cast<mdvSurface_t *>
+                                (memorySystem->Alloc(
+                                     sizeof(*surf) * md3Model->numSurfaces, h_low));
 
     md3Surf = (md3Surface_t *)(reinterpret_cast<uchar8 *>
                                (md3Model) + md3Model->ofsSurfaces);
@@ -582,8 +587,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
 
         // register the shaders
         surf->numShaderIndexes = md3Surf->numShaders;
-        surf->shaderIndexes = shaderIndex = reinterpret_cast<sint *>(Hunk_Alloc(
-                                                sizeof(*shaderIndex) * md3Surf->numShaders, h_low));
+        surf->shaderIndexes = shaderIndex = reinterpret_cast<sint *>
+                                            (memorySystem->Alloc(
+                                                    sizeof(*shaderIndex) * md3Surf->numShaders, h_low));
 
         md3Shader = (md3Shader_t *)(reinterpret_cast<uchar8 *>
                                     (md3Surf) + md3Surf->ofsShaders);
@@ -602,7 +608,7 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
 
         // swap all the triangles
         surf->numIndexes = md3Surf->numTriangles * 3;
-        surf->indexes = tri = reinterpret_cast<uint *>(Hunk_Alloc(sizeof(
+        surf->indexes = tri = reinterpret_cast<uint *>(memorySystem->Alloc(sizeof(
                                   *tri) * 3 * md3Surf->numTriangles, h_low));
 
         md3Tri = (md3Triangle_t *)(reinterpret_cast<uchar8 *>
@@ -616,8 +622,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
 
         // swap all the XyzNormals
         surf->numVerts = md3Surf->numVerts;
-        surf->verts = v = reinterpret_cast<mdvVertex_t *>(Hunk_Alloc(sizeof(*v) *
-                          (md3Surf->numVerts * md3Surf->numFrames), h_low));
+        surf->verts = v = reinterpret_cast<mdvVertex_t *>(memorySystem->Alloc(
+                              sizeof(*v) *
+                              (md3Surf->numVerts * md3Surf->numFrames), h_low));
 
         md3xyz = (md3XyzNormal_t *)(reinterpret_cast<uchar8 *>
                                     (md3Surf) + md3Surf->ofsXyzNormals);
@@ -652,7 +659,7 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
         }
 
         // swap all the ST
-        surf->st = st = reinterpret_cast<mdvSt_t *>(Hunk_Alloc(sizeof(
+        surf->st = st = reinterpret_cast<mdvSt_t *>(memorySystem->Alloc(sizeof(
                             *st) * md3Surf->numVerts, h_low));
 
         md3st = (md3St_t *)(reinterpret_cast<uchar8 *>(md3Surf) + md3Surf->ofsSt);
@@ -722,8 +729,8 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
                 R_VaoPackTangent(v->tangent, tangent);
             }
 
-            Z_Free(sdirs);
-            Z_Free(tdirs);
+            memorySystem->Free(sdirs);
+            memorySystem->Free(tdirs);
         }
 
         // find the next surface
@@ -736,8 +743,9 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
         srfVaoMdvMesh_t *vaoSurf;
 
         mdvModel->numVaoSurfaces = mdvModel->numSurfaces;
-        mdvModel->vaoSurfaces = reinterpret_cast<srfVaoMdvMesh_t *>(Hunk_Alloc(
-                                    sizeof(*mdvModel->vaoSurfaces) * mdvModel->numSurfaces, h_low));
+        mdvModel->vaoSurfaces = reinterpret_cast<srfVaoMdvMesh_t *>
+                                (memorySystem->Alloc(
+                                     sizeof(*mdvModel->vaoSurfaces) * mdvModel->numSurfaces, h_low));
 
         vaoSurf = mdvModel->vaoSurfaces;
         surf = mdvModel->surfaces;
@@ -878,7 +886,7 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
 
             Vao_SetVertexPointers(vaoSurf->vao);
 
-            Z_Free(data);
+            memorySystem->Free(data);
         }
     }
 
@@ -952,8 +960,9 @@ static bool R_LoadMDR(model_t *mod, void *buffer, sint filesize,
     }
 
     mod->dataSize += size;
-    mod->modelData = mdr = reinterpret_cast<mdrHeader_t *>(Hunk_Alloc(size,
-                           h_low));
+    mod->modelData = mdr = reinterpret_cast<mdrHeader_t *>(memorySystem->Alloc(
+                               size,
+                               h_low));
 
     // Copy all the values over from the file and fix endian issues in the process, if necessary.
 

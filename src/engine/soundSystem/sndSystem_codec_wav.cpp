@@ -246,7 +246,7 @@ void *codec_wav_load(pointer filename, snd_info_t *info) {
     }
 
     // Allocate some memory
-    buffer = Hunk_AllocateTempMemory(info->size);
+    buffer = memorySystem->AllocateTempMemory(info->size);
 
     if(!buffer) {
         fileSystem->FCloseFile(file);

@@ -1496,14 +1496,15 @@ void idClientCinemaSystemLocal::CinemaDrawCinematic(sint handle) {
              cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY)) {
         sint *buf2;
 
-        buf2 = static_cast< sint *>(Hunk_AllocateTempMemory(256 * 256 * 4));
+        buf2 = static_cast< sint *>(memorySystem->AllocateTempMemory(
+                                        256 * 256 * 4));
 
         ResampleCinematic(handle, buf2);
 
         renderSystem->DrawStretchRaw(x, y, w, h, 256, 256,
                                      reinterpret_cast<uchar8 *>(buf2), handle, true);
         cinTable[handle].dirty = false;
-        Hunk_FreeTempMemory(buf2);
+        memorySystem->FreeTempMemory(buf2);
         return;
     }
 
@@ -1637,7 +1638,8 @@ void idClientCinemaSystemLocal::UploadCinematic(sint handle) {
                  cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY)) {
             sint *buf2;
 
-            buf2 = static_cast<sint *>(Hunk_AllocateTempMemory(256 * 256 * 4));
+            buf2 = static_cast<sint *>(memorySystem->AllocateTempMemory(
+                                           256 * 256 * 4));
 
             ResampleCinematic(handle, buf2);
 
@@ -1645,7 +1647,7 @@ void idClientCinemaSystemLocal::UploadCinematic(sint handle) {
                                           cinTable[handle].CIN_HEIGHT, 256, 256, reinterpret_cast<uchar8 *>(buf2),
                                           handle, true);
             cinTable[handle].dirty = false;
-            Hunk_FreeTempMemory(buf2);
+            memorySystem->FreeTempMemory(buf2);
         } else {
             // Upload video at normal resolution
             renderSystem->UploadCinematic(cinTable[handle].CIN_WIDTH,

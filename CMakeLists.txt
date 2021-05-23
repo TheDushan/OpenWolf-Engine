@@ -326,6 +326,8 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/framework/Parse.hpp
 	${MOUNT_DIR}/framework/CmdCompletion.hpp
 	${MOUNT_DIR}/framework/CommonConsoleVars.hpp
+	${MOUNT_DIR}/API/Memory_api.hpp
+	${MOUNT_DIR}/framework/Memory.hpp
 )
 
 set( FRAMEWORKS_SOURCES
@@ -347,6 +349,7 @@ set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/Parse.cpp
 	${MOUNT_DIR}/framework/CmdCompletion.cpp
 	${MOUNT_DIR}/framework/CommonConsoleVars.cpp
+	${MOUNT_DIR}/framework/Memory.cpp
 )
 
 set( CLIENTLIST_HEADERS

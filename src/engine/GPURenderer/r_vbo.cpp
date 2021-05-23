@@ -132,8 +132,9 @@ vao_t *R_CreateVao(pointer name, uchar8 *vertexes, sint vertexesSize,
 
     R_IssuePendingRenderCommands();
 
-    vao = tr.vaos[tr.numVaos] = reinterpret_cast<vao_t *>(Hunk_Alloc(sizeof(
-                                    *vao), h_low));
+    vao = tr.vaos[tr.numVaos] = reinterpret_cast<vao_t *>(memorySystem->Alloc(
+                                    sizeof(
+                                        *vao), h_low));
     tr.numVaos++;
 
     memset(vao, 0, sizeof(*vao));
@@ -198,8 +199,9 @@ vao_t *R_CreateVao2(pointer name, sint numVertexes, srfVert_t *verts,
 
     R_IssuePendingRenderCommands();
 
-    vao = tr.vaos[tr.numVaos] = reinterpret_cast<vao_t *>(Hunk_Alloc(sizeof(
-                                    *vao), h_low));
+    vao = tr.vaos[tr.numVaos] = reinterpret_cast<vao_t *>(memorySystem->Alloc(
+                                    sizeof(
+                                        *vao), h_low));
     tr.numVaos++;
 
     memset(vao, 0, sizeof(*vao));
@@ -271,7 +273,7 @@ vao_t *R_CreateVao2(pointer name, sint numVertexes, srfVert_t *verts,
 
     // create VBO
     dataSize *= numVertexes;
-    data = static_cast<uchar8 *>(Hunk_AllocateTempMemory(dataSize));
+    data = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(dataSize));
     dataOfs = 0;
 
     for(i = 0; i < numVertexes; i++) {
@@ -328,7 +330,7 @@ vao_t *R_CreateVao2(pointer name, sint numVertexes, srfVert_t *verts,
 
     GL_CheckErrors();
 
-    Hunk_FreeTempMemory(data);
+    memorySystem->FreeTempMemory(data);
 
     return vao;
 }

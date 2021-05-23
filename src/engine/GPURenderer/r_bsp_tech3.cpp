@@ -276,11 +276,11 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
         tr.numLightmaps = numLightmaps;
     }
 
-    tr.lightmaps = reinterpret_cast<image_t **>(Hunk_Alloc(
+    tr.lightmaps = reinterpret_cast<image_t **>(memorySystem->Alloc(
                        tr.numLightmaps * sizeof(image_t *), h_low));
 
     if(tr.worldDeluxeMapping) {
-        tr.deluxemaps = reinterpret_cast<image_t **>(Hunk_Alloc(
+        tr.deluxemaps = reinterpret_cast<image_t **>(memorySystem->Alloc(
                             tr.numLightmaps * sizeof(image_t *), h_low));
     }
 
@@ -516,7 +516,7 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
                                         static_cast<sint>(maxIntensity * 255));
     }
 
-    Z_Free(image);
+    memorySystem->Free(image);
 }
 
 
@@ -611,7 +611,7 @@ static  void R_LoadVisibility(lump_t *l) {
         s_worldData.vis = tr.externalVisData;
     } else {
         uchar8 *dest = nullptr;
-        dest = reinterpret_cast<uchar8 *>(Hunk_Alloc(len - 8, h_low));
+        dest = reinterpret_cast<uchar8 *>(memorySystem->Alloc(len - 8, h_low));
         ::memcpy(dest, buf + 8, len - 8);
         s_worldData.vis = dest;
     }
@@ -747,17 +747,19 @@ static void ParseFace(dsurface_t *ds, drawVert_t *verts,
 
     numIndexes = LittleLong(ds->numIndexes);
 
-    //cv = Hunk_Alloc(sizeof(*cv), h_low);
+    //cv = memorySystem->Alloc(sizeof(*cv), h_low);
     cv = (srfBspSurface_t *)surf->data;
     cv->surfaceType = SF_FACE;
 
     cv->numIndexes = numIndexes;
-    cv->indexes = reinterpret_cast<uint *>(Hunk_Alloc(numIndexes * sizeof(
-            cv->indexes[0]), h_low));
+    cv->indexes = reinterpret_cast<uint *>(memorySystem->Alloc(
+            numIndexes * sizeof(
+                cv->indexes[0]), h_low));
 
     cv->numVerts = numVerts;
-    cv->verts = reinterpret_cast<srfVert_t *>(Hunk_Alloc(numVerts * sizeof(
-                    cv->verts[0]), h_low));
+    cv->verts = reinterpret_cast<srfVert_t *>(memorySystem->Alloc(
+                    numVerts * sizeof(
+                        cv->verts[0]), h_low));
 
     // copy vertexes
     surf->cullinfo.type = CULLINFO_PLANE | CULLINFO_BOX;
@@ -927,17 +929,19 @@ static void ParseTriSurf(dsurface_t *ds, drawVert_t *verts,
     numVerts = LittleLong(ds->numVerts);
     numIndexes = LittleLong(ds->numIndexes);
 
-    //cv = Hunk_Alloc(sizeof(*cv), h_low);
+    //cv = memorySystem->Alloc(sizeof(*cv), h_low);
     cv = (srfBspSurface_t *)surf->data;
     cv->surfaceType = SF_TRIANGLES;
 
     cv->numIndexes = numIndexes;
-    cv->indexes = reinterpret_cast<uint *>(Hunk_Alloc(numIndexes * sizeof(
-            cv->indexes[0]), h_low));
+    cv->indexes = reinterpret_cast<uint *>(memorySystem->Alloc(
+            numIndexes * sizeof(
+                cv->indexes[0]), h_low));
 
     cv->numVerts = numVerts;
-    cv->verts = reinterpret_cast<srfVert_t *>(Hunk_Alloc(numVerts * sizeof(
-                    cv->verts[0]), h_low));
+    cv->verts = reinterpret_cast<srfVert_t *>(memorySystem->Alloc(
+                    numVerts * sizeof(
+                        cv->verts[0]), h_low));
 
     surf->data = (surfaceType_t *) cv;
 
@@ -1013,7 +1017,7 @@ static void ParseFlare(dsurface_t *ds, drawVert_t *verts, msurface_t *surf,
         surf->shader = tr.defaultShader;
     }
 
-    //flare = Hunk_Alloc( sizeof( *flare ), h_low );
+    //flare = memorySystem->Alloc( sizeof( *flare ), h_low );
     flare = (srfFlare_t *)surf->data;
     flare->surfaceType = SF_FLARE;
 
@@ -2131,28 +2135,29 @@ void R_MovePatchSurfacesToHunk(void) {
         //
 
         copyFrom = grid->widthLodError;
-        grid->widthLodError = reinterpret_cast<float32 *>(Hunk_Alloc(
+        grid->widthLodError = reinterpret_cast<float32 *>(memorySystem->Alloc(
                                   grid->width * 4, h_low));
         ::memcpy(grid->widthLodError, copyFrom, grid->width * 4);
-        Z_Free(copyFrom);
+        memorySystem->Free(copyFrom);
 
         copyFrom = grid->heightLodError;
-        grid->heightLodError = reinterpret_cast<float32 *>(Hunk_Alloc(
+        grid->heightLodError = reinterpret_cast<float32 *>(memorySystem->Alloc(
                                    grid->height * 4, h_low));
         ::memcpy(grid->heightLodError, copyFrom, grid->height * 4);
-        Z_Free(copyFrom);
+        memorySystem->Free(copyFrom);
 
         copyFrom = grid->indexes;
-        grid->indexes = reinterpret_cast<uint *>(Hunk_Alloc(grid->numIndexes *
-                        sizeof(uint), h_low));
+        grid->indexes = reinterpret_cast<uint *>(memorySystem->Alloc(
+                            grid->numIndexes *
+                            sizeof(uint), h_low));
         ::memcpy(grid->indexes, copyFrom, grid->numIndexes * sizeof(uint));
-        Z_Free(copyFrom);
+        memorySystem->Free(copyFrom);
 
         copyFrom = grid->verts;
-        grid->verts = reinterpret_cast<srfVert_t *>(Hunk_Alloc(
+        grid->verts = reinterpret_cast<srfVert_t *>(memorySystem->Alloc(
                           grid->numVerts * sizeof(srfVert_t), h_low));
         ::memcpy(grid->verts, copyFrom, grid->numVerts * sizeof(srfVert_t));
-        Z_Free(copyFrom);
+        memorySystem->Free(copyFrom);
     }
 }
 
@@ -2196,17 +2201,21 @@ static  void R_LoadSurfaces(lump_t *surfs, lump_t *verts,
         Com_Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
     }
 
-    out = reinterpret_cast<msurface_t *>(Hunk_Alloc(count * sizeof(*out),
+    out = reinterpret_cast<msurface_t *>(memorySystem->Alloc(count * sizeof(
+            *out),
                                          h_low));
 
     s_worldData.surfaces = out;
     s_worldData.numsurfaces = count;
-    s_worldData.surfacesViewCount = reinterpret_cast<sint *>(Hunk_Alloc(
-                                        count * sizeof(*s_worldData.surfacesViewCount), h_low));
-    s_worldData.surfacesDlightBits = reinterpret_cast<sint *>(Hunk_Alloc(
-                                         count * sizeof(*s_worldData.surfacesDlightBits), h_low));
-    s_worldData.surfacesPshadowBits = reinterpret_cast<sint *>(Hunk_Alloc(
-                                          count * sizeof(*s_worldData.surfacesPshadowBits), h_low));
+    s_worldData.surfacesViewCount = reinterpret_cast<sint *>
+                                    (memorySystem->Alloc(
+                                         count * sizeof(*s_worldData.surfacesViewCount), h_low));
+    s_worldData.surfacesDlightBits = reinterpret_cast<sint *>
+                                     (memorySystem->Alloc(
+                                          count * sizeof(*s_worldData.surfacesDlightBits), h_low));
+    s_worldData.surfacesPshadowBits = reinterpret_cast<sint *>
+                                      (memorySystem->Alloc(
+                                           count * sizeof(*s_worldData.surfacesPshadowBits), h_low));
 
     // load hdr vertex colors
     if(r_hdr->integer) {
@@ -2239,22 +2248,22 @@ static  void R_LoadSurfaces(lump_t *surfs, lump_t *verts,
     for(i = 0 ; i < count ; i++, in++, out++) {
         switch(LittleLong(in->surfaceType)) {
             case MST_PATCH:
-                out->data = reinterpret_cast<surfaceType_t *>(Hunk_Alloc(sizeof(
+                out->data = reinterpret_cast<surfaceType_t *>(memorySystem->Alloc(sizeof(
                                 srfBspSurface_t), h_low));
                 break;
 
             case MST_TRIANGLE_SOUP:
-                out->data = reinterpret_cast<surfaceType_t *>(Hunk_Alloc(sizeof(
+                out->data = reinterpret_cast<surfaceType_t *>(memorySystem->Alloc(sizeof(
                                 srfBspSurface_t), h_low));
                 break;
 
             case MST_PLANAR:
-                out->data = reinterpret_cast<surfaceType_t *>(Hunk_Alloc(sizeof(
+                out->data = reinterpret_cast<surfaceType_t *>(memorySystem->Alloc(sizeof(
                                 srfBspSurface_t), h_low));
                 break;
 
             case MST_FLARE:
-                out->data = reinterpret_cast<surfaceType_t *>(Hunk_Alloc(sizeof(
+                out->data = reinterpret_cast<surfaceType_t *>(memorySystem->Alloc(sizeof(
                                 srfFlare_t), h_low));
                 break;
 
@@ -2333,8 +2342,9 @@ static  void R_LoadSubmodels(lump_t *l) {
     count = l->filelen / sizeof(*in);
 
     s_worldData.numBModels = count;
-    s_worldData.bmodels = out = reinterpret_cast<bmodel_t *>(Hunk_Alloc(
-                                    count * sizeof(*out), h_low));
+    s_worldData.bmodels = out = reinterpret_cast<bmodel_t *>
+                                (memorySystem->Alloc(
+                                     count * sizeof(*out), h_low));
 
     for(i = 0 ; i < count ; i++, in++, out++) {
         model_t *model;
@@ -2409,7 +2419,8 @@ static  void R_LoadNodesAndLeafs(lump_t *nodeLump, lump_t *leafLump) {
     numNodes = nodeLump->filelen / sizeof(dnode_t);
     numLeafs = leafLump->filelen / sizeof(dleaf_t);
 
-    out = reinterpret_cast<mnode_t *>(Hunk_Alloc((numNodes + numLeafs) *
+    out = reinterpret_cast<mnode_t *>(memorySystem->Alloc((
+                                          numNodes + numLeafs) *
                                       sizeof(*out), h_low));
 
     s_worldData.nodes = out;
@@ -2481,7 +2492,8 @@ static  void R_LoadShaders(lump_t *l) {
     }
 
     count = l->filelen / sizeof(*in);
-    out = reinterpret_cast<dshader_t *>(Hunk_Alloc(count * sizeof(*out),
+    out = reinterpret_cast<dshader_t *>(memorySystem->Alloc(count * sizeof(
+                                            *out),
                                         h_low));
 
     s_worldData.shaders = out;
@@ -2513,7 +2525,8 @@ static  void R_LoadMarksurfaces(lump_t *l) {
     }
 
     count = l->filelen / sizeof(*in);
-    out = reinterpret_cast<sint *>(Hunk_Alloc(count * sizeof(*out), h_low));
+    out = reinterpret_cast<sint *>(memorySystem->Alloc(count * sizeof(*out),
+                                   h_low));
 
     s_worldData.marksurfaces = out;
     s_worldData.nummarksurfaces = count;
@@ -2544,7 +2557,8 @@ static  void R_LoadPlanes(lump_t *l) {
     }
 
     count = l->filelen / sizeof(*in);
-    out = reinterpret_cast<cplane_t *>(Hunk_Alloc(count * 2 * sizeof(*out),
+    out = reinterpret_cast<cplane_t *>(memorySystem->Alloc(count * 2 * sizeof(
+                                           *out),
                                        h_low));
 
     s_worldData.planes = out;
@@ -2597,7 +2611,7 @@ static  void R_LoadFogs(lump_t *l, lump_t *brushesLump,
 
     // create fog strucutres for them
     s_worldData.numfogs = count + 1;
-    s_worldData.fogs = reinterpret_cast<fog_t *>(Hunk_Alloc(
+    s_worldData.fogs = reinterpret_cast<fog_t *>(memorySystem->Alloc(
                            s_worldData.numfogs * sizeof(*out), h_low));
     out = s_worldData.fogs + 1;
 
@@ -2740,8 +2754,9 @@ void R_LoadLightGrid(lump_t *l) {
         return;
     }
 
-    w->lightGridData = reinterpret_cast<uchar8 *>(Hunk_Alloc(l->filelen,
-                       h_low));
+    w->lightGridData = reinterpret_cast<uchar8 *>(memorySystem->Alloc(
+                           l->filelen,
+                           h_low));
     ::memcpy(w->lightGridData, reinterpret_cast<void *>(fileBase + l->fileofs),
              l->filelen);
 
@@ -2773,7 +2788,7 @@ void R_LoadLightGrid(lump_t *l) {
                           static_cast<sint>(sizeof(float32)) * 6 * numGridPoints);
             }
 
-            w->lightGrid16 = reinterpret_cast<uchar16 *>(Hunk_Alloc(sizeof(
+            w->lightGrid16 = reinterpret_cast<uchar16 *>(memorySystem->Alloc(sizeof(
                                  w->lightGrid16) * 6 * numGridPoints, h_low));
 
             for(i = 0; i < numGridPoints ; i++) {
@@ -2797,7 +2812,7 @@ void R_LoadLightGrid(lump_t *l) {
             }
         } else if(0) {
             // promote 8-bit lightgrid to 16-bit
-            w->lightGrid16 = reinterpret_cast<uchar16 *>(Hunk_Alloc(sizeof(
+            w->lightGrid16 = reinterpret_cast<uchar16 *>(memorySystem->Alloc(sizeof(
                                  w->lightGrid16) * 6 * numGridPoints, h_low));
 
             for(i = 0; i < numGridPoints; i++) {
@@ -2836,8 +2851,9 @@ void R_LoadEntities(lump_t *l) {
     p = reinterpret_cast< valueType * >((fileBase + l->fileofs));
 
     // store for reference by the cgame
-    w->entityString = reinterpret_cast<valueType *>(Hunk_Alloc(l->filelen + 1,
-                      h_low));
+    w->entityString = reinterpret_cast<valueType *>(memorySystem->Alloc(
+                          l->filelen + 1,
+                          h_low));
     strcpy(w->entityString, p);
     w->entityParsePoint = w->entityString;
 
@@ -3059,7 +3075,7 @@ void R_LoadCubemapEntities(pointer cubemapEntityName) {
     }
 
     tr.numCubemaps = numCubemaps;
-    tr.cubemaps = reinterpret_cast<cubemap_t *>(Hunk_Alloc(
+    tr.cubemaps = reinterpret_cast<cubemap_t *>(memorySystem->Alloc(
                       tr.numCubemaps * sizeof(*tr.cubemaps), h_low));
     memset(tr.cubemaps, 0, tr.numCubemaps * sizeof(*tr.cubemaps));
 
@@ -3436,7 +3452,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
     COM_StripExtension2(s_worldData.baseName, s_worldData.baseName,
                         sizeof(s_worldData.baseName));
 
-    startMarker = (uchar8 *)Hunk_Alloc(0, h_low);
+    startMarker = (uchar8 *)memorySystem->Alloc(0, h_low);
     c_gridVerts = 0;
 
     header = (dheader_t *)buffer.b;
@@ -3579,7 +3595,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
                                       w->lightGridBounds[0] * w->lightGridBounds[1] * 3 + 18);
             }
 
-            Z_Free(buffer);
+            memorySystem->Free(buffer);
         }
 
         for(i = 0; i < w->numWorldSurfaces; i++) {
@@ -3656,7 +3672,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
             }
         }
 
-        Z_Free(primaryLightGrid);
+        memorySystem->Free(primaryLightGrid);
     }
 
     // load cubemaps
@@ -3673,7 +3689,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
         }
     }
 
-    s_worldData.dataSize = static_cast<sint>((uchar8 *)Hunk_Alloc(0,
+    s_worldData.dataSize = static_cast<sint>((uchar8 *)memorySystem->Alloc(0,
                            h_low) - startMarker);
 
     clientRendererSystem->RefPrintf(PRINT_ALL,

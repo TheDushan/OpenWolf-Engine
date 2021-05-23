@@ -517,22 +517,19 @@ void trap_Printf(sint printLevel, pointer fmt, ...) {
 void trap_Error(sint errorLevel, pointer fmt, ...) {
     imports->Error(errorLevel, fmt);
 }
-void *Hunk_AllocateTempMemory(uint64 size) {
-    return imports->Hunk_AllocateTempMemory(size);
-}
 
 void *trap_Hunk_Alloc(uint64 size, ha_pref preference) {
-    return imports->Hunk_Alloc(size, preference);
+    return imports->memorySystem->Alloc(size, preference);
 }
 
 void trap_Hunk_FreeTempMemory(void *buf) {
-    imports->Hunk_FreeTempMemory(buf);
+    imports->memorySystem->FreeTempMemory(buf);
 }
 
 void *trap_Malloc(uint64 size) {
-    return imports->Malloc(size);
+    return imports->memorySystem->Malloc(size);
 }
 
 void trap_Free(void *ptr) {
-    imports->Free(ptr);
+    imports->memorySystem->Free(ptr);
 }

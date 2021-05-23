@@ -181,7 +181,7 @@ void idServerNetChanSystemLocal::NetchanFreeQueue(client_t *client) {
 
     for(netbuf = client->netchan_start_queue; netbuf; netbuf = next) {
         next = netbuf->next;
-        Z_Free(netbuf);
+        memorySystem->Free(netbuf);
     }
 
     client->netchan_start_queue = nullptr;
@@ -219,7 +219,7 @@ void idServerNetChanSystemLocal::NetchanTransmitNextFragment(
         networkChainSystem->Transmit(&client->netchan, netbuf->msg.cursize,
                                      netbuf->msg.data);
 
-        Z_Free(netbuf);
+        memorySystem->Free(netbuf);
     }
 }
 
@@ -244,7 +244,8 @@ void idServerNetChanSystemLocal::NetchanTransmit(client_t *client,
         //if (developer->integer) {
         //Com_Printf("idServerNetChanSystemLocal::NetchanTransmit: there are unsent fragments remaining\n");
         //}
-        netbuf = (netchan_buffer_t *)(Z_Malloc(sizeof(netchan_buffer_t)));
+        netbuf = (netchan_buffer_t *)(memorySystem->Malloc(sizeof(
+                                          netchan_buffer_t)));
 
         // store the msg, we can't store it encoded, as the encoding depends on stuff we still have to finish sending
         MSG_Copy(&netbuf->msg, netbuf->msgBuffer, sizeof(netbuf->msgBuffer), msg);

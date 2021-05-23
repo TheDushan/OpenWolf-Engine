@@ -3307,7 +3307,8 @@ static shader_t *GeneratePermanentShader(void) {
         return tr.defaultShader;
     }
 
-    newShader = reinterpret_cast<shader_t *>(Hunk_Alloc(sizeof(shader_t),
+    newShader = reinterpret_cast<shader_t *>(memorySystem->Alloc(sizeof(
+                    shader_t),
                 h_low));
 
     *newShader = shader;
@@ -3331,14 +3332,15 @@ static shader_t *GeneratePermanentShader(void) {
             break;
         }
 
-        newShader->stages[i] = reinterpret_cast<shaderStage_t *>(Hunk_Alloc(sizeof(
-                                   stages[i]), h_low));
+        newShader->stages[i] = reinterpret_cast<shaderStage_t *>
+                               (memorySystem->Alloc(sizeof(
+                                           stages[i]), h_low));
         *newShader->stages[i] = stages[i];
 
         for(b = 0 ; b < NUM_TEXTURE_BUNDLES ; b++) {
             size = newShader->stages[i]->bundle[b].numTexMods * sizeof(texModInfo_t);
             newShader->stages[i]->bundle[b].texMods = reinterpret_cast<texModInfo_t *>
-                    (Hunk_Alloc(size, h_low));
+                    (memorySystem->Alloc(size, h_low));
             ::memcpy(newShader->stages[i]->bundle[b].texMods,
                      stages[i].bundle[b].texMods, size);
         }
@@ -4381,7 +4383,7 @@ static void LoadShaderFromBuffer(valueType *buff) {
         shaderBug = 0;
 
         size = sizeof(shaderText_t) + (textLength + 1) + (nameLength + 1);
-        st = (shaderText_t *)Hunk_Alloc(size, h_low);
+        st = (shaderText_t *)memorySystem->Alloc(size, h_low);
 
         ::memcpy(st->text, text, textLength);
         st->text[textLength] = '\0';
@@ -4510,7 +4512,7 @@ void R_InitShaders(void) {
 
     COM_BeginParseSession("R_InitShaders");
     time = idsystem->Milliseconds();
-    mem = Hunk_MemoryRemaining();
+    mem = memorySystem->MemoryRemaining();
     fileShaderCount = 0;
     shaderCount = 0;
 
@@ -4525,7 +4527,7 @@ void R_InitShaders(void) {
     CreateExternalShaders();
 
     time = idsystem->Milliseconds() - time;
-    mem = mem - Hunk_MemoryRemaining();
+    mem = mem - memorySystem->MemoryRemaining();
 
     clientRendererSystem->RefPrintf(PRINT_ALL, "-------------------------\n");
     clientRendererSystem->RefPrintf(PRINT_ALL, "%d shader files read \n",

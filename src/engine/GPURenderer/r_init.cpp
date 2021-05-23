@@ -299,7 +299,7 @@ alignment of packAlign to ensure efficient copying.
 
 Stores the length of padding after a line of pixels to address padlen
 
-Return value must be freed with Hunk_FreeTempMemory()
+Return value must be freed with memorySystem->FreeTempMemory()
 ==================
 */
 
@@ -315,7 +315,7 @@ uchar8 *RB_ReadPixels(sint x, sint y, sint width, sint height,
     padwidth = PAD(linelen, packAlign);
 
     // Allocate a few more bytes so that we can choose an alignment we like
-    buffer = static_cast<uchar8 *>(Hunk_AllocateTempMemory(
+    buffer = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(
                                        padwidth * height + *offset + packAlign - 1));
 
     bufstart = static_cast<uchar8 *>(PADP(reinterpret_cast< sint64 >
@@ -381,7 +381,7 @@ void RB_TakeScreenshot(sint x, sint y, sint width, sint height,
 
     fileSystem->WriteFile(fileName, buffer, memcount + 18);
 
-    Hunk_FreeTempMemory(allbuf);
+    memorySystem->FreeTempMemory(allbuf);
 }
 
 /*
@@ -401,7 +401,7 @@ void RB_TakeScreenshotJPEG(sint x, sint y, sint width, sint height,
 
     RE_SaveJPG(fileName, r_screenshotJpegQuality->integer, width, height,
                buffer + offset, padlen);
-    Hunk_FreeTempMemory(buffer);
+    memorySystem->FreeTempMemory(buffer);
 }
 
 /*
@@ -534,7 +534,7 @@ void R_LevelShot(void) {
                               &offset, &padlen);
     source = allsource + offset;
 
-    buffer = static_cast<uchar8 *>(Hunk_AllocateTempMemory(
+    buffer = static_cast<uchar8 *>(memorySystem->AllocateTempMemory(
                                        128 * 128 * 3 + 18));
     ::memset(buffer, 0, 18);
     buffer[2] = 2;      // uncompressed type
@@ -570,8 +570,8 @@ void R_LevelShot(void) {
 
     fileSystem->WriteFile(checkname, buffer, 128 * 128 * 3 + 18);
 
-    Hunk_FreeTempMemory(buffer);
-    Hunk_FreeTempMemory(allsource);
+    memorySystem->FreeTempMemory(buffer);
+    memorySystem->FreeTempMemory(allsource);
 
     clientRendererSystem->RefPrintf(PRINT_ALL, "Wrote %s\n", checkname);
 }
@@ -1096,8 +1096,9 @@ void R_Init(void) {
         max_polyverts = MAX_POLYVERTS;
     }
 
-    ptr = static_cast<uchar8 *>(Hunk_Alloc(sizeof(*backEndData) + sizeof(
-            srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low));
+    ptr = static_cast<uchar8 *>(memorySystem->Alloc(sizeof(
+                                    *backEndData) + sizeof(
+                                    srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low));
     backEndData = (backEndData_t *)ptr;
     backEndData->polys = (srfPoly_t *)(reinterpret_cast< valueType *>
                                        (ptr) + sizeof(*backEndData));

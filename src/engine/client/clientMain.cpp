@@ -167,12 +167,12 @@ void idClientMainSystemLocal::ClearMemory(bool shutdownRen) {
     // if not running a server clear the whole hunk
     if(!sv_running->integer) {
         // clear the whole hunk
-        Hunk_Clear();
+        memorySystem->Clear();
         // clear collision map data
         collisionModelManager->ClearMap();
     } else {
         // clear all the client data on the hunk
-        Hunk_ClearToMark();
+        memorySystem->ClearToMark();
     }
 }
 

@@ -1054,7 +1054,7 @@ void idServerClientSystemLocal::CloseDownload(client_t *cl) {
     // Free the temporary buffer space
     for(i = 0; i < MAX_DOWNLOAD_WINDOW; i++) {
         if(cl->downloadBlocks[i]) {
-            Z_Free(cl->downloadBlocks[i]);
+            memorySystem->Free(cl->downloadBlocks[i]);
             cl->downloadBlocks[i] = nullptr;
         }
     }
@@ -1492,7 +1492,7 @@ void idServerClientSystemLocal::WriteDownloadToClient(client_t *cl,
         curindex = (cl->downloadCurrentBlock % MAX_DOWNLOAD_WINDOW);
 
         if(!cl->downloadBlocks[curindex]) {
-            cl->downloadBlocks[curindex] = static_cast<uchar8 *>(Z_Malloc(
+            cl->downloadBlocks[curindex] = static_cast<uchar8 *>(memorySystem->Malloc(
                                                MAX_DOWNLOAD_BLKSIZE));
         }
 

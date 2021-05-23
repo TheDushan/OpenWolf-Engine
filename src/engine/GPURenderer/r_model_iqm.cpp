@@ -701,7 +701,7 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
     }
 
     mod->type = MOD_IQM;
-    iqmData = (iqmData_t *)Hunk_Alloc(size, h_low);
+    iqmData = (iqmData_t *)memorySystem->Alloc(size, h_low);
     mod->modelData = iqmData;
 
     // fill header
@@ -1132,7 +1132,7 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
         srfIQModel_t *surf;
 
         iqmData->numVaoSurfaces = iqmData->num_surfaces;
-        iqmData->vaoSurfaces = (srfVaoIQModel_t *)Hunk_Alloc(sizeof(
+        iqmData->vaoSurfaces = (srfVaoIQModel_t *)memorySystem->Alloc(sizeof(
                                    *iqmData->vaoSurfaces) * iqmData->numVaoSurfaces, h_low);
 
         vaoSurf = iqmData->vaoSurfaces;
@@ -1167,7 +1167,7 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
 
             dataSize = surf->num_vertexes * stride;
 
-            data = static_cast<uchar8 *>(Z_Malloc(dataSize));
+            data = static_cast<uchar8 *>(memorySystem->Malloc(dataSize));
             dataOfs = 0;
 
             for(j = 0; j < surf->num_vertexes; j++) {
@@ -1286,7 +1286,7 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
 
             Vao_SetVertexPointers(vaoSurf->vao);
 
-            Z_Free(data);
+            memorySystem->Free(data);
         }
     }
 

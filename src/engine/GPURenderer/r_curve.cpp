@@ -417,12 +417,12 @@ void R_CreateSurfaceGridMesh(srfBspSurface_t *grid, sint width,
     ::memset(grid, 0, sizeof(*grid));
 
 #ifdef PATCH_STITCHING
-    grid->widthLodError = static_cast<float32 *>(/*Hunk_Alloc*/
+    grid->widthLodError = static_cast<float32 *>(/*memorySystem->Alloc*/
                               clientRendererSystem->RefMalloc(
                                   width * 4));
     ::memcpy(grid->widthLodError, errorTable[0], width * 4);
 
-    grid->heightLodError = static_cast<float32 *>(/*Hunk_Alloc*/
+    grid->heightLodError = static_cast<float32 *>(/*memorySystem->Alloc*/
                                clientRendererSystem->RefMalloc(
                                    height * 4));
     ::memcpy(grid->heightLodError, errorTable[1], height * 4);
@@ -438,18 +438,20 @@ void R_CreateSurfaceGridMesh(srfBspSurface_t *grid, sint width,
                       grid->numVerts * sizeof(
                           srfVert_t));
 #else
-    grid->widthLodError = Hunk_Alloc(width * 4);
+    grid->widthLodError = memorySystem->Alloc(width * 4);
     ::memcpy(grid->widthLodError, errorTable[0], width * 4);
 
-    grid->heightLodError = Hunk_Alloc(height * 4);
+    grid->heightLodError = memorySystem->Alloc(height * 4);
     ::memcpy(grid->heightLodError, errorTable[1], height * 4);
 
     grid->numIndexes = numIndexes;
-    grid->indexes = Hunk_Alloc(grid->numIndexes * sizeof(uint), h_low);
+    grid->indexes = memorySystem->Alloc(grid->numIndexes * sizeof(uint),
+                                        h_low);
     ::memcpy(grid->indexes, indexes, numIndexes * sizeof(uint));
 
     grid->numVerts = (width * height);
-    grid->verts = Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
+    grid->verts = memorySystem->Alloc(grid->numVerts * sizeof(srfVert_t),
+                                      h_low);
 #endif
 
     grid->width = width;
@@ -482,10 +484,10 @@ R_FreeSurfaceGridMesh
 =================
 */
 static void R_FreeSurfaceGridMeshData(srfBspSurface_t *grid) {
-    Z_Free(grid->widthLodError);
-    Z_Free(grid->heightLodError);
-    Z_Free(grid->indexes);
-    Z_Free(grid->verts);
+    memorySystem->Free(grid->widthLodError);
+    memorySystem->Free(grid->heightLodError);
+    memorySystem->Free(grid->indexes);
+    memorySystem->Free(grid->verts);
 }
 
 /*

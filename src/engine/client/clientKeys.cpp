@@ -433,12 +433,12 @@ void idClientKeysSystemLocal::SetBinding(sint keynum, pointer binding) {
 
     // free old bindings
     if(keys[ keynum ].binding) {
-        Z_Free(keys[ keynum ].binding);
+        memorySystem->Free(keys[ keynum ].binding);
     }
 
     // allocate memory for new binding
-    keys[keynum].binding = CopyString(binding);
-    lcbinding = CopyString(binding);
+    keys[keynum].binding = memorySystem->CopyString(binding);
+    lcbinding = memorySystem->CopyString(binding);
     Q_strlwr(lcbinding);   // saves doing it on all the generateHashValues in Key_GetBindingByString
 
     keys[keynum].hash = generateHashValue(lcbinding);

@@ -128,7 +128,7 @@ idClientRendererSystemLocal::RefMalloc
 ============
 */
 void *idClientRendererSystemLocal::RefMalloc(sint size) {
-    return Z_TagMalloc(size, TAG_RENDERER);
+    return memorySystem->TagMalloc(size, TAG_RENDERER);
 }
 
 /*
@@ -137,7 +137,7 @@ idClientRendererSystemLocal::RefTagFree
 ============
 */
 void idClientRendererSystemLocal::RefTagFree(void) {
-    Z_FreeTags(TAG_RENDERER);
+    memorySystem->FreeTags(TAG_RENDERER);
     return;
 }
 

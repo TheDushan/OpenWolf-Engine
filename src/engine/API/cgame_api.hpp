@@ -51,8 +51,6 @@ typedef enum cgameEvent_e {
 struct cgameImports_t {
     void(*Print)(pointer fmt, ...);
     sint(*RealTime)(qtime_t *qtime);
-    void (*Com_GetHunkInfo)(sint *hunkused, sint *hunkexpected);
-    uint64(*Hunk_MemoryRemaining)(void);
 
     idClientGameSystem *clientGameSystem;
     idRenderSystem *renderSystem;
@@ -63,6 +61,7 @@ struct cgameImports_t {
     idCmdBufferSystem *cmdBufferSystem;
     idCmdSystem *cmdSystem;
     idSystem *idsystem;
+    idMemorySystem *memorySystem;
 #ifndef DEDICATED
     idClientGUISystem *idGUISystem;
     idClientScreenSystem *clientScreenSystem;

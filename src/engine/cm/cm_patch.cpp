@@ -1070,7 +1070,7 @@ static void CM_SurfaceCollideFromGrid(cGrid_t *grid,
     float32 *p1, *p2, *p3;
     cFacet_t *facet;
     sint numFacets;
-    //facets = (cFacet_t*)Z_Malloc(MAX_FACETS);
+    //facets = (cFacet_t*)memorySystem->Malloc(MAX_FACETS);
 
     numPlanes = 0;
     numFacets = 0;
@@ -1241,18 +1241,20 @@ static void CM_SurfaceCollideFromGrid(cGrid_t *grid,
     sc->numFacets = numFacets;
 
     if(numFacets) {
-        sc->facets = (cFacet_t *)Hunk_Alloc(numFacets * sizeof(*sc->facets),
-                                            h_high);
+        sc->facets = (cFacet_t *)memorySystem->Alloc(numFacets * sizeof(
+                         *sc->facets),
+                     h_high);
         ::memcpy(sc->facets, facets, numFacets * sizeof(*sc->facets));
     } else {
         sc->facets = 0;
     }
 
-    sc->planes = (cPlane_t *)Hunk_Alloc(numPlanes * sizeof(*sc->planes),
-                                        h_high);
+    sc->planes = (cPlane_t *)memorySystem->Alloc(numPlanes * sizeof(
+                     *sc->planes),
+                 h_high);
     ::memcpy(sc->planes, planes, numPlanes * sizeof(*sc->planes));
 
-    //Z_Free(facets);
+    //memorySystem->Free(facets);
 }
 
 
@@ -1312,7 +1314,7 @@ cSurfaceCollide_t *CM_GeneratePatchCollide(sint width, sint height,
     // we now have a grid of points exactly on the curve
     // the aproximate surface defined by these points will be
     // collided against
-    sc = (cSurfaceCollide_t *)Hunk_Alloc(sizeof(*sc), h_high);
+    sc = (cSurfaceCollide_t *)memorySystem->Alloc(sizeof(*sc), h_high);
     ClearBounds(sc->bounds[0], sc->bounds[1]);
 
     for(i = 0; i < grid.width; i++) {

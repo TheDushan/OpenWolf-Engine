@@ -336,10 +336,11 @@ bool idClientAVISystemLocal::OpenAVIForWriting(pointer fileName) {
     // Allocate a bit more space for the capture buffer to account for possible
     // padding at the end of pixel lines, and padding for alignment
 #define MAX_PACK_LEN 16
-    afd.cBuffer = static_cast<uchar8 *>(Z_Malloc((afd.width * 3 + MAX_PACK_LEN
-                                        - 1) * afd.height + MAX_PACK_LEN - 1));
+    afd.cBuffer = static_cast<uchar8 *>(memorySystem->Malloc((
+                                            afd.width * 3 + MAX_PACK_LEN
+                                            - 1) * afd.height + MAX_PACK_LEN - 1));
     // raw avi files have pixel lines start on 4-uchar8 boundaries
-    afd.eBuffer = static_cast<uchar8 *>(Z_Malloc(PAD(afd.width * 3,
+    afd.eBuffer = static_cast<uchar8 *>(memorySystem->Malloc(PAD(afd.width * 3,
                                         AVI_LINE_PADDING) * afd.height));
 
     afd.a.rate = dma.speed;
@@ -613,8 +614,8 @@ bool idClientAVISystemLocal::CloseAVI(void) {
 
     SafeFS_Write(buffer, bufIndex, afd.f);
 
-    Z_Free(afd.cBuffer);
-    Z_Free(afd.eBuffer);
+    memorySystem->Free(afd.cBuffer);
+    memorySystem->Free(afd.eBuffer);
     fileSystem->FCloseFile(afd.f);
 
     Com_Printf("Wrote %d:%d frames to %s\n", afd.numVideoFrames,

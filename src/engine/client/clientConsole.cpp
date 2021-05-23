@@ -55,7 +55,6 @@ idClientConsoleSystemLocal::~idClientConsoleSystemLocal
 */
 idClientConsoleSystemLocal::~idClientConsoleSystemLocal(void) {
 }
-
 /*
 ================
 idClientConsoleSystemLocal::LineAccept
@@ -460,7 +459,8 @@ void idClientConsoleSystemLocal::Dump_f(void) {
     bufferlen = con->linewidth + 2 * sizeof(valueType);
 #endif
 
-    buffer = static_cast<valueType *>(Hunk_AllocateTempMemory(bufferlen));
+    buffer = static_cast<valueType *>(memorySystem->AllocateTempMemory(
+                                          bufferlen));
 
     // write the remaining lines
     buffer[bufferlen - 1] = 0;
@@ -494,7 +494,7 @@ void idClientConsoleSystemLocal::Dump_f(void) {
                S_COLOR_BLUE "." S_COLOR_WHITE "\n", conTabsNames[con - activeCon],
                filename);
 
-    Hunk_FreeTempMemory(buffer);
+    memorySystem->FreeTempMemory(buffer);
     fileSystem->FCloseFile(f);
 }
 

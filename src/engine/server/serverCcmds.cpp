@@ -250,7 +250,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
                 return;
             }
 
-            //buffer = Hunk_AllocateTempMemory(size);
+            //buffer = memorySystem->AllocateTempMemory(size);
             fileSystem->ReadFile(savemap, (void **)&buffer);
 
             if(Q_stricmp(savemap, va("%scurrent.sav", savedir)) != 0) {
@@ -260,7 +260,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
                 csize = fileSystem->ReadFile(va("%scurrent.sav", savedir), nullptr);
 
                 if(csize != size) {
-                    Hunk_FreeTempMemory(buffer);
+                    memorySystem->FreeTempMemory(buffer);
                     fileSystem->Delete(va("%scurrent.sav", savedir));
                     // TTimo
 #ifdef __linux__
@@ -293,7 +293,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
                 svs.time = savegameTime;
             }
 
-            Hunk_FreeTempMemory(buffer);
+            memorySystem->FreeTempMemory(buffer);
         } else {
             cvarSystem->Set("savegame_loading", "0");    // make sure it's turned off
 
@@ -540,7 +540,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
             return;
         }
 
-        //buffer = Hunk_AllocateTempMemory(size);
+        //buffer = memorySystem->AllocateTempMemory(size);
         fileSystem->ReadFile(savemap, (void **)&buffer);
 
         // the mapname is at the very start of the savegame file
@@ -551,7 +551,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
             svs.time = savegameTime;
         }
 
-        Hunk_FreeTempMemory(buffer);
+        memorySystem->FreeTempMemory(buffer);
     }
 
     // done.
@@ -723,7 +723,7 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
         return;
     }
 
-    //buffer = Hunk_AllocateTempMemory(size);
+    //buffer = memorySystem->AllocateTempMemory(size);
     fileSystem->ReadFile(filename, (void **)&buffer);
 
     // read the mapname, if it is the same as the current map, then do a fast load
@@ -738,7 +738,7 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
                 fileSystem->WriteFile(va("%scurrent.sav", savedir), buffer, size);
             }
 
-            Hunk_FreeTempMemory(buffer);
+            memorySystem->FreeTempMemory(buffer);
 
             cvarSystem->Set("savegame_loading",
                             "2");    // 2 means it's a restart, so stop rendering until we are loaded
@@ -753,7 +753,7 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
         }
     }
 
-    Hunk_FreeTempMemory(buffer);
+    memorySystem->FreeTempMemory(buffer);
 
     // otherwise, do a slow load
     if(sv_cheats->integer) {

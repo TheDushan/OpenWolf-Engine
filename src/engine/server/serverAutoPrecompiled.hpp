@@ -105,6 +105,8 @@
 #include <framework/types.hpp>
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
+#include <API/Memory_api.hpp>
+#include <framework/Memory.hpp>
 #include <qcommon/qfiles.hpp>
 #include <API/cm_api.hpp>
 #include <cm/cm_polylib.hpp>

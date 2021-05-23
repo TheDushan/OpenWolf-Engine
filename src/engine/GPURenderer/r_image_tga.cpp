@@ -134,7 +134,7 @@ void R_LoadTGA(pointer name, uchar8 **pic, sint *width, sint *height) {
 
     if(targa_header.id_length != 0) {
         if(buf_p + targa_header.id_length > end) {
-            Z_Free(targa_rgba);
+            memorySystem->Free(targa_rgba);
             fileSystem->FreeFile(buffer.v);
             Com_Error(ERR_DROP, "LoadTGA: header too short (%s)", name);
         }
@@ -144,7 +144,7 @@ void R_LoadTGA(pointer name, uchar8 **pic, sint *width, sint *height) {
 
     if(targa_header.image_type == 2 || targa_header.image_type == 3) {
         if(buf_p + columns * rows * targa_header.pixel_size / 8 > end) {
-            Z_Free(targa_rgba);
+            memorySystem->Free(targa_rgba);
             fileSystem->FreeFile(buffer.v);
             Com_Error(ERR_DROP, "LoadTGA: file truncated (%s)", name);
         }
