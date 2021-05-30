@@ -316,7 +316,7 @@ A "connect" OOB command has been received
 ==================
 */
 void idServerClientSystemLocal::DirectConnect(netadr_t from) {
-    valueType userinfo[MAX_INFO_STRING], *denied, *ip, *guid,
+    valueType userinfo[MAX_INFO_STRING], *denied, *ip, guid[GUIDKEY_SIZE],
               *password;
     sint i, clientNum, qport, challenge, startIndex, count, oldInfoLen2,
          newInfoLen2;
