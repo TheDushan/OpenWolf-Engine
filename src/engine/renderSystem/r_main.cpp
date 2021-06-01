@@ -2705,6 +2705,11 @@ void R_RenderCubemapSide(sint cubemapIndex, sint cubemapSide,
     if(!subscene) {
         RE_BeginScene(&refdef);
 
+        if (!(refdef.rdflags & RDF_NOWORLDMODEL) && tr.refdef.num_dlights && r_dlightMode->integer >= 2)
+        {
+            R_RenderDlightCubemaps(&refdef);
+        }
+
         // FIXME: sun shadows aren't rendered correctly in cubemaps
         // fix involves changing r_FBufScale to fit smaller cubemap image size, or rendering cubemap to framebuffer first
         if(glRefConfig.framebufferObject && r_sunlightMode->integer &&

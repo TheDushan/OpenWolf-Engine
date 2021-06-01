@@ -1,3 +1,6 @@
+2021-06-01 Dusan Jocic <dusanjocic@msn>
+	* [Linux] Fixed compiling on the Linux platform
+
 2021-05-30 Dusan Jocic <dusanjocic@msn>
 	* [Server] Fixed crash
 

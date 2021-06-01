@@ -1857,8 +1857,10 @@ sint idNetworkSystemLocal::ConnectTCP(valueType *s_host_port) {
     if(connect(sock, (struct sockaddr *)&address,
                sizeof(address)) == SOCKET_ERROR) {
         err = socketError;
+#ifdef _DEBUG
         Com_Printf("idNetworkSystemLocal::ConnectTCP: connect: %s\n",
                    ErrorString());
+#endif
         return -1;
     }
 

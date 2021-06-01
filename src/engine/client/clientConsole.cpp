@@ -40,6 +40,9 @@
 idClientConsoleSystemLocal clientConsoleLocal;
 idClientConsoleSystemAPI *clientConsoleSystem = &clientConsoleLocal;
 
+console_t con[NUMBER_TABS];
+console_t* activeCon = con;
+
 /*
 ===============
 idClientConsoleSystemLocal::idClientConsoleSystemLocal

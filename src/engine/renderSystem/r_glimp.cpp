@@ -398,7 +398,6 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
     pointer glstring;
     sint perChannelColorBits;
     sint colorBits, depthBits, stencilBits;
-    sint samples;
     sint i = 0;
     SDL_Surface *icon = nullptr;
     uint flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
@@ -507,7 +506,6 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
     }
 
     stencilBits = r_stencilbits->value;
-    samples = r_ext_multisample->value;
 
     for(i = 0; i < 16; i++) {
         sint testColorBits, testDepthBits, testStencilBits;
@@ -590,9 +588,6 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, testDepthBits);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, testStencilBits);
 
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, samples ? 1 : 0);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
-
         if(r_stereoEnabled->integer) {
             glConfig.stereoEnabled = true;
             SDL_GL_SetAttribute(SDL_GL_STEREO, 1);
@@ -603,6 +598,7 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
 
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+        SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
         if((SDL_window = SDL_CreateWindow(CLIENT_WINDOW_TITLE, x, y,
                                           glConfig.vidWidth, glConfig.vidHeight, flags)) == nullptr) {
@@ -1106,8 +1102,8 @@ void GLimp_Init(bool fixedFunction) {
 
 success:
     // These values force the UI to disable driver selection
-    glConfig.driverType = GLDRV_ICD;
-    glConfig.hardwareType = GLHW_GENERIC;
+    //glConfig.driverType = GLDRV_ICD;
+    //glConfig.hardwareType = GLHW_GENERIC;
 
     // Only using SDL_SetWindowBrightness to determine if hardware gamma is supported
     glConfig.deviceSupportsGamma = !r_ignorehwgamma->integer &&

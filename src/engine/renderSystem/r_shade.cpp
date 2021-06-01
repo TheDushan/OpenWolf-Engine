@@ -717,6 +717,9 @@ static void ForwardDlight(void) {
 
     shaderCommands_t *input = &tess;
     shaderStage_t *pStage = tess.xstages[tess.shader->lightingStage];
+    
+    if (!pStage)
+        return;
 
     if(!backEnd.refdef.num_dlights) {
         return;

@@ -47,7 +47,6 @@ extern convar_t
 *r_colorbits;           // number of desired color bits, only relevant for fullscreen
 extern convar_t *r_alphabits;           // number of desired alpha bits
 extern convar_t *r_texturebits;         // number of desired texture bits
-extern convar_t *r_ext_multisample;
 // 0 = use framebuffer depth
 // 16 = use 16-bit textures
 // 32 = use 32-bit textures

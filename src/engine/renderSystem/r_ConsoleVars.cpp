@@ -169,7 +169,6 @@ convar_t *r_depthbits;
 convar_t *r_colorbits;
 convar_t *r_alphabits;
 convar_t *r_texturebits;
-convar_t *r_ext_multisample;
 
 convar_t *r_drawBuffer;
 convar_t *r_lightmap;
@@ -356,9 +355,6 @@ void R_InitConsoleVars(void) {
     r_depthbits = cvarSystem->Get("r_depthbits", "0",
                                   CVAR_ARCHIVE | CVAR_LATCH,
                                   "Sets depth bits-per-pixel. Mutually exclusive with r_colorbits.");
-    r_ext_multisample = cvarSystem->Get("r_ext_multisample", "0",
-                                        CVAR_ARCHIVE | CVAR_LATCH, "Activate OpenGL texture multisampling");
-    cvarSystem->CheckRange(r_ext_multisample, 0, 4, true);
     r_overBrightBits = cvarSystem->Get("r_overBrightBits", "0",
                                        CVAR_ARCHIVE | CVAR_LATCH,
                                        "Ambient lighting applied to in-game entities or objects");
