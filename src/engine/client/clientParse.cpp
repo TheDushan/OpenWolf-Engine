@@ -695,6 +695,8 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
     sint             cmd;
     valueType           *s;
 
+    soundSystem->StopAllSounds();
+
     clientConsoleSystem->Close();
 
     clc.connectPacketCount = 0;
@@ -747,7 +749,8 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
             es = &cl.entityBaselines[newnum];
             MSG_ReadDeltaEntity(msg, &nullstate, es, newnum);
         } else {
-            Com_Error(ERR_DROP, "CL_ParseGamestate: bad command byte");
+            Com_Error(ERR_DROP,
+                      "idClientParseSystemLocal::ParseGamestate: bad command byte");
         }
     }
 

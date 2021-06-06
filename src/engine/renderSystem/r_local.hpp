@@ -1599,7 +1599,6 @@ typedef struct {
     shader_t *sunShader;
     shader_t *sunFlareShader;
     valueType sunShaderName[MAX_QPATH];
-    float32 sunShaderScale;
 
     sint    numLightmaps;
     uint64  lightmapSize;

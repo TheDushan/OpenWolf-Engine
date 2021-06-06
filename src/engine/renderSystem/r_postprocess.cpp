@@ -335,13 +335,9 @@ void RB_SunRays(FBO_t *srcFbo, ivec4_t srcBox, FBO_t *dstFbo,
     const float32 cutoff = 0.25f;
     bool colorize = true;
 
-    //  float32 w, h, w2, h2;
-    mat4_t mvp, trans, model;
+    //  F32 w, h, w2, h2;
+    mat4_t mvp;
     vec4_t pos, hpos;
-
-    if(tr.sunShaderScale <= 0) {
-        return;
-    }
 
     dot = DotProduct(tr.sunDirection, backEnd.viewParms.orientation.axis[0]);
 
@@ -353,16 +349,22 @@ void RB_SunRays(FBO_t *srcFbo, ivec4_t srcBox, FBO_t *dstFbo,
         return;
     }
 
-    float32 dist;
+    // From RB_DrawSun()
+    {
+        float32 dist;
+        mat4_t trans, model;
 
-    dist = backEnd.viewParms.zFar / 1.75f;      // div sqrt(3)
+        Mat4Translation(backEnd.viewParms.orientation.origin, trans);
+        Mat4Multiply(backEnd.viewParms.world.modelMatrix, trans, model);
+        Mat4Multiply(backEnd.viewParms.projectionMatrix, model, mvp);
 
-    VectorScale(tr.sunDirection, dist, pos);
+        dist = backEnd.viewParms.zFar / 1.75;       // div sqrt(3)
+
+        VectorScale(tr.sunDirection, dist, pos);
+    }
 
     // project sun point
-    Mat4Translation(backEnd.viewParms.orientation.origin, trans);
-    Mat4Multiply(backEnd.viewParms.world.modelMatrix, trans, model);
-    Mat4Multiply(backEnd.viewParms.projectionMatrix, model, mvp);
+    //Mat4Multiply(backEnd.viewParms.projectionMatrix, backEnd.viewParms.world.modelMatrix, mvp);
     Mat4Transform(mvp, pos, hpos);
 
     // transform to UV coords
@@ -375,14 +377,14 @@ void RB_SunRays(FBO_t *srcFbo, ivec4_t srcBox, FBO_t *dstFbo,
     {
         float32 mul = 1.f;
         ivec4_t rayBox, quarterBox;
-        sint srcWidth  = srcFbo ? srcFbo->width  : glConfig.vidWidth;
+        sint srcWidth = srcFbo ? srcFbo->width : glConfig.vidWidth;
         sint srcHeight = srcFbo ? srcFbo->height : glConfig.vidHeight;
 
         VectorSet4(color, mul, mul, mul, 1);
 
-        rayBox[0] = srcBox[0] * tr.sunRaysFbo->width  / srcWidth;
+        rayBox[0] = srcBox[0] * tr.sunRaysFbo->width / srcWidth;
         rayBox[1] = srcBox[1] * tr.sunRaysFbo->height / srcHeight;
-        rayBox[2] = srcBox[2] * tr.sunRaysFbo->width  / srcWidth;
+        rayBox[2] = srcBox[2] * tr.sunRaysFbo->width / srcWidth;
         rayBox[3] = srcBox[3] * tr.sunRaysFbo->height / srcHeight;
 
         quarterBox[0] = 0;
@@ -394,8 +396,8 @@ void RB_SunRays(FBO_t *srcFbo, ivec4_t srcBox, FBO_t *dstFbo,
         if(colorize) {
             FBO_FastBlit(srcFbo, srcBox, tr.quarterFbo[0], quarterBox,
                          GL_COLOR_BUFFER_BIT, GL_LINEAR);
-            FBO_Blit(tr.sunRaysFbo, rayBox, nullptr, tr.quarterFbo[0], quarterBox,
-                     nullptr, color, GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
+            FBO_Blit(tr.sunRaysFbo, rayBox, NULL, tr.quarterFbo[0], quarterBox, NULL,
+                     color, GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
         } else {
             FBO_FastBlit(tr.sunRaysFbo, rayBox, tr.quarterFbo[0], quarterBox,
                          GL_COLOR_BUFFER_BIT, GL_LINEAR);
@@ -422,8 +424,8 @@ void RB_SunRays(FBO_t *srcFbo, ivec4_t srcBox, FBO_t *dstFbo,
 
         VectorSet4(color, mul, mul, mul, 1);
 
-        FBO_Blit(tr.quarterFbo[0], nullptr, nullptr, dstFbo, dstBox, nullptr,
-                 color, GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+        FBO_Blit(tr.quarterFbo[0], NULL, NULL, dstFbo, dstBox, NULL, color,
+                 GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
     }
 }
 

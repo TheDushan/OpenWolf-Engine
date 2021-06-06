@@ -2705,8 +2705,8 @@ void R_RenderCubemapSide(sint cubemapIndex, sint cubemapSide,
     if(!subscene) {
         RE_BeginScene(&refdef);
 
-        if (!(refdef.rdflags & RDF_NOWORLDMODEL) && tr.refdef.num_dlights && r_dlightMode->integer >= 2)
-        {
+        if(!(refdef.rdflags & RDF_NOWORLDMODEL) && tr.refdef.num_dlights &&
+                r_dlightMode->integer >= 2) {
             R_RenderDlightCubemaps(&refdef);
         }
 

@@ -73,8 +73,8 @@ void GLimp_InitExtraExtensions(void) {
 
     // OpenGL 1.5, was GL_ARB_vertex_buffer_object and GL_ARB_occlusion_query
     QGL_1_5_PROCS;
-    QGL_ARB_occlusion_query_PROCS;
     glRefConfig.occlusionQuery = true;
+    QGL_ARB_occlusion_query_PROCS;
 
     // OpenGL 2.0, was GL_ARB_shading_language_100, GL_ARB_vertex_program, GL_ARB_shader_objects, and GL_ARB_vertex_shader
     QGL_2_0_PROCS;

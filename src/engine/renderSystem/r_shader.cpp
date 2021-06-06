@@ -1468,6 +1468,14 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
         }
     }
 
+    // if shader stage references a lightmap, but no lightmap is present
+    // (vertex-approximated surfaces), then set cgen to vertex
+    if(stage->bundle[0].isLightmap && shader.lightmapIndex < 0 &&
+            stage->bundle[0].image[0] == tr.whiteImage) {
+        stage->bundle[0].isLightmap = false;
+        stage->rgbGen = CGEN_EXACT_VERTEX;
+    }
+
 
     //
     // implicitly assume that a GL_ONE GL_ZERO blend mask disables blending
@@ -2160,33 +2168,23 @@ static bool ParseShader(pointer name, valueType **text) {
             continue;
         }
         // sunShader <shader> [scale]
-        else if(!Q_stricmp(token, "sunShader")) {
-            token = COM_ParseExt(text, false);
+        else if(!Q_stricmp(token, "sunshader")) {
+            size_t tokenLen;
+
+            token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
                 clientRendererSystem->RefPrintf(PRINT_WARNING,
-                                                "WARNING: '%s' missing shader name for 'sunShader'\n", shader.name);
+                                                "WARNING: missing shader name for 'sunshader'\n");
                 continue;
             }
 
-            Q_strncpyz(tr.sunShaderName, token, sizeof(tr.sunShaderName));
-
-            token = COM_ParseExt(text, false);
-
-            if(!token[0]) {
-                tr.sunShaderScale = 1.0f;
-                continue;
-            }
-
-            tr.sunShaderScale = atof(token);
-
-            if(tr.sunShaderScale <= 0) {
-                clientRendererSystem->RefPrintf(PRINT_WARNING,
-                                                "WARNING: '%s' scale for 'sunShader' must be more than 0, using scale 1.0 instead.\n",
-                                                shader.name);
-                tr.sunShaderScale = 1.0f;
-            }
-
+            // Don't call tr.sunShader = R_FindShader(token, SHADER_3D_STATIC, qtrue);
+            // because it breaks the computation of the current shader
+            //tokenLen = strlen(token) + 1;
+            //tr.sunShaderName[0] = reinterpret_cast<uchar8*>(memorySystem->Alloc((sizeof(uchar8) * tokenLen, h_low);
+            //Q_strncpyz(tr.sunShaderName, token, tokenLen);
+            //Q_strncpyz( tr.sunShaderName, token, sizeof( tr.sunShaderName ) );
             continue;
         }
         // lightgridmulamb <scale>  ambient multiplier for lightgrid

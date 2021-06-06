@@ -775,7 +775,8 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
         // tell everyone why they got dropped
         // Gordon: we want this displayed elsewhere now
         //serverMainSystem->SendServerCommand(nullptr, "cpm \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason);
-        //serverMainSystem->SendServerCommand( nullptr, "print \"[lof]%s" S_COLOR_WHITE " [lon]%s\n\"", drop->name, reason );
+        serverMainSystem->SendServerCommand(nullptr,
+                                            "print \"[lof]%s" S_COLOR_WHITE " [lon]%s\n\"", drop->name, reason);
     }
 
     if(developer->integer) {

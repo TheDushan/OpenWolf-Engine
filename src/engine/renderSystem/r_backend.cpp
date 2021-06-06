@@ -1255,17 +1255,13 @@ const void *RB_DrawSurfs(const void *data) {
     }
 
     if(!isShadowView) {
-        float32 scale;
-
         RB_RenderDrawSurfList(cmd->drawSurfs, cmd->numDrawSurfs);
 
-        scale = tr.sunShaderScale;
-
         if(r_drawSun->integer) {
-            RB_DrawSun(scale, tr.sunShader);
+            RB_DrawSun(0.1f, tr.sunShader);
         }
 
-        if(glRefConfig.framebufferObject && r_drawSunRays->integer && scale > 0) {
+        if(glRefConfig.framebufferObject && r_drawSunRays->integer) {
             FBO_t *oldFbo = glState.currentFBO;
             FBO_Bind(tr.sunRaysFbo);
 
@@ -1299,7 +1295,10 @@ const void *RB_DrawSurfs(const void *data) {
 
         FBO_Bind(nullptr);
         GL_BindToTMU(cubemap->image, TB_CUBEMAP);
-        qglGenerateTextureMipmapEXT(cubemap->image->texnum, GL_TEXTURE_CUBE_MAP);
+
+        if(cubemap && cubemap->image) {
+            qglGenerateTextureMipmapEXT(cubemap->image->texnum, GL_TEXTURE_CUBE_MAP);
+        }
     }
 
     return (const void *)(cmd + 1);
@@ -1756,7 +1755,7 @@ const void *RB_PostProcess(const void *data) {
 
     RB_Contrast(nullptr, srcBox, nullptr, dstBox);
 
-#if 1
+#if 0
 
     if(0) {
         vec4_t quadVerts[4];

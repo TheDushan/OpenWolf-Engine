@@ -91,7 +91,6 @@ void idClientDownloadSystemLocal::DownloadsComplete(void) {
 #endif
     valueType *fn;
 
-
     // DHM - Nerve :: Auto-update (not finished yet)
     if(autoupdateStarted) {
 

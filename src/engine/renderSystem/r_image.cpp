@@ -2991,9 +2991,11 @@ void R_CreateBuiltinImages(void) {
             tr.screenScratchImage = R_CreateImage("screenScratch", nullptr, width,
                                                   height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE,
                                                   rgbFormat);
-            tr.hdrDepthImage = R_CreateImage("*hdrDepth", nullptr, width, height,
-                                             IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F);
         }
+
+        tr.hdrDepthImage = R_CreateImage("*hdrDepth", nullptr, width, height,
+                                         IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F);
+
 
         if(r_drawSunRays->integer) {
             tr.sunRaysImage = R_CreateImage("*sunRays", nullptr, width, height,
@@ -3072,8 +3074,6 @@ void R_CreateBuiltinImages(void) {
             tr.screenSsaoImage = R_CreateImage("*screenSsao", nullptr, width / 2,
                                                height / 2, IMGTYPE_COLORALPHA,
                                                IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
-            tr.hdrDepthImage = R_CreateImage("*hdrDepth", nullptr, width, height,
-                                             IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F);
         }
 
         for(x = 0; x < MAX_DRAWN_PSHADOWS; x++) {
@@ -3106,10 +3106,12 @@ void R_CreateBuiltinImages(void) {
                                                r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA,
                                                IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE | IMGFLAG_MIPMAP |
                                                IMGFLAG_CUBEMAP, hdrFormat);
-            tr.prefilterEnvMapImage = R_CreateImage("*prefilterEnvMap", nullptr,
-                                                    r_cubemapSize->integer / 2, r_cubemapSize->integer / 2, IMGTYPE_COLORALPHA,
-                                                    IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat);
         }
+
+        tr.prefilterEnvMapImage = R_CreateImage("*prefilterEnvMap", nullptr,
+                                                r_cubemapSize->integer / 2, r_cubemapSize->integer / 2, IMGTYPE_COLORALPHA,
+                                                IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat);
+
     }
 }
 
@@ -3408,6 +3410,14 @@ qhandle_t idRenderSystemLocal::RegisterSkin(pointer name) {
 
         // parse the shader name
         token = CommaParse(&text_p);
+
+
+        if(skin->numSurfaces >= MD3_MAX_SURFACES) {
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: Ignoring surfaces in '%s', the max is %d surfaces!\n", name,
+                                            MD3_MAX_SURFACES);
+            break;
+        }
 
         if(skin->numSurfaces < MAX_SKIN_SURFACES) {
             surf = &parseSurfaces[skin->numSurfaces];

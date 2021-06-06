@@ -29,8 +29,6 @@
 #ifndef __R_PRECOMPILED_H__
 #define __R_PRECOMPILED_H__
 
-#pragma once
-
 #include <random>
 #include <iostream>
 #include <setjmp.h>
