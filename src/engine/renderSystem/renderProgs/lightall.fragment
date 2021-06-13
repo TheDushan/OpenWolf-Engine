@@ -84,8 +84,7 @@ varying vec4      var_PrimaryLightDir;
 
 #define EPSILON 0.00000001
 
-#if defined(USE_PARALLAXMAP)
-  #if defined(USE_PARALLAXMAP)
+#if defined(USE_NORMALMAP)
 	float SampleDepth(sampler2D normalMap, vec2 t)
 	{
 		#if defined(SWIZZLE_NORMALMAP)
@@ -94,21 +93,21 @@ varying vec4      var_PrimaryLightDir;
 			return 1.0 - texture2D(normalMap, t).a;
 		#endif
 	}
-  #endif //USE_PARALLAXMAP
 
 float RayIntersectDisplaceMap(vec2 dp, vec2 ds, sampler2D normalMap)
 {
+	const float MAX_SIZE = 1.5;//1.0;
 	const int linearSearchSteps = 16;
 	const int binarySearchSteps = 6;
 
 	// current size of search window
-	float size = 1.0 / float(linearSearchSteps);
+	float size = MAX_SIZE / float(linearSearchSteps);
 
 	// current depth position
 	float depth = 0.0;
 
 	// best match found (starts with last position 1.0)
-	float bestDepth = 1.0;
+	float bestDepth = MAX_SIZE;
 
 	// texture depth at best depth
 	float texDepth = 0.0;
@@ -121,9 +120,9 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds, sampler2D normalMap)
 	{
 		depth += size;
 		
-		float t = SampleDepth(normalMap, dp + ds * depth);
+		float t = SampleDepth(normalMap, dp + ds * depth) * MAX_SIZE;
 		
-		if(bestDepth > 0.996)		// if no depth found yet
+		if(bestDepth > MAX_SIZE - (MAX_SIZE / linearSearchSteps))		// if no depth found yet
 			if(depth >= t)
 			{
 				bestDepth = depth;	// store best depth
@@ -196,7 +195,7 @@ vec3 CalcDiffuse(vec3 diffuseAlbedo, float NH, float EH, float roughness)
 
 vec2 GetParallaxOffset(in vec2 texCoords, in vec3 E, in mat3 tangentToWorld )
 {
-#if defined(USE_PARALLAXMAP)
+#if defined(USE_NORMALMAP)
 	vec3 offsetDir = normalize(E * tangentToWorld);
 	offsetDir.xy *= -u_NormalScale.a / offsetDir.z;
 

@@ -1,5 +1,6 @@
 2021-06-13 Dusan Jocic <dusanjocic@msn.com>
-	* [Renderer] Fixed blended of texture detail.
+	* [RenderSystem] Fixed blended of texture detail
+	* [RenderSystem] Fixed problems with parallax
 
 2021-06-06 Dusan Jocic <dusanjocic@msn.com>
 	* [Misc] Misc changes
@@ -25,7 +26,7 @@
 2021-05-20 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client keys into C++ file
 	* [Steamworks] Added initial files for the future Valve Steamworks engine integration
-	* [Renderer] Added initial files for the future idTech2 (BSP version 38) integration
+	* [RenderSystem] Added initial files for the future idTech2 (BSP version 38) integration
 
 2021-05-19 Dusan Jocic <dusanjocic@msn>
 	* [Client] Moved client console into C++ file
@@ -41,8 +42,8 @@
 	* [Client] Replaced "printf" with Com_Printf
 
 2021-05-16 Dusan Jocic <dusanjocic@msn.com>
-	* [Renderer] Added support for the Wavefront .OBJ model file format
-	* [Renderer] Mirror surfaceType in rb_surfaceTable
+	* [RenderSystem] Added support for the Wavefront .OBJ model file format
+	* [RenderSystem] Mirror surfaceType in rb_surfaceTable
 	* [Misc] Fixed compiling
 	* [Engine] Wide screen fixes
 
@@ -84,7 +85,7 @@
 
 2021-04-28 Dusan Jocic <dusanjocic@msn>
 	* [Console] Removed loop
-	* [Renderer] Removed OpenMP from the source code
+	* [RenderSystem] Removed OpenMP from the source code
 	* [Server] Added checking for the user inside "idServerCcmdsSystemLocal::Status_f"
 	* [Client] Fixed problems with "reconnecting" message in the console
 

@@ -1235,7 +1235,7 @@ void Com_InitCommonConsoleVars(void) {
                                        "");
     g_reloading = cvarSystem->Get("g_reloading", "", CVAR_ARCHIVE, "");
 
-    r_fullscreen = cvarSystem->Get("r_fullscreen", "1",
+    r_fullscreen = cvarSystem->Get("r_fullscreen", "0",
                                    CVAR_ARCHIVE | CVAR_LATCH, "Enables fullscreen view");
 
 }
