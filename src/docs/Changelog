@@ -1,6 +1,7 @@
 2021-06-13 Dusan Jocic <dusanjocic@msn.com>
 	* [RenderSystem] Fixed blended of texture detail
 	* [RenderSystem] Fixed problems with parallax
+	* [RenderSystem] Fixed problems with Sun rays
 
 2021-06-06 Dusan Jocic <dusanjocic@msn.com>
 	* [Misc] Misc changes

@@ -2695,14 +2695,15 @@ static void R_CreateEnvBrdfLUT(void) {
 
     for(uint y = 0; y < LUT_HEIGHT; ++y) {
         float32 const ndotv = (y + 0.5f) / LUT_HEIGHT;
+        float32 const vy = 0.0f;
+        float32 const vz = ndotv;
 
         for(uint x = 0; x < LUT_WIDTH; ++x) {
-            float32 const gloss = (x + 0.5f) / LUT_WIDTH;
-            float32 const roughness = powf(1.0f - gloss, 2.0f);
+            float32 const roughness = (x + 0.5f) / LUT_WIDTH;
+            float32 const m = roughness * roughness;
 
             float32 const vx = sqrtf(1.0f - ndotv * ndotv);
-            float32 const vy = 0.0f;
-            float32 const vz = ndotv;
+            float32 const m2 = m * m;
 
             float32 scale = 0.0f;
             float32 bias = 0.0f;
@@ -2716,7 +2717,7 @@ static void R_CreateEnvBrdfLUT(void) {
                 float32 const cosPhi = cosf(phi);
                 float32 const sinPhi = sinf(phi);
                 float32 const cosTheta = sqrtf((1.0f - e2) / (1.0f +
-                                               (roughness * roughness - 1.0f) * e2));
+                                               (m2 - 1.0f) * e2));
                 float32 const sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
 
                 float32 const hx = sinTheta * cosf(phi);
@@ -2733,12 +2734,12 @@ static void R_CreateEnvBrdfLUT(void) {
                 float32 const vdoth = MAX(vdh, 0.0f);
 
                 if(ndotl > 0.0f) {
-                    float32 const gsmith = GSmithCorrelated(roughness, ndotv, ndotl);
-                    float32 const ndotlVisPDF = ndotl * gsmith * (4.0f * vdoth / ndoth);
-                    float32 const fc = powf(1.0f - vdoth, 5.0f);
+                    float32 const visibility = GSmithCorrelated(roughness, ndotv, ndotl);
+                    float32 const ndotlVisPDF = ndotl * visibility * (4.0f * vdoth / ndoth);
+                    float32 const fresnel = powf(1.0f - vdoth, 5.0f);
 
-                    scale += ndotlVisPDF * (1.0f - fc);
-                    bias += ndotlVisPDF * fc;
+                    scale += ndotlVisPDF * (1.0f - fresnel);
+                    bias += ndotlVisPDF * fresnel;
                 }
             }
 

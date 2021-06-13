@@ -816,7 +816,6 @@ void R_InitSkyTexCoords(float32 heightCloud) {
 ** RB_DrawSun
 */
 void RB_DrawSun(float32 scale, shader_t *shader) {
-#if 0
     float32     size;
     float32     dist;
     vec3_t      origin, vec1, vec2;
@@ -857,7 +856,6 @@ void RB_DrawSun(float32 scale, shader_t *shader) {
 
     // back to normal depth range
     qglDepthRange(0.0, 1.0);
-#endif
 }
 
 
