@@ -636,15 +636,15 @@ void idMemorySystemLocal::InitHunkMemory(void) {
     }
 
     // bk001205 - was malloc
-    s_hunk.original = static_cast<uchar8 *>(calloc(s_hunk.memSize + 63, 1));
+    s_hunk.originalRaw = static_cast<uchar8 *>(calloc(s_hunk.memSize + 63, 1));
 
-    if(!s_hunk.original) {
+    if(!s_hunk.originalRaw) {
         Com_Error(ERR_FATAL, "Hunk data failed to allocate %i megs",
                   s_hunk.memSize / (1024 * 1024));
     }
 
     // cacheline align
-    s_hunk.mem = reinterpret_cast<uchar8 *>(((sint64)s_hunk.original + 63) &
+    s_hunk.mem = reinterpret_cast<uchar8 *>(((sint64)s_hunk.originalRaw + 63) &
                                             ~63);
 
     Clear();
@@ -938,6 +938,10 @@ idMemorySystemLocal::ReleaseMemory
 void idMemorySystemLocal::ReleaseMemory(void) {
     if(s_hunk.original) {
         free(s_hunk.original);
+    }
+
+    if(s_hunk.originalRaw) {
+        free(s_hunk.originalRaw);
     }
 
     ::memset(&s_hunk, 0, sizeof(s_hunk));

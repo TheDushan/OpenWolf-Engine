@@ -1195,8 +1195,9 @@ void idRenderSystemLocal::Shutdown(bool destroyWindow) {
         textureFilterAnisotropic = false;
         maxAnisotropy = 0;
         displayAspect = 0.0f;
-        clientRendererSystem->RefTagFree();
     }
+
+    clientRendererSystem->RefTagFree();
 
     tr.registered = false;
 }

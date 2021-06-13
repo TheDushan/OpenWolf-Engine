@@ -207,7 +207,7 @@ typedef struct hunkblock_s {
 static struct {
     hunkblock_t *blocks;
 
-    uchar8 *mem, * original;
+    uchar8 *mem, * original, * originalRaw;
     uint64  memSize;
 
     uint64  permTop, permMax;
@@ -222,9 +222,6 @@ static hunkblock_t *hunkblocks;
 
 static hunkUsed_t hunk_low, hunk_high;
 static hunkUsed_t *hunk_permanent, * hunk_temp;
-
-static uchar8 *s_hunkData = nullptr;
-static uint64 s_hunkTotal;
 
 static uint64 s_zoneTotal;
 static uint64 s_smallZoneTotal;

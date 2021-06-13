@@ -2,6 +2,7 @@
 	* [RenderSystem] Fixed blended of texture detail
 	* [RenderSystem] Fixed problems with parallax
 	* [RenderSystem] Fixed problems with Sun rays
+	* [Misc] Misc changes
 
 2021-06-06 Dusan Jocic <dusanjocic@msn.com>
 	* [Misc] Misc changes
