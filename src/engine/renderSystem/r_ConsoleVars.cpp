@@ -362,7 +362,7 @@ void R_InitConsoleVars(void) {
                                       CVAR_ARCHIVE | CVAR_LATCH, "Enables ignoreing of hardware gamma settings");
     r_mode = cvarSystem->Get("r_mode", "-2", CVAR_ARCHIVE | CVAR_LATCH,
                              "Screen resolution setting. -1 enables r_customWidth and r_customHeight");
-    r_fullscreen = cvarSystem->Get("r_fullscreen", "1",
+    r_fullscreen = cvarSystem->Get("r_fullscreen", "0",
                                    CVAR_ARCHIVE | CVAR_LATCH, "Enables fullscreen view");
     r_noborder = cvarSystem->Get("r_noborder", "0", CVAR_ARCHIVE | CVAR_LATCH,
                                  "Remove window decoration from window managers, like borders and titlebar");
@@ -444,7 +444,7 @@ void R_InitConsoleVars(void) {
     r_parallaxMapShadows = cvarSystem->Get("r_parallaxMapShadows", "0",
                                            CVAR_ARCHIVE | CVAR_LATCH,
                                            "Enable self-shadowing on parallax map supported materials. 0 - No. (default) 1 - Yes.");
-    r_cubeMapping = cvarSystem->Get("r_cubeMapping", "1",
+    r_cubeMapping = cvarSystem->Get("r_cubeMapping", "0",
                                     CVAR_ARCHIVE | CVAR_LATCH, "Enable cubemap environment mapping");
     r_horizonFade = cvarSystem->Get("r_horizonFade", "3",
                                     CVAR_ARCHIVE | CVAR_LATCH,
@@ -593,7 +593,7 @@ void R_InitConsoleVars(void) {
     r_texturedetail = cvarSystem->Get("r_textureDetail", "0", CVAR_ARCHIVE,
                                       "Enabled texture details effects");
     r_texturedetailStrength = cvarSystem->Get("r_texturedetailStrength",
-                              "0.004", CVAR_ARCHIVE, "Toggles texture details strength");
+                              "0", CVAR_ARCHIVE, "Toggles texture details strength");
     r_rbm = cvarSystem->Get("r_rbm", "0", CVAR_ARCHIVE,
                             "Enabled Reflective Bump Mapping effects");
     r_rbmStrength = cvarSystem->Get("r_rbmStrength", "0.015", CVAR_ARCHIVE,

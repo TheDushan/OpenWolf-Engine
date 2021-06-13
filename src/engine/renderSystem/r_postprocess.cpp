@@ -1100,7 +1100,7 @@ void RB_TextureDetail(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
 
     {
         vec4_t local0;
-        VectorSet4(local0, r_texturedetailStrength->value, 0.0, 0.0,
+        VectorSet4(local0, r_texturedetailStrength->value, 0.3, 0.0,
                    0.0);   // non-flicker version
         GLSL_SetUniformVec4(&tr.texturedetailShader, UNIFORM_LOCAL0, local0);
     }

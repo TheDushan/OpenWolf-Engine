@@ -53,6 +53,6 @@ void main()
 	vec4 color = vec4( (inColor.rgb * (strength * (1.0 - inDepth))) + (inColor.rgb * inDepth), 1.0);
 	color = clamp(color, 0.0, 1.0);
 
-	gl_FragColor.rgb = color.rgb;
+	gl_FragColor.rgb = mix(inColor.rgb, color.rgb, clamp(0.3, 0.0, 1.0));
 	gl_FragColor.a = 1.0;
 }
