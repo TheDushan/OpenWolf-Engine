@@ -192,7 +192,7 @@ void idClientRendererSystemLocal::InitRef(void) {
 
     Com_Printf("----- idClientRendererSystemLocal::InitRef ----\n");
 
-    ::snprintf(dllName, sizeof(dllName), "renderSystem" ARCH_STRING DLL_EXT);
+    ::snprintf(dllName, sizeof(dllName), "renderSystem." ARCH_STRING DLL_EXT);
 
     Com_Printf("Loading \"%s\"...\n", dllName);
 

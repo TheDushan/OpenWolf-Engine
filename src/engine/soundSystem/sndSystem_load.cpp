@@ -113,12 +113,13 @@ S_InitModule
 ===============
 */
 static bool S_InitModule(void) {
-    valueType           fn[1024];
+    valueType fn[1024];
 
     Com_Printf("using sound module %s\n", s_module->string);
 
-    ::sprintf(fn, "%s/soundSystem%s." ARCH_STRING DLL_EXT, idsystem->Cwd(),
-              s_module->string);
+    ::snprintf(fn, sizeof(fn), "%s/soundSystem%s." ARCH_STRING DLL_EXT,
+               idsystem->Cwd(),
+               s_module->string);
 
     if((openALModule = SDL_LoadObject(fn)) == 0) {
         Com_Printf("can't load sound module - bailing\n");

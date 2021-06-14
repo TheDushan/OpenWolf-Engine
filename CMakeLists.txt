@@ -781,11 +781,7 @@ add_library( renderSystem SHARED ${SHAREDLIST_HEADERS} ${SHAREDLIST_SOURCES} ${R
 		set_property( TARGET renderSystem PROPERTY COMPILE_DEFINITIONS LINUX __amd64__ __linux__ __x86_64__ __LINUX__ RENDERSYSTEM BUILD_FREETYPE HAVE_BOOLEAN   )
 	endif()
 	
-	set_target_properties( renderSystem PROPERTIES
-		OUTPUT_NAME "renderSystem${BUILD_ARCH}"
-		PREFIX ""
-		LIBRARY_OUTPUT_DIRECTORY "main"
-	)
+	set_target_properties( renderSystem PROPERTIES OUTPUT_NAME "renderSystem.${BUILD_ARCH}" PREFIX "" LIBRARY_OUTPUT_DIRECTORY "main" )
 	
 endif()
 
