@@ -87,8 +87,6 @@ static sint sys_monkeySpank;
 #define MINSDL_MINOR 0
 #define MINSDL_PATCH 8
 
-#define MAX_CONSOLE_KEYS 16
-
 enum keyType_t {
     QUAKE_KEY,
     CHARACTER
@@ -208,7 +206,6 @@ public:
     static void InitKeyLockStates(void);
     static void Restart(void);
     static void PrintKey(const SDL_Keysym *keysym, keyNum_t key, bool down);
-    static bool IsConsoleKey(keyNum_t key, sint character);
     static keyNum_t TranslateSDLToQ3Key(SDL_Keysym *keysym, bool down);
     static void GobbleMotionEvents(void);
     static void ActivateMouse(void);

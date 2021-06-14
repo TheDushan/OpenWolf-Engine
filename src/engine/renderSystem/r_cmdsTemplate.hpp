@@ -52,7 +52,7 @@ T GetCommandBuffer(B bytes, T type) {
         }
 
         clientRendererSystem->RefPrintf(PRINT_ALL,
-                                        "R_GetCommandBufferReserved (%i, %i): out of room, dropping command\n",
+                                        "GetCommandBuffer (%i, %i): out of room, dropping command\n",
                                         bytes, type);
 
         // if we run out of room, just start dropping commands

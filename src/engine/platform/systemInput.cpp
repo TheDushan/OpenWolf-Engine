@@ -116,95 +116,6 @@ void idSystemLocal::PrintKey(const SDL_Keysym *keysym, keyNum_t key,
 
 /*
 ===============
-idSystemLocal::IsConsoleKey
-
-TODO: If the SDL_Scancode situation improves, use it instead of
-both of these methods
-===============
-*/
-bool idSystemLocal::IsConsoleKey(keyNum_t key, sint character) {
-    typedef struct consoleKey_s {
-        keyType_t type;
-
-        union {
-            keyNum_t key;
-            sint character;
-        } u;
-    } consoleKey_t;
-
-    static consoleKey_t consoleKeys[MAX_CONSOLE_KEYS];
-    static sint numConsoleKeys = 0;
-    sint i;
-
-    // Only parse the variable when it changes
-    if(cl_consoleKeys->modified) {
-        valueType *text_p, *token;
-
-        cl_consoleKeys->modified = false;
-        text_p = cl_consoleKeys->string;
-        numConsoleKeys = 0;
-
-        while(numConsoleKeys < MAX_CONSOLE_KEYS) {
-            consoleKey_t *c = &consoleKeys[numConsoleKeys];
-            sint charCode = 0;
-
-            token = COM_Parse(&text_p);
-
-            if(!token[0]) {
-                break;
-            }
-
-            if(strlen(token) == 4) {
-                charCode = Com_HexStrToInt(token);
-            }
-
-            if(charCode > 0) {
-                c->type = CHARACTER;
-                c->u.character = charCode;
-            } else {
-                c->type = QUAKE_KEY;
-                c->u.key = static_cast<keyNum_t>(clientKeysSystem->StringToKeynum(token));
-
-                // 0 isn't a key
-                if(c->u.key <= 0) {
-                    continue;
-                }
-            }
-
-            numConsoleKeys++;
-        }
-    }
-
-    // If the character is the same as the key, prefer the character
-    if(key == character) {
-        key = static_cast<keyNum_t>(0);
-    }
-
-    for(i = 0; i < numConsoleKeys; i++) {
-        consoleKey_t *c = &consoleKeys[i];
-
-        switch(c->type) {
-            case QUAKE_KEY:
-                if(key && c->u.key == key) {
-                    return true;
-                }
-
-                break;
-
-            case CHARACTER:
-                if(c->u.character == character) {
-                    return true;
-                }
-
-                break;
-        }
-    }
-
-    return false;
-}
-
-/*
-===============
 idSystemLocal::TranslateSDLToQ3Key
 ===============
 */
@@ -464,11 +375,6 @@ keyNum_t idSystemLocal::TranslateSDLToQ3Key(SDL_Keysym *keysym,
 
     if(in_keyboardDebug->integer) {
         PrintKey(keysym, key, down);
-    }
-
-    if(IsConsoleKey(key, 0)) {
-        // Console keys can't be bound or generate characters
-        key = K_CONSOLE;
     }
 
     return key;
@@ -972,7 +878,8 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
     SDL_Event e;
     keyNum_t key = (keyNum_t)0;
     sint mx = 0, my = 0;
-    static keyNum_t lastKeyDown = (keyNum_t)0;
+    static keyNum_t lastKeyDown = static_cast<keyNum_t>(0);
+    static bool shiftdown;
 
     if(!SDL_WasInit(SDL_INIT_VIDEO)) {
         return;
@@ -1000,12 +907,25 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
                     Com_QueueEvent(eventTime, SYSE_CHAR, KEYBOARDCTRL(key), 0, 0, nullptr);
                 }
 
-                lastKeyDown = key;
+                if(e.key.keysym.scancode == SDL_SCANCODE_LSHIFT) {
+                    shiftdown = true;
+                } else if(e.key.keysym.scancode == SDL_SCANCODE_GRAVE && shiftdown) {
+                    Com_QueueEvent(eventTime, SYSE_KEY, K_CONSOLE, true, 0, nullptr);
+                    Com_QueueEvent(eventTime, SYSE_KEY, K_CONSOLE, false, 0, nullptr);
+                    lastKeyDown = K_CONSOLE;
+                } else {
+                    lastKeyDown = key;
+                }
+
                 break;
 
             case SDL_KEYUP:
                 if((key = TranslateSDLToQ3Key(&e.key.keysym, false))) {
                     Com_QueueEvent(eventTime, SYSE_KEY, key, false, 0, nullptr);
+                }
+
+                if(e.key.keysym.scancode == SDL_SCANCODE_LSHIFT) {
+                    shiftdown = false;
                 }
 
                 lastKeyDown = static_cast< keyNum_t >(0);
@@ -1042,12 +962,7 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
                         }
 
                         if(utf32 != 0) {
-                            if(IsConsoleKey((keyNum_t)0, utf32)) {
-                                Com_QueueEvent(eventTime, SYSE_KEY, K_CONSOLE, true, 0, nullptr);
-                                Com_QueueEvent(eventTime, SYSE_KEY, K_CONSOLE, false, 0, nullptr);
-                            } else {
-                                Com_QueueEvent(eventTime, SYSE_CHAR, utf32, 0, 0, nullptr);
-                            }
+                            Com_QueueEvent(eventTime, SYSE_CHAR, utf32, 0, 0, nullptr);
                         }
                     }
                 }
