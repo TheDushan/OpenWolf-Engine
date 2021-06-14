@@ -1618,6 +1618,7 @@ void idCmdSystemLocal::SetCommandCompletionFunc(pointer command,
     for(cmd = cmd_functions; cmd; cmd = cmd->next) {
         if(!Q_stricmp(command, cmd->name)) {
             cmd->complete = complete;
+            return;
         }
     }
 }
@@ -1676,8 +1677,12 @@ void idCmdSystemLocal::CompleteArgument(pointer command, valueType *args,
     cmd_function_t *cmd;
 
     for(cmd = cmd_functions; cmd; cmd = cmd->next) {
-        if(!Q_stricmp(command, cmd->name) && cmd->complete) {
-            cmd->complete(args, argNum);
+        if(!Q_stricmp(command, cmd->name)) {
+            if(cmd->complete) {
+                cmd->complete(args, argNum);
+            }
+
+            return;
         }
     }
 }
