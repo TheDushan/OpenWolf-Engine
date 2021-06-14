@@ -3179,3 +3179,24 @@ sint Q_vsprintf_s(valueType *strDest, uint64 destMax, uint64 count,
 
     return ret;
 }
+
+/*
+============
+COM_SkipPath
+============
+*/
+valueType *COM_SkipPath(valueType *pathname) {
+    valueType *last;
+
+    last = pathname;
+
+    while(*pathname) {
+        if(*pathname == '/') {
+            last = pathname + 1;
+        }
+
+        pathname++;
+    }
+
+    return last;
+}

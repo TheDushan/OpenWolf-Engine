@@ -3689,7 +3689,7 @@ void idFileSystemLocal::Shutdown(bool closemfp) {
     searchpath_t *p, *next;
     sint i;
 
-    for(i = 0; i < MAX_FILE_HANDLES; i++) {
+    for(i = 1; i < MAX_FILE_HANDLES; i++) {
         FCloseFile(i);
     }
 

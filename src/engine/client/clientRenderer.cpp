@@ -185,7 +185,7 @@ void idClientRendererSystemLocal::InitExportTable(void) {
 ============
 idClientRendererSystemLocal::InitRef
 ============
-*/ 
+*/
 static void *rendererLib = nullptr;
 void idClientRendererSystemLocal::InitRef(void) {
     valueType dllName[MAX_OSPATH];
