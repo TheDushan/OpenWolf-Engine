@@ -754,10 +754,10 @@ void idClientConsoleSystemLocal::Init(void) {
     // ydnar: these are deprecated in favor of cgame/ui based version
     cmdSystem->AddCommand("clMessageMode",
                           &idClientConsoleSystemLocal::MessageMode_f,
-                          "^1(global chat), without the convenient pop-up box. Also: �say�.");
+                          "^1(global chat), without the convenient pop-up box. Also: `say`.");
     cmdSystem->AddCommand("clMessageMode2",
                           &idClientConsoleSystemLocal::MessageMode2_f,
-                          "^1(teamchat), without the convenient pop-up box. Also: �say_team�.");
+                          "^1(teamchat), without the convenient pop-up box. Also: `say_team`.");
     cmdSystem->AddCommand("clMessageMode3",
                           &idClientConsoleSystemLocal::MessageMode3_f,
                           "^1(fireteam chat), without the convenient pop-up box.");

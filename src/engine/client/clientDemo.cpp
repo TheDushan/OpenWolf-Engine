@@ -390,7 +390,7 @@ demo <demoname>
 */
 void idClientDemoSystemLocal::PlayDemo_f(void) {
     sint prot_ver;
-    valueType name[MAX_OSPATH], extension[32], *arg;
+    valueType name[MAX_OSPATH], extension[32], arg[MAX_OSPATH];
 
     if(cmdSystem->Argc() < 2) {
         Com_Printf("playdemo <demo name>\n");
@@ -400,7 +400,7 @@ void idClientDemoSystemLocal::PlayDemo_f(void) {
     // make sure a local server is killed
     cvarSystem->Set("sv_killserver", "1");
 
-    arg = cmdSystem->Args();
+    Q_strncpyz(arg, cmdSystem->Args(), sizeof(arg));
 
     clientConsoleCommandSystem->Disconnect(true, "Playing demo");
 

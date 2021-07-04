@@ -3819,6 +3819,18 @@ void idFileSystemLocal::Startup(pointer gameName) {
 
 #ifndef PRE_RELEASE_DEMO
 
+    if(fs_texturesfolder->string[0]) {
+        AddGameDirectory(fs_basepath->string, fs_texturesfolder->string);
+    }
+
+    if(fs_soundsfolder->string[0]) {
+        AddGameDirectory(fs_basepath->string, fs_soundsfolder->string);
+    }
+
+    if(fs_modelsfolder->string[0]) {
+        AddGameDirectory(fs_basepath->string, fs_modelsfolder->string);
+    }
+
     // check for additional base game so mods can be based upon other mods
     if(fs_basegame->string[0] && !Q_stricmp(gameName, BASEGAME) &&
             Q_stricmp(fs_basegame->string, gameName)) {

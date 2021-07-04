@@ -214,6 +214,9 @@ convar_t *fs_buildgame;
 convar_t *fs_basegame;
 convar_t *fs_copyfiles;
 convar_t *fs_game;
+convar_t *fs_texturesfolder;
+convar_t *fs_soundsfolder;
+convar_t *fs_modelsfolder;
 convar_t *fs_missing;
 convar_t *fs_restrict;
 
@@ -752,6 +755,13 @@ void Com_InitCommonConsoleVars(void) {
                                   "The default is the path to the game executable.");
     fs_game = cvarSystem->Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO,
                               "Set Game path. Set the game folder/dir. ");
+
+    fs_texturesfolder = cvarSystem->Get("fs_texturesFolder", "", CVAR_INIT,
+                                        "fs_texturesFolder 'main/pk3Dir' will load from main/pk3Dir folder so its independent from fs_game");
+    fs_soundsfolder = cvarSystem->Get("fs_soundsFolder", "", CVAR_INIT,
+                                      "fs_soundsfolder 'main/pk3Dir' will load from main/pk3Dir folder so its independent from fs_game");
+    fs_modelsfolder = cvarSystem->Get("fs_modelsFolder", "", CVAR_INIT,
+                                      "fs_modelsfolder 'main/pk3Dir' will load from main/pk3Dir folder so its independent from fs_game");
     fs_restrict = cvarSystem->Get("fs_restrict", "", CVAR_INIT,
                                   "Demoversion if set to 1 restricts game to some number of maps.");
     fs_missing = cvarSystem->Get("fs_missing", "", CVAR_INIT, "Missing files");

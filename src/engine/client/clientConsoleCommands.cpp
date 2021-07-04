@@ -284,10 +284,10 @@ idClientConsoleCommandsSystemLocal::Connect_f
 ================
 */
 void idClientConsoleCommandsSystemLocal::Connect_f(void) {
-    valueType          *server;
-    pointer     serverString;
-    sint                argc = cmdSystem->Argc();
-    netadrtype_t    family = NA_UNSPEC;
+    sint argc = cmdSystem->Argc();
+    valueType server[MAX_OSPATH];
+    pointer serverString;
+    netadrtype_t family = NA_UNSPEC;
 
     if(argc != 2 && argc != 3) {
         Com_Printf("usage: connect [-4|-6] server\n");
@@ -298,7 +298,7 @@ void idClientConsoleCommandsSystemLocal::Connect_f(void) {
     Q_strncpyz(cl_reconnectArgs, cmdSystem->Args(), sizeof(cl_reconnectArgs));
 
     if(argc == 2) {
-        server = cmdSystem->Argv(1);
+        Q_strncpyz(server, cmdSystem->Argv(1), sizeof(server));
     } else {
         if(!strcmp(cmdSystem->Argv(1), "-4")) {
             family = NA_IP;
@@ -308,7 +308,7 @@ void idClientConsoleCommandsSystemLocal::Connect_f(void) {
             Com_Printf("warning: only -4 or -6 as address type understood.\n");
         }
 
-        server = cmdSystem->Argv(2);
+        Q_strncpyz(server, cmdSystem->Argv(2), sizeof(server));
     }
 
     soundSystem->StopAllSounds();      // NERVE - SMF

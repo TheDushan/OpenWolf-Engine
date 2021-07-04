@@ -937,8 +937,9 @@ void idServerCcmdsSystemLocal::ConSay_f(void) {
         Q_strcat(text, sizeof(text), p);
     }
 
-    strcat(text, p);
+    ::strcat(text, p);
 
+    Com_Printf("%s\n", text);
     serverMainSystem->SendServerCommand(nullptr, "chat \"%s\"", text);
 }
 

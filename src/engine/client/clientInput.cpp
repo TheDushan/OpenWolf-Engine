@@ -1121,6 +1121,13 @@ void idClientInputSystemLocal::JoystickMove(usercmd_t *cmd) {
     sint movespeed;
     float32 anglespeed;
 
+    float32 yaw = j_yaw->value * cl.joystickAxis[j_yaw_axis->integer];
+    float32 right = j_side->value * cl.joystickAxis[j_side_axis->integer];
+    float32 forward = j_forward->value *
+                      cl.joystickAxis[j_forward_axis->integer];
+    float32 pitch = j_pitch->value * cl.joystickAxis[j_pitch_axis->integer];
+    float32 up = j_up->value * cl.joystickAxis[j_up_axis->integer];
+
     if(kb[KB_SPEED].active ^ cl_run->integer) {
         movespeed = 2;
     } else {
@@ -1140,29 +1147,22 @@ void idClientInputSystemLocal::JoystickMove(usercmd_t *cmd) {
 #else
 
     if(!kb[KB_STRAFE].active) {
-        cl.viewangles[YAW] += anglespeed * j_yaw->value *
-                              cl.joystickAxis[j_yaw_axis->integer];
-        cmd->rightmove = ClampChar(cmd->rightmove + static_cast<sint>
-                                   (j_side->value * cl.joystickAxis[j_side_axis->integer]));
+        cl.viewangles[YAW] += anglespeed * yaw;
+        cmd->rightmove = ClampChar(cmd->rightmove + static_cast<sint>(right));
     } else {
-        cl.viewangles[YAW] += anglespeed * j_side->value *
-                              cl.joystickAxis[j_side_axis->integer];
-        cmd->rightmove = ClampChar(cmd->rightmove + static_cast<sint>
-                                   (j_yaw->value * cl.joystickAxis[j_yaw_axis->integer]));
+        cl.viewangles[YAW] += anglespeed * right;
+        cmd->rightmove = ClampChar(cmd->rightmove + static_cast<sint>(yaw));
     }
 
 #endif
 
     if(kb[KB_MLOOK].active) {
-        cl.viewangles[PITCH] += anglespeed * j_forward->value *
-                                cl.joystickAxis[j_forward_axis->integer];
-        cmd->forwardmove = ClampChar(cmd->forwardmove + static_cast<sint>
-                                     (j_pitch->value * cl.joystickAxis[j_pitch_axis->integer]));
+        cl.viewangles[PITCH] += anglespeed * forward;
+        cmd->forwardmove = ClampChar(cmd->forwardmove + static_cast<sint>(pitch));
     } else {
-        cl.viewangles[PITCH] += anglespeed * j_pitch->value *
-                                cl.joystickAxis[j_pitch_axis->integer];
+        cl.viewangles[PITCH] += anglespeed * pitch;
         cmd->forwardmove = ClampChar(cmd->forwardmove + static_cast<sint>
-                                     (j_forward->value * cl.joystickAxis[j_forward_axis->integer]));
+                                     (forward));
     }
 
     cmd->upmove = ClampChar(cmd->upmove + static_cast<sint>

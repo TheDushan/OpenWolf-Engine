@@ -812,6 +812,15 @@ continuous looping sounds are added each frame
 */
 
 void SOrig_StopLoopingSound(sint entityNum) {
+    if(entityNum < 0 || MAX_GENTITIES <= entityNum) {
+        if(developer->integer) {
+            Com_Printf(S_COLOR_YELLOW "SOrig_StopLoopingSound: bad entitynum %i\n",
+                       entityNum);
+        }
+
+        return;
+    }
+
     loopSounds[entityNum].active = false;
     //  loopSounds[entityNum].sfx = 0;
     loopSounds[entityNum].kill = false;
@@ -866,6 +875,15 @@ void SOrig_AddLoopingSound(sint entityNum, const vec3_t origin,
 
     if(!sfx->soundLength) {
         Com_Error(ERR_DROP, "%s has length 0", sfx->soundName);
+    }
+
+    if(entityNum < 0 || MAX_GENTITIES <= entityNum) {
+        if(developer->integer) {
+            Com_Printf(S_COLOR_YELLOW "S_AddLoopingSound: bad entitynum %i\n",
+                       entityNum);
+        }
+
+        return;
     }
 
     VectorCopy(origin, loopSounds[entityNum].origin);
@@ -935,6 +953,15 @@ void SOrig_AddRealLoopingSound(sint entityNum, const vec3_t origin,
 
     if(!sfx->soundLength) {
         Com_Error(ERR_DROP, "%s has length 0", sfx->soundName);
+    }
+
+    if(entityNum < 0 || MAX_GENTITIES <= entityNum) {
+        if(developer->integer) {
+            Com_Printf(S_COLOR_YELLOW "S_AddLoopingSound: bad entitynum %i\n",
+                       entityNum);
+        }
+
+        return;
     }
 
     VectorCopy(origin, loopSounds[entityNum].origin);
@@ -1205,7 +1232,7 @@ let the sound system know where an entity currently is
 ======================
 */
 void SOrig_UpdateEntityPosition(sint entityNum, const vec3_t origin) {
-    if(entityNum < 0 || entityNum > MAX_GENTITIES) {
+    if(entityNum < 0 || entityNum >= MAX_GENTITIES) {
         Com_Error(ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum);
     }
 
