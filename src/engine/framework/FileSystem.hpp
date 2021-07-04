@@ -48,7 +48,7 @@ issues.
 ==============================================================
 */
 
-#define MAX_FILE_HANDLES 64
+#define MAX_FILE_HANDLES 256
 
 #define MAX_ZPATH 256
 #define MAX_SEARCH_PATHS 4096

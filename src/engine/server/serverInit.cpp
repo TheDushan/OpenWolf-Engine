@@ -658,17 +658,12 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     // clear the whole hunk because we're (re)loading the server
     memorySystem->Clear();
 
-    // clear collision map data     // (SA) NOTE: TODO: used in missionpack
+    // clear collision map data
+    // (SA) NOTE: TODO: used in missionpack
     collisionModelManager->ClearMap();
 
     // wipe the entire per-level structure
     ClearServer();
-
-    // MrE: main zone should be pretty much emtpy at this point
-    // except for file system data and cached renderer data
-#ifdef ZONE_DEBUG
-    Z_LogHeap();
-#endif
 
     // allocate empty config strings
     for(i = 0; i < MAX_CONFIGSTRINGS; i++) {
@@ -1145,6 +1140,10 @@ void idServerInitSystemLocal::Shutdown(valueType *finalmsg) {
 
     // disconnect any local clients
 #ifndef DEDICATED
-    clientConsoleCommandSystem->Disconnect(false, "Server shutdown");
+
+    if(sv_killserver->integer != 2) {
+        clientConsoleCommandSystem->Disconnect(false, "Server shutdown");
+    }
+
 #endif
 }

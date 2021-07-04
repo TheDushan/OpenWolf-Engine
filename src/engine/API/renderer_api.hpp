@@ -66,7 +66,7 @@ typedef struct {
 //
 struct rendererImports_t {
     void(*Printf)(pointer fmt, ...);
-    void(*Error)(sint level, pointer fmt, ...);
+    void(*Error)(errorParm_t level, pointer fmt, ...);
 
     idCollisionModelManager *collisionModelManager;
     idFileSystem *fileSystem;

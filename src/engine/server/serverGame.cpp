@@ -276,17 +276,15 @@ Does NOT check portalareas
 */
 bool idServerGameSystemLocal::inPVSIgnorePortals(const vec3_t p1,
         const vec3_t p2) {
-    sint leafnum, cluster, area1, area2;
+    sint leafnum, cluster;
     uchar8 *mask;
 
     leafnum = collisionModelManager->PointLeafnum(p1);
     cluster = collisionModelManager->LeafCluster(leafnum);
-    area1 = collisionModelManager->LeafArea(leafnum);
     mask = collisionModelManager->ClusterPVS(cluster);
 
     leafnum = collisionModelManager->PointLeafnum(p2);
     cluster = collisionModelManager->LeafCluster(leafnum);
-    area2 = collisionModelManager->LeafArea(leafnum);
 
     if(mask && (!(mask[cluster >> 3] & (1 << (cluster & 7))))) {
         return false;

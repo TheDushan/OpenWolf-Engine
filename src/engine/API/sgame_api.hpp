@@ -63,7 +63,7 @@ typedef struct gentity_s gentity_t;
 //
 struct gameImports_t {
     void(*Printf)(pointer fmt, ...);
-    void(*Error)(sint level, pointer fmt, ...);
+    void(*Error)(errorParm_t level, pointer fmt, ...);
     void(*Endgame)(void);
     sint(*RealTime)(qtime_t *qtime);
 

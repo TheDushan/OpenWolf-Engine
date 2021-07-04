@@ -138,7 +138,7 @@ extern idAudioOpenALSystem *soundOpenALSystem;
 typedef struct openALImports_s {
     void (QDECL *Printf)(sint printLevel, pointer fmt,
                          ...) __attribute__((format(printf, 2, 3)));
-    void (QDECL *Error)(sint errorLevel, pointer fmt,
+    void (QDECL *Error)(errorParm_t errorLevel, pointer fmt,
                         ...) __attribute__((format(printf, 2, 3)));
 
 #if !defined (DEDICATED) || !defined (GAMEDLL) || !defined (CGAMEDLL) || !defined (GUI)

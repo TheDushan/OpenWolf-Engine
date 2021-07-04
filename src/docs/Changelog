@@ -1,6 +1,7 @@
 2021-07-04 Dusan Jocic <dusanjocic@msn.com>
 	* [Misc] Misc changes
 	* [Filesystem] Introduced "fs_texturesfolder", "fs_soundsFolder" and "fs_modelsFolder"
+	* [Misc] Misc changes
 
 2021-06-14 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Renderer dynamic module should have dot (.) before arch

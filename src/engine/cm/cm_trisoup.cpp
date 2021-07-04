@@ -643,6 +643,11 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
     FreeWinding(w);
 
     //add opposite plane
+    if(facet->numBorders >= 4 + 6 + 16) {
+        Com_Printf("ERROR: too many bevels\n");
+        return;
+    }
+
     facet->borderPlanes[facet->numBorders] = facet->surfacePlane;
     facet->borderNoAdjust[facet->numBorders] = false;
     facet->borderInward[facet->numBorders] = true;

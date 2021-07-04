@@ -196,7 +196,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
 
     map = cmdSystem->Argv(1);
 
-    if(!map) {
+    if(!map || !*map) {
         return;
     }
 

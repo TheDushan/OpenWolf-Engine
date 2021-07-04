@@ -246,12 +246,13 @@ do the apropriate things.
 =============
 */
 // *INDENT-OFF*
-void Com_Error( sint code, pointer fmt, ... )
+void Com_Error(errorParm_t code, pointer fmt, ... )
 {
-    va_list         argptr;
-    static sint      lastErrorTime;
-    static sint      errorCount;
-    sint             currentTime;
+    va_list argptr;
+    static sint lastErrorTime;
+    static sint errorCount;
+    static bool calledSysError = false;
+    sint currentTime;
 
     if( com_errorEntered )
     {
@@ -268,9 +269,6 @@ void Com_Error( sint code, pointer fmt, ... )
     {
         code = ERR_FATAL;
     }
-
-    // make sure we can get at our local stuff
-    fileSystem->PureServerSetLoadedPaks( "", "" );
 
     // if we are getting a solid stream of ERR_DROP, do an ERR_FATAL
     currentTime = idsystem->Milliseconds();
@@ -370,14 +368,14 @@ void Com_Error( sint code, pointer fmt, ... )
 
     Com_Shutdown( code == ERR_VID_FATAL ? true : false );
 
+    calledSysError = true;
     idsystem->Error( "%s", com_errorMessage );
 }
 
-
 typedef struct com_color_defs_s
 {
-    char const *name;
-    char const *code;
+    valueType const *name;
+    valueType const *code;
 } com_color_defs_t;
 
 static const com_color_defs_t color_definitions[] =
@@ -529,8 +527,8 @@ quake3 set test blah + map test
 */
 
 #define MAX_CONSOLE_LINES   32
-sint             com_numConsoleLines;
-valueType*           com_consoleLines[MAX_CONSOLE_LINES];
+sint com_numConsoleLines;
+valueType* com_consoleLines[MAX_CONSOLE_LINES];
 
 /*
 ==================
@@ -541,8 +539,16 @@ Break it up into multiple console lines
 */
 void Com_ParseCommandLine( valueType* commandLine )
 {
+    static sint parsed = 0;
+    sint inq;
+
+    if (parsed){
+        return;
+}
+
+    inq = 0;
+
     com_consoleLines[0] = commandLine;
-    com_numConsoleLines = 1;
 
     while( *commandLine )
     {
@@ -552,7 +558,7 @@ void Com_ParseCommandLine( valueType* commandLine )
         {
             if( com_numConsoleLines == MAX_CONSOLE_LINES )
             {
-                return;
+                break;
             }
             com_consoleLines[com_numConsoleLines] = commandLine + 1;
             com_numConsoleLines++;
@@ -560,8 +566,8 @@ void Com_ParseCommandLine( valueType* commandLine )
         }
         commandLine++;
     }
+    parsed = 1;
 }
-
 
 /*
 ===================
@@ -656,10 +662,12 @@ bool Com_AddStartupCommands( void )
         }
 
         // set commands won't override menu startup
-        if( Q_stricmpn( com_consoleLines[i], "set", 3 ) )
+        if( Q_stricmpn( com_consoleLines[i], "set ", 4 ) )
         {
-            added = true;
+            continue;
         }
+
+        added = true;
         cmdBufferSystem->AddText( com_consoleLines[i] );
         cmdBufferSystem->AddText( "\n" );
     }
@@ -854,7 +862,7 @@ sint Com_Filter( valueType* filter, valueType* name, sint casesensitive )
 Com_FilterPath
 ============
 */
-sint Com_FilterPath( valueType* filter, valueType* name, sint casesensitive )
+sint Com_FilterPath( pointer filter, pointer name, sint casesensitive )
 {
     sint             i;
     valueType            new_filter[MAX_QPATH];
@@ -886,8 +894,6 @@ sint Com_FilterPath( valueType* filter, valueType* name, sint casesensitive )
     new_name[i] = '\0';
     return Com_Filter( new_filter, new_name, casesensitive );
 }
-
-
 
 /*
 ================
@@ -1347,127 +1353,127 @@ sint Com_EventLoop( void )
 
     MSG_Init( &buf, bufData, sizeof( bufData ) );
 
-    while( 1 )
+    while (1)
     {
         ev = Com_GetEvent();
 
         // if no more events are available
-        if( ev.evType == SYSE_NONE )
+        if (ev.evType == SYSE_NONE)
         {
             // manually send packet events for the loopback channel
-            while( networkChainSystem->GetLoopPacket( NS_CLIENT, &evFrom, &buf ) )
+            while (networkChainSystem->GetLoopPacket(NS_CLIENT, &evFrom, &buf))
             {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                clientMainSystem->PacketEvent( evFrom, &buf );
+                clientMainSystem->PacketEvent(evFrom, &buf);
 #endif
             }
 
-            while( networkChainSystem->GetLoopPacket( NS_SERVER, &evFrom, &buf ) )
+            while (networkChainSystem->GetLoopPacket(NS_SERVER, &evFrom, &buf))
             {
                 // if the server just shut down, flush the events
-                if(sv_running->integer )
+                if (sv_running->integer)
                 {
-                    Com_RunAndTimeServerPacket( &evFrom, &buf );
+                    Com_RunAndTimeServerPacket(&evFrom, &buf);
                 }
             }
 
             return ev.evTime;
         }
 
-        switch( ev.evType )
+        switch (ev.evType)
         {
-            default:
-                // bk001129 - was ev.evTime
-                Com_Error( ERR_FATAL, "Com_EventLoop: bad event type %i", ev.evType );
-                break;
-            case SYSE_NONE:
-                break;
-            case SYSE_KEY:
+        default:
+            // bk001129 - was ev.evTime
+            Com_Error(ERR_FATAL, "Com_EventLoop: bad event type %i", ev.evType);
+            break;
+        case SYSE_NONE:
+            break;
+        case SYSE_KEY:
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                clientKeysSystem->KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
+            clientKeysSystem->KeyEvent(ev.evValue, ev.evValue2, ev.evTime);
 #endif
-                break;
-            case SYSE_CHAR:
+            break;
+        case SYSE_CHAR:
 #ifndef DEDICATED
-                // fretn
-                // we just pressed the console button,
-                // so ignore this event
-                // this prevents chars appearing at console input
-                // when you just opened it
-                if( consoleButtonWasPressed )
-                {
-                    consoleButtonWasPressed = false;
-                    break;
-                }
-
-                clientKeysSystem->CharEvent( ev.evValue );
-#endif
+            // fretn
+            // we just pressed the console button,
+            // so ignore this event
+            // this prevents chars appearing at console input
+            // when you just opened it
+            if (consoleButtonWasPressed)
+            {
+                consoleButtonWasPressed = false;
                 break;
-            case SYSE_MOUSE:
+            }
+
+            clientKeysSystem->CharEvent(ev.evValue);
+#endif
+            break;
+        case SYSE_MOUSE:
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                clientInputSystem->MouseEvent( ev.evValue, ev.evValue2, ev.evTime );
+            clientInputSystem->MouseEvent(ev.evValue, ev.evValue2, ev.evTime);
 #endif
-                break;
-            case SYSE_JOYSTICK_AXIS:
+            break;
+        case SYSE_JOYSTICK_AXIS:
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                clientInputSystem->JoystickEvent( ev.evValue, ev.evValue2, ev.evTime );
+            clientInputSystem->JoystickEvent(ev.evValue, ev.evValue2, ev.evTime);
 #endif
-                break;
-            case SYSE_CONSOLE:
-                //cmdBufferSystem->AddText( "\n" );
-                if( ( static_cast<valueType*>( ev.evPtr ) )[0] == '\\' || ( static_cast<valueType*>( ev.evPtr ) )[0] == '/' )
-                {
-                    cmdBufferSystem->AddText( static_cast<valueType*>( ev.evPtr ) + 1 );
-                }
-                else
-                {
-                    cmdBufferSystem->AddText( static_cast<valueType*>( ev.evPtr ) );
-                }
-                break;
-            case SYSE_PACKET:
-                // this cvar allows simulation of connections that
-                // drop a lot of packets.  Note that loopback connections
-                // don't go through here at all.
-                if( com_dropsim->value > 0 )
-                {
-                    static sint      seed;
+            break;
+        case SYSE_CONSOLE:
+            //cmdBufferSystem->AddText( "\n" );
+            if ((static_cast<valueType*>(ev.evPtr))[0] == '\\' || (static_cast<valueType*>(ev.evPtr))[0] == '/')
+            {
+                cmdBufferSystem->AddText(static_cast<valueType*>(ev.evPtr) + 1);
+            }
+            else
+            {
+                cmdBufferSystem->AddText(static_cast<valueType*>(ev.evPtr));
+            }
+            break;
+        case SYSE_PACKET:
+            // this cvar allows simulation of connections that
+            // drop a lot of packets.  Note that loopback connections
+            // don't go through here at all.
+            if (com_dropsim->value > 0)
+            {
+                static sint      seed;
 
-                    if( Q_random( &seed ) < com_dropsim->value )
-                    {
-                        break;	// drop this packet
-                    }
+                if (Q_random(&seed) < com_dropsim->value)
+                {
+                    break;	// drop this packet
                 }
+            }
 
-                evFrom = *( netadr_t* ) ev.evPtr;
-                buf.cursize = ev.evPtrLength - sizeof( evFrom );
+            evFrom = *(netadr_t*)ev.evPtr;
+            buf.cursize = ev.evPtrLength - sizeof(evFrom);
 
-                // we must copy the contents of the message out, because
-                // the event buffers are only large enough to hold the
-                // exact payload, but channel messages need to be large
-                // enough to hold fragment reassembly
-                if( static_cast<uint>( buf.cursize ) > buf.maxsize )
-                {
-                    Com_Printf( "Com_EventLoop: oversize packet\n" );
-                    continue;
-                }
-                memcpy( buf.data, reinterpret_cast<uchar8*>( ( netadr_t* ) ev.evPtr + 1 ), buf.cursize );
-                if(sv_running->integer )
-                {
-                    Com_RunAndTimeServerPacket( &evFrom, &buf );
-                }
-                else
-                {
+            // we must copy the contents of the message out, because
+            // the event buffers are only large enough to hold the
+            // exact payload, but channel messages need to be large
+            // enough to hold fragment reassembly
+            if (static_cast<uint>(buf.cursize) > buf.maxsize)
+            {
+                Com_Printf("Com_EventLoop: oversize packet\n");
+                continue;
+            }
+            memcpy(buf.data, reinterpret_cast<uchar8*>((netadr_t*)ev.evPtr + 1), buf.cursize);
+            if (sv_running->integer)
+            {
+                Com_RunAndTimeServerPacket(&evFrom, &buf);
+            }
+            else
+            {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-                    clientMainSystem->PacketEvent( evFrom, &buf );
+                clientMainSystem->PacketEvent(evFrom, &buf);
 #endif
-                }
-                break;
+            }
+            break;
         }
 
         // free any block data
-        if( ev.evPtr )
+        if (ev.evPtr)
         {
-            memorySystem->Free( ev.evPtr );
+            memorySystem->Free(ev.evPtr);
         }
     }
 
@@ -1830,11 +1836,11 @@ void Com_Init( valueType* commandLine )
 
     cmdBufferSystem->Init();
 
-    memorySystem->InitZoneMemory();
-    cmdSystem->Init();
-
     // override anything from the config files with command line args
     Com_StartupVariable( nullptr );
+
+    memorySystem->InitZoneMemory();
+    cmdSystem->Init();
 
     // get the developer cvar set as early as possible
     Com_StartupVariable( "developer" );
@@ -1845,10 +1851,6 @@ void Com_Init( valueType* commandLine )
     // done early so bind command exists
 #if !defined (DEDICATED)
     clientKeysSystem->InitKeyCommands();
-#endif
-
-#ifdef _WIN32
-    _setmaxstdio( 2048 );
 #endif
 
     Com_InitCommonConsoleVars();
@@ -1999,10 +2001,6 @@ void Com_Init( valueType* commandLine )
         // if the user didn't give any commands, run default action
     }
 
-#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-    clientMainSystem->StartHunkUsers(false);
-#endif
-
     if( !dedicated->integer && !Com_AddStartupCommands() )
     {
 #if 1
@@ -2019,6 +2017,10 @@ void Com_Init( valueType* commandLine )
 #endif
 #endif
     }
+
+#if !defined (DEDICATED) && !defined (UPDATE_SERVER)
+    clientMainSystem->StartHunkUsers(false);
+#endif
 
     com_fullyInitialized = true;
 
@@ -2152,7 +2154,7 @@ sint Com_ModifyMsec( sint msec )
         // dedicated servers don't want to clamp for a much longer
         // period, because it would mess up all the client's views
         // of time.
-        if( msec > 500 && msec < 500000 )
+        if(sv_running->integer && msec > 500 && msec < 500000 )
         {
             // hibernation mode cause this
             //if( !svs.hibernation.enabled )
@@ -2206,6 +2208,8 @@ void Com_Frame( void )
     {
         return;					// an ERR_DROP was thrown
     }
+
+    minMsec = 0;
 
     // bk001204 - init to zero.
     //  also:  might be clobbered by `longjmp' or `vfork'

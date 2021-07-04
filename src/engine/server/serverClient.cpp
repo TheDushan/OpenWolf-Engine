@@ -562,7 +562,7 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
     // check for privateClient password
     password = Info_ValueForKey(userinfo, "password");
 
-    if(!strcmp(password, sv_privatePassword->string)) {
+    if(*password && !strcmp(password, sv_privatePassword->string)) {
         startIndex = 0;
     } else {
         // skip past the reserved slots
@@ -674,7 +674,8 @@ gotnewcl:
     svs.challenges[i].firstPing = 0;
 
     // send the connect packet to the client
-    networkChainSystem->OutOfBandPrint(NS_SERVER, from, "connectResponse");
+    networkChainSystem->OutOfBandPrint(NS_SERVER, from, "connectResponse %d",
+                                       challenge);
 
     if(developer->integer) {
         Com_Printf("Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name);
@@ -779,12 +780,16 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
                                             "print \"[lof]%s" S_COLOR_WHITE " [lon]%s\n\"", drop->name, reason);
     }
 
-    if(developer->integer) {
-        Com_Printf("Going to CS_ZOMBIE for %s\n", drop->name);
-    }
+    if(isBot) {
+        // bots shouldn't go zombie, as there's no real net connection.
+        drop->state = CS_FREE;
+    } else {
+        if(developer->integer) {
+            Com_Printf("Going to CS_ZOMBIE for %s\n", drop->name);
+        }
 
-    // become free in a few seconds
-    drop->state = CS_ZOMBIE;
+        drop->state = CS_ZOMBIE; // become free in a few seconds
+    }
 
     if(drop->download) {
         fileSystem->FCloseFile(drop->download);
@@ -907,8 +912,13 @@ void idServerClientSystemLocal::CreateClientGameStateMessage(
     // write the checksum feed
     MSG_WriteLong(msg, sv.checksumFeed);
 
+    // it is important to handle gamestate overflow
     if(msg->overflowed) {
-        Com_Printf("ERROR: gamestate message buffer overflow\n");
+        networkChainSystem->OutOfBandPrint(NS_SERVER,
+                                           client->netchan.remoteAddress,
+                                           "print\n" S_COLOR_RED "SERVER ERROR: gamestate overflow\n");
+        serverClientLocal.DropClient(client, "gamestate overflow");
+        return;
     }
 
     // NERVE - SMF - debug info
@@ -2402,7 +2412,12 @@ bool idServerClientSystemLocal::ClientCommand(client_t *cl, msg_t *msg,
     // Applying floodprotect only to "CS_ACTIVE" clients leaves too much room for abuse.
     // Extending floodprotect to clients pre CS_ACTIVE shouldn't cause any issues,
     // as the download-commands are handled within the engine and floodprotect only filters calls to the VM.
+#ifndef DEDICATED
+
     if(!cl_running->integer && cl->state >= CS_ACTIVE &&
+#else
+    if(cl->state >= CS_ACTIVE &&
+#endif
             sv_floodProtect->integer && svs.time < cl->nextReliableTime &&
             floodprotect) {
         // ignore any other text messages from this client but let them keep playing
@@ -2433,8 +2448,6 @@ Also called by bot code
 ==================
 */
 void idServerClientSystemLocal::ClientThink(sint client, usercmd_t *cmd) {
-    client_t *cl = &svs.clients[client];
-
     if(client < 0 || sv_maxclients->integer <= client) {
         if(developer->integer) {
             Com_Printf(S_COLOR_YELLOW
@@ -2444,9 +2457,10 @@ void idServerClientSystemLocal::ClientThink(sint client, usercmd_t *cmd) {
         return;
     }
 
-    cl->lastUsercmd = *cmd;
+    client_t *cl = &svs.clients[client];
+    svs.clients[client].lastUsercmd = *cmd;
 
-    if(cl->state != CS_ACTIVE) {
+    if(svs.clients[client].state != CS_ACTIVE) {
         // may have been kicked during the last usercmd
         return;
     }

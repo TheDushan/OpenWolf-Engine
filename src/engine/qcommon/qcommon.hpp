@@ -374,7 +374,7 @@ sint             Com_EventLoop(void);
 sint             Com_Milliseconds(void);     // will be journaled properly
 sint             Com_Filter(valueType *filter, valueType *name,
                             sint casesensitive);
-sint             Com_FilterPath(valueType *filter, valueType *name,
+sint             Com_FilterPath(pointer filter, pointer name,
                                 sint casesensitive);
 sint             Com_RealTime(qtime_t *qtime);
 bool            Com_SafeMode(void);

@@ -200,7 +200,7 @@ sint trap_LastAttacker(void);
 
 struct guiImports_t {
     void(*Print)(pointer fmt, ...);
-    void(*Error)(sint level, pointer fmt, ...);
+    void(*Error)(errorParm_t level, pointer fmt, ...);
     sint(*RealTime)(qtime_t *qtime);
 
     idRenderSystem *renderSystem;

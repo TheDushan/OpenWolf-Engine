@@ -424,7 +424,7 @@ void idClientMainSystemLocal::DisconnectPacket(netadr_t from) {
     // if we are doing a disconnected download, leave the 'connecting' screen on with the progress information
     if(!cls.bWWWDlDisconnected) {
         // drop the connection
-        message = "Server disconnected for unknown reason";
+        message = "Server disconnected for unknown reason\n";
         Com_Printf("%s", message);
         cvarSystem->Set("com_errorMessage", message);
         clientConsoleCommandSystem->Disconnect(true, "Disconnect packet");
@@ -676,12 +676,13 @@ A packet has arrived from the main event loop
 void idClientMainSystemLocal::PacketEvent(netadr_t from, msg_t *msg) {
     sint headerBytes;
 
+    clc.lastPacketTime = cls.realtime;
+
     if(msg->cursize >= 4 && *reinterpret_cast<sint *>(msg->data) == -1) {
         ConnectionlessPacket(from, msg);
         return;
     }
 
-    clc.lastPacketTime = cls.realtime;
 
     if(cls.state < CA_CONNECTED) {
         return;     // can't be a valid sequenced packet

@@ -514,7 +514,7 @@ void trap_Printf(sint printLevel, pointer fmt, ...) {
     imports->Printf(printLevel, fmt);
 }
 
-void trap_Error(sint errorLevel, pointer fmt, ...) {
+void trap_Error(errorParm_t errorLevel, pointer fmt, ...) {
     imports->Error(errorLevel, fmt);
 }
 

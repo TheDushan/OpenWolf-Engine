@@ -3718,13 +3718,10 @@ void idFileSystemLocal::Shutdown(bool closemfp) {
     cmdSystem->RemoveCommand("fdir");
     cmdSystem->RemoveCommand("touchFile");
     cmdSystem->RemoveCommand("which");
+    cmdSystem->RemoveCommand("fs_restart");
 
     if(closemfp) {
         fclose(missingFiles);
-    }
-
-    if(closemfp) {
-        cmdSystem->RemoveCommand("fs_restart");
     }
 }
 

@@ -179,7 +179,7 @@ void idServerWorldSystemLocal::ClearWorld(void) {
 
 /*
 ===============
-SV_UnlinkEntity
+idServerWorldSystemLocal::UnlinkEntity
 ===============
 */
 void idServerWorldSystemLocal::UnlinkEntity(sharedEntity_t *gEnt) {

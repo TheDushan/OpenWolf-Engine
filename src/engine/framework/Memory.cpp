@@ -220,7 +220,6 @@ void *idMemorySystemLocal::TagMalloc(size_t size, memtag_t tag) {
         zone = mainzone;
     }
 
-    allocSize = size;
     //
     // scan through the block list looking for the first free block
     // of sufficient size
@@ -239,6 +238,7 @@ void *idMemorySystemLocal::TagMalloc(size_t size, memtag_t tag) {
             Com_Error(ERR_FATAL,
                       "idMemorySystemLocal::TagMalloc: failed on allocation of %i bytes from the %s zone",
                       size, zone == smallzone ? "small" : "main");
+
             return nullptr;
         }
 
@@ -321,17 +321,17 @@ void idMemorySystemLocal::CheckHeap(void) {
         if(reinterpret_cast<uchar8 *>(block) + block->size !=
                 reinterpret_cast<uchar8 *>(block->next)) {
             Com_Error(ERR_FATAL,
-                      "idMemorySystemLocal::CheckHeap: block size does not touch the next block\n");
+                      "idMemorySystemLocal::CheckHeap: block size does not touch the next block");
         }
 
         if(block->next->prev != block) {
             Com_Error(ERR_FATAL,
-                      "idMemorySystemLocal::CheckHeap: next block doesn't have proper back link\n");
+                      "idMemorySystemLocal::CheckHeap: next block doesn't have proper back link");
         }
 
         if(!block->tag && !block->next->tag) {
             Com_Error(ERR_FATAL,
-                      "idMemorySystemLocal::CheckHeap: two consecutive free blocks\n");
+                      "idMemorySystemLocal::CheckHeap: two consecutive free blocks");
         }
     }
 }
@@ -351,7 +351,7 @@ void idMemorySystemLocal::LogZoneHeap(memzone_t *zone, valueType *name) {
         return;
     }
 
-    size = allocSize = numBlocks = 0;
+    size = numBlocks = 0;
 
     Q_vsprintf_s(buf, sizeof(buf), sizeof(buf),
                  "\r\n================\r\n%s log\r\n================\r\n", name);
@@ -575,8 +575,8 @@ void idMemorySystemLocal::InitZoneMemory(void) {
     cv = cvarSystem->Get("com_zoneMegs", DEF_COMZONEMEGS_S, CVAR_INIT,
                          "Sets the amount of memory reserved for the game.");
 
-    if(cv->integer < 20) {
-        s_zoneTotal = 1024 * 1024 * 16;
+    if(cv->integer < DEF_COMZONEMEGS) {
+        s_zoneTotal = 1024 * 1024 * DEF_COMZONEMEGS;
     } else {
         s_zoneTotal = cv->integer * 1024 * 1024;
     }

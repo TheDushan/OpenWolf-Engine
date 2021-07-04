@@ -1310,10 +1310,10 @@ valueType *idCVarSystemLocal::InfoString_Big(sint bit) {
 
     for(var = cvar_vars; var; var = var->next) {
         if(var->flags & bit) {
-            valueType cleaned_string[MAX_CVAR_VALUE_STRING];
+            valueType cleaned_string[BIG_INFO_STRING];
 
             Q_RemoveUnusedColorStrings(var->string, cleaned_string,
-                                       MAX_CVAR_VALUE_STRING);
+                                       BIG_INFO_STRING);
 
             if(Q_stricmp(cleaned_string, var->string)) {
                 cvarSystemLocal.Set(var->name, cleaned_string);

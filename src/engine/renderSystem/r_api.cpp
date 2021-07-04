@@ -73,7 +73,7 @@ void QDECL Com_Printf(pointer msg, ...) {
     imports->Printf("%s", text);
 }
 
-void QDECL Com_Error(sint level, pointer error, ...) {
+void QDECL Com_Error(errorParm_t level, pointer error, ...) {
     va_list argptr;
     valueType text[1024];
 
