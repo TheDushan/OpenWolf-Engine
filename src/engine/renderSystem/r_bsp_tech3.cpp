@@ -195,25 +195,38 @@ void ColorToRGB16(const vec3_t color, uchar16 rgb16[3]) {
 /*
 ===============
 R_LoadLightmaps
-
 ===============
 */
 #define DEFAULT_LIGHTMAP_SIZE   128
 static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
     sint/*imgFlags_t*/  imgFlags = IMGFLAG_NOLIGHTSCALE |
                                    IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE;
-    uchar8     *buf, *buf_p;
-    dsurface_t  *surf;
-    sint            len;
-    uchar8     *image;
-    sint            i, j, numLightmaps, textureInternalFormat = 0;
-    sint            numLightmapsPerPage = 16;
+    uchar8 *buf, *buf_p;
+    dsurface_t *surf;
+    sint len;
+    uchar8 *image;
+    sint i, j, numLightmaps, textureInternalFormat = 0;
+    sint numLightmapsPerPage = 16;
     float32 maxIntensity = 0;
     float64 sumIntensity = 0;
+    uint64 numExternalLightmaps = 0;
+
+    // clear lightmaps first
+    tr.numLightmaps = tr.maxLightmaps = 0;
+    tr.lightmaps = nullptr;
+
+    // get number of external lightmaps
+    if(tr.worldDir) {
+        fileSystem->ListFiles(tr.worldDir, ".tga", &numExternalLightmaps);
+    }
 
     len = l->filelen;
 
     if(!len) {
+        // Allocate data for external lightmaps.
+        tr.maxLightmaps = numExternalLightmaps;
+        tr.lightmaps = static_cast<image_t **>(memorySystem->Alloc(
+                tr.maxLightmaps * sizeof(image_t *), h_low));
         return;
     }
 
@@ -276,6 +289,7 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
         tr.numLightmaps = numLightmaps;
     }
 
+    tr.maxLightmaps = tr.numLightmaps + numExternalLightmaps;
     tr.lightmaps = reinterpret_cast<image_t **>(memorySystem->Alloc(
                        tr.numLightmaps * sizeof(image_t *), h_low));
 
@@ -912,9 +926,19 @@ ParseTriSurf
 static void ParseTriSurf(dsurface_t *ds, drawVert_t *verts,
                          float32 *hdrVertColors, msurface_t *surf, sint *indexes) {
     srfBspSurface_t *cv;
-    uint  *tri;
-    sint             i, j;
-    sint             numVerts, numIndexes, badTriangles;
+    uint *tri;
+    sint i, j;
+    sint numVerts, numIndexes, badTriangles;
+    sint realLightmapNum;
+
+    realLightmapNum = LittleLong(ds->lightmapNum);
+
+    // q3map misc_model has LIGHTMAP_NONE. q3map2 misc_model has LIGHTMAP_BY_VERTEX.
+    // Vanilla Q3 always used LIGHTMAP_BY_VERTEX, so correct old q3map misc_model value.
+    // (LIGHTMAP_NONE isn't valid on world surfaces anyway.)
+    if(realLightmapNum == LIGHTMAP_NONE) {
+        realLightmapNum = LIGHTMAP_BY_VERTEX;
+    }
 
     // get fog volume
     surf->fogIndex = LittleLong(ds->fogNum) + 1;
@@ -928,6 +952,16 @@ static void ParseTriSurf(dsurface_t *ds, drawVert_t *verts,
 
     numVerts = LittleLong(ds->numVerts);
     numIndexes = LittleLong(ds->numIndexes);
+
+    if(numVerts >= SHADER_MAX_VERTEXES) {
+        Com_Error(ERR_DROP, "ParseTriSurf: verts > MAX (%d > %d)", numVerts,
+                  SHADER_MAX_VERTEXES);
+    }
+
+    if(numIndexes >= SHADER_MAX_INDEXES) {
+        Com_Error(ERR_DROP, "ParseTriSurf: indices > MAX (%d > %d)", numIndexes,
+                  SHADER_MAX_INDEXES);
+    }
 
     //cv = memorySystem->Alloc(sizeof(*cv), h_low);
     cv = (srfBspSurface_t *)surf->data;
@@ -2638,71 +2672,74 @@ static  void R_LoadFogs(lump_t *l, lump_t *brushesLump,
     for(i = 0 ; i < count ; i++, fogs++) {
         out->originalBrushNumber = LittleLong(fogs->brushNum);
 
-        if(static_cast<uint>(out->originalBrushNumber) >= brushesCount) {
-            Com_Error(ERR_DROP, "fog brushNumber out of range");
-        }
+        // global fog has a brush number of -1, and no visible side
+        if(out->originalBrushNumber == -1) {
+            VectorSet(out->bounds[0], MIN_WORLD_COORD, MIN_WORLD_COORD,
+                      MIN_WORLD_COORD);
+            VectorSet(out->bounds[1], MAX_WORLD_COORD, MAX_WORLD_COORD,
+                      MAX_WORLD_COORD);
 
-        brush = brushes + out->originalBrushNumber;
-
-        firstSide = LittleLong(brush->firstSide);
-
-        if(static_cast<uint>(firstSide) > sidesCount - 6) {
-            Com_Error(ERR_DROP, "fog brush sideNumber out of range");
-        }
-
-        // brushes are always sorted with the axial sides first
-        sideNum = firstSide + 0;
-        planeNum = LittleLong(sides[ sideNum ].planeNum);
-        out->bounds[0][0] = -s_worldData.planes[ planeNum ].dist;
-
-        sideNum = firstSide + 1;
-        planeNum = LittleLong(sides[ sideNum ].planeNum);
-        out->bounds[1][0] = s_worldData.planes[ planeNum ].dist;
-
-        sideNum = firstSide + 2;
-        planeNum = LittleLong(sides[ sideNum ].planeNum);
-        out->bounds[0][1] = -s_worldData.planes[ planeNum ].dist;
-
-        sideNum = firstSide + 3;
-        planeNum = LittleLong(sides[ sideNum ].planeNum);
-        out->bounds[1][1] = s_worldData.planes[ planeNum ].dist;
-
-        sideNum = firstSide + 4;
-        planeNum = LittleLong(sides[ sideNum ].planeNum);
-        out->bounds[0][2] = -s_worldData.planes[ planeNum ].dist;
-
-        sideNum = firstSide + 5;
-        planeNum = LittleLong(sides[ sideNum ].planeNum);
-        out->bounds[1][2] = s_worldData.planes[ planeNum ].dist;
-
-        // get information from the shader for fog parameters
-        shader = R_FindShader(fogs->shader, LIGHTMAP_NONE, true);
-
-        out->parms = shader->fogParms;
-
-        out->colorInt = ColorBytes4(shader->fogParms.color[0],
-                                    shader->fogParms.color[1],
-                                    shader->fogParms.color[2], 1.0);
-
-        d = shader->fogParms.depthForOpaque < 1 ? 1 :
-            shader->fogParms.depthForOpaque;
-        out->tcScale = 1.0f / (d * 8);
-
-        // set the gradient vector
-        sideNum = LittleLong(fogs->visibleSide);
-
-        if(sideNum == -1) {
-            out->hasSurface = false;
+            firstSide = 0;
         } else {
-            sint sideOffset = firstSide + sideNum;
 
-            if(sideOffset >= sidesCount) {
-                clientRendererSystem->RefPrintf(PRINT_WARNING, "bad fog side offset %i\n",
-                                                sideOffset);
+            if(static_cast<uint>(out->originalBrushNumber) >= brushesCount) {
+                Com_Error(ERR_DROP, "fog brushNumber out of range");
+            }
+
+            brush = brushes + out->originalBrushNumber;
+
+            firstSide = LittleLong(brush->firstSide);
+
+            if(static_cast<uint>(firstSide) > sidesCount - 6) {
+                Com_Error(ERR_DROP, "fog brush sideNumber out of range");
+            }
+
+            // brushes are always sorted with the axial sides first
+            sideNum = firstSide + 0;
+            planeNum = LittleLong(sides[sideNum].planeNum);
+            out->bounds[0][0] = -s_worldData.planes[planeNum].dist;
+
+            sideNum = firstSide + 1;
+            planeNum = LittleLong(sides[sideNum].planeNum);
+            out->bounds[1][0] = s_worldData.planes[planeNum].dist;
+
+            sideNum = firstSide + 2;
+            planeNum = LittleLong(sides[sideNum].planeNum);
+            out->bounds[0][1] = -s_worldData.planes[planeNum].dist;
+
+            sideNum = firstSide + 3;
+            planeNum = LittleLong(sides[sideNum].planeNum);
+            out->bounds[1][1] = s_worldData.planes[planeNum].dist;
+
+            sideNum = firstSide + 4;
+            planeNum = LittleLong(sides[sideNum].planeNum);
+            out->bounds[0][2] = -s_worldData.planes[planeNum].dist;
+
+            sideNum = firstSide + 5;
+            planeNum = LittleLong(sides[sideNum].planeNum);
+            out->bounds[1][2] = s_worldData.planes[planeNum].dist;
+
+            // get information from the shader for fog parameters
+            shader = R_FindShader(fogs->shader, LIGHTMAP_NONE, true);
+
+            out->parms = shader->fogParms;
+
+            out->colorInt = ColorBytes4(shader->fogParms.color[0],
+                                        shader->fogParms.color[1],
+                                        shader->fogParms.color[2], 1.0);
+
+            d = shader->fogParms.depthForOpaque < 1 ? 1 :
+                shader->fogParms.depthForOpaque;
+            out->tcScale = 1.0f / (d * 8);
+
+            // set the gradient vector
+            sideNum = LittleLong(fogs->visibleSide);
+
+            if(sideNum == -1) {
                 out->hasSurface = false;
             } else {
                 out->hasSurface = true;
-                planeNum = LittleLong(sides[sideOffset].planeNum);
+                planeNum = LittleLong(sides[firstSide + sideNum].planeNum);
                 VectorSubtract(vec3_origin, s_worldData.planes[planeNum].normal,
                                out->surface);
                 out->surface[3] = -s_worldData.planes[planeNum].dist;
@@ -3431,6 +3468,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
     VectorClear(tr.lastCascadeSunDirection);
 
     tr.worldMapLoaded = true;
+    tr.worldDir = nullptr;
 
     // load it
     fileSystem->ReadFile(name, &buffer.v);
@@ -3439,6 +3477,10 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
         Com_Error(ERR_DROP, "idRenderSystemLocal::LoadWorldMap: %s not found",
                   name);
     }
+
+    tr.worldDir = static_cast<valueType *>(memorySystem->Malloc(::strlen(
+            name) + 1));
+    COM_StripExtension2(name, tr.worldDir, ::strlen(name) + 1);
 
     // clear tr.world so if the level fails to load, the next
     // try will not look at the partially loaded version
@@ -3458,11 +3500,15 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
     i = LittleLong(header->version);
 
+#if 0
+
     if(i != BSP_VERSION) {
         Com_Error(ERR_DROP,
                   "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i)",
                   name, i, BSP_VERSION);
     }
+
+#endif
 
     // swap all the lumps
     for(i = 0 ; i < sizeof(dheader_t) / 4 ; i++) {

@@ -80,6 +80,7 @@ convar_t *r_lodscale;
 convar_t *r_norefresh;
 convar_t *r_drawentities;
 convar_t *r_drawworld;
+convar_t *r_drawfoliage;
 convar_t *r_speeds;
 convar_t *r_fullbright;
 convar_t *r_novis;
@@ -696,6 +697,8 @@ void R_InitConsoleVars(void) {
                                  "Presumably enables/disables rendering of curves.");
     r_drawworld = cvarSystem->Get("r_drawworld", "1", CVAR_CHEAT,
                                   "Toggles rendering of world brushes (map architecture). Entities will still be drawn. 0=disables;1=enables. ");
+    r_drawfoliage = cvarSystem->Get("r_drawfoliage", "1", CVAR_CHEAT,
+                                    "Toggles rendering of world foliage brushes. 0=disables;1=enables. ");
     r_lightmap = cvarSystem->Get("r_lightmap", "0", 0,
                                  "Toggles rendering of lightmaps without rendering textures. 0=disables;1=enables");
     r_portalOnly = cvarSystem->Get("r_portalOnly", "0", CVAR_CHEAT,

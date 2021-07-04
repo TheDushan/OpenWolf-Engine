@@ -1540,6 +1540,7 @@ typedef struct {
     vec2_t autoExposureMinMax;
     vec3_t toneMinAvgMaxLevel;
     world_t *world;
+    valueType *worldDir;      // for referencing external lightmaps
 
     const uchar8
     *externalVisData;  // from RE_SetWorldVisData, shared with CM_Load
@@ -1600,7 +1601,8 @@ typedef struct {
     shader_t *sunFlareShader;
     valueType sunShaderName[MAX_QPATH];
 
-    sint    numLightmaps;
+    sint numLightmaps;
+    sint maxLightmaps;
     uint64  lightmapSize;
     image_t **lightmaps;
     image_t **deluxemaps;

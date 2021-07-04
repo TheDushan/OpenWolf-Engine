@@ -115,6 +115,8 @@ extern  convar_t   *r_drawentities;     // disable/enable entity rendering
 extern  convar_t
 *r_drawworld;            // disable/enable world rendering
 extern  convar_t
+*r_drawfoliage;             // disable/enable foliage rendering
+extern  convar_t
 *r_speeds;               // various levels of information display
 extern  convar_t
 *r_detailTextures;       // enables/disables detail texturing stages

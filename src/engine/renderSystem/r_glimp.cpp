@@ -903,7 +903,7 @@ void GLimp_InitExtensions(void) {
         // GL_EXT_texture_env_add
         glConfig.textureEnvAddAvailable = false;
 
-        if(GLimp_HaveExtension("EXT_texture_env_add")) {
+        if(GLimp_HaveExtension("GL_EXT_texture_env_add")) {
             if(r_ext_texture_env_add->integer) {
                 glConfig.textureEnvAddAvailable = true;
                 clientRendererSystem->RefPrintf(PRINT_ALL,

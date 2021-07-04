@@ -1288,11 +1288,15 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
                     reinterpret_cast<sint *>(&header))[i]);
     }
 
+#if 0
+
     if(header.version != BSP_VERSION) {
         Com_Error(ERR_DROP,
                   "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i)",
                   name, header.version, BSP_VERSION);
     }
+
+#endif
 
     cmod_base = reinterpret_cast<uchar8 *>(buf);
 

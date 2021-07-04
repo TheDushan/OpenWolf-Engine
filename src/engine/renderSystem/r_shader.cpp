@@ -813,22 +813,16 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                 return false;
             }
 
-            //----(SA)  fixes startup error and allows polygon shadows to work again
             if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "*white")) {
-                //----(SA)  end
                 stage->bundle[0].image[0] = tr.whiteImage;
                 continue;
-            }
-            //----(SA) added
-            else if(!Q_stricmp(token, "$dlight")) {
+            } else if(!Q_stricmp(token, "$dlight")) {
                 stage->bundle[0].image[0] = tr.dlightImage;
                 continue;
-            }
-            //----(SA) end
-            else if(!Q_stricmp(token, "$lightmap")) {
+            } else if(!Q_stricmp(token, "$lightmap")) {
                 stage->bundle[0].isLightmap = true;
 
-                if(shader.lightmapIndex < 0) {
+                if(shader.lightmapIndex < 0 || !tr.lightmaps) {
                     stage->bundle[0].image[0] = tr.whiteImage;
                 } else {
                     stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
@@ -836,9 +830,8 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
 
                 continue;
             } else {
-                //stage->bundle[0].image[0] = R_FindImageFile( token, false, qfalse, GL_CLAMP, true );
                 stage->bundle[0].image[0] = R_FindImageFile(token, IMGTYPE_COLORALPHA,
-                                            GL_CLAMP);
+                                            IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE);
 
                 if(!stage->bundle[0].image[0]) {
                     clientRendererSystem->RefPrintf(PRINT_WARNING,
@@ -3809,6 +3802,60 @@ shader_t *R_FindShaderByName(pointer name) {
     return tr.defaultShader;
 }
 
+/*
+===============
+R_FindLightmap
+===============
+*/
+#define EXTERNAL_LIGHTMAP   "lm_%04d.tga"    // THIS MUST BE IN SYNC WITH Q3MAP2
+void R_FindLightmap(int *lightmapIndex) {
+    image_t *image;
+    valueType fileName[MAX_QPATH];
+
+    // don't fool with bogus lightmap indexes
+    if(*lightmapIndex < 0) {
+        return;
+    }
+
+    // does this lightmap already exist?
+    if(*lightmapIndex < tr.numLightmaps &&
+            tr.lightmaps[*lightmapIndex] != NULL) {
+        return;
+    }
+
+    // bail if no world dir
+    if(tr.worldDir == nullptr) {
+        *lightmapIndex = LIGHTMAP_BY_VERTEX;
+        return;
+    }
+
+    // bail if no free slot
+    if(*lightmapIndex >= tr.maxLightmaps) {
+        *lightmapIndex = LIGHTMAP_BY_VERTEX;
+        return;
+    }
+
+    // sync up render thread, because we're going to have to load an image
+    R_IssuePendingRenderCommands();
+
+    // attempt to load an external lightmap
+    Q_vsprintf_s(fileName, sizeof(fileName), sizeof(fileName),
+                 "%s/" EXTERNAL_LIGHTMAP, tr.worldDir, *lightmapIndex);
+    image = R_FindImageFile(fileName, IMGTYPE_COLORALPHA,
+                            IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE);
+
+    if(image == nullptr) {
+        *lightmapIndex = LIGHTMAP_BY_VERTEX;
+        return;
+    }
+
+    // add it to the lightmap list
+    if(*lightmapIndex >= tr.numLightmaps) {
+        tr.numLightmaps = *lightmapIndex + 1;
+    }
+
+    tr.lightmaps[*lightmapIndex] = image;
+}
 
 /*
 ===============
@@ -3851,17 +3898,8 @@ shader_t *R_FindShader(pointer name, sint lightmapIndex,
         return tr.defaultShader;
     }
 
-    // use (fullbright) vertex lighting if the bsp file doesn't have
-    // lightmaps
-    if(lightmapIndex >= 0 && lightmapIndex >= tr.numLightmaps) {
-        lightmapIndex = LIGHTMAP_BY_VERTEX;
-    } else if(lightmapIndex < LIGHTMAP_2D) {
-        // negative lightmap indexes cause stray pointers (think tr.lightmaps[lightmapIndex])
-        clientRendererSystem->RefPrintf(PRINT_WARNING,
-                                        "WARNING: shader '%s' has invalid lightmap index of %d\n", name,
-                                        lightmapIndex);
-        lightmapIndex = LIGHTMAP_BY_VERTEX;
-    }
+    //validate lightmap index
+    R_FindLightmap(&lightmapIndex);
 
     COM_StripExtension2(name, strippedName, sizeof(strippedName));
 
