@@ -85,32 +85,36 @@ static sint32 generateHashValue(pointer fname) {
     return hash;
 }
 
-/*
-===============
-GL_TextureMode
-===============
-*/
-void GL_TextureMode(pointer string) {
-    sint        i;
-    image_t    *glt;
+void GL_TextureMode(const uint &mode, image_t *image) {
+    gl_filter_min = modes[mode].minimize;
+    gl_filter_max = modes[mode].maximize;
 
-    for(i = 0 ; i < 6 ; i++) {
-        if(!Q_stricmp(modes[i].name, string)) {
-            break;
-        }
-    }
-
-    if(i == 6) {
-        clientRendererSystem->RefPrintf(PRINT_ALL, "bad filter name\n");
+    if(nullptr == image) {
         return;
     }
 
-    gl_filter_min = modes[i].minimize;
-    gl_filter_max = modes[i].maximize;
+    if(image->flags & IMGFLAG_MIPMAP) {
+        qglTextureParameterfEXT(image->texnum, GL_TEXTURE_2D,
+                                GL_TEXTURE_MIN_FILTER, gl_filter_min);
+        qglTextureParameterfEXT(image->texnum, GL_TEXTURE_2D,
+                                GL_TEXTURE_MAG_FILTER, gl_filter_max);
+    } else {
+        qglTextureParameterfEXT(image->texnum, GL_TEXTURE_2D,
+                                GL_TEXTURE_MIN_FILTER, gl_filter_max);
+        qglTextureParameterfEXT(image->texnum, GL_TEXTURE_2D,
+                                GL_TEXTURE_MAG_FILTER, gl_filter_max);
+    }
+}
+
+void GL_TextureMode(const uint &mode) {
+    image_t *glt;
+
+    gl_filter_min = modes[mode].minimize;
+    gl_filter_max = modes[mode].maximize;
 
     // change all the existing mipmap texture objects
-    for(i = 0 ; i < tr.numImages ; i++) {
-        glt = tr.images[ i ];
+    for(sint i = 0; i < tr.numImages; i++) {
+        glt = tr.images[i];
 
         if(glt->flags & IMGFLAG_MIPMAP && !(glt->flags & IMGFLAG_CUBEMAP)) {
             qglTextureParameterfEXT(glt->texnum, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
@@ -119,6 +123,28 @@ void GL_TextureMode(pointer string) {
                                     gl_filter_max);
         }
     }
+}
+
+/*
+===============
+GL_TextureMode
+===============
+*/
+void GL_TextureMode(pointer string) {
+    uint i;
+
+    for(i = 0 ; i < 6 ; i++) {
+        if(!Q_stricmp(modes[i].name, string)) {
+            break;
+        }
+    }
+
+    if(i == 6U) {
+        clientRendererSystem->RefPrintf(PRINT_ALL, "bad filter name\n");
+        return;
+    }
+
+    GL_TextureMode(i);
 }
 
 /*

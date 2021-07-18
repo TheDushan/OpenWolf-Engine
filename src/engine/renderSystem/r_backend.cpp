@@ -1517,6 +1517,8 @@ const void *RB_SwapBuffers(const void *data) {
     backEnd.framePostProcessed = false;
     backEnd.projection2D = false;
 
+    glState.finishCalled = false;
+
     return (const void *)(cmd + 1);
 }
 

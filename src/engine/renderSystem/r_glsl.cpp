@@ -1187,8 +1187,12 @@ void idRenderSystemLocal::InitGPUShaders(void) {
                     if(r_parallaxMapShadows->integer) {
                         Q_strcat(extradefines, 1024, "#define USE_PARALLAXMAP_SHADOWS\n");
                     }
+
                 }
             }
+
+            Q_strcat(extradefines, 1024, va("#define r_parallaxMapOffset %f\n",
+                                            r_parallaxMapOffset->value));
 
             if(r_specularMapping->integer) {
                 Q_strcat(extradefines, 1024, "#define USE_SPECULARMAP\n");

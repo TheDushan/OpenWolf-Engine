@@ -129,6 +129,7 @@ convar_t *r_normalMapping;
 convar_t *r_specularMapping;
 convar_t *r_deluxeMapping;
 convar_t *r_parallaxMapping;
+convar_t *r_parallaxMapOffset;
 convar_t *r_parallaxMapShadows;
 convar_t *r_cubeMapping;
 convar_t *r_horizonFade;
@@ -442,6 +443,10 @@ void R_InitConsoleVars(void) {
     r_parallaxMapping = cvarSystem->Get("r_parallaxMapping", "1",
                                         CVAR_ARCHIVE | CVAR_LATCH,
                                         "Enable parallax mapping for materials that support it. 0 - No. (default) 1 - Use parallax occlusion mapping. 2 - Use relief mapping. (slower)");
+
+    r_parallaxMapOffset = cvarSystem->Get("r_parallaxMapOffset", "0",
+                                          CVAR_ARCHIVE | CVAR_LATCH,
+                                          "Enable parallax mapping for materials that support it. 0 - No. (default) 1 - Use parallax occlusion mapping. 2 - Use relief mapping. (slower)");
     r_parallaxMapShadows = cvarSystem->Get("r_parallaxMapShadows", "0",
                                            CVAR_ARCHIVE | CVAR_LATCH,
                                            "Enable self-shadowing on parallax map supported materials. 0 - No. (default) 1 - Yes.");
@@ -463,13 +468,13 @@ void R_InitConsoleVars(void) {
     r_baseNormalY = cvarSystem->Get("r_baseNormalY", "1.0",
                                     CVAR_ARCHIVE | CVAR_LATCH,
                                     "Set the scale of the Y values from normal maps when the normalScale keyword is not used. -1 - Flip Y. 0 - Ignore Y. 1 - Normal Y. (default) 2 - Double Y");
-    r_baseParallax = cvarSystem->Get("r_baseParallax", "0.001",
+    r_baseParallax = cvarSystem->Get("r_baseParallax", "0",
                                      CVAR_ARCHIVE | CVAR_LATCH,
                                      "Sets the scale of the parallax effect for materials when the parallaxDepth keyword is not used. 0 - No depth. 0.01 - Pretty smooth. 0.05 - Standard depth. (default) 0.001");
-    r_baseSpecular = cvarSystem->Get("r_baseSpecular", "0.04",
+    r_baseSpecular = cvarSystem->Get("r_baseSpecular", "0",
                                      CVAR_ARCHIVE | CVAR_LATCH,
                                      "Set the specular reflectance of materials which don't include a specular map or use the specularReflectance keyword. 0 - No. 0.04 - Realistic. (default) 1.0 - Ack.");
-    r_baseGloss = cvarSystem->Get("r_baseGloss", "0.3",
+    r_baseGloss = cvarSystem->Get("r_baseGloss", "1.0",
                                   CVAR_ARCHIVE | CVAR_LATCH,
                                   "Set the glossiness of materials which don't include a specular map or use the specularExponent keyword. 0 - Rough. 0.3 - Default. 1.0 - Shiny.");
     r_dlightMode = cvarSystem->Get("r_dlightMode", "0",
@@ -510,7 +515,7 @@ void R_InitConsoleVars(void) {
     r_sunShadows = cvarSystem->Get("r_sunShadows", "1",
                                    CVAR_ARCHIVE | CVAR_LATCH,
                                    "Enable sunlight and cascaded shadow maps for it on maps that support it. 0 - No. 1 - Yes. (default)");
-    r_shadowFilter = cvarSystem->Get("r_shadowFilter", "0",
+    r_shadowFilter = cvarSystem->Get("r_shadowFilter", "1",
                                      CVAR_ARCHIVE | CVAR_LATCH,
                                      "Enable filtering shadows for a smoother look. 0 - No. 1 - Some. (default) 2 - Much.");
     r_shadowBlur = cvarSystem->Get("r_shadowBlur", "1",
@@ -520,11 +525,11 @@ void R_InitConsoleVars(void) {
                                       "Size of each cascaded shadow map. 256 - 256x256, ugly, probably shouldn't go below this. 512 - 512x512, passable. 1024 - 1024x1024, good. (default) 2048 - 2048x2048, extreme. 4096 - 4096x4096, indistinguishable from 2048.");
     r_shadowCascadeZNear = cvarSystem->Get("r_shadowCascadeZNear", "4",
                                            CVAR_ARCHIVE | CVAR_LATCH,
-                                           "Size of each cascaded shadow map. 256 - 256x256, ugly, probably shouldn't go below this. 512 - 512x512, passable. 1024 - 1024x1024, good. (default) 2048 - 2048x2048, extreme. 4096 - 4096x4096, indistinguishable from 2048.");
-    r_shadowCascadeZFar = cvarSystem->Get("r_shadowCascadeZFar", "1024",
+                                           "Near plane for shadow cascade frustums.");
+    r_shadowCascadeZFar = cvarSystem->Get("r_shadowCascadeZFar", "3072",
                                           CVAR_ARCHIVE | CVAR_LATCH,
                                           "Far plane for shadow cascade frustums. 3072 - Default.");
-    r_shadowCascadeZBias = cvarSystem->Get("r_shadowCascadeZBias", "0",
+    r_shadowCascadeZBias = cvarSystem->Get("r_shadowCascadeZBias", "-256",
                                            CVAR_ARCHIVE | CVAR_LATCH,
                                            "Z-bias for shadow cascade frustums. -256 - Default.");
     r_ignoreDstAlpha = cvarSystem->Get("r_ignoreDstAlpha", "1",

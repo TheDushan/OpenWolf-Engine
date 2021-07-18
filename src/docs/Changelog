@@ -1,3 +1,6 @@
+2021-07-18 Dusan Jocic <dusanjocic@msn.com>
+	* [RenderSystem] Misc fixes
+
 2021-07-04 Dusan Jocic <dusanjocic@msn.com>
 	* [Misc] Misc changes
 	* [Filesystem] Introduced "fs_texturesfolder", "fs_soundsFolder" and "fs_modelsFolder"

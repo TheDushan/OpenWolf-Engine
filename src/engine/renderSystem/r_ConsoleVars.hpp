@@ -206,6 +206,7 @@ extern  convar_t  *r_normalMapping;
 extern  convar_t  *r_specularMapping;
 extern  convar_t  *r_deluxeMapping;
 extern  convar_t  *r_parallaxMapping;
+extern  convar_t  *r_parallaxMapOffset;
 extern  convar_t  *r_parallaxMapShadows;
 extern  convar_t  *r_cubeMapping;
 extern  convar_t  *r_horizonFade;

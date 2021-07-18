@@ -276,10 +276,6 @@ void RE_AddDynamicLightToScene(const vec3_t org, float32 intensity,
         return;
     }
 
-    if(intensity <= 0) {
-        return;
-    }
-
     dl = &backEndData->dlights[r_numdlights++];
     VectorCopy(org, dl->origin);
     dl->radius = intensity;
@@ -361,6 +357,8 @@ void RE_BeginScene(const refdef_t *fd) {
     tr.refdef.sunDir[3] = 0.0f;
     tr.refdef.sunCol[3] = 1.0f;
     tr.refdef.sunAmbCol[3] = 1.0f;
+
+    VectorNormalize(tr.sunDirection);
 
     VectorCopy(tr.sunDirection, tr.refdef.sunDir);
 

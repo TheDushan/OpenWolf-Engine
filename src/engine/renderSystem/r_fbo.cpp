@@ -184,13 +184,8 @@ void FBO_CreateBuffer(FBO_t *fbo, sint format, sint index,
         qglGenRenderbuffers(1, pRenderBuffer);
     }
 
-    if(multisample && glRefConfig.framebufferMultisample) {
-        qglNamedRenderbufferStorageMultisampleEXT(*pRenderBuffer, multisample,
-                format, fbo->width, fbo->height);
-    } else {
-        qglNamedRenderbufferStorageEXT(*pRenderBuffer, format, fbo->width,
-                                       fbo->height);
-    }
+    qglNamedRenderbufferStorageEXT(*pRenderBuffer, format, fbo->width,
+                                   fbo->height);
 
     if(absent) {
         if(attachment == 0) {
@@ -281,23 +276,6 @@ void idRenderSystemLocal::FBOInit(void) {
 
     if(r_hdr->integer && glRefConfig.textureFloat) {
         hdrFormat = GL_RGBA16F;
-    }
-
-    if(glRefConfig.framebufferMultisample) {
-        qglGetIntegerv(GL_MAX_SAMPLES, &multisample);
-    }
-
-    if(r_ext_framebuffer_multisample->integer < multisample) {
-        multisample = r_ext_framebuffer_multisample->integer;
-    }
-
-    if(multisample < 2 || !glRefConfig.framebufferBlit) {
-        multisample = 0;
-    }
-
-    if(multisample != r_ext_framebuffer_multisample->integer) {
-        cvarSystem->SetValue("r_ext_framebuffer_multisample",
-                             static_cast<float32>(multisample));
     }
 
     //

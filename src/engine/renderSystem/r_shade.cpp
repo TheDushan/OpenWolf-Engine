@@ -1366,6 +1366,11 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
             break;
         }
 
+        if(pStage->bundle[0].tcGen == TCGEN_ENVIRONMENT_MAPPED
+                || pStage->bundle[0].image[0]->flags & IMGFLAG_CUBEMAP) {
+            GL_TextureMode(5U, pStage->bundle[0].image[0]);
+        }
+
         if(backEnd.depthFill) {
             if(pStage->glslShaderGroup == tr.lightallShader) {
                 sint index = 0;
@@ -1433,15 +1438,36 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
             backEnd.pc.c_genericDraws++;
         }
 
+        GLSL_BindProgram(sp);
+
         if(pStage->isWater) {
+            if(stage > 0) {
+                break;
+            }
+
             sp = &tr.waterShader;
             pStage->glslShaderGroup = &tr.waterShader;
+            GLSL_SetUniformFloat(sp, UNIFORM_TIME, tess.shaderTime);
             GLSL_BindProgram(sp);
+            vec4_t loc0;
 
+            VectorSet4(loc0, static_cast<float32>(2.0f), 0, 0,
+                       0);     // force it to use the old water fx...
+
+            GLSL_SetUniformVec4(sp, UNIFORM_LOCAL0, loc0);
             RB_SetMaterialBasedProperties(sp, pStage);
 
             GLSL_SetUniformFloat(sp, UNIFORM_TIME,
                                  static_cast<float32>(tess.shaderTime));
+        } else {
+            if(!sp || !sp->program) {
+                pStage->glslShaderGroup = tr.lightallShader;
+                sp = &pStage->glslShaderGroup[0];
+            }
+
+            RB_SetMaterialBasedProperties(sp, pStage);
+
+            GLSL_BindProgram(sp);
         }
 
         RB_SetMaterialBasedProperties(sp, pStage);
@@ -1689,7 +1715,7 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
             }
 
             GLSL_SetUniformVec4(sp, UNIFORM_ENABLETEXTURES, enableTextures);
-        } else if(pStage->bundle[1].image[0] != 0) {
+        } else if(pStage->bundle[TB_LIGHTMAP].image[0] != 0) {
             R_BindAnimatedImageToTMU(&pStage->bundle[0], 0);
             R_BindAnimatedImageToTMU(&pStage->bundle[1], 1);
         } else {

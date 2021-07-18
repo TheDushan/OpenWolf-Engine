@@ -170,6 +170,11 @@ void RB_ShadowTessEnd(void) {
     vec3_t  lightDir;
     GLboolean rgba[4];
 
+    // we can only do this if we have enough space in the vertex buffers
+    if(tess.numVertexes >= SHADER_MAX_VERTEXES / 2) {
+        return;
+    }
+
     if(glConfig.stencilBits < 4) {
         return;
     }
@@ -178,7 +183,8 @@ void RB_ShadowTessEnd(void) {
 
     // project vertexes away from light direction
     for(i = 0 ; i < tess.numVertexes ; i++) {
-        VectorMA(tess.xyz[i], -512, lightDir, shadowXyz[i]);
+        //VectorMA(tess.xyz[i], -512, lightDir, shadowXyz[i]);
+        VectorMA(tess.xyz[i], -512, lightDir, tess.xyz[i + tess.numVertexes]);
     }
 
     // decide which triangles face the light

@@ -1418,7 +1418,6 @@ See if a sprite is inside a fog volume
 sint R_SpriteFogNum(trRefEntity_t *ent) {
     sint i, j;
     fog_t *fog;
-    float32 radius;
 
     if(tr.refdef.rdflags & RDF_NOWORLDMODEL) {
         return 0;
@@ -1428,14 +1427,15 @@ sint R_SpriteFogNum(trRefEntity_t *ent) {
         return 0;
     }
 
-    radius = ent->e.radius;
-
-    for(i = 1; i < tr.world->numfogs; i++) {
+    for(i = 1 ; i < tr.world->numfogs ; i++) {
         fog = &tr.world->fogs[i];
 
-        for(j = 0; j < 3; j++) {
-            if(ent->e.origin[j] - radius >= fog->bounds[1][j] ||
-                    ent->e.origin[j] + radius <= fog->bounds[0][j]) {
+        for(j = 0 ; j < 3 ; j++) {
+            if(ent->e.origin[j] - ent->e.radius >= fog->bounds[1][j]) {
+                break;
+            }
+
+            if(ent->e.origin[j] + ent->e.radius <= fog->bounds[0][j]) {
                 break;
             }
         }
@@ -1444,8 +1444,6 @@ sint R_SpriteFogNum(trRefEntity_t *ent) {
             return i;
         }
     }
-
-    return 0;
 }
 
 /*
@@ -2433,22 +2431,22 @@ void R_RenderSunShadowMaps(const refdef_t *fd, sint level) {
             ly = splitZNear * tan(fd->fov_y * M_PI / 360.0f);
             VectorMA(fd->vieworg, splitZNear, fd->viewaxis[0], base);
 
-            VectorMA(base,   lx, fd->viewaxis[1], point);
-            VectorMA(point,  ly, fd->viewaxis[2], point);
+            VectorMA(base, lx, fd->viewaxis[1], point);
+            VectorMA(point, ly, fd->viewaxis[2], point);
             Mat4Transform(lightViewMatrix, point, lightViewPoint);
             AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
-            VectorMA(base,  -lx, fd->viewaxis[1], point);
-            VectorMA(point,  ly, fd->viewaxis[2], point);
+            VectorMA(base, -lx, fd->viewaxis[1], point);
+            VectorMA(point, ly, fd->viewaxis[2], point);
             Mat4Transform(lightViewMatrix, point, lightViewPoint);
             AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
-            VectorMA(base,   lx, fd->viewaxis[1], point);
+            VectorMA(base, lx, fd->viewaxis[1], point);
             VectorMA(point, -ly, fd->viewaxis[2], point);
             Mat4Transform(lightViewMatrix, point, lightViewPoint);
             AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
-            VectorMA(base,  -lx, fd->viewaxis[1], point);
+            VectorMA(base, -lx, fd->viewaxis[1], point);
             VectorMA(point, -ly, fd->viewaxis[2], point);
             Mat4Transform(lightViewMatrix, point, lightViewPoint);
             AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
@@ -2459,22 +2457,22 @@ void R_RenderSunShadowMaps(const refdef_t *fd, sint level) {
             ly = splitZFar * tan(fd->fov_y * M_PI / 360.0f);
             VectorMA(fd->vieworg, splitZFar, fd->viewaxis[0], base);
 
-            VectorMA(base,   lx, fd->viewaxis[1], point);
-            VectorMA(point,  ly, fd->viewaxis[2], point);
+            VectorMA(base, lx, fd->viewaxis[1], point);
+            VectorMA(point, ly, fd->viewaxis[2], point);
             Mat4Transform(lightViewMatrix, point, lightViewPoint);
             AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
-            VectorMA(base,  -lx, fd->viewaxis[1], point);
-            VectorMA(point,  ly, fd->viewaxis[2], point);
+            VectorMA(base, -lx, fd->viewaxis[1], point);
+            VectorMA(point, ly, fd->viewaxis[2], point);
             Mat4Transform(lightViewMatrix, point, lightViewPoint);
             AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
-            VectorMA(base,   lx, fd->viewaxis[1], point);
+            VectorMA(base, lx, fd->viewaxis[1], point);
             VectorMA(point, -ly, fd->viewaxis[2], point);
             Mat4Transform(lightViewMatrix, point, lightViewPoint);
             AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
-            VectorMA(base,  -lx, fd->viewaxis[1], point);
+            VectorMA(base, -lx, fd->viewaxis[1], point);
             VectorMA(point, -ly, fd->viewaxis[2], point);
             Mat4Transform(lightViewMatrix, point, lightViewPoint);
             AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);

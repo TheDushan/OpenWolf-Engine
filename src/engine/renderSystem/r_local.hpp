@@ -906,7 +906,7 @@ enum surfaceType_t {
 };
 
 typedef struct drawSurf_s {
-    uint32 sort;            // bit combination for fast compares
+    uint64 sort;            // bit combination for fast compares
     sint cubemapIndex;
     surfaceType_t *surface;     // any of surface*_t
 } drawSurf_t;
@@ -1360,7 +1360,7 @@ the bits are allocated as follows:
 #define QSORT_FOGNUM_SHIFT  2
 #define QSORT_REFENTITYNUM_SHIFT    7
 #define QSORT_SHADERNUM_SHIFT   (QSORT_REFENTITYNUM_SHIFT+REFENTITYNUM_BITS)
-#if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
+#if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 64
 #error "Need to update sorting, too many bits."
 #endif
 #define QSORT_PSHADOW_SHIFT     1
@@ -1814,6 +1814,8 @@ void    GL_State(uint32 stateVector);
 void    GL_SetProjectionMatrix(mat4_t matrix);
 void    GL_SetModelviewMatrix(mat4_t matrix);
 void    GL_Cull(sint cullType);
+void    GL_TextureMode(const uint &mode, image_t *image);
+void    GL_TextureMode(const uint &mode);
 
 #define GLS_SRCBLEND_ZERO                       0x00000001
 #define GLS_SRCBLEND_ONE                        0x00000002
@@ -2347,8 +2349,8 @@ enum renderCommand_t {
 // these are sort of arbitrary limits.
 // the limits apply to the sum of all scenes in a frame --
 // the main view, all the 3D icons, etc
-#define MAX_POLYS       600
-#define MAX_POLYVERTS   3000
+#define MAX_POLYS       16384
+#define MAX_POLYVERTS   32768
 
 // all of the information needed by the back end must be
 // contained in a backEndData_t
