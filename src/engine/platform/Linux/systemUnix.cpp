@@ -82,7 +82,20 @@ pointer idSystemLocal::TempPath(void) {
     } else {
         return TMPDIR;
     }
+#else
+    static UInt8 posixPath[MAX_OSPATH];
+    FSRef ref;
+    if (FSFindFolder(kOnAppropriateDisk,
+        kTemporaryFolderType, kCreateFolder, &ref) == noErr)
+    {
+        if (FSRefMakePath(&ref, posixPath,
+            sizeof(posixPath) - 1) == noErr)
+        {
+            return (pointer)posixPath;
+        }
+    }
 
+    return "/tmp";
 #endif
 }
 
@@ -179,7 +192,7 @@ idSystemLocal::SysGetClipboardData
 */
 valueType *idSystemLocal::SysGetClipboardData(void) {
     valueType *data = nullptr;
-#ifndef DEDICATED
+#if !defined (DEDICATED)
     valueType *cliptext;
 
     if((cliptext = SDL_GetClipboardText()) != nullptr) {
@@ -195,8 +208,24 @@ valueType *idSystemLocal::SysGetClipboardData(void) {
 
         SDL_free(cliptext);
     }
-
 #endif
+#if defined (__MACOSX__)
+    FILE* pipe = popen("pbpaste", "r");
+    valueType buffer[MAX_EDIT_LINE];
+    valueType* data = NULL;
+
+    if (!pipe)
+    {
+        return nullptr;
+    }
+
+    fgets(buffer, sizeof(buffer), pipe);
+    pclose(pipe);
+
+    data = memorySystem->Malloc(sizeof(buffer));
+    Q_strncpyz(data, buffer, sizeof(buffer));
+#endif
+
     return data;
 }
 
@@ -670,6 +699,7 @@ sint idSystemLocal::XmessageCommand(dialogType_t type, pointer message,
 
     return system(command);
 }
+#endif
 
 /*
 ==============
@@ -680,6 +710,7 @@ Display a *nix dialog box
 */
 dialogResult_t idSystemLocal::Dialog(dialogType_t type, pointer message,
                                      pointer title) {
+#if defined (__LINUX__)
     enum dialogCommandType_t {
         NONE = 0,
         ZENITY,
@@ -755,8 +786,62 @@ dialogResult_t idSystemLocal::Dialog(dialogType_t type, pointer message,
     }
 
     return DR_OK;
-}
+#else
+    dialogResult_t result = DR_OK;
+    NSAlert* alert = [NSAlert new];
+
+    [alert setMessageText : [NSString stringWithUTF8String : title] ] ;
+    [alert setInformativeText : [NSString stringWithUTF8String : message] ] ;
+
+    if (type == DT_ERROR)
+        [alert setAlertStyle : NSCriticalAlertStyle];
+    else
+        [alert setAlertStyle : NSWarningAlertStyle];
+
+    switch (type)
+    {
+    default:
+        [alert runModal] ;
+        result = DR_OK;
+        break;
+
+    case DT_YES_NO:
+        [alert addButtonWithTitle : @"Yes"] ;
+        [alert addButtonWithTitle : @"No"] ;
+        switch ([alert runModal])
+        {
+        default:
+        case NSAlertFirstButtonReturn:
+            result = DR_YES;
+            break;
+        case NSAlertSecondButtonReturn:
+            result = DR_NO;
+            break;
+        }
+        break;
+
+    case DT_OK_CANCEL:
+        [alert addButtonWithTitle : @"OK"] ;
+        [alert addButtonWithTitle : @"Cancel"] ;
+
+        switch ([alert runModal])
+        {
+        default:
+        case NSAlertFirstButtonReturn:
+            result = DR_OK;
+            break;
+        case NSAlertSecondButtonReturn:
+            result = DR_CANCEL;
+            break;
+        }
+        break;
+    }
+
+    [alert release] ;
+
+    return result;
 #endif
+}
 
 /*
 ==================

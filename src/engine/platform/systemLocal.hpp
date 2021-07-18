@@ -75,7 +75,7 @@ static sint sys_monkeySpank;
 #endif
 
 #ifndef DEFAULT_BASEDIR
-#   #if defined (__MACOSX__)
+#   if defined (__MACOSX__)
 #       define DEFAULT_BASEDIR idSystemLocal::StripAppBundle(idSystemLocal::BinaryPath())
 #   else
 #       define DEFAULT_BASEDIR idSystemLocal::BinaryPath()

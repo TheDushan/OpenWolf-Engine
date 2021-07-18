@@ -30,10 +30,6 @@
 
 #include <renderSystem/r_precompiled.hpp>
 
-#if idppc_altivec && !defined(__APPLE__)
-#include <altivec.h>
-#endif
-
 /*
 THIS ENTIRE FILE IS BACK END
 

@@ -1,6 +1,7 @@
 2021-07-18 Dusan Jocic <dusanjocic@msn.com>
 	* [RenderSystem] Misc fixes
 	* [Mac] Some work to get Macintosh build fixed
+	* [Mac] More work for Macintosh build
 
 2021-07-04 Dusan Jocic <dusanjocic@msn.com>
 	* [Misc] Misc changes
