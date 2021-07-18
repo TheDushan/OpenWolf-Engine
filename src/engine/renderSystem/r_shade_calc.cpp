@@ -30,11 +30,6 @@
 
 #include <renderSystem/r_precompiled.hpp>
 
-#if idppc_altivec && !defined(__APPLE__)
-#include <altivec.h>
-#endif
-
-
 #define WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ static_cast<sint32>( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
 static float32 *TableForFunc(genFunc_t func) {

@@ -143,7 +143,7 @@ convar_t *s_alAvailableInputDevices;
 convar_t *s_alDriver;
 #if defined( _WIN32 )
 #define ALDRIVER_DEFAULT "OpenAL64"
-#elif defined( MACOS_X )
+#elif defined (__MACOSX__)
 #define ALDRIVER_DEFAULT "/System/Library/Frameworks/OpenAL.framework/OpenAL"
 #else
 #define ALDRIVER_DEFAULT "libopenal.so.1"

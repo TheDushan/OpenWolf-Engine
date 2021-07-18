@@ -71,7 +71,7 @@
 #endif
 //============================================================== MAC OS X ===
 
-#if defined(MACOS_X)
+#if defined (__MACOSX__)
 
 #define MAC_STATIC
 

@@ -36,7 +36,7 @@
 
 //Dushan - broken
 
-#if !defined (_WIN32) && !defined (_LINUX_)
+#if !defined (_WIN32) && !defined (__LINUX__)
 
 #ifndef MACOS_X
 #error This file is for Mac OS X only. You probably should not compile it.
@@ -45,20 +45,20 @@
 // Please note that this file is just some Mac-specific bits. Most of the
 // Mac OS X code is shared with other Unix platforms in sys_unix.c ...
 
-#include <qcommon/q_shared.hpp>
-#include <qcommon/qcommon.hpp>
-#include <platform/sys_local.hpp>
-
-#include <sys/sysctl.h>
-#import <Carbon/Carbon.h>
-#import <Cocoa/Cocoa.h>
+#ifdef UPDATE_SERVER
+#include <server/serverAutoPrecompiled.hpp>
+#elif DEDICATED
+#include <server/serverDedPrecompiled.hpp>
+#else
+#include <framework/precompiled.hpp>
+#endif
 
 /*
 ================
 idSystemLocal::TempPath
 ================
 */
-StringEntry idSystemLocal::TempPath( void )
+pointer idSystemLocal::TempPath( void )
 {
     static UInt8 posixPath[ MAX_OSPATH ];
     FSRef ref;
@@ -68,7 +68,7 @@ StringEntry idSystemLocal::TempPath( void )
         if( FSRefMakePath( &ref, posixPath,
                            sizeof( posixPath ) - 1 ) == noErr )
         {
-            return ( StringEntry )posixPath;
+            return ( pointer )posixPath;
         }
     }
     
@@ -80,11 +80,11 @@ StringEntry idSystemLocal::TempPath( void )
 IdSystemLocal::SysGetClipboardData
 ==================
 */
-UTF8* idSystemLocal::SysGetClipboardData( void )
+valueType* idSystemLocal::SysGetClipboardData( void )
 {
     FILE* pipe = popen( "pbpaste", "r" );
-    UTF8 buffer[MAX_EDIT_LINE];
-    UTF8* data = NULL;
+    valueType buffer[MAX_EDIT_LINE];
+    valueType* data = NULL;
     
     if( !pipe )
     {
@@ -107,7 +107,7 @@ idSystemLocal::Dialog
 Display an OS X dialog box
 ==============
 */
-dialogResult_t idSystemLocal::Dialog( dialogType_t type, StringEntry message, StringEntry title )
+dialogResult_t idSystemLocal::Dialog( dialogType_t type, pointer message, pointer title )
 {
     dialogResult_t result = DR_OK;
     NSAlert* alert = [NSAlert new];
@@ -164,9 +164,9 @@ dialogResult_t idSystemLocal::Dialog( dialogType_t type, StringEntry message, St
     return result;
 }
 
-UTF8* idSystemLocal::StripAppBundle( UTF8* dir )
+valueType* idSystemLocal::StripAppBundle( valueType* dir )
 {
-    static UTF8 cwd[MAX_OSPATH];
+    static valueType cwd[MAX_OSPATH];
     
     Q_strncpyz( cwd, dir, sizeof( cwd ) );
     if( ::strcmp( Basename( cwd ), "MacOS" ) )

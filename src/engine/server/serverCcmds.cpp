@@ -263,7 +263,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
                     memorySystem->FreeTempMemory(buffer);
                     fileSystem->Delete(va("%scurrent.sav", savedir));
                     // TTimo
-#ifdef __linux__
+#ifdef __LINUX__
                     Com_Error(ERR_DROP,
                               "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory.");
 #else

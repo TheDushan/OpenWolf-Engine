@@ -204,7 +204,7 @@ convar_t *fs_homepath;
 convar_t *fs_basepath;
 convar_t *fs_libpath;
 
-#ifdef MACOS_X
+#if defined (__MACOSX__)
 // Also search the .app bundle for .pk3 files
 convar_t *fs_apppath;
 #endif
@@ -746,7 +746,7 @@ void Com_InitCommonConsoleVars(void) {
                                   "Allows people to base mods upon mods syntax to follow.");
     fs_libpath = cvarSystem->Get("fs_libpath", idsystem->DefaultLibPath(),
                                  CVAR_INIT, "Default binary directory.");
-#ifdef MACOS_X
+#if defined (__MACOSX__)
     fs_apppath = cvarSystem->Get("fs_apppath", idsystem->DefaultAppPath(),
                                  CVAR_INIT, "Default app directory.");
 #endif

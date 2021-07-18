@@ -89,7 +89,7 @@
 // MSVC users must install the OpenAL SDK which doesn't use the AL/*.h scheme.
 #include <al.h>
 #include <alc.h>
-#elif defined (MACOS_X)
+#elif defined (__MACOSX__)
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #else

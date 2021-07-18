@@ -887,7 +887,7 @@ void idClientKeysSystemLocal::KeyEvent(sint key, sint down, sint time) {
         }
     }
 
-#if defined (MACOS_X)
+#if defined (__MACOSX__)
 
     if(down && keys[ K_COMMAND ].down) {
 

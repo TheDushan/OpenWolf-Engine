@@ -43,7 +43,7 @@
 #include <framework/precompiled.hpp>
 #endif
 
-#ifdef __LINUX__
+#if defined (__LINUX__) || defined (__MACOSX__)
 
 /*
 ==================
@@ -56,7 +56,7 @@ valueType *idSystemLocal::DefaultHomePath(valueType *buffer, sint size) {
     if(!*homePath) {
         if((p = getenv("HOME")) != nullptr) {
             Q_strncpyz(buffer, p, size);
-#ifdef MACOS_X
+#if defined (__MACOSX__)
             Q_strcat(buffer, size, "/Library/Application Support/"
                      PRODUCT_NAME_UPPPER);
 #else
@@ -74,7 +74,7 @@ idSystemLocal::TempPath
 ================
 */
 pointer idSystemLocal::TempPath(void) {
-#ifndef MACOS_X
+#if !defined (__MACOSX__)
     pointer TMPDIR = getenv("TMPDIR");
 
     if(TMPDIR == nullptr || TMPDIR[0] == '\0') {
@@ -250,7 +250,7 @@ idSystemLocal::Cwd
 ==================
 */
 valueType *idSystemLocal::Cwd(void) {
-#ifdef MACOS_X
+#if defined (__MACOSX__)
     valueType *apppath = DefaultAppPath();
 
     if(apppath[0] && apppath[0] != '.') {
@@ -559,7 +559,7 @@ void idSystemLocal::ErrorDialog(pointer error) {
     close(f);
 }
 
-#ifndef MACOS_X
+#if !defined (__MACOSX__)
 /*
 ==============
 idSystemLocal::ZenityCommand
@@ -1042,7 +1042,7 @@ bool idSystemLocal::IsNumLockDown(void) {
     return (SDL_GetModState() & KMOD_NUM) == KMOD_NUM;
 }
 
-#ifdef MACOS_X
+#if defined (__MACOSX__)
 /*
 =================
 idSystemLocal::StripAppBundle
@@ -1076,6 +1076,6 @@ valueType *idSystemLocal::StripAppBundle(valueType *dir) {
     Q_strncpyz(cwd, Dirname(cwd), sizeof(cwd));
     return cwd;
 }
-#endif // MACOS_X
+#endif // MACOSX
 
 #endif

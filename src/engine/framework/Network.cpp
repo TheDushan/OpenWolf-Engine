@@ -1432,7 +1432,7 @@ idNetworkSystemLocal::GetLocalAddress
 =============
 */
 void idNetworkSystemLocal::GetLocalAddress(void) {
-#if defined(__linux__) || defined(MACOSX) || defined(__BSD__)
+#if defined(__linux__) || defined(__MACOSX__) || defined(__BSD__)
     struct ifaddrs *ifap, * search;
 #else
     valueType hostname[256];
@@ -1442,7 +1442,7 @@ void idNetworkSystemLocal::GetLocalAddress(void) {
 
     numIP = 0;
 
-#if defined(__linux__) || defined(MACOSX) || defined(__BSD__)
+#if defined(__linux__) || defined(__MACOSX__) || defined(__BSD__)
 
     if(getifaddrs(&ifap)) {
         Com_Printf("idNetworkSystemLocal::GetLocalAddress: Unable to get list of network interfaces: %s\n",

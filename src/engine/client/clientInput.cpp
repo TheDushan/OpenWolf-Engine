@@ -1142,7 +1142,7 @@ void idClientInputSystemLocal::JoystickMove(usercmd_t *cmd) {
         anglespeed = static_cast<float32>(cls.frametime) / 1000.0f;
     }
 
-#ifdef __MACOS__
+#if defined (__MACOSX__)
     cmd->rightmove = ClampChar(cmd->rightmove + cl.joystickAxis[AXIS_SIDE]);
 #else
 

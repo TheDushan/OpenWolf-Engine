@@ -1443,11 +1443,6 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
                         && !fileSystemLocal.IsExt(filename, ".dat", l)    // for journal files
                         && !fileSystemLocal.IsExt(filename, "bots.txt", l)
                         && !fileSystemLocal.IsExt(filename, ".botents", l)
-#ifdef __MACOS__
-                        // even when pure is on, let the server game be loaded
-                        && !fileSystemLocal.IsExt(filename, "qagame_mac",
-                                                  l)    // Dushan - this is wrong now
-#endif
                   ) {
                     continue;
                 }
@@ -3799,13 +3794,11 @@ void idFileSystemLocal::Startup(pointer gameName) {
 
     // fs_homepath is somewhat particular to *nix systems, only add if relevant
 
-#ifdef MACOS_X
-
+#if defined (__MACOSX__)
     // Make MacOSX also include the base path included with the .app bundle
     if(fs_apppath->string[0]) {
         AddGameDirectory(fs_apppath->string, gameName);
     }
-
 #endif
 
     // NOTE: same filtering below for mods and basegame
