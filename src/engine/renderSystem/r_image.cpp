@@ -2714,7 +2714,7 @@ static void R_CreateEnvBrdfLUT(void) {
     }
 
     sint        x, y;
-    uint16_t    data[LUT_WIDTH][LUT_HEIGHT][4];
+    uchar16    data[LUT_WIDTH][LUT_HEIGHT][4];
 
     float32 const MATH_PI = 3.14159f;
     uint const sampleNum = 1024;

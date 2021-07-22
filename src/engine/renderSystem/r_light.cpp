@@ -115,6 +115,10 @@ void R_DlightBmodel(bmodel_t *bmodel) {
                 ((srfBspSurface_t *)surf->data)->dlightBits = mask;
                 break;
 
+            case SF_FOLIAGE:
+                ((srfFoliage_t *)surf->data)->dlightBits = mask;
+                break;
+
             default:
                 break;
         }

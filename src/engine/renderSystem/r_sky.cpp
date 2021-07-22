@@ -330,6 +330,11 @@ static void MakeSkyVec(float32 s, float32 t, sint axis, float32 outSt[2],
     sint            j, k;
     float32 boxSize;
 
+    // make sure the sky is not near clipped
+    if(boxSize < r_znear->value * 2.0) {
+        boxSize = r_znear->value * 2.0;
+    }
+
     boxSize = backEnd.viewParms.zFar / 1.75;        // div sqrt(3)
     b[0] = s * boxSize;
     b[1] = t * boxSize;
@@ -578,6 +583,9 @@ static void FillCloudySkySide(const sint mins[2], const sint maxs[2],
     tHeight = maxs[1] - mins[1] + 1;
     sWidth = maxs[0] - mins[0] + 1;
 
+    RB_CHECKOVERFLOW((maxs[0] - mins[0]) * (maxs[1] - mins[1]),
+                     (sWidth - 1) * (tHeight - 1) * 6);
+
     for(t = mins[1] + HALF_SKY_SUBDIVISIONS;
             t <= maxs[1] + HALF_SKY_SUBDIVISIONS; t++) {
         for(s = mins[0] + HALF_SKY_SUBDIVISIONS;
@@ -727,7 +735,7 @@ static void FillCloudBox(const shader_t *shader, sint stage) {
 ** R_BuildCloudData
 */
 void R_BuildCloudData(shaderCommands_t *input) {
-    sint            i;
+    //sint            i;
     shader_t   *shader;
 
     shader = input->shader;
@@ -743,13 +751,7 @@ void R_BuildCloudData(shaderCommands_t *input) {
     tess.firstIndex = 0;
 
     if(shader->sky.cloudHeight) {
-        for(i = 0; i < MAX_SHADER_STAGES; i++) {
-            if(!tess.xstages[i]) {
-                break;
-            }
-
-            FillCloudBox(shader, i);
-        }
+        FillCloudBox(shader, 0);
     }
 }
 

@@ -2405,12 +2405,16 @@ static bool ParseShader(pointer name, valueType **text) {
             } else if(!Q_stricmp(token, "back") || !Q_stricmp(token, "backside") ||
                       !Q_stricmp(token, "backsided")) {
                 shader.cullType = CT_BACK_SIDED;
+            } else if(!Q_stricmp(token, "front") || !Q_stricmp(token, "frontside") ||
+                      !Q_stricmp(token, "frontsided")) {
+                shader.cullType = CT_FRONT_SIDED;
             } else {
                 clientRendererSystem->RefPrintf(PRINT_WARNING,
                                                 "WARNING: invalid cull parm '%s' in shader '%s'\n", token, shader.name);
             }
 
             continue;
+
         } else if(!Q_stricmp(token, "dpglossintensitymod")) {
             COM_ParseExt2(text, false);
             continue;
@@ -2422,6 +2426,34 @@ static bool ParseShader(pointer name, valueType **text) {
             continue;
         } else if(!Q_stricmp(token, "q3map_bouncescale")) {
             COM_ParseExt2(text, false);
+            continue;
+        }
+        // distancecull <opaque distance> <transparent distance> <alpha threshold>
+        else if(!Q_stricmp(token, "distancecull")) {
+            int i;
+
+            for(i = 0; i < 3; i++) {
+                token = COM_ParseExt2(text, false);
+
+                if(token[0] == 0) {
+                    clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                                    "WARNING: missing distancecull parms in shader '%s'\n", shader.name);
+                } else {
+                    shader.distanceCull[i] = atof(token);
+                }
+            }
+
+            if(shader.distanceCull[1] - shader.distanceCull[0] > 0) {
+                // distanceCull[ 3 ] is an optimization
+                shader.distanceCull[3] = 1.0 / (shader.distanceCull[1] -
+                                                shader.distanceCull[0]);
+            } else {
+                shader.distanceCull[0] = 0;
+                shader.distanceCull[1] = 0;
+                shader.distanceCull[2] = 0;
+                shader.distanceCull[3] = 0;
+            }
+
             continue;
         }
         // sort

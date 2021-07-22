@@ -1,3 +1,6 @@
+2021-07-22 Dusan Jocic <dusanjocic@msn.com>
+	* [RenderSystem] Added foliage surface
+
 2021-07-18 Dusan Jocic <dusanjocic@msn.com>
 	* [RenderSystem] Misc fixes
 	* [Mac] Some work to get Macintosh build fixed

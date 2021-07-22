@@ -506,7 +506,128 @@ static void RB_SurfaceTriangles(srfBspSurface_t *srf) {
                               srf->indexes, srf->dlightBits, srf->pshadowBits);
 }
 
+/*
+=============
+RB_SurfaceFoliage
+=============
+*/
+static void RB_SurfaceFoliage(srfFoliage_t *srf) {
+    sint o, i;
+    vec4_t distanceCull, distanceVector;
+    float32 alpha, z, dist, fovScale;
+    float32 *xyz;
+    uchar16 srcColor[4];
+    uchar16 *color;
+    vec3_t local;
+    foliageInstance_t *instance;
+    sint numPlanes;
 
+    // set fov scale
+    fovScale = backEnd.viewParms.fovX * (1.0 / 90.0);
+
+    // calculate distance vector
+    VectorSubtract(backEnd.orientation.origin,
+                   backEnd.viewParms.orientation.origin, local);
+    distanceVector[0] = -backEnd.orientation.modelMatrix[2];
+    distanceVector[1] = -backEnd.orientation.modelMatrix[6];
+    distanceVector[2] = -backEnd.orientation.modelMatrix[10];
+    distanceVector[3] = DotProduct(local,
+                                   backEnd.viewParms.orientation.axis[0]);
+
+    // attempt distance cull
+    Vector4Copy(tess.shader->distanceCull, distanceCull);
+
+    if(distanceCull[1] > 0) {
+        //VectorSubtract( srf->localOrigin, viewOrigin, delta );
+        //alpha = (distanceCull[ 1 ] - VectorLength( delta ) + srf->radius) * distanceCull[ 3 ];
+        z = fovScale * (DotProduct(srf->origin,
+                                   distanceVector) + distanceVector[3] - srf->radius);
+        alpha = (distanceCull[1] - z) * distanceCull[3];
+
+        if(alpha < distanceCull[2]) {
+            return;
+        }
+    }
+
+    numPlanes = (backEnd.viewParms.flags & VPF_FARPLANEFRUSTUM) ? 5 : 4;
+
+    // iterate through origin list
+    instance = srf->instances;
+
+    for(o = 0; o < srf->numInstances; o++, instance++) {
+        // fade alpha based on distance between inner and outer radii
+        if(distanceCull[1] > 0.0f) {
+            // calculate z distance
+            z = fovScale * (DotProduct(instance->origin,
+                                       distanceVector) + distanceVector[3]);
+
+            if(z < -64.0f) {   // epsilon so close-by foliage doesn't pop in and out
+                continue;
+            }
+
+            // check against frustum planes
+            for(i = 0; i < numPlanes; i++) {
+                dist = DotProduct(instance->origin,
+                                  backEnd.viewParms.frustum[i].normal) - backEnd.viewParms.frustum[i].dist;
+
+                if(dist < -64.0) {
+                    break;
+                }
+            }
+
+            if(i != numPlanes) {
+                continue;
+            }
+
+            // radix
+            if(o & 1) {
+                z *= 1.25;
+
+                if(o & 2) {
+                    z *= 1.25;
+                }
+            }
+
+            // calculate alpha
+            alpha = (distanceCull[1] - z) * distanceCull[3];
+
+            if(alpha < distanceCull[2]) {
+                continue;
+            }
+
+            // set color
+            alpha = Com_Clamp(0, 255, alpha * 255);
+        } else {
+            alpha = 255;
+        }
+
+        Vector4Copy(instance->color, srcColor);
+        srcColor[3] = alpha * 257;
+
+        // clientRendererSystem->RefPrintf( PRINT_ALL, "Color: %f %f %f %f\n", instance->color[ 0 ], instance->color[ 1 ], instance->color[ 2 ], alpha );
+
+        RB_SurfaceVertsAndIndexes(srf->numVerts, srf->verts, srf->numIndexes,
+                                  srf->indexes, srf->dlightBits, srf->pshadowBits);
+
+        // offset xyz
+        xyz = tess.xyz[tess.numVertexes - srf->numVerts];
+
+        for(i = 0; i < srf->numVerts; i++, xyz += 4) {
+            VectorAdd(xyz, instance->origin, xyz);
+        }
+
+        // copy color
+        color = tess.color[tess.numVertexes - srf->numVerts];
+
+        for(i = 0; i < srf->numVerts; i++, color += 4) {
+            Vector4Copy(srcColor, color);
+        }
+    }
+
+    // RB_DrawBounds( srf->bounds[ 0 ], srf->bounds[ 1 ] );
+}
+
+//================================================================================
 
 /*
 ==============
@@ -1422,6 +1543,7 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *) = {
     (void(*)(void *))RB_SurfaceFace,              // SF_FACE,
     (void(*)(void *))RB_SurfaceGrid,              // SF_GRID,
     (void(*)(void *))RB_SurfaceTriangles,         // SF_TRIANGLES,
+    (void(*)(void *))RB_SurfaceFoliage,         // SF_FOLIAGE,
     (void(*)(void *))RB_SurfacePolychain,         // SF_POLY,
     (void(*)(void *))RB_SurfaceMesh,              // SF_MDV,
     (void(*)(void *))RB_MDRSurfaceAnim,           // SF_MDR,
