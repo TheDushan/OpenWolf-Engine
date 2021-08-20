@@ -263,12 +263,8 @@ void Com_Error(errorParm_t code, pointer fmt, ... )
 
     cvarSystem->Set( "com_errorCode", va( "%i", code ) );
 
-    // when we are running automated scripts, make sure we
-    // know if anything failed
-    if( com_buildScript && com_buildScript->integer )
-    {
-        code = ERR_FATAL;
-    }
+    // make sure we can get at our local stuff
+    fileSystem->PureServerSetLoadedPaks("", "");
 
     // if we are getting a solid stream of ERR_DROP, do an ERR_FATAL
     currentTime = idsystem->Milliseconds();
@@ -307,9 +303,6 @@ void Com_Error(errorParm_t code, pointer fmt, ... )
             clientMainSystem->FlushMemory();
 #endif
 
-            // make sure we can get at our local stuff
-            fileSystem->PureServerSetLoadedPaks("", "");
-
             com_errorEntered = false;
             longjmp(abortframe, -1);
         }
@@ -325,9 +318,6 @@ void Com_Error(errorParm_t code, pointer fmt, ... )
             clientMainSystem->FlushMemory();
 #endif
 
-            // make sure we can get at our local stuff
-            fileSystem->PureServerSetLoadedPaks("", "");
-
             com_errorEntered = false;
             longjmp(abortframe, -1);
         }
@@ -341,9 +331,6 @@ void Com_Error(errorParm_t code, pointer fmt, ... )
 #endif
 
             clientMainSystem->FlushMemory();
-
-            // make sure we can get at our local stuff
-            fileSystem->PureServerSetLoadedPaks("", "");
 
             com_errorEntered = false;
 
@@ -485,6 +472,8 @@ do the apropriate things.
 */
 void Com_Quit_f( void )
 {
+    valueType* p = cmdSystem->Args();
+
     // don't try to shutdown if we are in a recursive error
     if( !com_errorEntered )
     {
@@ -492,7 +481,7 @@ void Com_Quit_f( void )
         // which would trigger an unload of active VM error.
         // idSystemLocal::Quit will kill this process anyways, so
         // a corrupt call stack makes no difference
-        serverInitSystem->Shutdown( "Server quit\n" );
+        serverInitSystem->Shutdown(p[0] ? p : "Server quit\n");
 
 //bani
 #ifndef DEDICATED
@@ -2151,18 +2140,7 @@ sint Com_ModifyMsec( sint msec )
 
     if(dedicated->integer )
     {
-        // dedicated servers don't want to clamp for a much longer
-        // period, because it would mess up all the client's views
-        // of time.
-        if(sv_running->integer && msec > 500 && msec < 500000 )
-        {
-            // hibernation mode cause this
-            //if( !svs.hibernation.enabled )
-            {
-                Com_Printf( "Hitch warning: %i msec frame time\n", msec );
-            }
-        }
-        clampTime = 5000;
+        clampTime = 50000;
     }
     else if( !sv_running->integer )
     {

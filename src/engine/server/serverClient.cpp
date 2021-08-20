@@ -805,9 +805,6 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
     // add the disconnect command
     serverMainSystem->SendServerCommand(drop, va("disconnect \"%s\"", reason));
 
-    // nuke user info
-    serverInitSystem->SetUserinfo(ARRAY_INDEX(svs.clients, drop), "");
-
 #if !defined (UPDATE_SERVER)
     // OACS: Commit then reset the last interframe for this client
     idServerOACSSystemLocal::ExtendedRecordDropClient(drop - svs.clients);
@@ -822,6 +819,9 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
     if(drop->demo.demorecording) {
         idServerCcmdsSystemLocal::StopRecordDemo(drop);
     }
+
+    // nuke user info
+    serverInitSystem->SetUserinfo(ARRAY_INDEX(svs.clients, drop), "");
 
     // if this was the last client on the server, send a heartbeat
     // to the master so it is known the server is empty

@@ -477,7 +477,7 @@ void R_InitConsoleVars(void) {
     r_baseGloss = cvarSystem->Get("r_baseGloss", "1.0",
                                   CVAR_ARCHIVE | CVAR_LATCH,
                                   "Set the glossiness of materials which don't include a specular map or use the specularExponent keyword. 0 - Rough. 0.3 - Default. 1.0 - Shiny.");
-    r_dlightMode = cvarSystem->Get("r_dlightMode", "0",
+    r_dlightMode = cvarSystem->Get("r_dlightMode", "1",
                                    CVAR_ARCHIVE | CVAR_LATCH,
                                    "Change how dynamic lights look. 0 - Quake 3 style dlights, fake brightening. (default) 1 - Actual lighting, no shadows. 2 - Light and shadows.");
     r_pshadowDist = cvarSystem->Get("r_pshadowDist", "128", CVAR_ARCHIVE,

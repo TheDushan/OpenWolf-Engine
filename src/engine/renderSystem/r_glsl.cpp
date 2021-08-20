@@ -1068,6 +1068,14 @@ void idRenderSystemLocal::InitGPUShaders(void) {
             attribs |= ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS;
         }
 
+        if(i & FOGDEF_USE_WOLF_FOG_LINEAR) {
+            Q_strcat(extradefines, 1024, "#define USE_WOLF_FOG_LINEAR\n");
+        }
+
+        if(i & FOGDEF_USE_WOLF_FOG_EXPONENTIAL) {
+            Q_strcat(extradefines, 1024, "#define USE_WOLF_FOG_EXPONENTIAL\n");
+        }
+
         if(!GLSL_InitGPUShader(&tr.fogShader[i], "fogpass", attribs, true,
                                extradefines, true)) {
             Com_Error(ERR_FATAL, "Could not load fogpass shader!");
@@ -2373,12 +2381,25 @@ void GLSL_BindProgram(shaderProgram_t *program) {
 }
 
 
-shaderProgram_t *GLSL_GetGenericShaderProgram(sint stage) {
+shaderProgram_t *GLSL_GetGenericShaderProgram(sint stage, glfog_t *glFog) {
     shaderStage_t *pStage = tess.xstages[stage];
     sint shaderAttribs = 0;
 
     if(tess.fogNum && pStage->adjustColorsForFog) {
         shaderAttribs |= GENERICDEF_USE_FOG;
+    }
+
+    //
+    // RTCW fog
+    //
+    if(glFog) {
+        shaderAttribs |= GENERICDEF_USE_FOG;
+
+        if(glFog->mode == GL_LINEAR) {
+            shaderAttribs |= GENERICDEF_USE_WOLF_FOG_LINEAR;
+        } else { // if (glFog->mode == GL_EXP)
+            shaderAttribs |= GENERICDEF_USE_WOLF_FOG_EXPONENTIAL;
+        }
     }
 
     switch(pStage->rgbGen) {

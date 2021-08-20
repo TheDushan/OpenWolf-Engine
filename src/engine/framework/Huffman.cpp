@@ -478,7 +478,7 @@ void idHuffmanSystemLocal::DynCompress(msg_t *mbuf, sint offset) {
     huff_t          huff;
 
     size = mbuf->cursize - offset;
-    buffer = mbuf->data + +offset;
+    buffer = mbuf->data + offset;
 
     if(size <= 0) {
         return;

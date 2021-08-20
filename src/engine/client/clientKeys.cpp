@@ -315,6 +315,7 @@ to be configured even if they don't have defined names.
 */
 sint idClientKeysSystemLocal::StringToKeynum(pointer str) {
     keyname_t   *kn;
+    sint k;
 
     if(!str || !str[0]) {
         return -1;
@@ -325,12 +326,11 @@ sint idClientKeysSystemLocal::StringToKeynum(pointer str) {
     }
 
     // check for hex code
-    if(strlen(str) == 4) {
-        sint n = Com_HexStrToInt(str);
+    k = Com_HexStrToInt(str);
 
-        if(n >= 0) {
-            return n;
-        }
+    if(k >= 0 && k < MAX_KEYS) {
+
+        return k;
     }
 
     // scan for a text match

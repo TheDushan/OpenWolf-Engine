@@ -112,13 +112,13 @@ S_TransferPaintBuffer
 ===================
 */
 void S_TransferPaintBuffer(sint endtime) {
-    sint out_idx, count, out_mask, *p, step, val;
+    sint out_idx, count, i, *p, step, val;
     uint32  *pbuf;
 
     pbuf = reinterpret_cast<uint32 *>(dma.buffer);
 
     if(s_testsound->integer) {
-        sint i, count;
+        sint count;
 
         // write a fixed sine wave
         count = (endtime - s_paintedtime);
@@ -135,18 +135,43 @@ void S_TransferPaintBuffer(sint endtime) {
     }
     // general case
     else {
-        p = reinterpret_cast< sint * >(paintbuffer);
+        // general case
+        p = reinterpret_cast<sint *>(paintbuffer);
         count = (endtime - s_paintedtime) * dma.channels;
-        out_mask = dma.samples - 1;
-        out_idx = s_paintedtime * dma.channels & out_mask;
-        step = 3 - dma.channels;
+        out_idx = (s_paintedtime * dma.channels) % dma.samples;
+        step = 3 - MIN(dma.channels, 2);
 
-        if(dma.samplebits == 16) {
+        if((dma.isfloat) && (dma.samplebits == 32)) {
+            float32 *out = reinterpret_cast<float32 *>(pbuf);
+
+            for(i = 0 ; i < count ; i++) {
+                if((i % dma.channels) >= 2) {
+                    val = 0;
+                } else {
+                    val = *p >> 8;
+                    p += step;
+                }
+
+                if(val > 0x7fff) {
+                    val = 0x7fff;
+                } else if(val <
+                          -32767) { /* clamp to one less than max to make division max out at -1.0f. */
+                    val = -32767;
+                }
+
+                out[out_idx] = static_cast<float32>(val) / 32767.0f;
+                out_idx = (out_idx + 1) % dma.samples;
+            }
+        } else if(dma.samplebits == 16) {
             schar16 *out = reinterpret_cast<schar16 *>(pbuf);
 
-            while(count--) {
-                val = *p >> 8;
-                p += step;
+            for(i = 0 ; i < count ; i++) {
+                if((i % dma.channels) >= 2) {
+                    val = 0;
+                } else {
+                    val = *p >> 8;
+                    p += step;
+                }
 
                 if(val > 0x7fff) {
                     val = 0x7fff;
@@ -155,14 +180,18 @@ void S_TransferPaintBuffer(sint endtime) {
                 }
 
                 out[out_idx] = val;
-                out_idx = (out_idx + 1) & out_mask;
+                out_idx = (out_idx + 1) % dma.samples;
             }
         } else if(dma.samplebits == 8) {
             uchar8 *out = reinterpret_cast<uchar8 *>(pbuf);
 
-            while(count--) {
-                val = *p >> 8;
-                p += step;
+            for(i = 0 ; i < count ; i++) {
+                if((i % dma.channels) >= 2) {
+                    val = 0;
+                } else {
+                    val = *p >> 8;
+                    p += step;
+                }
 
                 if(val > 0x7fff) {
                     val = 0x7fff;
@@ -171,7 +200,7 @@ void S_TransferPaintBuffer(sint endtime) {
                 }
 
                 out[out_idx] = (val >> 8) + 128;
-                out_idx = (out_idx + 1) & out_mask;
+                out_idx = (out_idx + 1) % dma.samples;
             }
         }
     }

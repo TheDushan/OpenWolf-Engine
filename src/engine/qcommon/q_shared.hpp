@@ -587,8 +587,9 @@ extern vec4_t g_color_table[MAX_CCODES];
 #define Q_max(a, b)      ((a) > (b) ? (a) : (b))
 #define Q_min(a, b)      ((a) < (b) ? (a) : (b))
 #define Q_bound(a, b, c) (Q_max(a, Q_min(b, c)))
-#define Q_clamp(a, b, c) ((b) >= (c) ? (a)=(b) : (a) < (b) ? (a)=(b) : (a) > (c) ? (a)=(c) : (a))
 #define Q_lerp(from, to, frac) (from + ((to - from) * frac))
+
+float32 Q_clamp(float32 min, float32 value, float32 max);
 
 struct cplane_s;
 
@@ -806,8 +807,6 @@ void            VectorMatrixMultiply(const vec3_t p, vec3_t m[3],
 // the other MatrixMultiply function.
 void            AxisMultiply(float32 in1[3][3], float32 in2[3][3],
                              float32 out[3][3]);
-void            AngleVectors(const vec3_t angles, vec3_t forward,
-                             vec3_t right, vec3_t up);
 void            PerpendicularVector(vec3_t dst, const vec3_t src);
 
 // Ridah

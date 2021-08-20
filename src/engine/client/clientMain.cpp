@@ -165,7 +165,7 @@ void idClientMainSystemLocal::ClearMemory(bool shutdownRen) {
     clientMainLocal.ShutdownAll(shutdownRen);
 
     // if not running a server clear the whole hunk
-    if(!sv_running->integer) {
+    if(!sv_running || !sv_running->integer) {
         // clear the whole hunk
         memorySystem->Clear();
         // clear collision map data
@@ -1133,7 +1133,6 @@ void idClientMainSystemLocal::Shutdown(void) {
 
     cmdSystem->RemoveCommand("cmd");
     cmdSystem->RemoveCommand("configstrings");
-    cmdSystem->RemoveCommand("userinfo");
     cmdSystem->RemoveCommand("snd_reload");
     cmdSystem->RemoveCommand("snd_restart");
     cmdSystem->RemoveCommand("vid_restart");
@@ -1163,6 +1162,7 @@ void idClientMainSystemLocal::Shutdown(void) {
     cmdSystem->RemoveCommand("wav_record");
     cmdSystem->RemoveCommand("wav_stoprecord");
     // done.
+    cmdSystem->RemoveCommand("userinfo");
 
     soundSystem->Shutdown();
     cvarSystem->Set("cl_running", "0");

@@ -57,7 +57,7 @@ static sint shaderCount;            // total shaders parsed
 
 // ydnar: these are here because they are only referenced while parsing a shader
 static valueType implicitMap[MAX_QPATH];
-static unsigned implicitStateBits;
+static uint implicitStateBits;
 static cullType_t implicitCullType;
 
 /*
@@ -980,10 +980,11 @@ static bool ParseStage(shaderStage_t *stage, valueType **text) {
                 continue;
             }
 
-            //if ( !Q_stricmp( token, "on" ) ) {
-            //  stage->isFogged = true;
-            //} else {
-            //  stage->isFogged = false;
+            if(!Q_stricmp(token, "on")) {
+                stage->isFogged = true;
+            } else {
+                stage->isFogged = false;
+            }
         }
 
         //
@@ -1760,7 +1761,7 @@ ParseSort
 =================
 */
 void ParseSort(valueType **text) {
-    valueType  *token;
+    valueType  *token, * end;
 
     token = COM_ParseExt2(text, false);
 
@@ -1789,7 +1790,22 @@ void ParseSort(valueType **text) {
     } else if(!Q_stricmp(token, "underwater")) {
         shader.sort = SS_UNDERWATER;
     } else {
-        shader.sort = atof(token);
+        shader.sort = strtof(token, &end);
+
+        if(end == token) {
+            // Unknown text keyword. Fallback to automatic sort value.
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: unknown sort parameter '%s' in shader '%s'\n", token,
+                                            shader.name);
+            shader.sort = 0;
+        } else if(shader.sort == 0) {
+            // Automatically calculate sort value. This is the default and shouldn't be specified.
+        } else if(floor(shader.sort) < 1 || floor(shader.sort) >= SS_MAX_SORT) {
+            clientRendererSystem->RefPrintf(PRINT_WARNING,
+                                            "WARNING: sort parameter %f in shader '%s' is out of range (min 1, max %d)\n",
+                                            shader.sort, shader.name, SS_MAX_SORT - 1);
+            shader.sort = Com_Clamp(1, SS_MAX_SORT - 1, shader.sort);
+        }
     }
 }
 
@@ -2291,12 +2307,12 @@ static bool ParseShader(pointer name, valueType **text) {
                 continue;
             }
 
-            //R_SetFog( FOG_SKY, 0, 5, fogColor[0], fogColor[1], fogColor[2], atof( token ) );
+            R_SetFog(FOG_SKY, 0, 5, fogColor[0], fogColor[1], fogColor[2],
+                     atof(token));
             continue;
         } else if(!Q_stricmp(token, "waterfogvars")) {
             vec3_t watercolor;
             float32 fogvar;
-            valueType fogString[64];
 
             if(!ParseVector(text, 3, watercolor)) {
                 return false;
@@ -2320,23 +2336,12 @@ static bool ParseShader(pointer name, valueType **text) {
                     0) {        // '0' specifies "use the map values for everything except the fog color
                 // TODO
             } else if(fogvar > 1) { // distance "linear" fog
-                Q_vsprintf_s(fogString, sizeof(fogString), sizeof(fogString),
-                             "0 %d 1.1 %f %f %f 200", static_cast<sint>(fogvar), watercolor[0],
-                             watercolor[1], watercolor[2]);
-                //              R_SetFog(FOG_WATER, 0, fogvar, watercolor[0], watercolor[1], watercolor[2], 1.1);
+                R_SetFog(FOG_WATER, 0, fogvar, watercolor[0], watercolor[1], watercolor[2],
+                         1.1);
             } else {                    // density "exp" fog
-                Q_vsprintf_s(fogString, sizeof(fogString), sizeof(fogString),
-                             "0 5 %f %f %f %f 200", fogvar, watercolor[0], watercolor[1],
-                             watercolor[2]);
-                //              R_SetFog(FOG_WATER, 0, 5, watercolor[0], watercolor[1], watercolor[2], fogvar);
+                R_SetFog(FOG_WATER, 0, 5, watercolor[0], watercolor[1], watercolor[2],
+                         fogvar);
             }
-
-            //      near
-            //      far
-            //      density
-            //      r,g,b
-            //      time to complete
-            cvarSystem->Set("r_waterFogColor", fogString);
 
             continue;
         }
@@ -2350,7 +2355,7 @@ static bool ParseShader(pointer name, valueType **text) {
                 return false;
             }
 
-            token = COM_ParseExt(text, false);
+            token = COM_ParseExt2(text, false);
 
             if(!token[0]) {
                 clientRendererSystem->RefPrintf(PRINT_WARNING,
@@ -2364,19 +2369,19 @@ static bool ParseShader(pointer name, valueType **text) {
 
             fogDensity = atof(token);
 
-            if(fogDensity >= 1) {  // linear
-                fogFar = fogDensity;
+            if(fogDensity > 1) {     // linear
+                fogFar      = fogDensity;
             } else {
-                fogFar = 5;
+                fogFar      = 5;
             }
 
-            //          R_SetFog(FOG_MAP, 0, fogFar, fogColor[0], fogColor[1], fogColor[2], fogDensity);
-            cvarSystem->Set("r_mapFogColor", va("0 %d %f %f %f %f 0", fogFar,
-                                                fogDensity, fogColor[0], fogColor[1], fogColor[2]));
-            //          R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP, 50, 0, 0, 0, 0);
+            R_SetFog(FOG_MAP, 0, fogFar, fogColor[0], fogColor[1], fogColor[2],
+                     fogDensity);
+            R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP, 50, 0, 0, 0, 0);
 
             continue;
         } else if(!Q_stricmp(token, "nofog")) {
+            shader.noFog = true;
             continue;
         } else if(!Q_stricmp(token, "allowcompress")) {
             continue;
@@ -2430,7 +2435,7 @@ static bool ParseShader(pointer name, valueType **text) {
         }
         // distancecull <opaque distance> <transparent distance> <alpha threshold>
         else if(!Q_stricmp(token, "distancecull")) {
-            int i;
+            sint i;
 
             for(i = 0; i < 3; i++) {
                 token = COM_ParseExt2(text, false);
@@ -3752,11 +3757,6 @@ static shader_t *FinishShader(void) {
         shader.sort = SS_FOG;
     }
 
-    if(shader.contentFlags & CONTENTS_LAVA) {
-        // Override missing basejka material type.. lava.
-        shader.materialType = MATERIAL_LAVA;
-    }
-
     // determine which stage iterator function is appropriate
     ComputeStageIteratorFunc();
 
@@ -3840,7 +3840,7 @@ R_FindLightmap
 ===============
 */
 #define EXTERNAL_LIGHTMAP   "lm_%04d.tga"    // THIS MUST BE IN SYNC WITH Q3MAP2
-void R_FindLightmap(int *lightmapIndex) {
+void R_FindLightmap(sint *lightmapIndex) {
     image_t *image;
     valueType fileName[MAX_QPATH];
 

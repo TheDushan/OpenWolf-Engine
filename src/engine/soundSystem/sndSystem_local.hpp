@@ -75,6 +75,7 @@ typedef struct {
     sint samplebits;
     sint speed;
     uchar8 *buffer;
+    sint isfloat;
 } dma_t;
 
 #define START_SAMPLE_IMMEDIATE  0x7fffffff

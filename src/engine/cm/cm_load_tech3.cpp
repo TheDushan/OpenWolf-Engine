@@ -1288,15 +1288,12 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
                     reinterpret_cast<sint *>(&header))[i]);
     }
 
-#if 0
-
-    if(header.version != BSP_VERSION) {
+    if(header.version != Q3_BSP_VERSION &&
+            header.version != WOLF_BSP_VERSION) {
         Com_Error(ERR_DROP,
-                  "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i)",
-                  name, header.version, BSP_VERSION);
+                  "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i or %i)",
+                  name, header.version, Q3_BSP_VERSION, WOLF_BSP_VERSION);
     }
-
-#endif
 
     cmod_base = reinterpret_cast<uchar8 *>(buf);
 

@@ -2952,7 +2952,7 @@ static  void R_LoadFogs(lump_t *l, lump_t *brushesLump,
             // set the gradient vector
             sideNum = LittleLong(fogs->visibleSide);
 
-            if(sideNum == -1) {
+            if(sideNum < 0 || sideNum >= sidesCount) {
                 out->hasSurface = false;
             } else {
                 out->hasSurface = true;
@@ -3685,6 +3685,19 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
     tr.sunShader = nullptr;
 
+    // invalidate fogs (likely to be re-initialized to new values by the current map)
+    // TODO:(SA)this is sort of silly.  I'm going to do a general cleanup on fog stuff
+    //          now that I can see how it's been used.  (functionality can narrow since
+    //          it's not used as much as it's designed for.)
+    R_SetFog(FOG_SKY, 0, 0, 0, 0, 0, 0);
+    R_SetFog(FOG_PORTALVIEW, 0, 0, 0, 0, 0, 0);
+    R_SetFog(FOG_HUD, 0, 0, 0, 0, 0, 0);
+    R_SetFog(FOG_MAP, 0, 0, 0, 0, 0, 0);
+    R_SetFog(FOG_CURRENT, 0, 0, 0, 0, 0, 0);
+    R_SetFog(FOG_TARGET, 0, 0, 0, 0, 0, 0);
+    R_SetFog(FOG_WATER, 0, 0, 0, 0, 0, 0);
+    R_SetFog(FOG_SERVER, 0, 0, 0, 0, 0, 0);
+
     VectorNormalize(tr.sunDirection);
 
     // set default autoexposure settings
@@ -3732,15 +3745,11 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
     i = LittleLong(header->version);
 
-#if 0
-
-    if(i != BSP_VERSION) {
+    if(i != Q3_BSP_VERSION && i != WOLF_BSP_VERSION) {
         Com_Error(ERR_DROP,
-                  "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i)",
-                  name, i, BSP_VERSION);
+                  "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i or %i)",
+                  name, i, Q3_BSP_VERSION, WOLF_BSP_VERSION);
     }
-
-#endif
 
     // swap all the lumps
     for(i = 0 ; i < sizeof(dheader_t) / 4 ; i++) {

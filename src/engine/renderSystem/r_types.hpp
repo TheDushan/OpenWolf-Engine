@@ -64,7 +64,13 @@
 // refdef flags
 #define RDF_NOWORLDMODEL    0x0001      // used for player configuration screen
 #define RDF_HYPERSPACE      0x0004      // teleportation effect
-#define RDF_UNDERWATER  1024      //
+
+#define RDF_SKYBOXPORTAL    0x0008
+#define RDF_DRAWSKYBOX      0x0010      // the above marks a scene as being a 'portal sky'.  this flag says to draw it or not
+
+#define RDF_UNDERWATER      ( 1 << 4 )  // so the renderer knows to use underwater fog when the player is underwater
+#define RDF_DRAWINGSKY      ( 1 << 5 )
+#define RDF_SNOOPERVIEW     ( 1 << 6 )  //----(SA)  added
 
 typedef struct {
     vec3_t      xyz;
@@ -223,5 +229,46 @@ typedef struct {
     sint                            maxAnisotropy;
     bool smpActive;
 } vidconfig_t;
+
+//                                                                  //
+// WARNING:: synch FOG_SERVER in sv_ccmds.c if you change anything  //
+//                                                                  //
+typedef enum {
+    FOG_NONE,       //  0
+
+    FOG_SKY,        //  1   fog values to apply to the sky when using density fog for the world (non-distance clipping fog) (only used if(glfogsettings[FOG_MAP].registered) or if(glfogsettings[FOG_MAP].registered))
+    FOG_PORTALVIEW, //  2   used by the portal sky scene
+    FOG_HUD,        //  3   used by the 3D hud scene
+
+    //      The result of these for a given frame is copied to the scene.glFog when the scene is rendered
+
+    // the following are fogs applied to the main world scene
+    FOG_MAP,        //  4   use fog parameter specified using the "fogvars" in the sky shader
+    FOG_WATER,      //  5   used when underwater
+    FOG_SERVER,     //  6   the server has set my fog (probably a target_fog) (keep synch in sv_ccmds.c !!!)
+    FOG_CURRENT,    //  7   stores the current values when a transition starts
+    FOG_LAST,       //  8   stores the current values when a transition starts
+    FOG_TARGET,     //  9   the values it's transitioning to.
+
+    FOG_CMD_SWITCHFOG,  // 10   transition to the fog specified in the second parameter of R_SetFog(...) (keep synch in sv_ccmds.c !!!)
+
+    NUM_FOGS
+} glfogType_t;
+
+typedef struct {
+    sint mode;                   // GL_LINEAR, GL_EXP
+    sint hint;                   // GL_DONT_CARE
+    sint startTime;              // in ms
+    sint finishTime;             // in ms
+    float32 color[4];
+    float32 start;                // near
+    float32 end;                  // far
+    bool useEndForClip;     // use the 'far' value for the far clipping plane
+    float32 density;              // 0.0-1.0
+    bool registered;        // has this fog been set up?
+    bool drawsky;           // draw skybox
+    bool clearscreen;       // clear the GL color buffer
+    sint dirty;
+} glfog_t;
 
 #endif  //!__R_TYPES_H__

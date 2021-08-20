@@ -183,7 +183,7 @@ void idSoundSystemLocal::Init(void) {
 
     codec_init();
 
-    cv = cvarSystem->Get("s_usemodule", "1", CVAR_ARCHIVE,
+    cv = cvarSystem->Get("s_usemodule", "1", CVAR_ARCHIVE | CVAR_LATCH,
                          "Toggle using a sound system module.");
 
     if(!cv->integer) {

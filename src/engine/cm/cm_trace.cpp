@@ -2274,7 +2274,8 @@ void idCollisionModelManagerLocal::TransformedBoxTrace(trace_t *results,
     }
 
     // rotate start and end into the models frame of reference
-    if(model != BOX_MODEL_HANDLE && (angles[0] || angles[1] || angles[2])) {
+    if(model != BOX_MODEL_HANDLE && model != CAPSULE_MODEL_HANDLE &&
+            (angles[0] || angles[1] || angles[2])) {
         rotated = true;
     } else {
         rotated = false;

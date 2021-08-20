@@ -331,11 +331,11 @@ static void MakeSkyVec(float32 s, float32 t, sint axis, float32 outSt[2],
     float32 boxSize;
 
     // make sure the sky is not near clipped
-    if(boxSize < r_znear->value * 2.0) {
-        boxSize = r_znear->value * 2.0;
+    if(boxSize < r_znear->value * 2.0f) {
+        boxSize = r_znear->value * 2.0f;
     }
 
-    boxSize = backEnd.viewParms.zFar / 1.75;        // div sqrt(3)
+    boxSize = backEnd.viewParms.zFar / 1.75f;        // div sqrt(3)
     b[0] = s * boxSize;
     b[1] = t * boxSize;
     b[2] = boxSize;
@@ -351,8 +351,8 @@ static void MakeSkyVec(float32 s, float32 t, sint axis, float32 outSt[2],
     }
 
     // avoid bilerp seam
-    s = (s + 1) * 0.5;
-    t = (t + 1) * 0.5;
+    s = (s + 1) * 0.5f;
+    t = (t + 1) * 0.5f;
 
     if(s < sky_min) {
         s = sky_min;
@@ -438,22 +438,23 @@ static void DrawSkySide(struct image_s *image, const sint mins[2],
 
     // FIXME: A lot of this can probably be removed for speed, and refactored into a more convenient function
     RB_UpdateTessVao(ATTR_POSITION | ATTR_TEXCOORD);
-    /*
-        {
-            shaderProgram_t *sp = &tr.textureColorShader;
 
-            GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
-            GLSL_BindProgram(sp);
+    {
+        shaderProgram_t *sp = &tr.textureColorShader;
 
-            GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+        RB_UpdateTessVao(ATTR_POSITION | ATTR_TEXCOORD);
+        GLSL_BindProgram(sp);
 
-            color[0] =
+        GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX,
+                            glState.modelviewProjection);
+
+        color[0] =
             color[1] =
-            color[2] = tr.identityLight;
-            color[3] = 1.0f;
-            GLSL_SetUniformVec4(sp, UNIFORM_COLOR, color);
-        }
-    */
+                color[2] = tr.identityLight;
+        color[3] = 1.0f;
+        GLSL_SetUniformVec4(sp, UNIFORM_COLOR, color);
+    }
+
     {
         shaderProgram_t *sp = &tr.lightallShader[0];
         vec4_t vector;
@@ -860,9 +861,6 @@ void RB_DrawSun(float32 scale, shader_t *shader) {
     qglDepthRange(0.0, 1.0);
 }
 
-
-
-
 /*
 ================
 RB_StageIteratorSky
@@ -876,6 +874,25 @@ void RB_StageIteratorSky(void) {
     if(r_fastsky->integer) {
         return;
     }
+
+    // when portal sky exists, only render skybox for the portal sky scene
+    if(skyboxportal && !(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL)) {
+        return;
+    }
+
+    // does the current fog require fastsky?
+    if(backEnd.viewParms.glFog.registered) {
+        if(!backEnd.viewParms.glFog.drawsky) {
+            return;
+        }
+    } else if(glfogNum > FOG_NONE) {
+        if(!glfogsettings[FOG_CURRENT].drawsky) {
+            return;
+        }
+    }
+
+
+    backEnd.refdef.rdflags |= RDF_DRAWINGSKY;
 
     // go through all the polygons and project them onto
     // the sky box to see which blocks on each side need
@@ -927,6 +944,8 @@ void RB_StageIteratorSky(void) {
 
     // back to normal depth range
     qglDepthRange(0.0, 1.0);
+
+    backEnd.refdef.rdflags &= ~RDF_DRAWINGSKY;
 
     // note that sky was drawn so we will draw a sun later
     backEnd.skyRenderedThisView = true;

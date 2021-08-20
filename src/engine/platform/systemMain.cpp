@@ -164,6 +164,14 @@ Restart the input subsystem
 =================
 */
 void idSystemLocal::Restart_f(void) {
+#ifndef DEDICATED
+
+    if(!SDL_WasInit(SDL_INIT_VIDEO)) {
+        Com_Printf("idSystemLocal::Restart_f: Cannot restart input while video is shutdown\n");
+        return;
+    }
+
+#endif
     Restart();
 }
 

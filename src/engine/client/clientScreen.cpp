@@ -577,13 +577,6 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
                 uiManager->DrawConnectScreen(false);
                 break;
 
-                // Ridah, if the cgame is valid, fall through to there
-                if(!cls.cgameStarted || !sv_running->integer) {
-                    // connecting clients will only show the connection dialog
-                    uiManager->DrawConnectScreen(false);
-                    break;
-                }
-
             case CA_LOADING:
             case CA_PRIMED:
                 // draw the game information screen and loading progress

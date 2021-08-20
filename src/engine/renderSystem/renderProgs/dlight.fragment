@@ -1,12 +1,51 @@
 uniform sampler2D u_DiffuseMap;
 
-varying vec2      var_Tex1;
-varying vec4      var_Color;
+#define				MAX_VARYING_LIGHTS 6
 
+varying vec3		var_Normal;
+varying vec3		var_Position;
+varying vec2		var_Tex1[MAX_VARYING_LIGHTS];
+varying vec4		var_LightColor[MAX_VARYING_LIGHTS];
+varying vec3		var_LightDir[MAX_VARYING_LIGHTS];
+varying float		var_NumLights;
 
-void main()
+void main (void)
 {
-	vec4 color = texture2D(u_DiffuseMap, var_Tex1);
+	vec3 normal = var_Normal;
+	vec3 eyeVec = var_Position;
 
-	gl_FragColor = color * var_Color;
+	vec4 out_color = vec4(0.0);
+
+	for (int light = 0; light < var_NumLights; light++)
+	{
+		float shininess = 0.5;
+		vec4 tex_color = texture2D(u_DiffuseMap, var_Tex1[light]);
+		vec4 tex_ambient = tex_color * 0.33333;
+		vec4 tex_diffuse = tex_ambient;
+		vec4 tex_specular = tex_ambient;
+
+		vec4 final_color = tex_ambient;// + (lightColor * tex_ambient);
+
+		vec3 lightDir = var_LightDir[light];
+		vec4 lightColor = var_LightColor[light]; //*0.33333;
+							
+		vec3 N = normalize(normal);
+		vec3 L = normalize(lightDir);
+	
+		float lambertTerm = dot(N,L);
+	
+		if(lambertTerm > 0.0)
+		{
+			final_color += lightColor * tex_diffuse * lambertTerm;	
+		
+			vec3 E = normalize(eyeVec);
+			vec3 R = reflect(-L, N);
+			float specular = pow( max(dot(R, E), 0.0), shininess );
+			final_color += lightColor * tex_specular * specular;	
+		}
+
+		out_color += final_color;
+	}
+
+	gl_FragColor = out_color;
 }

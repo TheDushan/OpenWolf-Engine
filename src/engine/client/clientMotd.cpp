@@ -93,7 +93,8 @@ void idClientMOTDSystemLocal::RequestMotd(void) {
 
     Q_vsprintf_s(cls.updateChallenge, sizeof(cls.updateChallenge),
                  sizeof(cls.updateChallenge), "%i",
-                 ((rand() << 16) ^ rand()) ^ Com_Milliseconds());
+                 static_cast<sint>(((static_cast<uint>(rand()) << 16) ^ static_cast<uint>
+                                    (rand())) ^ Com_Milliseconds()));
 
     Info_SetValueForKey(info, "challenge", cls.updateChallenge);
     Info_SetValueForKey(info, "renderer", cls.glconfig.renderer_string);

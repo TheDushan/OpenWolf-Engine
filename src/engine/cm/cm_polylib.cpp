@@ -303,7 +303,7 @@ winding_t *CopyWinding(winding_t *w) {
     winding_t      *c;
 
     c = AllocWinding(w->numpoints);
-    size = sizeof(*w) - sizeof(w->p) + sizeof(w->p[0]) * w->numpoints;
+    size = (sint64) & (w->p[w->numpoints]) - (sint64)w;
     ::memcpy(c, w, size);
     return c;
 }

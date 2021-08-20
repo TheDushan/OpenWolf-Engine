@@ -653,15 +653,15 @@ typedef struct {
 */
 
 #define BSP_IDENT (('P' << 24) + ('S' << 16) + ('B' << 8) + 'I') // little-endian "OBSP"
-#define BSP_VERSION 46
+#define Q3_BSP_VERSION          46 // Quake III / Team Arena
+#define WOLF_BSP_VERSION        47 // RTCW / WolfET
 
 // there shouldn't be any problem with increasing these values at the
 // expense of more memory allocation in the utilities
 #ifndef Q3MAP2
-//#define   MAX_MAP_MODELS      0x400
 #define MAX_MAP_MODELS      0x800
-#define MAX_MAP_BRUSHES     16384
-#define MAX_MAP_ENTITIES    4096
+#define MAX_MAP_BRUSHES     0x8000
+#define MAX_MAP_ENTITIES    0x1000
 #define MAX_MAP_ENTSTRING   0x40000
 #define MAX_MAP_SHADERS     0x400
 
@@ -805,6 +805,13 @@ typedef struct {
     vec3_t normal;
     uchar8 color[4];
 } drawVert_t;
+
+// Light Style Constants
+#define MAXLIGHTMAPS 2
+#define LS_NORMAL       0x00
+#define LS_UNUSED       0xfe
+#define LS_LSNONE       0xff
+#define MAX_LIGHT_STYLES        64
 
 #define drawVert_t_cleared(x) drawVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
 

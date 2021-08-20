@@ -102,7 +102,7 @@ objectModel_t *idRenderSystemLocal::Model_LoadObject(pointer name) {
 
     bool allGood = true;
     bool seekline = false;
-    long object_buf_i = 0;
+    sint32 object_buf_i = 0;
 
     while(object_buf_i < len && allGood) {
 

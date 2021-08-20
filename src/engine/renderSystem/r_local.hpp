@@ -186,7 +186,9 @@ enum shaderSort_t {
     SS_STENCIL_SHADOW,
     SS_ALMOST_NEAREST,  // gun smoke puffs
 
-    SS_NEAREST          // blood blobs
+    SS_NEAREST,          // blood blobs
+
+    SS_MAX_SORT         // number of shader sorts
 };
 
 #define MAX_SHADER_STAGES 8
@@ -397,9 +399,10 @@ enum stageType_t {
 };
 
 typedef struct {
-    bool        active;
-    bool        isDetail;
-    bool        isWater;
+    bool active;
+    bool isDetail;
+    bool isFogged;
+    bool isWater;
     bool hasSpecular;
     textureBundle_t bundle[NUM_TEXTURE_BUNDLES];
 
@@ -492,6 +495,8 @@ typedef struct shader_s {
     sint
     vertexAttribs;          // not all shaders will need all data to be gathered
 
+    bool noFog;
+
     sint            numDeforms;
     deformStage_t   deforms[MAX_SHADER_DEFORMS];
 
@@ -573,16 +578,20 @@ enum {
     GENERICDEF_USE_FOG              = 0x0008,
     GENERICDEF_USE_RGBAGEN          = 0x0010,
     GENERICDEF_USE_BONE_ANIMATION   = 0x0020,
-    GENERICDEF_ALL                  = 0x003F,
-    GENERICDEF_COUNT                = 0x0040,
+    GENERICDEF_USE_WOLF_FOG_LINEAR      = 0x0040,
+    GENERICDEF_USE_WOLF_FOG_EXPONENTIAL = 0x0080,
+    GENERICDEF_ALL                  = 0x00FF,
+    GENERICDEF_COUNT                = 0x0100,
 };
 
 enum {
-    FOGDEF_USE_DEFORM_VERTEXES  = 0x0001,
-    FOGDEF_USE_VERTEX_ANIMATION = 0x0002,
-    FOGDEF_USE_BONE_ANIMATION   = 0x0004,
-    FOGDEF_ALL                  = 0x0007,
-    FOGDEF_COUNT                = 0x0008,
+    FOGDEF_USE_DEFORM_VERTEXES      = 0x0001,
+    FOGDEF_USE_VERTEX_ANIMATION     = 0x0002,
+    FOGDEF_USE_WOLF_FOG_LINEAR      = 0x0004,
+    FOGDEF_USE_WOLF_FOG_EXPONENTIAL = 0x0008,
+    FOGDEF_USE_BONE_ANIMATION       = 0x0010,
+    FOGDEF_ALL                      = 0x001F,
+    FOGDEF_COUNT                    = 0x0020,
 };
 
 enum {
@@ -874,6 +883,7 @@ typedef struct {
     float32     zFar;
     float32       zNear;
     stereoFrame_t   stereoFrame;
+    glfog_t glFog; // fog parameters
 } viewParms_t;
 
 
@@ -2160,7 +2170,7 @@ void GLSL_SetUniformMat4(shaderProgram_t *program, sint uniformNum,
 void GLSL_SetUniformMat4BoneMatrix(shaderProgram_t *program,
                                    sint uniformNum, /*const*/ mat4_t *matrix, sint numMatricies);
 
-shaderProgram_t *GLSL_GetGenericShaderProgram(sint stage);
+shaderProgram_t *GLSL_GetGenericShaderProgram(sint stage, glfog_t *glFog);
 
 /*
 ============================================================
@@ -2421,6 +2431,23 @@ T GetCommandBuffer(B bytes, T type);
 
 void R_ShutdownCommandBuffers(void);
 void R_InitConsoleVars(void);
+
+//extern glfog_t        glfogCurrent;
+extern glfog_t
+glfogsettings[NUM_FOGS];         // [0] never used (FOG_NONE)
+extern glfogType_t
+glfogNum;                    // fog type to use (from the fog_t enum list)
+
+extern bool fogIsOn;
+
+extern void R_FogOff(void);
+extern void R_FogOn(void);
+
+extern void R_SetFog(sint fogvar, sint var1, sint var2, float32 r,
+                     float32 g, float32 b, float32 density);
+
+extern sint skyboxportal;
+extern sint drawskyboxportal;
 
 //
 // idRenderSystemLocal

@@ -209,7 +209,7 @@ void idClientConsoleCommandsSystemLocal::Vid_Restart_f(void) {
     cvarSystem->Set("cl_paused", "0");
 
     // if not running a server clear the whole hunk
-    if(!sv_running->integer) {
+    if(!sv_running || !sv_running->integer) {
         //collisionModelManager->ClearMap();
         // clear the whole hunk
         memorySystem->Clear();
@@ -366,7 +366,8 @@ void idClientConsoleCommandsSystemLocal::Connect_f(void) {
         cls.state = CA_CONNECTING;
 
         // Set a client challenge number that ideally is mirrored back by the server.
-        clc.challenge = ((rand() << 16) ^ rand()) ^ Com_Milliseconds();
+        clc.challenge = (static_cast<uint>(rand()) << 16) ^ static_cast<uint>
+                        (rand()) ^ Com_Milliseconds();
     }
 
     cvarSystem->Set("cl_avidemo", "0");

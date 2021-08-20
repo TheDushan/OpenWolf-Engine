@@ -30,19 +30,21 @@
 
 #include <renderSystem/r_precompiled.hpp>
 
-sint            r_firstSceneDrawSurf;
+sint r_firstSceneDrawSurf;
 
-sint            r_numdlights;
-sint            r_firstSceneDlight;
+sint r_numdlights;
+sint r_firstSceneDlight;
 
-sint            r_numentities;
-sint            r_firstSceneEntity;
+sint r_numentities;
+sint r_firstSceneEntity;
 
-sint            r_numpolys;
-sint            r_firstScenePoly;
+sint r_numpolys;
+sint r_firstScenePoly;
 
-sint            r_numpolyverts;
+sint r_numpolyverts;
 
+sint skyboxportal;
+sint drawskyboxportal;
 
 /*
 ====================
@@ -331,6 +333,16 @@ void RE_BeginScene(const refdef_t *fd) {
 
     tr.refdef.time = fd->time;
     tr.refdef.rdflags = fd->rdflags;
+
+    if(fd->rdflags & RDF_SKYBOXPORTAL) {
+        skyboxportal = 1;
+    }
+
+    if(fd->rdflags & RDF_DRAWSKYBOX) {
+        drawskyboxportal = 1;
+    } else {
+        drawskyboxportal = 0;
+    }
 
     // copy the areamask data over and note if it has changed, which
     // will force a reset of the visible leafs even if the view hasn't moved

@@ -1594,13 +1594,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
         cvarSystem->Set("sv_fps", "10");
     }
 
-    frameMsec = 1000 / sv_fps->integer * timescale->value;
-
-    // don't let it scale below 1ms
-    if(frameMsec < 1) {
-        cvarSystem->Set("timescale", va("%f", sv_fps->integer / 1000.0f));
-        frameMsec = 1;
-    }
+    frameMsec = 1000 / sv_fps->integer;
 
     sv.timeResidual += msec;
 

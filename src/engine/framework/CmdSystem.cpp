@@ -1642,10 +1642,7 @@ void idCmdSystemLocal::RemoveCommand(pointer cmd_name) {
         if(!strcmp(cmd_name, cmd->name)) {
             *back = cmd->next;
 
-            if(cmd->name) {
-                memorySystem->Free(cmd->name);
-            }
-
+            memorySystem->Free(cmd->name);
             memorySystem->Free(cmd);
             return;
         }

@@ -155,7 +155,7 @@ static void ResampleSfx(sfx_t *sfx, sint inrate, sint inwidth,
         if(inwidth == 2) {
             sample = ((reinterpret_cast<schar16 *>(data))[srcsample]);
         } else {
-            sample = static_cast<sint>((static_cast<uchar8>(data[srcsample]) - 128) <<
+            sample = static_cast<uint>((static_cast<uchar8>(data[srcsample]) - 128) <<
                                        8);
         }
 

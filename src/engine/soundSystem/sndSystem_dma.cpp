@@ -120,9 +120,10 @@ void S_SoundInfo_f(void) {
             Com_Printf("sound system is muted\n");
         }
 
-        Com_Printf("%5d stereo\n", dma.channels - 1);
+        Com_Printf("%5d channels\n", dma.channels - 1);
         Com_Printf("%5d samples\n", dma.samples);
-        Com_Printf("%5d samplebits\n", dma.samplebits);
+        Com_Printf("%5d samplebits (%s)\n", dma.samplebits,
+                   dma.isfloat ? "float" : "int");
         Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
         Com_Printf("%5d speed\n", dma.speed);
         Com_Printf("%p dma buffer\n", static_cast< void * >(dma.buffer));
@@ -264,9 +265,9 @@ void SOrig_Shutdown(void) {
 
     cmdSystem->RemoveCommand("play");
     cmdSystem->RemoveCommand("music");
-    cmdSystem->RemoveCommand("stopsound");
     cmdSystem->RemoveCommand("soundlist");
     cmdSystem->RemoveCommand("soundinfo");
+    cmdSystem->RemoveCommand("stopsound");
 }
 
 

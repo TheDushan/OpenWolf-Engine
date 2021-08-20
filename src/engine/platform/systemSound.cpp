@@ -37,7 +37,6 @@
 
 #include <framework/precompiled.hpp>
 
-SDL_AudioDeviceID dev;
 bool snd_inited = false;
 
 /* The audio callback. All the magic happens here. */
@@ -45,6 +44,7 @@ static sint dmapos = 0;
 static sint dmasize = 0;
 
 static bool use_custom_memset = false;
+static SDL_AudioDeviceID sdlPlaybackDevice;
 
 /*
 ===============
@@ -218,11 +218,9 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
 
     Com_Printf("SDL_Init( SDL_INIT_AUDIO )... ");
 
-    if(!SDL_WasInit(SDL_INIT_AUDIO)) {
-        if(SDL_Init(SDL_INIT_AUDIO) == -1) {
-            Com_Printf("FAILED (%s)\n", SDL_GetError());
-            return false;
-        }
+    if(SDL_Init(SDL_INIT_AUDIO) != 0) {
+        Com_Printf("FAILED (%s)\n", SDL_GetError());
+        return false;
     }
 
     Com_Printf("OK\n");
@@ -272,9 +270,10 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
     desired.samples = tmp;
     desired.callback = SNDDMA_AudioCallback;
 
-    dev = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
+    sdlPlaybackDevice = SDL_OpenAudioDevice(nullptr, SDL_FALSE, &desired,
+                                            &obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
-    if(!dev) {
+    if(sdlPlaybackDevice == 0) {
         Com_Printf("SDL_OpenAudioDevice() failed: %s\n", SDL_GetError());
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return false;
@@ -292,17 +291,12 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
         tmp = 32 * samples * obtained.channels;
     }
 
-    // round up to a power of two
-    if(tmp & (tmp - 1)) {
-        sint val;
-
-        for(val = 1; val < tmp; val <<= 1);
-
-        tmp = val;
-    }
+    // samples must be divisible by number of channels
+    tmp -= tmp % obtained.channels;
 
     dmapos = 0;
-    dma.samplebits = obtained.format & 0xFF;  // first byte of format is bits.
+    dma.samplebits = SDL_AUDIO_BITSIZE(obtained.format);
+    dma.isfloat = SDL_AUDIO_ISFLOAT(obtained.format);
     dma.channels = obtained.channels;
     dma.samples = tmp;
     dma.fullsamples = dma.samples / dma.channels;
@@ -318,7 +312,7 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
     }
 
     Com_Printf("Starting SDL audio callback...\n");
-    SDL_PauseAudioDevice(dev, 0);   // start callback.
+    SDL_PauseAudioDevice(sdlPlaybackDevice, 0);  // start callback.
 
     Com_Printf("SDL audio initialized.\n");
     snd_inited = true;
@@ -340,15 +334,19 @@ SNDDMA_Shutdown
 ===============
 */
 void SNDDMA_Shutdown(void) {
-    Com_Printf("Closing SDL audio device...\n");
-    SDL_PauseAudioDevice(dev, 1);
-    SDL_CloseAudioDevice(dev);
+    if(sdlPlaybackDevice != 0) {
+        Com_Printf("Closing SDL audio playback device...\n");
+        SDL_CloseAudioDevice(sdlPlaybackDevice);
+        Com_Printf("SDL audio playback device closed.\n");
+        sdlPlaybackDevice = 0;
+    }
+
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
     free(dma.buffer);
     dma.buffer = nullptr;
     dmapos = dmasize = 0;
     snd_inited = false;
-    Com_Printf("SDL audio device shut down.\n");
+    Com_Printf("SDL audio shut down.\n");
 }
 
 /*
@@ -359,7 +357,7 @@ Send sound to device if buffer isn't really the dma buffer
 ===============
 */
 void SNDDMA_Submit(void) {
-    SDL_UnlockAudioDevice(dev);
+    SDL_UnlockAudioDevice(sdlPlaybackDevice);
 }
 
 /*
@@ -368,5 +366,5 @@ SNDDMA_BeginPainting
 ===============
 */
 void SNDDMA_BeginPainting(void) {
-    SDL_LockAudioDevice(dev);
+    SDL_LockAudioDevice(sdlPlaybackDevice);
 }

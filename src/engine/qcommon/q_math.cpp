@@ -1580,8 +1580,7 @@ void AxisMultiply( float32 in1[3][3], float32 in2[3][3], float32 out[3][3] )
 
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up )
 {
-    float32           angle;
-    static float32    sr, sp, sy, cr, cp, cy;
+    float32 angle, sr, sp, sy, cr, cp, cy;
 
     // static to help MS compiler fp bugs
 
@@ -2148,4 +2147,15 @@ void MatrixTransformPoint( const matrix_t m, const vec3_t in, vec3_t out )
     out[ 0] = m[ 0] * in[ 0] + m[ 4] * in[ 1] + m[ 8] * in[ 2] + m[12];
     out[ 1] = m[ 1] * in[ 0] + m[ 5] * in[ 1] + m[ 9] * in[ 2] + m[13];
     out[ 2] = m[ 2] * in[ 0] + m[ 6] * in[ 1] + m[10] * in[ 2] + m[14];
+}
+
+float32 Q_clamp(float32 min, float32 value, float32 max) {
+    if (value < min) {
+        return min;
+    }
+    if (value > max)
+    {
+        return max;
+    }
+    return value;
 }

@@ -1,14 +1,11 @@
 uniform sampler2D u_DiffuseMap;
-uniform sampler2D u_TextureMap;
-uniform sampler2D u_ScreenDepthMap;
-uniform sampler2D u_LightMap;
 
 varying vec2	var_TexCoords;
 varying vec4	var_ViewInfo; // zfar / znear, zfar
 varying vec2	var_Dimensions;
 varying vec4	var_Local0; // num_passes, 0, 0, 0
 
-#define SHARPEN_ENABLED
+//#define SHARPEN_ENABLED
 //#define HDR_ENABLED
 //#define SSAO_ENABLED
 //#define LF_ENABLED
@@ -86,14 +83,8 @@ vec3 erosion(in sampler2D tex, in vec2 texCoords)
     return minValue;
 }
 
+
 //==============================================================================
-
-#define BlendOverlayf(base, blend) (base < 0.5 ? (2.0 * base * blend) : (1.0 - 2.0 * (1.0 - base) * (1.0 - blend)))
-
-#define Blend(base, blend, funcf) vec3(funcf(base.r, blend.r), funcf(base.g, blend.g), funcf(base.b, blend.b))
-#define BlendOverlay(base, blend) Blend(base, blend, BlendOverlayf)
-#define BlendHardLight(base, blend) BlendOverlay(blend, base)
-
 void main(void)
 {
 	vec3 fColor;
@@ -106,22 +97,22 @@ void main(void)
 	//fColor = erosion(u_DiffuseMap, vTexCoords);
 
 #if defined(HDR_ENABLED)
-	vec3 hdr = texture(u_TextureMap, vTexCoords).rgb;
+	vec3 hdr = texture(ppsHdrFai, vTexCoords).rgb;
 	fColor += hdr;
 #endif
-	
+
 #if defined(SSAO_ENABLED)
-	float ssao = texture2D(u_ScreenDepthMap, vTexCoords.st).x;
-	fColor += ssao;
+	float ssao = texture(ppsSsaoFai, vTexCoords).r;
+	fColor *= ssao;
 #endif
 
 #if defined(LF_ENABLED)
-	vec3 lf = texture(u_LightMap, vTexCoords).rgb;
+	vec3 lf = texture(ppsLfFai, vTexCoords).rgb;
 	fColor += lf;
 #endif
 
-	fColor = BlendHardLight(vec3(0.7, 0.72, 0.4), fColor);
-	//fColor = gammaCorrectionRgb(vec3(0.9, 0.92, 0.75), fColor);
+	//fColor = BlendHardLight(vec3(0.7, 0.72, 0.4), fColor);
+	fColor = gammaCorrectionRgb(vec3(0.9, 0.92, 0.75), fColor);
 
 	gl_FragColor = vec4(fColor, 1.0);
 }

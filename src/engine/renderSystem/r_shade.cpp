@@ -342,38 +342,33 @@ static void ComputeDeformValues(sint *deformGen, vec5_t deformParams) {
     }
 }
 
+float32 DLIGHT_SIZE_MULTIPLIER = 2.5;
+
+#define __SINGLE_PASS__
 
 static void ProjectDlightTexture(void) {
-    sint        l;
-    vec3_t  origin;
-    float32 scale;
-    float32 radius;
-    sint deformGen;
+    sint l;
     vec5_t deformParams;
+    sint deformGen;
 
     if(!backEnd.refdef.num_dlights) {
         return;
     }
 
+    //#define MAX_SHADER_DLIGHTS 8
+#define MAX_SHADER_DLIGHTS 6
+
     ComputeDeformValues(&deformGen, deformParams);
 
-    for(l = 0 ; l < backEnd.refdef.num_dlights ; l++) {
-        dlight_t   *dl;
-        shaderProgram_t *sp;
-        vec4_t vector;
+    sint NUM_PASSES = (backEnd.refdef.num_dlights / MAX_SHADER_DLIGHTS) + 1;
 
-        if(!(tess.dlightBits & (1 << l))) {
-            continue;   // this surface definately doesn't have any of this light
-        }
-
-        dl = &backEnd.refdef.dlights[l];
-        VectorCopy(dl->transformed, origin);
-        radius = dl->radius;
-        scale = 1.0f / radius;
-
-        sp = &tr.dlightShader[deformGen == DGEN_NONE ? 0 : 1];
+    for(sint i = 0; i < NUM_PASSES; i++) {
+        sint START_POS = i * MAX_SHADER_DLIGHTS;
+            dlight_t *dl;
 
         backEnd.pc.c_dlightDraws++;
+
+        shaderProgram_t *sp = &tr.dlightShader[deformGen == DGEN_NONE ? 0 : 1];
 
         GLSL_BindProgram(sp);
 
@@ -390,17 +385,30 @@ static void ProjectDlightTexture(void) {
             GLSL_SetUniformFloat(sp, UNIFORM_TIME, tess.shaderTime);
         }
 
-        vector[0] = dl->color[0];
-        vector[1] = dl->color[1];
-        vector[2] = dl->color[2];
-        vector[3] = 1.0f;
-        GLSL_SetUniformVec4(sp, UNIFORM_COLOR, vector);
+        for(l = START_POS; l < backEnd.refdef.num_dlights &&
+                l - START_POS < MAX_SHADER_DLIGHTS; l++) {
+            vec3_t      origin;
+            float32     scale;
+            float32     radius;
+            vec4_t      vector;
 
-        vector[0] = origin[0];
-        vector[1] = origin[1];
-        vector[2] = origin[2];
-        vector[3] = scale;
-        GLSL_SetUniformVec4(sp, UNIFORM_DLIGHTINFO, vector);
+            dl = &backEnd.refdef.dlights[l];
+            VectorCopy(dl->transformed, origin);
+            radius = dl->radius * DLIGHT_SIZE_MULTIPLIER;
+            scale = 1.0f / radius;
+
+            vector[0] = (dl->color[0]);
+            vector[1] = (dl->color[1]);
+            vector[2] = (dl->color[2]);
+            vector[3] = 0.2f;
+            GLSL_SetUniformVec4(sp, UNIFORM_LIGHTCOLOR + (l - START_POS), vector);
+
+            vector[0] = origin[0];
+            vector[1] = origin[1];
+            vector[2] = origin[2];
+            vector[3] = scale;
+            GLSL_SetUniformVec4(sp, UNIFORM_LIGHTORIGIN + (l - START_POS), vector);
+        }
 
         GL_BindToTMU(tr.dlightImage, TB_COLORMAP);
 
@@ -423,7 +431,6 @@ static void ProjectDlightTexture(void) {
         backEnd.pc.c_dlightVertexes += tess.numVertexes;
     }
 }
-
 
 static void ComputeShaderColors(shaderStage_t *pStage, vec4_t baseColor,
                                 vec4_t vertColor, sint blend) {
@@ -625,10 +632,28 @@ static void ComputeShaderColors(shaderStage_t *pStage, vec4_t baseColor,
 
 
 static void ComputeFogValues(vec4_t fogDistanceVector,
-                             vec4_t fogDepthVector, float32 *eyeT) {
+                             vec4_t fogDepthVector, float32 *eyeT, glfog_t *glFog) {
     // from RB_CalcFogTexCoords()
     fog_t  *fog;
     vec3_t  local;
+
+    if(glFog) {
+        VectorSubtract(backEnd.orientation.origin,
+                       backEnd.viewParms.orientation.origin, local);
+        fogDistanceVector[0] = -backEnd.orientation.modelMatrix[2];
+        fogDistanceVector[1] = -backEnd.orientation.modelMatrix[6];
+        fogDistanceVector[2] = -backEnd.orientation.modelMatrix[10];
+        fogDistanceVector[3] = DotProduct(local,
+                                          backEnd.viewParms.orientation.axis[0]);
+
+        fogDepthVector[0] = glFog->start;
+        fogDepthVector[1] = glFog->end;
+        fogDepthVector[2] = glFog->density;
+        fogDepthVector[3] = 1.0;
+
+        return;
+    }
+
 
     if(!tess.fogNum) {
         return;
@@ -728,7 +753,7 @@ static void ForwardDlight(void) {
 
     ComputeDeformValues(&deformGen, deformParams);
 
-    ComputeFogValues(fogDistanceVector, fogDepthVector, &eyeT);
+    ComputeFogValues(fogDistanceVector, fogDepthVector, &eyeT, nullptr);
 
     for(l = 0 ; l < backEnd.refdef.num_dlights ; l++) {
         dlight_t   *dl;
@@ -955,7 +980,7 @@ static void ProjectPshadowVBOGLSL(void) {
     }
 }
 
-
+extern bool fogIsOn;
 
 /*
 ===================
@@ -964,15 +989,41 @@ RB_FogPass
 Blends a fog texture on top of everything else
 ===================
 */
-static void RB_FogPass(void) {
-    fog_t      *fog;
+static void RB_FogPass(sint wolfFog) {
+    fog_t *fog = nullptr;
     vec4_t  color;
-    vec4_t  fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
+    vec4_t  fogDistanceVector, fogDepthVector = { 0, 0, 0, 0 };
     float32 eyeT = 0;
     shaderProgram_t *sp;
-
+    glfog_t *glFog = nullptr;
     sint deformGen;
     vec5_t deformParams;
+
+    if(wolfFog) {
+        if(backEnd.projection2D) {
+            return;
+        }
+
+        if(backEnd.refdef.rdflags & RDF_DRAWINGSKY) {
+            if(glfogsettings[FOG_SKY].registered) {
+                glFog = &glfogsettings[FOG_SKY];
+            }
+        }
+
+        if(skyboxportal && backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) {
+            if(glfogsettings[FOG_PORTALVIEW].registered) {
+                glFog = &glfogsettings[FOG_PORTALVIEW];
+            }
+        } else {
+            if(glfogNum > FOG_NONE) {
+                glFog = &glfogsettings[FOG_CURRENT];
+            }
+        }
+
+        if(!glFog) {
+            return;
+        }
+    }
 
     ComputeDeformValues(&deformGen, deformParams);
 
@@ -987,6 +1038,14 @@ static void RB_FogPass(void) {
             index |= FOGDEF_USE_VERTEX_ANIMATION;
         } else if(glState.boneAnimation) {
             index |= FOGDEF_USE_BONE_ANIMATION;
+        }
+
+        if(wolfFog) {
+            if(glFog->mode == GL_LINEAR) {
+                index |= FOGDEF_USE_WOLF_FOG_LINEAR;
+            } else { // if (glFog->mode == GL_EXP)
+                index |= FOGDEF_USE_WOLF_FOG_EXPONENTIAL;
+            }
         }
 
         sp = &tr.fogShader[index];
@@ -1016,13 +1075,21 @@ static void RB_FogPass(void) {
         GLSL_SetUniformFloat(sp, UNIFORM_TIME, tess.shaderTime);
     }
 
-    color[0] = (reinterpret_cast<uchar8 *>(&fog->colorInt))[0] / 255.0f;
-    color[1] = (reinterpret_cast<uchar8 *>(&fog->colorInt))[1] / 255.0f;
-    color[2] = (reinterpret_cast<uchar8 *>(&fog->colorInt))[2] / 255.0f;
-    color[3] = (reinterpret_cast<uchar8 *>(&fog->colorInt))[3] / 255.0f;
+    if(wolfFog) {
+        color[0] = glFog->color[0];
+        color[1] = glFog->color[1];
+        color[2] = glFog->color[2];
+        color[3] = glFog->color[3];
+    } else {
+        color[0] = (reinterpret_cast<uchar8 *>(&fog->colorInt))[0] / 255.0f;
+        color[1] = (reinterpret_cast<uchar8 *>(&fog->colorInt))[1] / 255.0f;
+        color[2] = (reinterpret_cast<uchar8 *>(&fog->colorInt))[2] / 255.0f;
+        color[3] = (reinterpret_cast<uchar8 *>(&fog->colorInt))[3] / 255.0f;
+    }
+
     GLSL_SetUniformVec4(sp, UNIFORM_COLOR, color);
 
-    ComputeFogValues(fogDistanceVector, fogDepthVector, &eyeT);
+    ComputeFogValues(fogDistanceVector, fogDepthVector, &eyeT, glFog);
 
     GLSL_SetUniformVec4(sp, UNIFORM_FOGDISTANCE, fogDistanceVector);
     GLSL_SetUniformVec4(sp, UNIFORM_FOGDEPTH, fogDepthVector);
@@ -1342,7 +1409,7 @@ void RB_SetStageImageDimensions(shaderProgram_t *sp,
 
 static void RB_IterateStagesGeneric(shaderCommands_t *input) {
     sint stage;
-
+    glfog_t *glFog;
     vec4_t fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
     float32 eyeT = 0;
 
@@ -1354,8 +1421,6 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
 
     ComputeDeformValues(&deformGen, deformParams);
 
-    ComputeFogValues(fogDistanceVector, fogDepthVector, &eyeT);
-
     for(stage = 0; stage < MAX_SHADER_STAGES; stage++) {
         shaderStage_t *pStage = input->xstages[stage];
         shaderProgram_t *sp;
@@ -1365,6 +1430,8 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
         if(!pStage) {
             break;
         }
+
+        glFog = nullptr;
 
         if(pStage->bundle[0].tcGen == TCGEN_ENVIRONMENT_MAPPED
                 || pStage->bundle[0].image[0]->flags & IMGFLAG_CUBEMAP) {
@@ -1433,7 +1500,27 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
 
             backEnd.pc.c_lightallDraws++;
         } else {
-            sp = GLSL_GetGenericShaderProgram(stage);
+            if(pStage->adjustColorsForFog && !backEnd.projection2D) {
+                if(!tess.shader->noFog || pStage->isFogged) {
+                    if(backEnd.refdef.rdflags & RDF_DRAWINGSKY) {
+                        if(glfogsettings[FOG_SKY].registered) {
+                            glFog = &glfogsettings[FOG_SKY];
+                        }
+                    }
+
+                    if(skyboxportal && backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) {
+                        if(glfogsettings[FOG_PORTALVIEW].registered) {
+                            glFog = &glfogsettings[FOG_PORTALVIEW];
+                        }
+                    } else {
+                        if(glfogNum > FOG_NONE) {
+                            glFog = &glfogsettings[FOG_CURRENT];
+                        }
+                    }
+                }
+            }
+
+            sp = GLSL_GetGenericShaderProgram(stage, glFog);
 
             backEnd.pc.c_genericDraws++;
         }
@@ -1459,6 +1546,7 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
 
             GLSL_SetUniformFloat(sp, UNIFORM_TIME,
                                  static_cast<float32>(tess.shaderTime));
+
         } else {
             if(!sp || !sp->program) {
                 pStage->glslShaderGroup = tr.lightallShader;
@@ -1498,7 +1586,9 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
             GLSL_SetUniformFloat(sp, UNIFORM_TIME, tess.shaderTime);
         }
 
-        if(input->fogNum) {
+        if(input->fogNum || glFog) {
+            ComputeFogValues(fogDistanceVector, fogDepthVector, &eyeT, glFog);
+
             GLSL_SetUniformVec4(sp, UNIFORM_FOGDISTANCE, fogDistanceVector);
             GLSL_SetUniformVec4(sp, UNIFORM_FOGDEPTH, fogDepthVector);
             GLSL_SetUniformFloat(sp, UNIFORM_FOGEYET, eyeT);
@@ -1552,7 +1642,7 @@ static void RB_IterateStagesGeneric(shaderCommands_t *input) {
         GLSL_SetUniformInt(sp, UNIFORM_COLORGEN, pStage->rgbGen);
         GLSL_SetUniformInt(sp, UNIFORM_ALPHAGEN, pStage->alphaGen);
 
-        if(input->fogNum) {
+        if(input->fogNum || glFog) {
             vec4_t fogColorMask;
 
             ComputeFogColorMask(pStage, fogColorMask);
@@ -1909,7 +1999,6 @@ void RB_StageIteratorGeneric(void) {
                 }
     }
 
-
     //
     // render depth if in depthfill mode
     //
@@ -1951,24 +2040,38 @@ void RB_StageIteratorGeneric(void) {
     RB_IterateStagesGeneric(input);
 
     //
-    // pshadows!
+    // now do any dynamic lighting needed. UQ1: A generic method to rule them all... A SANE real world style lighting with a blacklist - not a whitelist!
     //
-    if(glRefConfig.framebufferObject && r_shadows->integer == 4 &&
-            tess.pshadowBits
-            && tess.shader->sort <= SS_OPAQUE &&
-            !(tess.shader->surfaceFlags & (/*SURF_NODLIGHT | */SURF_SKY))) {
-        ProjectPshadowVBOGLSL();
-    }
+    if(!(tess.shader->surfaceFlags & (/*SURF_NODLIGHT |*/ SURF_SKY))) {
+        switch(static_cast<sint>(tess.shader->sort)) {
+            case SS_PORTAL:
+            case SS_ENVIRONMENT: // is this really always a skybox???
+            case SS_SEE_THROUGH:
 
+            //case SS_FOG: // hmm... these??? i sorta like the idea of lighting up fog particles myself...
+            case SS_BLEND0:
+            case SS_BLEND1:
+            case SS_BLEND2:
+            case SS_BLEND3:
+            case SS_BLEND6:
+                break;
 
-    //
-    // now do any dynamic lighting needed
-    //
-    if(tess.dlightBits && tess.shader->lightingStage >= 0) {
-        if(r_dlightMode->integer) {
-            ForwardDlight();
-        } else {
-            ProjectDlightTexture();
+            default:
+                if(r_dlightMode->integer >= 2) {
+                    ForwardDlight();
+                } else {
+                    ProjectDlightTexture();
+                }
+
+                //
+                // pshadows!
+                //
+                if(r_shadows->integer == 4 && tess.pshadowBits &&
+                        !(tess.shader->surfaceFlags & (/*SURF_NODLIGHT |*/ SURF_SKY))) {
+                    ProjectPshadowVBOGLSL();
+                }
+
+                break;
         }
     }
 
@@ -1976,7 +2079,35 @@ void RB_StageIteratorGeneric(void) {
     // now do fog
     //
     if(tess.fogNum && tess.shader->fogPass) {
-        RB_FogPass();
+        RB_FogPass(0);
+    }
+
+    //
+    // RTCW fog
+    // may not match original RTCW fog, since that's done per stage
+    //
+    if(tess.shader->fogPass && tess.shader->sort <= SS_OPAQUE) {
+        sint stage, stageFog = 0;
+
+        if(tess.shader->noFog) {
+            // make sure at least one stage has fog
+            for(stage = 0; stage < MAX_SHADER_STAGES; stage++) {
+                shaderStage_t *pStage = tess.xstages[stage];
+
+                if(!pStage) {
+                    break;
+                }
+
+                if(pStage->isFogged) {
+                    stageFog = 1;
+                    break;
+                }
+            }
+        }
+
+        if(!tess.shader->noFog || stageFog) {
+            RB_FogPass(1);
+        }
     }
 
     //
@@ -2015,6 +2146,25 @@ void RB_EndSurface(void) {
     // for debugging of sort order issues, stop rendering after a given sort value
     if(r_debugSort->integer && r_debugSort->integer < tess.shader->sort) {
         return;
+    }
+
+    if(skyboxportal) {
+        // world
+        if(!(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL)) {
+            if(tess.currentStageIteratorFunc ==
+                    RB_StageIteratorSky) {   // don't process these tris at all
+                return;
+            }
+        }
+        // portal sky
+        else {
+            if(!drawskyboxportal) {
+                if(!(tess.currentStageIteratorFunc ==
+                        RB_StageIteratorSky)) {   // only process sky tris
+                    return;
+                }
+            }
+        }
     }
 
     if(tess.useCacheVao) {
