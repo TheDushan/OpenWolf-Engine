@@ -972,6 +972,7 @@ sint Q_isforfilename(sint c);
 
 bool Q_isanumber(pointer s);
 bool Q_isintegral(float32 f);
+valueType *Q_StripColor(valueType *string);
 
 bool        Q_strtol(pointer s, sint32 *out);
 bool        Q_strtoi(pointer s, sint *out);

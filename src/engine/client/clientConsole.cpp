@@ -1484,23 +1484,29 @@ void idClientConsoleSystemLocal::Copy(void) {
     for(l = con->current - con->totallines + 1; l <= con->current; l++) {
         line = con->text + (l % con->totallines) * con->linewidth;
 
-        for(x = 0; x < con->linewidth; x++)
+        for(x = 0; x < con->linewidth; x++) {
             if((line[x] & 0xff) != ' ') {
                 break;
             }
+        }
 
         if(x != con->linewidth) {
             break;
         }
     }
 
+    if(l > con->current) {
+        Com_Printf("^3Console is empty! Nothing copied.\n");
+        return;
+    }
+
 #ifdef _WIN32
-    bufferlen = con->linewidth + 3 * sizeof(char);
+    bufferlen = con->linewidth + 3 * sizeof(valueType);
 #else
-    bufferlen = con->linewidth + 2 * sizeof(char);
+    bufferlen = con->linewidth + 2 * sizeof(valueType);
 #endif
 
-    savebufferlen = bufferlen * (l % con->totallines);
+    savebufferlen = bufferlen * (con->current - l);
     buffer = static_cast<valueType *>(memorySystem->AllocateTempMemory(
                                           bufferlen));
     savebuffer = static_cast<valueType *>(memorySystem->AllocateTempMemory(
@@ -1535,6 +1541,8 @@ void idClientConsoleSystemLocal::Copy(void) {
 
     idsystem->SetClipboardData(savebuffer);
 
+    Com_Printf("^2Console successfully copied to clipboard!\n");
+
     memorySystem->FreeTempMemory(buffer);
     memorySystem->FreeTempMemory(savebuffer);
 }
@@ -1545,25 +1553,30 @@ idClientConsoleSystemLocal::CopyLink
 ================
 */
 void idClientConsoleSystemLocal::CopyLink(void) {
-    sint l, x, i;
-    valueType *line, * buffer, n[] = "\0";
-    pointer link;
-    bool num = false;
+    sint l, x, i, pointDiff;
+    valueType *buffer, n[] = "\0", * line;
+    pointer link, point1, point2, point3;
+    bool containsNum = false, containsPoint = false;
 
-    buffer = static_cast<valueType *>(memorySystem->AllocateTempMemory(
-                                          con->linewidth));
+    buffer = static_cast<char *>(memorySystem->AllocateTempMemory(
+                                     con->linewidth));
 
     for(l = con->current; l >= con->current - 32; l--) {
         line = con->text + (l % con->totallines) * con->linewidth;
 
         for(i = 0; i < con->linewidth; i++) {
-            buffer[i] = (char)(line[i] & 0xff);
+            buffer[i] = static_cast<char>(line[i] & 0xff);
 
-            if(Q_isanumber(&buffer[i])) {
-                num = true;
+            if(!containsNum && Q_isanumber(&buffer[i])) {
+                containsNum = true;
+            }
+
+            if(!containsPoint && buffer[i] == '.') {
+                containsPoint = true;
             }
         }
 
+        // Clear spaces at end of buffer
         for(x = con->linewidth - 1; x >= 0; x--) {
             if(buffer[x] == ' ') {
                 buffer[x] = 0;
@@ -1572,23 +1585,55 @@ void idClientConsoleSystemLocal::CopyLink(void) {
             }
         }
 
-        if(num) {
-            for(i = 0; i < con->linewidth; i++) {
-                *n = buffer[i];
+        Q_StripColor(buffer);
+
+        if(containsNum && containsPoint) {
+            containsNum = false, containsPoint = false;
+
+            if(!(point1 = Q_stristr(buffer, ".")) ||  // Set address of first point
+                    // Check if points exist after point1 and set their addresses
+                    !(point2 = Q_stristr(point1 + 1, ".")) ||
+                    !(point3 = Q_stristr(point2 + 1, "."))) {
+                continue;
+            }
+
+            for(i = 0; buffer[i] != 0; i++) {
+                if(point1 == &buffer[i]) {  // If addresses match, set point1 to next point
+                    // Check if points exist and set point addresses
+                    if(
+                        !(point1 = Q_stristr(&buffer[i + 1], ".")) ||
+                        !(point2 = Q_stristr(point1 + 1, ".")) ||
+                        !(point3 = Q_stristr(point2 + 1, "."))
+                    ) {
+                        break;
+                    }
+                }
+
+                *n = buffer[i]; // Force Q_isanumber to look at a single char
 
                 if(Q_isanumber(n)) {
-                    if((link = Q_stristr(buffer, ".")) && link - &buffer[i] <= 3) {
+                    // Check if chars exist between points and the amount of chars is > 0 & <=3
+                    // <xxx>.<xxx>.<xxx>. Can't reliably check for chars after last point
+                    if((pointDiff = point1 - &buffer[i]) <= 3 &&
+                            pointDiff > 0 &&
+                            (pointDiff = point2 - (point1 + 1)) <= 3 &&
+                            pointDiff > 0 &&
+                            (pointDiff = point3 - (point2 + 1)) <= 3 &&
+                            pointDiff > 0
+                      ) {
                         link = &buffer[i];
                         break;
-                    } else {
-                        link = nullptr;
                     }
                 }
             }
 
             if(link) {
-                for(i = 0; i < con->linewidth; i++) {
+                for(i = 0; buffer[i] != 0; i++) {
                     buffer[i] = *link++;
+
+                    if(*link == ' ' || *link == '"') {
+                        buffer[i + 1] = 0;
+                    }
                 }
 
                 idsystem->SetClipboardData(buffer);
@@ -1603,8 +1648,12 @@ void idClientConsoleSystemLocal::CopyLink(void) {
                 *link--;
             }
 
-            for(i = 0; i < con->linewidth; i++) {
+            for(i = 0; buffer[i] != 0; i++) {
                 buffer[i] = *link++;
+
+                if(*link == ' ' || *link == '"') {
+                    buffer[i + 1] = 0;
+                }
             }
 
             idsystem->SetClipboardData(buffer);
@@ -1612,6 +1661,10 @@ void idClientConsoleSystemLocal::CopyLink(void) {
             Com_Printf("^2Link ^7\"%s\" ^2Copied!\n", buffer);
             break;
         }
+    }
+
+    if(!link) {
+        Com_Printf("^1No Links or IPs found!\n", buffer);
     }
 
     memorySystem->FreeTempMemory(buffer);

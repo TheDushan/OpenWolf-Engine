@@ -3200,3 +3200,30 @@ valueType *COM_SkipPath(valueType *pathname) {
 
     return last;
 }
+
+/*
+============
+Q_StripColor
+============
+*/
+valueType *Q_StripColor(valueType *string) {
+    sint c;
+    valueType *d, * s;
+
+    s = string;
+    d = string;
+
+    while((c = *s) != 0) {
+        if(Q_IsColorString(s)) {
+            s++;
+        } else {
+            *d++ = c;
+        }
+
+        s++;
+    }
+
+    *d = '\0';
+
+    return string;
+}
