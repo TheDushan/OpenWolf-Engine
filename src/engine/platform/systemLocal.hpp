@@ -173,6 +173,7 @@ public:
     virtual void Shutdown(void);
     virtual valueType *Cwd(void);
     virtual sint MonkeyShouldBeSpanked(void);
+    virtual void SetClipboardData(pointer cbText);
 
     static void SetBinaryPath(pointer path);
     static void SetFloatEnv(void);

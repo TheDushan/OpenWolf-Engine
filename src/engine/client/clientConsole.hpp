@@ -85,6 +85,8 @@ public:
     virtual void Close(void);
     virtual void Init(void);
     virtual void DrawConsole(void);
+    virtual void Copy(void);
+    virtual void CopyLink(void);
 
 public:
     static void ToggleConsole(void);

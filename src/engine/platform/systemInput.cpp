@@ -1219,3 +1219,12 @@ void idSystemLocal::Restart(void) {
     ShutdownJoystick();
     systemLocal.Init(SDL_window);
 }
+
+/*
+===============
+idSystemLocal::SetClipboardData
+===============
+*/
+void idSystemLocal::SetClipboardData(pointer cbText) {
+    SDL_SetClipboardText(cbText);
+}

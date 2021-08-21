@@ -89,6 +89,7 @@ public:
     virtual valueType *DefaultHomePath(valueType *buffer, sint size) = 0;
     virtual valueType *Cwd(void) = 0;
     virtual sint MonkeyShouldBeSpanked(void) = 0;
+    virtual void SetClipboardData(pointer cbText) = 0;
 };
 
 extern idSystem *idsystem;

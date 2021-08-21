@@ -364,7 +364,7 @@ static void ProjectDlightTexture(void) {
 
     for(sint i = 0; i < NUM_PASSES; i++) {
         sint START_POS = i * MAX_SHADER_DLIGHTS;
-            dlight_t *dl;
+        dlight_t *dl;
 
         backEnd.pc.c_dlightDraws++;
 

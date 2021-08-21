@@ -84,6 +84,8 @@ public:
     virtual void Close(void) = 0;
     virtual void Init(void) = 0;
     virtual void DrawConsole(void) = 0;
+    virtual void Copy(void) = 0;
+    virtual void CopyLink(void) = 0;
 };
 
 extern idClientConsoleSystemAPI *clientConsoleSystem;

@@ -659,10 +659,21 @@ void idCmdCompletionLocal::CharEvent(field_t *edit, valueType ch) {
         return;
     }
 
-    // ctrl-c or ctrl-u clear the field
-    if(ch == 'c' - 'a' + 1 || ch == 'u' - 'a' + 1) {
+    // ctrl-z or ctrl-u clear the field
+    if(ch == 'z' - 'a' + 1 || ch == 'u' - 'a' + 1) {
         Clear(edit);
         return;
+    }
+
+    // ctrl-c copies latest link or ip from console
+    if(ch == 'c' - 'a' + 1) {
+        clientConsoleSystem->CopyLink();
+        return;
+    }
+
+    // ctrl-s copies console to clipboard
+    if(ch == 's' - 'a' + 1) {
+        clientConsoleSystem->Copy();
     }
 
     len = ::strlen(edit->buffer);
