@@ -539,6 +539,37 @@ rescan:
     return true;
 }
 
+/*
+====================
+idClientGameSystemLocal::OpenLog
+====================
+*/
+void idClientGameSystemLocal::OpenLog(pointer filename, fileHandle_t *f,
+                                      bool sync) {
+    fileSystem->FOpenFileByMode(filename, f,
+                                sync ? FS_APPEND_SYNC : FS_APPEND);
+
+    if(*f) {
+        Com_Printf("Logging to %s\n", filename);
+    } else {
+        Com_Printf("^3WARNING: Couldn't open logfile: %s\n", filename);
+    }
+}
+
+/*
+====================
+idClientGameSystemLocal::CloseLog
+====================
+*/
+void idClientGameSystemLocal::CloseLog(fileHandle_t *f) {
+    if(!*f) {
+        return;
+    }
+
+    fileSystem->FCloseFile(*f);
+    *f = static_cast<fileHandle_t>(0);
+}
+
 // DHM - Nerve :: Copied from server to here
 /*
 ====================
@@ -627,6 +658,10 @@ void idClientGameSystemLocal::ShutdownCGame(void) {
 
     idsystem->UnloadDll(cgvm);
     cgvm = nullptr;
+
+    clientMainSystem->LogPrintf(cls.log.chat,
+                                "End logging\n------------------------------------------------------------\n\n");
+    CloseLog(&cls.log.chat);
 }
 
 /*
@@ -865,6 +900,22 @@ void idClientGameSystemLocal::InitCGame(void) {
     //{
     //  cvarSystem->Set( "g_synchronousClients", "1" );
     //}
+
+    if(cl_logChat->integer) {
+        valueType logname[24];
+        time_t rawtime;
+        struct tm *newtime;
+
+        ::time(&rawtime);
+        newtime = ::localtime(&rawtime);
+        ::strftime(logname, 26, "logs/consoleChat_%y-%b.log", newtime);
+
+        OpenLog(logname, &cls.log.chat, (cl_logChat->integer == 2 ? true : false));
+    } else {
+        if(developer->integer) {
+            Com_Printf("Not logging chat to disk.\n");
+        }
+    }
 }
 
 /*

@@ -842,13 +842,28 @@ void idClientConsoleSystemLocal::ConsolePrintToTabs(valueType *txt,
     }
 
     if(txt[0] == '*') {
+        valueType *txtConsole;
+
         skipnotify = true;
         txt += 1;
+
+        txtConsole = va("%s", txt);
+        Q_StripColor(txtConsole);
+        clientMainSystem->LogPrintf(cls.log.chat, va("%s", txtConsole));
     }
 
     // for some demos we don't want to ever show anything on the console
     if(cl_noprint && cl_noprint->integer) {
         return;
+    }
+
+    if(con->x == 0) {
+        valueType text[MAXPRINTMSG];
+        qtime_t now;
+        Com_RealTime(&now);
+        Q_vsprintf_s(text, sizeof(text), sizeof(text), "^9%02d:%02d:%02d ^7%s",
+                     now.tm_hour, now.tm_min, now.tm_sec, txt);
+        txt = va("%s", text);
     }
 
     if(!con->initialized) {
@@ -1587,6 +1602,26 @@ void idClientConsoleSystemLocal::CopyLink(void) {
 
         Q_StripColor(buffer);
 
+        if((link = Q_stristr(buffer, "://"))) {
+            // Move link ptr back until it hits a space or first char of string
+            while(link != &buffer[0] && *(link - 1) != ' ') {
+                link--;
+            }
+
+            for(i = 0; buffer[i] != 0; i++) {
+                buffer[i] = *link++;
+
+                if(*link == ' ' || *link == '"') {
+                    buffer[i + 1] = 0;
+                }
+            }
+
+            idsystem->SetClipboardData(buffer);
+
+            Com_Printf("^2Link ^7\"%s\" ^2Copied!\n", buffer);
+            break;
+        }
+
         if(containsNum && containsPoint) {
             containsNum = false, containsPoint = false;
 
@@ -1641,25 +1676,6 @@ void idClientConsoleSystemLocal::CopyLink(void) {
                 Com_Printf("^2IP ^7\"%s\" ^2Copied!\n", buffer);
                 break;
             }
-        }
-
-        if(link = Q_stristr(buffer, "://")) {
-            while(link != &buffer[0] && *(link - 1) != ' ') {
-                *link--;
-            }
-
-            for(i = 0; buffer[i] != 0; i++) {
-                buffer[i] = *link++;
-
-                if(*link == ' ' || *link == '"') {
-                    buffer[i + 1] = 0;
-                }
-            }
-
-            idsystem->SetClipboardData(buffer);
-
-            Com_Printf("^2Link ^7\"%s\" ^2Copied!\n", buffer);
-            break;
         }
     }
 

@@ -52,6 +52,7 @@ public:
     virtual void Shutdown(void);
     virtual void OpenURL(pointer url);
     virtual void AddToLimboChat(pointer str);
+    virtual void LogPrintf(fileHandle_t fileHandle, pointer fmt, ...);
 
     static void PurgeCache(void);
     static void DoPurgeCache(void);

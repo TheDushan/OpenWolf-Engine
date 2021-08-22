@@ -418,6 +418,9 @@ typedef struct {
     bool
     downloadRestart;                                                // if true, we need to do another FS_Restart because we downloaded a pak
     sint lastVidRestart;
+    struct {
+        fileHandle_t    chat;
+    } log;
 } clientStatic_t;
 
 extern clientStatic_t cls;

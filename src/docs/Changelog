@@ -1,4 +1,8 @@
-2021-08-20 Dusan Jocic <dusanjocic@msn.com>
+2021-08-22 Dusan Jocic <dusanjocic@msn.com>
+	* [Console] Added Timestamps to in-game console
+	* [Console] Add chatlogs to engine
+
+2021-08-21 Dusan Jocic <dusanjocic@msn.com>
 	* [Console] Improved engine console copying into system os clipboard
 	* [Console] Add possibility to copy engine console into system os clipboard
 

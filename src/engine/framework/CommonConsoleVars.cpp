@@ -420,6 +420,8 @@ convar_t *hunk_soundadjust;
 convar_t *cl_maxPing;
 convar_t *r_fullscreen;
 
+convar_t *cl_logChat;
+
 /*
 ===============
 Com_InitCommonConsoleVars
@@ -1248,4 +1250,6 @@ void Com_InitCommonConsoleVars(void) {
     r_fullscreen = cvarSystem->Get("r_fullscreen", "0",
                                    CVAR_ARCHIVE | CVAR_LATCH, "Enables fullscreen view");
 
+    cl_logChat = cvarSystem->Get("cl_logChat", "2", CVAR_ARCHIVE,
+                                 "Enables console logging in the file.");
 }

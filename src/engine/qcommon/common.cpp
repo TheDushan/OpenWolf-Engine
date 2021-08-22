@@ -131,7 +131,7 @@ void Com_Printf(pointer fmt, ...) {
     static bool opening_qconsole = false;
 
     va_start(argptr, fmt);
-    Q_vsprintf_s(msg, sizeof(msg) - 1, fmt, argptr);
+    Q_vsprintf_s(msg, sizeof(msg), fmt, argptr);
     va_end(argptr);
 
     if(rd_buffer && !rd_flushing) {
@@ -150,6 +150,11 @@ void Com_Printf(pointer fmt, ...) {
 
         return;
     }
+
+#if defined (_WIN32) && defined (_DEBUG)
+    //Dushan - write to the Visual Studio output
+    OutputDebugString(msg);
+#endif
 
     // echo to console if we're not a dedicated server
     if(dedicated && !dedicated->integer) {

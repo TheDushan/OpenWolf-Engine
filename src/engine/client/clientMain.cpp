@@ -1281,3 +1281,33 @@ void idClientMainSystemLocal::AddToLimboChat(pointer str) {
 
     *p = 0;
 }
+
+/*
+=======================
+idClientMainSystemLocal::AddToLimboChat
+=======================
+*/
+void idClientMainSystemLocal::LogPrintf(fileHandle_t fileHandle,
+                                        pointer fmt, ...) {
+    va_list argptr;
+    valueType string[1024] = { 0 };
+    uint64 len;
+    time_t rawtime;
+    time(&rawtime);
+
+    strftime(string, sizeof(string), "[%Y-%m-%d] [%H:%M:%S] ",
+             localtime(&rawtime));
+
+    len = ::strlen(string);
+
+    va_start(argptr, fmt);
+    Q_vsprintf_s(string + len, sizeof(string) - len, sizeof(string) - len, fmt,
+                 argptr);
+    va_end(argptr);
+
+    if(!fileHandle) {
+        return;
+    }
+
+    fileSystem->Write(string, strlen(string), fileHandle);
+}

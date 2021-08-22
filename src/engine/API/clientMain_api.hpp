@@ -54,6 +54,7 @@ public:
     virtual void Shutdown(void) = 0;
     virtual void OpenURL(pointer url) = 0;
     virtual void AddToLimboChat(pointer str) = 0;
+    virtual void LogPrintf(fileHandle_t fileHandle, pointer fmt, ...) = 0;
 };
 
 extern idClientMainSystemAPI *clientMainSystem;

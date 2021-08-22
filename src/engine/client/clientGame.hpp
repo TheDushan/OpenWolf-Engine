@@ -83,6 +83,8 @@ public:
     static void CreateExportTable(void);
     static void AdjustTimeDelta(void);
     static void FirstSnapshot(void);
+    static void OpenLog(pointer filename, fileHandle_t *f, bool sync);
+    static void CloseLog(fileHandle_t *f);
 };
 
 extern idClientGameSystemLocal clientGameLocal;
