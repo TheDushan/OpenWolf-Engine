@@ -61,7 +61,7 @@ idClientAVISystemLocal::SafeFS_Write
 void idClientAVISystemLocal::SafeFS_Write(const void *buffer, sint len,
         fileHandle_t f) {
     if(fileSystem->Write(buffer, len, f) < len) {
-        Com_Error(ERR_DROP, "Failed to write avi file\n");
+        common->Error(ERR_DROP, "Failed to write avi file\n");
     }
 }
 
@@ -116,7 +116,7 @@ idClientAVISystemLocal::START_CHUNK
 */
 void idClientAVISystemLocal::START_CHUNK(pointer s) {
     if(afd.chunkStackTop == MAX_RIFF_CHUNKS) {
-        Com_Error(ERR_DROP, "ERROR: Top of chunkstack breached\n");
+        common->Error(ERR_DROP, "ERROR: Top of chunkstack breached\n");
     }
 
     afd.chunkStack[afd.chunkStackTop] = bufIndex;
@@ -134,7 +134,7 @@ void idClientAVISystemLocal::END_CHUNK(void) {
     sint endIndex = bufIndex;
 
     if(afd.chunkStackTop <= 0) {
-        Com_Error(ERR_DROP, "ERROR: Bottom of chunkstack breached\n");
+        common->Error(ERR_DROP, "ERROR: Bottom of chunkstack breached\n");
     }
 
     afd.chunkStackTop--;
@@ -305,7 +305,7 @@ bool idClientAVISystemLocal::OpenAVIForWriting(pointer fileName) {
 
     // Don't start if a framerate has not been chosen
     if(cl_aviFrameRate->integer <= 0) {
-        Com_Printf(S_COLOR_RED "cl_aviFrameRate must be >= 1\n");
+        common->Printf(S_COLOR_RED "cl_aviFrameRate must be >= 1\n");
         return false;
     }
 
@@ -356,8 +356,8 @@ bool idClientAVISystemLocal::OpenAVIForWriting(pointer fileName) {
             suggestRate--;
         }
 
-        Com_Printf(S_COLOR_YELLOW "WARNING: cl_aviFrameRate is not a divisor "
-                   "of the audio rate, suggest %d\n", suggestRate);
+        common->Printf(S_COLOR_YELLOW "WARNING: cl_aviFrameRate is not a divisor "
+                       "of the audio rate, suggest %d\n", suggestRate);
     }
 
     if(!s_initsound->integer) {
@@ -370,8 +370,8 @@ bool idClientAVISystemLocal::OpenAVIForWriting(pointer fileName) {
         }
     } else {
         afd.audio = false;
-        Com_Printf(S_COLOR_YELLOW "WARNING: Audio capture is not supported "
-                   "with OpenAL. Set s_useOpenAL to 0 for audio capture\n");
+        common->Printf(S_COLOR_YELLOW "WARNING: Audio capture is not supported "
+                       "with OpenAL. Set s_useOpenAL to 0 for audio capture\n");
     }
 
     // This doesn't write a real header, but allocates the
@@ -493,8 +493,8 @@ void idClientAVISystemLocal::WriteAVIAudioFrame(const uchar8 *pcmBuffer,
     }
 
     if(bytesInBuffer + size > PCM_BUFFER_SIZE) {
-        Com_Printf(S_COLOR_YELLOW
-                   "WARNING: Audio capture buffer overflow -- truncating\n");
+        common->Printf(S_COLOR_YELLOW
+                       "WARNING: Audio capture buffer overflow -- truncating\n");
         size = PCM_BUFFER_SIZE - bytesInBuffer;
     }
 
@@ -618,8 +618,8 @@ bool idClientAVISystemLocal::CloseAVI(void) {
     memorySystem->Free(afd.eBuffer);
     fileSystem->FCloseFile(afd.f);
 
-    Com_Printf("Wrote %d:%d frames to %s\n", afd.numVideoFrames,
-               afd.numAudioFrames, afd.fileName);
+    common->Printf("Wrote %d:%d frames to %s\n", afd.numVideoFrames,
+                   afd.numAudioFrames, afd.fileName);
 
     return true;
 }

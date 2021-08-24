@@ -40,7 +40,6 @@
 
 #ifdef GAMEDLL
 typedef struct client_s client_t;
-typedef struct netadr_s netadr_t;
 typedef struct msg_t msg_t;
 #endif
 

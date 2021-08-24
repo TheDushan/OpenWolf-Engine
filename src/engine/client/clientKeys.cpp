@@ -516,14 +516,14 @@ void idClientKeysSystemLocal::Unbind_f(void) {
     sint b;
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("unbind <key> : remove commands from a key\n");
+        common->Printf("unbind <key> : remove commands from a key\n");
         return;
     }
 
     b = clientKeysLocal.StringToKeynum(cmdSystem->Argv(1));
 
     if(b == -1) {
-        Com_Printf("\"%s\" isn't a valid key\n", cmdSystem->Argv(1));
+        common->Printf("\"%s\" isn't a valid key\n", cmdSystem->Argv(1));
         return;
     }
 
@@ -555,23 +555,23 @@ void idClientKeysSystemLocal::Bind_f(void) {
     c = cmdSystem->Argc();
 
     if(c < 2) {
-        Com_Printf("bind <key> [command] : attach a command to a key\n");
+        common->Printf("bind <key> [command] : attach a command to a key\n");
         return;
     }
 
     b = clientKeysLocal.StringToKeynum(cmdSystem->Argv(1));
 
     if(b == -1) {
-        Com_Printf("\"%s\" isn't a valid key\n", cmdSystem->Argv(1));
+        common->Printf("\"%s\" isn't a valid key\n", cmdSystem->Argv(1));
         return;
     }
 
     if(c == 2) {
         if(keys[b].binding) {
-            Com_Printf("\"%s\" = \"%s\"\n", clientKeysLocal.KeynumToString(b),
-                       keys[b].binding);
+            common->Printf("\"%s\" = \"%s\"\n", clientKeysLocal.KeynumToString(b),
+                           keys[b].binding);
         } else {
-            Com_Printf("\"%s\" is not bound\n", clientKeysLocal.KeynumToString(b));
+            common->Printf("\"%s\" is not bound\n", clientKeysLocal.KeynumToString(b));
         }
 
         return;
@@ -595,7 +595,7 @@ void idClientKeysSystemLocal::EditBind_f(void) {
     b = cmdSystem->Argc();
 
     if(b != 2) {
-        Com_Printf("editbind <key> : edit a key binding (in the in-game console)");
+        common->Printf("editbind <key> : edit a key binding (in the in-game console)");
         return;
     }
 
@@ -603,7 +603,7 @@ void idClientKeysSystemLocal::EditBind_f(void) {
     b = clientKeysLocal.StringToKeynum(key);
 
     if(b == -1) {
-        Com_Printf("\"%s\" isn't a valid key\n", key);
+        common->Printf("\"%s\" isn't a valid key\n", key);
         return;
     }
 
@@ -653,8 +653,8 @@ void idClientKeysSystemLocal::Bindlist_f(void) {
 
     for(i = 0 ; i < MAX_KEYS ; i++) {
         if(keys[i].binding && keys[i].binding[0]) {
-            Com_Printf("%s = %s\n", clientKeysLocal.KeynumToString(i),
-                       keys[i].binding);
+            common->Printf("%s = %s\n", clientKeysLocal.KeynumToString(i),
+                           keys[i].binding);
         }
     }
 }
@@ -737,7 +737,7 @@ idClientKeysSystemLocal::InitKeyCommands
 */
 void idClientKeysSystemLocal::InitKeyCommands(void) {
 
-    Com_Printf("----- idClientKeysSystemLocal::InitKeyCommands -------\n");
+    common->Printf("----- idClientKeysSystemLocal::InitKeyCommands -------\n");
     // register our functions
     cmdSystem->AddCommand("bind", Bind_f,
                           "Used for assigning keys to actions. Bind x �weaponbank 3");
@@ -874,10 +874,10 @@ void idClientKeysSystemLocal::KeyEvent(sint key, sint down, sint time) {
                 }
 
                 if(r_fullscreen->integer == 0) {
-                    Com_Printf("Switching to fullscreen rendering\n");
+                    common->Printf("Switching to fullscreen rendering\n");
                     cvarSystem->Set("r_fullscreen", "1");
                 } else {
-                    Com_Printf("Switching to windowed rendering\n");
+                    common->Printf("Switching to windowed rendering\n");
                     cvarSystem->Set("r_fullscreen", "0");
                 }
 
@@ -1153,8 +1153,8 @@ void idClientKeysSystemLocal::KeyEvent(sint key, sint down, sint time) {
 
         if(!kb) {
             if(key >= 200) {
-                Com_Printf("%s is unbound, use controls menu to set.\n"
-                           , KeynumToString(key));
+                common->Printf("%s is unbound, use controls menu to set.\n"
+                               , KeynumToString(key));
             }
         } else if(kb[0] == '+') {
             // button commands add keynum and time as parms so that multiple
@@ -1239,7 +1239,7 @@ void idClientKeysSystemLocal::CharEvent(sint key) {
     // ydnar: added uk equivalent of shift+`
     // the RIGHT way to do this would be to have certain keys disable the equivalent SYSE_CHAR event
 
-    // fretn - this should be fixed in Com_EventLoop
+    // fretn - this should be fixed in common->EventLoop
     // but I can't be arsed to leave this as is
 
     if(key == static_cast<uchar8>('`') || key == static_cast<uchar8>('~') ||

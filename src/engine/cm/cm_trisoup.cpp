@@ -192,7 +192,7 @@ static sint CM_CreateNewFloatPlane(vec4_t plane) {
 
     // add a new plane
     if(numPlanes == SHADER_MAX_TRIANGLES) {
-        Com_Error(ERR_DROP, "CM_FindPlane: SHADER_MAX_TRIANGLES");
+        common->Error(ERR_DROP, "CM_FindPlane: SHADER_MAX_TRIANGLES");
     }
 
     Vector4Copy(plane, planes[numPlanes].plane);
@@ -207,7 +207,7 @@ static sint CM_CreateNewFloatPlane(vec4_t plane) {
 
     // create a new plane
     if(numPlanes == SHADER_MAX_TRIANGLES) {
-        Com_Error(ERR_DROP, "CM_FindPlane: SHADER_MAX_TRIANGLES");
+        common->Error(ERR_DROP, "CM_FindPlane: SHADER_MAX_TRIANGLES");
     }
 
     p = &planes[numPlanes];
@@ -347,7 +347,7 @@ static void CM_SetBorderInward(cFacet_t *facet, cTriangleSoup_t *triSoup,
             break;
 
         default:
-            Com_Error(ERR_FATAL, "CM_SetBorderInward: bad parameter %i", which);
+            common->Error(ERR_FATAL, "CM_SetBorderInward: bad parameter %i", which);
             numPoints = 0;
             break;
     }
@@ -380,7 +380,7 @@ static void CM_SetBorderInward(cFacet_t *facet, cTriangleSoup_t *triSoup,
         } else {
             // bisecting side border
             if(developer->integer) {
-                Com_Printf("WARNING: CM_SetBorderInward: mixed plane sides\n");
+                common->Printf("WARNING: CM_SetBorderInward: mixed plane sides\n");
             }
 
             facet->borderInward[k] = false;
@@ -516,7 +516,7 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
             if(i == facet->numBorders) {
                 if(facet->numBorders > MAX_FACET_BEVELS) {
-                    Com_Printf("ERROR: too many bevels\n");
+                    common->Printf("ERROR: too many bevels\n");
                 }
 
                 facet->borderPlanes[facet->numBorders] = CM_FindPlane2(plane, &flipped);
@@ -595,14 +595,14 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
                 if(i == facet->numBorders) {
                     if(facet->numBorders > MAX_FACET_BEVELS) {
-                        Com_Printf("ERROR: too many bevels\n");
+                        common->Printf("ERROR: too many bevels\n");
                     }
 
                     facet->borderPlanes[facet->numBorders] = CM_FindPlane2(plane, &flipped);
 
                     for(k = 0; k < facet->numBorders; k++) {
                         if(facet->borderPlanes[facet->numBorders] == facet->borderPlanes[k]) {
-                            Com_Printf("WARNING: bevel plane already used\n");
+                            common->Printf("WARNING: bevel plane already used\n");
                         }
                     }
 
@@ -622,8 +622,9 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
                     if(!w2) {
                         if(developer->integer) {
-                            Com_Printf("WARNING: Invalid bevel %f %f %f %f\n", w->p[0][0], w->p[0][1],
-                                       w->p[0][2], w->p[0][3]);
+                            common->Printf("WARNING: Invalid bevel %f %f %f %f\n", w->p[0][0],
+                                           w->p[0][1],
+                                           w->p[0][2], w->p[0][3]);
                         }
 
                         continue;
@@ -644,7 +645,7 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
     //add opposite plane
     if(facet->numBorders >= 4 + 6 + 16) {
-        Com_Printf("ERROR: too many bevels\n");
+        common->Printf("ERROR: too many bevels\n");
         return;
     }
 
@@ -756,7 +757,7 @@ static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t *triSoup,
 
         triSoup->trianglePlanes[i] = CM_FindPlane(p1, p2, p3);
 
-        //Com_Printf("trianglePlane[%i] = %i\n", i, trianglePlanes[i]);
+        //common->Printf("trianglePlane[%i] = %i\n", i, trianglePlanes[i]);
     }
 
     // create the borders for each triangle
@@ -846,14 +847,14 @@ cSurfaceCollide_t *CM_GenerateTriangleSoupCollide(sint numVertexes,
     sint                i, j;
 
     if(numVertexes <= 2 || !vertexes || numIndexes <= 2 || !indexes) {
-        Com_Error(ERR_DROP,
-                  "CM_GenerateTriangleSoupCollide: bad parameters: (%i, %p, %i, %p)",
-                  numVertexes, vertexes, numIndexes, indexes);
+        common->Error(ERR_DROP,
+                      "CM_GenerateTriangleSoupCollide: bad parameters: (%i, %p, %i, %p)",
+                      numVertexes, vertexes, numIndexes, indexes);
     }
 
     if(numIndexes > SHADER_MAX_INDEXES) {
-        Com_Error(ERR_DROP,
-                  "CM_GenerateTriangleSoupCollide: source is > SHADER_MAX_TRIANGLES");
+        common->Error(ERR_DROP,
+                      "CM_GenerateTriangleSoupCollide: source is > SHADER_MAX_TRIANGLES");
     }
 
     // build a triangle soup
@@ -889,8 +890,8 @@ cSurfaceCollide_t *CM_GenerateTriangleSoupCollide(sint numVertexes,
     sc->bounds[1][2] += 1;
 
     if(developer->integer) {
-        Com_Printf("CM_GenerateTriangleSoupCollide: %i planes %i facets\n",
-                   sc->numPlanes, sc->numFacets);
+        common->Printf("CM_GenerateTriangleSoupCollide: %i planes %i facets\n",
+                       sc->numPlanes, sc->numFacets);
     }
 
     return sc;

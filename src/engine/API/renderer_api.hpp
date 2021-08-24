@@ -65,9 +65,6 @@ typedef struct {
 // system functions provided by the main engine
 //
 struct rendererImports_t {
-    void(*Printf)(pointer fmt, ...);
-    void(*Error)(errorParm_t level, pointer fmt, ...);
-
     idCollisionModelManager *collisionModelManager;
     idFileSystem *fileSystem;
     idCVarSystem *cvarSystem;
@@ -75,6 +72,7 @@ struct rendererImports_t {
     idCmdSystem *cmdSystem;
     idSystem *idsystem;
     idMemorySystem *memorySystem;
+    idCommon *common;
 #ifndef DEDICATED
     idClientAVISystemAPI *clientAVISystem;
     idClientCinemaSystem *clientCinemaSystem;

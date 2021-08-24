@@ -267,10 +267,6 @@ idClientGUISystemLocal::CreateExportTable
 ====================
 */
 void idClientGUISystemLocal::CreateExportTable(void) {
-    exports.Print = Com_Printf;
-    exports.Error = Com_Error;
-    exports.RealTime = Com_RealTime;
-
     exports.clientCinemaSystem = clientCinemaSystem;
     exports.renderSystem = renderSystem;
     exports.soundSystem = soundSystem;
@@ -289,6 +285,7 @@ void idClientGUISystemLocal::CreateExportTable(void) {
     exports.clientAutoUpdateSystem = clientAutoUpdateSystem;
     exports.clientMainSystem = clientMainSystem;
     exports.memorySystem = memorySystem;
+    exports.common = common;
 }
 
 /*
@@ -306,7 +303,7 @@ void idClientGUISystemLocal::InitGUI(void) {
 
     if(!uivm) {
         cls.uiStarted = false;
-        Com_Error(ERR_DROP, "cannot load client gui dynamic module.\n");
+        common->Error(ERR_DROP, "cannot load client gui dynamic module.\n");
     }
 
     // Load in the entry point.
@@ -315,7 +312,7 @@ void idClientGUISystemLocal::InitGUI(void) {
 
     if(!guiEntry) {
         cls.uiStarted = false;
-        Com_Error(ERR_DROP, "error loading entry point on client gui.\n");
+        common->Error(ERR_DROP, "error loading entry point on client gui.\n");
     }
 
     // Create the export table.
@@ -330,8 +327,8 @@ void idClientGUISystemLocal::InitGUI(void) {
 
     t2 = idsystem->Milliseconds();
 
-    Com_Printf("idClientGUISystemLocal::InitGUI: %5.2f seconds\n",
-               (t2 - t1) / 1000.0);
+    common->Printf("idClientGUISystemLocal::InitGUI: %5.2f seconds\n",
+                   (t2 - t1) / 1000.0);
 }
 
 /*

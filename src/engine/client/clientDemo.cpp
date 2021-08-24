@@ -89,7 +89,7 @@ void idClientDemoSystemLocal::StopRecord_f(void) {
     sint len;
 
     if(!clc.demorecording) {
-        Com_Printf("Not recording a demo.\n");
+        common->Printf("Not recording a demo.\n");
         return;
     }
 
@@ -104,7 +104,7 @@ void idClientDemoSystemLocal::StopRecord_f(void) {
     cvarSystem->Set("cl_demorecording", "0");    // fretn
     cvarSystem->Set("cl_demofilename", "");      // bani
     cvarSystem->Set("cl_demooffset", "0");   // bani
-    Com_Printf("Stopped demo.\n");
+    common->Printf("Stopped demo.\n");
 }
 
 /*
@@ -142,17 +142,17 @@ void idClientDemoSystemLocal::Record_f(void) {
     valueType           *s;
 
     if(cmdSystem->Argc() > 2) {
-        Com_Printf("record <demoname>\n");
+        common->Printf("record <demoname>\n");
         return;
     }
 
     if(clc.demorecording) {
-        Com_Printf("Already recording.\n");
+        common->Printf("Already recording.\n");
         return;
     }
 
     if(cls.state != CA_ACTIVE) {
-        Com_Printf("You must be in a level to record.\n");
+        common->Printf("You must be in a level to record.\n");
         return;
     }
 
@@ -160,8 +160,8 @@ void idClientDemoSystemLocal::Record_f(void) {
     // sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
     if(networkSystem->IsLocalAddress(clc.serverAddress) &&
             !cvarSystem->VariableValue("g_synchronousClients")) {
-        Com_Printf(S_COLOR_YELLOW
-                   "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
+        common->Printf(S_COLOR_YELLOW
+                       "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
     }
 
     if(cmdSystem->Argc() == 2) {
@@ -176,7 +176,7 @@ void idClientDemoSystemLocal::Record_f(void) {
                      extension);
 
         if(fileSystem->FileExists(name)) {
-            Com_Printf("Record: Couldn't create a file\n");
+            common->Printf("Record: Couldn't create a file\n");
             return;
         }
     }
@@ -195,11 +195,11 @@ void idClientDemoSystemLocal::Record(pointer name) {
 
     // open the demo file
 
-    Com_Printf("recording to %s.\n", name);
+    common->Printf("recording to %s.\n", name);
     clc.demofile = fileSystem->FOpenFileWrite(name);
 
     if(!clc.demofile) {
-        Com_Printf("ERROR: couldn't open.\n");
+        common->Printf("ERROR: couldn't open.\n");
         return;
     }
 
@@ -284,8 +284,8 @@ void idClientDemoSystemLocal::DemoCompleted(void) {
         time = idsystem->Milliseconds() - clc.timeDemoStart;
 
         if(time > 0) {
-            Com_Printf("%i frames, %3.1f seconds: %3.1f fps\n", clc.timeDemoFrames,
-                       time / 1000.0, clc.timeDemoFrames * 1000.0 / time);
+            common->Printf("%i frames, %3.1f seconds: %3.1f fps\n", clc.timeDemoFrames,
+                           time / 1000.0, clc.timeDemoFrames * 1000.0 / time);
         }
     }
 
@@ -347,14 +347,14 @@ void idClientDemoSystemLocal::ReadDemoMessage(void) {
     }
 
     if(buf.cursize > buf.maxsize) {
-        Com_Error(ERR_DROP,
-                  "idClientDemoSystemLocal::ReadDemoMessage: demoMsglen > MAX_MSGLEN");
+        common->Error(ERR_DROP,
+                      "idClientDemoSystemLocal::ReadDemoMessage: demoMsglen > MAX_MSGLEN");
     }
 
     r = fileSystem->Read(buf.data, buf.cursize, clc.demofile);
 
     if(r != buf.cursize) {
-        Com_Printf("Demo file was truncated.\n");
+        common->Printf("Demo file was truncated.\n");
         DemoCompleted();
         return;
     }
@@ -393,7 +393,7 @@ void idClientDemoSystemLocal::PlayDemo_f(void) {
     valueType name[MAX_OSPATH], extension[32], arg[MAX_OSPATH];
 
     if(cmdSystem->Argc() < 2) {
-        Com_Printf("playdemo <demo name>\n");
+        common->Printf("playdemo <demo name>\n");
         return;
     }
 
@@ -421,9 +421,9 @@ void idClientDemoSystemLocal::PlayDemo_f(void) {
 
     if(!clc.demofile) {
         if(!Q_stricmp(arg, "(null)")) {
-            Com_Error(ERR_DROP, "No demo selected.", name);
+            common->Error(ERR_DROP, "No demo selected.", name);
         } else {
-            Com_Error(ERR_DROP, "couldn't open %s", name);
+            common->Error(ERR_DROP, "couldn't open %s", name);
         }
 
         return;
@@ -471,7 +471,7 @@ void idClientDemoSystemLocal::NextDemo(void) {
     v[MAX_STRING_CHARS - 1] = 0;
 
     if(developer->integer) {
-        Com_Printf("CL_NextDemo: %s\n", v);
+        common->Printf("CL_NextDemo: %s\n", v);
     }
 
     if(!v[0]) {

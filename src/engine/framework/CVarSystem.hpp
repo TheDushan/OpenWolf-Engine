@@ -97,5 +97,4 @@ public:
 
 extern idCVarSystemLocal cvarSystemLocal;
 
-
 #endif // !__CVARSYSTEM_H__

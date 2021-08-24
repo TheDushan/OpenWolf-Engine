@@ -81,7 +81,7 @@ valueType *idSystemLocal::DefaultHomePath(valueType *buffer, sint size) {
                               TRUE) != NOERROR) {
         Q_strcat(buffer, size, "\\My Games\\OpenWolf");
     } else {
-        Com_Error(ERR_FATAL, "couldn't find home path.\n");
+        common->Error(ERR_FATAL, "couldn't find home path.\n");
         buffer[0] = 0;
     }
 
@@ -344,7 +344,7 @@ void idSystemLocal::ListFilteredFiles(pointer basedir, valueType *subdirs,
         Q_vsprintf_s(filename, sizeof(filename), sizeof(filename), "%s\\%s",
                      subdirs, findinfo.name);
 
-        if(!Com_FilterPath(filter, filename, false)) {
+        if(!common->FilterPath(filter, filename, false)) {
             continue;
         }
 
@@ -580,7 +580,8 @@ void idSystemLocal::ErrorDialog(pointer error) {
 
     // Make sure the write path for the crashlog exists...
     if(fileSystem->CreatePath(ospath)) {
-        Com_Printf("ERROR: couldn't create path '%s' for crash log.\n", ospath);
+        common->Printf("ERROR: couldn't create path '%s' for crash log.\n",
+                       ospath);
         return;
     }
 
@@ -590,14 +591,14 @@ void idSystemLocal::ErrorDialog(pointer error) {
     f = open(ospath, O_CREAT | O_TRUNC | O_WRONLY, 0640);
 
     if(f == -1) {
-        Com_Printf("ERROR: couldn't open %s\n", fileName);
+        common->Printf("ERROR: couldn't open %s\n", fileName);
         return;
     }
 
     // We're crashing, so we don't care much if write() or close() fails.
     while((size = consoleLoggingSystem->LogRead(buffer, sizeof(buffer))) > 0) {
         if(write(f, buffer, size) != size) {
-            Com_Printf("ERROR: couldn't fully write to %s\n", fileName);
+            common->Printf("ERROR: couldn't fully write to %s\n", fileName);
             break;
         }
     }
@@ -722,8 +723,8 @@ void idSystemLocal::PlatformInit(void) {
 #ifndef DEDICATED
 
     if(SDL_VIDEODRIVER) {
-        Com_Printf("SDL_VIDEODRIVER is externally set to \"%s\", "
-                   "in_mouse -1 will have no effect\n", SDL_VIDEODRIVER);
+        common->Printf("SDL_VIDEODRIVER is externally set to \"%s\", "
+                       "in_mouse -1 will have no effect\n", SDL_VIDEODRIVER);
         SDL_VIDEODRIVER_externallySet = true;
     } else {
         SDL_VIDEODRIVER_externallySet = false;
@@ -802,9 +803,9 @@ void idSystemLocal::StartProcess(valueType *exeName, bool doexit) {
     if(!CreateProcess(nullptr, exeName, nullptr, nullptr, FALSE, 0, nullptr,
                       nullptr, &si, &pi)) {
         if(doexit) {
-            Com_Error(ERR_DROP, "Could not start process: '%s' ", exeName);
+            common->Error(ERR_DROP, "Could not start process: '%s' ", exeName);
         } else {
-            Com_Printf("Could not start process: '%s'\n", exeName);
+            common->Printf("Could not start process: '%s'\n", exeName);
         }
 
         return;
@@ -831,18 +832,18 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
 
     if(doexit_spamguard) {
         if(developer->integer) {
-            Com_Printf("idSystemLocal::OpenURL: already in a doexit sequence, ignoring %s\n",
-                       url);
+            common->Printf("idSystemLocal::OpenURL: already in a doexit sequence, ignoring %s\n",
+                           url);
         }
 
         return;
     }
 
-    Com_Printf("Open URL: %s\n", url);
+    common->Printf("Open URL: %s\n", url);
 
     if(!ShellExecute(nullptr, "open", url, nullptr, nullptr, SW_RESTORE)) {
         // couldn't start it, popup error box
-        Com_Error(ERR_DROP, "Could not open url: '%s' ", url);
+        common->Error(ERR_DROP, "Could not open url: '%s' ", url);
         return;
     }
 

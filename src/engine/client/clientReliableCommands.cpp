@@ -74,7 +74,7 @@ void idClientReliableCommandsSystemLocal::AddReliableCommand(pointer cmd) {
     // we must drop the connection
     if(clc.reliableSequence - clc.reliableAcknowledge >
             MAX_RELIABLE_COMMANDS) {
-        Com_Error(ERR_DROP, "Client command overflow");
+        common->Error(ERR_DROP, "Client command overflow");
     }
 
     clc.reliableSequence++;

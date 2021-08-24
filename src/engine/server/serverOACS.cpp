@@ -312,7 +312,7 @@ void idServerOACSSystemLocal::ExtendedRecordDropClient(sint client) {
 idServerOACSSystemLocal::ExtendedRecordWriteValues
 
 Write the types of the features in a text file, in CSV format into a file
-Note: this function only needs to be called once, preferably at engine startup (Com_Init or SV_Init)
+Note: this function only needs to be called once, preferably at engine startup (common->Init or SV_Init)
 ===============
 */
 void idServerOACSSystemLocal::ExtendedRecordWriteStruct(void) {
@@ -321,8 +321,8 @@ void idServerOACSSystemLocal::ExtendedRecordWriteStruct(void) {
     valueType out[MAX_STRING_CSV];
 
     if(developer->integer) {
-        Com_Printf("OACS: Saving the oacs types in file %s\n",
-                   sv_oacsTypesFile->string);
+        common->Printf("OACS: Saving the oacs types in file %s\n",
+                       sv_oacsTypesFile->string);
     }
 
     ExtendedRecordFeaturesToCSV(outheader, MAX_STRING_CSV, sv_interframe, 0,
@@ -412,8 +412,8 @@ void idServerOACSSystemLocal::ExtendedRecordWriteValues(sint client) {
 
         // Output into the text file (only if there's at least one client connected!)
         if(developer->integer) {
-            Com_Printf("OACS: Saving the oacs values for client %i in file %s\n",
-                       client, sv_oacsDataFile->string);
+            common->Printf("OACS: Saving the oacs values for client %i in file %s\n",
+                           client, sv_oacsDataFile->string);
         }
 
         fileSystem->Write(va("%s\n", out), strlen(out) + strlen("\n"),
@@ -445,8 +445,8 @@ void idServerOACSSystemLocal::ExtendedRecordWritePlayersTable(
 
     // Open the data file
     if(developer->integer) {
-        Com_Printf("OACS: Saving the oacs players table entry for client %i in file %s\n",
-                   client, sv_oacsPlayersTable->string);
+        common->Printf("OACS: Saving the oacs players table entry for client %i in file %s\n",
+                       client, sv_oacsPlayersTable->string);
     }
 
     file = fileSystem->FOpenFileAppend(
@@ -486,7 +486,7 @@ Add here the initialization settings for your own features
 void idServerOACSSystemLocal::ExtendedRecordInterframeInit(sint client) {
     sint i, j, startclient, endclient;
 
-    Com_Printf("OACS: Initializing the features for client %i\n", client);
+    common->Printf("OACS: Initializing the features for client %i\n", client);
 
     // at startup (no client), initialize the key name, type and modifier of each variable
     if(client < 0) {
@@ -1254,13 +1254,13 @@ void idServerOACSSystemLocal::ExtendedRecordSetCheater(sint client,
         sint label) {
     // Checking for sane values
     if((client < 0) || (client > sv_maxclients->integer)) {
-        Com_Printf("OACS: idServerOACSSystemLocal::ExtendedRecordSetCheater() Invalid arguments\n");
+        common->Printf("OACS: idServerOACSSystemLocal::ExtendedRecordSetCheater() Invalid arguments\n");
         return;
     }
 
     if(label < 0) {
-        Com_Printf("Label for player %i: %.0f\n", client,
-                   sv_interframe[LABEL_CHEATER].value[client]);
+        common->Printf("Label for player %i: %.0f\n", client,
+                       sv_interframe[LABEL_CHEATER].value[client]);
     } else {
         // Set the label for this client
         ExtendedRecordSetFeatureValue(LABEL_CHEATER, label, client);
@@ -1278,7 +1278,7 @@ cheater <client> <label> where label is 0 for honest players, and >= 1 for cheat
 void idServerOACSSystemLocal::ExtendedRecordSetCheater_f(void) {
     // Need at least one argument to proceed (the first argument is the command, so min = 2)
     if(cmdSystem->Argc() < 2) {
-        Com_Printf("Invalid arguments. Usage: cheater <client> [label] where label is 0 for honest players, and >= 1 for cheaters. If no label, will show the current value for the player.\n");
+        common->Printf("Invalid arguments. Usage: cheater <client> [label] where label is 0 for honest players, and >= 1 for cheaters. If no label, will show the current value for the player.\n");
         return;
     }
 
@@ -1318,8 +1318,8 @@ void idServerOACSSystemLocal::ExtendedRecordSetCheaterFromClient_f(
 
     if(!strlen(sv_oacsLabelPassword->string) ||
             Q_stricmp(cmdSystem->Argv(1), sv_oacsLabelPassword->string)) {
-        Com_Printf("OACS: Client tried to declare being cheater: Bad label password from %s\n",
-                   networkSystem->AdrToString(cl->netchan.remoteAddress));
+        common->Printf("OACS: Client tried to declare being cheater: Bad label password from %s\n",
+                       networkSystem->AdrToString(cl->netchan.remoteAddress));
         return;
     }
 
@@ -1327,17 +1327,17 @@ void idServerOACSSystemLocal::ExtendedRecordSetCheaterFromClient_f(
     if(cmdSystem->Argc() >= 3) {
         if(atoi(cmdSystem->Argv(2)) >
                 0) {     // accept only if it's a cheat type (0 == honest, >= 1 == cheat)
-            Com_Printf("OACS: Client %i declares being cheater with label %i\n",
-                       client, atoi(cmdSystem->Argv(2)));
+            common->Printf("OACS: Client %i declares being cheater with label %i\n",
+                           client, atoi(cmdSystem->Argv(2)));
             ExtendedRecordSetCheater(client, atoi(cmdSystem->Argv(2)));
         } else {
-            Com_Printf("OACS: Client tried to declare being cheater: Bad cheat label from %s: %i\n",
-                       networkSystem->AdrToString(cl->netchan.remoteAddress),
-                       atoi(cmdSystem->Argv(2)));
+            common->Printf("OACS: Client tried to declare being cheater: Bad cheat label from %s: %i\n",
+                           networkSystem->AdrToString(cl->netchan.remoteAddress),
+                           atoi(cmdSystem->Argv(2)));
         }
     } else {
-        Com_Printf("OACS: Client %i declares being cheater with label 1\n",
-                   client);
+        common->Printf("OACS: Client %i declares being cheater with label 1\n",
+                       client);
         ExtendedRecordSetCheater(client, 1);
     }
 }
@@ -1364,11 +1364,11 @@ void idServerOACSSystemLocal::ExtendedRecordSetHonestFromClient_f(
 
     if(!strlen(sv_oacsLabelPassword->string) ||
             Q_stricmp(cmdSystem->Argv(1), sv_oacsLabelPassword->string)) {
-        Com_Printf("OACS: Client tried to declare being honest: Bad label password from %s\n",
-                   networkSystem->AdrToString(cl->netchan.remoteAddress));
+        common->Printf("OACS: Client tried to declare being honest: Bad label password from %s\n",
+                       networkSystem->AdrToString(cl->netchan.remoteAddress));
         return;
     }
 
-    Com_Printf("OACS: Client %i declares being honest\n", client);
+    common->Printf("OACS: Client %i declares being honest\n", client);
     ExtendedRecordSetCheater(client, 0);
 }

@@ -152,7 +152,7 @@ static void GLimp_DetectAvailableModes(void) {
                                    sizeof(SDL_Rect));
 
     if(!modes) {
-        Com_Error(ERR_FATAL, "Out of memory");
+        common->Error(ERR_FATAL, "Out of memory");
     }
 
     for(i = 0; i < numSDLModes; i++) {
@@ -240,13 +240,13 @@ static bool GLimp_GetProcAddresses(bool fixedFunction) {
     GLE(const uchar8 *, GetString, uint name)
 
     if(!qglGetString) {
-        Com_Error(ERR_FATAL, "glGetString is nullptr");
+        common->Error(ERR_FATAL, "glGetString is nullptr");
     }
 
     version = reinterpret_cast<pointer>(qglGetString(GL_VERSION));
 
     if(!version) {
-        Com_Error(ERR_FATAL, "GL_VERSION is nullptr\n");
+        common->Error(ERR_FATAL, "GL_VERSION is nullptr\n");
     }
 
     if(Q_stricmpn("OpenGL ES", version, 9) == 0) {
@@ -279,10 +279,10 @@ static bool GLimp_GetProcAddresses(bool fixedFunction) {
             QGL_1_3_PROCS;
 
             // error so this doesn't segfault due to nullptr desktop GL functions being used
-            Com_Error(ERR_FATAL, "Unsupported OpenGL Version: %s\n", version);
+            common->Error(ERR_FATAL, "Unsupported OpenGL Version: %s\n", version);
         } else {
-            Com_Error(ERR_FATAL,
-                      "Unsupported OpenGL Version (%s), OpenGL 1.2 is required\n", version);
+            common->Error(ERR_FATAL,
+                          "Unsupported OpenGL Version (%s), OpenGL 1.2 is required\n", version);
         }
     } else {
         if(QGL_VERSION_ATLEAST(2, 0)) {
@@ -300,10 +300,10 @@ static bool GLimp_GetProcAddresses(bool fixedFunction) {
             QGL_ARB_occlusion_query_PROCS;
 
             // error so this doesn't segfault due to nullptr desktop GL functions being used
-            Com_Error(ERR_FATAL, "Unsupported OpenGL Version: %s\n", version);
+            common->Error(ERR_FATAL, "Unsupported OpenGL Version: %s\n", version);
         } else {
-            Com_Error(ERR_FATAL,
-                      "Unsupported OpenGL Version (%s), OpenGL 2.0 is required\n", version);
+            common->Error(ERR_FATAL,
+                          "Unsupported OpenGL Version (%s), OpenGL 2.0 is required\n", version);
         }
     }
 
@@ -969,7 +969,7 @@ void GLimp_InitExtensions(void) {
                                      SDL_GL_GetProcAddress("glUnlockArraysEXT");
 
                 if(!qglLockArraysEXT || !qglUnlockArraysEXT) {
-                    Com_Error(ERR_FATAL, "bad getprocaddress");
+                    common->Error(ERR_FATAL, "bad getprocaddress");
                 }
             } else {
                 clientRendererSystem->RefPrintf(PRINT_ALL,
@@ -1045,7 +1045,8 @@ void GLimp_Splash(void) {
                        &dstRect) == 0) {
         SDL_UpdateWindowSurface(SDL_window);
     } else {
-        Com_Printf(S_COLOR_YELLOW "GLimp_Splash failed - %s\n", SDL_GetError());
+        common->Printf(S_COLOR_YELLOW "GLimp_Splash failed - %s\n",
+                       SDL_GetError());
     }
 
     SDL_FreeSurface(splashImage);
@@ -1098,7 +1099,7 @@ void GLimp_Init(bool fixedFunction) {
     }
 
     // Nothing worked, give up
-    Com_Error(ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem");
+    common->Error(ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem");
 
 success:
     // These values force the UI to disable driver selection
@@ -1252,13 +1253,13 @@ GLimp_RenderThreadWrapper
 ===============
 */
 static sint GLimp_RenderThreadWrapper(void *arg) {
-    Com_Printf("Render thread starting\n");
+    common->Printf("Render thread starting\n");
 
     glimpRenderThread();
 
     GLimp_SetCurrentContext(false);
 
-    Com_Printf("Render thread terminating\n");
+    common->Printf("Render thread terminating\n");
 
     return 0;
 }
@@ -1406,7 +1407,7 @@ void GLimp_Shutdown(void) {
     idsystem->Shutdown();
 
     if(renderThread != nullptr) {
-        Com_Printf("Destroying renderer thread...\n");
+        common->Printf("Destroying renderer thread...\n");
         GLimp_ShutdownRenderThread();
     }
 

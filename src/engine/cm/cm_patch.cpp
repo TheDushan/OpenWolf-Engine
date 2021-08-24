@@ -465,7 +465,7 @@ static sint CM_FindPlane2(float32 plane[4], sint *flipped) {
 
     // add a new plane
     if(numPlanes == MAX_PATCH_PLANES) {
-        Com_Error(ERR_DROP, "CM_FindPlane2: MAX_PATCH_PLANES");
+        common->Error(ERR_DROP, "CM_FindPlane2: MAX_PATCH_PLANES");
     }
 
     Vector4Copy(plane, planes[numPlanes].plane);
@@ -521,7 +521,7 @@ static sint CM_FindPlane(float32 *p1, float32 *p2, float32 *p3) {
 
     // add a new plane
     if(numPlanes == MAX_PATCH_PLANES) {
-        Com_Error(ERR_DROP, "MAX_PATCH_PLANES");
+        common->Error(ERR_DROP, "MAX_PATCH_PLANES");
     }
 
     Vector4Copy(plane, planes[numPlanes].plane);
@@ -581,7 +581,7 @@ static sint CM_GridPlane(sint gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2],
     }
 
     // should never happen
-    Com_Printf("WARNING: CM_GridPlane unresolvable\n");
+    common->Printf("WARNING: CM_GridPlane unresolvable\n");
     return -1;
 }
 
@@ -603,8 +603,8 @@ static sint CM_EdgePlaneNum(cGrid_t *grid,
             p = CM_GridPlane(gridPlanes, i, j, 0);
 
             if(p == -1) {
-                Com_Printf(" top border %f %f %f\n", grid->points[i + 1][j][0],
-                           grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
+                common->Printf(" top border %f %f %f\n", grid->points[i + 1][j][0],
+                               grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
             }
 
             VectorMA(p1, 4, planes[p].plane, up);
@@ -616,8 +616,8 @@ static sint CM_EdgePlaneNum(cGrid_t *grid,
             p = CM_GridPlane(gridPlanes, i, j, 1);
 
             if(p == -1) {
-                Com_Printf(" bottom border %f %f %f\n", grid->points[i + 1][j][0],
-                           grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
+                common->Printf(" bottom border %f %f %f\n", grid->points[i + 1][j][0],
+                               grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
             }
 
             VectorMA(p1, 4, planes[p].plane, up);
@@ -629,8 +629,8 @@ static sint CM_EdgePlaneNum(cGrid_t *grid,
             p = CM_GridPlane(gridPlanes, i, j, 1);
 
             if(p == -1) {
-                Com_Printf(" left border %f %f %f\n", grid->points[i][j][0],
-                           grid->points[i][j][1], grid->points[i][j][2]);
+                common->Printf(" left border %f %f %f\n", grid->points[i][j][0],
+                               grid->points[i][j][1], grid->points[i][j][2]);
             }
 
             VectorMA(p1, 4, planes[p].plane, up);
@@ -642,8 +642,8 @@ static sint CM_EdgePlaneNum(cGrid_t *grid,
             p = CM_GridPlane(gridPlanes, i, j, 0);
 
             if(p == -1) {
-                Com_Printf(" right border %f %f %f\n", grid->points[i][j][0],
-                           grid->points[i][j][1], grid->points[i][j][2]);
+                common->Printf(" right border %f %f %f\n", grid->points[i][j][0],
+                               grid->points[i][j][1], grid->points[i][j][2]);
             }
 
             VectorMA(p1, 4, planes[p].plane, up);
@@ -655,9 +655,9 @@ static sint CM_EdgePlaneNum(cGrid_t *grid,
             p = CM_GridPlane(gridPlanes, i, j, 0);
 
             if(p == -1) {
-                Com_Printf(" diagonal out of triangle 0 %f %f %f\n",
-                           grid->points[i + 1][j + 1][0], grid->points[i + 1][j + 1][1],
-                           grid->points[i + 1][j + 1][2]);
+                common->Printf(" diagonal out of triangle 0 %f %f %f\n",
+                               grid->points[i + 1][j + 1][0], grid->points[i + 1][j + 1][1],
+                               grid->points[i + 1][j + 1][2]);
             }
 
             VectorMA(p1, 4, planes[p].plane, up);
@@ -669,16 +669,16 @@ static sint CM_EdgePlaneNum(cGrid_t *grid,
             p = CM_GridPlane(gridPlanes, i, j, 1);
 
             if(p == -1) {
-                Com_Printf(" diagonal out of triangle 1 %f %f %f\n",
-                           grid->points[i + 1][j][0], grid->points[i + 1][j][1],
-                           grid->points[i + 1][j][2]);
+                common->Printf(" diagonal out of triangle 1 %f %f %f\n",
+                               grid->points[i + 1][j][0], grid->points[i + 1][j][1],
+                               grid->points[i + 1][j][2]);
             }
 
             VectorMA(p1, 4, planes[p].plane, up);
             return CM_FindPlane(p1, p2, up);
     }
 
-    Com_Error(ERR_DROP, "CM_EdgePlaneNum: bad k");
+    common->Error(ERR_DROP, "CM_EdgePlaneNum: bad k");
     return -1;
 }
 
@@ -717,7 +717,7 @@ static void CM_SetBorderInward(cFacet_t *facet, cGrid_t *grid,
             break;
 
         default:
-            Com_Error(ERR_FATAL, "CM_SetBorderInward: bad parameter");
+            common->Error(ERR_FATAL, "CM_SetBorderInward: bad parameter");
             numPoints = 0;
             break;
     }
@@ -750,7 +750,7 @@ static void CM_SetBorderInward(cFacet_t *facet, cGrid_t *grid,
         } else {
             // bisecting side border
             if(developer->integer) {
-                Com_Printf("WARNING: CM_SetBorderInward: mixed plane sides\n");
+                common->Printf("WARNING: CM_SetBorderInward: mixed plane sides\n");
             }
 
             facet->borderInward[k] = false;
@@ -896,7 +896,7 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
             if(i == facet->numBorders) {
                 if(facet->numBorders >= MAX_FACET_BEVELS) {
-                    Com_Printf("ERROR: too many bevels\n");
+                    common->Printf("ERROR: too many bevels\n");
                     continue;
                 }
 
@@ -989,7 +989,7 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
                 if(i == facet->numBorders) {
                     if(facet->numBorders >= MAX_FACET_BEVELS) {
-                        Com_Printf("ERROR: too many bevels\n");
+                        common->Printf("ERROR: too many bevels\n");
                         continue;
                     }
 
@@ -997,7 +997,7 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
                     for(k = 0; k < facet->numBorders; k++) {
                         if(facet->borderPlanes[facet->numBorders] == facet->borderPlanes[k]) {
-                            Com_Printf("WARNING: bevel plane already used\n");
+                            common->Printf("WARNING: bevel plane already used\n");
                         }
                     }
 
@@ -1017,8 +1017,9 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
                     if(!w2) {
                         if(developer->integer) {
-                            Com_Printf("WARNING: Invalid patch %f %f %f %f\n", w->p[0][0], w->p[0][1],
-                                       w->p[0][2], w->p[0][3]);
+                            common->Printf("WARNING: Invalid patch %f %f %f %f\n", w->p[0][0],
+                                           w->p[0][1],
+                                           w->p[0][2], w->p[0][3]);
                         }
 
                         continue;
@@ -1040,7 +1041,7 @@ static void CM_AddFacetBevels(cFacet_t *facet) {
 
     // add opposite plane
     if(facet->numBorders >= 4 + 6 + 16) {
-        Com_Printf("ERROR: too many bevels\n");
+        common->Printf("ERROR: too many bevels\n");
         return;
     }
 
@@ -1151,7 +1152,7 @@ static void CM_SurfaceCollideFromGrid(cGrid_t *grid,
             }
 
             if(numFacets == MAX_FACETS) {
-                Com_Error(ERR_DROP, "MAX_FACETS");
+                common->Error(ERR_DROP, "MAX_FACETS");
             }
 
             facet = &facets[numFacets];
@@ -1204,7 +1205,7 @@ static void CM_SurfaceCollideFromGrid(cGrid_t *grid,
                 }
 
                 if(numFacets == MAX_FACETS) {
-                    Com_Error(ERR_DROP, "MAX_FACETS");
+                    common->Error(ERR_DROP, "MAX_FACETS");
                 }
 
                 facet = &facets[numFacets];
@@ -1275,17 +1276,19 @@ cSurfaceCollide_t *CM_GeneratePatchCollide(sint width, sint height,
     sint                 i, j;
 
     if(width <= 2 || height <= 2 || !points) {
-        Com_Error(ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %p)",
-                  width, height, static_cast<void *>(points));
+        common->Error(ERR_DROP,
+                      "CM_GeneratePatchFacets: bad parameters: (%i, %i, %p)",
+                      width, height, static_cast<void *>(points));
     }
 
     if(!(width & 1) || !(height & 1)) {
-        Com_Error(ERR_DROP,
-                  "CM_GeneratePatchFacets: even sizes are invalid for quadratic meshes");
+        common->Error(ERR_DROP,
+                      "CM_GeneratePatchFacets: even sizes are invalid for quadratic meshes");
     }
 
     if(width > MAX_GRID_SIZE || height > MAX_GRID_SIZE) {
-        Com_Error(ERR_DROP, "CM_GeneratePatchFacets: source is > MAX_GRID_SIZE");
+        common->Error(ERR_DROP,
+                      "CM_GeneratePatchFacets: source is > MAX_GRID_SIZE");
     }
 
     // build a grid

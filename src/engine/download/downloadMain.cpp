@@ -113,7 +113,7 @@ void idDownloadSystemLocal::InitDownload(void) {
 
     dl_multi = curl_multi_init();
 
-    Com_Printf("Client download subsystem initialized\n");
+    common->Printf("Client download subsystem initialized\n");
     dl_initialized = 1;
 }
 
@@ -148,13 +148,13 @@ sint idDownloadSystemLocal::BeginDownload(pointer localName,
     valueType referer[MAX_STRING_CHARS + 5 /*"ET://" */ ];
 
     if(dl_request) {
-        Com_Printf("ERROR: idDownloadSystemLocal::BeginDownload called with a download request already active\n");
+        common->Printf("ERROR: idDownloadSystemLocal::BeginDownload called with a download request already active\n");
         return 0;
     }
 
     if(!localName || !remoteName) {
         if(developer->integer) {
-            Com_Printf("Empty download URL or empty local file name\n");
+            common->Printf("Empty download URL or empty local file name\n");
         }
 
         return 0;
@@ -164,8 +164,8 @@ sint idDownloadSystemLocal::BeginDownload(pointer localName,
     dl_file = fopen(localName, "wb+");
 
     if(!dl_file) {
-        Com_Printf("ERROR: idDownloadSystemLocal::BeginDownload unable to open '%s' for writing\n",
-                   localName);
+        common->Printf("ERROR: idDownloadSystemLocal::BeginDownload unable to open '%s' for writing\n",
+                       localName);
         return 0;
     }
 
@@ -210,7 +210,7 @@ dlStatus_t idDownloadSystemLocal::DownloadLoop(void) {
 
     if(!dl_request) {
         if(developer->integer) {
-            Com_Printf("idDownloadSystemLocal::DownloadLoop: unexpected call with dl_request == nullptr\n");
+            common->Printf("idDownloadSystemLocal::DownloadLoop: unexpected call with dl_request == nullptr\n");
         }
 
         return DL_DONE;
@@ -251,8 +251,8 @@ dlStatus_t idDownloadSystemLocal::DownloadLoop(void) {
 
     if(err) {
         if(developer->integer) {
-            Com_Printf("idDownloadSystemLocal::DownloadLoop: request terminated with failure status '%s'\n",
-                       err);
+            common->Printf("idDownloadSystemLocal::DownloadLoop: request terminated with failure status '%s'\n",
+                           err);
         }
 
         return DL_FAILED;

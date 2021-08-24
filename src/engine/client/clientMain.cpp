@@ -182,7 +182,7 @@ idClientMainSystemLocal::FlushMemory
 
 Called by idClientMainSystemLocal::MapLoading, idClientMainSystem::LocalConnect_f, idClientMainSystemLocal::PlayDemo_f, and idClientMainSystemLocal::ParseGamestate the only
 ways a client gets into a game
-Also called by Com_Error
+Also called by common->Error
 =================
 */
 void idClientMainSystemLocal::FlushMemory(void) {
@@ -267,7 +267,7 @@ void idClientMainSystemLocal::ForwardCommandToServer(pointer string) {
     }
 
     if(clc.demoplaying || cls.state < CA_CONNECTED || cmd[0] == '+') {
-        Com_Printf("Unknown command \"%s\"\n", cmd);
+        common->Printf("Unknown command \"%s\"\n", cmd);
         return;
     }
 
@@ -385,7 +385,7 @@ void idClientMainSystemLocal::CheckForResend(void) {
             break;
 
         default:
-            Com_Error(ERR_FATAL, "CL_CheckForResend: bad cls.state");
+            common->Error(ERR_FATAL, "CL_CheckForResend: bad cls.state");
     }
 }
 
@@ -425,7 +425,7 @@ void idClientMainSystemLocal::DisconnectPacket(netadr_t from) {
     if(!cls.bWWWDlDisconnected) {
         // drop the connection
         message = "Server disconnected for unknown reason\n";
-        Com_Printf("%s", message);
+        common->Printf("%s", message);
         cvarSystem->Set("com_errorMessage", message);
         clientConsoleCommandSystem->Disconnect(true, "Disconnect packet");
     } else {
@@ -457,26 +457,26 @@ void idClientMainSystemLocal::PrintPacket(netadr_t from, msg_t *msg) {
     if(!Q_stricmpn(s, "[err_dialog]", 12)) {
         Q_strncpyz(clc.serverMessage, s + 12, sizeof(clc.serverMessage));
         //cvarSystem->Set("com_errorMessage", clc.serverMessage );
-        Com_Error(ERR_DROP, "%s", clc.serverMessage);
+        common->Error(ERR_DROP, "%s", clc.serverMessage);
     } else if(!Q_stricmpn(s, "[err_prot]", 10)) {
         Q_strncpyz(clc.serverMessage, s + 10, sizeof(clc.serverMessage));
         //cvarSystem->Set("com_errorMessage", clientLocalizationSystem->TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
-        Com_Error(ERR_DROP, "%s",
-                  clientLocalizationSystem->TranslateStringBuf(
-                      PROTOCOL_MISMATCH_ERROR_LONG));
+        common->Error(ERR_DROP, "%s",
+                      clientLocalizationSystem->TranslateStringBuf(
+                          PROTOCOL_MISMATCH_ERROR_LONG));
     } else if(!Q_stricmpn(s, "[err_update]", 12)) {
         Q_strncpyz(clc.serverMessage, s + 12, sizeof(clc.serverMessage));
-        Com_Error(ERR_AUTOUPDATE, "%s", clc.serverMessage);
+        common->Error(ERR_AUTOUPDATE, "%s", clc.serverMessage);
     } else if(!Q_stricmpn(s, "ET://", 5)) {
         // fretn
         Q_strncpyz(clc.serverMessage, s, sizeof(clc.serverMessage));
         cvarSystem->Set("com_errorMessage", clc.serverMessage);
-        Com_Error(ERR_DROP, "%s", clc.serverMessage);
+        common->Error(ERR_DROP, "%s", clc.serverMessage);
     } else {
         Q_strncpyz(clc.serverMessage, s, sizeof(clc.serverMessage));
     }
 
-    Com_Printf("%s", clc.serverMessage);
+    common->Printf("%s", clc.serverMessage);
 }
 
 /*
@@ -501,8 +501,8 @@ void idClientMainSystemLocal::ConnectionlessPacket(netadr_t from,
     c = cmdSystem->Argv(0);
 
     if(developer->integer) {
-        Com_Printf("CL packet %s: %s\n", networkSystem->AdrToStringwPort(from),
-                   c);
+        common->Printf("CL packet %s: %s\n", networkSystem->AdrToStringwPort(from),
+                       c);
     }
 
     if(!Q_stricmp(c, "disconnectResponse")) {
@@ -516,7 +516,7 @@ void idClientMainSystemLocal::ConnectionlessPacket(netadr_t from,
     // challenge from the server we are connecting to
     if(!Q_stricmp(c, "challengeResponse")) {
         if(cls.state != CA_CONNECTING) {
-            Com_Printf("Unwanted challenge response received.  Ignored.\n");
+            common->Printf("Unwanted challenge response received.  Ignored.\n");
             return;
         }
 
@@ -533,7 +533,7 @@ void idClientMainSystemLocal::ConnectionlessPacket(netadr_t from,
 
             if(!*c || challenge != clc.challenge) {
                 if(developer->integer) {
-                    Com_Printf("Challenge response received from unexpected source. Ignored.\n");
+                    common->Printf("Challenge response received from unexpected source. Ignored.\n");
                 }
 
                 return;
@@ -558,7 +558,7 @@ void idClientMainSystemLocal::ConnectionlessPacket(netadr_t from,
         clc.serverAddress = from;
 
         if(developer->integer) {
-            Com_Printf("challengeResponse: %d\n", clc.challenge);
+            common->Printf("challengeResponse: %d\n", clc.challenge);
         }
 
         return;
@@ -567,19 +567,20 @@ void idClientMainSystemLocal::ConnectionlessPacket(netadr_t from,
     // server connection
     if(!Q_stricmp(c, "connectResponse")) {
         if(cls.state >= CA_CONNECTED) {
-            Com_Printf("Dup connect received.  Ignored.\n");
+            common->Printf("Dup connect received.  Ignored.\n");
             return;
         }
 
         if(cls.state != CA_CHALLENGING) {
-            Com_Printf("connectResponse packet while not connecting.  Ignored.\n");
+            common->Printf("connectResponse packet while not connecting.  Ignored.\n");
             return;
         }
 
         if(!networkSystem->CompareAdr(from, clc.serverAddress)) {
-            Com_Printf("connectResponse from a different address.  Ignored.\n");
-            Com_Printf("%s should have been %s\n", networkSystem->AdrToString(from),
-                       networkSystem->AdrToStringwPort(clc.serverAddress));
+            common->Printf("connectResponse from a different address.  Ignored.\n");
+            common->Printf("%s should have been %s\n",
+                           networkSystem->AdrToString(from),
+                           networkSystem->AdrToStringwPort(clc.serverAddress));
             return;
         }
 
@@ -662,7 +663,7 @@ void idClientMainSystemLocal::ConnectionlessPacket(netadr_t from,
     }
 
     if(developer->integer) {
-        Com_Printf("Unknown connectionless packet command.\n");
+        common->Printf("Unknown connectionless packet command.\n");
     }
 }
 
@@ -689,7 +690,7 @@ void idClientMainSystemLocal::PacketEvent(netadr_t from, msg_t *msg) {
     }
 
     if(msg->cursize < 4) {
-        Com_Printf("%s: Runt packet\n", networkSystem->AdrToStringwPort(from));
+        common->Printf("%s: Runt packet\n", networkSystem->AdrToStringwPort(from));
         return;
     }
 
@@ -698,8 +699,8 @@ void idClientMainSystemLocal::PacketEvent(netadr_t from, msg_t *msg) {
     //
     if(!networkSystem->CompareAdr(from, clc.netchan.remoteAddress)) {
         if(developer->integer) {
-            Com_Printf("%s:sequenced packet without connection\n"
-                       , networkSystem->AdrToStringwPort(from));
+            common->Printf("%s:sequenced packet without connection\n"
+                           , networkSystem->AdrToStringwPort(from));
         }
 
         // FIXME: send a client disconnect?
@@ -922,7 +923,7 @@ idClientMainSystemLocal::Init
 ====================
 */
 void idClientMainSystemLocal::Init(void) {
-    Com_Printf("----- idClientMainSystemLocal::Init -----\n");
+    common->Printf("----- idClientMainSystemLocal::Init -----\n");
 
     clientConsoleSystem->Init();
 
@@ -1092,7 +1093,7 @@ void idClientMainSystemLocal::Init(void) {
 
     clientLocalizationSystem->InitTranslation(); // NERVE - SMF - localization
 
-    Com_Printf("----- Client Initialization Complete -----\n");
+    common->Printf("----- Client Initialization Complete -----\n");
 }
 
 /*
@@ -1108,10 +1109,10 @@ void idClientMainSystemLocal::Shutdown(void) {
         return;
     }
 
-    Com_Printf("----- idClientMainSystemLocal::Shutdown -----\n");
+    common->Printf("----- idClientMainSystemLocal::Shutdown -----\n");
 
     if(recursive) {
-        Com_Printf("WARNING: Recursive idClientMainSystemLocal::Shutdown called!\n");
+        common->Printf("WARNING: Recursive idClientMainSystemLocal::Shutdown called!\n");
         return;
     }
 
@@ -1172,7 +1173,7 @@ void idClientMainSystemLocal::Shutdown(void) {
     ::memset(&cls, 0, sizeof(cls));
     clientGUISystem->SetCatcher(0);
 
-    Com_Printf("-----------------------\n");
+    common->Printf("-----------------------\n");
 }
 
 /*
@@ -1182,8 +1183,8 @@ idClientMainSystemLocal::OpenURL
 */
 void idClientMainSystemLocal::OpenURL(pointer url) {
     if(!url || !strlen(url)) {
-        Com_Printf("%s",
-                   clientLocalizationSystem->TranslateStringBuf("invalid/empty URL\n"));
+        common->Printf("%s",
+                       clientLocalizationSystem->TranslateStringBuf("invalid/empty URL\n"));
         return;
     }
 
@@ -1197,22 +1198,22 @@ idClientMainSystemLocal::UpdateInfoPacket
 */
 void idClientMainSystemLocal::UpdateInfoPacket(netadr_t from) {
     if(cls.autoupdateServer.type == NA_BAD) {
-        Com_Printf("idClientMainSystemLocal::UpdateInfoPacket:  Auto-Updater has bad address\n");
+        common->Printf("idClientMainSystemLocal::UpdateInfoPacket:  Auto-Updater has bad address\n");
         return;
     }
 
     if(developer->integer) {
-        Com_Printf("Auto-Updater resolved to %i.%i.%i.%i:%i\n",
-                   cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
-                   cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-                   BigShort(cls.autoupdateServer.port));
+        common->Printf("Auto-Updater resolved to %i.%i.%i.%i:%i\n",
+                       cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
+                       cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
+                       BigShort(cls.autoupdateServer.port));
     }
 
     if(!networkSystem->CompareAdr(from, cls.autoupdateServer)) {
         if(developer->integer) {
-            Com_Printf("idClientMainSystemLocal::UpdateInfoPacket:  Received packet from %i.%i.%i.%i:%i\n",
-                       from.ip[0], from.ip[1], from.ip[2], from.ip[3],
-                       BigShort(from.port));
+            common->Printf("idClientMainSystemLocal::UpdateInfoPacket:  Received packet from %i.%i.%i.%i:%i\n",
+                           from.ip[0], from.ip[1], from.ip[2], from.ip[3],
+                           BigShort(from.port));
         }
 
         return;
@@ -1301,7 +1302,7 @@ void idClientMainSystemLocal::LogPrintf(fileHandle_t fileHandle,
     len = ::strlen(string);
 
     va_start(argptr, fmt);
-    Q_vsprintf_s(string + len, sizeof(string) - len, sizeof(string) - len, fmt,
+    Q_vsprintf_s(string + len, sizeof(string) - len, fmt,
                  argptr);
     va_end(argptr);
 

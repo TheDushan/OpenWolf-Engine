@@ -349,7 +349,7 @@ sint idHuffmanSystemLocal::Receive(node_t *node, sint *ch, uchar8 *fin) {
 
     if(!node) {
         return 0;
-        //      Com_Error(ERR_DROP, "Illegal tree!\n");
+        //      common->Error(ERR_DROP, "Illegal tree!\n");
     }
 
     return (*ch = node->symbol);
@@ -371,7 +371,7 @@ void idHuffmanSystemLocal::offsetReceive(node_t *node, sint *ch,
     if(!node) {
         *ch = 0;
         return;
-        //      Com_Error(ERR_DROP, "Illegal tree!\n");
+        //      common->Error(ERR_DROP, "Illegal tree!\n");
     }
 
     *ch = node->symbol;

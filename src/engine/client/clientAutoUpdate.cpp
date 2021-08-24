@@ -79,19 +79,19 @@ void idClientAutoUpdateSystemLocal::CheckAutoUpdate(void) {
     // Only check once per session
     if(autoupdateChecked) {
         if(developer->integer) {
-            Com_Printf("Updated checked already..");
+            common->Printf("Updated checked already..");
         }
 
         return;
     }
 
-    srand(Com_Milliseconds());
+    srand(common->Milliseconds());
 
     // Resolve update server
     if(!networkChainSystem->StringToAdr(cls.autoupdateServerNames[0],
                                         &cls.autoupdateServer, NA_IP)) {
         if(developer->integer) {
-            Com_Printf("Failed to resolve any Auto-update servers.\n");
+            common->Printf("Failed to resolve any Auto-update servers.\n");
         }
 
         cls.autoUpdateServerChecked[0] = true;
@@ -109,10 +109,10 @@ void idClientAutoUpdateSystemLocal::CheckAutoUpdate(void) {
     cls.autoupdateServer.port = BigShort(PORT_SERVER);
 
     if(developer->integer) {
-        Com_Printf("autoupdate server at: %i.%i.%i.%i:%i\n",
-                   cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
-                   cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-                   BigShort(cls.autoupdateServer.port));
+        common->Printf("autoupdate server at: %i.%i.%i.%i:%i\n",
+                       cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
+                       cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
+                       BigShort(cls.autoupdateServer.port));
     }
 
     networkChainSystem->OutOfBandPrint(NS_CLIENT, cls.autoupdateServer,
@@ -142,7 +142,8 @@ bool idClientAutoUpdateSystemLocal::NextUpdateServer(void) {
     }
 
 #if 0 //def _DEBUG
-    Com_Printf(S_COLOR_MAGENTA "Autoupdate hardcoded OFF in debug build\n");
+    common->Printf(S_COLOR_MAGENTA
+                   "Autoupdate hardcoded OFF in debug build\n");
     return false;
 #endif
 
@@ -162,13 +163,13 @@ bool idClientAutoUpdateSystemLocal::NextUpdateServer(void) {
     servername = cls.autoupdateServerNames[cls.autoupdatServerIndex];
 
     if(developer->integer) {
-        Com_Printf("Resolving AutoUpdate Server... ");
+        common->Printf("Resolving AutoUpdate Server... ");
     }
 
     if(!networkChainSystem->StringToAdr(servername, &cls.autoupdateServer,
                                         NA_IP)) {
         if(developer->integer) {
-            Com_Printf("Couldn't resolve address, trying next one...");
+            common->Printf("Couldn't resolve address, trying next one...");
         }
 
         cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = true;
@@ -181,10 +182,10 @@ bool idClientAutoUpdateSystemLocal::NextUpdateServer(void) {
     cls.autoupdateServer.port = BigShort(PORT_SERVER);
 
     if(developer->integer) {
-        Com_Printf("%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0],
-                   cls.autoupdateServer.ip[1],
-                   cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-                   BigShort(cls.autoupdateServer.port));
+        common->Printf("%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0],
+                       cls.autoupdateServer.ip[1],
+                       cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
+                       BigShort(cls.autoupdateServer.port));
     }
 
     return true;
@@ -207,7 +208,7 @@ void idClientAutoUpdateSystemLocal::GetAutoUpdate(void) {
     }
 
     if(developer->integer) {
-        Com_Printf("Connecting to auto-update server...\n");
+        common->Printf("Connecting to auto-update server...\n");
     }
 
     soundSystem->StopAllSounds();           // NERVE - SMF
@@ -237,7 +238,7 @@ void idClientAutoUpdateSystemLocal::GetAutoUpdate(void) {
     Q_strncpyz(cls.servername, "Auto-Updater", sizeof(cls.servername));
 
     if(cls.autoupdateServer.type == NA_BAD) {
-        Com_Printf("Bad server address\n");
+        common->Printf("Bad server address\n");
         cls.state = CA_DISCONNECTED;
         cvarSystem->Set("ui_connecting", "0");
         return;
@@ -247,10 +248,10 @@ void idClientAutoUpdateSystemLocal::GetAutoUpdate(void) {
     memcpy(&clc.serverAddress, &cls.autoupdateServer, sizeof(netadr_t));
 
     if(developer->integer) {
-        Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", cls.servername,
-                   clc.serverAddress.ip[0], clc.serverAddress.ip[1],
-                   clc.serverAddress.ip[2], clc.serverAddress.ip[3],
-                   BigShort(clc.serverAddress.port));
+        common->Printf("%s resolved to %i.%i.%i.%i:%i\n", cls.servername,
+                       clc.serverAddress.ip[0], clc.serverAddress.ip[1],
+                       clc.serverAddress.ip[2], clc.serverAddress.ip[3],
+                       BigShort(clc.serverAddress.port));
     }
 
     cls.state = CA_CONNECTING;

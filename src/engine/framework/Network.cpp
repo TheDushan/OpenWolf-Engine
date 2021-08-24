@@ -335,12 +335,12 @@ bool idNetworkSystemLocal::StringToSockaddr(pointer s,
 
             return true;
         } else {
-            Com_Printf("idNetworkSystemLocal::StringToSockaddr: Error resolving %s: No address of required type found.\n",
-                       s);
+            common->Printf("idNetworkSystemLocal::StringToSockaddr: Error resolving %s: No address of required type found.\n",
+                           s);
         }
     } else {
-        Com_Printf("idNetworkSystemLocal::StringToSockaddr: Error resolving %s: %s\n",
-                   s, gai_strerror(retval));
+        common->Printf("idNetworkSystemLocal::StringToSockaddr: Error resolving %s: %s\n",
+                       s, gai_strerror(retval));
     }
 
     if(res) {
@@ -439,7 +439,7 @@ bool idNetworkSystemLocal::CompareBaseAdrMask(netadr_t a, netadr_t b,
             netmask = 128;
         }
     } else {
-        Com_Printf("idNetworkSystemLocal::CompareBaseAdr: bad address type\n");
+        common->Printf("idNetworkSystemLocal::CompareBaseAdr: bad address type\n");
         return false;
     }
 
@@ -522,8 +522,8 @@ pointer idNetworkSystemLocal::AdrToString(netadr_t a) {
             break;
 
         default:
-            Com_Printf("idNetworkSystemLocal::AdrToString: Unknown address type: %i\n",
-                       a.type);
+            common->Printf("idNetworkSystemLocal::AdrToString: Unknown address type: %i\n",
+                           a.type);
             Q_vsprintf_s(s, sizeof(s), sizeof(s), "unknown");
             break;
     }
@@ -563,8 +563,8 @@ pointer idNetworkSystemLocal::AdrToStringwPort(netadr_t a) {
             break;
 
         default:
-            Com_Printf("idNetworkSystemLocal::AdrToStringwPort: Unknown address type: %i\n",
-                       a.type);
+            common->Printf("idNetworkSystemLocal::AdrToStringwPort: Unknown address type: %i\n",
+                           a.type);
             Q_vsprintf_s(s, sizeof(s), sizeof(s), "unknown");
             break;
     }
@@ -635,7 +635,7 @@ bool idNetworkSystemLocal::GetPacket(netadr_t *net_from,
             err = socketError;
 
             if(err != EAGAIN && err != ECONNRESET) {
-                Com_Printf("idNetworkSystemLocal::GetPacket: %s\n", ErrorString());
+                common->Printf("idNetworkSystemLocal::GetPacket: %s\n", ErrorString());
             }
         } else {
 
@@ -660,7 +660,7 @@ bool idNetworkSystemLocal::GetPacket(netadr_t *net_from,
             }
 
             if(ret == net_message->maxsize) {
-                Com_Printf("Oversize packet from %s\n", AdrToString(*net_from));
+                common->Printf("Oversize packet from %s\n", AdrToString(*net_from));
                 return false;
             }
 
@@ -679,14 +679,14 @@ bool idNetworkSystemLocal::GetPacket(netadr_t *net_from,
             err = socketError;
 
             if(err != EAGAIN && err != ECONNRESET) {
-                Com_Printf("idNetworkSystemLocal::GetPacket: %s\n", ErrorString());
+                common->Printf("idNetworkSystemLocal::GetPacket: %s\n", ErrorString());
             }
         } else {
             SockadrToNetadr((struct sockaddr *) &from, net_from);
             net_message->readcount = 0;
 
             if(ret == net_message->maxsize) {
-                Com_Printf("Oversize packet from %s\n", AdrToString(*net_from));
+                common->Printf("Oversize packet from %s\n", AdrToString(*net_from));
                 return false;
             }
 
@@ -706,14 +706,14 @@ bool idNetworkSystemLocal::GetPacket(netadr_t *net_from,
             err = socketError;
 
             if(err != EAGAIN && err != ECONNRESET) {
-                Com_Printf("idNetworkSystemLocal::GetPacket: %s\n", ErrorString());
+                common->Printf("idNetworkSystemLocal::GetPacket: %s\n", ErrorString());
             }
         } else {
             SockadrToNetadr((struct sockaddr *) &from, net_from);
             net_message->readcount = 0;
 
             if(ret == net_message->maxsize) {
-                Com_Printf("Oversize packet from %s\n", AdrToString(*net_from));
+                common->Printf("Oversize packet from %s\n", AdrToString(*net_from));
                 return false;
             }
 
@@ -738,7 +738,8 @@ void idNetworkSystemLocal::SendPacket(sint length, const void *data,
 
     if(to.type != NA_BROADCAST && to.type != NA_IP && to.type != NA_IP6 &&
             to.type != NA_MULTICAST6) {
-        Com_Error(ERR_FATAL, "idNetworkSystemLocal::SendPacket: bad address type");
+        common->Error(ERR_FATAL,
+                      "idNetworkSystemLocal::SendPacket: bad address type");
         return;
     }
 
@@ -790,7 +791,7 @@ void idNetworkSystemLocal::SendPacket(sint length, const void *data,
             return;
         }
 
-        Com_Printf("idNetworkSystemLocal::SendPacket: %s\n", ErrorString());
+        common->Printf("idNetworkSystemLocal::SendPacket: %s\n", ErrorString());
     }
 }
 
@@ -897,9 +898,9 @@ void idNetworkSystemLocal::ShowIP(void) {
                          (struct sockaddr *) &localIP[i].addr);
 
         if(localIP[i].type == NA_IP) {
-            Com_Printf("IP: %s\n", addrbuf);
+            common->Printf("IP: %s\n", addrbuf);
         } else if(localIP[i].type == NA_IP6) {
-            Com_Printf("IP6: %s\n", addrbuf);
+            common->Printf("IP6: %s\n", addrbuf);
         }
     }
 }
@@ -919,23 +920,23 @@ SOCKET idNetworkSystemLocal::IPSocket(valueType *net_interface, sint port,
     *err = 0;
 
     if(net_interface) {
-        Com_Printf("Opening IP socket: %s:%i\n", net_interface, port);
+        common->Printf("Opening IP socket: %s:%i\n", net_interface, port);
     } else {
-        Com_Printf("Opening IP socket: 0.0.0.0:%i\n", port);
+        common->Printf("Opening IP socket: 0.0.0.0:%i\n", port);
     }
 
     if((newsocket = socket(PF_INET, SOCK_DGRAM,
                            IPPROTO_UDP)) == INVALID_SOCKET) {
         *err = socketError;
-        Com_Printf("WARNING: idNetworkSystemLocal::IPSocket: socket: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::IPSocket: socket: %s\n",
+                       ErrorString());
         return newsocket;
     }
 
     // make it non-blocking
     if(ioctlsocket(newsocket, FIONBIO, &_true) == SOCKET_ERROR) {
-        Com_Printf("WARNING: idNetworkSystemLocal::IPSocket: ioctl FIONBIO: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::IPSocket: ioctl FIONBIO: %s\n",
+                       ErrorString());
         *err = socketError;
         closesocket(newsocket);
         return INVALID_SOCKET;
@@ -944,8 +945,8 @@ SOCKET idNetworkSystemLocal::IPSocket(valueType *net_interface, sint port,
     // make it broadcast capable
     if(setsockopt(newsocket, SOL_SOCKET, SO_BROADCAST,
                   reinterpret_cast<valueType *>(&i), sizeof(i)) == SOCKET_ERROR) {
-        Com_Printf("WARNING: idNetworkSystemLocal::IPSocket: setsockopt SO_BROADCAST: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::IPSocket: setsockopt SO_BROADCAST: %s\n",
+                       ErrorString());
     }
 
     if(!net_interface || !net_interface[0]) {
@@ -967,8 +968,8 @@ SOCKET idNetworkSystemLocal::IPSocket(valueType *net_interface, sint port,
 
     if(bind(newsocket, (struct sockaddr *)&address,
             sizeof(address)) == SOCKET_ERROR) {
-        Com_Printf("WARNING: idNetworkSystemLocal::IPSocket: bind: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::IPSocket: bind: %s\n",
+                       ErrorString());
         *err = socketError;
         closesocket(newsocket);
         return INVALID_SOCKET;
@@ -993,26 +994,26 @@ SOCKET idNetworkSystemLocal::IP6Socket(valueType *net_interface, sint port,
     if(net_interface) {
         // Print the name in brackets if there is a colon:
         if(Q_CountChar(net_interface, ':')) {
-            Com_Printf("Opening IP6 socket: [%s]:%i\n", net_interface, port);
+            common->Printf("Opening IP6 socket: [%s]:%i\n", net_interface, port);
         } else {
-            Com_Printf("Opening IP6 socket: %s:%i\n", net_interface, port);
+            common->Printf("Opening IP6 socket: %s:%i\n", net_interface, port);
         }
     } else {
-        Com_Printf("Opening IP6 socket: [::]:%i\n", port);
+        common->Printf("Opening IP6 socket: [::]:%i\n", port);
     }
 
     if((newsocket = socket(PF_INET6, SOCK_DGRAM,
                            IPPROTO_UDP)) == INVALID_SOCKET) {
         *err = socketError;
-        Com_Printf("WARNING: idNetworkSystemLocal::IP6Socket: socket: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::IP6Socket: socket: %s\n",
+                       ErrorString());
         return newsocket;
     }
 
     // make it non-blocking
     if(ioctlsocket(newsocket, FIONBIO, &_true) == SOCKET_ERROR) {
-        Com_Printf("WARNING: idNetworkSystemLocal::IP6Socket: ioctl FIONBIO: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::IP6Socket: ioctl FIONBIO: %s\n",
+                       ErrorString());
         *err = socketError;
         closesocket(newsocket);
         return INVALID_SOCKET;
@@ -1027,8 +1028,8 @@ SOCKET idNetworkSystemLocal::IP6Socket(valueType *net_interface, sint port,
                       reinterpret_cast<valueType *>(&i), sizeof(i)) == SOCKET_ERROR) {
             // win32 systems don't seem to support this anyways.
             if(developer->integer) {
-                Com_Printf("WARNING: idNetworkSystemLocal::IP6Socket: setsockopt IPV6_V6ONLY: %s\n",
-                           ErrorString());
+                common->Printf("WARNING: idNetworkSystemLocal::IP6Socket: setsockopt IPV6_V6ONLY: %s\n",
+                               ErrorString());
             }
         }
     }
@@ -1053,8 +1054,8 @@ SOCKET idNetworkSystemLocal::IP6Socket(valueType *net_interface, sint port,
 
     if(bind(newsocket, (struct sockaddr *)&address,
             sizeof(address)) == SOCKET_ERROR) {
-        Com_Printf("WARNING: idNetworkSystemLocal::IP6Socket: bind: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::IP6Socket: bind: %s\n",
+                       ErrorString());
         *err = socketError;
         closesocket(newsocket);
         return INVALID_SOCKET;
@@ -1080,8 +1081,8 @@ void idNetworkSystemLocal::SetMulticast6(void) {
     if(!*net_mcast6addr->string ||
             !StringToSockaddr(net_mcast6addr->string, (struct sockaddr *) &addr,
                               sizeof(addr), AF_INET6)) {
-        Com_Printf("WARNING: idNetworkSystemLocal::JoinMulticast6: Incorrect multicast address given, "
-                   "please set cvar %s to a sane value.\n", net_mcast6addr->name);
+        common->Printf("WARNING: idNetworkSystemLocal::JoinMulticast6: Incorrect multicast address given, "
+                       "please set cvar %s to a sane value.\n", net_mcast6addr->name);
 
         cvarSystem->SetValue(net_enabled->name,
                              net_enabled->integer | NET_DISABLEMCAST);
@@ -1134,8 +1135,8 @@ void idNetworkSystemLocal::JoinMulticast6(void) {
         if(setsockopt(multicast6_socket, IPPROTO_IPV6, IPV6_MULTICAST_IF,
                       reinterpret_cast<valueType *>(&curgroup.ipv6mr_interface),
                       sizeof(curgroup.ipv6mr_interface)) < 0) {
-            Com_Printf("idNetworkSystemLocal::JoinMulticast6: Couldn't set scope on multicast socket: %s\n",
-                       ErrorString());
+            common->Printf("idNetworkSystemLocal::JoinMulticast6: Couldn't set scope on multicast socket: %s\n",
+                           ErrorString());
 
             if(multicast6_socket != ip6_socket) {
                 closesocket(multicast6_socket);
@@ -1147,8 +1148,8 @@ void idNetworkSystemLocal::JoinMulticast6(void) {
 
     if(setsockopt(multicast6_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP,
                   reinterpret_cast<valueType *>(&curgroup), sizeof(curgroup))) {
-        Com_Printf("idNetworkSystemLocal::JoinMulticast6: Couldn't join multicast group: %s\n",
-                   ErrorString());
+        common->Printf("idNetworkSystemLocal::JoinMulticast6: Couldn't join multicast group: %s\n",
+                       ErrorString());
 
         if(multicast6_socket != ip6_socket) {
             closesocket(multicast6_socket);
@@ -1191,13 +1192,13 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
 
     usingSocks = false;
 
-    Com_Printf("Opening connection to SOCKS server.\n");
+    common->Printf("Opening connection to SOCKS server.\n");
 
     if((socks_socket = socket(AF_INET, SOCK_STREAM,
                               IPPROTO_TCP)) == INVALID_SOCKET) {
         err = socketError;
-        Com_Printf("WARNING: idNetworkSystemLocal::OpenSocks: socket: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::OpenSocks: socket: %s\n",
+                       ErrorString());
         return;
     }
 
@@ -1205,13 +1206,13 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
 
     if(h == nullptr) {
         err = socketError;
-        Com_Printf("WARNING: idNetworkSystemLocal::OpenSocks: gethostbyname: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::OpenSocks: gethostbyname: %s\n",
+                       ErrorString());
         return;
     }
 
     if(h->h_addrtype != AF_INET) {
-        Com_Printf("WARNING: idNetworkSystemLocal::OpenSocks: gethostbyname: address type was not AF_INET\n");
+        common->Printf("WARNING: idNetworkSystemLocal::OpenSocks: gethostbyname: address type was not AF_INET\n");
         return;
     }
 
@@ -1222,8 +1223,8 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
     if(connect(socks_socket, (struct sockaddr *)&address,
                sizeof(address)) == SOCKET_ERROR) {
         err = socketError;
-        Com_Printf("idNetworkSystemLocal::OpenSocks: connect: %s\n",
-                   ErrorString());
+        common->Printf("idNetworkSystemLocal::OpenSocks: connect: %s\n",
+                       ErrorString());
         return;
     }
 
@@ -1254,7 +1255,8 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
     if(send(socks_socket, reinterpret_cast<valueType *>(buf), len,
             0) == SOCKET_ERROR) {
         err = socketError;
-        Com_Printf("idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString());
+        common->Printf("idNetworkSystemLocal::OpenSocks: send: %s\n",
+                       ErrorString());
         return;
     }
 
@@ -1263,12 +1265,13 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
 
     if(len == SOCKET_ERROR) {
         err = socketError;
-        Com_Printf("idNetworkSystemLocal::OpenSocks: recv: %s\n", ErrorString());
+        common->Printf("idNetworkSystemLocal::OpenSocks: recv: %s\n",
+                       ErrorString());
         return;
     }
 
     if(len != 2 || buf[0] != 5) {
-        Com_Printf("idNetworkSystemLocal::OpenSocks: bad response\n");
+        common->Printf("idNetworkSystemLocal::OpenSocks: bad response\n");
         return;
     }
 
@@ -1280,7 +1283,7 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
             break;
 
         default:
-            Com_Printf("idNetworkSystemLocal::OpenSocks: request denied\n");
+            common->Printf("idNetworkSystemLocal::OpenSocks: request denied\n");
             return;
     }
 
@@ -1309,7 +1312,8 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
         if(send(socks_socket, reinterpret_cast<pointer>(buf),
                 static_cast<sint>(3 + ulen + plen), 0) == SOCKET_ERROR) {
             err = socketError;
-            Com_Printf("idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString());
+            common->Printf("idNetworkSystemLocal::OpenSocks: send: %s\n",
+                           ErrorString());
             return;
         }
 
@@ -1318,17 +1322,18 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
 
         if(len == SOCKET_ERROR) {
             err = socketError;
-            Com_Printf("idNetworkSystemLocal::OpenSocks: recv: %s\n", ErrorString());
+            common->Printf("idNetworkSystemLocal::OpenSocks: recv: %s\n",
+                           ErrorString());
             return;
         }
 
         if(len != 2 || buf[0] != 1) {
-            Com_Printf("idNetworkSystemLocal::OpenSocks: bad response\n");
+            common->Printf("idNetworkSystemLocal::OpenSocks: bad response\n");
             return;
         }
 
         if(buf[1] != 0) {
-            Com_Printf("idNetworkSystemLocal::OpenSocks: authentication failed\n");
+            common->Printf("idNetworkSystemLocal::OpenSocks: authentication failed\n");
             return;
         }
     }
@@ -1345,7 +1350,8 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
     if(send(socks_socket, reinterpret_cast<valueType *>(buf), 10,
             0) == SOCKET_ERROR) {
         err = socketError;
-        Com_Printf("idNetworkSystemLocal::OpenSocks: send: %s\n", ErrorString());
+        common->Printf("idNetworkSystemLocal::OpenSocks: send: %s\n",
+                       ErrorString());
         return;
     }
 
@@ -1354,25 +1360,26 @@ void idNetworkSystemLocal::OpenSocks(sint port) {
 
     if(len == SOCKET_ERROR) {
         err = socketError;
-        Com_Printf("idNetworkSystemLocal::OpenSocks: recv: %s\n", ErrorString());
+        common->Printf("idNetworkSystemLocal::OpenSocks: recv: %s\n",
+                       ErrorString());
         return;
     }
 
     if(len < 2 || buf[0] != 5) {
-        Com_Printf("idNetworkSystemLocal::OpenSocks: bad response\n");
+        common->Printf("idNetworkSystemLocal::OpenSocks: bad response\n");
         return;
     }
 
     // check completion code
     if(buf[1] != 0) {
-        Com_Printf("idNetworkSystemLocal::OpenSocks: request denied: %i\n",
-                   buf[1]);
+        common->Printf("idNetworkSystemLocal::OpenSocks: request denied: %i\n",
+                       buf[1]);
         return;
     }
 
     if(buf[3] != 1) {
-        Com_Printf("idNetworkSystemLocal::OpenSocks: relay address is not IPV4: %i\n",
-                   buf[3]);
+        common->Printf("idNetworkSystemLocal::OpenSocks: relay address is not IPV4: %i\n",
+                       buf[3]);
         return;
     }
 
@@ -1445,8 +1452,8 @@ void idNetworkSystemLocal::GetLocalAddress(void) {
 #if defined(__linux__) || defined(__MACOSX__) || defined(__BSD__)
 
     if(getifaddrs(&ifap)) {
-        Com_Printf("idNetworkSystemLocal::GetLocalAddress: Unable to get list of network interfaces: %s\n",
-                   ErrorString());
+        common->Printf("idNetworkSystemLocal::GetLocalAddress: Unable to get list of network interfaces: %s\n",
+                       ErrorString());
     } else {
         for(search = ifap; search; search = search->ifa_next) {
             // Only add interfaces that are up.
@@ -1466,7 +1473,7 @@ void idNetworkSystemLocal::GetLocalAddress(void) {
         return;
     }
 
-    Com_Printf("Hostname: %s\n", hostname);
+    common->Printf("Hostname: %s\n", hostname);
 
     ::memset(&hint, 0, sizeof(hint));
 
@@ -1543,7 +1550,7 @@ void idNetworkSystemLocal::OpenIP(void) {
         }
 
         if(ip6_socket == INVALID_SOCKET) {
-            Com_Printf("WARNING: Couldn't bind to a v6 ip address.\n");
+            common->Printf("WARNING: Couldn't bind to a v6 ip address.\n");
         }
     }
 
@@ -1568,7 +1575,7 @@ void idNetworkSystemLocal::OpenIP(void) {
         }
 
         if(ip_socket == INVALID_SOCKET) {
-            Com_Printf("WARNING: Couldn't bind to a v4 ip address.\n");
+            common->Printf("WARNING: Couldn't bind to a v4 ip address.\n");
         }
     }
 }
@@ -1711,12 +1718,12 @@ void idNetworkSystemLocal::Init(void) {
     r = WSAStartup(MAKEWORD(1, 1), &winsockdata);
 
     if(r) {
-        Com_Printf("WARNING: Winsock initialization failed, returned %d\n", r);
+        common->Printf("WARNING: Winsock initialization failed, returned %d\n", r);
         return;
     }
 
     winsockInitialized = true;
-    Com_Printf("Winsock Initialized\n");
+    common->Printf("Winsock Initialized\n");
 #endif
 
     Config(true);
@@ -1815,8 +1822,8 @@ sint idNetworkSystemLocal::ConnectTCP(valueType *s_host_port) {
     s_server = ::strtok(buffer, ":\n\0");
 
     if(s_server == nullptr) {
-        Com_Printf("Error parsing server string %s does not have port\n",
-                   s_host_port);
+        common->Printf("Error parsing server string %s does not have port\n",
+                       s_host_port);
         return -1;
     }
 
@@ -1824,13 +1831,14 @@ sint idNetworkSystemLocal::ConnectTCP(valueType *s_host_port) {
 
     if(s_port == nullptr) {
         s_port = XSTRING(PORT_COMMUNITY);
-        Com_Printf("Error parsing server string %s port problem\n", s_host_port);
+        common->Printf("Error parsing server string %s port problem\n",
+                       s_host_port);
     }
 
     if((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
         err = socketError;
-        Com_Printf("WARNING: idNetworkSystemLocal::ConnectTCP: socket: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::ConnectTCP: socket: %s\n",
+                       ErrorString());
         return -1;
     }
 
@@ -1838,14 +1846,14 @@ sint idNetworkSystemLocal::ConnectTCP(valueType *s_host_port) {
 
     if(h == nullptr) {
         err = socketError;
-        Com_Printf("WARNING: idNetworkSystemLocal::ConnectTCP: gethostbyname: %s\n",
-                   ErrorString());
+        common->Printf("WARNING: idNetworkSystemLocal::ConnectTCP: gethostbyname: %s\n",
+                       ErrorString());
         close(sock);
         return -1;
     }
 
     if(h->h_addrtype != AF_INET) {
-        Com_Printf("WARNING: idNetworkSystemLocal::ConnectTCP: gethostbyname: address type was not AF_INET\n");
+        common->Printf("WARNING: idNetworkSystemLocal::ConnectTCP: gethostbyname: address type was not AF_INET\n");
         close(sock);
         return -1;
     }
@@ -1858,8 +1866,8 @@ sint idNetworkSystemLocal::ConnectTCP(valueType *s_host_port) {
                sizeof(address)) == SOCKET_ERROR) {
         err = socketError;
 #ifdef _DEBUG
-        Com_Printf("idNetworkSystemLocal::ConnectTCP: connect: %s\n",
-                   ErrorString());
+        common->Printf("idNetworkSystemLocal::ConnectTCP: connect: %s\n",
+                       ErrorString());
 #endif
         return -1;
     }

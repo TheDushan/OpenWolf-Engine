@@ -177,8 +177,8 @@ idServerInitSystemLocal::SetConfigstringNoUpdate
 void idServerInitSystemLocal::SetConfigstringNoUpdate(sint index,
         pointer val) {
     if(index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(ERR_DROP,
-                  "idServerInitSystemLocal::SetConfigstring: bad index %i\n", index);
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::SetConfigstring: bad index %i\n", index);
     }
 
     if(!val) {
@@ -186,8 +186,8 @@ void idServerInitSystemLocal::SetConfigstringNoUpdate(sint index,
     }
 
     if(::strlen(val) >= BIG_INFO_STRING) {
-        Com_Error(ERR_DROP,
-                  "idServerInitSystemLocal::SetConfigstring: CS %d is too long\n", index);
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::SetConfigstring: CS %d is too long\n", index);
     }
 
     // don't bother broadcasting an update if no change
@@ -210,8 +210,8 @@ void idServerInitSystemLocal::SetConfigstring(sint index, pointer val) {
     client_t *client;
 
     if(index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(ERR_DROP,
-                  "idServerInitSystemLocal::SetConfigstring: bad index %i\n", index);
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::SetConfigstring: bad index %i\n", index);
     }
 
     if(!val) {
@@ -260,13 +260,13 @@ idServerInitSystemLocal::GetConfigstring
 void idServerInitSystemLocal::GetConfigstring(sint index,
         valueType *buffer, uint64 bufferSize) {
     if(bufferSize < 1) {
-        Com_Error(ERR_DROP,
-                  "idServerInitSystemLocal::GetConfigstring: bufferSize == %i", bufferSize);
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::GetConfigstring: bufferSize == %i", bufferSize);
     }
 
     if(index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(ERR_DROP,
-                  "idServerInitSystemLocal::GetConfigstring: bad index %i\n", index);
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::GetConfigstring: bad index %i\n", index);
     }
 
     if(!sv.configstrings[index].s) {
@@ -308,8 +308,9 @@ idServerInitSystemLocal::SetUserinfo
 */
 void idServerInitSystemLocal::SetUserinfo(sint index, pointer val) {
     if(index < 0 || index >= sv_maxclients->integer) {
-        Com_Error(ERR_DROP, "idServerInitSystemLocal::SetUserinfo: bad index %i\n",
-                  index);
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::SetUserinfo: bad index %i\n",
+                      index);
     }
 
     if(!val) {
@@ -330,13 +331,14 @@ idServerInitSystemLocal::GetUserinfo
 void idServerInitSystemLocal::GetUserinfo(sint index, valueType *buffer,
         uint64 bufferSize) {
     if(bufferSize < 1) {
-        Com_Error(ERR_DROP,
-                  "idServerInitSystemLocal::GetUserinfo: bufferSize == %i", bufferSize);
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::GetUserinfo: bufferSize == %i", bufferSize);
     }
 
     if(index < 0 || index >= sv_maxclients->integer) {
-        Com_Error(ERR_DROP, "idServerInitSystemLocal::GetUserinfo: bad index %i\n",
-                  index);
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::GetUserinfo: bad index %i\n",
+                      index);
     }
 
     Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
@@ -415,7 +417,8 @@ the menu system first.
 */
 void idServerInitSystemLocal::Startup(void) {
     if(svs.initialized) {
-        Com_Error(ERR_FATAL, "idServerInitSystemLocal::Startup: svs.initialized");
+        common->Error(ERR_FATAL,
+                      "idServerInitSystemLocal::Startup: svs.initialized");
     }
 
     BoundMaxClients(1);
@@ -425,8 +428,8 @@ void idServerInitSystemLocal::Startup(void) {
                                       sv_maxclients->integer, 1));
 
     if(!svs.clients) {
-        Com_Error(ERR_FATAL,
-                  "idServerInitSystemLocal::Startup: unable to allocate svs.clients");
+        common->Error(ERR_FATAL,
+                      "idServerInitSystemLocal::Startup: unable to allocate svs.clients");
     }
 
     if(dedicated->integer) {
@@ -505,8 +508,8 @@ void idServerInitSystemLocal::ChangeMaxClients(void) {
                                       sv_maxclients->integer, 1));
 
     if(!svs.clients) {
-        Com_Error(ERR_FATAL,
-                  "idServerInitSystemLocal::Startup: unable to allocate svs.clients");
+        common->Error(ERR_FATAL,
+                      "idServerInitSystemLocal::Startup: unable to allocate svs.clients");
     }
 
     ::memset(svs.clients, 0, sv_maxclients->integer * sizeof(client_t));
@@ -610,8 +613,8 @@ void idServerInitSystemLocal::TouchCGameDLL(void) {
             FS_EXCLUDE_DIR);
 
     if(ref <= FS_GENERAL_REF && sv_pure->integer) {
-        Com_Error(ERR_DROP,
-                  "idServerInitSystemLocal::TouchCGameDLL - Failed to locate cgame DLL for pure server mode");
+        common->Error(ERR_DROP,
+                      "idServerInitSystemLocal::TouchCGameDLL - Failed to locate cgame DLL for pure server mode");
     }
 }
 
@@ -643,8 +646,8 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     serverGameSystem->ShutdownGameProgs();
     svs.gameStarted = false;
 
-    Com_Printf("------ Server Initialization ------\n");
-    Com_Printf("Server: %s\n", server);
+    common->Printf("------ Server Initialization ------\n");
+    common->Printf("Server: %s\n", server);
 
     // if not running a dedicated server idClientMainSystemLocal::MapLoading will connect the client to the server
     // also print some status stuff
@@ -729,7 +732,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     // DO_LIGHT_DEDICATED
     // only comment out when you need a new pure checksum string and it's associated random feed
     //if (developer->integer) {
-    //Com_Printf("idServerInitSystemLocal::SpawnServer checksum feed: %p\n", sv.checksumFeed);
+    //common->Printf("idServerInitSystemLocal::SpawnServer checksum feed: %p\n", sv.checksumFeed);
     //}
 
     fileSystem->Restart(sv.checksumFeed);
@@ -838,7 +841,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
         cvarSystem->Set("sv_paks", p);
 
         if(strlen(p) == 0) {
-            Com_Printf("WARNING: sv_pure set but no PK3 files loaded\n");
+            common->Printf("WARNING: sv_pure set but no PK3 files loaded\n");
         }
 
         p = fileSystem->LoadedPakNames();
@@ -902,7 +905,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
 
     idServerCcmdsSystemLocal::BeginAutoRecordDemos();
 
-    Com_Printf("-----------------------------------\n");
+    common->Printf("-----------------------------------\n");
 }
 
 // Update Server
@@ -935,11 +938,11 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
 
         if(strcmp(token, "OpenWolf-VersionMap")) {
             memorySystem->Free(buf);
-            Com_Error(ERR_FATAL, "invalid versionmap.cfg");
+            common->Error(ERR_FATAL, "invalid versionmap.cfg");
             return;
         }
 
-        Com_Printf("\n------------Update Server-------------\n\nParsing version map...\n");
+        common->Printf("\n------------Update Server-------------\n\nParsing version map...\n");
 
         while((token = COM_Parse(&buftrav)) && token[0]) {
             // read the version number
@@ -952,8 +955,8 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
                 Q_strcpy_s(versionMap[ numVersions ].platform, token);
             } else {
                 memorySystem->Free(buf);
-                Com_Error(ERR_FATAL, "error parsing versionmap.cfg, after %s",
-                          versionMap[numVersions].platform);
+                common->Error(ERR_FATAL, "error parsing versionmap.cfg, after %s",
+                              versionMap[numVersions].platform);
                 return;
             }
 
@@ -964,8 +967,8 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
                 Q_strcpy_s(versionMap[ numVersions ].installer, token);
             } else {
                 memorySystem->Free(buf);
-                Com_Error(ERR_FATAL, "error parsing versionmap.cfg, after %s",
-                          versionMap[numVersions].installer);
+                common->Error(ERR_FATAL, "error parsing versionmap.cfg, after %s",
+                              versionMap[numVersions].installer);
                 return;
             }
 
@@ -973,19 +976,19 @@ void idServerInitSystemLocal::ParseVersionMapping(void) {
 
             if(numVersions >= MAX_UPDATE_VERSIONS) {
                 memorySystem->Free(buf);
-                Com_Error(ERR_FATAL, "Exceeded maximum number of mappings(%d)",
-                          MAX_UPDATE_VERSIONS);
+                common->Error(ERR_FATAL, "Exceeded maximum number of mappings(%d)",
+                              MAX_UPDATE_VERSIONS);
                 return;
             }
 
         }
 
-        Com_Printf(" found %d mapping%c\n--------------------------------------\n\n",
-                   numVersions, numVersions > 1 ? 's' : ' ');
+        common->Printf(" found %d mapping%c\n--------------------------------------\n\n",
+                       numVersions, numVersions > 1 ? 's' : ' ');
 
         memorySystem->Free(buf);
     } else {
-        Com_Error(ERR_FATAL, "Couldn't open versionmap.cfg");
+        common->Error(ERR_FATAL, "Couldn't open versionmap.cfg");
     }
 
 #endif
@@ -1100,7 +1103,7 @@ void idServerInitSystemLocal::Shutdown(valueType *finalmsg) {
         return;
     }
 
-    Com_Printf("----- Server Shutdown -----\n");
+    common->Printf("----- Server Shutdown -----\n");
 
     networkSystem->LeaveMulticast6();
 
@@ -1136,7 +1139,7 @@ void idServerInitSystemLocal::Shutdown(valueType *finalmsg) {
 
     cvarSystem->Set("sv_running", "0");
 
-    Com_Printf("---------------------------\n");
+    common->Printf("---------------------------\n");
 
     // disconnect any local clients
 #ifndef DEDICATED

@@ -292,6 +292,7 @@ public:
     virtual snd_stream_t *codec_open(pointer filename);
     virtual void codec_close(snd_stream_t *stream);
     virtual sint codec_read(snd_stream_t *stream, sint bytes, void *buffer);
+    virtual void SndPrintf(sint print_level, pointer fmt, ...);
 
     static void S_StopAllSounds(void);
 };

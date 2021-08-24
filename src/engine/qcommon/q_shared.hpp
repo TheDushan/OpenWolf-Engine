@@ -1061,15 +1061,6 @@ void Info_SetValueForKey_Big(valueType *s, pointer key, pointer value);
 bool Info_Validate(pointer s);
 void Info_NextPair(pointer *s, valueType *key, valueType *value);
 
-// this is only here so the functions in q_shared.c and bg_*.c can link
-void Com_Error(errorParm_t level, pointer error,
-               ...) _attribute((format(printf,
-                                       2, 3), noreturn));
-void Com_FatalError(pointer error, ...);
-void Com_DropError(pointer error, ...);
-void Com_Warning(pointer error, ...);
-void Com_Printf(pointer msg, ...) _attribute((format(printf, 1, 2)));
-
 /*
 ==========================================================
 

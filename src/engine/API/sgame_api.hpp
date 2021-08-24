@@ -62,11 +62,6 @@ typedef struct gentity_s gentity_t;
 // system functions provided by the main engine
 //
 struct gameImports_t {
-    void(*Printf)(pointer fmt, ...);
-    void(*Error)(errorParm_t level, pointer fmt, ...);
-    void(*Endgame)(void);
-    sint(*RealTime)(qtime_t *qtime);
-
     idSoundSystem *soundSystem;
     idCollisionModelManager *collisionModelManager;
     idFileSystem *fileSystem;
@@ -80,6 +75,7 @@ struct gameImports_t {
     idMemorySystem *memorySystem;
     idSystem *idsystem;
     idParseSystem *parseSystem;
+    idCommon *common;
 };
 
 void trap_Print(pointer fmt);

@@ -65,13 +65,13 @@ void idClientAuthorizationSystemLocal::RequestAuthorization(void) {
 
     if(!cls.authorizeServer.port) {
         if(developer->integer) {
-            Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+            common->Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
         }
 
         if(!networkChainSystem->StringToAdr(AUTHORIZE_SERVER_NAME,
                                             &cls.authorizeServer, NA_UNSPEC)) {
             if(developer->integer) {
-                Com_Printf("Couldn't resolve authorization server address\n");
+                common->Printf("Couldn't resolve authorization server address\n");
             }
 
             return;
@@ -80,10 +80,10 @@ void idClientAuthorizationSystemLocal::RequestAuthorization(void) {
         cls.authorizeServer.port = BigShort(PORT_AUTHORIZE);
 
         if(developer->integer) {
-            Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-                       cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
-                       cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
-                       BigShort(cls.authorizeServer.port));
+            common->Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+                           cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
+                           cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
+                           BigShort(cls.authorizeServer.port));
         }
     }
 
@@ -127,10 +127,11 @@ void idClientAuthorizationSystemLocal::AuthPacket(netadr_t from) {
 
         case 2:
             if(msg) {
-                Com_Error(ERR_DROP, "You cannot enter this server^n!\n\n^zReason:^7\n%s\n",
-                          msg);
+                common->Error(ERR_DROP,
+                              "You cannot enter this server^n!\n\n^zReason:^7\n%s\n",
+                              msg);
             } else {
-                Com_Error(ERR_DROP, "Authorization failed with 0x884 error.\n");
+                common->Error(ERR_DROP, "Authorization failed with 0x884 error.\n");
             }
 
             return;
@@ -138,9 +139,9 @@ void idClientAuthorizationSystemLocal::AuthPacket(netadr_t from) {
 
         case 3:
             if(msg) {
-                Com_Error(ERR_FATAL, "%s\n", msg);
+                common->Error(ERR_FATAL, "%s\n", msg);
             } else {
-                Com_Error(ERR_FATAL, "Authorization failed with 0x888 error.\n");
+                common->Error(ERR_FATAL, "Authorization failed with 0x888 error.\n");
             }
 
             return;
@@ -152,6 +153,6 @@ void idClientAuthorizationSystemLocal::AuthPacket(netadr_t from) {
 
     Q_strncpyz(clc.serverMessage, msg, sizeof(clc.serverMessage));
 
-    Com_Printf("%s", clc.serverMessage);
+    common->Printf("%s", clc.serverMessage);
 }
 

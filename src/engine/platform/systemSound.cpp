@@ -163,7 +163,7 @@ SNDDMA_PrintAudiospec
 static void SNDDMA_PrintAudiospec(pointer str, const SDL_AudioSpec *spec) {
     pointer fmt = nullptr;
 
-    Com_Printf("%s:\n", str);
+    common->Printf("%s:\n", str);
 
     for(uint32 i = 0; i < formatToStringTableSize; i++) {
         if(spec->format == formatToStringTable[i].enumFormat) {
@@ -172,15 +172,15 @@ static void SNDDMA_PrintAudiospec(pointer str, const SDL_AudioSpec *spec) {
     }
 
     if(fmt) {
-        Com_Printf("  Format:   %s\n", fmt);
+        common->Printf("  Format:   %s\n", fmt);
     } else {
-        Com_Printf("  Format:   " S_COLOR_RED "UNKNOWN (%d)\n",
-                   static_cast<sint>(spec->format));
+        common->Printf("  Format:   " S_COLOR_RED "UNKNOWN (%d)\n",
+                       static_cast<sint>(spec->format));
     }
 
-    Com_Printf("  Freq:     %d\n", static_cast<sint>(spec->freq));
-    Com_Printf("  Samples:  %d\n", static_cast<sint>(spec->samples));
-    Com_Printf("  Channels: %d\n", static_cast<sint>(spec->channels));
+    common->Printf("  Freq:     %d\n", static_cast<sint>(spec->freq));
+    common->Printf("  Samples:  %d\n", static_cast<sint>(spec->samples));
+    common->Printf("  Channels: %d\n", static_cast<sint>(spec->channels));
 }
 
 /*
@@ -216,16 +216,17 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
         return true;
     }
 
-    Com_Printf("SDL_Init( SDL_INIT_AUDIO )... ");
+    common->Printf("SDL_Init( SDL_INIT_AUDIO )... ");
 
     if(SDL_Init(SDL_INIT_AUDIO) != 0) {
-        Com_Printf("FAILED (%s)\n", SDL_GetError());
+        common->Printf("FAILED (%s)\n", SDL_GetError());
         return false;
     }
 
-    Com_Printf("OK\n");
+    common->Printf("OK\n");
 
-    Com_Printf("SDL audio driver is \"%s\".\n", SDL_GetCurrentAudioDriver());
+    common->Printf("SDL audio driver is \"%s\".\n",
+                   SDL_GetCurrentAudioDriver());
 
     ::memset(&desired, '\0', sizeof(desired));
     ::memset(&obtained, '\0', sizeof(obtained));
@@ -274,7 +275,7 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
                                             &obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
     if(sdlPlaybackDevice == 0) {
-        Com_Printf("SDL_OpenAudioDevice() failed: %s\n", SDL_GetError());
+        common->Printf("SDL_OpenAudioDevice() failed: %s\n", SDL_GetError());
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return false;
     }
@@ -306,15 +307,15 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
     dma.buffer = static_cast<uchar8 *>(calloc(1, dmasize));
 
     if(!dma.buffer) {
-        Com_Printf("Unable to allocate dma buffer\n");
+        common->Printf("Unable to allocate dma buffer\n");
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return false;
     }
 
-    Com_Printf("Starting SDL audio callback...\n");
+    common->Printf("Starting SDL audio callback...\n");
     SDL_PauseAudioDevice(sdlPlaybackDevice, 0);  // start callback.
 
-    Com_Printf("SDL audio initialized.\n");
+    common->Printf("SDL audio initialized.\n");
     snd_inited = true;
     return true;
 }
@@ -335,9 +336,9 @@ SNDDMA_Shutdown
 */
 void SNDDMA_Shutdown(void) {
     if(sdlPlaybackDevice != 0) {
-        Com_Printf("Closing SDL audio playback device...\n");
+        common->Printf("Closing SDL audio playback device...\n");
         SDL_CloseAudioDevice(sdlPlaybackDevice);
-        Com_Printf("SDL audio playback device closed.\n");
+        common->Printf("SDL audio playback device closed.\n");
         sdlPlaybackDevice = 0;
     }
 
@@ -346,7 +347,7 @@ void SNDDMA_Shutdown(void) {
     dma.buffer = nullptr;
     dmapos = dmasize = 0;
     snd_inited = false;
-    Com_Printf("SDL audio shut down.\n");
+    common->Printf("SDL audio shut down.\n");
 }
 
 /*

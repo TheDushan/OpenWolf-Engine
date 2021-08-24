@@ -96,6 +96,7 @@ public:
     virtual void codec_close(snd_stream_t *stream) = 0;
     virtual sint codec_read(snd_stream_t *stream, sint bytes,
                             void *buffer) = 0;
+    virtual void SndPrintf(sint print_level, pointer fmt, ...) = 0;
 };
 
 extern idSoundSystem *soundSystem;
@@ -136,11 +137,6 @@ extern idAudioOpenALSystem *soundOpenALSystem;
 
 // Imported functions
 typedef struct openALImports_s {
-    void (QDECL *Printf)(sint printLevel, pointer fmt,
-                         ...) __attribute__((format(printf, 2, 3)));
-    void (QDECL *Error)(errorParm_t errorLevel, pointer fmt,
-                        ...) __attribute__((format(printf, 2, 3)));
-
 #if !defined (DEDICATED) || !defined (GAMEDLL) || !defined (CGAMEDLL) || !defined (GUI)
     idAudioOpenALSystem *soundOpenALSystem;
     idSoundSystem *soundSystem;
@@ -150,6 +146,7 @@ typedef struct openALImports_s {
     idParseSystem *parseSystem;
     idSystem *idsystem;
     idMemorySystem *memorySystem;
+    idCommon *common;
 #endif
 } openALImports_t;
 

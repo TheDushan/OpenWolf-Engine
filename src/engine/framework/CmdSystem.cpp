@@ -158,11 +158,11 @@ void idCmdSystemLocal::Exec_f(void) {
     bool success = false;
 
     if(cmdSystemLocal.Argc() < 2) {
-        Com_Printf("exec <filename> (args) : execute a script file\n");
+        common->Printf("exec <filename> (args) : execute a script file\n");
         return;
     }
 
-    Com_Printf("execing %s\n", cmdSystemLocal.Argv(1));
+    common->Printf("execing %s\n", cmdSystemLocal.Argv(1));
 
     Q_strncpyz(filename, cmdSystemLocal.Argv(1), sizeof(filename));
     COM_DefaultExtension(filename, sizeof(filename), ".cfg");
@@ -188,7 +188,7 @@ void idCmdSystemLocal::Exec_f(void) {
     }
 
     if(!success) {
-        Com_Printf("couldn't exec %s\n", cmdSystemLocal.Argv(1));
+        common->Printf("couldn't exec %s\n", cmdSystemLocal.Argv(1));
     }
 }
 
@@ -203,7 +203,7 @@ void idCmdSystemLocal::Vstr(void) {
     valueType *v;
 
     if(cmdSystemLocal.Argc() != 2) {
-        Com_Printf("vstr <variablename> : execute a variable command\n");
+        common->Printf("vstr <variablename> : execute a variable command\n");
         return;
     }
 
@@ -251,8 +251,8 @@ modifierMask_t idCmdSystemLocal::getModifierMask(pointer mods) {
                 }
 
                 if((mask.down & mask.up) & modifierKeys[i].bit) {
-                    Com_Printf("can't have %s both pressed and not pressed\n",
-                               modifierKeys[i].name);
+                    common->Printf("can't have %s both pressed and not pressed\n",
+                                   modifierKeys[i].name);
                     return none;
                 }
 
@@ -271,7 +271,7 @@ modifierMask_t idCmdSystemLocal::getModifierMask(pointer mods) {
         }
 
         if(!modifierKeys[i].bit) {
-            Com_Printf("unknown modifier key name in \"%s\"\n", mods);
+            common->Printf("unknown modifier key name in \"%s\"\n", mods);
             return none;
         }
     }
@@ -334,7 +334,7 @@ void idCmdSystemLocal::ModCase(void) {
     // want 'modifierMask_t mods[argc / 2 - 1];' (variable array, C99)
     // but MSVC apparently doesn't like that
     if(argc < 3) {
-        Com_Printf("modcase <modifiers> <command> [<modifiers> <command>] ... [<command>]\n");
+        common->Printf("modcase <modifiers> <command> [<modifiers> <command>] ... [<command>]\n");
         return;
     }
 
@@ -410,7 +410,7 @@ void idCmdSystemLocal::If(void) {
         case 3:
             vt = cmdSystemLocal.Argv(2);
 #ifdef DEDICATED
-            Com_Printf("if <modifiers>... is not supported on the server -- assuming true.\n");
+            common->Printf("if <modifiers>... is not supported on the server -- assuming true.\n");
             v = vt;
 #else
             v = cmdSystemLocal.Argv(1);
@@ -448,18 +448,18 @@ void idCmdSystemLocal::If(void) {
                       (!strcmp(op, ">=") && v1 <  v2)) {
                 v = vf;
             } else {
-                Com_Printf("invalid operator in if command. valid operators are = != < > >= <=\n");
+                common->Printf("invalid operator in if command. valid operators are = != < > >= <=\n");
                 return;
             }
 
             break;
 
         default:
-            Com_Printf("if <value1> <operator> <value2> <cmdthen> (<cmdelse>) : compares the first two values and executes <cmdthen> if true, <cmdelse> if false\n"
-                       "if <modifiers> <cmdthen> (<cmdelse>) : check if modifiers are (not) pressed\n"
-                       "-- modifiers are %s\n"
-                       "-- commands are cvar names unless prefixed with / or \\\n",
-                       modifierList);
+            common->Printf("if <value1> <operator> <value2> <cmdthen> (<cmdelse>) : compares the first two values and executes <cmdthen> if true, <cmdelse> if false\n"
+                           "if <modifiers> <cmdthen> (<cmdelse>) : check if modifiers are (not) pressed\n"
+                           "-- modifiers are %s\n"
+                           "-- commands are cvar names unless prefixed with / or \\\n",
+                           modifierList);
             return;
     }
 
@@ -494,7 +494,7 @@ void idCmdSystemLocal::Math(void) {
         } else if(!strcmp(op, "--")) {
             cvarSystem->SetValueSafe(v, (cvarSystem->VariableValue(v) - 1));
         } else {
-            Com_Printf("math <variableToSet> = <variable1> <operator> <variable2>\nmath <variableToSet> <operator> <variable1>\nmath <variableToSet> ++\nmath <variableToSet> --\nvalid operators are + - * / \n");
+            common->Printf("math <variableToSet> = <variable1> <operator> <variable2>\nmath <variableToSet> <operator> <variable1>\nmath <variableToSet> ++\nmath <variableToSet> --\nvalid operators are + - * / \n");
             return;
         }
     } else if(cmdSystemLocal.Argc() == 4) {
@@ -517,7 +517,7 @@ void idCmdSystemLocal::Math(void) {
                                          (cvarSystem->VariableValue(v) / cvarSystem->VariableValue(v1)));
             }
         } else {
-            Com_Printf("math <variableToSet> = <variable1> <operator> <variable2>\nmath <variableToSet> <operator> <variable1>\nmath <variableToSet> ++\nmath <variableToSet> --\nvalid operators are + - * / \n");
+            common->Printf("math <variableToSet> = <variable1> <operator> <variable2>\nmath <variableToSet> <operator> <variable1>\nmath <variableToSet> ++\nmath <variableToSet> --\nvalid operators are + - * / \n");
             return;
         }
     } else if(cmdSystemLocal.Argc() == 6) {
@@ -541,11 +541,11 @@ void idCmdSystemLocal::Math(void) {
                                          (cvarSystem->VariableValue(v1) / cvarSystem->VariableValue(v2)));
             }
         } else {
-            Com_Printf("math <variableToSet> = <variable1> <operator> <variable2>\nmath <variableToSet> <operator> <variable1>\nmath <variableToSet> ++\nmath <variableToSet> --\nvalid operators are + - * / \n");
+            common->Printf("math <variableToSet> = <variable1> <operator> <variable2>\nmath <variableToSet> <operator> <variable1>\nmath <variableToSet> ++\nmath <variableToSet> --\nvalid operators are + - * / \n");
             return;
         }
     } else {
-        Com_Printf("math <variableToSet> = <variable1> <operator> <variable2>\nmath <variableToSet> <operator> <variable1>\nmath <variableToSet> ++\nmath <variableToSet> --\nvalid operators are + - * / \n");
+        common->Printf("math <variableToSet> = <variable1> <operator> <variable2>\nmath <variableToSet> <operator> <variable1>\nmath <variableToSet> ++\nmath <variableToSet> --\nvalid operators are + - * / \n");
         return;
     }
 }
@@ -584,11 +584,11 @@ void idCmdSystemLocal::Strcmp(void) {
                 return;
             }
         } else {
-            Com_Printf("invalid operator in strcmp command. valid operators are = != \n");
+            common->Printf("invalid operator in strcmp command. valid operators are = != \n");
             return;
         }
     } else {
-        Com_Printf("Strcmp <string1> <operator> <string2> <cmdthen> (<cmdelse>) : compares the first two strings and executes <cmdthen> if true, <cmdelse> if false\n");
+        common->Printf("Strcmp <string1> <operator> <string2> <cmdthen> (<cmdelse>) : compares the first two strings and executes <cmdthen> if true, <cmdelse> if false\n");
         return;
     }
 
@@ -609,7 +609,7 @@ void idCmdSystemLocal::Concat(void) {
     valueType vc[MAX_CVAR_VALUE_STRING];
 
     if(cmdSystemLocal.Argc() != 4) {
-        Com_Printf("concat <variableToSet> <variable1> <variable2> : concatenates variable1 and variable2 and sets the result to variableToSet\n");
+        common->Printf("concat <variableToSet> <variable1> <variable2> : concatenates variable1 and variable2 and sets the result to variableToSet\n");
         return;
     }
 
@@ -635,7 +635,7 @@ void idCmdSystemLocal::Calc(void) {
     valueType *func;
 
     if(cmdSystemLocal.Argc() < 3) {
-        Com_Printf("calc <number> <function> <number>, accepted functions: +, -, /, */x\n");
+        common->Printf("calc <number> <function> <number>, accepted functions: +, -, /, */x\n");
         return;
     }
 
@@ -645,35 +645,39 @@ void idCmdSystemLocal::Calc(void) {
 
     // Add
     if(!strcmp(func, "+")) {
-        Com_Printf("%s %s %s = %f\n", arg1, func, arg2, (atof(arg1) + atof(arg2)));
+        common->Printf("%s %s %s = %f\n", arg1, func, arg2,
+                       (atof(arg1) + atof(arg2)));
         return;
     }
 
     // Subtract
     else if(!strcmp(func, "-")) {
-        Com_Printf("%s %s %s = %f\n", arg1, func, arg2, (atof(arg1) - atof(arg2)));
+        common->Printf("%s %s %s = %f\n", arg1, func, arg2,
+                       (atof(arg1) - atof(arg2)));
         return;
     }
 
     // Divide
     else if(!strcmp(func, "/")) {
         if(atof(arg2) == 0.f) {
-            Com_Printf("Cannot divide by zero!\n");
+            common->Printf("Cannot divide by zero!\n");
             return;
         }
 
-        Com_Printf("%s %s %s = %f\n", arg1, func, arg2, (atof(arg1) / atof(arg2)));
+        common->Printf("%s %s %s = %f\n", arg1, func, arg2,
+                       (atof(arg1) / atof(arg2)));
         return;
     }
 
     // Multiply
     else if(!strcmp(func, "*") || !strcmp(func, "x")) {
-        Com_Printf("%s %s %s = %f\n", arg1, func, arg2, (atof(arg1) * atof(arg2)));
+        common->Printf("%s %s %s = %f\n", arg1, func, arg2,
+                       (atof(arg1) * atof(arg2)));
         return;
     }
 
     // Invalid function, help the poor guy out
-    Com_Printf("calc <number> <function> <number>, accepted functions: +, -, /, */x\n");
+    common->Printf("calc <number> <function> <number>, accepted functions: +, -, /, */x\n");
 }
 
 /*
@@ -684,7 +688,7 @@ Just prints the rest of the line to the console
 ===============
 */
 void idCmdSystemLocal::Echo(void) {
-    Com_Printf("%s\n", cmdSystemLocal.Args());
+    common->Printf("%s\n", cmdSystemLocal.Args());
 }
 
 /*
@@ -700,7 +704,7 @@ void idCmdSystemLocal::Undelay(void) {
 
     // Check if the call is valid
     if(cmdSystemLocal.Argc() < 1) {
-        Com_Printf("undelay <name> (command)\nremoves all commands with <name> in them.\nif (command) is specified, the removal will be limited only to delays whose commands contain (command).\n");
+        common->Printf("undelay <name> (command)\nremoves all commands with <name> in them.\nif (command) is specified, the removal will be limited only to delays whose commands contain (command).\n");
         return;
     }
 
@@ -746,7 +750,7 @@ void idCmdSystemLocal::Delay(void) {
 
     // Check if the call is valid
     if(cmdSystemLocal.Argc() < 2) {
-        Com_Printf("delay (name) <delay in milliseconds> <command>\ndelay <delay in frames>f <command>\nexecutes <command> after the delay\n");
+        common->Printf("delay (name) <delay in milliseconds> <command>\ndelay <delay in frames>f <command>\nexecutes <command> after the delay\n");
         return;
     }
 
@@ -764,7 +768,7 @@ void idCmdSystemLocal::Delay(void) {
     delay = atoi(raw_delay);
 
     if(delay < 1) {
-        Com_Printf("delay: the delay must be a positive integer");
+        common->Printf("delay: the delay must be a positive integer");
         return;
     }
 
@@ -777,7 +781,7 @@ void idCmdSystemLocal::Delay(void) {
     }
 
     if(!availiable_cmd) {
-        Com_Printf("WARNING: Maximum amount of delayed commands reached.");
+        common->Printf("WARNING: Maximum amount of delayed commands reached.");
         return;
     }
 
@@ -816,7 +820,7 @@ void idCmdSystemLocal::Random(void) {
                                     static_cast<sint>(rand() / static_cast<float32>(RAND_MAX) * (MAX(v1,
                                             v2) - MIN(v1, v2)) + MIN(v1, v2)));
     } else {
-        Com_Printf("random <variableToSet> <value1> <value2>\n");
+        common->Printf("random <variableToSet> <value1> <value2>\n");
     }
 }
 
@@ -844,7 +848,7 @@ void idCmdSystemLocal::RunAlias(void) {
     }
 
     if(!alias) {
-        Com_Error(ERR_FATAL, "Alias: Alias %s doesn't exist", name);
+        common->Error(ERR_FATAL, "Alias: Alias %s doesn't exist", name);
     }
 
     cmdBufferLocal.InsertText(va("%s %s", alias->exec, args));
@@ -888,16 +892,16 @@ void idCmdSystemLocal::AliasList(void) {
     i = 0;
 
     for(alias = cmd_aliases; alias; alias = alias->next) {
-        if(match && !Com_Filter(match, alias->name, false)) {
+        if(match && !common->Filter(match, alias->name, false)) {
             continue;
         }
 
-        Com_Printf("%s ==> %s\n", alias->name, alias->exec);
+        common->Printf("%s ==> %s\n", alias->name, alias->exec);
 
         i++;
     }
 
-    Com_Printf("%i aliases\n", i);
+    common->Printf("%i aliases\n", i);
 }
 
 /*
@@ -938,7 +942,7 @@ void idCmdSystemLocal::UnAlias(void) {
 
     // Get args
     if(cmdSystemLocal.Argc() < 2) {
-        Com_Printf("unalias <name> : delete an alias\n");
+        common->Printf("unalias <name> : delete an alias\n");
         return;
     }
 
@@ -983,8 +987,8 @@ void idCmdSystemLocal::Alias(void) {
 
     // Get args
     if(cmdSystemLocal.Argc() < 2) {
-        Com_Printf("alias <name> : show an alias\n");
-        Com_Printf("alias <name> <exec> : create an alias\n");
+        common->Printf("alias <name> : show an alias\n");
+        common->Printf("alias <name> <exec> : create an alias\n");
         return;
     }
 
@@ -1003,7 +1007,7 @@ void idCmdSystemLocal::Alias(void) {
 
         // Crude protection from infinite loops
         if(!Q_stricmp(cmdSystemLocal.Argv(2), name)) {
-            Com_Printf("Can't make an alias to itself\n");
+            common->Printf("Can't make an alias to itself\n");
             return;
         }
 
@@ -1011,7 +1015,7 @@ void idCmdSystemLocal::Alias(void) {
         cmd = cmdSystemLocal.FindCommand(name);
 
         if(cmd && cmd->function != RunAlias) {
-            Com_Printf("Can't override a builtin function with an alias\n");
+            common->Printf("Can't override a builtin function with an alias\n");
             return;
         }
 
@@ -1033,9 +1037,9 @@ void idCmdSystemLocal::Alias(void) {
 
     // Show the alias
     if(!alias) {
-        Com_Printf("Alias %s does not exist\n", name);
+        common->Printf("Alias %s does not exist\n", name);
     } else if(cmdSystemLocal.Argc() == 2) {
-        Com_Printf("%s ==> %s\n", alias->name, alias->exec);
+        common->Printf("%s ==> %s\n", alias->name, alias->exec);
     }
 
     // update autogen.cfg
@@ -1313,7 +1317,7 @@ void idCmdSystemLocal::TokenizeString2(pointer text_in, bool ignoreQuotes,
 
     // FIXME TTimo blunt hook to try to find the tokenization of userinfo
     if(developer->integer) {
-        Com_Printf("idCmdSystemLocal::TokenizeString: %s\n", text_in);
+        common->Printf("idCmdSystemLocal::TokenizeString: %s\n", text_in);
     }
 
 #endif
@@ -1589,7 +1593,8 @@ void idCmdSystemLocal::AddCommand(pointer cmd_name, xcommand_t function,
         if(!strcmp(cmd_name, cmd->name)) {
             // allow completion-only commands to be silently doubled
             if(function != nullptr) {
-                Com_Printf("idCmdSystemLocal::AddCommand: %s already defined\n", cmd_name);
+                common->Printf("idCmdSystemLocal::AddCommand: %s already defined\n",
+                               cmd_name);
             }
 
             return;
@@ -1780,15 +1785,15 @@ void idCmdSystemLocal::List(void) {
     i = 0;
 
     for(cmd = cmd_functions; cmd; cmd = cmd->next) {
-        if(match && !Com_Filter(match, cmd->name, false)) {
+        if(match && !common->Filter(match, cmd->name, false)) {
             continue;
         }
 
-        Com_Printf("%s\n", cmd->name);
+        common->Printf("%s\n", cmd->name);
         i++;
     }
 
-    Com_Printf("%i commands\n", i);
+    common->Printf("%i commands\n", i);
 }
 
 /*

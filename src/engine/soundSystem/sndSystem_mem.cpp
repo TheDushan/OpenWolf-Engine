@@ -122,7 +122,7 @@ void SND_setup() {
     *(sndBuffer **)q = nullptr;
     freelist = p + scs - 1;
 
-    Com_Printf("Sound memory manager started\n");
+    common->Printf("Sound memory manager started\n");
 }
 
 /*
@@ -244,22 +244,22 @@ bool S_LoadSound(sfx_t *sfx) {
 
     if(info.width == 1) {
         if(developer->integer) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: %s is a 8 bit wav file\n",
-                       sfx->soundName);
+            common->Printf(S_COLOR_YELLOW "WARNING: %s is a 8 bit wav file\n",
+                           sfx->soundName);
         }
     }
 
     if(info.rate != 22050) {
         if(developer->integer) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: %s is not a 22kHz wav file\n",
-                       sfx->soundName);
+            common->Printf(S_COLOR_YELLOW "WARNING: %s is not a 22kHz wav file\n",
+                           sfx->soundName);
         }
     }
 
     samples = static_cast<schar16 *>(memorySystem->AllocateTempMemory(
                                          info.samples * sizeof(schar16) * 2));
 
-    sfx->lastTimeUsed = Com_Milliseconds() + 1;
+    sfx->lastTimeUsed = common->Milliseconds() + 1;
 
     // each of these compression schemes works just fine
     // but the 16bit quality is much nicer and with a local
@@ -306,6 +306,6 @@ idSoundSystemLocal::DisplayFreeMemory
 ===============
 */
 void idSoundSystemLocal::DisplayFreeMemory(void) {
-    Com_Printf("%d bytes free sound buffer memory, %d total used\n", inUse,
-               totalInUse);
+    common->Printf("%d bytes free sound buffer memory, %d total used\n", inUse,
+                   totalInUse);
 }

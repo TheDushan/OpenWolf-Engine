@@ -76,7 +76,7 @@ idClientParseSystemLocal::ShowNet
 */
 void idClientParseSystemLocal::ShowNet(const msg_t *msg, pointer s) {
     if(cl_shownet->integer >= 2) {
-        Com_Printf("%3i:%s\n", msg->readcount - 1, s);
+        common->Printf("%3i:%s\n", msg->readcount - 1, s);
     }
 }
 
@@ -298,13 +298,13 @@ void idClientParseSystemLocal::ParsePacketEntities(msg_t *msg,
         }
 
         if(msg->readcount > msg->cursize) {
-            Com_Error(ERR_DROP, "CL_ParsePacketEntities: end of message");
+            common->Error(ERR_DROP, "CL_ParsePacketEntities: end of message");
         }
 
         while(oldnum < newnum) {
             // one or more entities from the old packet are unchanged
             if(cl_shownet->integer == 3) {
-                Com_Printf("%3i:  unchanged: %i\n", msg->readcount, oldnum);
+                common->Printf("%3i:  unchanged: %i\n", msg->readcount, oldnum);
             }
 
             DeltaEntity(msg, newframe, oldnum, oldstate, true);
@@ -323,7 +323,7 @@ void idClientParseSystemLocal::ParsePacketEntities(msg_t *msg,
         if(oldnum == newnum) {
             // delta from previous state
             if(cl_shownet->integer == 3) {
-                Com_Printf("%3i:  delta: %i\n", msg->readcount, newnum);
+                common->Printf("%3i:  delta: %i\n", msg->readcount, newnum);
             }
 
             DeltaEntity(msg, newframe, newnum, oldstate, false);
@@ -344,7 +344,7 @@ void idClientParseSystemLocal::ParsePacketEntities(msg_t *msg,
         if(oldnum > newnum) {
             // delta from baseline
             if(cl_shownet->integer == 3) {
-                Com_Printf("%3i:  baseline: %i\n", msg->readcount, newnum);
+                common->Printf("%3i:  baseline: %i\n", msg->readcount, newnum);
             }
 
             DeltaEntity(msg, newframe, newnum, &cl.entityBaselines[newnum], false);
@@ -357,7 +357,7 @@ void idClientParseSystemLocal::ParsePacketEntities(msg_t *msg,
     while(oldnum != 99999) {
         // one or more entities from the old packet are unchanged
         if(cl_shownet->integer == 3) {
-            Com_Printf("%3i:  unchanged: %i\n", msg->readcount, oldnum);
+            common->Printf("%3i:  unchanged: %i\n", msg->readcount, oldnum);
         }
 
         DeltaEntity(msg, newframe, oldnum, oldstate, true);
@@ -374,7 +374,7 @@ void idClientParseSystemLocal::ParsePacketEntities(msg_t *msg,
     }
 
     if(cl_shownuments->integer) {
-        Com_Printf("Entities in packet: %i\n", newframe->numEntities);
+        common->Printf("Entities in packet: %i\n", newframe->numEntities);
     }
 }
 
@@ -445,7 +445,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
                 valueType           *period;
                 qtime_t         time;
 
-                Com_RealTime(&time);
+                common->RealTime(&time);
 
                 Q_strncpyz(mapname, cl.mapname, MAX_QPATH);
 
@@ -480,7 +480,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
 
         if(!old->valid) {
             // should never happen
-            Com_Printf("Delta from invalid frame (not supposed to happen!).\n");
+            common->Printf("Delta from invalid frame (not supposed to happen!).\n");
 
             while((newSnap.deltaNum & PACKET_MASK) != (newSnap.messageNum &
                     PACKET_MASK) && !old->valid) {
@@ -489,22 +489,22 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
             }
 
             if(old->valid) {
-                Com_Printf("Found more recent frame to delta from.\n");
+                common->Printf("Found more recent frame to delta from.\n");
             }
         }
 
         if(!old->valid) {
-            Com_Printf("Failed to find more recent frame to delta from.\n");
+            common->Printf("Failed to find more recent frame to delta from.\n");
         } else if(old->messageNum != newSnap.deltaNum) {
             // The frame that the server did the delta from
             // is too old, so we can't reconstruct it properly.
             if(developer->integer) {
-                Com_Printf("Delta frame too old.\n");
+                common->Printf("Delta frame too old.\n");
             }
         } else if(cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES
                   - 128) {
             if(developer->integer) {
-                Com_Printf("Delta parseEntitiesNum too old.\n");
+                common->Printf("Delta parseEntitiesNum too old.\n");
             }
         } else {
             newSnap.valid = true;   // valid delta parse
@@ -515,8 +515,8 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
     len = MSG_ReadByte(msg);
 
     if(len > sizeof(newSnap.areamask)) {
-        Com_Error(ERR_DROP, "CL_ParseSnapshot: Invalid size %d for areamask.",
-                  len);
+        common->Error(ERR_DROP, "CL_ParseSnapshot: Invalid size %d for areamask.",
+                      len);
         return;
     }
 
@@ -573,8 +573,9 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
     cl.snapshots[cl.snapServer.messageNum & PACKET_MASK] = cl.snapServer;
 
     if(cl_shownet->integer == 3) {
-        Com_Printf("   snapshot:%i  delta:%i  ping:%i\n", cl.snapServer.messageNum,
-                   cl.snapServer.deltaNum, cl.snapServer.ping);
+        common->Printf("   snapshot:%i  delta:%i  ping:%i\n",
+                       cl.snapServer.messageNum,
+                       cl.snapServer.deltaNum, cl.snapServer.ping);
     }
 
     cl.newSnapshots = true;
@@ -724,14 +725,14 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
             i = MSG_ReadShort(msg);
 
             if(i < 0 || i >= MAX_CONFIGSTRINGS) {
-                Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+                common->Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
             }
 
             s = MSG_ReadBigString(msg);
             len = strlen(s);
 
             if(len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
-                Com_Error(ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+                common->Error(ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
             }
 
             // append it to the gameState string buffer
@@ -742,15 +743,15 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
             newnum = MSG_ReadBits(msg, GENTITYNUM_BITS);
 
             if(newnum < 0 || newnum >= MAX_GENTITIES) {
-                Com_Error(ERR_DROP, "Baseline number out of range: %i", newnum);
+                common->Error(ERR_DROP, "Baseline number out of range: %i", newnum);
             }
 
             memset(&nullstate, 0, sizeof(nullstate));
             es = &cl.entityBaselines[newnum];
             MSG_ReadDeltaEntity(msg, &nullstate, es, newnum);
         } else {
-            Com_Error(ERR_DROP,
-                      "idClientParseSystemLocal::ParseGamestate: bad command byte");
+            common->Error(ERR_DROP,
+                          "idClientParseSystemLocal::ParseGamestate: bad command byte");
         }
     }
 
@@ -764,8 +765,8 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
     // Arnout: verify if we have all official pakfiles. As we won't
     // be downloading them, we should be kicked for not having them.
     if(cl_connectedToPureServer && !fileSystem->VerifyOfficialPaks()) {
-        Com_Error(ERR_DROP,
-                  "Couldn't load an official pak file; verify your installation and make sure it has been updated to the latest version.");
+        common->Error(ERR_DROP,
+                      "Couldn't load an official pak file; verify your installation and make sure it has been updated to the latest version.");
     }
 
     // reinitialize the filesystem if the game directory has changed
@@ -792,7 +793,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
     sint             block;
 
     if(!*cls.downloadTempName) {
-        Com_Printf("Server sending download, but no download was requested\n");
+        common->Printf("Server sending download, but no download was requested\n");
         clientReliableCommandsSystem->AddReliableCommand("stopdl");
         return;
     }
@@ -823,7 +824,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
             cvarSystem->SetValue("cl_downloadSize", clc.downloadSize);
 
             if(developer->integer) {
-                Com_Printf("Server redirected download: %s\n", cls.downloadName);
+                common->Printf("Server redirected download: %s\n", cls.downloadName);
             }
 
             clc.bWWWDl = true;  // activate wwwdl client loop
@@ -831,8 +832,8 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
 
             // make sure the server is not trying to redirect us again on a bad checksum
             if(strstr(clc.badChecksumList, va("@%s", cls.originalDownloadName))) {
-                Com_Printf("refusing redirect to %s by server (bad checksum)\n",
-                           cls.downloadName);
+                common->Printf("refusing redirect to %s by server (bad checksum)\n",
+                               cls.downloadName);
                 clientReliableCommandsSystem->AddReliableCommand("wwwdl fail");
                 clc.bWWWDlAborting = true;
                 return;
@@ -853,7 +854,8 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
                 // we count on server sending us a gamestate to start up clean again
                 clientReliableCommandsSystem->AddReliableCommand("wwwdl fail");
                 clc.bWWWDlAborting = true;
-                Com_Printf("Failed to initialize download for '%s'\n", cls.downloadName);
+                common->Printf("Failed to initialize download for '%s'\n",
+                               cls.downloadName);
             }
 
             // Check for a disconnected download
@@ -881,7 +883,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
         cvarSystem->SetValue("cl_downloadSize", clc.downloadSize);
 
         if(clc.downloadSize < 0) {
-            Com_Error(ERR_DROP, "%s", MSG_ReadString(msg));
+            common->Error(ERR_DROP, "%s", MSG_ReadString(msg));
             return;
         }
     }
@@ -889,8 +891,8 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
     size = MSG_ReadShort(msg);
 
     if(size < 0 || size > sizeof(data)) {
-        Com_Error(ERR_DROP,
-                  "CL_ParseDownload: Invalid size %d for download chunk.", size);
+        common->Error(ERR_DROP,
+                      "CL_ParseDownload: Invalid size %d for download chunk.", size);
         return;
     }
 
@@ -898,8 +900,8 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
 
     if(clc.downloadBlock != block) {
         if(developer->integer) {
-            Com_Printf("CL_ParseDownload: Expected block %d, got %d\n",
-                       clc.downloadBlock, block);
+            common->Printf("CL_ParseDownload: Expected block %d, got %d\n",
+                           clc.downloadBlock, block);
         }
 
         return;
@@ -910,7 +912,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
         clc.download = fileSystem->SV_FOpenFileWrite(cls.downloadTempName);
 
         if(!clc.download) {
-            Com_Printf("Could not create %s\n", cls.downloadTempName);
+            common->Printf("Could not create %s\n", cls.downloadTempName);
             clientReliableCommandsSystem->AddReliableCommand("stopdl");
             idClientDownloadSystemLocal::NextDownload();
             return;
@@ -995,9 +997,9 @@ void idClientParseSystemLocal::ParseServerMessage(msg_t *msg) {
     msgback = *msg;
 
     if(cl_shownet->integer == 1) {
-        Com_Printf("%i ", msg->cursize);
+        common->Printf("%i ", msg->cursize);
     } else if(cl_shownet->integer >= 2) {
-        Com_Printf("------------------\n");
+        common->Printf("------------------\n");
     }
 
     MSG_Bitstream(msg);
@@ -1016,8 +1018,8 @@ void idClientParseSystemLocal::ParseServerMessage(msg_t *msg) {
     //
     while(1) {
         if(msg->readcount > msg->cursize) {
-            Com_Error(ERR_DROP,
-                      "idClientParseSystemLocal::ParseServerMessage: read past end of server message");
+            common->Error(ERR_DROP,
+                          "idClientParseSystemLocal::ParseServerMessage: read past end of server message");
             break;
         }
 
@@ -1045,7 +1047,7 @@ void idClientParseSystemLocal::ParseServerMessage(msg_t *msg) {
 
         if(cl_shownet->integer >= 2) {
             if((cmd < 0) || (!svc_strings[cmd])) {
-                Com_Printf("%3i:BAD CMD %i\n", msg->readcount - 1, cmd);
+                common->Printf("%3i:BAD CMD %i\n", msg->readcount - 1, cmd);
             } else {
                 ShowNet(msg, svc_strings[cmd]);
             }
@@ -1054,9 +1056,9 @@ void idClientParseSystemLocal::ParseServerMessage(msg_t *msg) {
         // other commands
         switch(cmd) {
             default:
-                Com_Error(ERR_DROP,
-                          "idClientParseSystemLocal::ParseServerMessage: Illegible server message %d\n",
-                          cmd);
+                common->Error(ERR_DROP,
+                              "idClientParseSystemLocal::ParseServerMessage: Illegible server message %d\n",
+                              cmd);
                 break;
 
             case svc_nop:

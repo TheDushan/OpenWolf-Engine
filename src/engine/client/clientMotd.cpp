@@ -68,13 +68,13 @@ void idClientMOTDSystemLocal::RequestMotd(void) {
     }
 
     if(developer->integer) {
-        Com_Printf("Resolving %s\n", MASTER_SERVER_NAME);
+        common->Printf("Resolving %s\n", MASTER_SERVER_NAME);
     }
 
     switch(networkChainSystem->StringToAdr(MASTER_SERVER_NAME,
                                            &cls.updateServer, NA_UNSPEC)) {
         case 0:
-            Com_Printf("Couldn't resolve master address\n");
+            common->Printf("Couldn't resolve master address\n");
             return;
 
         case 2:
@@ -85,8 +85,8 @@ void idClientMOTDSystemLocal::RequestMotd(void) {
     }
 
     if(developer->integer) {
-        Com_Printf("%s resolved to %s\n", MASTER_SERVER_NAME,
-                   networkSystem->AdrToStringwPort(cls.updateServer));
+        common->Printf("%s resolved to %s\n", MASTER_SERVER_NAME,
+                       networkSystem->AdrToStringwPort(cls.updateServer));
     }
 
     info[0] = 0;
@@ -94,7 +94,7 @@ void idClientMOTDSystemLocal::RequestMotd(void) {
     Q_vsprintf_s(cls.updateChallenge, sizeof(cls.updateChallenge),
                  sizeof(cls.updateChallenge), "%i",
                  static_cast<sint>(((static_cast<uint>(rand()) << 16) ^ static_cast<uint>
-                                    (rand())) ^ Com_Milliseconds()));
+                                    (rand())) ^ common->Milliseconds()));
 
     Info_SetValueForKey(info, "challenge", cls.updateChallenge);
     Info_SetValueForKey(info, "renderer", cls.glconfig.renderer_string);
@@ -158,14 +158,14 @@ void idClientMOTDSystemLocal::MotdPacket(netadr_t from, pointer info) {
     // if not from our server, ignore it
     if(!networkSystem->CompareAdr(from, cls.updateServer)) {
         if(developer->integer) {
-            Com_Printf("MOTD packet from unexpected source\n");
+            common->Printf("MOTD packet from unexpected source\n");
         }
 
         return;
     }
 
     if(developer->integer) {
-        Com_Printf("MOTD packet: %s\n", info);
+        common->Printf("MOTD packet: %s\n", info);
     }
 
     while(*info != '\\') {
@@ -177,8 +177,8 @@ void idClientMOTDSystemLocal::MotdPacket(netadr_t from, pointer info) {
 
     if(strcmp(v, cls.updateChallenge)) {
         if(developer->integer) {
-            Com_Printf("MOTD packet mismatched challenge: "
-                       "'%s' != '%s'\n", v, cls.updateChallenge);
+            common->Printf("MOTD packet mismatched challenge: "
+                           "'%s' != '%s'\n", v, cls.updateChallenge);
         }
 
         return;

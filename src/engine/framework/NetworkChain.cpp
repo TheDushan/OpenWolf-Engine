@@ -121,7 +121,7 @@ void idNetworkChainSystemLocal::ScramblePacket(msg_t *buf) {
     }
 
     if(c > MAX_PACKETLEN) {
-        Com_Error(ERR_DROP, "MAX_PACKETLEN");
+        common->Error(ERR_DROP, "MAX_PACKETLEN");
     }
 
     // generate a sequence of "random" numbers
@@ -168,7 +168,7 @@ void idNetworkChainSystemLocal::UnScramblePacket(msg_t *buf) {
     }
 
     if(c > MAX_PACKETLEN) {
-        Com_Error(ERR_DROP, "MAX_PACKETLEN");
+        common->Error(ERR_DROP, "MAX_PACKETLEN");
     }
 
     // generate a sequence of "random" numbers
@@ -264,11 +264,11 @@ void idNetworkChainSystemLocal::TransmitNextFragment(netchan_t *chan) {
     chan->lastSentSize = send.cursize;
 
     if(showpackets->integer) {
-        Com_Printf("%s send %4i : s=%i fragment=%i,%i\n"
-                   , netsrcString[ chan->sock ]
-                   , send.cursize
-                   , chan->outgoingSequence
-                   , chan->unsentFragmentStart, fragmentLength);
+        common->Printf("%s send %4i : s=%i fragment=%i,%i\n"
+                       , netsrcString[ chan->sock ]
+                       , send.cursize
+                       , chan->outgoingSequence
+                       , chan->unsentFragmentStart, fragmentLength);
     }
 
     chan->unsentFragmentStart += fragmentLength;
@@ -299,8 +299,8 @@ void idNetworkChainSystemLocal::Transmit(netchan_t *chan, sint length,
     uchar8      send_buf[MAX_PACKETLEN];
 
     if(length > MAX_MSGLEN) {
-        Com_Printf("^idNetworkChainSystemLocal::Transmit: truncated a message of length %i\n",
-                   length);
+        common->Printf("^idNetworkChainSystemLocal::Transmit: truncated a message of length %i\n",
+                       length);
         length = MAX_MSGLEN;
     }
 
@@ -343,11 +343,11 @@ void idNetworkChainSystemLocal::Transmit(netchan_t *chan, sint length,
     chan->lastSentSize = send.cursize;
 
     if(showpackets->integer) {
-        Com_Printf("%s send %4i : s=%i ack=%i\n"
-                   , netsrcString[ chan->sock ]
-                   , send.cursize
-                   , chan->outgoingSequence - 1
-                   , chan->incomingSequence);
+        common->Printf("%s send %4i : s=%i ack=%i\n"
+                       , netsrcString[ chan->sock ]
+                       , send.cursize
+                       , chan->outgoingSequence - 1
+                       , chan->incomingSequence);
     }
 }
 
@@ -400,16 +400,16 @@ bool idNetworkChainSystemLocal::Process(netchan_t *chan, msg_t *msg) {
 
     if(showpackets->integer) {
         if(fragmented) {
-            Com_Printf("%s recv %4i : s=%i fragment=%i,%i\n"
-                       , netsrcString[ chan->sock ]
-                       , msg->cursize
-                       , sequence
-                       , fragmentStart, fragmentLength);
+            common->Printf("%s recv %4i : s=%i fragment=%i,%i\n"
+                           , netsrcString[ chan->sock ]
+                           , msg->cursize
+                           , sequence
+                           , fragmentStart, fragmentLength);
         } else {
-            Com_Printf("%s recv %4i : s=%i\n"
-                       , netsrcString[ chan->sock ]
-                       , msg->cursize
-                       , sequence);
+            common->Printf("%s recv %4i : s=%i\n"
+                           , netsrcString[ chan->sock ]
+                           , msg->cursize
+                           , sequence);
         }
     }
 
@@ -418,10 +418,10 @@ bool idNetworkChainSystemLocal::Process(netchan_t *chan, msg_t *msg) {
     //
     if(sequence <= chan->incomingSequence) {
         if(showdrop->integer || showpackets->integer) {
-            Com_Printf("%s:Out of order packet %i at %i\n"
-                       , networkSystem->AdrToString(chan->remoteAddress)
-                       ,  sequence
-                       , chan->incomingSequence);
+            common->Printf("%s:Out of order packet %i at %i\n"
+                           , networkSystem->AdrToString(chan->remoteAddress)
+                           ,  sequence
+                           , chan->incomingSequence);
         }
 
         return false;
@@ -434,10 +434,10 @@ bool idNetworkChainSystemLocal::Process(netchan_t *chan, msg_t *msg) {
 
     if(chan->dropped > 0) {
         if(showdrop->integer || showpackets->integer) {
-            Com_Printf("%s:Dropped %i packets at %i\n"
-                       , networkSystem->AdrToString(chan->remoteAddress)
-                       , chan->dropped
-                       , sequence);
+            common->Printf("%s:Dropped %i packets at %i\n"
+                           , networkSystem->AdrToString(chan->remoteAddress)
+                           , chan->dropped
+                           , sequence);
         }
     }
 
@@ -460,8 +460,8 @@ bool idNetworkChainSystemLocal::Process(netchan_t *chan, msg_t *msg) {
         // if we missed a fragment, dump the message
         if(fragmentStart != chan->fragmentLength) {
             if(showdrop->integer || showpackets->integer) {
-                Com_Printf("%s:Dropped a message fragment\n"
-                           , networkSystem->AdrToString(chan->remoteAddress));
+                common->Printf("%s:Dropped a message fragment\n"
+                               , networkSystem->AdrToString(chan->remoteAddress));
             }
 
             // we can still keep the part that we have so far,
@@ -473,8 +473,8 @@ bool idNetworkChainSystemLocal::Process(netchan_t *chan, msg_t *msg) {
         if(fragmentLength < 0 || msg->readcount + fragmentLength > msg->cursize ||
                 chan->fragmentLength + fragmentLength > sizeof(chan->fragmentBuffer)) {
             if(showdrop->integer || showpackets->integer) {
-                Com_Printf("%s:illegal fragment length\n"
-                           , networkSystem->AdrToString(chan->remoteAddress));
+                common->Printf("%s:illegal fragment length\n"
+                               , networkSystem->AdrToString(chan->remoteAddress));
             }
 
             return false;
@@ -491,9 +491,9 @@ bool idNetworkChainSystemLocal::Process(netchan_t *chan, msg_t *msg) {
         }
 
         if(chan->fragmentLength > msg->maxsize) {
-            Com_Printf("%s:fragmentLength %i > msg->maxsize\n"
-                       , networkSystem->AdrToString(chan->remoteAddress),
-                       chan->fragmentLength);
+            common->Printf("%s:fragmentLength %i > msg->maxsize\n"
+                           , networkSystem->AdrToString(chan->remoteAddress),
+                           chan->fragmentLength);
             return false;
         }
 
@@ -628,7 +628,7 @@ void idNetworkChainSystemLocal::SendPacket(netsrc_t sock, sint length,
     // sequenced packets are shown in netchan, so just show oob
     if(showpackets->integer &&
             *const_cast<sint *>(reinterpret_cast<const sint *>(data)) == -1) {
-        Com_Printf("send packet %4i\n", length);
+        common->Printf("send packet %4i\n", length);
     }
 
     if(to.type == NA_LOOPBACK) {

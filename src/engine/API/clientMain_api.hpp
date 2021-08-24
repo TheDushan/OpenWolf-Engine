@@ -30,7 +30,6 @@
 #define __CLIENTMAIN_API_H__
 
 #if defined (GUI) || defined (CGAMEDLL)
-typedef struct netadr_s netadr_t;
 typedef struct msg_t msg_t;
 #endif
 

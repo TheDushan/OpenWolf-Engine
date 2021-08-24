@@ -112,12 +112,12 @@ void idClientWaveSystemLocal::WriteWaveOpen(void) {
     valueType name[MAX_OSPATH], *s;
 
     if(cmdSystem->Argc() > 2) {
-        Com_Printf("wav_record <wavname>\n");
+        common->Printf("wav_record <wavname>\n");
         return;
     }
 
     if(clc.waverecording) {
-        Com_Printf("Already recording a wav file\n");
+        common->Printf("Already recording a wav file\n");
         return;
     }
 
@@ -146,11 +146,11 @@ void idClientWaveSystemLocal::WriteWaveOpen(void) {
         }
     }
 
-    Com_Printf("recording to %s.\n", name);
+    common->Printf("recording to %s.\n", name);
     clc.wavefile = fileSystem->FOpenFileWrite(name);
 
     if(!clc.wavefile) {
-        Com_Printf("ERROR: couldn't open %s for writing.\n", name);
+        common->Printf("ERROR: couldn't open %s for writing.\n", name);
         return;
     }
 
@@ -170,7 +170,7 @@ idClientWaveSystemLocal::WriteWaveClose
 ==============
 */
 void idClientWaveSystemLocal::WriteWaveClose(void) {
-    Com_Printf("Stopped recording\n");
+    common->Printf("Stopped recording\n");
 
     hdr.Subchunk2Size = hdr.NumSamples * hdr.NumChannels *
                         (hdr.BitsPerSample / 8);
@@ -193,7 +193,7 @@ idClientWaveSystemLocal::WavRecord_f
 */
 void idClientWaveSystemLocal::WavRecord_f(void) {
     if(clc.wavefile) {
-        Com_Printf("Already recording a wav file\n");
+        common->Printf("Already recording a wav file\n");
         return;
     }
 
@@ -207,7 +207,7 @@ idClientWaveSystemLocal::WavStopRecord_f
 */
 void idClientWaveSystemLocal::WavStopRecord_f(void) {
     if(!clc.wavefile) {
-        Com_Printf("Not recording a wav file\n");
+        common->Printf("Not recording a wav file\n");
         return;
     }
 

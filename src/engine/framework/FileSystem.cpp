@@ -338,7 +338,7 @@ fileHandle_t idFileSystemLocal::HandleForFile(void) {
         }
     }
 
-    Com_Error(ERR_DROP, "idFileSystemLocal::HandleForFile: none free");
+    common->Error(ERR_DROP, "idFileSystemLocal::HandleForFile: none free");
     return 0;
 }
 
@@ -349,17 +349,18 @@ idFileSystemLocal::FileForHandle
 */
 FILE *idFileSystemLocal::FileForHandle(fileHandle_t f) {
     if(f < 0 || f > MAX_FILE_HANDLES) {
-        Com_Error(ERR_DROP, "idFileSystemLocal::FileForHandle: %d out of range",
-                  f);
+        common->Error(ERR_DROP,
+                      "idFileSystemLocal::FileForHandle: %d out of range",
+                      f);
     }
 
     if(fsh[f].zipFile == true) {
-        Com_Error(ERR_DROP,
-                  "idFileSystemLocal::FileForHandle: can't get FILE on zip file");
+        common->Error(ERR_DROP,
+                      "idFileSystemLocal::FileForHandle: can't get FILE on zip file");
     }
 
     if(!fsh[f].handleFiles.file.o) {
-        Com_Error(ERR_DROP, "idFileSystemLocal::FileForHandle: nullptr");
+        common->Error(ERR_DROP, "idFileSystemLocal::FileForHandle: nullptr");
     }
 
     return fsh[f].handleFiles.file.o;
@@ -474,7 +475,8 @@ sint idFileSystemLocal::CreatePath(pointer OSPath_) {
     // make absolutely sure that it can't back up the path
     // FIXME: is c: allowed???
     if(strstr(OSPath, "..") || strstr(OSPath, "::")) {
-        Com_Printf("WARNING: refusing to create relative path \"%s\"\n", OSPath);
+        common->Printf("WARNING: refusing to create relative path \"%s\"\n",
+                       OSPath);
         return true;
     }
 
@@ -503,11 +505,11 @@ void idFileSystemLocal::FSCopyFile(valueType *fromOSPath,
     sint len;
     uchar8 *buf;
 
-    Com_Printf("copy %s to %s\n", fromOSPath, toOSPath);
+    common->Printf("copy %s to %s\n", fromOSPath, toOSPath);
 
     if(strstr(fromOSPath, "journal.dat") ||
             strstr(fromOSPath, "journaldata.dat")) {
-        Com_Printf("Ignoring journal files\n");
+        common->Printf("Ignoring journal files\n");
         return;
     }
 
@@ -525,7 +527,7 @@ void idFileSystemLocal::FSCopyFile(valueType *fromOSPath,
 
     if(fread(buf, 1, len, f) != len) {
         memorySystem->Free(buf);
-        Com_Error(ERR_FATAL, "Short read in idFileSystemLocal::Copyfiles()\n");
+        common->Error(ERR_FATAL, "Short read in idFileSystemLocal::Copyfiles()\n");
     }
 
     fclose(f);
@@ -544,7 +546,8 @@ void idFileSystemLocal::FSCopyFile(valueType *fromOSPath,
 
     if(fwrite(buf, 1, len, f) != len) {
         memorySystem->Free(buf);
-        Com_Error(ERR_FATAL, "Short write in idFileSystemLocal::Copyfiles()\n");
+        common->Error(ERR_FATAL,
+                      "Short write in idFileSystemLocal::Copyfiles()\n");
     }
 
     fclose(f);
@@ -702,8 +705,8 @@ fileHandle_t idFileSystemLocal::SV_FOpenFileWrite(pointer filename) {
     fileHandle_t f;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::SV_FOpenFileWrite: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::SV_FOpenFileWrite: Filesystem call made without initialization\n");
     }
 
     ospath = BuildOSPath(fs_homepath->string, filename, "");
@@ -713,7 +716,7 @@ fileHandle_t idFileSystemLocal::SV_FOpenFileWrite(pointer filename) {
     fsh[f].zipFile = false;
 
     if(fs_debug->integer) {
-        Com_Printf("FS_SV_FOpenFileWrite: %s\n", ospath);
+        common->Printf("FS_SV_FOpenFileWrite: %s\n", ospath);
     }
 
     if(CreatePath(ospath)) {
@@ -721,15 +724,15 @@ fileHandle_t idFileSystemLocal::SV_FOpenFileWrite(pointer filename) {
     }
 
     if(developer->integer) {
-        Com_Printf("idFileSystemLocal::SV_FOpenFileWrite: writing to: %s\n",
-                   ospath);
+        common->Printf("idFileSystemLocal::SV_FOpenFileWrite: writing to: %s\n",
+                       ospath);
     }
 
     fsh[f].handleFiles.file.o = fopen(ospath, "wb");
 
     if(!fsh[f].handleFiles.file.o) {
-        Com_Printf("idFileSystemLocal::SV_FOpenFileWrite:(%s) failed to open for writing\n",
-                   ospath);
+        common->Printf("idFileSystemLocal::SV_FOpenFileWrite:(%s) failed to open for writing\n",
+                       ospath);
     }
 
     Q_strncpyz(fsh[f].name, filename, sizeof(fsh[f].name));
@@ -756,8 +759,8 @@ sint idFileSystemLocal::SV_FOpenFileRead(pointer filename,
     fileHandle_t f = 0;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::SV_FOpenFileRead: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::SV_FOpenFileRead: Filesystem call made without initialization\n");
     }
 
     f = HandleForFile();
@@ -774,8 +777,8 @@ sint idFileSystemLocal::SV_FOpenFileRead(pointer filename,
     ospath[strlen(ospath) - 1] = '\0';
 
     if(fs_debug->integer) {
-        Com_Printf("idFileSystemLocal::SV_FOpenFileRead (fs_homepath): %s\n",
-                   ospath);
+        common->Printf("idFileSystemLocal::SV_FOpenFileRead (fs_homepath): %s\n",
+                       ospath);
     }
 
     fsh[f].handleFiles.file.o = fopen(ospath, "rb");
@@ -789,8 +792,8 @@ sint idFileSystemLocal::SV_FOpenFileRead(pointer filename,
             ospath[strlen(ospath) - 1] = '\0';
 
             if(fs_debug->integer) {
-                Com_Printf("idFileSystemLocal::SV_FOpenFileRead (fs_basepath): %s\n",
-                           ospath);
+                common->Printf("idFileSystemLocal::SV_FOpenFileRead (fs_basepath): %s\n",
+                               ospath);
             }
 
             fsh[f].handleFiles.file.o = fopen(ospath, "rb");
@@ -820,8 +823,8 @@ void idFileSystemLocal::SV_Rename(pointer from, pointer to) {
     valueType *from_ospath, *to_ospath;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::SV_Rename: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::SV_Rename: Filesystem call made without initialization\n");
     }
 
     // don't let sound stutter
@@ -833,8 +836,8 @@ void idFileSystemLocal::SV_Rename(pointer from, pointer to) {
     to_ospath[strlen(to_ospath) - 1] = '\0';
 
     if(fs_debug->integer) {
-        Com_Printf("idFileSystemLocal::SV_Rename: %s --> %s\n", from_ospath,
-                   to_ospath);
+        common->Printf("idFileSystemLocal::SV_Rename: %s --> %s\n", from_ospath,
+                       to_ospath);
     }
 
     if(rename(from_ospath, to_ospath)) {
@@ -853,8 +856,8 @@ void idFileSystemLocal::Rename(pointer from, pointer to) {
     valueType *from_ospath, *to_ospath;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::Rename: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::Rename: Filesystem call made without initialization\n");
     }
 
     // don't let sound stutter
@@ -864,8 +867,8 @@ void idFileSystemLocal::Rename(pointer from, pointer to) {
     to_ospath = BuildOSPath(fs_homepath->string, fs_gamedir, to);
 
     if(fs_debug->integer) {
-        Com_Printf("idFileSystemLocal::Rename: %s --> %s\n", from_ospath,
-                   to_ospath);
+        common->Printf("idFileSystemLocal::Rename: %s --> %s\n", from_ospath,
+                       to_ospath);
     }
 
     if(rename(from_ospath, to_ospath)) {
@@ -887,8 +890,8 @@ on files returned by idFileSystemLocal::FOpenFile...
 */
 void idFileSystemLocal::FCloseFile(fileHandle_t f) {
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FCloseFile: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FCloseFile: Filesystem call made without initialization\n");
     }
 
     if(fsh[f].zipFile == true) {
@@ -921,8 +924,8 @@ fileHandle_t idFileSystemLocal::FOpenFileWrite(pointer filename) {
     fileHandle_t f;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FOpenFileWrite: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FOpenFileWrite: Filesystem call made without initialization\n");
     }
 
     f = HandleForFile();
@@ -931,7 +934,7 @@ fileHandle_t idFileSystemLocal::FOpenFileWrite(pointer filename) {
     ospath = BuildOSPath(fs_homepath->string, fs_gamedir, filename);
 
     if(fs_debug->integer) {
-        Com_Printf("idFileSystemLocal::FOpenFileWrite: %s\n", ospath);
+        common->Printf("idFileSystemLocal::FOpenFileWrite: %s\n", ospath);
     }
 
     if(CreatePath(ospath)) {
@@ -941,15 +944,15 @@ fileHandle_t idFileSystemLocal::FOpenFileWrite(pointer filename) {
     // enabling the following line causes a recursive function call loop
     // when running with +set logfile 1 +set developer 1
     //if (developer->integer) {
-    //Com_Printf( "writing to: %s\n", ospath );
+    //common->Printf( "writing to: %s\n", ospath );
     //}
     fsh[f].handleFiles.file.o = fopen(ospath, "wb");
 
     Q_strncpyz(fsh[f].name, filename, sizeof(fsh[f].name));
 
     if(!fsh[f].handleFiles.file.o) {
-        Com_Printf("idFileSystemLocal::FOpenFileWrite(%s) failed to open for writing\n",
-                   ospath);
+        common->Printf("idFileSystemLocal::FOpenFileWrite(%s) failed to open for writing\n",
+                       ospath);
     }
 
     fsh[f].handleSync = false;
@@ -971,7 +974,7 @@ fileHandle_t idFileSystemLocal::FOpenFileAppend(pointer filename) {
     fileHandle_t f;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL, "Filesystem call made without initialization\n");
     }
 
     f = HandleForFile();
@@ -985,7 +988,7 @@ fileHandle_t idFileSystemLocal::FOpenFileAppend(pointer filename) {
     ospath = BuildOSPath(fs_homepath->string, fs_gamedir, filename);
 
     if(fs_debug->integer) {
-        Com_Printf("idFileSystemLocal::FOpenFileAppend: %s\n", ospath);
+        common->Printf("idFileSystemLocal::FOpenFileAppend: %s\n", ospath);
     }
 
     if(CreatePath(ospath)) {
@@ -1013,8 +1016,8 @@ sint idFileSystemLocal::FOpenFileDirect(pointer filename,
     valueType *ospath;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FOpenFileDirect: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FOpenFileDirect: Filesystem call made without initialization\n");
     }
 
     *f = HandleForFile();
@@ -1024,13 +1027,13 @@ sint idFileSystemLocal::FOpenFileDirect(pointer filename,
                                          filename);
 
     if(fs_debug->integer) {
-        Com_Printf("idFileSystemLocal::FOpenFileDirect: %s\n", ospath);
+        common->Printf("idFileSystemLocal::FOpenFileDirect: %s\n", ospath);
     }
 
     // enabling the following line causes a recursive function call loop
     // when running with +set logfile 1 +set developer 1
     // if (developer->integer) {
-    //Com_Printf( "writing to: %s\n", ospath );
+    //common->Printf( "writing to: %s\n", ospath );
     //}
     fsh[*f].handleFiles.file.o = fopen(ospath, "rb");
 
@@ -1057,8 +1060,8 @@ fileHandle_t idFileSystemLocal::FOpenFileUpdate(pointer filename,
     fileHandle_t f;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FOpenFileUpdate: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FOpenFileUpdate: Filesystem call made without initialization\n");
     }
 
     f = HandleForFile();
@@ -1068,7 +1071,7 @@ fileHandle_t idFileSystemLocal::FOpenFileUpdate(pointer filename,
                                          filename);
 
     if(fs_debug->integer) {
-        Com_Printf("idFileSystemLocal::FOpenFileWrite: %s\n", ospath);
+        common->Printf("idFileSystemLocal::FOpenFileWrite: %s\n", ospath);
     }
 
     if(fileSystemLocal.CreatePath(ospath)) {
@@ -1078,7 +1081,7 @@ fileHandle_t idFileSystemLocal::FOpenFileUpdate(pointer filename,
     // enabling the following line causes a recursive function call loop
     // when running with +set logfile 1 +set developer 1
     // if (developer->integer) {
-    //Com_Printf( "writing to: %s\n", ospath );
+    //common->Printf( "writing to: %s\n", ospath );
     //}
     fsh[f].handleFiles.file.o = fopen(ospath, "wb");
 
@@ -1194,13 +1197,13 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
     hash = 0;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FOpenFileRead: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FOpenFileRead: Filesystem call made without initialization\n");
     }
 
     if(filename == nullptr) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed");
     }
 
     if(!filename[0]) {
@@ -1337,8 +1340,8 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
                             fsh[*file].handleFiles.file.z = (unzFile) - 1;
 
                             if(developer->integer) {
-                                Com_Printf("Referencing %s due to file %s opened\n", pak->pakFilename,
-                                           filename);
+                                common->Printf("Referencing %s due to file %s opened\n", pak->pakFilename,
+                                               filename);
                             }
 
                             fsh[*file].handleFiles.file.z = (unzFile)0;
@@ -1366,7 +1369,7 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
                         fsh[*file].handleFiles.file.z = unzOpen(pak->pakFilename);
 
                         if(fsh[*file].handleFiles.file.z == nullptr) {
-                            Com_Error(ERR_FATAL, "Couldn't reopen %s", pak->pakFilename);
+                            common->Error(ERR_FATAL, "Couldn't reopen %s", pak->pakFilename);
                         }
                     } else {
                         fsh[*file].handleFiles.file.z = pak->handle;
@@ -1383,8 +1386,8 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
                     fsh[*file].zipFilePos = pakFile->pos;
 
                     if(fs_debug->integer) {
-                        Com_Printf("idFileSystemLocal::FOpenFileRead: %s (found in '%s')\n",
-                                   filename, pak->pakFilename);
+                        common->Printf("idFileSystemLocal::FOpenFileRead: %s (found in '%s')\n",
+                                       filename, pak->pakFilename);
                     }
 
                     // Arnout: let's make this thing work from pakfiles as well
@@ -1400,7 +1403,7 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
 
                         f = FOpenFileWrite( filename );
                         if ( !f ) {
-                            Com_Printf( "idFileSystemLocal::FOpenFileRead Failed to open %s for copying\n", filename );
+                            common->Printf( "idFileSystemLocal::FOpenFileRead Failed to open %s for copying\n", filename );
                         } else {
                             srcData = memorySystem->AllocateTempMemory( len) ;
                             Read( srcData, len, *file );
@@ -1473,9 +1476,9 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
             fsh[*file].zipFile = false;
 
             if(fs_debug->integer) {
-                Com_Printf("idFileSystemLocal::FOpenFileRead: %s (found in '%s/%s')\n",
-                           filename,
-                           dir->path, dir->gamedir);
+                common->Printf("idFileSystemLocal::FOpenFileRead: %s (found in '%s/%s')\n",
+                               filename,
+                               dir->path, dir->gamedir);
             }
 
             return filelength(*file);
@@ -1483,7 +1486,7 @@ sint idFileSystemLocal::FOpenFileRead(pointer filename, fileHandle_t *file,
     }
 
     if(developer->integer) {
-        Com_Printf("Can't find %s\n", filename);
+        common->Printf("Can't find %s\n", filename);
     }
 
     if(fs_missing->integer && missingFiles) {
@@ -1597,7 +1600,7 @@ bool idFileSystemLocal::CL_ExtractFromPakFile(pointer base,
         f = FOpenFileWrite(filename);
 
         if(!f) {
-            Com_Printf("Failed to open %s\n", filename);
+            common->Printf("Failed to open %s\n", filename);
             return false;
         }
 
@@ -1640,8 +1643,8 @@ sint idFileSystemLocal::DeleteDir(valueType *dirname, bool nonEmpty,
     static valueType *root = "/";
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::DeleteDir: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::DeleteDir: Filesystem call made without initialization\n");
     }
 
     if(!dirname || dirname[0] == 0) {
@@ -1751,8 +1754,8 @@ sint idFileSystemLocal::Delete(valueType *filename) {
     sint stat;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::Delete: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::Delete: Filesystem call made without initialization\n");
     }
 
     if(!filename || filename[0] == 0) {
@@ -1811,13 +1814,13 @@ Properly handles partial reads
 */
 sint idFileSystemLocal::Read2(void *buffer, sint len, fileHandle_t f) {
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::Read2: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::Read2: Filesystem call made without initialization\n");
     }
 
     if(f < 1 || f >= MAX_FILE_HANDLES) {
         if(developer->integer) {
-            Com_Printf("idFileSystemLocal::Read2: handle out of range\n");
+            common->Printf("idFileSystemLocal::Read2: handle out of range\n");
         }
 
         return 0;
@@ -1848,8 +1851,8 @@ sint idFileSystemLocal::Read(void *buffer, sint len, fileHandle_t f) {
     uchar8 *buf;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::Read: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::Read: Filesystem call made without initialization\n");
     }
 
     if(!f) {
@@ -1876,7 +1879,7 @@ sint idFileSystemLocal::Read(void *buffer, sint len, fileHandle_t f) {
                     tries = 1;
                 } else {
                     return len -
-                           remaining;   //Com_Error (ERR_FATAL, "idFileSystemLocal::Read: 0 bytes read");
+                           remaining;   //common->Error (ERR_FATAL, "idFileSystemLocal::Read: 0 bytes read");
                 }
             }
 
@@ -1905,8 +1908,8 @@ sint idFileSystemLocal::Write(const void *buffer, sint len,
     FILE *f;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::Write: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::Write: Filesystem call made without initialization\n");
     }
 
     if(!h) {
@@ -1915,7 +1918,7 @@ sint idFileSystemLocal::Write(const void *buffer, sint len,
 
     if(h < 1 || h >= MAX_FILE_HANDLES) {
         if(developer->integer) {
-            Com_Printf("idFileSystemLocal::Write: handle out of range\n");
+            common->Printf("idFileSystemLocal::Write: handle out of range\n");
         }
 
         return 0;
@@ -1935,15 +1938,15 @@ sint idFileSystemLocal::Write(const void *buffer, sint len,
             if(!tries) {
                 tries = 1;
             } else {
-                Com_Printf("idFileSystemLocal::Write: 0 bytes written (%d attempted)\n",
-                           block);
+                common->Printf("idFileSystemLocal::Write: 0 bytes written (%d attempted)\n",
+                               block);
                 return 0;
             }
         }
 
         if(written < 0) {
-            Com_Printf("idFileSystemLocal::Write: %d bytes written (%d attempted)\n",
-                       written, block);
+            common->Printf("idFileSystemLocal::Write: %d bytes written (%d attempted)\n",
+                           written, block);
             return 0;
         }
 
@@ -1983,8 +1986,8 @@ sint idFileSystemLocal::Seek(fileHandle_t f, sint32 offset, sint origin) {
     sint _origin;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::Seek: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::Seek: Filesystem call made without initialization\n");
         return -1;
     }
 
@@ -2001,8 +2004,9 @@ sint idFileSystemLocal::Seek(fileHandle_t f, sint32 offset, sint origin) {
         sint remainder = offset;
 
         if(offset < 0 || origin == FS_SEEK_END) {
-            Com_Error(ERR_FATAL, "Negative offsets and FS_SEEK_END not implemented "
-                      "for idFileSystemLocal::Seek on pk3 file contents\n");
+            common->Error(ERR_FATAL,
+                          "Negative offsets and FS_SEEK_END not implemented "
+                          "for idFileSystemLocal::Seek on pk3 file contents\n");
             return -1;
         }
 
@@ -2025,7 +2029,7 @@ sint idFileSystemLocal::Seek(fileHandle_t f, sint32 offset, sint origin) {
                 break;
 
             default:
-                Com_Error(ERR_FATAL, "Bad origin in idFileSystemLocal::Seek\n");
+                common->Error(ERR_FATAL, "Bad origin in idFileSystemLocal::Seek\n");
                 return -1;
                 break;
         }
@@ -2048,7 +2052,7 @@ sint idFileSystemLocal::Seek(fileHandle_t f, sint32 offset, sint origin) {
 
             default:
                 _origin = SEEK_CUR;
-                Com_Error(ERR_FATAL, "Bad origin in idFileSystemLocal::Seek\n");
+                common->Error(ERR_FATAL, "Bad origin in idFileSystemLocal::Seek\n");
                 break;
         }
 
@@ -2074,13 +2078,13 @@ sint idFileSystemLocal::FileIsInPAK(pointer filename, sint *pChecksum) {
     sint32 hash = 0;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FileIsInPAK: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FileIsInPAK: Filesystem call made without initialization\n");
     }
 
     if(!filename) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FOpenFileRead: nullptr 'filename' parameter passed\n");
     }
 
     // qpaths are not supposed to have a leading slash
@@ -2149,12 +2153,12 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
     sint len;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::ReadFile: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::ReadFile: Filesystem call made without initialization\n");
     }
 
     if(!qpath || !qpath[0]) {
-        Com_Error(ERR_FATAL, "idFileSystemLocal::ReadFile with empty name\n");
+        common->Error(ERR_FATAL, "idFileSystemLocal::ReadFile with empty name\n");
     }
 
     buf = nullptr; // quiet compiler warning
@@ -2168,7 +2172,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
             sint r;
 
             if(developer->integer) {
-                Com_Printf("Loading %s from journal file.\n", qpath);
+                common->Printf("Loading %s from journal file.\n", qpath);
             }
 
             r = Read(&len, sizeof(len), com_journalDataFile);
@@ -2204,7 +2208,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
             r = Read(buf, len, com_journalDataFile);
 
             if(r != len) {
-                Com_Error(ERR_FATAL, "Read from journalDataFile failed");
+                common->Error(ERR_FATAL, "Read from journalDataFile failed");
             }
 
             fs_loadCount++;
@@ -2230,7 +2234,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
         // if we are journalling and it is a config file, write a zero to the journal file
         if(isConfig && journal && journal->integer == 1) {
             if(developer->integer) {
-                Com_Printf("Writing zero for %s to journal file.\n", qpath);
+                common->Printf("Writing zero for %s to journal file.\n", qpath);
             }
 
             len = 0;
@@ -2244,7 +2248,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
     if(!buffer) {
         if(isConfig && journal && journal->integer == 1) {
             if(developer->integer) {
-                Com_Printf("Writing len for %s to journal file.\n", qpath);
+                common->Printf("Writing len for %s to journal file.\n", qpath);
             }
 
             Write(&len, sizeof(len), com_journalDataFile);
@@ -2270,7 +2274,7 @@ sint idFileSystemLocal::ReadFile(pointer qpath, void **buffer) {
     // if we are journalling and it is a config file, write it to the journal file
     if(isConfig && journal && journal->integer == 1) {
         if(developer->integer) {
-            Com_Printf("Writing %s to journal file.\n", qpath);
+            common->Printf("Writing %s to journal file.\n", qpath);
         }
 
         Write(&len, sizeof(len), com_journalDataFile);
@@ -2288,12 +2292,12 @@ idFileSystemLocal::FreeFile
 */
 void idFileSystemLocal::FreeFile(void *buffer) {
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FreeFile: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FreeFile: Filesystem call made without initialization\n");
     }
 
     if(!buffer) {
-        Com_Error(ERR_FATAL, "idFileSystemLocal::FreeFile( nullptr )");
+        common->Error(ERR_FATAL, "idFileSystemLocal::FreeFile( nullptr )");
     }
 
     fs_loadStack--;
@@ -2318,17 +2322,18 @@ void idFileSystemLocal::WriteFile(pointer qpath, const void *buffer,
     fileHandle_t f;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL, "Filesystem call made without initialization\n");
     }
 
     if(!qpath || !buffer) {
-        Com_Error(ERR_FATAL, "idFileSystemLocal::WriteFile: nullptr parameter");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::WriteFile: nullptr parameter");
     }
 
     f = FOpenFileWrite(qpath);
 
     if(!f) {
-        Com_Printf("Failed to open %s\n", qpath);
+        common->Printf("Failed to open %s\n", qpath);
         return;
     }
 
@@ -2382,7 +2387,7 @@ pack_t *idFileSystemLocal::LoadZipFile(pointer zipfile, pointer basename) {
         if(err != UNZ_OK) {
             // it's better to fail and have the user notified than to have a half-loaded pk3,
             // or worse a failed pack referenced that results in further failures (yes it does happen)
-            Com_Error(ERR_FATAL, "Corrupted pk3 file \'%s\'", basename);
+            common->Error(ERR_FATAL, "Corrupted pk3 file \'%s\'", basename);
             break;
         }
 
@@ -2438,7 +2443,7 @@ pack_t *idFileSystemLocal::LoadZipFile(pointer zipfile, pointer basename) {
                                     sizeof(filename_inzip), nullptr, 0, nullptr, 0);
 
         if(err != UNZ_OK) {
-            Com_Error(ERR_FATAL, "Corrupted pk3 file \'%s\'", basename);
+            common->Error(ERR_FATAL, "Corrupted pk3 file \'%s\'", basename);
             break;
         }
 
@@ -2556,8 +2561,8 @@ valueType **idFileSystemLocal::ListFilteredFiles(pointer path,
     valueType zpath[MAX_ZPATH];
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::ListFilteredFiles: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::ListFilteredFiles: Filesystem call made without initialization\n");
     }
 
     if(!path) {
@@ -2601,7 +2606,7 @@ valueType **idFileSystemLocal::ListFilteredFiles(pointer path,
 
                 if(filter) {
                     // case insensitive
-                    if(!Com_FilterPath(filter, name, false)) {
+                    if(!common->FilterPath(filter, name, false)) {
                         continue;
                     }
 
@@ -2700,8 +2705,8 @@ void idFileSystemLocal::FreeFileList(valueType **list) {
     sint i;
 
     if(!fs_searchpaths) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::FreeFileList: Filesystem call made without initialization\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::FreeFileList: Filesystem call made without initialization\n");
     }
 
     if(!list) {
@@ -2974,7 +2979,7 @@ void idFileSystemLocal::Dir_f(void) {
     uint64 ndirs;
 
     if(cmdSystem->Argc() < 2 || cmdSystem->Argc() > 3) {
-        Com_Printf("usage: dir <directory> [extension]\n");
+        common->Printf("usage: dir <directory> [extension]\n");
         return;
     }
 
@@ -2986,13 +2991,13 @@ void idFileSystemLocal::Dir_f(void) {
         extension = cmdSystem->Argv(2);
     }
 
-    Com_Printf("Directory of %s %s\n", path, extension);
-    Com_Printf("---------------\n");
+    common->Printf("Directory of %s %s\n", path, extension);
+    common->Printf("---------------\n");
 
     dirnames = fileSystemLocal.ListFiles(path, extension, &ndirs);
 
     for(i = 0; i < ndirs; i++) {
-        Com_Printf("%s\n", dirnames[i]);
+        common->Printf("%s\n", dirnames[i]);
     }
 
     fileSystemLocal.FreeFileList(dirnames);
@@ -3101,14 +3106,14 @@ void idFileSystemLocal::NewDir_f(void) {
     sint i;
 
     if(cmdSystem->Argc() < 2) {
-        Com_Printf("usage: fdir <filter>\n");
-        Com_Printf("example: fdir *q3dm*.bsp\n");
+        common->Printf("usage: fdir <filter>\n");
+        common->Printf("example: fdir *q3dm*.bsp\n");
         return;
     }
 
     filter = cmdSystem->Argv(1);
 
-    Com_Printf("---------------\n");
+    common->Printf("---------------\n");
 
     dirnames = fileSystemLocal.ListFilteredFiles("", "", filter, &ndirs);
 
@@ -3116,10 +3121,10 @@ void idFileSystemLocal::NewDir_f(void) {
 
     for(i = 0; i < ndirs; i++) {
         fileSystemLocal.ConvertPath(dirnames[i]);
-        Com_Printf("%s\n", dirnames[i]);
+        common->Printf("%s\n", dirnames[i]);
     }
 
-    Com_Printf("%d files listed\n", ndirs);
+    common->Printf("%d files listed\n", ndirs);
 
     fileSystemLocal.FreeFileList(dirnames);
 }
@@ -3137,30 +3142,30 @@ void idFileSystemLocal::Path_f(void) {
         return;
     }
 
-    Com_Printf("Current search path:\n");
+    common->Printf("Current search path:\n");
 
     for(s = fs_searchpaths; s; s = s->next) {
         if(s->pack) {
-            //Com_Printf( "%s %X (%i files)\n", s->pack->pakFilename, s->pack->checksum, s->pack->numfiles );
-            Com_Printf("%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles);
+            //common->Printf( "%s %X (%i files)\n", s->pack->pakFilename, s->pack->checksum, s->pack->numfiles );
+            common->Printf("%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles);
 
             if(fs_numServerPaks) {
                 if(!fileSystemLocal.PakIsPure(s->pack)) {
-                    Com_Printf("    not on the pure list\n");
+                    common->Printf("    not on the pure list\n");
                 } else {
-                    Com_Printf("    on the pure list\n");
+                    common->Printf("    on the pure list\n");
                 }
             }
         } else {
-            Com_Printf("%s/%s\n", s->dir->path, s->dir->gamedir);
+            common->Printf("%s/%s\n", s->dir->path, s->dir->gamedir);
         }
     }
 
-    Com_Printf("\n");
+    common->Printf("\n");
 
     for(i = 1 ; i < MAX_FILE_HANDLES ; i++) {
         if(fsh[i].handleFiles.file.o) {
-            Com_Printf("handle %i: %s\n", i, fsh[i].name);
+            common->Printf("handle %i: %s\n", i, fsh[i].name);
         }
     }
 }
@@ -3177,7 +3182,7 @@ void idFileSystemLocal::TouchFile_f(void) {
     fileHandle_t f;
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: touchFile <file>\n");
+        common->Printf("Usage: touchFile <file>\n");
         return;
     }
 
@@ -3208,7 +3213,7 @@ void idFileSystemLocal::Which_f(void) {
     filename = cmdSystem->Argv(1);
 
     if(!filename[0]) {
-        Com_Printf("Usage: which <file>\n");
+        common->Printf("Usage: which <file>\n");
         return;
     }
 
@@ -3233,7 +3238,8 @@ void idFileSystemLocal::Which_f(void) {
                 // case and separator insensitive comparisons
                 if(!fileSystemLocal.FilenameCompare(pakFile->name, filename)) {
                     // found it!
-                    Com_Printf("File \"%s\" found in \"%s\"\n", filename, pak->pakFilename);
+                    common->Printf("File \"%s\" found in \"%s\"\n", filename,
+                                   pak->pakFilename);
                     return;
                 }
 
@@ -3256,12 +3262,12 @@ void idFileSystemLocal::Which_f(void) {
 
             fileSystemLocal.ReplaceSeparators(buf);
 
-            Com_Printf("File \"%s\" found at \"%s\"\n", filename, buf);
+            common->Printf("File \"%s\" found at \"%s\"\n", filename, buf);
             return;
         }
     }
 
-    Com_Printf("File not found: \"%s\"\n", filename);
+    common->Printf("File not found: \"%s\"\n", filename);
     return;
 }
 
@@ -3364,8 +3370,9 @@ void idFileSystemLocal::AddGameDirectory(pointer path, pointer dir) {
     pakdirsi = 0;
 
     // Log may not be initialized at this point, but it will still show in the console.
-    Com_Printf("idFileSystemLocal::AddGameDirectory: \"%s\" \"%s\"\n", path,
-               dir);
+    common->Printf("idFileSystemLocal::AddGameDirectory: \"%s\" \"%s\"\n",
+                   path,
+                   dir);
 
     while((pakfilesi < numfiles) || (pakdirsi < numdirs)) {
         // Check if a pakfile or pakdir comes next
@@ -3386,7 +3393,7 @@ void idFileSystemLocal::AddGameDirectory(pointer path, pointer dir) {
         if(pakwhich) {
             // The next .pk3 file is before the next .pk3dir
             pakfile = fileSystemLocal.BuildOSPath(path, dir, pakfiles[pakfilesi]);
-            Com_Printf("    pk3: %s\n", pakfile);
+            common->Printf("    pk3: %s\n", pakfile);
 
             if((pak = fileSystemLocal.LoadZipFile(pakfile,
                                                   pakfiles[pakfilesi])) == 0) {
@@ -3420,7 +3427,7 @@ void idFileSystemLocal::AddGameDirectory(pointer path, pointer dir) {
             }
 
             pakfile = fileSystemLocal.BuildOSPath(path, dir, pakdirs[pakdirsi]);
-            Com_Printf(" pk3dir: %s\n", pakfile);
+            common->Printf(" pk3dir: %s\n", pakfile);
 
             // add the directory to the search path
             search = (searchpath_t *)memorySystem->Malloc(sizeof(searchpath_t));
@@ -3545,8 +3552,8 @@ bool idFileSystemLocal::VerifyOfficialPaks(void) {
     if(numOfficialPaksOnServer != numOfficialPaksLocal) {
         for(i = 0; i < numOfficialPaksOnServer; i++) {
             if(officialpaks[i].ok != true) {
-                Com_Printf("ERROR: Missing/corrupt official pak file %s\n",
-                           officialpaks[i].pakname);
+                common->Printf("ERROR: Missing/corrupt official pak file %s\n",
+                               officialpaks[i].pakname);
             }
         }
 
@@ -3666,7 +3673,7 @@ bool idFileSystemLocal::ComparePaks(valueType *neededpaks, sint len,
     }
 
     if(*neededpaks) {
-        Com_Printf("Need paks: %s\n", neededpaks);
+        common->Printf("Need paks: %s\n", neededpaks);
         return true;
     }
 
@@ -3777,7 +3784,7 @@ void idFileSystemLocal::Startup(pointer gameName) {
     pointer homePath;
     valueType tmp[MAX_OSPATH];
 
-    Com_Printf("----- idFileSystemLocal::Startup -----\n");
+    common->Printf("----- idFileSystemLocal::Startup -----\n");
 
     homePath = idsystem->DefaultHomePath(tmp, sizeof(tmp));
 
@@ -3874,13 +3881,13 @@ void idFileSystemLocal::Startup(pointer gameName) {
 
     fs_game->modified = false; // We just loaded, it's not modified
 
-    Com_Printf("----------------------\n");
+    common->Printf("----------------------\n");
 
     if(missingFiles == nullptr) {
         missingFiles = fopen("\\missing.txt", "ab");
     }
 
-    Com_Printf("%d files in pk3 files\n", fs_packFiles);
+    common->Printf("%d files in pk3 files\n", fs_packFiles);
 }
 
 
@@ -4004,7 +4011,7 @@ pointer idFileSystemLocal::LoadedPakPureChecksums(void) {
     // DO_LIGHT_DEDICATED
     // only comment out when you need a new pure checksums string
     // if (developer->integer) {
-    //Com_Printf("idFileSystemLocal::LoadPakPureChecksums: %s\n", info);
+    //common->Printf("idFileSystemLocal::LoadPakPureChecksums: %s\n", info);
     //}
 
     return info;
@@ -4184,14 +4191,14 @@ void idFileSystemLocal::PureServerSetLoadedPaks(pointer pakSums,
 
     if(fs_numServerPaks) {
         if(developer->integer) {
-            Com_Printf("Connected to a pure server.\n");
+            common->Printf("Connected to a pure server.\n");
         }
     } else {
         if(fs_reordered) {
             // show_bug.cgi?id=540
             // force a restart to make sure the search order will be correct
             if(developer->integer) {
-                Com_Printf("FS search reorder is required\n");
+                common->Printf("FS search reorder is required\n");
             }
 
             Restart(fs_checksumFeed);
@@ -4271,7 +4278,8 @@ void idFileSystemLocal::PureServerSetReferencedPaks(pointer pakSums,
     }
 
     if(c != d) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Corrupted server pak references\n");
+        common->Printf(S_COLOR_YELLOW
+                       "WARNING: Corrupted server pak references\n");
     }
 
     fs_numServerReferencedPaks = MIN(c, d);
@@ -4290,13 +4298,13 @@ void idFileSystemLocal::InitFilesystem(void) {
     // we have to specially handle this, because normal command
     // line variable sets don't happen until after the filesystem
     // has already been initialized
-    Com_StartupVariable("fs_basepath");
-    Com_StartupVariable("fs_buildpath");
-    Com_StartupVariable("fs_buildgame");
-    Com_StartupVariable("fs_homepath");
-    Com_StartupVariable("fs_game");
-    Com_StartupVariable("fs_copyfiles");
-    Com_StartupVariable("fs_restrict");
+    common->StartupVariable("fs_basepath");
+    common->StartupVariable("fs_buildpath");
+    common->StartupVariable("fs_buildgame");
+    common->StartupVariable("fs_homepath");
+    common->StartupVariable("fs_game");
+    common->StartupVariable("fs_copyfiles");
+    common->StartupVariable("fs_restrict");
 
     // try to start up normally
     Startup(BASEGAME);
@@ -4308,8 +4316,8 @@ void idFileSystemLocal::InitFilesystem(void) {
     // graphics screen when the font fails to load
     // Arnout: we want the nice error message here as well
     if(ReadFile("default.cfg", nullptr) <= 0) {
-        Com_Error(ERR_FATAL,
-                  "Couldn't load default.cfg - I am missing essential files - verify your installation?");
+        common->Error(ERR_FATAL,
+                      "Couldn't load default.cfg - I am missing essential files - verify your installation?");
     }
 
 #endif
@@ -4362,36 +4370,36 @@ void idFileSystemLocal::Restart(sint checksumFeed) {
             lastValidGame[0] = '\0';
             cvarSystem->Set("fs_restrict", "0");
             Restart(checksumFeed);
-            Com_Error(ERR_DROP, "Invalid game folder\n");
+            common->Error(ERR_DROP, "Invalid game folder\n");
             return;
         }
 
         // TTimo - added some verbosity, 'couldn't load default.cfg' confuses the hell out of users
-        Com_Error(ERR_FATAL,
-                  "Couldn't load default.cfg - I am missing essential files - verify your installation?");
+        common->Error(ERR_FATAL,
+                      "Couldn't load default.cfg - I am missing essential files - verify your installation?");
     }
 
     // bk010116 - new check before safeMode
     if(Q_stricmp(fs_game->string, lastValidGame)) {
         // skip the wolfconfig.cfg if "safe" is on the command line
-        if(!Com_SafeMode()) {
+        if(!common->SafeMode()) {
             valueType *cl_profileStr = cl_profile->string;
 
             if(com_gameInfo.usesProfiles && cl_profileStr[0]) {
                 // bani - check existing pid file and make sure it's ok
-                if(!Com_CheckProfile(va("profiles/%s/profile.pid", cl_profileStr))) {
+                if(!common->CheckProfile(va("profiles/%s/profile.pid", cl_profileStr))) {
 #ifndef _DEBUG
-                    Com_Printf("^3WARNING: profile.pid found for profile '%s' - system settings will revert to defaults\n",
-                               cl_profileStr);
+                    common->Printf("^3WARNING: profile.pid found for profile '%s' - system settings will revert to defaults\n",
+                                   cl_profileStr);
                     // ydnar: set crashed state
                     cmdBufferSystem->AddText("set com_crashed 1\n");
 #endif
                 }
 
                 // bani - write a new one
-                if(!Com_WriteProfile(va("profiles/%s/profile.pid", cl_profileStr))) {
-                    Com_Printf("^3WARNING: couldn't write profiles/%s/profile.pid\n",
-                               cl_profileStr);
+                if(!common->WriteProfile(va("profiles/%s/profile.pid", cl_profileStr))) {
+                    common->Printf("^3WARNING: couldn't write profiles/%s/profile.pid\n",
+                                   cl_profileStr);
                 }
 
                 // exec the config
@@ -4489,7 +4497,7 @@ sint idFileSystemLocal::FOpenFileByMode(pointer qpath, fileHandle_t *f,
             break;
 
         default:
-            Com_Error(ERR_FATAL, "idFileSystemLocal::FOpenFileByMode: bad mode");
+            common->Error(ERR_FATAL, "idFileSystemLocal::FOpenFileByMode: bad mode");
             return -1;
     }
 
@@ -4611,8 +4619,8 @@ uint idFileSystemLocal::ChecksumOSPath(valueType *OSPath) {
     buf = static_cast<uchar8 *>(malloc(len));
 
     if(fread(buf, 1, len, f) != len) {
-        Com_Error(ERR_FATAL,
-                  "idFileSystemLocal::ChecksumOSPath: short read in idFileSystemLocal::ChecksumOSPath\n");
+        common->Error(ERR_FATAL,
+                      "idFileSystemLocal::ChecksumOSPath: short read in idFileSystemLocal::ChecksumOSPath\n");
     }
 
     fclose(f);

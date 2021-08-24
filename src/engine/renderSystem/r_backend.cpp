@@ -179,7 +179,7 @@ void GL_State(uint32 stateBits) {
                     break;
 
                 default:
-                    Com_Error(ERR_DROP, "GL_State: invalid src blend state bits");
+                    common->Error(ERR_DROP, "GL_State: invalid src blend state bits");
                     break;
             }
 
@@ -217,7 +217,7 @@ void GL_State(uint32 stateBits) {
                     break;
 
                 default:
-                    Com_Error(ERR_DROP, "GL_State: invalid dst blend state bits");
+                    common->Error(ERR_DROP, "GL_State: invalid dst blend state bits");
                     break;
             }
 
@@ -714,8 +714,8 @@ void idRenderSystemLocal::DrawStretchRaw(sint x, sint y, sint w, sint h,
     }
 
     if((1 << i) != cols || (1 << j) != rows) {
-        Com_Error(ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i",
-                  cols, rows);
+        common->Error(ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i",
+                      cols, rows);
     }
 
     renderSystemLocal.UploadCinematic(w, h, cols, rows, data, client, dirty);

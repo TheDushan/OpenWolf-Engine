@@ -121,8 +121,8 @@ trans_t *idClientLocalizationSystemLocal::LookupTrans(valueType *original,
         if(!Q_stricmp(original, t->original)) {
             if(isLoading) {
                 if(developer->integer) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: Duplicate string found: \"%s\"\n",
-                               original);
+                    common->Printf(S_COLOR_YELLOW "WARNING: Duplicate string found: \"%s\"\n",
+                                   original);
                 }
             }
 
@@ -140,7 +140,7 @@ trans_t *idClientLocalizationSystemLocal::LookupTrans(valueType *original,
 
     if(cl_debugTranslation->integer >= 1 && !isLoading) {
         if(developer->integer) {
-            Com_Printf("Missing translation: \'%s\'\n", original);
+            common->Printf("Missing translation: \'%s\'\n", original);
         }
     }
 
@@ -167,8 +167,8 @@ void idClientLocalizationSystemLocal::SaveTransTable(pointer fileName,
     sint             i, j, len;
 
     if(cl.corruptedTranslationFile) {
-        Com_Printf(S_COLOR_YELLOW
-                   "WARNING: Cannot save corrupted translation file. Please reload first.");
+        common->Printf(S_COLOR_YELLOW
+                       "WARNING: Cannot save corrupted translation file. Please reload first.");
         return;
     }
 
@@ -255,9 +255,9 @@ void idClientLocalizationSystemLocal::SaveTransTable(pointer fileName,
         }
     }
 
-    Com_Printf("Saved translation table.\nTotal = %i, Translated = %i, Untranslated = %i, aveblen = %2.2f, maxblen = %i\n",
-               transnum + untransnum, transnum, untransnum,
-               static_cast<float32>(avebucketlen) / bucketnum, maxbucketlen);
+    common->Printf("Saved translation table.\nTotal = %i, Translated = %i, Untranslated = %i, aveblen = %2.2f, maxblen = %i\n",
+                   transnum + untransnum, transnum, untransnum,
+                   static_cast<float32>(avebucketlen) / bucketnum, maxbucketlen);
 
     fileSystem->FCloseFile(f);
 }
@@ -387,7 +387,7 @@ void idClientLocalizationSystemLocal::LoadTransTable(pointer fileName) {
         Q_strcpy_s(original, token);
 
         if(cl_debugTranslation->integer == 3) {
-            Com_Printf("%i Loading: \"%s\"\n", count, original);
+            common->Printf("%i Loading: \"%s\"\n", count, original);
         }
 
         // french
@@ -402,8 +402,8 @@ void idClientLocalizationSystemLocal::LoadTransTable(pointer fileName) {
         Q_strcpy_s(translated[LANGUAGE_FRENCH], token);
 
         if(!CheckTranslationString(original, translated[LANGUAGE_FRENCH])) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Translation formatting doesn't match up with English version!\n");
+            common->Printf(S_COLOR_YELLOW
+                           "WARNING: Translation formatting doesn't match up with English version!\n");
             aborted = true;
             break;
         }
@@ -420,8 +420,8 @@ void idClientLocalizationSystemLocal::LoadTransTable(pointer fileName) {
         Q_strcpy_s(translated[LANGUAGE_GERMAN], token);
 
         if(!CheckTranslationString(original, translated[LANGUAGE_GERMAN])) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Translation formatting doesn't match up with English version!\n");
+            common->Printf(S_COLOR_YELLOW
+                           "WARNING: Translation formatting doesn't match up with English version!\n");
             aborted = true;
             break;
         }
@@ -438,8 +438,8 @@ void idClientLocalizationSystemLocal::LoadTransTable(pointer fileName) {
         Q_strcpy_s(translated[LANGUAGE_ITALIAN], token);
 
         if(!CheckTranslationString(original, translated[LANGUAGE_ITALIAN])) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Translation formatting doesn't match up with English version!\n");
+            common->Printf(S_COLOR_YELLOW
+                           "WARNING: Translation formatting doesn't match up with English version!\n");
             aborted = true;
             break;
         }
@@ -456,8 +456,8 @@ void idClientLocalizationSystemLocal::LoadTransTable(pointer fileName) {
         Q_strcpy_s(translated[LANGUAGE_SPANISH], token);
 
         if(!CheckTranslationString(original, translated[LANGUAGE_SPANISH])) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Translation formatting doesn't match up with English version!\n");
+            common->Printf(S_COLOR_YELLOW
+                           "WARNING: Translation formatting doesn't match up with English version!\n");
             aborted = true;
             break;
         }
@@ -503,11 +503,11 @@ void idClientLocalizationSystemLocal::LoadTransTable(pointer fileName) {
             }
         }
 
-        Com_Printf(S_COLOR_YELLOW "WARNING: Problem loading %s on line %i\n",
-                   fileName, line);
+        common->Printf(S_COLOR_YELLOW "WARNING: Problem loading %s on line %i\n",
+                       fileName, line);
         cl.corruptedTranslationFile = true;
     } else {
-        Com_Printf("Loaded %i translation strings from %s\n", count, fileName);
+        common->Printf("Loaded %i translation strings from %s\n", count, fileName);
     }
 
     // cleanup
@@ -709,7 +709,7 @@ void idClientLocalizationSystemLocal::SaveNewTranslations_f(void) {
     valueType fileName[512];
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("usage: SaveNewTranslations <filename>\n");
+        common->Printf("usage: SaveNewTranslations <filename>\n");
         return;
     }
 

@@ -54,64 +54,65 @@ idSystemLocal::PrintKey
 void idSystemLocal::PrintKey(const SDL_Keysym *keysym, keyNum_t key,
                              bool down) {
     if(down) {
-        Com_Printf("+ ");
+        common->Printf("+ ");
     } else {
-        Com_Printf("  ");
+        common->Printf("  ");
     }
 
-    Com_Printf("Scancode: 0x%02x(%s) Sym: 0x%02x(%s)", keysym->scancode,
-               SDL_GetScancodeName(keysym->scancode), keysym->sym,
-               SDL_GetKeyName(keysym->sym));
+    common->Printf("Scancode: 0x%02x(%s) Sym: 0x%02x(%s)", keysym->scancode,
+                   SDL_GetScancodeName(keysym->scancode), keysym->sym,
+                   SDL_GetKeyName(keysym->sym));
 
     if(keysym->mod & KMOD_LSHIFT) {
-        Com_Printf(" KMOD_LSHIFT");
+        common->Printf(" KMOD_LSHIFT");
     }
 
     if(keysym->mod & KMOD_RSHIFT) {
-        Com_Printf(" KMOD_RSHIFT");
+        common->Printf(" KMOD_RSHIFT");
     }
 
     if(keysym->mod & KMOD_LCTRL) {
-        Com_Printf(" KMOD_LCTRL");
+        common->Printf(" KMOD_LCTRL");
     }
 
     if(keysym->mod & KMOD_RCTRL) {
-        Com_Printf(" KMOD_RCTRL");
+        common->Printf(" KMOD_RCTRL");
     }
 
     if(keysym->mod & KMOD_LALT) {
-        Com_Printf(" KMOD_LALT");
+        common->Printf(" KMOD_LALT");
     }
 
     if(keysym->mod & KMOD_RALT) {
-        Com_Printf(" KMOD_RALT");
+        common->Printf(" KMOD_RALT");
     }
 
     if(keysym->mod & KMOD_LGUI) {
-        Com_Printf(" KMOD_LGUI");
+        common->Printf(" KMOD_LGUI");
     }
 
     if(keysym->mod & KMOD_RGUI) {
-        Com_Printf(" KMOD_RGUI");
+        common->Printf(" KMOD_RGUI");
     }
 
     if(keysym->mod & KMOD_NUM) {
-        Com_Printf(" KMOD_NUM");
+        common->Printf(" KMOD_NUM");
     }
 
     if(keysym->mod & KMOD_CAPS) {
-        Com_Printf(" KMOD_CAPS");
+        common->Printf(" KMOD_CAPS");
     }
 
     if(keysym->mod & KMOD_MODE) {
-        Com_Printf(" KMOD_MODE");
+        common->Printf(" KMOD_MODE");
     }
 
     if(keysym->mod & KMOD_RESERVED) {
-        Com_Printf(" KMOD_RESERVED");
+        common->Printf(" KMOD_RESERVED");
     }
 
-    Com_Printf(" Q:0x%02x(%s)\n", key, clientKeysSystem->KeynumToString(key));
+    common->Printf(" Q:0x%02x(%s)\n", key,
+                   clientKeysSystem->KeynumToString(key));
 }
 
 /*
@@ -437,8 +438,8 @@ void idSystemLocal::GobbleMotionEvents(void) {
     }
 
     if(val < 0) {
-        Com_Printf("idSystemLocal::GobbleMotionEvents failed: %s\n",
-                   SDL_GetError());
+        common->Printf("idSystemLocal::GobbleMotionEvents failed: %s\n",
+                       SDL_GetError());
     }
 }
 
@@ -539,26 +540,26 @@ void idSystemLocal::InitJoystick(void) {
 
     if(!SDL_WasInit(SDL_INIT_JOYSTICK)) {
         if(developer->integer) {
-            Com_Printf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
+            common->Printf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
         }
 
         if(SDL_Init(SDL_INIT_JOYSTICK) == -1) {
             if(developer->integer) {
-                Com_Printf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
+                common->Printf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
             }
 
             return;
         }
 
         if(developer->integer) {
-            Com_Printf("SDL_Init(SDL_INIT_JOYSTICK) passed.\n");
+            common->Printf("SDL_Init(SDL_INIT_JOYSTICK) passed.\n");
         }
     }
 
     total = SDL_NumJoysticks();
 
     if(developer->integer) {
-        Com_Printf("%d possible joysticks\n", total);
+        common->Printf("%d possible joysticks\n", total);
     }
 
     // Print list and build cvar to allow ui to select joystick.
@@ -569,7 +570,7 @@ void idSystemLocal::InitJoystick(void) {
 
     if(!in_joystick->integer) {
         if(developer->integer) {
-            Com_Printf("Joystick is not active.\n");
+            common->Printf("Joystick is not active.\n");
         }
 
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
@@ -584,22 +585,22 @@ void idSystemLocal::InitJoystick(void) {
 
     if(stick == nullptr) {
         if(developer->integer) {
-            Com_Printf("No joystick opened.\n");
+            common->Printf("No joystick opened.\n");
         }
 
         return;
     }
 
     if(developer->integer) {
-        Com_Printf("Joystick %d opened\n", in_joystickNo->integer);
-        Com_Printf("Name:       %s\n",
-                   SDL_JoystickNameForIndex(in_joystickNo->integer));
-        Com_Printf("Axes:       %d\n", SDL_JoystickNumAxes(stick));
-        Com_Printf("Hats:       %d\n", SDL_JoystickNumHats(stick));
-        Com_Printf("Buttons:    %d\n", SDL_JoystickNumButtons(stick));
-        Com_Printf("Balls:      %d\n", SDL_JoystickNumBalls(stick));
-        Com_Printf("Use Analog: %s\n",
-                   in_joystickUseAnalog->integer ? "Yes" : "No");
+        common->Printf("Joystick %d opened\n", in_joystickNo->integer);
+        common->Printf("Name:       %s\n",
+                       SDL_JoystickNameForIndex(in_joystickNo->integer));
+        common->Printf("Axes:       %d\n", SDL_JoystickNumAxes(stick));
+        common->Printf("Hats:       %d\n", SDL_JoystickNumHats(stick));
+        common->Printf("Buttons:    %d\n", SDL_JoystickNumButtons(stick));
+        common->Printf("Balls:      %d\n", SDL_JoystickNumBalls(stick));
+        common->Printf("Use Analog: %s\n",
+                       in_joystickUseAnalog->integer ? "Yes" : "No");
     }
 
     SDL_JoystickEventState(SDL_QUERY);
@@ -669,7 +670,7 @@ void idSystemLocal::JoyMove(sint eventTime) {
                 balldy *= 2;
             }
 
-            Com_QueueEvent(eventTime, SYSE_MOUSE, balldx, balldy, 0, nullptr);
+            common->QueueEvent(eventTime, SYSE_MOUSE, balldx, balldy, 0, nullptr);
         }
     }
 
@@ -685,7 +686,7 @@ void idSystemLocal::JoyMove(sint eventTime) {
             bool pressed = (SDL_JoystickGetButton(stick, i) != 0);
 
             if(pressed != stick_state.buttons[i]) {
-                Com_QueueEvent(eventTime, SYSE_KEY, K_JOY1 + i, pressed, 0, nullptr);
+                common->QueueEvent(eventTime, SYSE_KEY, K_JOY1 + i, pressed, 0, nullptr);
                 stick_state.buttons[i] = pressed;
             }
         }
@@ -712,51 +713,51 @@ void idSystemLocal::JoyMove(sint eventTime) {
                 // release event
                 switch((reinterpret_cast<uchar8 *>(&stick_state.oldhats))[i]) {
                     case SDL_HAT_UP:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0,
-                                       nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_RIGHT:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0,
-                                       nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_DOWN:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0,
-                                       nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_LEFT:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0,
-                                       nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_RIGHTUP:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0,
-                                       nullptr);
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0,
-                                       nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0,
+                                           nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_RIGHTDOWN:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0,
-                                       nullptr);
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0,
-                                       nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0,
+                                           nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], false, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_LEFTUP:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0,
-                                       nullptr);
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0,
-                                       nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], false, 0,
+                                           nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_LEFTDOWN:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0,
-                                       nullptr);
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0,
-                                       nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], false, 0,
+                                           nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], false, 0,
+                                           nullptr);
                         break;
 
                     default:
@@ -766,39 +767,51 @@ void idSystemLocal::JoyMove(sint eventTime) {
                 // press event
                 switch(((Uint8 *)&hats)[i]) {
                     case SDL_HAT_UP:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_RIGHT:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_DOWN:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_LEFT:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_RIGHTUP:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, nullptr);
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0,
+                                           nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_RIGHTDOWN:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, nullptr);
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0,
+                                           nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 1], true, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_LEFTUP:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0, nullptr);
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 0], true, 0,
+                                           nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0,
+                                           nullptr);
                         break;
 
                     case SDL_HAT_LEFTDOWN:
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0, nullptr);
-                        Com_QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 2], true, 0,
+                                           nullptr);
+                        common->QueueEvent(eventTime, SYSE_KEY, hat_keys[4 * i + 3], true, 0,
+                                           nullptr);
                         break;
 
                     default:
@@ -829,7 +842,7 @@ void idSystemLocal::JoyMove(sint eventTime) {
                 }
 
                 if(axis != stick_state.oldaaxes[i]) {
-                    Com_QueueEvent(eventTime, SYSE_JOYSTICK_AXIS, i, axis, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_JOYSTICK_AXIS, i, axis, 0, nullptr);
                     stick_state.oldaaxes[i] = axis;
                 }
             }
@@ -856,11 +869,11 @@ void idSystemLocal::JoyMove(sint eventTime) {
     if(axes != stick_state.oldaxes) {
         for(i = 0; i < 16; i++) {
             if((axes & (1 << i)) && !(stick_state.oldaxes & (1 << i))) {
-                Com_QueueEvent(eventTime, SYSE_KEY, joy_keys[i], true, 0, nullptr);
+                common->QueueEvent(eventTime, SYSE_KEY, joy_keys[i], true, 0, nullptr);
             }
 
             if(!(axes & (1 << i)) && (stick_state.oldaxes & (1 << i))) {
-                Com_QueueEvent(eventTime, SYSE_KEY, joy_keys[i], false, 0, nullptr);
+                common->QueueEvent(eventTime, SYSE_KEY, joy_keys[i], false, 0, nullptr);
             }
         }
     }
@@ -893,7 +906,7 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
                 }
 
                 if((key = TranslateSDLToQ3Key(&e.key.keysym, true))) {
-                    Com_QueueEvent(eventTime, SYSE_KEY, key, true, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_KEY, key, true, 0, nullptr);
                 }
 
                 if(key == K_BACKSPACE || key == K_TAB || key == K_ESCAPE ||
@@ -901,17 +914,17 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
                     sint k = TranslateCtrlCharToKey(key);
 
                     if(k != -1) {
-                        Com_QueueEvent(eventTime, SYSE_CHAR, k, 0, 0, nullptr);
+                        common->QueueEvent(eventTime, SYSE_CHAR, k, 0, 0, nullptr);
                     }
                 } else if(keys[K_CTRL].down && key >= 'a' && key <= 'z') {
-                    Com_QueueEvent(eventTime, SYSE_CHAR, KEYBOARDCTRL(key), 0, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_CHAR, KEYBOARDCTRL(key), 0, 0, nullptr);
                 }
 
                 if(e.key.keysym.scancode == SDL_SCANCODE_LSHIFT) {
                     shiftdown = true;
                 } else if(e.key.keysym.scancode == SDL_SCANCODE_GRAVE && shiftdown) {
-                    Com_QueueEvent(eventTime, SYSE_KEY, K_CONSOLE, true, 0, nullptr);
-                    Com_QueueEvent(eventTime, SYSE_KEY, K_CONSOLE, false, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_KEY, K_CONSOLE, true, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_KEY, K_CONSOLE, false, 0, nullptr);
                     lastKeyDown = K_CONSOLE;
                 } else {
                     lastKeyDown = key;
@@ -921,7 +934,7 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
 
             case SDL_KEYUP:
                 if((key = TranslateSDLToQ3Key(&e.key.keysym, false))) {
-                    Com_QueueEvent(eventTime, SYSE_KEY, key, false, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_KEY, key, false, 0, nullptr);
                 }
 
                 if(e.key.keysym.scancode == SDL_SCANCODE_LSHIFT) {
@@ -955,14 +968,15 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
                             utf32 |= (*c++ & 0x3F);
                         } else {
                             if(developer->integer) {
-                                Com_Printf("Unrecognised UTF-8 lead byte: 0x%x\n", static_cast<uint>(*c));
+                                common->Printf("Unrecognised UTF-8 lead byte: 0x%x\n",
+                                               static_cast<uint>(*c));
                             }
 
                             c++;
                         }
 
                         if(utf32 != 0) {
-                            Com_QueueEvent(eventTime, SYSE_CHAR, utf32, 0, 0, nullptr);
+                            common->QueueEvent(eventTime, SYSE_CHAR, utf32, 0, 0, nullptr);
                         }
                     }
                 }
@@ -1007,18 +1021,18 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
                         break;
                 }
 
-                Com_QueueEvent(eventTime, SYSE_KEY, b,
-                               (e.type == SDL_MOUSEBUTTONDOWN ? true : false), 0, nullptr);
+                common->QueueEvent(eventTime, SYSE_KEY, b,
+                                   (e.type == SDL_MOUSEBUTTONDOWN ? true : false), 0, nullptr);
             }
             break;
 
             case SDL_MOUSEWHEEL:
                 if(e.wheel.y > 0) {
-                    Com_QueueEvent(eventTime, SYSE_KEY, K_MWHEELUP, true, 0, nullptr);
-                    Com_QueueEvent(eventTime, SYSE_KEY, K_MWHEELUP, false, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_KEY, K_MWHEELUP, true, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_KEY, K_MWHEELUP, false, 0, nullptr);
                 } else {
-                    Com_QueueEvent(eventTime, SYSE_KEY, K_MWHEELDOWN, true, 0, nullptr);
-                    Com_QueueEvent(eventTime, SYSE_KEY, K_MWHEELDOWN, false, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_KEY, K_MWHEELDOWN, true, 0, nullptr);
+                    common->QueueEvent(eventTime, SYSE_KEY, K_MWHEELDOWN, false, 0, nullptr);
                 }
 
                 break;
@@ -1082,7 +1096,7 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
     }
 
     if(mx || my) {
-        Com_QueueEvent(eventTime, SYSE_MOUSE, mx, my, 0, nullptr);
+        common->QueueEvent(eventTime, SYSE_MOUSE, mx, my, 0, nullptr);
     }
 }
 
@@ -1149,15 +1163,15 @@ void idSystemLocal::Init(void *windowData) {
     sint appState;
 
     if(!SDL_WasInit(SDL_INIT_VIDEO)) {
-        Com_Error(ERR_FATAL,
-                  "idSystemLocal::Init called before SDL_Init( SDL_INIT_VIDEO )");
+        common->Error(ERR_FATAL,
+                      "idSystemLocal::Init called before SDL_Init( SDL_INIT_VIDEO )");
         return;
     }
 
     SDL_window = static_cast< SDL_Window * >(windowData);
 
     if(developer->integer) {
-        Com_Printf("\n------- Input Initialization -------\n");
+        common->Printf("\n------- Input Initialization -------\n");
     }
 
     SDL_StartTextInput();
@@ -1166,13 +1180,13 @@ void idSystemLocal::Init(void *windowData) {
 
     if(in_mouse->integer == 2) {
         if(developer->integer) {
-            Com_Printf("IN_Init: Not using raw input\n");
+            common->Printf("IN_Init: Not using raw input\n");
         }
 
         SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1");
     } else {
         if(developer->integer) {
-            Com_Printf("IN_Init: Using raw mouse input\n");
+            common->Printf("IN_Init: Using raw mouse input\n");
         }
 
         SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "0");
@@ -1190,7 +1204,7 @@ void idSystemLocal::Init(void *windowData) {
     InitJoystick();
 
     if(developer->integer) {
-        Com_Printf("------------------------------------\n");
+        common->Printf("------------------------------------\n");
     }
 }
 
@@ -1218,13 +1232,4 @@ idSystemLocal::Restart
 void idSystemLocal::Restart(void) {
     ShutdownJoystick();
     systemLocal.Init(SDL_window);
-}
-
-/*
-===============
-idSystemLocal::SetClipboardData
-===============
-*/
-void idSystemLocal::SetClipboardData(pointer cbText) {
-    SDL_SetClipboardText(cbText);
 }

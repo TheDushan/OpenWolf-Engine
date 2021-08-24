@@ -39,6 +39,7 @@ idClientAVISystemAPI *clientAVISystem;
 idMemorySystem *memorySystem;
 idClientCinemaSystem *clientCinemaSystem;
 idClientRendererSystemAPI *clientRendererSystem;
+idCommon *common;
 
 #ifdef __LINUX__
 extern "C" idRenderSystem *rendererEntry(rendererImports_t *renimports)
@@ -58,28 +59,7 @@ Q_EXPORT idRenderSystem *rendererEntry(rendererImports_t *renimports)
     clientAVISystem = imports->clientAVISystem;
     clientCinemaSystem = imports->clientCinemaSystem;
     clientRendererSystem = imports->clientRendererSystem;
+    common = imports->common;
 
     return renderSystem;
-}
-
-void QDECL Com_Printf(pointer msg, ...) {
-    va_list argptr;
-    valueType text[1024];
-
-    va_start(argptr, msg);
-    Q_vsprintf_s(text, sizeof(text), msg, argptr);
-    va_end(argptr);
-
-    imports->Printf("%s", text);
-}
-
-void QDECL Com_Error(errorParm_t level, pointer error, ...) {
-    va_list argptr;
-    valueType text[1024];
-
-    va_start(argptr, error);
-    Q_vsprintf_s(text, sizeof(text), error, argptr);
-    va_end(argptr);
-
-    imports->Error(level, "%s", text);
 }

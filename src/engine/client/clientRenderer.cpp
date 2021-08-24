@@ -79,14 +79,14 @@ void idClientRendererSystemLocal::RefPrintf(sint print_level, pointer fmt,
     va_end(argptr);
 
     if(print_level == PRINT_ALL) {
-        Com_Printf("%s", msg);
+        common->Printf("%s", msg);
     } else if(print_level == PRINT_WARNING) {
-        Com_Printf(S_COLOR_YELLOW "%s", msg);    // yellow
+        common->Printf(S_COLOR_YELLOW "%s", msg);    // yellow
     }
 
     if(developer->integer) {
         if(print_level == PRINT_DEVELOPER) {
-            Com_Printf(S_COLOR_RED "%s", msg);      // red
+            common->Printf(S_COLOR_RED "%s", msg);      // red
         }
     }
 }
@@ -125,7 +125,7 @@ void idClientRendererSystemLocal::InitRenderer(void) {
     g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
     g_consoleField.widthInChars = g_console_field_width;
 
-    ::srand(Com_Milliseconds());
+    ::srand(common->Milliseconds());
 }
 
 /*
@@ -166,8 +166,6 @@ idClientMainSystemLocal::InitExportTable
 ====================
 */
 void idClientRendererSystemLocal::InitExportTable(void) {
-    exports.Printf = Com_Printf;
-    exports.Error = Com_Error;
     exports.collisionModelManager = collisionModelManager;
     exports.fileSystem = fileSystem;
     exports.cvarSystem = cvarSystem;
@@ -179,6 +177,7 @@ void idClientRendererSystemLocal::InitExportTable(void) {
     exports.clientAVISystem = clientAVISystem;
     exports.clientCinemaSystem = clientCinemaSystem;
     exports.clientRendererSystem = clientRendererSystem;
+    exports.common = common;
 }
 
 /*
@@ -190,11 +189,11 @@ static void *rendererLib = nullptr;
 void idClientRendererSystemLocal::InitRef(void) {
     valueType dllName[MAX_OSPATH];
 
-    Com_Printf("----- idClientRendererSystemLocal::InitRef ----\n");
+    common->Printf("----- idClientRendererSystemLocal::InitRef ----\n");
 
     ::snprintf(dllName, sizeof(dllName), "renderSystem." ARCH_STRING DLL_EXT);
 
-    Com_Printf("Loading \"%s\"...\n", dllName);
+    common->Printf("Loading \"%s\"...\n", dllName);
 
     if((rendererLib = SDL_LoadObject(dllName)) == 0) {
         valueType fn[1024];
@@ -204,10 +203,10 @@ void idClientRendererSystemLocal::InitRef(void) {
         ::strncat(fn, "/", sizeof(fn) - (sint)Q_strlen(fn) - 1);
         ::strncat(fn, dllName, sizeof(fn) - (sint)Q_strlen(fn) - 1);
 
-        Com_Printf("Loading \"%s\"...", fn);
+        common->Printf("Loading \"%s\"...", fn);
 
         if((rendererLib = SDL_LoadObject(fn)) == 0) {
-            Com_Error(ERR_FATAL, "failed:\n\"%s\"", SDL_GetError());
+            common->Error(ERR_FATAL, "failed:\n\"%s\"", SDL_GetError());
         }
     }
 
@@ -216,7 +215,7 @@ void idClientRendererSystemLocal::InitRef(void) {
                     idsystem->GetProcAddress(rendererLib, "rendererEntry");
 
     if(!rendererEntry) {
-        Com_Error(ERR_FATAL, "rendererEntry on RenderSystem failed.\n");
+        common->Error(ERR_FATAL, "rendererEntry on RenderSystem failed.\n");
     }
 
     // Init the export table.
@@ -224,7 +223,7 @@ void idClientRendererSystemLocal::InitRef(void) {
 
     renderSystem = rendererEntry(&exports);
 
-    Com_Printf("-------------------------------\n");
+    common->Printf("-------------------------------\n");
     // unpause so the cgame definately gets a snapshot and renders a frame
     cvarSystem->Set("cl_paused", "0");
 }

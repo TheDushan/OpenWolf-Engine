@@ -90,166 +90,178 @@ static uint64 rd_buffersize;
 static bool rd_flushing = false;
 static void (*rd_flush)(valueType *buffer);
 
-void Com_BeginRedirect(valueType *buffer, uint64 buffersize,
-                       void (*flush)(valueType *)) {
-    if(!buffer || !buffersize || !flush) {
-        return;
+class idCommonLocal : public idCommon {
+
+    /*
+    =============
+    Com_BeginRedirect
+    =============
+    */
+    void Com_BeginRedirect(valueType *buffer, uint64 buffersize,
+                           void (*flush)(valueType *)) {
+        if(!buffer || !buffersize || !flush) {
+            return;
+        }
+
+        rd_buffer = buffer;
+        rd_buffersize = buffersize;
+        rd_flush = flush;
+
+        *rd_buffer = 0;
     }
 
-    rd_buffer = buffer;
-    rd_buffersize = buffersize;
-    rd_flush = flush;
-
-    *rd_buffer = 0;
-}
-
-void Com_EndRedirect(void) {
-    if(rd_flush) {
-        rd_flushing = true;
-        rd_flush(rd_buffer);
-        rd_flushing = false;
-    }
-
-    rd_buffer = nullptr;
-    rd_buffersize = 0;
-    rd_flush = nullptr;
-}
-
-/*
-=============
-Com_Printf
-
-Both client and server can use this, and it will output
-to the apropriate place.
-
-A raw string should NEVER be passed as fmt, because of "%f" type crashers.
-=============
-*/
-void Com_Printf(pointer fmt, ...) {
-    va_list argptr;
-    valueType msg[MAXPRINTMSG];
-    static bool opening_qconsole = false;
-
-    va_start(argptr, fmt);
-    Q_vsprintf_s(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
-
-    if(rd_buffer && !rd_flushing) {
-        if((strlen(msg) + strlen(rd_buffer)) > (rd_buffersize - 1)) {
+    /*
+    =============
+    Com_EndRedirect
+    =============
+    */
+    void Com_EndRedirect(void) {
+        if(rd_flush) {
             rd_flushing = true;
             rd_flush(rd_buffer);
             rd_flushing = false;
-            *rd_buffer = 0;
         }
 
-        Q_strcat(rd_buffer, rd_buffersize, msg);
-        // show_bug.cgi?id=51
-        // only flush the rcon buffer when it's necessary, avoid fragmenting
-        //rd_flush(rd_buffer);
-        //*rd_buffer = 0;
-
-        return;
+        rd_buffer = nullptr;
+        rd_buffersize = 0;
+        rd_flush = nullptr;
     }
+
+    /*
+    =============
+    Com_Printf
+
+    Both client and server can use this, and it will output
+    to the apropriate place.
+
+    A raw string should NEVER be passed as fmt, because of "%f" type crashers.
+    =============
+    */
+    void Com_Printf(pointer fmt, ...) {
+        va_list argptr;
+        valueType msg[MAXPRINTMSG];
+        static bool opening_qconsole = false;
+
+        va_start(argptr, fmt);
+        Q_vsprintf_s(msg, sizeof(msg), fmt, argptr);
+        va_end(argptr);
+
+        if(rd_buffer && !rd_flushing) {
+            if((strlen(msg) + strlen(rd_buffer)) > (rd_buffersize - 1)) {
+                rd_flushing = true;
+                rd_flush(rd_buffer);
+                rd_flushing = false;
+                *rd_buffer = 0;
+            }
+
+            Q_strcat(rd_buffer, rd_buffersize, msg);
+            // show_bug.cgi?id=51
+            // only flush the rcon buffer when it's necessary, avoid fragmenting
+            //rd_flush(rd_buffer);
+            //*rd_buffer = 0;
+
+            return;
+        }
 
 #if defined (_WIN32) && defined (_DEBUG)
-    //Dushan - write to the Visual Studio output
-    OutputDebugString(msg);
+        //Dushan - write to the Visual Studio output
+        OutputDebugString(msg);
 #endif
 
-    // echo to console if we're not a dedicated server
-    if(dedicated && !dedicated->integer) {
+        // echo to console if we're not a dedicated server
+        if(dedicated && !dedicated->integer) {
 #if !defined (DEDICATED) && !defined (UPDATE_SERVER)
-        clientConsoleSystem->ConsolePrint(msg);
+            clientConsoleSystem->ConsolePrint(msg);
 #endif
-    }
+        }
 
-    Q_StripIndentMarker(msg);
+        Q_StripIndentMarker(msg);
 
-    // echo to dedicated console and early console
-    idsystem->Print(msg);
+        // echo to dedicated console and early console
+        idsystem->Print(msg);
 
-    // logfile
-    if(logfile && logfile->integer) {
-        // TTimo: only open the qconsole.log if the filesystem is in an initialized state
-        //   also, avoid recursing in the qconsole.log opening (i.e. if fs_debug is on)
-        if(!com_logfile && fileSystem->Initialized() && !opening_qconsole) {
-            struct tm *newtime;
-            time_t aclock;
+        // logfile
+        if(logfile && logfile->integer) {
+            // TTimo: only open the qconsole.log if the filesystem is in an initialized state
+            //   also, avoid recursing in the qconsole.log opening (i.e. if fs_debug is on)
+            if(!com_logfile && fileSystem->Initialized() && !opening_qconsole) {
+                struct tm *newtime;
+                time_t aclock;
 
-            opening_qconsole = true;
+                opening_qconsole = true;
 
-            time(&aclock);
-            newtime = localtime(&aclock);
+                time(&aclock);
+                newtime = localtime(&aclock);
 
-            if(logfile->integer != 3) {
-                com_logfile = fileSystem->FOpenFileWrite("owconsole.log");
-            } else {
-                com_logfile = fileSystem->FOpenFileAppend("owconsole.log");
-            }
-
-            if(logfile) {
-                Com_Printf("logfile opened on %s\n", asctime(newtime));
-
-                if(logfile->integer > 1) {
-                    // force it to not buffer so we get valid
-                    // data even if we are crashing
-                    fileSystem->ForceFlush(com_logfile);
+                if(logfile->integer != 3) {
+                    com_logfile = fileSystem->FOpenFileWrite("owconsole.log");
+                } else {
+                    com_logfile = fileSystem->FOpenFileAppend("owconsole.log");
                 }
-            } else {
-                Com_Printf("Opening qconsole.log failed!\n");
-                cvarSystem->SetValue("logfile", 0);
+
+                if(logfile) {
+                    Com_Printf("logfile opened on %s\n", asctime(newtime));
+
+                    if(logfile->integer > 1) {
+                        // force it to not buffer so we get valid
+                        // data even if we are crashing
+                        fileSystem->ForceFlush(com_logfile);
+                    }
+                } else {
+                    Com_Printf("Opening qconsole.log failed!\n");
+                    cvarSystem->SetValue("logfile", 0);
+                }
+            }
+
+            opening_qconsole = false;
+
+            if(com_logfile && fileSystem->Initialized()) {
+                fileSystem->Write(msg, strlen(msg), com_logfile);
             }
         }
-
-        opening_qconsole = false;
-
-        if(com_logfile && fileSystem->Initialized()) {
-            fileSystem->Write(msg, strlen(msg), com_logfile);
-        }
     }
-}
 
-void Com_FatalError(pointer error, ...) {
-    va_list argptr;
-    valueType msg[8192];
+    void Com_FatalError(pointer error, ...) {
+        va_list argptr;
+        valueType msg[8192];
 
-    va_start(argptr, error);
-    Q_vsprintf_s(msg, sizeof(msg), error, argptr);
-    va_end(argptr);
+        va_start(argptr, error);
+        Q_vsprintf_s(msg, sizeof(msg), error, argptr);
+        va_end(argptr);
 
-    Com_Error(ERR_FATAL, msg);
-}
+        Com_Error(ERR_FATAL, msg);
+    }
 
-void Com_DropError(pointer error, ...) {
-    va_list argptr;
-    valueType msg[8192];
+    void Com_DropError(pointer error, ...) {
+        va_list argptr;
+        valueType msg[8192];
 
-    va_start(argptr, error);
-    Q_vsprintf_s(msg, sizeof(msg), error, argptr);
-    va_end(argptr);
+        va_start(argptr, error);
+        Q_vsprintf_s(msg, sizeof(msg), error, argptr);
+        va_end(argptr);
 
-    Com_Error(ERR_DROP, msg);
-}
+        Com_Error(ERR_DROP, msg);
+    }
 
-void Com_Warning(pointer error, ...) {
-    va_list argptr;
-    valueType msg[8192];
+    void Com_Warning(pointer error, ...) {
+        va_list argptr;
+        valueType msg[8192];
 
-    va_start(argptr, error);
-    Q_vsprintf_s(msg, sizeof(msg), error, argptr);
-    va_end(argptr);
+        va_start(argptr, error);
+        Q_vsprintf_s(msg, sizeof(msg), error, argptr);
+        va_end(argptr);
 
-    Com_Printf(msg);
-}
+        Com_Printf(msg);
+    }
 
-/*
-=============
-Com_Error
+    /*
+    =============
+    Com_Error
 
-Both client and server can use this, and it will
-do the apropriate things.
-=============
-*/
+    Both client and server can use this, and it will
+    do the apropriate things.
+    =============
+    */
 // *INDENT-OFF*
 void Com_Error(errorParm_t code, pointer fmt, ... )
 {
@@ -1595,7 +1607,7 @@ void Com_SetRecommended( void )
 // are loaded
 gameInfo_t      com_gameInfo;
 
-void Com_GetGameInfo()
+void Com_GetGameInfo(void)
 {
     valueType*           f, *buf;
     valueType*           token;

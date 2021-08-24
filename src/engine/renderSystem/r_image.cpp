@@ -388,7 +388,7 @@ static void ResampleTexture(uchar8 *in, sint inwidth, sint inheight,
     uchar8 *pix1, *pix2, *pix3, *pix4;
 
     if(outwidth > 2048) {
-        Com_Error(ERR_DROP, "ResampleTexture: max width");
+        common->Error(ERR_DROP, "ResampleTexture: max width");
     }
 
     fracstep = inwidth * 0x10000 / outwidth;
@@ -2096,7 +2096,7 @@ image_t *R_CreateImage2(pointer name, uchar8 *pic, sint width, sint height,
     uint dataFormat;
 
     if(strlen(name) >= MAX_QPATH) {
-        Com_Error(ERR_DROP, "R_CreateImage: \"%s\" is too sint32", name);
+        common->Error(ERR_DROP, "R_CreateImage: \"%s\" is too sint32", name);
     }
 
     if(!strncmp(name, "*lightmap", 9)) {
@@ -2104,7 +2104,7 @@ image_t *R_CreateImage2(pointer name, uchar8 *pic, sint width, sint height,
     }
 
     if(tr.numImages == MAX_DRAWIMAGES) {
-        Com_Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit");
+        common->Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit");
         return nullptr;
     }
 

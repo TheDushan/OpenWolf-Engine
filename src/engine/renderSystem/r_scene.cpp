@@ -246,8 +246,8 @@ void idRenderSystemLocal::AddRefEntityToScene(const refEntity_t *ent) {
     }
 
     if(ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE) {
-        Com_Error(ERR_DROP,
-                  "idRenderSystemLocal::AddRefEntityToScene: bad reType %i", ent->reType);
+        common->Error(ERR_DROP,
+                      "idRenderSystemLocal::AddRefEntityToScene: bad reType %i", ent->reType);
     }
 
     backEndData->entities[r_numentities].e = *ent;
@@ -507,8 +507,8 @@ void idRenderSystemLocal::RenderScene(const refdef_t *fd) {
     startTime = clientRendererSystem->ScaledMilliseconds();
 
     if(!tr.world && !(fd->rdflags & RDF_NOWORLDMODEL)) {
-        Com_Error(ERR_DROP,
-                  "idRenderSystemLocal::RenderScene: nullptr worldmodel");
+        common->Error(ERR_DROP,
+                      "idRenderSystemLocal::RenderScene: nullptr worldmodel");
     }
 
     RE_BeginScene(fd);

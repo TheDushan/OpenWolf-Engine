@@ -141,7 +141,8 @@ void idParseSystemLocal::ScriptError(script_t *script, valueType *str,
     Q_vsprintf_s(text, sizeof(text), str, argptr);
     va_end(argptr);
 
-    Com_Printf("file %s, line %d: %s\n", script->filename, script->line, text);
+    common->Printf("file %s, line %d: %s\n", script->filename, script->line,
+                   text);
 }
 
 /*
@@ -162,7 +163,8 @@ void idParseSystemLocal::ScriptWarning(script_t *script, valueType *str,
     Q_vsprintf_s(text, sizeof(text), str, argptr);
     va_end(argptr);
 
-    Com_Printf("file %s, line %d: %s\n", script->filename, script->line, text);
+    common->Printf("file %s, line %d: %s\n", script->filename, script->line,
+                   text);
 }
 
 /*
@@ -1051,8 +1053,8 @@ void idParseSystemLocal::SourceError(source_t *source, valueType *str,
     Q_vsprintf_s(text, sizeof(text), str, argptr);
     va_end(argptr);
 
-    Com_Printf("file %s, line %d: %s\n", source->scriptstack->filename,
-               source->scriptstack->line, text);
+    common->Printf("file %s, line %d: %s\n", source->scriptstack->filename,
+                   source->scriptstack->line, text);
 }
 
 /*
@@ -1069,8 +1071,8 @@ void idParseSystemLocal::SourceWarning(source_t *source, valueType *str,
     Q_vsprintf_s(text, sizeof(text), str, argptr);
     va_end(argptr);
 
-    Com_Printf("file %s, line %d: %s\n", source->scriptstack->filename,
-               source->scriptstack->line, text);
+    common->Printf("file %s, line %d: %s\n", source->scriptstack->filename,
+                   source->scriptstack->line, text);
 }
 
 /*
@@ -1152,7 +1154,7 @@ token_t *idParseSystemLocal::CopyToken(token_t *token) {
     t = (token_t *)memorySystem->Malloc(sizeof(token_t));
 
     if(!t) {
-        Com_Error(ERR_FATAL, "out of token space\n");
+        common->Error(ERR_FATAL, "out of token space\n");
         return nullptr;
     }
 

@@ -328,9 +328,9 @@ objectModel_t *idRenderSystemLocal::Model_LoadObject(pointer name) {
 
             while(true) {
                 if(ci >= MAX_QPATH) {
-                    Com_Error(ERR_DROP,
-                              "Wavefront object model shader field exceeds MAX_QPATH(%i)",
-                              sint(MAX_QPATH));
+                    common->Error(ERR_DROP,
+                                  "Wavefront object model shader field exceeds MAX_QPATH(%i)",
+                                  sint(MAX_QPATH));
                 }
 
                 switch(object_buf[object_buf_i]) {
@@ -368,7 +368,7 @@ objectModel_t *idRenderSystemLocal::Model_LoadObject(pointer name) {
 
     if(allGood) {
     } else {
-        Com_Printf("Object Load Failed.\n");
+        common->Printf("Object Load Failed.\n");
         return nullptr;
     }
 

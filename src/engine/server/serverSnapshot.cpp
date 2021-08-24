@@ -183,7 +183,8 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
               (PACKET_BACKUP - 3)) {
         // client hasn't gotten a good message through in a long time
         if(developer->integer) {
-            Com_Printf("%s: Delta request from out of date packet.\n", client->name);
+            common->Printf("%s: Delta request from out of date packet.\n",
+                           client->name);
         }
 
         oldframe = nullptr;
@@ -207,8 +208,8 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
         if(oldframe->first_entity <= svs.nextSnapshotEntities -
                 svs.numSnapshotEntities) {
             if(developer->integer) {
-                Com_Printf("%s: Delta request from out of date entities.\n",
-                           client->name);
+                common->Printf("%s: Delta request from out of date entities.\n",
+                               client->name);
             }
 
             oldframe = nullptr;
@@ -275,7 +276,7 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
             MSG_WriteDeltaPlayerstate(msg, nullptr, &frame->ps);
         }
 
-        //      Com_Printf( "Playerstate delta size: %f\n", ((msg->cursize - sz) * sv_fps->integer) / 8.f );
+        //      common->Printf( "Playerstate delta size: %f\n", ((msg->cursize - sz) * sv_fps->integer) / 8.f );
     }
 
     // delta encode the entities
@@ -355,8 +356,8 @@ sint idServerSnapshotSystemLocal::QsortEntityNumbers(const void *a,
     eb = const_cast<sint *>(reinterpret_cast<const sint *>(b));
 
     if(*ea == *eb) {
-        Com_Error(ERR_DROP,
-                  "idServerSnapshotSystemLocal::QsortEntityStates: duplicated entity");
+        common->Error(ERR_DROP,
+                      "idServerSnapshotSystemLocal::QsortEntityStates: duplicated entity");
     }
 
     if(*ea < *eb) {
@@ -444,7 +445,7 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint(
 
         if(ent->s.number != e) {
             if(developer->integer) {
-                Com_Printf("FIXING ENT->S.NUMBER!!!\n");
+                common->Printf("FIXING ENT->S.NUMBER!!!\n");
             }
 
             ent->s.number = e;
@@ -595,7 +596,7 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint(
 
                 if(ment->s.number != h) {
                     if(developer->integer) {
-                        Com_Printf("FIXING vis dummy multiple ment->S.NUMBER!!!\n");
+                        common->Printf("FIXING vis dummy multiple ment->S.NUMBER!!!\n");
                     }
 
                     ment->s.number = h;
@@ -715,7 +716,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot(client_t *client) {
     clientNum = frame->ps.clientNum;
 
     if(clientNum < 0 || clientNum >= MAX_GENTITIES) {
-        Com_Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
+        common->Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
     }
 
     svEnt = &sv.svEntities[clientNum];
@@ -789,8 +790,8 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot(client_t *client) {
 
         // this should never hit, map should always be restarted first in idServerMainSystemLocal::Frame
         if(svs.nextSnapshotEntities >= 0x7FFFFFFE) {
-            Com_Error(ERR_FATAL,
-                      "idServerSnapshotSystemLocal::BuildClientSnapshot: svs.nextSnapshotEntities wrapped");
+            common->Error(ERR_FATAL,
+                          "idServerSnapshotSystemLocal::BuildClientSnapshot: svs.nextSnapshotEntities wrapped");
         }
 
         frame->num_entities++;
@@ -853,8 +854,8 @@ void idServerSnapshotSystemLocal::SendMessageToClient(msg_t *msg,
     sint rateMsec;
 
     while(client->state && client->netchan.unsentFragments) {
-        Com_Printf("idServerSnapshotSystemLocal::SendMessageToClient [1] for %s, writing out old fragments\n",
-                   client->name);
+        common->Printf("idServerSnapshotSystemLocal::SendMessageToClient [1] for %s, writing out old fragments\n",
+                       client->name);
         networkChainSystem->TransmitNextFragment(&client->netchan);
     }
 
@@ -961,8 +962,8 @@ void idServerSnapshotSystemLocal::SendClientIdle(client_t *client) {
 
     // check for overflow
     if(msg.overflowed) {
-        Com_Printf("idServerSnapshotSystemLocal::SendClientIdle - WARNING: msg overflowed for %s\n",
-                   client->name);
+        common->Printf("idServerSnapshotSystemLocal::SendClientIdle - WARNING: msg overflowed for %s\n",
+                       client->name);
         MSG_Clear(&msg);
 
         serverClientSystem->DropClient(client,
@@ -1072,8 +1073,8 @@ void idServerSnapshotSystemLocal::SendClientSnapshot(client_t *client) {
 
     // check for overflow
     if(msg.overflowed) {
-        Com_Printf("idServerSnapshotSystemLocal::SendClientSnapshot : WARNING: msg overflowed for %s\n",
-                   client->name);
+        common->Printf("idServerSnapshotSystemLocal::SendClientSnapshot : WARNING: msg overflowed for %s\n",
+                       client->name);
         MSG_Clear(&msg);
 
         serverClientSystem->DropClient(client,
@@ -1188,10 +1189,10 @@ void idServerSnapshotSystemLocal::SendClientMessages(void) {
             sv.ucompNum++;
 
             if(developer->integer) {
-                Com_Printf("bpspc(%2.0f) bps(%2.0f) pk(%i) ubps(%2.0f) upk(%i) cr(%2.2f) acr(%2.2f)\n",
-                           ave / static_cast<float32>(numclients), ave, sv.bpsMaxBytes, uave,
-                           sv.ubpsMaxBytes, comp_ratio,
-                           sv.ucompAve / sv.ucompNum);
+                common->Printf("bpspc(%2.0f) bps(%2.0f) pk(%i) ubps(%2.0f) upk(%i) cr(%2.2f) acr(%2.2f)\n",
+                               ave / static_cast<float32>(numclients), ave, sv.bpsMaxBytes, uave,
+                               sv.ubpsMaxBytes, comp_ratio,
+                               sv.ucompAve / sv.ucompNum);
             }
         }
     }

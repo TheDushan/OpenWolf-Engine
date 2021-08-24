@@ -298,7 +298,6 @@ set( QCOMMONLIST_HEADERS
 )
 
 set( QCOMMONLIST_SOURCES
-	${MOUNT_DIR}/qcommon/common.cpp
 	${MOUNT_DIR}/qcommon/msg.cpp
 )
 
@@ -333,6 +332,9 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/framework/CommonConsoleVars.hpp
 	${MOUNT_DIR}/API/Memory_api.hpp
 	${MOUNT_DIR}/framework/Memory.hpp
+	${MOUNT_DIR}/API/Common_api.hpp
+	${MOUNT_DIR}/framework/Common.hpp
+
 )
 
 set( FRAMEWORKS_SOURCES
@@ -355,6 +357,7 @@ set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/CmdCompletion.cpp
 	${MOUNT_DIR}/framework/CommonConsoleVars.cpp
 	${MOUNT_DIR}/framework/Memory.cpp
+	${MOUNT_DIR}/framework/Common.cpp
 )
 
 set( CLIENTLIST_HEADERS

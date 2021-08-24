@@ -106,7 +106,7 @@ void idClientInputSystemLocal::KeyDown(kbutton_t *b) {
     } else if(!b->down[1]) {
         b->down[1] = k;
     } else {
-        Com_Printf("Three keys down for a button!\n");
+        common->Printf("Three keys down for a button!\n");
         return;
     }
 
@@ -199,7 +199,7 @@ float32 idClientInputSystemLocal::KeyState(kbutton_t *key) {
 #if 0
 
     if(msec) {
-        Com_Printf("%i ", msec);
+        common->Printf("%i ", msec);
     }
 
 #endif
@@ -1103,8 +1103,9 @@ Joystick values stay set until changed
 void idClientInputSystemLocal::JoystickEvent(sint axis, sint value,
         sint time) {
     if(axis < 0 || axis >= MAX_JOYSTICK_AXIS) {
-        Com_Error(ERR_DROP, "idClientInputSystemLocal::JoystickEvent: bad axis %i",
-                  axis);
+        common->Error(ERR_DROP,
+                      "idClientInputSystemLocal::JoystickEvent: bad axis %i",
+                      axis);
     }
 
     if(axis >= 0) {
@@ -1240,7 +1241,7 @@ void idClientInputSystemLocal::MouseMove(usercmd_t *cmd) {
             my *= accelSensitivity;
 
             if(cl_showMouseRate->integer) {
-                Com_Printf("rate: %f, accelSensitivity: %f\n", rate, accelSensitivity);
+                common->Printf("rate: %f, accelSensitivity: %f\n", rate, accelSensitivity);
             }
         } else {
             float32 rate[2];
@@ -1274,8 +1275,9 @@ void idClientInputSystemLocal::MouseMove(usercmd_t *cmd) {
                 }
             */
             if(cl_showMouseRate->integer) {
-                Com_Printf("ratex: %f, ratey: %f, powx: %f, powy: %f\n", rate[0], rate[1],
-                           power[0], power[1]);
+                common->Printf("ratex: %f, ratey: %f, powx: %f, powy: %f\n", rate[0],
+                               rate[1],
+                               power[0], power[1]);
             }
         }
     } else {
@@ -1651,12 +1653,12 @@ void idClientInputSystemLocal::WritePacket(void) {
 
     if(count > MAX_PACKET_USERCMDS) {
         count = MAX_PACKET_USERCMDS;
-        Com_Printf("MAX_PACKET_USERCMDS\n");
+        common->Printf("MAX_PACKET_USERCMDS\n");
     }
 
     if(count >= 1) {
         if(cl_showSend->integer) {
-            Com_Printf("(%i)", count);
+            common->Printf("(%i)", count);
         }
 
         // begin a client move command
@@ -1697,7 +1699,7 @@ void idClientInputSystemLocal::WritePacket(void) {
     clc.lastPacketSentTime = cls.realtime;
 
     if(cl_showSend->integer) {
-        Com_Printf("%i ", buf.cursize);
+        common->Printf("%i ", buf.cursize);
     }
 
     clientNetChanSystem->Netchan_Transmit(&clc.netchan, &buf);
@@ -1709,7 +1711,7 @@ void idClientInputSystemLocal::WritePacket(void) {
     // added a WARNING message, we'll see if there are legit situations where this happens
     while(clc.netchan.unsentFragments) {
         if(cl_showSend->integer) {
-            Com_Printf("WARNING: unsent fragments (not supposed to happen!)\n");
+            common->Printf("WARNING: unsent fragments (not supposed to happen!)\n");
         }
 
         clientNetChanSystem->Netchan_TransmitNextFragment(&clc.netchan);
@@ -1740,7 +1742,7 @@ void idClientInputSystemLocal::SendCmd(void) {
     // don't send a packet if the last packet was sent too recently
     if(!ReadyToSendPacket()) {
         if(cl_showSend->integer) {
-            Com_Printf(". ");
+            common->Printf(". ");
         }
 
         return;
@@ -1755,7 +1757,7 @@ idClientInputSystemLocal::InitInput
 ============
 */
 void idClientInputSystemLocal::InitInput(void) {
-    Com_Printf("----- idClientInputSystemLocal::InitInput -------\n");
+    common->Printf("----- idClientInputSystemLocal::InitInput -------\n");
 
     //cmdSystem->AddCommand ("centerview", CenterView, "Centers view on screen");
 

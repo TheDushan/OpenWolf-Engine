@@ -92,25 +92,25 @@ void idClientGUIDSystemLocal::GenerateGUIDKey(void) {
     fileSystem->FCloseFile(f);
 
     if(len == GUIDKEY_SIZE) {
-        Com_Printf("GUIDKEY found.\n");
+        common->Printf("GUIDKEY found.\n");
         return;
     } else {
         if(len > 0) {
-            Com_Printf("GUIDKEY file size != %d, regenerating\n", GUIDKEY_SIZE);
+            common->Printf("GUIDKEY file size != %d, regenerating\n", GUIDKEY_SIZE);
         }
 
-        Com_Printf("GUIDKEY building random string\n");
-        Com_RandomBytes(buff, sizeof(buff));
+        common->Printf("GUIDKEY building random string\n");
+        common->RandomBytes(buff, sizeof(buff));
 
         f = fileSystem->SV_FOpenFileWrite(GUIDKEY_FILE);
 
         if(!f) {
-            Com_Printf("GUIDKEY could not open %s for write\n", GUIDKEY_FILE);
+            common->Printf("GUIDKEY could not open %s for write\n", GUIDKEY_FILE);
             return;
         }
 
         fileSystem->Write(buff, sizeof(buff), f);
         fileSystem->FCloseFile(f);
-        Com_Printf("GUIDKEY generated\n");
+        common->Printf("GUIDKEY generated\n");
     }
 }

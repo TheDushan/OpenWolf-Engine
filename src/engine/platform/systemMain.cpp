@@ -167,7 +167,7 @@ void idSystemLocal::Restart_f(void) {
 #ifndef DEDICATED
 
     if(!SDL_WasInit(SDL_INIT_VIDEO)) {
-        Com_Printf("idSystemLocal::Restart_f: Cannot restart input while video is shutdown\n");
+        common->Printf("idSystemLocal::Restart_f: Cannot restart input while video is shutdown\n");
         return;
     }
 
@@ -226,7 +226,7 @@ bool idSystemLocal::WritePIDFile(void) {
         fprintf(f, "%d", PID());
         fclose(f);
     } else {
-        Com_Printf(S_COLOR_YELLOW "Couldn't write %s.\n", pidFile);
+        common->Printf(S_COLOR_YELLOW "Couldn't write %s.\n", pidFile);
     }
 
     return stale;
@@ -363,7 +363,7 @@ idSystemLocal::UnloadDll
 */
 void idSystemLocal::UnloadDll(void *dllHandle) {
     if(!dllHandle) {
-        Com_Printf("idSystemLocal::UnloadDll(nullptr)\n");
+        common->Printf("idSystemLocal::UnloadDll(nullptr)\n");
         return;
     }
 
@@ -424,14 +424,14 @@ void *idSystemLocal::LoadDll(pointer name) {
 
     if(!libHandle) {
         if(developer->integer) {
-            Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                       SDL_GetError());
+            common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                           SDL_GetError());
         }
 
         if(homepath[0]) {
             if(developer->integer) {
-                Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                           SDL_GetError());
+                common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                               SDL_GetError());
             }
 
             fn = fileSystem->BuildOSPath(homepath, gamedir, filename);
@@ -440,14 +440,14 @@ void *idSystemLocal::LoadDll(pointer name) {
 
         if(!libHandle) {
             if(developer->integer) {
-                Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                           SDL_GetError());
+                common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                               SDL_GetError());
             }
 
             if(!libHandle) {
                 if(developer->integer) {
-                    Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                               SDL_GetError());
+                    common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                                   SDL_GetError());
                 }
 
                 // now we try base
@@ -457,8 +457,8 @@ void *idSystemLocal::LoadDll(pointer name) {
                 if(!libHandle) {
                     if(homepath[0]) {
                         if(developer->integer) {
-                            Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                       SDL_GetError());
+                            common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                                           SDL_GetError());
                         }
 
                         fn = fileSystem->BuildOSPath(homepath, BASEGAME, filename);
@@ -467,14 +467,14 @@ void *idSystemLocal::LoadDll(pointer name) {
 
                     if(!libHandle) {
                         if(developer->integer) {
-                            Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                       SDL_GetError());
+                            common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                                           SDL_GetError());
                         }
 
                         if(!libHandle) {
                             if(developer->integer) {
-                                Com_Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                           SDL_GetError());
+                                common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
+                                               SDL_GetError());
                             }
 
                             return nullptr;
@@ -574,8 +574,8 @@ void idSystemLocal::SigHandler(sint signal) {
     static bool signalcaught = false;
 
     if(signalcaught) {
-        Com_Printf("DOUBLE SIGNAL FAULT: Received signal %d: \"%s\", exiting...\n",
-                   signal, SignalToString(signal));
+        common->Printf("DOUBLE SIGNAL FAULT: Received signal %d: \"%s\", exiting...\n",
+                       signal, SignalToString(signal));
         exit(1);
     } else {
         signalcaught = true;
@@ -738,7 +738,7 @@ Q_EXPORT sint engineMain(sint argc, valueType * *argv)
 
     consoleCursesSystem->Init();
 
-    Com_Init(commandLine);
+    common->Init(commandLine);
     networkSystem->Init();
 
     signal(SIGILL, systemLocal.SigHandler);
@@ -751,8 +751,17 @@ Q_EXPORT sint engineMain(sint argc, valueType * *argv)
 
     while(1) {
         systemLocal.Frame();
-        Com_Frame();
+        common->Frame();
     }
 
     return 0;
+}
+
+/*
+===============
+idSystemLocal::SetClipboardData
+===============
+*/
+void idSystemLocal::SetClipboardData(pointer cbText) {
+    SDL_SetClipboardText(cbText);
 }

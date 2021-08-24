@@ -116,6 +116,7 @@ extern "C"
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
 #include <qcommon/qfiles.hpp>
+#include <API/Common_api.hpp>
 #include <API/Memory_api.hpp>
 #include <API/FileSystem_api.hpp>
 #include <API/CVarSystem_api.hpp>

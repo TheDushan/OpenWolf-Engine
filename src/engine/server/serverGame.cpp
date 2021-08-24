@@ -73,7 +73,7 @@ idServerGameSystemLocal::GameError
 ==================
 */
 void idServerGameSystemLocal::GameError(pointer string) {
-    Com_Error(ERR_DROP, "%s", string);
+    common->Error(ERR_DROP, "%s", string);
 }
 
 /*
@@ -82,7 +82,7 @@ idServerGameSystemLocal::GamePrint
 ==================
 */
 void idServerGameSystemLocal::GamePrint(pointer string) {
-    Com_Printf("%s", string);
+    common->Printf("%s", string);
 }
 
 // these functions must be used instead of pointer arithmetic, because
@@ -125,8 +125,8 @@ idServerGameSystemLocal::SvEntityForGentity
 svEntity_t *idServerGameSystemLocal::SvEntityForGentity(
     sharedEntity_t *gEnt) {
     if(!gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES) {
-        Com_Error(ERR_DROP,
-                  "idServerGameSystemLocal::SvEntityForGentity: bad gEnt");
+        common->Error(ERR_DROP,
+                      "idServerGameSystemLocal::SvEntityForGentity: bad gEnt");
     }
 
     return &sv.svEntities[gEnt->s.number];
@@ -215,12 +215,12 @@ void idServerGameSystemLocal::SetBrushModel(sharedEntity_t *ent,
     vec3_t mins, maxs;
 
     if(!name) {
-        Com_Error(ERR_DROP, "idServerGameSystemLocal::SetBrushModel: nullptr");
+        common->Error(ERR_DROP, "idServerGameSystemLocal::SetBrushModel: nullptr");
     }
 
     if(name[0] != '*') {
-        Com_Error(ERR_DROP,
-                  "idServerGameSystemLocal::SetBrushModel: %s isn't a brush model", name);
+        common->Error(ERR_DROP,
+                      "idServerGameSystemLocal::SetBrushModel: %s isn't a brush model", name);
     }
 
     ent->s.modelindex = atoi(name + 1);
@@ -342,8 +342,8 @@ idServerGameSystemLocal::GetServerinfo
 void idServerGameSystemLocal::GetServerinfo(valueType *buffer,
         uint64 bufferSize) {
     if(bufferSize < 1) {
-        Com_Error(ERR_DROP,
-                  "idServerGameSystemLocal::GetServerinfo: bufferSize == %i", bufferSize);
+        common->Error(ERR_DROP,
+                      "idServerGameSystemLocal::GetServerinfo: bufferSize == %i", bufferSize);
     }
 
     Q_strncpyz(buffer, cvarSystem->InfoString(CVAR_SERVERINFO |
@@ -361,13 +361,13 @@ void idServerGameSystemLocal::LocateGameData(sharedEntity_t *gEnts,
 
     if(gEnts && (sizeofGEntity_t < (sint)sizeof(sharedEntity_t) ||
                  numGEntities < 0)) {
-        Com_Error(ERR_DROP,
-                  "idServerGameSystemLocal::LocateGameData: incorrect game entity data");
+        common->Error(ERR_DROP,
+                      "idServerGameSystemLocal::LocateGameData: incorrect game entity data");
     }
 
     if(clients && sizeofGameClient < (sint)sizeof(playerState_t)) {
-        Com_Error(ERR_DROP,
-                  "idServerGameSystemLocal::LocateGameData: incorrect player state data");
+        common->Error(ERR_DROP,
+                      "idServerGameSystemLocal::LocateGameData: incorrect player state data");
     }
 
     sv.gentities = gEnts;
@@ -385,8 +385,8 @@ idServerGameSystemLocal::GetUsercmd
 */
 void idServerGameSystemLocal::GetUsercmd(sint clientNum, usercmd_t *cmd) {
     if(clientNum < 0 || clientNum >= sv_maxclients->integer) {
-        Com_Error(ERR_DROP,
-                  "idServerGameSystemLocal::GetUsercmd: bad clientNum:%i", clientNum);
+        common->Error(ERR_DROP,
+                      "idServerGameSystemLocal::GetUsercmd: bad clientNum:%i", clientNum);
     }
 
     *cmd = svs.clients[clientNum].lastUsercmd;
@@ -448,10 +448,6 @@ idServerGameSystemLocal::InitExportTable
 ====================
 */
 void idServerGameSystemLocal::InitExportTable(void) {
-    exports.Printf = Com_Printf;
-    exports.Error = Com_Error;
-    exports.RealTime = Com_RealTime;
-
     exports.collisionModelManager = collisionModelManager;
 #ifndef DEDICATED
     exports.soundSystem = soundSystem;
@@ -467,6 +463,7 @@ void idServerGameSystemLocal::InitExportTable(void) {
     exports.idsystem = idsystem;
     exports.parseSystem = ParseSystem;
     exports.memorySystem = memorySystem;
+    exports.common = common;
 }
 
 /*
@@ -523,7 +520,7 @@ void idServerGameSystemLocal::InitGameModule(bool restart) {
     // use the current msec count for a random seed
     // init for this gamestate
     if(gvm || sgame) {
-        sgame->Init(sv.time, Com_Milliseconds(), restart);
+        sgame->Init(sv.time, common->Milliseconds(), restart);
     }
 }
 
@@ -537,8 +534,8 @@ Called on a map_restart, but not on a normal map change
 void idServerGameSystemLocal::RestartGameProgs(void) {
     if(!gvm) {
         svs.gameStarted = false;
-        Com_Error(ERR_DROP,
-                  "idServerGameSystemLocal::RestartGameProgs on game failed");
+        common->Error(ERR_DROP,
+                      "idServerGameSystemLocal::RestartGameProgs on game failed");
         return;
     }
 
@@ -569,8 +566,8 @@ void idServerGameSystemLocal::InitGameProgs(void) {
     gvm = idsystem->LoadDll("sgame");
 
     if(!gvm) {
-        Com_Error(ERR_FATAL,
-                  "idServerGameSystemLocal::InitGameProgs on game failed");
+        common->Error(ERR_FATAL,
+                      "idServerGameSystemLocal::InitGameProgs on game failed");
     }
 
     // Get the entry point.
@@ -578,7 +575,7 @@ void idServerGameSystemLocal::InitGameProgs(void) {
                     gvm, "gameEntry");
 
     if(!gameEntry) {
-        Com_Error(ERR_FATAL, "gameEntry on game failed.\n");
+        common->Error(ERR_FATAL, "gameEntry on game failed.\n");
     }
 
     svs.gameStarted = true;

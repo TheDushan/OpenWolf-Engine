@@ -524,8 +524,8 @@ void idRenderSystemLocal::BeginFrame(stereoFrame_t stereoFrame) {
         R_IssuePendingRenderCommands();
 
         if((err = qglGetError()) != GL_NO_ERROR) {
-            Com_Error(ERR_FATAL,
-                      "idRenderSystemLocal::BeginFrame() - glGetError() failed (0x%x)!", err);
+            common->Error(ERR_FATAL,
+                          "idRenderSystemLocal::BeginFrame() - glGetError() failed (0x%x)!", err);
         }
     }
 
@@ -541,9 +541,9 @@ void idRenderSystemLocal::BeginFrame(stereoFrame_t stereoFrame) {
         } else if(stereoFrame == STEREO_RIGHT) {
             cmd->buffer = static_cast<sint>(GL_BACK_RIGHT);
         } else {
-            Com_Error(ERR_FATAL,
-                      "idRenderSystemLocal::BeginFrame: Stereo is enabled, but stereoFrame was %i",
-                      stereoFrame);
+            common->Error(ERR_FATAL,
+                          "idRenderSystemLocal::BeginFrame: Stereo is enabled, but stereoFrame was %i",
+                          stereoFrame);
         }
     } else {
         if(r_anaglyphMode->integer) {
@@ -594,18 +594,18 @@ void idRenderSystemLocal::BeginFrame(stereoFrame_t stereoFrame) {
                     return;
                 }
             } else {
-                Com_Error(ERR_FATAL,
-                          "idRenderSystemLocal::BeginFrame: Stereo is enabled, but stereoFrame was %i",
-                          stereoFrame);
+                common->Error(ERR_FATAL,
+                              "idRenderSystemLocal::BeginFrame: Stereo is enabled, but stereoFrame was %i",
+                              stereoFrame);
             }
 
             R_SetColorMode(colcmd->rgba, stereoFrame, r_anaglyphMode->integer);
             colcmd->commandId = RC_COLORMASK;
         } else {
             if(stereoFrame != STEREO_CENTER) {
-                Com_Error(ERR_FATAL,
-                          "idRenderSystemLocal::BeginFrame: Stereo is disabled, but stereoFrame was %i",
-                          stereoFrame);
+                common->Error(ERR_FATAL,
+                              "idRenderSystemLocal::BeginFrame: Stereo is disabled, but stereoFrame was %i",
+                              stereoFrame);
             }
 
             if(!(cmd = GetCommandBuffer(sizeof * cmd, cmd))) {

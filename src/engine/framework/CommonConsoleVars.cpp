@@ -424,10 +424,10 @@ convar_t *cl_logChat;
 
 /*
 ===============
-Com_InitCommonConsoleVars
+idCommonLocal::InitCommonConsoleVars
 ===============
 */
-void Com_InitCommonConsoleVars(void) {
+void idCommonLocal::InitCommonConsoleVars(void) {
     sint index, pid;
     valueType *s;
 

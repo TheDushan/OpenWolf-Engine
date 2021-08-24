@@ -147,9 +147,9 @@ void idClientDownloadSystemLocal::DownloadsComplete(void) {
     cls.state = CA_LOADING;
 
     // Pump the loop, this may change gamestate!
-    Com_EventLoop();
+    common->EventLoop();
 
-    // if the gamestate was changed by calling Com_EventLoop
+    // if the gamestate was changed by calling common->EventLoop
     // then we loaded everything already and we don't want to do it again.
     if(cls.state != CA_LOADING) {
         return;
@@ -188,9 +188,9 @@ void idClientDownloadSystemLocal::BeginDownload(pointer localName,
         pointer remoteName) {
 
     if(developer->integer) {
-        Com_Printf("***** idClientDownloadSystemLocal:BeginDownload *****\n"
-                   "Localname: %s\n" "Remotename: %s\n" "****************************\n",
-                   localName, remoteName);
+        common->Printf("***** idClientDownloadSystemLocal:BeginDownload *****\n"
+                       "Localname: %s\n" "Remotename: %s\n" "****************************\n",
+                       localName, remoteName);
     }
 
     Q_strncpyz(cls.downloadName, localName, sizeof(cls.downloadName));
@@ -310,8 +310,9 @@ void idClientDownloadSystemLocal::InitDownloads(void) {
                 fileSystem->ComparePaks(clc.downloadList, sizeof(clc.downloadList),
                                         true)) {
             // this gets printed to UI, i18n
-            Com_Printf(clientLocalizationSystem->TranslateStringBuf("Need paks: %s\n"),
-                       clc.downloadList);
+            common->Printf(
+                clientLocalizationSystem->TranslateStringBuf("Need paks: %s\n"),
+                clc.downloadList);
 
             if(*clc.downloadList) {
                 // if autodownloading is not enabled on the server
@@ -340,7 +341,7 @@ void idClientDownloadSystemLocal::WWWDownload(void) {
     if(clc.bWWWDlAborting) {
         if(!bAbort) {
             if(developer->integer) {
-                Com_Printf("idClientDownloadSystemLocal::WWWDownload: WWWDlAborting\n");
+                common->Printf("idClientDownloadSystemLocal::WWWDownload: WWWDlAborting\n");
             }
 
             bAbort = true;
@@ -351,7 +352,7 @@ void idClientDownloadSystemLocal::WWWDownload(void) {
 
     if(bAbort) {
         if(developer->integer) {
-            Com_Printf("idClientDownloadSystemLocal::WWWDownload: WWWDlAborting done\n");
+            common->Printf("idClientDownloadSystemLocal::WWWDownload: WWWDlAborting done\n");
         }
 
         bAbort = false;
@@ -392,7 +393,8 @@ void idClientDownloadSystemLocal::WWWDownload(void) {
             if(strlen(clc.redirectedList) + strlen(cls.originalDownloadName) + 1 >=
                     sizeof(clc.redirectedList)) {
                 // just to be safe
-                Com_Printf("ERROR: redirectedList overflow (%s)\n", clc.redirectedList);
+                common->Printf("ERROR: redirectedList overflow (%s)\n",
+                               clc.redirectedList);
             } else {
                 strcat(clc.redirectedList, "@");
                 strcat(clc.redirectedList, cls.originalDownloadName);
@@ -410,10 +412,10 @@ void idClientDownloadSystemLocal::WWWDownload(void) {
             cls.bWWWDlDisconnected =
                 false; // need clearing structs before ERR_DROP, or it goes into endless reload
             ClearStaticDownload();
-            Com_Error(ERR_DROP, "%s", error);
+            common->Error(ERR_DROP, "%s", error);
         } else {
             // see CL_ParseDownload, same abort strategy
-            Com_Printf("Download failure while getting '%s'\n", cls.downloadName);
+            common->Printf("Download failure while getting '%s'\n", cls.downloadName);
             clientReliableCommandsSystem->AddReliableCommand("wwwdl fail");
             clc.bWWWDlAborting = true;
         }
@@ -436,14 +438,14 @@ this indicates that the redirect setup is broken, and next dl attempt should NOT
 */
 bool idClientDownloadSystemLocal::WWWBadChecksum(pointer pakname) {
     if(strstr(clc.redirectedList, va("@%s", pakname))) {
-        Com_Printf("WARNING: file %s obtained through download redirect has wrong checksum\n",
-                   pakname);
-        Com_Printf("         this likely means the server configuration is broken\n");
+        common->Printf("WARNING: file %s obtained through download redirect has wrong checksum\n",
+                       pakname);
+        common->Printf("         this likely means the server configuration is broken\n");
 
         if(strlen(clc.badChecksumList) + strlen(pakname) + 1 >= sizeof(
                     clc.badChecksumList)) {
-            Com_Printf("ERROR: badChecksumList overflowed (%s)\n",
-                       clc.badChecksumList);
+            common->Printf("ERROR: badChecksumList overflowed (%s)\n",
+                           clc.badChecksumList);
             return false;
         }
 
@@ -451,7 +453,7 @@ bool idClientDownloadSystemLocal::WWWBadChecksum(pointer pakname) {
         strcat(clc.badChecksumList, pakname);
 
         if(developer->integer) {
-            Com_Printf("bad checksums: %s\n", clc.badChecksumList);
+            common->Printf("bad checksums: %s\n", clc.badChecksumList);
         }
 
         return true;

@@ -87,7 +87,7 @@ client_t *idServerCcmdsSystemLocal::GetPlayerByHandle(void) {
     }
 
     if(cmdSystem->Argc() < 2) {
-        Com_Printf("No player specified.\n");
+        common->Printf("No player specified.\n");
         return nullptr;
     }
 
@@ -127,7 +127,7 @@ client_t *idServerCcmdsSystemLocal::GetPlayerByHandle(void) {
         }
     }
 
-    Com_Printf("Player %s is not on the server\n", s);
+    common->Printf("Player %s is not on the server\n", s);
 
     return nullptr;
 }
@@ -150,7 +150,7 @@ client_t *idServerCcmdsSystemLocal::GetPlayerByName(void) {
     }
 
     if(cmdSystem->Argc() < 2) {
-        Com_Printf("idServerCcmdsSystemLocal::GetPlayerByName - No player specified.\n");
+        common->Printf("idServerCcmdsSystemLocal::GetPlayerByName - No player specified.\n");
         return nullptr;
     }
 
@@ -174,8 +174,8 @@ client_t *idServerCcmdsSystemLocal::GetPlayerByName(void) {
         }
     }
 
-    Com_Printf("idServerCcmdsSystemLocal::GetPlayerByName - Player %s is not on the server\n",
-               s);
+    common->Printf("idServerCcmdsSystemLocal::GetPlayerByName - Player %s is not on the server\n",
+                   s);
 
     return nullptr;
 }
@@ -201,14 +201,14 @@ void idServerCcmdsSystemLocal::Map_f(void) {
     }
 
     if(::strchr(map, '\\')) {
-        Com_Printf("Can't have mapnames with a \\\n");
+        common->Printf("Can't have mapnames with a \\\n");
         return;
     }
 
     if(!com_gameInfo.spEnabled) {
         if(!Q_stricmp(cmdSystem->Argv(0), "spdevmap") ||
                 !Q_stricmp(cmdSystem->Argv(0), "spmap")) {
-            Com_Printf("Single Player is not enabled.\n");
+            common->Printf("Single Player is not enabled.\n");
             return;
         }
     }
@@ -246,7 +246,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
             size = fileSystem->ReadFile(savemap, nullptr);
 
             if(size < 0) {
-                Com_Printf("Can't find savegame %s\n", savemap);
+                common->Printf("Can't find savegame %s\n", savemap);
                 return;
             }
 
@@ -264,11 +264,11 @@ void idServerCcmdsSystemLocal::Map_f(void) {
                     fileSystem->Delete(va("%scurrent.sav", savedir));
                     // TTimo
 #ifdef __LINUX__
-                    Com_Error(ERR_DROP,
-                              "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory.");
+                    common->Error(ERR_DROP,
+                                  "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory.");
 #else
-                    Com_Error(ERR_DROP,
-                              "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive.");
+                    common->Error(ERR_DROP,
+                                  "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive.");
 #endif
                     return;
                 }
@@ -313,7 +313,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
                  map);
 
     if(fileSystem->ReadFile(expanded, nullptr) == -1) {
-        Com_Printf("Can't find map %s\n", expanded);
+        common->Printf("Can't find map %s\n", expanded);
         return;
     }
 
@@ -472,7 +472,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -509,7 +509,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
     if(sv_maxclients->modified) {
         valueType mapname[MAX_QPATH];
 
-        Com_Printf("sv_maxclients variable change -- restarting.\n");
+        common->Printf("sv_maxclients variable change -- restarting.\n");
         // restart the map the slow way
         Q_strncpyz(mapname, cvarSystem->VariableString("mapname"),
                    sizeof(mapname));
@@ -536,7 +536,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
         size = fileSystem->ReadFile(savemap, nullptr);
 
         if(size < 0) {
-            Com_Printf("Can't find savegame %s\n", savemap);
+            common->Printf("Can't find savegame %s\n", savemap);
             return;
         }
 
@@ -634,8 +634,8 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
             serverClientSystem->DropClient(client, denied);
 
             if((!serverGameSystem->GameIsSinglePlayer()) || (!isBot)) {
-                Com_Printf("idServerBotSystemLocal::MapRestart_f(%d): dropped client %i - denied!\n",
-                           delay, i);    // bk010125
+                common->Printf("idServerBotSystemLocal::MapRestart_f(%d): dropped client %i - denied!\n",
+                               delay, i);    // bk010125
             }
 
             continue;
@@ -686,7 +686,7 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
     Q_strncpyz(filename, cmdSystem->Argv(1), sizeof(filename));
 
     if(!filename[0]) {
-        Com_Printf("You must specify a savegame to load\n");
+        common->Printf("You must specify a savegame to load\n");
         return;
     }
 
@@ -719,7 +719,7 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
     size = fileSystem->ReadFile(filename, nullptr);
 
     if(size < 0) {
-        Com_Printf("Can't find savegame %s\n", filename);
+        common->Printf("Can't find savegame %s\n", filename);
         return;
     }
 
@@ -826,7 +826,7 @@ void idServerCcmdsSystemLocal::Status_f(void) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -840,67 +840,67 @@ void idServerCcmdsSystemLocal::Status_f(void) {
 
     avg = static_cast<uchar8>(1000 * svs.stats.latched_active / STATFRAMES);
 
-    Com_Printf("cpu utilization  : %3i%%\n", static_cast<sint>(cpu));
-    Com_Printf("avg response time: %i ms\n", static_cast<sint>(avg));
+    common->Printf("cpu utilization  : %3i%%\n", static_cast<sint>(cpu));
+    common->Printf("avg response time: %i ms\n", static_cast<sint>(avg));
 
-    Com_Printf("map: %s\n", sv_mapname->string);
-    Com_Printf("Game ID: %s\n", community_stats.game_id);
-    Com_Printf("num score ping name            lastmsg address               qport rate  user\n");
-    Com_Printf("--- ----- ---- --------------- ------- --------------------- ----- ----- -----\n");
+    common->Printf("map: %s\n", sv_mapname->string);
+    common->Printf("Game ID: %s\n", community_stats.game_id);
+    common->Printf("num score ping name            lastmsg address               qport rate  user\n");
+    common->Printf("--- ----- ---- --------------- ------- --------------------- ----- ----- -----\n");
 
     for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
         if(!cl->state) {
             continue;
         }
 
-        Com_Printf("%3i ", i);
+        common->Printf("%3i ", i);
 
 #ifndef UPDATE_SERVER
         ps = serverGameSystem->GameClientNum(i);
 
-        Com_Printf("%5i ", ps->persistant[PERS_SCORE]);
+        common->Printf("%5i ", ps->persistant[PERS_SCORE]);
 #endif
 
         if(cl->state == CS_CONNECTED) {
-            Com_Printf("CNCT ");
+            common->Printf("CNCT ");
         } else if(cl->state == CS_ZOMBIE) {
-            Com_Printf("ZMBI ");
+            common->Printf("ZMBI ");
         } else {
             ping = cl->ping < 9999 ? cl->ping : 9999;
-            Com_Printf("%4i ", ping);
+            common->Printf("%4i ", ping);
         }
 
-        Com_Printf("%s", cl->name);
+        common->Printf("%s", cl->name);
         l = 16 - static_cast<sint>(::strlen(cl->name));
 
         for(j = 0; j < l; j++) {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
-        Com_Printf("%7i ", svs.time - cl->lastPacketTime);
+        common->Printf("%7i ", svs.time - cl->lastPacketTime);
 
         s = networkSystem->AdrToString(cl->netchan.remoteAddress);
-        Com_Printf("%s", s);
+        common->Printf("%s", s);
         l = 22 - static_cast<sint>(::strlen(s));
 
         for(j = 0; j < l; j++) {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
-        Com_Printf("%5i", cl->netchan.qport);
+        common->Printf("%5i", cl->netchan.qport);
 
-        Com_Printf(" %5i", cl->rate);
+        common->Printf(" %5i", cl->rate);
 
         if(cl->cs_user != nullptr) {
-            Com_Printf(" %s", cl->cs_user->name);
+            common->Printf(" %s", cl->cs_user->name);
         } else {
-            Com_Printf(" N/A");
+            common->Printf(" N/A");
         }
 
-        Com_Printf("\n");
+        common->Printf("\n");
     }
 
-    Com_Printf("\n");
+    common->Printf("\n");
 }
 
 /*
@@ -913,13 +913,13 @@ void idServerCcmdsSystemLocal::ConSay_f(void) {
     valueType text[1024];
 
     if(!dedicated->integer) {
-        Com_Printf("Server is not dedicated.\n");
+        common->Printf("Server is not dedicated.\n");
         return;
     }
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -939,7 +939,7 @@ void idServerCcmdsSystemLocal::ConSay_f(void) {
 
     ::strcat(text, p);
 
-    Com_Printf("%s\n", text);
+    common->Printf("%s\n", text);
     serverMainSystem->SendServerCommand(nullptr, "chat \"%s\"", text);
 }
 
@@ -964,13 +964,13 @@ Examine the serverinfo string
 */
 void idServerCcmdsSystemLocal::Serverinfo_f(void) {
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
     }
 
-    Com_Printf("Server info settings:\n");
+    common->Printf("Server info settings:\n");
 
-    Info_Print(cvarSystem->InfoString(CVAR_SERVERINFO |
-                                      CVAR_SERVERINFO_NOUPDATE));
+    common->InfoPrint(cvarSystem->InfoString(CVAR_SERVERINFO |
+                      CVAR_SERVERINFO_NOUPDATE));
 }
 
 /*
@@ -983,14 +983,14 @@ Examine or change the serverinfo string
 void idServerCcmdsSystemLocal::Systeminfo_f(void) {
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
-    Com_Printf("System info settings:\n");
+    common->Printf("System info settings:\n");
 
-    Info_Print(cvarSystem->InfoString_Big(CVAR_SERVERINFO |
-                                          CVAR_SERVERINFO_NOUPDATE));
+    common->InfoPrint(cvarSystem->InfoString_Big(CVAR_SERVERINFO |
+                      CVAR_SERVERINFO_NOUPDATE));
 }
 
 /*
@@ -1005,12 +1005,12 @@ void idServerCcmdsSystemLocal::DumpUser_f(void) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: info <userid>\n");
+        common->Printf("Usage: info <userid>\n");
         return;
     }
 
@@ -1020,9 +1020,9 @@ void idServerCcmdsSystemLocal::DumpUser_f(void) {
         return;
     }
 
-    Com_Printf("userinfo\n");
-    Com_Printf("--------\n");
-    Info_Print(cl->userinfo);
+    common->Printf("userinfo\n");
+    common->Printf("--------\n");
+    common->InfoPrint(cl->userinfo);
 }
 
 /*
@@ -1033,12 +1033,12 @@ idServerCcmdsSystemLocal::UserInfo_f
 void idServerCcmdsSystemLocal::UserInfo_f(void) {
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: userinfo <username>\n");
+        common->Printf("Usage: userinfo <username>\n");
         return;
     }
 
@@ -1053,7 +1053,7 @@ idServerCcmdsSystemLocal::StartMatch_f
 void idServerCcmdsSystemLocal::StartMatch_f(void) {
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -1071,7 +1071,7 @@ void idServerCcmdsSystemLocal::StopMatch_f(void) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -1103,12 +1103,12 @@ idServerCcmdsSystemLocal::AddClanMatch_f
 void idServerCcmdsSystemLocal::AddClanMatch_f(void) {
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: addclanmatch <clanname>\n");
+        common->Printf("Usage: addclanmatch <clanname>\n");
         return;
     }
 
@@ -1123,12 +1123,12 @@ idServerCcmdsSystemLocal::AddUserMatch_f
 void idServerCcmdsSystemLocal::AddUserMatch_f(void) {
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: addusermatch <username>\n");
+        common->Printf("Usage: addusermatch <username>\n");
         return;
     }
 
@@ -1143,12 +1143,12 @@ idServerCcmdsSystemLocal::AddRefereeMatch_f
 void idServerCcmdsSystemLocal::AddRefereeMatch_f(void) {
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: addrefereematch <username>\n");
+        common->Printf("Usage: addrefereematch <username>\n");
         return;
     }
 
@@ -1163,7 +1163,7 @@ idServerCcmdsSystemLocal::MatchInfo_f
 void idServerCcmdsSystemLocal::MatchInfo_f(void) {
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -1180,12 +1180,12 @@ void idServerCcmdsSystemLocal::AddIP_f(void) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: addip <userid>\n");
+        common->Printf("Usage: addip <userid>\n");
         return;
     }
 
@@ -1208,7 +1208,7 @@ void idServerCcmdsSystemLocal::BanList_f(void) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -1223,12 +1223,12 @@ idServerCcmdsSystemLocal::UnBan_f
 void idServerCcmdsSystemLocal::UnBan_f(void) {
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: unban <banlist num>\n");
+        common->Printf("Usage: unban <banlist num>\n");
         return;
     }
 
@@ -1247,7 +1247,7 @@ void idServerCcmdsSystemLocal::StatsPlayers_f(void) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -1328,7 +1328,7 @@ void idServerCcmdsSystemLocal::StatsPlayer_f(void) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -1436,7 +1436,7 @@ void idServerCcmdsSystemLocal::StopRecordDemo(client_t *cl) {
     sint len;
 
     if(!cl->demo.demorecording) {
-        Com_Printf("Client %d is not recording a demo.\n", cl - svs.clients);
+        common->Printf("Client %d is not recording a demo.\n", cl - svs.clients);
         return;
     }
 
@@ -1447,7 +1447,7 @@ void idServerCcmdsSystemLocal::StopRecordDemo(client_t *cl) {
     fileSystem->FCloseFile(cl->demo.demofile);
     cl->demo.demofile = 0;
     cl->demo.demorecording = false;
-    Com_Printf("Stopped demo for client %d.\n", cl - svs.clients);
+    common->Printf("Stopped demo for client %d.\n", cl - svs.clients);
 }
 
 /*
@@ -1484,7 +1484,7 @@ void idServerCcmdsSystemLocal::StopRecord_f(void) {
         sint clIndex = atoi(cmdSystem->Argv(1));
 
         if(clIndex < 0 || clIndex >= sv_maxclients->integer) {
-            Com_Printf("Unknown client number %d.\n", clIndex);
+            common->Printf("Unknown client number %d.\n", clIndex);
             return;
         }
 
@@ -1498,13 +1498,13 @@ void idServerCcmdsSystemLocal::StopRecord_f(void) {
         }
 
         if(cl == nullptr) {
-            Com_Printf("No demo being recorded.\n");
+            common->Printf("No demo being recorded.\n");
             return;
         }
     }
 
     if(!cl->demo.demorecording) {
-        Com_Printf("Client %d is not recording a demo.\n", cl - svs.clients);
+        common->Printf("Client %d is not recording a demo.\n", cl - svs.clients);
         return;
     }
 
@@ -1540,12 +1540,12 @@ void idServerCcmdsSystemLocal::RecordDemo(client_t *cl,
     sint            len;
 
     if(cl->demo.demorecording) {
-        Com_Printf("Already recording.\n");
+        common->Printf("Already recording.\n");
         return;
     }
 
     if(cl->state != CS_ACTIVE) {
-        Com_Printf("Client is not active.\n");
+        common->Printf("Client is not active.\n");
         return;
     }
 
@@ -1554,12 +1554,12 @@ void idServerCcmdsSystemLocal::RecordDemo(client_t *cl,
     Q_vsprintf_s(name, sizeof(name), sizeof(name), "demos/%s.dm_%d",
                  cl->demo.demoName, PROTOCOL_VERSION);
 
-    Com_Printf("recording to %s.\n", name);
+    common->Printf("recording to %s.\n", name);
 
     cl->demo.demofile = fileSystem->FOpenFileWrite(name);
 
     if(!cl->demo.demofile) {
-        Com_Printf("ERROR: couldn't open.\n");
+        common->Printf("ERROR: couldn't open.\n");
         return;
     }
 
@@ -1750,12 +1750,12 @@ void idServerCcmdsSystemLocal::Record_f(void) {
     valueType *s;
 
     if(svs.clients == nullptr) {
-        Com_Printf("cannot record server demo - null svs.clients\n");
+        common->Printf("cannot record server demo - null svs.clients\n");
         return;
     }
 
     if(cmdSystem->Argc() > 3) {
-        Com_Printf("record <demoname> <clientnum>\n");
+        common->Printf("record <demoname> <clientnum>\n");
         return;
     }
 
@@ -1765,7 +1765,7 @@ void idServerCcmdsSystemLocal::Record_f(void) {
         sint clIndex = atoi(cmdSystem->Argv(1));
 
         if(clIndex < 0 || clIndex >= sv_maxclients->integer) {
-            Com_Printf("Unknown client number %d.\n", clIndex);
+            common->Printf("Unknown client number %d.\n", clIndex);
             return;
         }
 
@@ -1787,17 +1787,17 @@ void idServerCcmdsSystemLocal::Record_f(void) {
     }
 
     if(cl - svs.clients >= sv_maxclients->integer) {
-        Com_Printf("No active client could be found.\n");
+        common->Printf("No active client could be found.\n");
         return;
     }
 
     if(cl->demo.demorecording) {
-        Com_Printf("Already recording.\n");
+        common->Printf("Already recording.\n");
         return;
     }
 
     if(cl->state != CS_ACTIVE) {
-        Com_Printf("Client is not active.\n");
+        common->Printf("Client is not active.\n");
         return;
     }
 
@@ -1812,7 +1812,7 @@ void idServerCcmdsSystemLocal::Record_f(void) {
                      PROTOCOL_VERSION);
 
         if(fileSystem->FileExists(name)) {
-            Com_Printf("Record: Couldn't create a file\n");
+            common->Printf("Record: Couldn't create a file\n");
             return;
         }
     }
@@ -1876,8 +1876,8 @@ void idServerCcmdsSystemLocal::StartRedirect_f(void) {
 
     redirect_client = svs.clients + clientNum;
 
-    Com_EndRedirect();
-    Com_BeginRedirect(sv_outputbuf, SV_OUTPUTBUF_LENGTH, ClientRedirect);
+    common->EndRedirect();
+    common->BeginRedirect(sv_outputbuf, SV_OUTPUTBUF_LENGTH, ClientRedirect);
 }
 
 /*
@@ -1959,8 +1959,8 @@ void idServerCcmdsSystemLocal::AddOperatorCommands(void) {
                           "Command for terminating the server, but leaving application running.");
     cmdSystem->AddCommand("startRedirect",
                           &idServerCcmdsSystemLocal::StartRedirect_f, "Redirecting clients");
-    cmdSystem->AddCommand("endRedirect", Com_EndRedirect,
-                          "End of the cient redirection");
+    cmdSystem->AddCommand("endRedirect", &idCommonLocal::EndRedirect_f,
+                          "End of the client redirection");
 
     cmdSystem->AddCommand("cheater",
                           &idServerOACSSystemLocal::ExtendedRecordSetCheater_f,

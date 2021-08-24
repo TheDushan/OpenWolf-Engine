@@ -168,7 +168,8 @@ void GL_CheckErrs(pointer file, sint line) {
             break;
     }
 
-    Com_Error(ERR_FATAL, "GL_CheckErrors: %s in %s at line %d", s, file, line);
+    common->Error(ERR_FATAL, "GL_CheckErrors: %s in %s at line %d", s, file,
+                  line);
 }
 
 /*

@@ -92,7 +92,7 @@ void idClientConsoleSystemLocal::LineAccept(void) {
 
     // print prompts for non-chat consoles
     if(!isChat) {
-        Com_Printf("]%s\n", g_consoleField.buffer);
+        common->Printf("]%s\n", g_consoleField.buffer);
     }
 
     // leading slash is an explicit command (for non-chat consoles)
@@ -148,7 +148,7 @@ void idClientConsoleSystemLocal::ConsoleSwitch(sint n) {
     con[n].finalFrac = activeCon->finalFrac;
 
     if(n < 0 || n >= NUMBER_TABS) {
-        Com_Printf("Invalid console number %i\n", n);
+        common->Printf("Invalid console number %i\n", n);
     } else {
         activeCon = &con[n];
     }
@@ -374,8 +374,8 @@ void idClientConsoleSystemLocal::Dump_f(void) {
         // it is a number argument
         if(*p == '\0') {
             if(n < 0 || n >= NUMBER_TABS) {
-                Com_Printf("Invalid console index %d (valid values are "
-                           "0-%d)\n", n, NUMBER_TABS - 1);
+                common->Printf("Invalid console index %d (valid values are "
+                               "0-%d)\n", n, NUMBER_TABS - 1);
                 return;
             }
 
@@ -391,12 +391,12 @@ void idClientConsoleSystemLocal::Dump_f(void) {
 
             // we didn't find a tab
             if(i == NUMBER_TABS) {
-                Com_Printf("Invalid console tab name %s\n", arg);
+                common->Printf("Invalid console tab name %s\n", arg);
                 return;
             }
         }
     } else {
-        Com_Printf("usage: condump <filename> [tab]\n");
+        common->Printf("usage: condump <filename> [tab]\n");
         return;
     }
 
@@ -407,7 +407,7 @@ void idClientConsoleSystemLocal::Dump_f(void) {
         qtime_t time;
         pointer count = (dump_time == cls.realtime / 1000) ? va("(%d)",
                         dump_count++ + 2) : "";
-        Com_RealTime(&time);
+        common->RealTime(&time);
 
         Q_vsprintf_s(name, sizeof(name), sizeof(name),
                      "condump%04d%02d%02d%02d%02d%02d%s",
@@ -438,7 +438,7 @@ void idClientConsoleSystemLocal::Dump_f(void) {
     f = fileSystem->FOpenFileWrite(filename);
 
     if(!f) {
-        Com_Printf("ERROR: couldn't open %s.\n", filename);
+        common->Printf("ERROR: couldn't open %s.\n", filename);
         return;
     }
 
@@ -493,9 +493,10 @@ void idClientConsoleSystemLocal::Dump_f(void) {
         fileSystem->Write(buffer, ::strlen(buffer), f);
     }
 
-    Com_Printf(S_COLOR_YELLOW  "Dumped %s-console text to " S_COLOR_RED "%s"
-               S_COLOR_BLUE "." S_COLOR_WHITE "\n", conTabsNames[con - activeCon],
-               filename);
+    common->Printf(S_COLOR_YELLOW  "Dumped %s-console text to " S_COLOR_RED
+                   "%s"
+                   S_COLOR_BLUE "." S_COLOR_WHITE "\n", conTabsNames[con - activeCon],
+                   filename);
 
     memorySystem->FreeTempMemory(buffer);
     fileSystem->FCloseFile(f);
@@ -513,7 +514,8 @@ void idClientConsoleSystemLocal::Search_f(void) {
     valueType *line, buffer[MAXPRINTMSG];
 
     if(c < 2) {
-        Com_Printf("usage: %s <string1> <string2> <...>\n", cmdSystem->Argv(0));
+        common->Printf("usage: %s <string1> <string2> <...>\n",
+                       cmdSystem->Argv(0));
         return;
     }
 
@@ -571,7 +573,7 @@ void idClientConsoleSystemLocal::Grep_f(void) {
               *search, lastcolor;
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("usage: grep <string>\n");
+        common->Printf("usage: grep <string>\n");
         return;
     }
 
@@ -630,7 +632,7 @@ void idClientConsoleSystemLocal::Grep_f(void) {
     }
 
     if(printbuf[0]) {
-        Com_Printf("%s", printbuf);
+        common->Printf("%s", printbuf);
     }
 }
 
@@ -729,7 +731,7 @@ idClientConsoleSystemLocal::Init
 ================
 */
 void idClientConsoleSystemLocal::Init(void) {
-    Com_Printf("----- idClientConsoleSystemLocal::Init -------\n");
+    common->Printf("----- idClientConsoleSystemLocal::Init -------\n");
 
     cmdCompletionSystem->Clear(&g_consoleField);
     g_consoleField.widthInChars = g_console_field_width;
@@ -765,7 +767,7 @@ void idClientConsoleSystemLocal::Init(void) {
                           &idClientConsoleSystemLocal::CommandMode_f, "");
 
     if(developer->integer) {
-        Com_Printf("Console initialized.\n");
+        common->Printf("Console initialized.\n");
     }
 }
 
@@ -860,7 +862,7 @@ void idClientConsoleSystemLocal::ConsolePrintToTabs(valueType *txt,
     if(con->x == 0) {
         valueType text[MAXPRINTMSG];
         qtime_t now;
-        Com_RealTime(&now);
+        common->RealTime(&now);
         Q_vsprintf_s(text, sizeof(text), sizeof(text), "^9%02d:%02d:%02d ^7%s",
                      now.tm_hour, now.tm_min, now.tm_sec, txt);
         txt = va("%s", text);
@@ -1023,7 +1025,7 @@ void idClientConsoleSystemLocal::DrawInput(void) {
         return;
     }
 
-    Com_RealTime(&realtime);
+    common->RealTime(&realtime);
 
     y = activeCon->vislines - (clientScreenSystem->ConsoleFontCharHeight() * 2)
         + 2 ;
@@ -1334,9 +1336,9 @@ void idClientConsoleSystemLocal::DrawSolidConsole(float32 frac) {
                 vec4_t hsl;
 
                 //make the color brighter
-                Com_rgb_to_hsl(currentColor, hsl);
+                common->RgbToHsl(currentColor, hsl);
                 hsl[2] = 0.25;
-                Com_hsl_to_rgb(hsl, currentColor);
+                common->HlsToRgb(hsl, currentColor);
                 renderSystem->SetColor(currentColor);
                 currentColorChanged = false;
             } else if(currentColorChanged) {
@@ -1511,7 +1513,7 @@ void idClientConsoleSystemLocal::Copy(void) {
     }
 
     if(l > con->current) {
-        Com_Printf("^3Console is empty! Nothing copied.\n");
+        common->Printf("^3Console is empty! Nothing copied.\n");
         return;
     }
 
@@ -1556,7 +1558,7 @@ void idClientConsoleSystemLocal::Copy(void) {
 
     idsystem->SetClipboardData(savebuffer);
 
-    Com_Printf("^2Console successfully copied to clipboard!\n");
+    common->Printf("^2Console successfully copied to clipboard!\n");
 
     memorySystem->FreeTempMemory(buffer);
     memorySystem->FreeTempMemory(savebuffer);
@@ -1618,7 +1620,7 @@ void idClientConsoleSystemLocal::CopyLink(void) {
 
             idsystem->SetClipboardData(buffer);
 
-            Com_Printf("^2Link ^7\"%s\" ^2Copied!\n", buffer);
+            common->Printf("^2Link ^7\"%s\" ^2Copied!\n", buffer);
             break;
         }
 
@@ -1673,14 +1675,14 @@ void idClientConsoleSystemLocal::CopyLink(void) {
 
                 idsystem->SetClipboardData(buffer);
 
-                Com_Printf("^2IP ^7\"%s\" ^2Copied!\n", buffer);
+                common->Printf("^2IP ^7\"%s\" ^2Copied!\n", buffer);
                 break;
             }
         }
     }
 
     if(!link) {
-        Com_Printf("^1No Links or IPs found!\n", buffer);
+        common->Printf("^1No Links or IPs found!\n", buffer);
     }
 
     memorySystem->FreeTempMemory(buffer);

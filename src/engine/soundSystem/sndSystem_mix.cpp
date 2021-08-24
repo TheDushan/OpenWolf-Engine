@@ -480,7 +480,7 @@ void S_PaintChannels(sint endtime) {
 
     snd_vol = s_volume->value * 255;
 
-    //Com_Printf ("%i to %i\n", s_paintedtime, endtime);
+    //common->Printf ("%i to %i\n", s_paintedtime, endtime);
     while(s_paintedtime < endtime) {
         // if paintbuffer is smaller than DMA buffer
         // we may need to fill it multiple times
@@ -494,7 +494,7 @@ void S_PaintChannels(sint endtime) {
         if(s_rawend < s_paintedtime) {
             if(s_rawend) {
                 //if (developer->integer) {
-                //Com_Printf ("background sound underrun\n");
+                //common->Printf ("background sound underrun\n");
                 //}
             }
 
@@ -512,9 +512,9 @@ void S_PaintChannels(sint endtime) {
             }
 
             //      if (i != end)
-            //          Com_Printf ("partial stream\n");
+            //          common->Printf ("partial stream\n");
             //      else
-            //          Com_Printf ("full stream\n");
+            //          common->Printf ("full stream\n");
             for(; i < end ; i++) {
                 paintbuffer[i - s_paintedtime].left =
                     paintbuffer[i - s_paintedtime].right = 0;

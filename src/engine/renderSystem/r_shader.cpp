@@ -395,8 +395,8 @@ static void ParseTexMod(valueType *_text, shaderStage_t *stage) {
     texModInfo_t *tmi;
 
     if(stage->bundle[0].numTexMods == TR_MAX_TEXMODS) {
-        Com_Error(ERR_DROP, "ERROR: too many tcMod stages in shader '%s'",
-                  shader.name);
+        common->Error(ERR_DROP, "ERROR: too many tcMod stages in shader '%s'",
+                      shader.name);
         return;
     }
 
@@ -1825,8 +1825,9 @@ void ParseMaterial(valueType **text) {
     token = COM_ParseExt2(text, false);
 
     if(token[0] == 0) {
-        Com_Printf(S_COLOR_YELLOW  "WARNING: missing material in shader '%s'\n",
-                   shader.name);
+        common->Printf(S_COLOR_YELLOW
+                       "WARNING: missing material in shader '%s'\n",
+                       shader.name);
         return;
     }
 
@@ -4491,7 +4492,7 @@ static void ScanAndLoadShaderFiles(void) {
         fileSystem->ReadFile(filename, (void **)&buffer);
 
         if(!buffer) {
-            Com_Error(ERR_DROP, "Couldn't load %s", filename);
+            common->Error(ERR_DROP, "Couldn't load %s", filename);
         }
 
         LoadShaderFromBuffer(buffer);

@@ -209,7 +209,7 @@ Update the clock
 void idConsoleCursesLocal::UpdateClock(void) {
     qtime_t realtime;
 
-    Com_RealTime(&realtime);
+    common->RealTime(&realtime);
 
     werase(clockwin);
 
@@ -441,8 +441,8 @@ valueType *idConsoleCursesLocal::Input(void) {
         com_ansiColor->modified = false;
     }
 
-    if(Com_RealTime(nullptr) != lasttime) {
-        lasttime = Com_RealTime(nullptr);
+    if(common->RealTime(nullptr) != lasttime) {
+        lasttime = common->RealTime(nullptr);
         UpdateClock();
         num_chars++;
     }
@@ -495,7 +495,7 @@ valueType *idConsoleCursesLocal::Input(void) {
                 wnoutrefresh(inputwin);
                 UpdateCursor();
                 //doupdate();
-                Com_Printf(PROMPT "^7%s\n", text);
+                common->Printf(PROMPT "^7%s\n", text);
                 return text;
 
             case 21: // Ctrl-U

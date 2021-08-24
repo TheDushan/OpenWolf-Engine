@@ -42,8 +42,9 @@ SndPrintf
 Glue
 ===============
 */
-static __attribute__((format(printf, 2,
-                             3))) void QDECL SndPrintf(sint print_level, pointer fmt, ...) {
+__attribute__((format(printf, 2,
+                      3))) void QDECL idSoundSystemLocal::SndPrintf(sint print_level,
+                              pointer fmt, ...) {
     va_list     argptr;
     valueType       msg[MAXPRINTMSG];
 
@@ -52,16 +53,16 @@ static __attribute__((format(printf, 2,
     va_end(argptr);
 
     if(print_level == PRINT_ALL) {
-        Com_Printf("%s", msg);
+        common->Printf("%s", msg);
     } else if(print_level == PRINT_WARNING) {
         // yellow
-        Com_Printf(S_COLOR_YELLOW "%s", msg);
+        common->Printf(S_COLOR_YELLOW "%s", msg);
     }
 
     if(developer->integer) {
         if(print_level == PRINT_DEVELOPER) {
             // red
-            Com_Printf(S_COLOR_RED "%s", msg);
+            common->Printf(S_COLOR_RED "%s", msg);
         }
     }
 }
@@ -94,9 +95,6 @@ idClientGameSystemLocal::CreateExportTable
 ====================
 */
 static void CreateExportTable(void) {
-    exports.Printf = SndPrintf;
-    exports.Error = Com_Error;
-
     exports.soundOpenALSystem = soundOpenALSystem;
     exports.soundSystem = soundSystem;
     exports.fileSystem = fileSystem;
@@ -105,6 +103,7 @@ static void CreateExportTable(void) {
     exports.idsystem = idsystem;
     exports.parseSystem = ParseSystem;
     exports.memorySystem = memorySystem;
+    exports.common = common;
 }
 
 /*
@@ -115,15 +114,15 @@ S_InitModule
 static bool S_InitModule(void) {
     valueType fn[1024];
 
-    Com_Printf("using sound module %s\n", s_module->string);
+    common->Printf("using sound module %s\n", s_module->string);
 
     ::snprintf(fn, sizeof(fn), "%s/soundSystem%s." ARCH_STRING DLL_EXT,
                idsystem->Cwd(),
                s_module->string);
 
     if((openALModule = SDL_LoadObject(fn)) == 0) {
-        Com_Printf("can't load sound module - bailing\n");
-        Com_Printf("------------------------------------\n");
+        common->Printf("can't load sound module - bailing\n");
+        common->Printf("------------------------------------\n");
         return false;
     }
 
@@ -132,14 +131,14 @@ static bool S_InitModule(void) {
                   idsystem->GetProcAddress(openALModule, "GetSndAPI");
 
     if(!openALEntry) {
-        Com_Error(ERR_DROP, "error loading entry point on openAL.\n");
+        common->Error(ERR_DROP, "error loading entry point on openAL.\n");
     }
 
     if(!openALModule) {
         SDL_UnloadObject(openALModule);
         openALModule = nullptr;
-        Com_Printf("can't find GetSndAPI - bailing\n");
-        Com_Printf("------------------------------------\n");
+        common->Printf("can't find GetSndAPI - bailing\n");
+        common->Printf("------------------------------------\n");
         return false;
     }
 
@@ -154,8 +153,8 @@ static bool S_InitModule(void) {
         SDL_UnloadObject(openALModule);
         openALModule = nullptr;
         soundOpenALSystem = nullptr;
-        Com_Printf("call to Init failed - bailing\n");
-        Com_Printf("------------------------------------\n");
+        common->Printf("call to Init failed - bailing\n");
+        common->Printf("------------------------------------\n");
         return false;
     }
 
@@ -170,14 +169,14 @@ idSoundSystemLocal::Init
 void idSoundSystemLocal::Init(void) {
     convar_t *cv;
 
-    Com_Printf("------ Initializing Sound -----\n");
+    common->Printf("------ Initializing Sound -----\n");
 
     cv = cvarSystem->Get("s_initsound", "1", 0,
                          "Toggle weather sound is initialized or not (on next game)");
 
     if(!cv->integer) {
-        Com_Printf("not initializing.\n");
-        Com_Printf("------------------------------------\n");
+        common->Printf("not initializing.\n");
+        common->Printf("------------------------------------\n");
         return;
     }
 
@@ -197,11 +196,11 @@ void idSoundSystemLocal::Init(void) {
     }
 
     if(useBuiltin) {
-        Com_Printf("using builtin sound system\n");
+        common->Printf("using builtin sound system\n");
         SOrig_Init();
     }
 
-    Com_Printf("------------------------------------\n");
+    common->Printf("------------------------------------\n");
 }
 
 /*

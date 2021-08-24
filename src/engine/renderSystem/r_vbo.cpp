@@ -118,16 +118,16 @@ vao_t *R_CreateVao(pointer name, uchar8 *vertexes, sint vertexesSize,
             break;
 
         default:
-            Com_Error(ERR_FATAL, "bad vaoUsage_t given: %i", usage);
+            common->Error(ERR_FATAL, "bad vaoUsage_t given: %i", usage);
             return nullptr;
     }
 
     if(strlen(name) >= MAX_QPATH) {
-        Com_Error(ERR_DROP, "R_CreateVao: \"%s\" is too long", name);
+        common->Error(ERR_DROP, "R_CreateVao: \"%s\" is too long", name);
     }
 
     if(tr.numVaos == MAX_VAOS) {
-        Com_Error(ERR_DROP, "R_CreateVao: MAX_VAOS hit");
+        common->Error(ERR_DROP, "R_CreateVao: MAX_VAOS hit");
     }
 
     R_IssuePendingRenderCommands();
@@ -190,11 +190,11 @@ vao_t *R_CreateVao2(pointer name, sint numVertexes, srfVert_t *verts,
     }
 
     if(strlen(name) >= MAX_QPATH) {
-        Com_Error(ERR_DROP, "R_CreateVao2: \"%s\" is too long", name);
+        common->Error(ERR_DROP, "R_CreateVao2: \"%s\" is too long", name);
     }
 
     if(tr.numVaos == MAX_VAOS) {
-        Com_Error(ERR_DROP, "R_CreateVao2: MAX_VAOS hit");
+        common->Error(ERR_DROP, "R_CreateVao2: MAX_VAOS hit");
     }
 
     R_IssuePendingRenderCommands();
@@ -344,7 +344,7 @@ R_BindVao
 void R_BindVao(vao_t *vao) {
     if(!vao) {
         //R_BindNullVao();
-        Com_Error(ERR_DROP, "R_BindVao: nullptr vao");
+        common->Error(ERR_DROP, "R_BindVao: nullptr vao");
         return;
     }
 

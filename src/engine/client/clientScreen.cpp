@@ -539,7 +539,7 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
 
     if(!uivm) {
         if(developer->integer) {
-            Com_Printf("idClientScreenSystemLocal::DrawScreenField - draw screen without GUI loaded\n");
+            common->Printf("idClientScreenSystemLocal::DrawScreenField - draw screen without GUI loaded\n");
         }
 
         return;
@@ -550,8 +550,8 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
     if(uivm && !uiFullscreen) {
         switch(cls.state) {
             default:
-                Com_Error(ERR_FATAL,
-                          "idClientScreenSystemLocal::DrawScreenField: bad cls.state");
+                common->Error(ERR_FATAL,
+                              "idClientScreenSystemLocal::DrawScreenField: bad cls.state");
                 break;
 
             case CA_CINEMATIC:

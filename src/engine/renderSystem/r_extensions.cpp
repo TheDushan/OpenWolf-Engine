@@ -38,7 +38,7 @@ void GLimp_InitExtraExtensions(void) {
 
     // Check OpenGL version
     if(!QGL_VERSION_ATLEAST(2, 0)) {
-        Com_Error(ERR_FATAL, "OpenGL 2.0 required!");
+        common->Error(ERR_FATAL, "OpenGL 2.0 required!");
     }
 
     clientRendererSystem->RefPrintf(PRINT_ALL, "...using OpenGL %s\n",
@@ -165,7 +165,7 @@ void GLimp_InitExtraExtensions(void) {
     }
 
     if(!qglGetString) {
-        Com_Error(ERR_FATAL, "glGetString is nullptr");
+        common->Error(ERR_FATAL, "glGetString is nullptr");
     }
 
     // Determine GLSL version

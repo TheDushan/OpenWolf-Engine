@@ -92,19 +92,19 @@ FBO_t          *FBO_Create(pointer name, sint width, sint height) {
     FBO_t *fbo = nullptr;
 
     if(strlen(name) >= MAX_QPATH) {
-        Com_Error(ERR_DROP, "FBO_Create: \"%s\" is too long", name);
+        common->Error(ERR_DROP, "FBO_Create: \"%s\" is too long", name);
     }
 
     if(width <= 0 || width > glRefConfig.maxRenderbufferSize) {
-        Com_Error(ERR_DROP, "FBO_Create: bad width %i", width);
+        common->Error(ERR_DROP, "FBO_Create: bad width %i", width);
     }
 
     if(height <= 0 || height > glRefConfig.maxRenderbufferSize) {
-        Com_Error(ERR_DROP, "FBO_Create: bad height %i", height);
+        common->Error(ERR_DROP, "FBO_Create: bad height %i", height);
     }
 
     if(tr.numFBOs == MAX_FBOS) {
-        Com_Error(ERR_DROP, "FBO_Create: MAX_FBOS hit");
+        common->Error(ERR_DROP, "FBO_Create: MAX_FBOS hit");
     }
 
     fbo = tr.fbos[tr.numFBOs] = reinterpret_cast<FBO_t *>(memorySystem->Alloc(

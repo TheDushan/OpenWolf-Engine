@@ -107,7 +107,7 @@ void idServerWorldSystemLocal::SectorList_f(void) {
             c++;
         }
 
-        Com_Printf("sector %i: %i entities\n", i, c);
+        common->Printf("sector %i: %i entities\n", i, c);
     }
 }
 
@@ -210,7 +210,7 @@ void idServerWorldSystemLocal::UnlinkEntity(sharedEntity_t *gEnt) {
         }
     }
 
-    Com_Printf("WARNING: idServerWorldSystemLocal::UnlinkEntity: not found in worldSector\n");
+    common->Printf("WARNING: idServerWorldSystemLocal::UnlinkEntity: not found in worldSector\n");
 }
 
 /*
@@ -230,7 +230,7 @@ void idServerWorldSystemLocal::LinkEntity(sharedEntity_t *gEnt) {
     // Ridah, sanity check for possible currentOrigin being reset bug
     if(!gEnt->r.bmodel && VectorCompare(gEnt->r.currentOrigin, vec3_origin)) {
         if(developer->integer) {
-            Com_Printf("WARNING: BBOX entity is being linked at world origin, this is probably a bug\n");
+            common->Printf("WARNING: BBOX entity is being linked at world origin, this is probably a bug\n");
         }
     }
 
@@ -348,8 +348,8 @@ void idServerWorldSystemLocal::LinkEntity(sharedEntity_t *gEnt) {
                 if(ent->areanum2 != -1 && ent->areanum2 != area &&
                         sv.state == SS_LOADING) {
                     if(developer->integer) {
-                        Com_Printf("Object %i touching 3 areas at %f %f %f\n", gEnt->s.number,
-                                   gEnt->r.absmin[0], gEnt->r.absmin[1], gEnt->r.absmin[2]);
+                        common->Printf("Object %i touching 3 areas at %f %f %f\n", gEnt->s.number,
+                                       gEnt->r.absmin[0], gEnt->r.absmin[1], gEnt->r.absmin[2]);
                     }
                 }
 
@@ -443,7 +443,7 @@ void idServerWorldSystemLocal::AreaEntities_r(worldSector_t *node,
 
         if(ap->count >= ap->maxcount) {
             if(developer->integer) {
-                Com_Printf("idServerWorldSystemLocal::AreaEntities: MAXCOUNT\n");
+                common->Printf("idServerWorldSystemLocal::AreaEntities: MAXCOUNT\n");
             }
 
             return;

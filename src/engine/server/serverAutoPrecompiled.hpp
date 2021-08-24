@@ -106,6 +106,9 @@
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
 #include <API/Memory_api.hpp>
+#include <qcommon/qcommon.hpp>
+#include <API/Common_api.hpp>
+#include <framework/Common.hpp>
 #include <framework/Memory.hpp>
 #include <qcommon/qfiles.hpp>
 #include <API/cm_api.hpp>
@@ -114,7 +117,6 @@
 #include <API/FileSystem_api.hpp>
 #include <API/CVarSystem_api.hpp>
 #include <API/download_api.hpp>
-#include <qcommon/qcommon.hpp>
 #include <framework/CommonConsoleVars.hpp>
 #include <API/serverGame_api.hpp>
 #include <server/server.hpp>

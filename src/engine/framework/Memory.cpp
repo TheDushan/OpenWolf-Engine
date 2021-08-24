@@ -96,19 +96,20 @@ void idMemorySystemLocal::Free(void *ptr) {
     memzone_t *zone;
 
     if(!ptr) {
-        Com_Error(ERR_DROP, "idMemorySystemLocal::Free: nullptr pointer");
+        common->Error(ERR_DROP, "idMemorySystemLocal::Free: nullptr pointer");
     }
 
     block = (memblock_t *)(reinterpret_cast<uchar8 *>(ptr) - sizeof(
                                memblock_t));
 
     if(block->id != ZONEID) {
-        Com_Error(ERR_FATAL,
-                  "idMemorySystemLocal::Free: freed a pointer without ZONEID");
+        common->Error(ERR_FATAL,
+                      "idMemorySystemLocal::Free: freed a pointer without ZONEID");
     }
 
     if(block->tag == 0) {
-        Com_Error(ERR_FATAL, "idMemorySystemLocal::Free: freed a freed pointer");
+        common->Error(ERR_FATAL,
+                      "idMemorySystemLocal::Free: freed a freed pointer");
     }
 
     // if static memory
@@ -119,8 +120,8 @@ void idMemorySystemLocal::Free(void *ptr) {
     // check the memory trash tester
     if(*reinterpret_cast<sint *>((reinterpret_cast<uchar8 *>
                                   (block) + block->size - 4)) != ZONEID) {
-        Com_Error(ERR_FATAL,
-                  "idMemorySystemLocal::Free: memory block wrote past end");
+        common->Error(ERR_FATAL,
+                      "idMemorySystemLocal::Free: memory block wrote past end");
     }
 
     if(block->tag == TAG_SMALL) {
@@ -210,8 +211,8 @@ void *idMemorySystemLocal::TagMalloc(size_t size, memtag_t tag) {
     memzone_t *zone;
 
     if(!tag) {
-        Com_Error(ERR_FATAL,
-                  "idMemorySystemLocal::TagMalloc: tried to use a 0 tag");
+        common->Error(ERR_FATAL,
+                      "idMemorySystemLocal::TagMalloc: tried to use a 0 tag");
     }
 
     if(tag == TAG_SMALL) {
@@ -235,9 +236,9 @@ void *idMemorySystemLocal::TagMalloc(size_t size, memtag_t tag) {
     do {
         if(rover == start) {
             // scaned all the way around the list
-            Com_Error(ERR_FATAL,
-                      "idMemorySystemLocal::TagMalloc: failed on allocation of %i bytes from the %s zone",
-                      size, zone == smallzone ? "small" : "main");
+            common->Error(ERR_FATAL,
+                          "idMemorySystemLocal::TagMalloc: failed on allocation of %i bytes from the %s zone",
+                          size, zone == smallzone ? "small" : "main");
 
             return nullptr;
         }
@@ -320,18 +321,18 @@ void idMemorySystemLocal::CheckHeap(void) {
 
         if(reinterpret_cast<uchar8 *>(block) + block->size !=
                 reinterpret_cast<uchar8 *>(block->next)) {
-            Com_Error(ERR_FATAL,
-                      "idMemorySystemLocal::CheckHeap: block size does not touch the next block");
+            common->Error(ERR_FATAL,
+                          "idMemorySystemLocal::CheckHeap: block size does not touch the next block");
         }
 
         if(block->next->prev != block) {
-            Com_Error(ERR_FATAL,
-                      "idMemorySystemLocal::CheckHeap: next block doesn't have proper back link");
+            common->Error(ERR_FATAL,
+                          "idMemorySystemLocal::CheckHeap: next block doesn't have proper back link");
         }
 
         if(!block->tag && !block->next->tag) {
-            Com_Error(ERR_FATAL,
-                      "idMemorySystemLocal::CheckHeap: two consecutive free blocks");
+            common->Error(ERR_FATAL,
+                          "idMemorySystemLocal::CheckHeap: two consecutive free blocks");
         }
     }
 }
@@ -417,8 +418,8 @@ void idMemorySystemLocal::Meminfo_f(void) {
 
     for(block = mainzone->blocklist.next; ; block = block->next) {
         if(cmdSystem->Argc() != 1) {
-            Com_Printf("block:%p    size:%7i    tag:%3i\n",
-                       block, block->size, block->tag);
+            common->Printf("block:%p    size:%7i    tag:%3i\n",
+                           block, block->size, block->tag);
         }
 
         if(block->tag) {
@@ -444,15 +445,15 @@ void idMemorySystemLocal::Meminfo_f(void) {
 
         if(reinterpret_cast<uchar8 *>(block) + block->size !=
                 reinterpret_cast<uchar8 *>(block->next)) {
-            Com_Printf("ERROR: block size does not touch the next block\n");
+            common->Printf("ERROR: block size does not touch the next block\n");
         }
 
         if(block->next->prev != block) {
-            Com_Printf("ERROR: next block doesn't have proper back link\n");
+            common->Printf("ERROR: next block doesn't have proper back link\n");
         }
 
         if(!block->tag && !block->next->tag) {
-            Com_Printf("ERROR: two consecutive free blocks\n");
+            common->Printf("ERROR: two consecutive free blocks\n");
         }
     }
 
@@ -470,37 +471,38 @@ void idMemorySystemLocal::Meminfo_f(void) {
         }
     }
 
-    Com_Printf("%8i K total hunk\n", s_hunk.memSize / 1024);
-    Com_Printf("%8i K total zone\n", s_zoneTotal / 1024);
-    Com_Printf("\n");
+    common->Printf("%8i K total hunk\n", s_hunk.memSize / 1024);
+    common->Printf("%8i K total zone\n", s_zoneTotal / 1024);
+    common->Printf("\n");
 
-    Com_Printf("%8i K used hunk (permanent)\n", s_hunk.permTop / 1024);
-    Com_Printf("%8i K used hunk (temp)\n", s_hunk.tempTop / 1024);
-    Com_Printf("%8i K used hunk (TOTAL)\n",
-               (s_hunk.permTop + s_hunk.tempTop) / 1024);
-    Com_Printf("\n");
+    common->Printf("%8i K used hunk (permanent)\n", s_hunk.permTop / 1024);
+    common->Printf("%8i K used hunk (temp)\n", s_hunk.tempTop / 1024);
+    common->Printf("%8i K used hunk (TOTAL)\n",
+                   (s_hunk.permTop + s_hunk.tempTop) / 1024);
+    common->Printf("\n");
 
-    Com_Printf("%8i K max hunk (permanent)\n", s_hunk.permMax / 1024);
-    Com_Printf("%8i K max hunk (temp)\n", s_hunk.tempMax / 1024);
-    Com_Printf("%8i K max hunk (TOTAL)\n",
-               (s_hunk.permMax + s_hunk.tempMax) / 1024);
-    Com_Printf("\n");
+    common->Printf("%8i K max hunk (permanent)\n", s_hunk.permMax / 1024);
+    common->Printf("%8i K max hunk (temp)\n", s_hunk.tempMax / 1024);
+    common->Printf("%8i K max hunk (TOTAL)\n",
+                   (s_hunk.permMax + s_hunk.tempMax) / 1024);
+    common->Printf("\n");
 
-    Com_Printf("%8i K max hunk since last memorySystem->Clear\n",
-               s_hunk.maxEver / 1024);
-    Com_Printf("%8i K hunk mem never touched\n",
-               (s_hunk.memSize - s_hunk.maxEver) / 1024);
-    Com_Printf("%8i hunk mark value\n", s_hunk.mark);
-    Com_Printf("\n");
+    common->Printf("%8i K max hunk since last memorySystem->Clear\n",
+                   s_hunk.maxEver / 1024);
+    common->Printf("%8i K hunk mem never touched\n",
+                   (s_hunk.memSize - s_hunk.maxEver) / 1024);
+    common->Printf("%8i hunk mark value\n", s_hunk.mark);
+    common->Printf("\n");
 
-    Com_Printf("\n");
-    Com_Printf("%8i bytes in %i zone blocks\n", zoneBytes, zoneBlocks);
-    Com_Printf("        %8i bytes in dynamic botlib\n", botlibBytes);
-    Com_Printf("        %8i bytes in dynamic renderer\n", rendererBytes);
-    Com_Printf("        %8i bytes in dynamic other\n", otherBytes);
-    Com_Printf("        %8i bytes in small Zone memory\n", smallZoneBytes);
-    Com_Printf("        %8i bytes in static server memory\n", staticBytes);
-    Com_Printf("        %8i bytes in general common memory\n", generalBytes);
+    common->Printf("\n");
+    common->Printf("%8i bytes in %i zone blocks\n", zoneBytes, zoneBlocks);
+    common->Printf("        %8i bytes in dynamic botlib\n", botlibBytes);
+    common->Printf("        %8i bytes in dynamic renderer\n", rendererBytes);
+    common->Printf("        %8i bytes in dynamic other\n", otherBytes);
+    common->Printf("        %8i bytes in small Zone memory\n", smallZoneBytes);
+    common->Printf("        %8i bytes in static server memory\n", staticBytes);
+    common->Printf("        %8i bytes in general common memory\n",
+                   generalBytes);
 }
 
 /*
@@ -538,7 +540,7 @@ void idMemorySystemLocal::TouchMemory(void) {
 
     end = idsystem->Milliseconds();
 
-    Com_Printf("idMemorySystemLocal::TouchMemory: %i msec\n", end - start);
+    common->Printf("idMemorySystemLocal::TouchMemory: %i msec\n", end - start);
 }
 
 /*
@@ -553,8 +555,8 @@ void idMemorySystemLocal::InitSmallZoneMemory(void) {
     smallzone = (memzone_t *)calloc(s_smallZoneTotal, 1);
 
     if(!smallzone) {
-        Com_Error(ERR_FATAL, "Small zone data failed to allocate %1.1f megs",
-                  static_cast<float32>(s_smallZoneTotal) / (1024 * 1024));
+        common->Error(ERR_FATAL, "Small zone data failed to allocate %1.1f megs",
+                      static_cast<float32>(s_smallZoneTotal) / (1024 * 1024));
     }
 
     ClearZone(smallzone, s_smallZoneTotal);
@@ -571,7 +573,7 @@ void idMemorySystemLocal::InitZoneMemory(void) {
     convar_t *cv;
 
     // allocate the random block zone
-    Com_StartupVariable("com_zoneMegs"); // config files and command line options haven't been taken in account yet
+    common->StartupVariable("com_zoneMegs"); // config files and command line options haven't been taken in account yet
     cv = cvarSystem->Get("com_zoneMegs", DEF_COMZONEMEGS_S, CVAR_INIT,
                          "Sets the amount of memory reserved for the game.");
 
@@ -585,8 +587,8 @@ void idMemorySystemLocal::InitZoneMemory(void) {
     mainzone = (memzone_t *)calloc(s_zoneTotal, 1);
 
     if(!mainzone) {
-        Com_Error(ERR_FATAL, "Zone data failed to allocate %i megs",
-                  s_zoneTotal / (1024 * 1024));
+        common->Error(ERR_FATAL, "Zone data failed to allocate %i megs",
+                      s_zoneTotal / (1024 * 1024));
     }
 
     ClearZone(mainzone, s_zoneTotal);
@@ -610,8 +612,8 @@ void idMemorySystemLocal::InitHunkMemory(void) {
     // by the file system without redunant routines in the file system utilizing different
     // memory systems
     if(fileSystem->LoadStack() != 0) {
-        Com_Error(ERR_FATAL,
-                  "Hunk initialization failed. File system load stack not zero");
+        common->Error(ERR_FATAL,
+                      "Hunk initialization failed. File system load stack not zero");
     }
 
     // allocate the stack based hunk allocator
@@ -630,7 +632,7 @@ void idMemorySystemLocal::InitHunkMemory(void) {
 
     if(cv->integer < nMinAlloc) {
         s_hunk.memSize = 1024 * 1024 * nMinAlloc;
-        Com_Printf(pMsg, nMinAlloc, s_hunk.memSize / (1024 * 1024));
+        common->Printf(pMsg, nMinAlloc, s_hunk.memSize / (1024 * 1024));
     } else {
         s_hunk.memSize = cv->integer * 1024 * 1024;
     }
@@ -639,8 +641,8 @@ void idMemorySystemLocal::InitHunkMemory(void) {
     s_hunk.originalRaw = static_cast<uchar8 *>(calloc(s_hunk.memSize + 63, 1));
 
     if(!s_hunk.originalRaw) {
-        Com_Error(ERR_FATAL, "Hunk data failed to allocate %i megs",
-                  s_hunk.memSize / (1024 * 1024));
+        common->Error(ERR_FATAL, "Hunk data failed to allocate %i megs",
+                      s_hunk.memSize / (1024 * 1024));
     }
 
     // cacheline align
@@ -724,7 +726,7 @@ void idMemorySystemLocal::Clear(void) {
     s_hunk.maxEver = 0;
     s_hunk.mark = 0;
 
-    Com_Printf("idMemorySystemLocal::Clear: reset the hunk ok\n");
+    common->Printf("idMemorySystemLocal::Clear: reset the hunk ok\n");
 
     //stake out a chunk for the frame temp data
     FrameInit();
@@ -741,15 +743,15 @@ void *idMemorySystemLocal::Alloc(size_t size, ha_pref preference) {
     void *buf;
 
     if(s_hunk.mem == nullptr) {
-        Com_Error(ERR_FATAL,
-                  "idMemorySystemLocal::Alloc: Hunk memory system not initialized");
+        common->Error(ERR_FATAL,
+                      "idMemorySystemLocal::Alloc: Hunk memory system not initialized");
     }
 
     // round to cacheline
     size = (size + 63) & ~63;
 
     if(s_hunk.permTop + s_hunk.tempTop + size > s_hunk.memSize) {
-        Com_Error(ERR_DROP, "idMemorySystemLocal::Alloc failed on %i", size);
+        common->Error(ERR_DROP, "idMemorySystemLocal::Alloc failed on %i", size);
     }
 
     buf = s_hunk.mem + s_hunk.permTop;
@@ -792,8 +794,8 @@ void *idMemorySystemLocal::AllocateTempMemory(size_t size) {
     size = PAD(size, sizeof(sint64)) + sizeof(hunkHeader_t);
 
     if(s_hunk.permTop + s_hunk.tempTop + size > s_hunk.memSize) {
-        Com_Error(ERR_DROP,
-                  "idMemorySystemLocal::AllocateTempMemory: failed on %i", size);
+        common->Error(ERR_DROP,
+                      "idMemorySystemLocal::AllocateTempMemory: failed on %i", size);
     }
 
     s_hunk.tempTop += size;
@@ -838,7 +840,7 @@ void idMemorySystemLocal::FreeTempMemory(void *buf) {
     hdr = (hunkHeader_t *)buf - 1;
 
     if(hdr->magic != HUNK_MAGIC) {
-        Com_Error(ERR_FATAL, "memorySystem->FreeTempMemory: bad magic");
+        common->Error(ERR_FATAL, "memorySystem->FreeTempMemory: bad magic");
     }
 
     hdr->magic = HUNK_FREE_MAGIC;

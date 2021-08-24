@@ -85,7 +85,7 @@ sint32 idCVarSystemLocal::generateHashValue(pointer fname) {
     valueType letter;
 
     if(!fname) {
-        Com_Error(ERR_DROP, "null name in generateHashValue");   //gjd
+        common->Error(ERR_DROP, "null name in generateHashValue");   //gjd
     }
 
     hash = 0;
@@ -324,7 +324,7 @@ pointer idCVarSystemLocal::Validate(convar_t *var, pointer value,
         if(var->integral) {
             if(!Q_isintegral(valuef)) {
                 if(warn) {
-                    Com_Printf(S_COLOR_YELLOW "'%s' must be integral", var->name);
+                    common->Printf(S_COLOR_YELLOW "'%s' must be integral", var->name);
                 }
 
                 valuef = static_cast<sint>(valuef);
@@ -333,7 +333,7 @@ pointer idCVarSystemLocal::Validate(convar_t *var, pointer value,
         }
     } else {
         if(warn) {
-            Com_Printf(S_COLOR_YELLOW "'%s' must be numeric", var->name);
+            common->Printf(S_COLOR_YELLOW "'%s' must be numeric", var->name);
         }
 
         valuef = atof(var->resetString);
@@ -343,15 +343,15 @@ pointer idCVarSystemLocal::Validate(convar_t *var, pointer value,
     if(valuef < var->min) {
         if(warn) {
             if(changed) {
-                Com_Printf(" and is");
+                common->Printf(" and is");
             } else {
-                Com_Printf(S_COLOR_YELLOW "Attempted to set '%s'", var->name);
+                common->Printf(S_COLOR_YELLOW "Attempted to set '%s'", var->name);
             }
 
             if(Q_isintegral(var->min)) {
-                Com_Printf(" out of range (min %d)\n", static_cast<sint>(var->min));
+                common->Printf(" out of range (min %d)\n", static_cast<sint>(var->min));
             } else {
-                Com_Printf(" out of range (min %f)\n", var->min);
+                common->Printf(" out of range (min %f)\n", var->min);
             }
         }
 
@@ -360,15 +360,15 @@ pointer idCVarSystemLocal::Validate(convar_t *var, pointer value,
     } else if(valuef > var->max) {
         if(warn) {
             if(changed) {
-                Com_Printf(" and is");
+                common->Printf(" and is");
             } else {
-                Com_Printf(S_COLOR_YELLOW "Attempted to set '%s'", var->name);
+                common->Printf(S_COLOR_YELLOW "Attempted to set '%s'", var->name);
             }
 
             if(Q_isintegral(var->max)) {
-                Com_Printf(" out of range (max %d)\n", static_cast<sint>(var->max));
+                common->Printf(" out of range (max %d)\n", static_cast<sint>(var->max));
             } else {
-                Com_Printf(" out of range (max %f)\n", var->max);
+                common->Printf(" out of range (max %f)\n", var->max);
             }
         }
 
@@ -404,20 +404,20 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
     sint32 hash;
 
     if(!var_name || !var_value) {
-        Com_Error(ERR_FATAL, "idCVarSystemLocal::Get: nullptr parameter");
+        common->Error(ERR_FATAL, "idCVarSystemLocal::Get: nullptr parameter");
     }
 
     if(!ValidateString(var_name)) {
-        Com_Printf("idCVarSystemLocal::Get: invalid cvar name string: %s\n",
-                   var_name);
+        common->Printf("idCVarSystemLocal::Get: invalid cvar name string: %s\n",
+                       var_name);
         var_name = "BADNAME";
     }
 
 #if 0 // FIXME: values with backslash happen
 
     if(!Cvar_ValidateString(var_value)) {
-        Com_Printf("idCVarSystemLocal::Get: invalid cvar value string: %s\n",
-                   var_value);
+        common->Printf("idCVarSystemLocal::Get: invalid cvar value string: %s\n",
+                       var_value);
         var_value = "BADVALUE";
     }
 
@@ -450,8 +450,8 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
             var->resetString = memorySystem->CopyString(var_value);
         } else if(var_value[0] && strcmp(var->resetString, var_value)) {
             if(developer->integer) {
-                Com_Printf("idCVarSystemLocal::Get: Warning: convar \"%s\" given initial values: \"%s\" and \"%s\"\n",
-                           var_name, var->resetString, var_value);
+                common->Printf("idCVarSystemLocal::Get: Warning: convar \"%s\" given initial values: \"%s\" and \"%s\"\n",
+                               var_name, var->resetString, var_value);
             }
         }
 
@@ -503,9 +503,9 @@ convar_t *idCVarSystemLocal::Get(pointer var_name, pointer var_value,
     // allocate a new cvar
     //
     if(cvar_numIndexes >= MAX_CVARS) {
-        Com_Error(ERR_FATAL,
-                  "idCVarSystemLocal::Get: MAX_CVARS (%d) hit -- too many cvars!",
-                  MAX_CVARS);
+        common->Error(ERR_FATAL,
+                      "idCVarSystemLocal::Get: MAX_CVARS (%d) hit -- too many cvars!",
+                      MAX_CVARS);
     }
 
     var = &cvar_indexes[cvar_numIndexes];
@@ -549,12 +549,12 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
 
     if(strcmp("com_hunkused", var_name) != 0) {
         if(developer->integer) {
-            Com_Printf("idCVarSystemLocal::Set2: %s %s\n", var_name, value);
+            common->Printf("idCVarSystemLocal::Set2: %s %s\n", var_name, value);
         }
     }
 
     if(!ValidateString(var_name)) {
-        Com_Printf("invalid cvar name string: %s\n", var_name);
+        common->Printf("invalid cvar name string: %s\n", var_name);
         var_name = "BADNAME";
     }
 
@@ -584,12 +584,12 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
 
         if(strcmp(value, cleaned)) {
 #ifdef DEDICATED
-            Com_Printf(FOREIGN_MSG);
+            common->Printf(FOREIGN_MSG);
 #else
-            Com_Printf("%s", clientLocalizationSystem->TranslateStringBuf(
-                           FOREIGN_MSG));
+            common->Printf("%s", clientLocalizationSystem->TranslateStringBuf(
+                               FOREIGN_MSG));
 #endif
-            Com_Printf("Using %s instead of %s\n", cleaned, value);
+            common->Printf("Using %s instead of %s\n", cleaned, value);
             return GetSet2(var_name, cleaned, force);
         }
     }
@@ -607,8 +607,8 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
     if(!strcmp(value, var->string)) {
 
         if((var->flags & CVAR_LATCH) && var->latchedString) {
-            Com_Printf("Cvar %s is no longer latched to \"%s\".\n", var->name,
-                       var->latchedString);
+            common->Printf("Cvar %s is no longer latched to \"%s\".\n", var->name,
+                           var->latchedString);
             memorySystem->Free(var->latchedString);
             var->latchedString = nullptr;
             var->modified = true;
@@ -625,28 +625,28 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
         // ydnar: don't set unsafe variables when com_crashed is set
         if((var->flags & CVAR_UNSAFE) && com_crashed != nullptr &&
                 com_crashed->integer) {
-            Com_Printf("%s is unsafe. Check com_crashed.\n", var_name);
+            common->Printf("%s is unsafe. Check com_crashed.\n", var_name);
             return var;
         }
 
         if(var->flags & CVAR_ROM) {
-            Com_Printf("%s is read only.\n", var_name);
+            common->Printf("%s is read only.\n", var_name);
             return var;
         }
 
         if(var->flags & CVAR_INIT) {
-            Com_Printf("%s can only be set at startup time by using a \"+set\" command line parameter.\n",
-                       var_name);
+            common->Printf("%s can only be set at startup time by using a \"+set\" command line parameter.\n",
+                           var_name);
             return var;
         }
 
         if((var->flags & CVAR_CHEAT) && !sv_cheats->integer) {
-            Com_Printf("%s is cheat protected.\n", var_name);
+            common->Printf("%s is cheat protected.\n", var_name);
             return var;
         }
 
         if(var->flags & CVAR_SHADER) {
-            Com_Printf("%s will be changed upon recompiling shaders.\n", var_name);
+            common->Printf("%s will be changed upon recompiling shaders.\n", var_name);
             Set("r_recompileShaders", "1");
         }
 
@@ -663,8 +663,8 @@ convar_t *idCVarSystemLocal::GetSet2(pointer var_name, pointer value,
                 }
             }
 
-            Com_Printf("%s will be changed to \"%s\" upon restarting.\n", var_name,
-                       value);
+            common->Printf("%s will be changed to \"%s\" upon restarting.\n", var_name,
+                           value);
 
             var->latchedString = memorySystem->CopyString(value);
             var->modified = true;
@@ -817,11 +817,12 @@ bool idCVarSystemLocal::Command(void) {
 
     // perform a variable print or set
     if(cmdSystem->Argc() == 1) {
-        Com_Printf("\"%s\" is:\"%s" S_COLOR_WHITE "\" default:\"%s" S_COLOR_WHITE
-                   "\"\n", v->name, v->string, v->resetString);
+        common->Printf("\"%s\" is:\"%s" S_COLOR_WHITE "\" default:\"%s"
+                       S_COLOR_WHITE
+                       "\"\n", v->name, v->string, v->resetString);
 
         if(v->latchedString) {
-            Com_Printf("latched: \"%s\"\n", v->latchedString);
+            common->Printf("latched: \"%s\"\n", v->latchedString);
         }
 
         return true;
@@ -853,7 +854,7 @@ void idCVarSystemLocal::Toggle_f(void) {
     c = cmdSystem->Argc();
 
     if(c < 2) {
-        Com_Printf("usage: toggle <variable> [<value> ...]\n");
+        common->Printf("usage: toggle <variable> [<value> ...]\n");
         return;
     }
 
@@ -893,7 +894,7 @@ void idCVarSystemLocal::Cycle_f(void) {
     sint start, end, step, oldvalue, value;
 
     if(cmdSystem->Argc() < 4 || cmdSystem->Argc() > 5) {
-        Com_Printf("usage: cycle <variable> <start> <end> [step]\n");
+        common->Printf("usage: cycle <variable> <start> <end> [step]\n");
         return;
     }
 
@@ -943,7 +944,7 @@ void idCVarSystemLocal::Set_f(void) {
     c = cmdSystem->Argc();
 
     if(c < 3) {
-        Com_Printf("usage: set <variable> <value> [unsafe]\n");
+        common->Printf("usage: set <variable> <value> [unsafe]\n");
         return;
     }
 
@@ -953,7 +954,7 @@ void idCVarSystemLocal::Set_f(void) {
         unsafe = 1;
 
         if(com_crashed != nullptr && com_crashed->integer) {
-            Com_Printf("%s is unsafe. Check com_crashed.\n", cmdSystem->Argv(1));
+            common->Printf("%s is unsafe. Check com_crashed.\n", cmdSystem->Argv(1));
             return;
         }
     }
@@ -1008,7 +1009,7 @@ void idCVarSystemLocal::SetU_f(void) {
     convar_t *v;
 
     if(cmdSystem->Argc() != 3 && cmdSystem->Argc() != 4) {
-        Com_Printf("usage: setu <variable> <value> [unsafe]\n");
+        common->Printf("usage: setu <variable> <value> [unsafe]\n");
         return;
     }
 
@@ -1034,7 +1035,7 @@ void idCVarSystemLocal::SetS_f(void) {
     convar_t *v;
 
     if(cmdSystem->Argc() != 3 && cmdSystem->Argc() != 4) {
-        Com_Printf("usage: sets <variable> <value> [unsafe]\n");
+        common->Printf("usage: sets <variable> <value> [unsafe]\n");
         return;
     }
 
@@ -1060,7 +1061,7 @@ void idCVarSystemLocal::SetA_f(void) {
     convar_t *v;
 
     if(cmdSystem->Argc() != 3 && cmdSystem->Argc() != 4) {
-        Com_Printf("usage: seta <variable> <value> [unsafe]\n");
+        common->Printf("usage: seta <variable> <value> [unsafe]\n");
         return;
     }
 
@@ -1082,7 +1083,7 @@ idCVarSystemLocal::Reset_f
 */
 void idCVarSystemLocal::Reset_f(void) {
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("usage: reset <variable>\n");
+        common->Printf("usage: reset <variable>\n");
         return;
     }
 
@@ -1106,8 +1107,8 @@ void idCVarSystemLocal::WriteVariables(fileHandle_t f) {
             // write the latched value, even if it hasn't taken effect yet
             if(var->latchedString) {
                 if(strlen(var->name) + strlen(var->latchedString) + 10 > sizeof(buffer)) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: value of variable "
-                               "\"%s\" too long to write to file\n", var->name);
+                    common->Printf(S_COLOR_YELLOW "WARNING: value of variable "
+                                   "\"%s\" too long to write to file\n", var->name);
                     continue;
                 }
 
@@ -1115,8 +1116,8 @@ void idCVarSystemLocal::WriteVariables(fileHandle_t f) {
                              var->name, var->latchedString);
             } else {
                 if(strlen(var->name) + strlen(var->string) + 10 > sizeof(buffer)) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: value of variable "
-                               "\"%s\" too long to write to file\n", var->name);
+                    common->Printf(S_COLOR_YELLOW "WARNING: value of variable "
+                                   "\"%s\" too long to write to file\n", var->name);
                     continue;
                 }
 
@@ -1148,59 +1149,59 @@ void idCVarSystemLocal::List_f(void) {
     i = 0;
 
     for(var = cvar_vars; var; var = var->next, i++) {
-        if(match && !Com_Filter(match, var->name, false)) {
+        if(match && !common->Filter(match, var->name, false)) {
             continue;
         }
 
         if(var->flags & CVAR_SERVERINFO) {
-            Com_Printf("S");
+            common->Printf("S");
         } else {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
         if(var->flags & CVAR_USERINFO) {
-            Com_Printf("U");
+            common->Printf("U");
         } else {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
         if(var->flags & CVAR_ROM) {
-            Com_Printf("R");
+            common->Printf("R");
         } else {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
         if(var->flags & CVAR_INIT) {
-            Com_Printf("I");
+            common->Printf("I");
         } else {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
         if(var->flags & CVAR_ARCHIVE) {
-            Com_Printf("A");
+            common->Printf("A");
         } else {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
         if(var->flags & CVAR_LATCH) {
-            Com_Printf("L");
+            common->Printf("L");
         } else {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
         if(var->flags & CVAR_CHEAT) {
-            Com_Printf("C");
+            common->Printf("C");
         } else {
-            Com_Printf(" ");
+            common->Printf(" ");
         }
 
-        Com_Printf(" %s \"%s\"   ^2%s\n", var->name, var->string,
-                   var->description);
+        common->Printf(" %s \"%s\"   ^2%s\n", var->name, var->string,
+                       var->description);
 
     }
 
-    Com_Printf("\n%i total convars\n", i);
-    Com_Printf("%i convars indexes\n", cvar_numIndexes);
+    common->Printf("\n%i total convars\n", i);
+    common->Printf("%i convars indexes\n", cvar_numIndexes);
 }
 
 /*
@@ -1365,9 +1366,9 @@ void idCVarSystemLocal::Register(vmConvar_t *vmCvar, pointer varName,
 
     if((flags & (CVAR_ARCHIVE | CVAR_ROM)) == (CVAR_ARCHIVE | CVAR_ROM)) {
         if(developer->integer) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: Unsetting CVAR_ROM cvar '%s', since it is also CVAR_ARCHIVE\n",
-                       varName);
+            common->Printf(S_COLOR_YELLOW
+                           "WARNING: Unsetting CVAR_ROM cvar '%s', since it is also CVAR_ARCHIVE\n",
+                           varName);
         }
 
         flags &= ~CVAR_ROM;
@@ -1399,8 +1400,9 @@ void idCVarSystemLocal::Update(vmConvar_t *vmCvar) {
     assert(vmCvar);
 
     if(static_cast< uint >(vmCvar->handle) >= cvar_numIndexes) {
-        Com_Error(ERR_DROP, "idCVarSystemLocal::Update: handle %d out of range",
-                  static_cast<uint>(vmCvar->handle));
+        common->Error(ERR_DROP,
+                      "idCVarSystemLocal::Update: handle %d out of range",
+                      static_cast<uint>(vmCvar->handle));
     }
 
     cv = cvar_indexes + vmCvar->handle;
@@ -1418,10 +1420,10 @@ void idCVarSystemLocal::Update(vmConvar_t *vmCvar) {
 
     // bk001129 - mismatches.
     if(strlen(cv->string) + 1 > MAX_CVAR_VALUE_STRING) {
-        Com_Error(ERR_DROP,
-                  "idCVarSystemLocal::Update: src %s length %lu exceeds MAX_CVAR_VALUE_STRING(%lu)",
-                  cv->string, static_cast<uint32>(::strlen(cv->string)),
-                  static_cast<uint32>(sizeof(vmCvar->string)));
+        common->Error(ERR_DROP,
+                      "idCVarSystemLocal::Update: src %s length %lu exceeds MAX_CVAR_VALUE_STRING(%lu)",
+                      cv->string, static_cast<uint32>(::strlen(cv->string)),
+                      static_cast<uint32>(sizeof(vmCvar->string)));
     }
 
     // bk001212 - Q_strncpyz guarantees zero padding and dest[MAX_CVAR_VALUE_STRING-1]==0

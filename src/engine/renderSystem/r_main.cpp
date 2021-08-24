@@ -1838,7 +1838,7 @@ void R_SortDrawSurfs(drawSurf_t *drawSurfs, sint numDrawSurfs) {
 
         // no shader should ever have this sort type
         if(shader->sort == SS_BAD) {
-            Com_Error(ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name);
+            common->Error(ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name);
         }
 
         // if the mirror was completely clipped away, we may need to check another surface
@@ -1940,7 +1940,7 @@ static void R_AddEntitySurface(sint entityNum) {
                         break;
 
                     default:
-                        Com_Error(ERR_DROP, "R_AddEntitySurfaces: Bad modeltype");
+                        common->Error(ERR_DROP, "R_AddEntitySurfaces: Bad modeltype");
                         break;
                 }
             }
@@ -1948,7 +1948,7 @@ static void R_AddEntitySurface(sint entityNum) {
             break;
 
         default:
-            Com_Error(ERR_DROP, "R_AddEntitySurfaces: Bad reType");
+            common->Error(ERR_DROP, "R_AddEntitySurfaces: Bad reType");
     }
 }
 

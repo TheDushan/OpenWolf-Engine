@@ -57,13 +57,14 @@ void RB_CheckOverflow(sint verts, sint indexes) {
     RB_EndSurface();
 
     if(verts >= SHADER_MAX_VERTEXES) {
-        Com_Error(ERR_DROP, "RB_CheckOverflow: verts > MAX (%d > %d)", verts,
-                  SHADER_MAX_VERTEXES);
+        common->Error(ERR_DROP, "RB_CheckOverflow: verts > MAX (%d > %d)", verts,
+                      SHADER_MAX_VERTEXES);
     }
 
     if(indexes >= SHADER_MAX_INDEXES) {
-        Com_Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes,
-                  SHADER_MAX_INDEXES);
+        common->Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)",
+                      indexes,
+                      SHADER_MAX_INDEXES);
     }
 
     RB_BeginSurface(tess.shader, tess.fogNum, tess.cubemapIndex);

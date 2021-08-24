@@ -111,18 +111,18 @@ void idSystemLocal::Chmod(valueType *file, sint mode) {
     sint perm;
 
     if(stat(file, &s_buf) != 0) {
-        Com_Printf("stat('%s')  failed: errno %d\n", file, errno);
+        common->Printf("stat('%s')  failed: errno %d\n", file, errno);
         return;
     }
 
     perm = s_buf.st_mode | mode;
 
     if(chmod(file, perm) != 0) {
-        Com_Printf("chmod('%s', %d) failed: errno %d\n", file, perm, errno);
+        common->Printf("chmod('%s', %d) failed: errno %d\n", file, perm, errno);
     }
 
     if(developer->integer) {
-        Com_Printf("chmod +%d '%s'\n", mode, file);
+        common->Printf("chmod +%d '%s'\n", mode, file);
     }
 }
 
@@ -357,7 +357,7 @@ void idSystemLocal::ListFilteredFiles(pointer basedir, valueType *subdirs,
         Q_vsprintf_s(filename, sizeof(filename), sizeof(filename), "%s/%s",
                      subdirs, d->d_name);
 
-        if(!Com_FilterPath(filter, filename, false)) {
+        if(!common->FilterPath(filter, filename, false)) {
             continue;
         }
 
@@ -563,7 +563,8 @@ void idSystemLocal::ErrorDialog(pointer error) {
 
     // Make sure the write path for the crashlog exists...
     if(fileSystem->CreatePath(ospath)) {
-        Com_Printf("ERROR: couldn't create path '%s' for crash log.\n", ospath);
+        common->Printf("ERROR: couldn't create path '%s' for crash log.\n",
+                       ospath);
         return;
     }
 
@@ -573,14 +574,14 @@ void idSystemLocal::ErrorDialog(pointer error) {
     f = open(ospath, O_CREAT | O_TRUNC | O_WRONLY, 0640);
 
     if(f == -1) {
-        Com_Printf("ERROR: couldn't open %s\n", fileName);
+        common->Printf("ERROR: couldn't open %s\n", fileName);
         return;
     }
 
     // We're crashing, so we don't care much if write() or close() fails.
     while((size = consoleLoggingSystem->LogRead(buffer, sizeof(buffer))) > 0) {
         if(write(f, buffer, size) != size) {
-            Com_Printf("ERROR: couldn't fully write to %s\n", fileName);
+            common->Printf("ERROR: couldn't fully write to %s\n", fileName);
             break;
         }
     }
@@ -782,7 +783,7 @@ dialogResult_t idSystemLocal::Dialog(dialogType_t type, pointer message,
     }
 
     if(developer->integer) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: failed to show a dialog\n");
+        common->Printf(S_COLOR_YELLOW "WARNING: failed to show a dialog\n");
     }
 
     return DR_OK;
@@ -896,8 +897,8 @@ void idSystemLocal::StartProcess(valueType *cmdline, bool doexit) {
     if(doexit) {
         if(developer->integer) {
             //Dushan review all this and see is this working for the autoupdate and Unix builds
-            Com_Printf("idSystemLocal::StartProcess %s (delaying to final exit)\n",
-                       cmdline);
+            common->Printf("idSystemLocal::StartProcess %s (delaying to final exit)\n",
+                           cmdline);
         }
 
         Q_strncpyz(exit_cmdline, cmdline, MAX_CMD);
@@ -906,7 +907,7 @@ void idSystemLocal::StartProcess(valueType *cmdline, bool doexit) {
     }
 
     if(developer->integer) {
-        Com_Printf("idSystemLocal::StartProcess %s\n", cmdline);
+        common->Printf("idSystemLocal::StartProcess %s\n", cmdline);
     }
 
     DoStartProcess(cmdline);
@@ -927,14 +928,14 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
 
     if(doexit_spamguard) {
         if(developer->integer) {
-            Com_Printf("idSystemLocal::OpenURL: already in a doexit sequence, ignoring %s\n",
-                       url);
+            common->Printf("idSystemLocal::OpenURL: already in a doexit sequence, ignoring %s\n",
+                           url);
         }
 
         return;
     }
 
-    Com_Printf("Open URL: %s\n", url);
+    common->Printf("Open URL: %s\n", url);
     // opening an URL on *nix can mean a lot of things ..
     // just spawn a script instead of deciding for the user :-)
 
@@ -948,7 +949,7 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
 
     if(access(fn, X_OK) == -1) {
         if(developer->integer) {
-            Com_Printf("%s not found\n", fn);
+            common->Printf("%s not found\n", fn);
         }
 
         // try in home path
@@ -957,7 +958,7 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
 
         if(access(fn, X_OK) == -1) {
             if(developer->integer) {
-                Com_Printf("%s not found\n", fn);
+                common->Printf("%s not found\n", fn);
             }
 
             // basepath, last resort
@@ -966,11 +967,11 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
 
             if(access(fn, X_OK) == -1) {
                 if(developer->integer) {
-                    Com_Printf("%s not found\n", fn);
+                    common->Printf("%s not found\n", fn);
                 }
 
-                Com_Printf("Can't find script '%s' to open requested URL (use +set developer 1 for more verbosity)\n",
-                           fname);
+                common->Printf("Can't find script '%s' to open requested URL (use +set developer 1 for more verbosity)\n",
+                               fname);
                 // we won't quit
                 return;
             }
@@ -983,7 +984,7 @@ void idSystemLocal::OpenURL(pointer url, bool doexit) {
     }
 
     if(developer->integer) {
-        Com_Printf("URL script: %s\n", fn);
+        common->Printf("URL script: %s\n", fn);
     }
 
     // build the command line

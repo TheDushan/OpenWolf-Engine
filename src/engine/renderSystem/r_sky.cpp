@@ -181,7 +181,7 @@ static void ClipSkyPolygon(sint nump, vec3_t vecs, sint stage) {
     sint        i, j;
 
     if(nump > MAX_CLIP_VERTS - 2) {
-        Com_Error(ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS");
+        common->Error(ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS");
     }
 
     if(stage == 6) {
@@ -409,7 +409,7 @@ static void DrawSkySide(struct image_s *image, const sint mins[2],
             tess.numVertexes++;
 
             if(tess.numVertexes >= SHADER_MAX_VERTEXES) {
-                Com_Error(ERR_DROP, "SHADER_MAX_VERTEXES hit in DrawSkySideVBO()");
+                common->Error(ERR_DROP, "SHADER_MAX_VERTEXES hit in DrawSkySideVBO()");
             }
         }
     }
@@ -417,7 +417,7 @@ static void DrawSkySide(struct image_s *image, const sint mins[2],
     for(t = 0; t < maxs[1] - mins[1]; t++) {
         for(s = 0; s < maxs[0] - mins[0]; s++) {
             if(tess.numIndexes + 6 >= SHADER_MAX_INDEXES) {
-                Com_Error(ERR_DROP, "SHADER_MAX_INDEXES hit in DrawSkySideVBO()");
+                common->Error(ERR_DROP, "SHADER_MAX_INDEXES hit in DrawSkySideVBO()");
             }
 
             tess.indexes[tess.numIndexes++] =  s +       t      *
@@ -599,7 +599,7 @@ static void FillCloudySkySide(const sint mins[2], const sint maxs[2],
             tess.numVertexes++;
 
             if(tess.numVertexes >= SHADER_MAX_VERTEXES) {
-                Com_Error(ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()");
+                common->Error(ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()");
             }
         }
     }

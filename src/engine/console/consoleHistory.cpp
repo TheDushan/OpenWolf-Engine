@@ -76,7 +76,7 @@ void idConsoleHistoryLocal::Load(void) {
     fileSystem->SV_FOpenFileRead(CON_HISTORY_FILE, &f);
 
     if(!f) {
-        Com_Printf("Couldn't read %s.\n", CON_HISTORY_FILE);
+        common->Printf("Couldn't read %s.\n", CON_HISTORY_FILE);
         return;
     }
 
@@ -125,7 +125,7 @@ void idConsoleHistoryLocal::Save(void) {
     f = fileSystem->SV_FOpenFileWrite(CON_HISTORY_FILE);
 
     if(!f) {
-        Com_Printf("Couldn't write %s.\n", CON_HISTORY_FILE);
+        common->Printf("Couldn't write %s.\n", CON_HISTORY_FILE);
         return;
     }
 

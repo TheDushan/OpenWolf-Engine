@@ -153,7 +153,7 @@ idCmdCompletionLocal::PrintMatches
 */
 void idCmdCompletionLocal::PrintMatches(pointer s) {
     if(!Q_stricmpn(s, shortestMatch, ::strlen(shortestMatch))) {
-        Com_Printf("    %s\n", s);
+        common->Printf("    %s\n", s);
     }
 }
 
@@ -164,7 +164,7 @@ idCmdCompletionLocal::PrintCvarMatches
 */
 void idCmdCompletionLocal::PrintCvarMatches(pointer s) {
     if(!Q_stricmpn(s, shortestMatch, ::strlen(shortestMatch))) {
-        Com_Printf("    %-32s ^7\"%s^7\"\n", s, cvarSystem->VariableString(s));
+        common->Printf("    %-32s ^7\"%s^7\"\n", s, cvarSystem->VariableString(s));
     }
 }
 
@@ -211,7 +211,7 @@ bool idCmdCompletionLocal::Complete(void) {
         return true;
     }
 
-    Com_Printf("%s^7%s\n", completionPrompt, completionField->buffer);
+    common->Printf("%s^7%s\n", completionPrompt, completionField->buffer);
 
     return false;
 }
@@ -458,7 +458,7 @@ void idCmdCompletionLocal::VariableSizeDraw(field_t *edit, sint x, sint y,
 
     // extract <drawLen> characters from the field at <prestep>
     if(drawLen >= MAX_STRING_CHARS) {
-        Com_Error(ERR_DROP, "drawLen >= MAX_STRING_CHARS");
+        common->Error(ERR_DROP, "drawLen >= MAX_STRING_CHARS");
     }
 
     ::memcpy(str, edit->buffer + prestep, drawLen);

@@ -137,7 +137,7 @@ void *idSoundSystemLocal::codec_load(pointer filename, snd_info_t *info) {
     codec = findCodec(filename);
 
     if(!codec) {
-        Com_Printf("Unknown extension for %s\n", filename);
+        common->Printf("Unknown extension for %s\n", filename);
         return nullptr;
     }
 
@@ -159,7 +159,7 @@ snd_stream_t *idSoundSystemLocal::codec_open(pointer filename) {
     codec = findCodec(filename);
 
     if(!codec) {
-        Com_Printf("Unknown extension for %s\n", filename);
+        common->Printf("Unknown extension for %s\n", filename);
         return nullptr;
     }
 
@@ -203,7 +203,7 @@ snd_stream_t *codec_util_open(pointer filename, snd_codec_t *codec) {
     length = fileSystem->FOpenFileRead(filename, &hnd, true);
 
     if(!hnd) {
-        Com_Printf("Can't read sound file %s\n", filename);
+        common->Printf("Can't read sound file %s\n", filename);
         return nullptr;
     }
 

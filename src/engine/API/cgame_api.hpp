@@ -49,9 +49,6 @@ typedef enum cgameEvent_e {
 } cgameEvent_t;
 
 struct cgameImports_t {
-    void(*Print)(pointer fmt, ...);
-    sint(*RealTime)(qtime_t *qtime);
-
     idClientGameSystem *clientGameSystem;
     idRenderSystem *renderSystem;
     idCollisionModelManager *collisionModelManager;
@@ -62,6 +59,7 @@ struct cgameImports_t {
     idCmdSystem *cmdSystem;
     idSystem *idsystem;
     idMemorySystem *memorySystem;
+    idCommon *common;
 #ifndef DEDICATED
     idClientGUISystem *idGUISystem;
     idClientScreenSystem *clientScreenSystem;

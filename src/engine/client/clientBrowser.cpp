@@ -85,8 +85,8 @@ void idClientBrowserSystemLocal::ServersResponsePacket(
     uchar8 *buffptr;
     uchar8 *buffend;
 
-    Com_Printf("idClientBrowserSystemLocal::ServersResponsePacket from %s\n",
-               networkSystem->AdrToString(*from));
+    common->Printf("idClientBrowserSystemLocal::ServersResponsePacket from %s\n",
+                   networkSystem->AdrToString(*from));
 
     if(cls.numglobalservers == -1) {
         // state to detect lack of servers or lack of response
@@ -197,8 +197,8 @@ void idClientBrowserSystemLocal::ServersResponsePacket(
     cls.numglobalservers = count;
     total = count + cls.numGlobalServerAddresses;
 
-    Com_Printf("getserversResponse:%3d servers parsed (total %d)\n",
-               numservers, total);
+    common->Printf("getserversResponse:%3d servers parsed (total %d)\n",
+                   numservers, total);
 }
 
 /*
@@ -299,7 +299,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
 
     if(prot != com_protocol->integer) {
         if(developer->integer) {
-            Com_Printf("Different protocol info packet: %s\n", infoString);
+            common->Printf("Different protocol info packet: %s\n", infoString);
         }
 
         return;
@@ -310,7 +310,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
 
     if(!gameName[0] || Q_stricmp(gameName, GAMENAME_STRING)) {
         if(developer->integer) {
-            Com_Printf("Different game info packet: %s\n", infoString);
+            common->Printf("Different game info packet: %s\n", infoString);
         }
 
         return;
@@ -324,8 +324,8 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
             cl_pinglist[i].time = cls.realtime - cl_pinglist[i].start + 1;
 
             if(developer->integer) {
-                Com_Printf("ping time %dms from %s\n", cl_pinglist[i].time,
-                           networkSystem->AdrToString(from));
+                common->Printf("ping time %dms from %s\n", cl_pinglist[i].time,
+                               networkSystem->AdrToString(from));
             }
 
             // save of info
@@ -376,7 +376,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
 
     if(i == MAX_OTHER_SERVERS) {
         if(developer->integer) {
-            Com_Printf("MAX_OTHER_SERVERS hit, dropping infoResponse\n");
+            common->Printf("MAX_OTHER_SERVERS hit, dropping infoResponse\n");
         }
 
         return;
@@ -412,7 +412,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
             Q_strcat(info, sizeof(info), "\n");
         }
 
-        Com_Printf("%s: %s", networkSystem->AdrToStringwPort(from), info);
+        common->Printf("%s: %s", networkSystem->AdrToStringwPort(from), info);
     }
 }
 
@@ -567,7 +567,7 @@ void idClientBrowserSystemLocal::ServerStatusResponse(netadr_t from,
                  "%s", s);
 
     if(serverStatus->print) {
-        Com_Printf("Server settings:\n");
+        common->Printf("Server settings:\n");
 
         // print cvars
         while(*s) {
@@ -595,9 +595,9 @@ void idClientBrowserSystemLocal::ServerStatusResponse(netadr_t from,
                 info[l] = '\0';
 
                 if(i) {
-                    Com_Printf("%s\n", info);
+                    common->Printf("%s\n", info);
                 } else {
-                    Com_Printf("%-24s", info);
+                    common->Printf("%-24s", info);
                 }
             }
         }
@@ -609,8 +609,8 @@ void idClientBrowserSystemLocal::ServerStatusResponse(netadr_t from,
                  "\\");
 
     if(serverStatus->print) {
-        Com_Printf("\nPlayers:\n");
-        Com_Printf("num: score: ping: name:\n");
+        common->Printf("\nPlayers:\n");
+        common->Printf("num: score: ping: name:\n");
     }
 
     for(i = 0, s = MSG_ReadStringLine(msg); *s;
@@ -638,7 +638,7 @@ void idClientBrowserSystemLocal::ServerStatusResponse(netadr_t from,
                 s = "unknown";
             }
 
-            Com_Printf("%-2d   %-3d    %-3d   %s\n", i, score, ping, s);
+            common->Printf("%-2d   %-3d    %-3d   %s\n", i, score, ping, s);
         }
     }
 
@@ -666,7 +666,7 @@ void idClientBrowserSystemLocal::LocalServers(void) {
     sint i, j;
     netadr_t to;
 
-    Com_Printf("Scanning for servers on the local network...\n");
+    common->Printf("Scanning for servers on the local network...\n");
 
     // reset the list, waiting for response
     cls.numlocalservers = 0;
@@ -715,8 +715,8 @@ void idClientBrowserSystemLocal::GlobalServers(void) {
     if((count = cmdSystem->Argc()) < 3 ||
             (masterNum = atoi(cmdSystem->Argv(1))) < 0 ||
             masterNum > MAX_MASTER_SERVERS) {
-        Com_Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n",
-                   MAX_MASTER_SERVERS);
+        common->Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n",
+                       MAX_MASTER_SERVERS);
         return;
     }
 
@@ -740,7 +740,7 @@ void idClientBrowserSystemLocal::GlobalServers(void) {
         }
 
         if(!numAddress) {
-            Com_Printf("idClientBrowserSystemLocal::GlobalServers: Error: No master server addresses.\n");
+            common->Printf("idClientBrowserSystemLocal::GlobalServers: Error: No master server addresses.\n");
         }
 
         return;
@@ -751,8 +751,8 @@ void idClientBrowserSystemLocal::GlobalServers(void) {
     masteraddress = cvarSystem->VariableString(command);
 
     if(!*masteraddress) {
-        Com_Printf("idClientBrowserSystemLocal::GlobalServers: Error: No master server address given for %s.\n",
-                   command);
+        common->Printf("idClientBrowserSystemLocal::GlobalServers: Error: No master server address given for %s.\n",
+                       command);
         return;
     }
 
@@ -761,15 +761,15 @@ void idClientBrowserSystemLocal::GlobalServers(void) {
     i = networkChainSystem->StringToAdr(masteraddress, &to, NA_UNSPEC);
 
     if(!i) {
-        Com_Printf("idClientBrowserSystemLocal::GlobalServers: Error: could not resolve address of master %s\n",
-                   masteraddress);
+        common->Printf("idClientBrowserSystemLocal::GlobalServers: Error: could not resolve address of master %s\n",
+                       masteraddress);
         return;
     } else if(i == 2) {
         to.port = BigShort(PORT_MASTER);
     }
 
-    Com_Printf("Requesting servers from %s (%s)...\n", masteraddress,
-               networkSystem->AdrToStringwPort(to));
+    common->Printf("Requesting servers from %s (%s)...\n", masteraddress,
+                   networkSystem->AdrToStringwPort(to));
 
     cls.numglobalservers = -1;
     cls.pingUpdateSource = AS_GLOBAL;
@@ -958,7 +958,7 @@ void idClientBrowserSystemLocal::Ping(void) {
     argc = cmdSystem->Argc();
 
     if(argc != 2 && argc != 3) {
-        Com_Printf("usage: ping [-4|-6] server\n");
+        common->Printf("usage: ping [-4|-6] server\n");
         return;
     }
 
@@ -970,7 +970,7 @@ void idClientBrowserSystemLocal::Ping(void) {
         } else if(!strcmp(cmdSystem->Argv(1), "-6")) {
             family = NA_IP6;
         } else {
-            Com_Printf("warning: only -4 or -6 as address type understood.\n");
+            common->Printf("warning: only -4 or -6 as address type understood.\n");
         }
 
         server = cmdSystem->Argv(2);
@@ -1128,8 +1128,8 @@ void idClientBrowserSystemLocal::ServerStatus(void) {
 
     if(argc != 2 && argc != 3) {
         if(cls.state != CA_ACTIVE || clc.demoplaying) {
-            Com_Printf("Not connected to a server.\n");
-            Com_Printf("usage: serverstatus [-4|-6] server\n");
+            common->Printf("Not connected to a server.\n");
+            common->Printf("usage: serverstatus [-4|-6] server\n");
 
             return;
         }
@@ -1148,7 +1148,7 @@ void idClientBrowserSystemLocal::ServerStatus(void) {
             } else if(!strcmp(cmdSystem->Argv(1), "-6")) {
                 family = NA_IP6;
             } else {
-                Com_Printf("warning: only -4 or -6 as address type understood.\n");
+                common->Printf("warning: only -4 or -6 as address type understood.\n");
             }
 
             server = cmdSystem->Argv(2);

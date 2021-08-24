@@ -79,7 +79,7 @@ void idClientStartUpCacheSystemLocal::Cache_UsedFile_f(void) {
     cacheItem_t    *item;
 
     if(cmdSystem->Argc() < 2) {
-        Com_Error(ERR_DROP, "usedfile without enough parameters\n");
+        common->Error(ERR_DROP, "usedfile without enough parameters\n");
         return;
     }
 
@@ -102,7 +102,7 @@ void idClientStartUpCacheSystemLocal::Cache_UsedFile_f(void) {
     }
 
     if(i == CACHE_NUMGROUPS) {
-        Com_Error(ERR_DROP, "usedfile without a valid cache group\n");
+        common->Error(ERR_DROP, "usedfile without a valid cache group\n");
         return;
     }
 
@@ -144,7 +144,7 @@ idClientStartUpCacheSystemLocal::Cache_SetIndex_f
 */
 void idClientStartUpCacheSystemLocal::Cache_SetIndex_f(void) {
     if(cmdSystem->Argc() < 2) {
-        Com_Error(ERR_DROP, "setindex needs an index\n");
+        common->Error(ERR_DROP, "setindex needs an index\n");
         return;
     }
 

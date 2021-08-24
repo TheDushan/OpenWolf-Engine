@@ -111,32 +111,32 @@ S_SoundInfo_f
 =================
 */
 void S_SoundInfo_f(void) {
-    Com_Printf("----- Sound Info -----\n");
+    common->Printf("----- Sound Info -----\n");
 
     if(!s_soundStarted) {
-        Com_Printf("sound system not started\n");
+        common->Printf("sound system not started\n");
     } else {
         if(s_soundMuted) {
-            Com_Printf("sound system is muted\n");
+            common->Printf("sound system is muted\n");
         }
 
-        Com_Printf("%5d channels\n", dma.channels - 1);
-        Com_Printf("%5d samples\n", dma.samples);
-        Com_Printf("%5d samplebits (%s)\n", dma.samplebits,
-                   dma.isfloat ? "float" : "int");
-        Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
-        Com_Printf("%5d speed\n", dma.speed);
-        Com_Printf("%p dma buffer\n", static_cast< void * >(dma.buffer));
+        common->Printf("%5d channels\n", dma.channels - 1);
+        common->Printf("%5d samples\n", dma.samples);
+        common->Printf("%5d samplebits (%s)\n", dma.samplebits,
+                       dma.isfloat ? "float" : "int");
+        common->Printf("%5d submission_chunk\n", dma.submission_chunk);
+        common->Printf("%5d speed\n", dma.speed);
+        common->Printf("%p dma buffer\n", static_cast< void * >(dma.buffer));
 
         if(s_backgroundStream) {
-            Com_Printf("Background stream: %s\n", s_backgroundLoop);
+            common->Printf("Background stream: %s\n", s_backgroundLoop);
         } else {
-            Com_Printf("No background file.\n");
+            common->Printf("No background file.\n");
         }
 
     }
 
-    Com_Printf("----------------------\n");
+    common->Printf("----------------------\n");
 }
 
 /*
@@ -213,7 +213,7 @@ channel_t  *S_ChannelMalloc(void) {
 
     v = freelist;
     freelist = *(channel_t **)freelist;
-    v->allocTime = Com_Milliseconds();
+    v->allocTime = common->Milliseconds();
 
     return v;
 }
@@ -239,7 +239,7 @@ void S_ChannelSetup(void) {
     *(channel_t **)q = nullptr;
     freelist = p + MAX_CHANNELS - 1;
     //if (developer->integer) {
-    //Com_Printf( "Channel memory manager started\n" );
+    //common->Printf( "Channel memory manager started\n" );
     //}
 }
 
@@ -324,16 +324,17 @@ static sfx_t *S_FindName(pointer name) {
     sfx_t *sfx;
 
     if(!name) {
-        Com_Error(ERR_FATAL, "Sound name is a nullptr string\n");
+        common->Error(ERR_FATAL, "Sound name is a nullptr string\n");
     }
 
     if(!name[0]) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Sound name is empty\n");
+        common->Printf(S_COLOR_YELLOW "WARNING: Sound name is empty\n");
         return nullptr;
     }
 
     if(strlen(name) >= MAX_QPATH) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Sound name is too long: %s\n", name);
+        common->Printf(S_COLOR_YELLOW "WARNING: Sound name is too long: %s\n",
+                       name);
         return nullptr;
     }
 
@@ -359,7 +360,7 @@ static sfx_t *S_FindName(pointer name) {
 
     if(i == s_numSfx) {
         if(s_numSfx == MAX_SFX) {
-            Com_Error(ERR_FATAL, "S_FindName: out of sfx_t");
+            common->Error(ERR_FATAL, "S_FindName: out of sfx_t");
         }
 
         s_numSfx++;
@@ -413,8 +414,9 @@ SOrig_SoundDuration
 */
 sint SOrig_SoundDuration(sfxHandle_t handle) {
     if(handle < 0 || handle >= s_numSfx) {
-        Com_Printf(S_COLOR_YELLOW "S_Base_SoundDuration: handle %i out of range\n",
-                   handle);
+        common->Printf(S_COLOR_YELLOW
+                       "S_Base_SoundDuration: handle %i out of range\n",
+                       handle);
         return 0;
     }
 
@@ -460,7 +462,7 @@ sfxHandle_t SOrig_RegisterSound(pointer name, bool compressed) {
     }
 
     if(strlen(name) >= MAX_QPATH) {
-        Com_Printf("Sound name exceeds MAX_QPATH\n");
+        common->Printf("Sound name exceeds MAX_QPATH\n");
         return 0;
     }
 
@@ -472,8 +474,9 @@ sfxHandle_t SOrig_RegisterSound(pointer name, bool compressed) {
 
     if(sfx->soundData) {
         if(sfx->defaultSound) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: could not find %s - using default\n",
-                       sfx->soundName);
+            common->Printf(S_COLOR_YELLOW
+                           "WARNING: could not find %s - using default\n",
+                           sfx->soundName);
             return 0;
         }
 
@@ -486,8 +489,9 @@ sfxHandle_t SOrig_RegisterSound(pointer name, bool compressed) {
     S_memoryLoad(sfx);
 
     if(sfx->defaultSound) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: could not find %s - using default\n",
-                   sfx->soundName);
+        common->Printf(S_COLOR_YELLOW
+                       "WARNING: could not find %s - using default\n",
+                       sfx->soundName);
         return 0;
     }
 
@@ -502,8 +506,8 @@ S_memoryLoad
 void S_memoryLoad(sfx_t    *sfx) {
     // load the sound file
     if(!S_LoadSound(sfx)) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: couldn't load sound: %s\n",
-                   sfx->soundName);
+        common->Printf(S_COLOR_YELLOW "WARNING: couldn't load sound: %s\n",
+                       sfx->soundName);
         sfx->defaultSound = true;
     }
 
@@ -605,12 +609,12 @@ void SOrig_StartSound(vec3_t origin, sint entityNum, sint entchannel,
     }
 
     if(!origin && (entityNum < 0 || entityNum > MAX_GENTITIES)) {
-        Com_Error(ERR_DROP, "S_StartSound: bad entitynum %i", entityNum);
+        common->Error(ERR_DROP, "S_StartSound: bad entitynum %i", entityNum);
     }
 
     if(sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Printf(S_COLOR_YELLOW "S_StartSound: handle %i out of range\n",
-                   sfxHandle);
+        common->Printf(S_COLOR_YELLOW "S_StartSound: handle %i out of range\n",
+                       sfxHandle);
         return;
     }
 
@@ -621,12 +625,12 @@ void SOrig_StartSound(vec3_t origin, sint entityNum, sint entchannel,
     }
 
     if(s_show->integer == 1) {
-        Com_Printf("%i : %s\n", s_paintedtime, sfx->soundName);
+        common->Printf("%i : %s\n", s_paintedtime, sfx->soundName);
     }
 
-    time = Com_Milliseconds();
+    time = common->Milliseconds();
 
-    //  Com_Printf("playing %s\n", sfx->soundName);
+    //  common->Printf("playing %s\n", sfx->soundName);
     // pick a channel to play on
 
     allowed = 4;
@@ -642,7 +646,7 @@ void SOrig_StartSound(vec3_t origin, sint entityNum, sint entchannel,
         if(ch[i].entnum == entityNum && ch[i].thesfx == sfx) {
             if(time - ch[i].allocTime < 50) {
                 //              if (Cvar_VariableValue( "cg_showmiss" )) {
-                //                  Com_Printf("double sound start\n");
+                //                  common->Printf("double sound start\n");
                 //              }
                 return;
             }
@@ -695,7 +699,7 @@ void SOrig_StartSound(vec3_t origin, sint entityNum, sint entchannel,
                 }
 
                 if(chosen == -1) {
-                    Com_Printf("dropping sound\n");
+                    common->Printf("dropping sound\n");
                     return;
                 }
             }
@@ -735,8 +739,9 @@ void SOrig_StartLocalSound(sfxHandle_t sfxHandle, sint channelNum) {
     }
 
     if(sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Printf(S_COLOR_YELLOW "S_StartLocalSound: handle %i out of range\n",
-                   sfxHandle);
+        common->Printf(S_COLOR_YELLOW
+                       "S_StartLocalSound: handle %i out of range\n",
+                       sfxHandle);
         return;
     }
 
@@ -815,8 +820,8 @@ continuous looping sounds are added each frame
 void SOrig_StopLoopingSound(sint entityNum) {
     if(entityNum < 0 || MAX_GENTITIES <= entityNum) {
         if(developer->integer) {
-            Com_Printf(S_COLOR_YELLOW "SOrig_StopLoopingSound: bad entitynum %i\n",
-                       entityNum);
+            common->Printf(S_COLOR_YELLOW "SOrig_StopLoopingSound: bad entitynum %i\n",
+                           entityNum);
         }
 
         return;
@@ -863,8 +868,9 @@ void SOrig_AddLoopingSound(sint entityNum, const vec3_t origin,
     }
 
     if(sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Printf(S_COLOR_YELLOW "S_AddLoopingSound: handle %i out of range\n",
-                   sfxHandle);
+        common->Printf(S_COLOR_YELLOW
+                       "S_AddLoopingSound: handle %i out of range\n",
+                       sfxHandle);
         return;
     }
 
@@ -875,13 +881,13 @@ void SOrig_AddLoopingSound(sint entityNum, const vec3_t origin,
     }
 
     if(!sfx->soundLength) {
-        Com_Error(ERR_DROP, "%s has length 0", sfx->soundName);
+        common->Error(ERR_DROP, "%s has length 0", sfx->soundName);
     }
 
     if(entityNum < 0 || MAX_GENTITIES <= entityNum) {
         if(developer->integer) {
-            Com_Printf(S_COLOR_YELLOW "S_AddLoopingSound: bad entitynum %i\n",
-                       entityNum);
+            common->Printf(S_COLOR_YELLOW "S_AddLoopingSound: bad entitynum %i\n",
+                           entityNum);
         }
 
         return;
@@ -941,8 +947,8 @@ void SOrig_AddRealLoopingSound(sint entityNum, const vec3_t origin,
     }
 
     if(sfxHandle < 0 || sfxHandle >= s_numSfx) {
-        Com_Printf(S_COLOR_YELLOW
-                   "S_AddRealLoopingSound: handle %i out of range\n", sfxHandle);
+        common->Printf(S_COLOR_YELLOW
+                       "S_AddRealLoopingSound: handle %i out of range\n", sfxHandle);
         return;
     }
 
@@ -953,13 +959,13 @@ void SOrig_AddRealLoopingSound(sint entityNum, const vec3_t origin,
     }
 
     if(!sfx->soundLength) {
-        Com_Error(ERR_DROP, "%s has length 0", sfx->soundName);
+        common->Error(ERR_DROP, "%s has length 0", sfx->soundName);
     }
 
     if(entityNum < 0 || MAX_GENTITIES <= entityNum) {
         if(developer->integer) {
-            Com_Printf(S_COLOR_YELLOW "S_AddLoopingSound: bad entitynum %i\n",
-                       entityNum);
+            common->Printf(S_COLOR_YELLOW "S_AddLoopingSound: bad entitynum %i\n",
+                           entityNum);
         }
 
         return;
@@ -991,7 +997,7 @@ void S_AddLoopSounds(void) {
 
     numLoopChannels = 0;
 
-    time = Com_Milliseconds();
+    time = common->Milliseconds();
 
     loopFrame++;
 
@@ -1128,8 +1134,8 @@ void SOrig_RawSamples(sint stream, sint samples, sint rate, sint width,
 
     if(s_rawend < s_soundtime) {
         if(developer->integer) {
-            Com_Printf("S_RawSamples: resetting minimum: %i < %i\n", s_rawend,
-                       s_soundtime);
+            common->Printf("S_RawSamples: resetting minimum: %i < %i\n", s_rawend,
+                           s_soundtime);
         }
 
         s_rawend = s_soundtime;
@@ -1137,7 +1143,7 @@ void SOrig_RawSamples(sint stream, sint samples, sint rate, sint width,
 
     scale = static_cast<float32>(rate) / dma.speed;
 
-    //Com_Printf ("%i < %i < %i\n", s_soundtime, s_paintedtime, s_rawend);
+    //common->Printf ("%i < %i < %i\n", s_soundtime, s_paintedtime, s_rawend);
     if(s_channels == 2 && width == 2) {
         if(scale == 1.0) {
             // optimized case
@@ -1218,7 +1224,8 @@ void SOrig_RawSamples(sint stream, sint samples, sint rate, sint width,
 
     if(s_rawend > s_soundtime + MAX_RAW_SAMPLES) {
         if(developer->integer) {
-            Com_Printf("S_RawSamples: overflowed %i > %i\n", s_rawend, s_soundtime);
+            common->Printf("S_RawSamples: overflowed %i > %i\n", s_rawend,
+                           s_soundtime);
         }
     }
 }
@@ -1234,7 +1241,8 @@ let the sound system know where an entity currently is
 */
 void SOrig_UpdateEntityPosition(sint entityNum, const vec3_t origin) {
     if(entityNum < 0 || entityNum >= MAX_GENTITIES) {
-        Com_Error(ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum);
+        common->Error(ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i",
+                      entityNum);
     }
 
     VectorCopy(origin, loopSounds[entityNum].origin);
@@ -1343,7 +1351,7 @@ void SOrig_Update(void) {
 
     if(!s_soundStarted || s_soundMuted) {
         //if (developer->integer) {
-        //Com_Printf( "not started or muted\n" );
+        //common->Printf( "not started or muted\n" );
         //}
         return;
     }
@@ -1357,12 +1365,13 @@ void SOrig_Update(void) {
 
         for(i = 0 ; i < MAX_CHANNELS; i++, ch++) {
             if(ch->thesfx && (ch->leftvol || ch->rightvol)) {
-                Com_Printf("%i %i %s\n", ch->leftvol, ch->rightvol, ch->thesfx->soundName);
+                common->Printf("%i %i %s\n", ch->leftvol, ch->rightvol,
+                               ch->thesfx->soundName);
                 total++;
             }
         }
 
-        Com_Printf("----(%i)---- painted: %i\n", total, s_paintedtime);
+        common->Printf("----(%i)---- painted: %i\n", total, s_paintedtime);
     }
 
     // add raw data from streamed samples
@@ -1411,7 +1420,7 @@ void S_GetSoundtime(void) {
     // check to make sure that we haven't overshot
     if(s_paintedtime < s_soundtime) {
         if(developer->integer) {
-            Com_Printf("S_Update_ : overflow\n");
+            common->Printf("S_Update_ : overflow\n");
         }
 
         s_paintedtime = s_soundtime;
@@ -1441,7 +1450,7 @@ void S_Update_(void) {
         return;
     }
 
-    thisTime = Com_Milliseconds();
+    thisTime = common->Milliseconds();
 
     // Updates s_soundtime
     S_GetSoundtime();
@@ -1545,7 +1554,7 @@ void S_Music_f(void) {
     } else if(c == 3) {
         SOrig_StartBackgroundTrack(cmdSystem->Argv(1), cmdSystem->Argv(2));
     } else {
-        Com_Printf("music <musicfile> [loopfile]\n");
+        common->Printf("music <musicfile> [loopfile]\n");
         return;
     }
 
@@ -1572,11 +1581,12 @@ void S_SoundList_f(void) {
     for(sfx = s_knownSfx, i = 0 ; i < s_numSfx ; i++, sfx++) {
         size = sfx->soundLength;
         total += size;
-        Com_Printf("%6i[%s] : %s[%s]\n", size, type[sfx->soundCompressionMethod],
-                   sfx->soundName, mem[sfx->inMemory]);
+        common->Printf("%6i[%s] : %s[%s]\n", size,
+                       type[sfx->soundCompressionMethod],
+                       sfx->soundName, mem[sfx->inMemory]);
     }
 
-    Com_Printf("Total resident: %i\n", total);
+    common->Printf("Total resident: %i\n", total);
 
     soundSystemLocal.DisplayFreeMemory();
 }
@@ -1619,7 +1629,7 @@ void SOrig_StartBackgroundTrack(pointer intro, pointer loop) {
     }
 
     if(developer->integer) {
-        Com_Printf("S_StartBackgroundTrack( %s, %s )\n", intro, loop);
+        common->Printf("S_StartBackgroundTrack( %s, %s )\n", intro, loop);
     }
 
     if(!intro[0]) {
@@ -1639,14 +1649,15 @@ void SOrig_StartBackgroundTrack(pointer intro, pointer loop) {
     s_backgroundStream = soundSystemLocal.codec_open(intro);
 
     if(!s_backgroundStream) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: couldn't open music file %s\n", intro);
+        common->Printf(S_COLOR_YELLOW "WARNING: couldn't open music file %s\n",
+                       intro);
         return;
     }
 
     if(s_backgroundStream->info.channels != 2 ||
             s_backgroundStream->info.rate != 22050) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: music file %s is not 22k stereo\n",
-                   intro);
+        common->Printf(S_COLOR_YELLOW "WARNING: music file %s is not 22k stereo\n",
+                       intro);
     }
 }
 
@@ -1741,7 +1752,7 @@ void S_FreeOldestSound(void) {
     sfx_t *sfx;
     sndBuffer  *buffer, *nbuffer;
 
-    oldest = Com_Milliseconds();
+    oldest = common->Milliseconds();
     used = 0;
 
     for(i = 1 ; i < s_numSfx ; i++) {
@@ -1756,7 +1767,7 @@ void S_FreeOldestSound(void) {
     sfx = &s_knownSfx[used];
 
     if(developer->integer) {
-        Com_Printf("S_FreeOldestSound: freeing sound %s\n", sfx->soundName);
+        common->Printf("S_FreeOldestSound: freeing sound %s\n", sfx->soundName);
     }
 
     buffer = sfx->soundData;
@@ -1779,8 +1790,8 @@ S_FreeOldestSound
 sint SOrig_GetSoundLength(sfxHandle_t sfxHandle) {
     if(sfxHandle < 0 || sfxHandle >= s_numSfx) {
         if(developer->integer) {
-            Com_Printf(S_COLOR_YELLOW "S_StartSound: handle %i out of range\n",
-                       sfxHandle);
+            common->Printf(S_COLOR_YELLOW "S_StartSound: handle %i out of range\n",
+                           sfxHandle);
         }
 
         return -1;
@@ -1815,7 +1826,7 @@ void idSoundSystemLocal::Reload(void) {
         return;
     }
 
-    Com_Printf("reloading sounds...\n");
+    common->Printf("reloading sounds...\n");
 
     soundSystem->StopAllSounds();
 

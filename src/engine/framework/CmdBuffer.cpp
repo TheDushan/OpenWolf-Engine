@@ -86,7 +86,7 @@ void idCmdBufferSystemLocal::AddText(pointer text) {
     l = strlen(text);
 
     if(cmd_text.cursize + l >= cmd_text.maxsize) {
-        Com_Printf("idCmdBufferSystemLocal::AddText: overflow\n");
+        common->Printf("idCmdBufferSystemLocal::AddText: overflow\n");
         return;
     }
 
@@ -109,7 +109,7 @@ void idCmdBufferSystemLocal::InsertText(pointer text) {
     len = strlen(text) + 1;
 
     if(len + cmd_text.cursize > cmd_text.maxsize) {
-        Com_Printf("dCmdBufferSystemLocal::InsertText overflowed\n");
+        common->Printf("dCmdBufferSystemLocal::InsertText overflowed\n");
         return;
     }
 
@@ -140,7 +140,7 @@ void idCmdBufferSystemLocal::ExecuteText(sint exec_when, pointer text) {
         case EXEC_NOW:
             if(text && strlen(text) > 0) {
                 if(developer->integer) {
-                    Com_Printf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
+                    common->Printf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
                 }
 
                 cmdSystemLocal.ExecuteString(text);
@@ -148,7 +148,7 @@ void idCmdBufferSystemLocal::ExecuteText(sint exec_when, pointer text) {
                 Execute();
 
                 if(developer->integer) {
-                    Com_Printf(S_COLOR_YELLOW "EXEC_NOW %s\n", cmd_text.data);
+                    common->Printf(S_COLOR_YELLOW "EXEC_NOW %s\n", cmd_text.data);
                 }
             }
 
@@ -163,7 +163,8 @@ void idCmdBufferSystemLocal::ExecuteText(sint exec_when, pointer text) {
             break;
 
         default:
-            Com_Error(ERR_FATAL, "idCmdBufferSystemLocal::ExecuteText: bad exec_when");
+            common->Error(ERR_FATAL,
+                          "idCmdBufferSystemLocal::ExecuteText: bad exec_when");
     }
 }
 

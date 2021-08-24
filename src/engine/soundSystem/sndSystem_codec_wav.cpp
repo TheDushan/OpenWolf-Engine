@@ -179,7 +179,7 @@ static bool read_wav_header(fileHandle_t file, snd_info_t *info) {
 
     // Scan for the format chunk
     if((fmtlen = S_FindWavChunk(file, "fmt ")) == 0) {
-        Com_Printf("No fmt chunk\n");
+        common->Printf("No fmt chunk\n");
         return false;
     }
 
@@ -200,7 +200,7 @@ static bool read_wav_header(fileHandle_t file, snd_info_t *info) {
 
     // Scan for the data chunk
     if((info->size = S_FindWavChunk(file, "data")) == 0) {
-        Com_Printf("No data chunk\n");
+        common->Printf("No data chunk\n");
         return false;
     }
 
@@ -234,14 +234,14 @@ void *codec_wav_load(pointer filename, snd_info_t *info) {
     fileSystem->FOpenFileRead(filename, &file, true);
 
     if(!file) {
-        Com_Printf("Can't read sound file %s\n", filename);
+        common->Printf("Can't read sound file %s\n", filename);
         return nullptr;
     }
 
     // Read the RIFF header
     if(!read_wav_header(file, info)) {
         fileSystem->FCloseFile(file);
-        Com_Printf("Can't understand wav file %s\n", filename);
+        common->Printf("Can't understand wav file %s\n", filename);
         return nullptr;
     }
 
@@ -250,7 +250,8 @@ void *codec_wav_load(pointer filename, snd_info_t *info) {
 
     if(!buffer) {
         fileSystem->FCloseFile(file);
-        Com_Printf(S_COLOR_RED "ERROR: Out of memory reading \"%s\"\n", filename);
+        common->Printf(S_COLOR_RED "ERROR: Out of memory reading \"%s\"\n",
+                       filename);
         return nullptr;
     }
 

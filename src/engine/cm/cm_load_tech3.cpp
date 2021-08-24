@@ -416,13 +416,13 @@ void CMod_LoadShaders(lump_t *l) {
     in = (dshader_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "CMod_LoadShaders: funny lump size");
+        common->Error(ERR_DROP, "CMod_LoadShaders: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
 
     if(count < 1) {
-        Com_Error(ERR_DROP, "Map with no shaders");
+        common->Error(ERR_DROP, "Map with no shaders");
     }
 
     cm.shaders = (dshader_t *)memorySystem->Alloc(count * sizeof(*cm.shaders),
@@ -460,13 +460,13 @@ void CMod_LoadSubmodels(lump_t *l) {
     in = (dmodel_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "CMod_LoadSubmodels: funny lump size");
+        common->Error(ERR_DROP, "CMod_LoadSubmodels: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
 
     if(count < 1) {
-        Com_Error(ERR_DROP, "Map with no models");
+        common->Error(ERR_DROP, "Map with no models");
     }
 
     cm.cmodels = (cmodel_t *)memorySystem->Alloc(count * sizeof(*cm.cmodels),
@@ -474,7 +474,7 @@ void CMod_LoadSubmodels(lump_t *l) {
     cm.numSubModels = count;
 
     if(count > MAX_SUBMODELS) {
-        Com_Error(ERR_DROP, "MAX_SUBMODELS exceeded");
+        common->Error(ERR_DROP, "MAX_SUBMODELS exceeded");
     }
 
     for(i = 0; i < count; i++, in++, out++) {
@@ -526,13 +526,13 @@ void CMod_LoadNodes(lump_t *l) {
     in = (dnode_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
 
     if(count < 1) {
-        Com_Error(ERR_DROP, "Map has no nodes");
+        common->Error(ERR_DROP, "Map has no nodes");
     }
 
     cm.nodes = (cNode_t *)memorySystem->Alloc(count * sizeof(*cm.nodes),
@@ -582,7 +582,7 @@ void CMod_LoadBrushes(lump_t *l) {
     in = (dbrush_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
@@ -601,7 +601,8 @@ void CMod_LoadBrushes(lump_t *l) {
         out->shaderNum = LittleLong(in->shaderNum);
 
         if(out->shaderNum < 0 || out->shaderNum >= cm.numShaders) {
-            Com_Error(ERR_DROP, "CMod_LoadBrushes: bad shaderNum: %i", out->shaderNum);
+            common->Error(ERR_DROP, "CMod_LoadBrushes: bad shaderNum: %i",
+                          out->shaderNum);
         }
 
         out->contents = cm.shaders[out->shaderNum].contentFlags;
@@ -624,13 +625,13 @@ void CMod_LoadLeafs(lump_t *l) {
     in = (dleaf_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
 
     if(count < 1) {
-        Com_Error(ERR_DROP, "Map with no leafs");
+        common->Error(ERR_DROP, "Map with no leafs");
     }
 
     cm.leafs = (cLeaf_t *)memorySystem->Alloc((BOX_LEAFS + count) * sizeof(
@@ -677,13 +678,13 @@ void CMod_LoadPlanes(lump_t *l) {
     in = (dplane_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
 
     if(count < 1) {
-        Com_Error(ERR_DROP, "Map with no planes");
+        common->Error(ERR_DROP, "Map with no planes");
     }
 
     cm.planes = (cplane_t *)memorySystem->Alloc((BOX_PLANES + count) * sizeof(
@@ -720,7 +721,7 @@ void CMod_LoadLeafBrushes(lump_t *l) {
     in = reinterpret_cast<sint *>((cmod_base + l->fileofs));
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
@@ -749,7 +750,7 @@ void CMod_LoadLeafSurfaces(lump_t *l) {
     in = reinterpret_cast<sint *>((cmod_base + l->fileofs));
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
@@ -776,8 +777,8 @@ void CMod_CheckLeafBrushes(void) {
     for(i = 0; i < cm.numLeafBrushes; i++) {
         if(cm.leafbrushes[i] < 0 || cm.leafbrushes[i] >= cm.numBrushes) {
             if(developer->integer) {
-                Com_Printf(S_COLOR_YELLOW "[%i] invalid leaf brush %08x\n", i,
-                           cm.leafbrushes[i]);
+                common->Printf(S_COLOR_YELLOW "[%i] invalid leaf brush %08x\n", i,
+                               cm.leafbrushes[i]);
             }
 
             cm.leafbrushes[i] = 0;
@@ -798,7 +799,7 @@ void CMod_LoadBrushSides(lump_t *l) {
     in = (dbrushside_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
     }
 
     count = l->filelen / sizeof(*in);
@@ -817,9 +818,9 @@ void CMod_LoadBrushSides(lump_t *l) {
         out->shaderNum = LittleLong(in->shaderNum);
 
         if(out->shaderNum < 0 || out->shaderNum >= cm.numShaders) {
-            Com_Error(ERR_DROP,
-                      "CMod_LoadBrushSides: bad shaderNum: %i, expected less than: %i",
-                      out->shaderNum, cm.numShaders);
+            common->Error(ERR_DROP,
+                          "CMod_LoadBrushSides: bad shaderNum: %i, expected less than: %i",
+                          out->shaderNum, cm.numShaders);
         }
 
         out->surfaceFlags = cm.shaders[out->shaderNum].surfaceFlags;
@@ -936,8 +937,8 @@ static void CMod_CreateBrushSideWindings(void) {
             if(side->winding) {
                 for(k = 0; k < side->winding->numpoints - 1; k++) {
                     if(brush->numEdges == numEdges) {
-                        Com_Error(ERR_FATAL,
-                                  "Insufficient memory allocated for collision map edges");
+                        common->Error(ERR_FATAL,
+                                      "Insufficient memory allocated for collision map edges");
                     }
 
                     CMod_AddEdgeToBrush(side->winding->p[k], side->winding->p[k + 1],
@@ -964,8 +965,8 @@ static void CMod_CreateBrushSideWindings(void) {
     }
 
     if(developer->integer) {
-        Com_Printf("Allocated %d bytes for %d collision map edges...\n",
-                   totalEdgesAlloc, totalEdges);
+        common->Printf("Allocated %d bytes for %d collision map edges...\n",
+                       totalEdgesAlloc, totalEdges);
     }
 }
 
@@ -990,8 +991,8 @@ void CMod_LoadEntityString(lump_t *l) {
         token = COM_ParseExt2(&p, true);
 
         if(!*token) {
-            Com_Printf(S_COLOR_YELLOW
-                       "WARNING: unexpected end of entities string while parsing worldspawn\n");
+            common->Printf(S_COLOR_YELLOW
+                           "WARNING: unexpected end of entities string while parsing worldspawn\n");
             break;
         }
 
@@ -1016,14 +1017,14 @@ void CMod_LoadEntityString(lump_t *l) {
 
         // check for per-poly collision support
         if(!Q_stricmp(keyname, "perPolyCollision") && !Q_stricmp(value, "1")) {
-            Com_Printf("map features per poly collision detection\n");
+            common->Printf("map features per poly collision detection\n");
             cm.perPolyCollision = true;
             continue;
         }
 
         if(!Q_stricmp(keyname, "classname") && Q_stricmp(value, "worldspawn")) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: expected worldspawn found '%s'\n",
-                       value);
+            common->Printf(S_COLOR_YELLOW "WARNING: expected worldspawn found '%s'\n",
+                           value);
             break;
         }
     }
@@ -1080,7 +1081,7 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
     in = (dsurface_t *)(cmod_base + surfs->fileofs);
 
     if(surfs->filelen % sizeof(*in)) {
-        Com_Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
+        common->Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
     }
 
     cm.numSurfaces = count = surfs->filelen / sizeof(*in);
@@ -1090,13 +1091,13 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
     dv = (drawVert_t *)(cmod_base + verts->fileofs);
 
     if(verts->filelen % sizeof(*dv)) {
-        Com_Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
+        common->Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
     }
 
     index = reinterpret_cast<sint *>((cmod_base + indexesLump->fileofs));
 
     if(indexesLump->filelen % sizeof(*index)) {
-        Com_Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
+        common->Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
     }
 
     // scan through all the surfaces
@@ -1117,8 +1118,8 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
             numVertexes = width * height;
 
             if(numVertexes > MAX_PATCH_VERTS) {
-                Com_Error(ERR_DROP, "CMod_LoadSurfaces: MAX_PATCH_VERTS ( %i )",
-                          MAX_PATCH_VERTS);
+                common->Error(ERR_DROP, "CMod_LoadSurfaces: MAX_PATCH_VERTS ( %i )",
+                              MAX_PATCH_VERTS);
             }
 
             dv_p = dv + LittleLong(in->firstVert);
@@ -1152,7 +1153,7 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
             numVertexes = LittleLong(in->numVerts);
 
             if(numVertexes > SHADER_MAX_VERTEXES) {
-                Com_Error(ERR_DROP, "CMod_LoadSurfaces: SHADER_MAX_VERTEXES");
+                common->Error(ERR_DROP, "CMod_LoadSurfaces: SHADER_MAX_VERTEXES");
             }
 
             dv_p = dv + LittleLong(in->firstVert);
@@ -1166,7 +1167,7 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
             numIndexes = LittleLong(in->numIndexes);
 
             if(numIndexes > SHADER_MAX_INDEXES) {
-                Com_Error(ERR_DROP, "CMod_LoadSurfaces: SHADER_MAX_INDEXES");
+                common->Error(ERR_DROP, "CMod_LoadSurfaces: SHADER_MAX_INDEXES");
             }
 
             index_p = index + LittleLong(in->firstIndex);
@@ -1175,7 +1176,7 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
                 indexes[j] = LittleLong(*index_p);
 
                 if(indexes[j] < 0 || indexes[j] >= numVertexes) {
-                    Com_Error(ERR_DROP, "CMod_LoadSurfaces: Bad index in trisoup surface");
+                    common->Error(ERR_DROP, "CMod_LoadSurfaces: Bad index in trisoup surface");
                 }
             }
 
@@ -1239,12 +1240,13 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
     static uint last_checksum;
 
     if(!name || !name[0]) {
-        Com_Error(ERR_DROP, "idCollisionModelManagerLocal::LoadMap: nullptr name");
+        common->Error(ERR_DROP,
+                      "idCollisionModelManagerLocal::LoadMap: nullptr name");
     }
 
     if(developer->integer) {
-        Com_Printf("idCollisionModelManagerLocal::LoadMap( %s, %i )\n", name,
-                   clientload);
+        common->Printf("idCollisionModelManagerLocal::LoadMap( %s, %i )\n", name,
+                       clientload);
     }
 
     if(!strcmp(cm.name, name) && clientload) {
@@ -1275,7 +1277,7 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
 #endif
 
     if(!buf) {
-        Com_Error(ERR_DROP, "Couldn't load %s", name);
+        common->Error(ERR_DROP, "Couldn't load %s", name);
     }
 
     last_checksum = LittleLong(MD4System->BlockChecksum(buf, length));
@@ -1290,9 +1292,9 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
 
     if(header.version != Q3_BSP_VERSION &&
             header.version != WOLF_BSP_VERSION) {
-        Com_Error(ERR_DROP,
-                  "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i or %i)",
-                  name, header.version, Q3_BSP_VERSION, WOLF_BSP_VERSION);
+        common->Error(ERR_DROP,
+                      "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i or %i)",
+                      name, header.version, Q3_BSP_VERSION, WOLF_BSP_VERSION);
     }
 
     cmod_base = reinterpret_cast<uchar8 *>(buf);
@@ -1346,7 +1348,7 @@ CM_ClipHandleToModel
 */
 cmodel_t *CM_ClipHandleToModel(clipHandle_t handle) {
     if(handle < 0) {
-        Com_Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle);
+        common->Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle);
     }
 
     if(handle < cm.numSubModels) {
@@ -1358,12 +1360,12 @@ cmodel_t *CM_ClipHandleToModel(clipHandle_t handle) {
     }
 
     if(handle < MAX_SUBMODELS) {
-        Com_Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i < %i < %i",
-                  cm.numSubModels, handle, MAX_SUBMODELS);
+        common->Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i < %i < %i",
+                      cm.numSubModels, handle, MAX_SUBMODELS);
     }
 
-    Com_Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i",
-              handle + MAX_SUBMODELS);
+    common->Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i",
+                  handle + MAX_SUBMODELS);
 
     return nullptr;
 
@@ -1376,7 +1378,7 @@ idCollisionModelManagerLocal::InlineModel
 */
 clipHandle_t idCollisionModelManagerLocal::InlineModel(sint index) {
     if(index < 0 || index >= cm.numSubModels) {
-        Com_Error(ERR_DROP, "CM_InlineModel: bad number");
+        common->Error(ERR_DROP, "CM_InlineModel: bad number");
     }
 
     return index;
@@ -1416,7 +1418,7 @@ idCollisionModelManagerLocal::LeafCluster
 */
 sint idCollisionModelManagerLocal::LeafCluster(sint leafnum) {
     if(leafnum < 0 || leafnum >= cm.numLeafs) {
-        Com_Error(ERR_DROP, "CM_LeafCluster: bad leaf number %i", leafnum);
+        common->Error(ERR_DROP, "CM_LeafCluster: bad leaf number %i", leafnum);
     }
 
     return cm.leafs[leafnum].cluster;
@@ -1429,7 +1431,7 @@ idCollisionModelManagerLocal::LeafArea
 */
 sint idCollisionModelManagerLocal::LeafArea(sint leafnum) {
     if(leafnum < 0 || leafnum >= cm.numLeafs) {
-        Com_Error(ERR_DROP, "CM_LeafArea: bad leaf number %i", leafnum);
+        common->Error(ERR_DROP, "CM_LeafArea: bad leaf number %i", leafnum);
     }
 
     return cm.leafs[leafnum].area;

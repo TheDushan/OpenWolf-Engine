@@ -73,7 +73,7 @@ idClientConsoleCommandsSystemLocal::ForwardToServer_f
 */
 void idClientConsoleCommandsSystemLocal::ForwardToServer_f(void) {
     if(cls.state != CA_ACTIVE || clc.demoplaying) {
-        Com_Printf("Not connected to a server.\n");
+        common->Printf("Not connected to a server.\n");
         return;
     }
 
@@ -92,7 +92,7 @@ void idClientConsoleCommandsSystemLocal::Configstrings_f(void) {
     sint i, ofs;
 
     if(cls.state != CA_ACTIVE) {
-        Com_Printf("Not connected to a server.\n");
+        common->Printf("Not connected to a server.\n");
         return;
     }
 
@@ -103,7 +103,7 @@ void idClientConsoleCommandsSystemLocal::Configstrings_f(void) {
             continue;
         }
 
-        Com_Printf("%4i: %s\n", i, cl.gameState.stringData + ofs);
+        common->Printf("%4i: %s\n", i, cl.gameState.stringData + ofs);
     }
 }
 
@@ -113,12 +113,12 @@ idClientConsoleCommandsSystemLocal::Clientnfo_f
 ==============
 */
 void idClientConsoleCommandsSystemLocal::Clientinfo_f(void) {
-    Com_Printf("--------- Client Information ---------\n");
-    Com_Printf("state: %i\n", cls.state);
-    Com_Printf("Server: %s\n", cls.servername);
-    Com_Printf("User info settings:\n");
-    Info_Print(cvarSystem->InfoString(CVAR_USERINFO));
-    Com_Printf("--------------------------------------\n");
+    common->Printf("--------- Client Information ---------\n");
+    common->Printf("state: %i\n", cls.state);
+    common->Printf("Server: %s\n", cls.servername);
+    common->Printf("User info settings:\n");
+    common->InfoPrint(cvarSystem->InfoString(CVAR_USERINFO));
+    common->Printf("--------------------------------------\n");
 }
 
 /*
@@ -290,7 +290,7 @@ void idClientConsoleCommandsSystemLocal::Connect_f(void) {
     netadrtype_t family = NA_UNSPEC;
 
     if(argc != 2 && argc != 3) {
-        Com_Printf("usage: connect [-4|-6] server\n");
+        common->Printf("usage: connect [-4|-6] server\n");
         return;
     }
 
@@ -305,7 +305,7 @@ void idClientConsoleCommandsSystemLocal::Connect_f(void) {
         } else if(!strcmp(cmdSystem->Argv(1), "-6")) {
             family = NA_IP6;
         } else {
-            Com_Printf("warning: only -4 or -6 as address type understood.\n");
+            common->Printf("warning: only -4 or -6 as address type understood.\n");
         }
 
         Q_strncpyz(server, cmdSystem->Argv(2), sizeof(server));
@@ -339,7 +339,7 @@ void idClientConsoleCommandsSystemLocal::Connect_f(void) {
 
     if(!networkChainSystem->StringToAdr(cls.servername, &clc.serverAddress,
                                         family)) {
-        Com_Printf("Bad server address\n");
+        common->Printf("Bad server address\n");
         cls.state = CA_DISCONNECTED;
         cvarSystem->Set("ui_connecting", "0");
         return;
@@ -350,7 +350,7 @@ void idClientConsoleCommandsSystemLocal::Connect_f(void) {
     }
 
     serverString = networkSystem->AdrToStringwPort(clc.serverAddress);
-    Com_Printf("%s resolved to %s\n", cls.servername, serverString);
+    common->Printf("%s resolved to %s\n", cls.servername, serverString);
 
     if(cl_guidServerUniq->integer) {
         idClientGUIDSystemLocal::UpdateGUID(serverString, strlen(serverString));
@@ -367,7 +367,7 @@ void idClientConsoleCommandsSystemLocal::Connect_f(void) {
 
         // Set a client challenge number that ideally is mirrored back by the server.
         clc.challenge = (static_cast<uint>(rand()) << 16) ^ static_cast<uint>
-                        (rand()) ^ Com_Milliseconds();
+                        (rand()) ^ common->Milliseconds();
     }
 
     cvarSystem->Set("cl_avidemo", "0");
@@ -425,7 +425,7 @@ void idClientConsoleCommandsSystemLocal::OpenUrl_f(void) {
     pointer url;
 
     if(cmdSystem->Argc() != 2) {
-        Com_Printf("Usage: openurl <url>\n");
+        common->Printf("Usage: openurl <url>\n");
         return;
     }
 
@@ -463,7 +463,7 @@ void idClientConsoleCommandsSystemLocal::OpenUrl_f(void) {
                 of the allowedPrefixes array. As I said above, placeholder
                 code: fix it later!
             */
-            Com_Printf("Invalid URL prefix.\n");
+            common->Printf("Invalid URL prefix.\n");
             return;
         }
 
@@ -484,7 +484,7 @@ void idClientConsoleCommandsSystemLocal::OpenUrl_f(void) {
         }
 
         if(i == lengthof(allowDomains)) {
-            Com_Printf("Invalid domain.\n");
+            common->Printf("Invalid domain.\n");
             return;
         }
 
@@ -498,14 +498,14 @@ void idClientConsoleCommandsSystemLocal::OpenUrl_f(void) {
                         (url[i] == '.') || (url[i] == '&') ||     // . and & chars
                         (url[i] == ';')                          // ; char
                     )) {
-                Com_Printf("Invalid URL\n");
+                common->Printf("Invalid URL\n");
                 return;
             }
         }
     }
 
     if(!idsystem->OpenUrl(url)) {
-        Com_Printf("System error opening URL\n");
+        common->Printf("System error opening URL\n");
     }
 }
 
@@ -522,8 +522,8 @@ void idClientConsoleCommandsSystemLocal::Rcon_f(void) {
     valueType message[MAX_RCON_MESSAGE];
 
     if(!strlen(rcon_client_password->string)) {
-        Com_Printf("You must set 'rcon_password' before\n"
-                   "issuing an rcon command.\n");
+        common->Printf("You must set 'rcon_password' before\n"
+                       "issuing an rcon command.\n");
         return;
     }
 
@@ -545,9 +545,9 @@ void idClientConsoleCommandsSystemLocal::Rcon_f(void) {
         rcon_address = clc.netchan.remoteAddress;
     } else {
         if(!::strlen(rconAddress->string)) {
-            Com_Printf("You must either be connected,\n"
-                       "or set the 'rconAddress' cvar\n"
-                       "to issue rcon commands\n");
+            common->Printf("You must either be connected,\n"
+                           "or set the 'rconAddress' cvar\n"
+                           "to issue rcon commands\n");
 
             return;
         }
@@ -591,9 +591,9 @@ void idClientConsoleCommandsSystemLocal::Setenv_f(void) {
         valueType *env = getenv(cmdSystem->Argv(1));
 
         if(env) {
-            Com_Printf("%s=%s\n", cmdSystem->Argv(1), env);
+            common->Printf("%s=%s\n", cmdSystem->Argv(1), env);
         } else {
-            Com_Printf("%s undefined\n", cmdSystem->Argv(1));
+            common->Printf("%s undefined\n", cmdSystem->Argv(1));
         }
     }
 }
@@ -604,7 +604,7 @@ idClientConsoleCommandsSystemLocal::PK3List_f
 ==================
 */
 void idClientConsoleCommandsSystemLocal::OpenedPK3List_f(void) {
-    Com_Printf("Opened PK3 Names: %s\n", fileSystem->LoadedPakNames());
+    common->Printf("Opened PK3 Names: %s\n", fileSystem->LoadedPakNames());
 }
 
 /*
@@ -613,7 +613,8 @@ idClientConsoleCommandsSystemLocal::PureList_f
 ==================
 */
 void idClientConsoleCommandsSystemLocal::ReferencedPK3List_f(void) {
-    Com_Printf("Referenced PK3 Names: %s\n", fileSystem->ReferencedPakNames());
+    common->Printf("Referenced PK3 Names: %s\n",
+                   fileSystem->ReferencedPakNames());
 }
 
 /*
@@ -622,7 +623,7 @@ idClientConsoleCommandsSystemLocal::SetRecommended_f
 ================
 */
 void idClientConsoleCommandsSystemLocal::SetRecommended_f(void) {
-    Com_SetRecommended();
+    common->SetRecommended();
 }
 
 
@@ -648,7 +649,7 @@ void idClientConsoleCommandsSystemLocal::Video_f(void) {
     sint i, last;
 
     if(!clc.demoplaying) {
-        Com_Printf("The video command can only be used when playing back demos\n");
+        common->Printf("The video command can only be used when playing back demos\n");
         return;
     }
 
@@ -680,7 +681,7 @@ void idClientConsoleCommandsSystemLocal::Video_f(void) {
         }
 
         if(i > 9999) {
-            Com_Printf(S_COLOR_RED "ERROR: no free file names to create video\n");
+            common->Printf(S_COLOR_RED "ERROR: no free file names to create video\n");
             return;
         }
     }
@@ -717,7 +718,7 @@ idClientConsoleCommandsSystemLocal::Disconnect
 Called when a connection, demo, or cinematic is being terminated.
 Goes from a connected state to either a menu state or a console state
 Sends a disconnect message to the server
-This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
+This is also called on common->Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
 void idClientConsoleCommandsSystemLocal::Disconnect(bool showMainMenu,

@@ -103,8 +103,8 @@ bool idClientGameSystemLocal::GetUserCmd(sint cmdNumber, usercmd_t *ucmd) {
 
     // can't return anything that we haven't created yet
     if(cmdNumber > cl.cmdNumber) {
-        Com_Error(ERR_DROP, "idClientGameSystemLocal::GetUserCmd: %i >= %i",
-                  cmdNumber, cl.cmdNumber);
+        common->Error(ERR_DROP, "idClientGameSystemLocal::GetUserCmd: %i >= %i",
+                      cmdNumber, cl.cmdNumber);
     }
 
     // the usercmd has been overwritten in the wrapping
@@ -149,8 +149,8 @@ bool idClientGameSystemLocal::GetSnapshot(sint snapshotNumber,
     clSnapshot_t *clSnap;
 
     if(snapshotNumber > cl.snapServer.messageNum) {
-        Com_Error(ERR_DROP,
-                  "idClientGameSystemLocal::GetSnapshot: snapshotNumber > cl.snapshot.messageNum");
+        common->Error(ERR_DROP,
+                      "idClientGameSystemLocal::GetSnapshot: snapshotNumber > cl.snapshot.messageNum");
     }
 
     // if the frame has fallen out of the circular buffer, we can't return it
@@ -183,8 +183,8 @@ bool idClientGameSystemLocal::GetSnapshot(sint snapshotNumber,
 
     if(count > MAX_ENTITIES_IN_SNAPSHOT) {
         if(developer->integer) {
-            Com_Printf("idClientGameSystemLocal::GetSnapshot: truncated %i entities to %i\n",
-                       count, MAX_ENTITIES_IN_SNAPSHOT);
+            common->Printf("idClientGameSystemLocal::GetSnapshot: truncated %i entities to %i\n",
+                           count, MAX_ENTITIES_IN_SNAPSHOT);
         }
 
         count = MAX_ENTITIES_IN_SNAPSHOT;
@@ -266,7 +266,7 @@ idClientGameSystemLocal::CgameError
 ==============
 */
 void idClientGameSystemLocal::CgameError(pointer string) {
-    Com_Error(ERR_DROP, "%s", string);
+    common->Error(ERR_DROP, "%s", string);
 }
 
 /*
@@ -297,8 +297,8 @@ void idClientGameSystemLocal::ConfigstringModified(void) {
     index = atoi(cmdSystem->Argv(1));
 
     if(index < 0 || index >= MAX_CONFIGSTRINGS) {
-        Com_Error(ERR_DROP,
-                  "idClientGameSystemLocal::ConfigstringModified: bad index %i", index);
+        common->Error(ERR_DROP,
+                      "idClientGameSystemLocal::ConfigstringModified: bad index %i", index);
     }
 
     //s = cmdSystem->Argv(2);
@@ -336,7 +336,7 @@ void idClientGameSystemLocal::ConfigstringModified(void) {
         len = ::strlen(dup);
 
         if(len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
-            Com_Error(ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+            common->Error(ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
         }
 
         // append it to the gameState string buffer
@@ -430,13 +430,13 @@ bool idClientGameSystemLocal::GetServerCommand(sint serverCommandNumber) {
 
             while(i < MAX_RELIABLE_COMMANDS) {
                 if(clc.reliableCommands[i][0]) {
-                    Com_Printf("%i: %s\n", i, clc.reliableCommands[i]);
+                    common->Printf("%i: %s\n", i, clc.reliableCommands[i]);
                 }
 
                 i++;
             }
 
-            Com_Printf("^idClientGameSystemLocal::GetServerCommand: a reliable command was cycled out. Auto-reconnecting.^7\n");
+            common->Printf("^idClientGameSystemLocal::GetServerCommand: a reliable command was cycled out. Auto-reconnecting.^7\n");
             cmdBufferSystem->ExecuteText(EXEC_NOW, "reconnect\n");
         }
 
@@ -444,8 +444,8 @@ bool idClientGameSystemLocal::GetServerCommand(sint serverCommandNumber) {
     }
 
     if(serverCommandNumber > clc.serverCommandSequence) {
-        Com_Error(ERR_DROP,
-                  "idClientGameSystemLocal::GetServerCommand: requested a command not received");
+        common->Error(ERR_DROP,
+                      "idClientGameSystemLocal::GetServerCommand: requested a command not received");
         return false;
     }
 
@@ -455,7 +455,7 @@ bool idClientGameSystemLocal::GetServerCommand(sint serverCommandNumber) {
     if(cl_showServerCommands->integer) {
         // NERVE - SMF
         if(developer->integer) {
-            Com_Printf("serverCommand: %i : %s\n", serverCommandNumber, s);
+            common->Printf("serverCommand: %i : %s\n", serverCommandNumber, s);
         }
     }
 
@@ -467,10 +467,10 @@ rescan:
     if(!strcmp(cmd, "disconnect")) {
         // NERVE - SMF - allow server to indicate why they were disconnected
         if(argc >= 2) {
-            Com_Error(ERR_SERVERDISCONNECT, "Server Disconnected - %s",
-                      cmdSystem->Argv(1));
+            common->Error(ERR_SERVERDISCONNECT, "Server Disconnected - %s",
+                          cmdSystem->Argv(1));
         } else {
-            Com_Error(ERR_SERVERDISCONNECT, "Server disconnected\n");
+            common->Error(ERR_SERVERDISCONNECT, "Server disconnected\n");
         }
     }
 
@@ -484,7 +484,7 @@ rescan:
         s = cmdSystem->Argv(2);
 
         if(strlen(bigConfigString) + strlen(s) >= BIG_INFO_STRING) {
-            Com_Error(ERR_DROP, "bcs exceeded BIG_INFO_STRING");
+            common->Error(ERR_DROP, "bcs exceeded BIG_INFO_STRING");
         }
 
         strcat(bigConfigString, s);
@@ -495,7 +495,7 @@ rescan:
         s = cmdSystem->Argv(2);
 
         if(strlen(bigConfigString) + strlen(s) + 1 >= BIG_INFO_STRING) {
-            Com_Error(ERR_DROP, "bcs exceeded BIG_INFO_STRING");
+            common->Error(ERR_DROP, "bcs exceeded BIG_INFO_STRING");
         }
 
         strcat(bigConfigString, s);
@@ -550,9 +550,9 @@ void idClientGameSystemLocal::OpenLog(pointer filename, fileHandle_t *f,
                                 sync ? FS_APPEND_SYNC : FS_APPEND);
 
     if(*f) {
-        Com_Printf("Logging to %s\n", filename);
+        common->Printf("Logging to %s\n", filename);
     } else {
-        Com_Printf("^3WARNING: Couldn't open logfile: %s\n", filename);
+        common->Printf("^3WARNING: Couldn't open logfile: %s\n", filename);
     }
 }
 
@@ -689,9 +689,6 @@ idClientGameSystemLocal::CreateExportTable
 ====================
 */
 void idClientGameSystemLocal::CreateExportTable(void) {
-    exports.Print = Com_Printf;
-    exports.RealTime = Com_RealTime;
-
     exports.clientCinemaSystem = clientCinemaSystem;
     exports.clientGameSystem = clientGameSystem;
     exports.renderSystem = renderSystem;
@@ -709,6 +706,7 @@ void idClientGameSystemLocal::CreateExportTable(void) {
     exports.clientKeysSystem = clientKeysSystem;
     exports.clientReliableCommandsSystem = clientReliableCommandsSystem;
     exports.memorySystem = memorySystem;
+    exports.common = common;
 }
 
 /*
@@ -772,7 +770,7 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage(void) {
                     Q_strcat(outbuftrav, len + 1, token);
                     Q_strcat(outbuftrav, len + 1, "\n");
                 } else {
-                    Com_Error(ERR_DROP, "hunkusage.dat file is corrupt\n");
+                    common->Error(ERR_DROP, "hunkusage.dat file is corrupt\n");
                 }
             }
         }
@@ -780,14 +778,14 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage(void) {
         handle = fileSystem->FOpenFileWrite(memlistfile);
 
         if(handle < 0) {
-            Com_Error(ERR_DROP, "cannot create %s\n", memlistfile);
+            common->Error(ERR_DROP, "cannot create %s\n", memlistfile);
         }
 
         // input file is parsed, now output to the new file
         len = strlen(outbuf);
 
         if(fileSystem->Write(static_cast<void *>(outbuf), len, handle) != len) {
-            Com_Error(ERR_DROP, "cannot write to %s\n", memlistfile);
+            common->Error(ERR_DROP, "cannot write to %s\n", memlistfile);
         }
 
         fileSystem->FCloseFile(handle);
@@ -800,7 +798,8 @@ void idClientGameSystemLocal::UpdateLevelHunkUsage(void) {
     fileSystem->FOpenFileByMode(memlistfile, &handle, FS_APPEND);
 
     if(handle < 0) {
-        Com_Error(ERR_DROP, "cannot write to hunkusage.dat, check disk full\n");
+        common->Error(ERR_DROP,
+                      "cannot write to hunkusage.dat, check disk full\n");
     }
 
     Q_vsprintf_s(outstr, sizeof(outstr), sizeof(outstr), "%s %i\n", cl.mapname,
@@ -844,7 +843,7 @@ void idClientGameSystemLocal::InitCGame(void) {
 
     if(!cgvm) {
         cls.cgameStarted = false;
-        Com_Error(ERR_DROP, "cannot load cgame dynamic module.\n");
+        common->Error(ERR_DROP, "cannot load cgame dynamic module.\n");
     }
 
     // Load in the entry point.
@@ -853,7 +852,7 @@ void idClientGameSystemLocal::InitCGame(void) {
 
     if(!cgameEntry) {
         cls.cgameStarted = false;
-        Com_Error(ERR_DROP, "error loading entry point on clientGame.\n");
+        common->Error(ERR_DROP, "error loading entry point on clientGame.\n");
     }
 
     // Create the export table.
@@ -879,8 +878,8 @@ void idClientGameSystemLocal::InitCGame(void) {
 
     t2 = idsystem->Milliseconds();
 
-    Com_Printf("idClientGameSystemLocal::InitCGame: %5.2f seconds\n",
-               (t2 - t1) / 1000.0);
+    common->Printf("idClientGameSystemLocal::InitCGame: %5.2f seconds\n",
+                   (t2 - t1) / 1000.0);
 
     // have the renderer touch all its images, so they are present
     // on the card even if the driver does deferred loading
@@ -913,7 +912,7 @@ void idClientGameSystemLocal::InitCGame(void) {
         OpenLog(logname, &cls.log.chat, (cl_logChat->integer == 2 ? true : false));
     } else {
         if(developer->integer) {
-            Com_Printf("Not logging chat to disk.\n");
+            common->Printf("Not logging chat to disk.\n");
         }
     }
 }
@@ -957,7 +956,7 @@ idClientGameSystemLocal::CGameRendering
 void idClientGameSystemLocal::CGameRendering(stereoFrame_t stereo) {
     /*  static sint x = 0;
         if(!((++x) % 20)) {
-            Com_Printf( "numtraces: %i\n", numtraces / 20 );
+            common->Printf( "numtraces: %i\n", numtraces / 20 );
             numtraces = 0;
         } else {
         }*/
@@ -1004,12 +1003,12 @@ void idClientGameSystemLocal::AdjustTimeDelta(void) {
         cl.serverTime = cl.snapServer.serverTime;
 
         if(cl_showTimeDelta->integer) {
-            Com_Printf("<RESET> ");
+            common->Printf("<RESET> ");
         }
     } else if(deltaDelta > 100) {
         // fast adjust, cut the difference in half
         if(cl_showTimeDelta->integer) {
-            Com_Printf("<FAST> ");
+            common->Printf("<FAST> ");
         }
 
         cl.serverTimeDelta = (cl.serverTimeDelta + newDelta) >> 1;
@@ -1030,7 +1029,7 @@ void idClientGameSystemLocal::AdjustTimeDelta(void) {
     }
 
     if(cl_showTimeDelta->integer) {
-        Com_Printf("%i ", cl.serverTimeDelta);
+        common->Printf("%i ", cl.serverTimeDelta);
     }
 }
 
@@ -1099,8 +1098,8 @@ void idClientGameSystemLocal::SetCGameTime(void) {
 
     // if we have gotten to this point, cl.snap is guaranteed to be valid
     if(!cl.snapServer.valid) {
-        Com_Error(ERR_DROP,
-                  "idClientGameSystemLocal::SetCGameTime: !cl.snapServer.valid");
+        common->Error(ERR_DROP,
+                      "idClientGameSystemLocal::SetCGameTime: !cl.snapServer.valid");
     }
 
     // allow pause in single player
@@ -1115,7 +1114,8 @@ void idClientGameSystemLocal::SetCGameTime(void) {
             // do nothing?
             FirstSnapshot();
         } else {
-            Com_Error(ERR_DROP, "cl.snapServer.serverTime < cl.oldFrameServerTime");
+            common->Error(ERR_DROP,
+                          "cl.snapServer.serverTime < cl.oldFrameServerTime");
         }
     }
 

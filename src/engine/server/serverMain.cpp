@@ -140,15 +140,15 @@ void idServerMainSystemLocal::AddServerCommand(client_t *client,
     // doesn't cause a recursive drop client
     if(client->reliableSequence - client->reliableAcknowledge ==
             MAX_RELIABLE_COMMANDS + 1) {
-        Com_Printf("===== pending server commands =====\n");
+        common->Printf("===== pending server commands =====\n");
 
         for(i = client->reliableAcknowledge + 1; i <= client->reliableSequence;
                 i++) {
-            Com_Printf("cmd %5d: %s\n", i,
-                       client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
+            common->Printf("cmd %5d: %s\n", i,
+                           client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
         }
 
-        Com_Printf("cmd %5d: %s\n", i, cmd);
+        common->Printf("cmd %5d: %s\n", i, cmd);
 
         serverClientSystem->DropClient(client, "Server command overflow");
         return;
@@ -205,8 +205,8 @@ void idServerMainSystemLocal::SendServerCommand(client_t *cl, pointer fmt,
     // hack to echo broadcast prints to console
     if(dedicated->integer &&
             !strncmp(reinterpret_cast<valueType *>(message), "print", 5)) {
-        Com_Printf("broadcast: %s\n",
-                   ExpandNewlines(reinterpret_cast<valueType *>(message)));
+        common->Printf("broadcast: %s\n",
+                       ExpandNewlines(reinterpret_cast<valueType *>(message)));
     }
 
     // send the data to all relevent clients
@@ -288,7 +288,7 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
         // see if we haven't already resolved the name
         if(netenabled & NET_ENABLEV4) {
             if(adr[i][0].type == NA_BAD) {
-                Com_Printf("Resolving %s (IPv4)\n", master);
+                common->Printf("Resolving %s (IPv4)\n", master);
                 res = networkChainSystem->StringToAdr(master, &adr[i][0], NA_IP);
 
                 if(res == 2) {
@@ -297,17 +297,17 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
                 }
 
                 if(res) {
-                    Com_Printf("%s resolved to %s\n", master,
-                               networkSystem->AdrToString(adr[i][0]));
+                    common->Printf("%s resolved to %s\n", master,
+                                   networkSystem->AdrToString(adr[i][0]));
                 } else {
-                    Com_Printf("%s has no IPv4 address.\n", master);
+                    common->Printf("%s has no IPv4 address.\n", master);
                 }
             }
         }
 
         if(netenabled & NET_ENABLEV6) {
             if(adr[i][1].type == NA_BAD) {
-                Com_Printf("Resolving %s (IPv6)\n", master);
+                common->Printf("Resolving %s (IPv6)\n", master);
                 res = networkChainSystem->StringToAdr(master, &adr[i][1], NA_IP6);
 
                 if(res == 2) {
@@ -316,10 +316,10 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
                 }
 
                 if(res) {
-                    Com_Printf("%s resolved to %s\n", master,
-                               networkSystem->AdrToString(adr[i][1]));
+                    common->Printf("%s resolved to %s\n", master,
+                                   networkSystem->AdrToString(adr[i][1]));
                 } else {
-                    Com_Printf("%s has no IPv6 address.\n", master);
+                    common->Printf("%s has no IPv6 address.\n", master);
                 }
             }
         }
@@ -330,12 +330,12 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
                     !(netenabled & NET_ENABLEV6))) {
             // if the address failed to resolve, clear it
             // so we don't take repeated dns hits
-            Com_Printf("Couldn't resolve address: %s\n", master);
+            common->Printf("Couldn't resolve address: %s\n", master);
             cvarSystem->Set(va("sv_master%i", i + 1), "");
             continue;
         }
 
-        Com_Printf("Sending heartbeat to %s\n", master);
+        common->Printf("Sending heartbeat to %s\n", master);
 
         // this command should be changed if the server info / status format
         // ever incompatably changes
@@ -382,13 +382,13 @@ void idServerMainSystemLocal::MasterGameCompleteStatus(void) {
         if(sv_master[i]->modified) {
             sv_master[i]->modified = false;
 
-            Com_Printf("Resolving %s\n", sv_master[i]->string);
+            common->Printf("Resolving %s\n", sv_master[i]->string);
 
             if(!networkChainSystem->StringToAdr(sv_master[i]->string, &adr[i],
                                                 NA_IP)) {
                 // if the address failed to resolve, clear it
                 // so we don't take repeated dns hits
-                Com_Printf("Couldn't resolve address: %s\n", sv_master[i]->string);
+                common->Printf("Couldn't resolve address: %s\n", sv_master[i]->string);
                 cvarSystem->Set(sv_master[i]->name, "");
                 sv_master[i]->modified = false;
                 continue;
@@ -398,12 +398,12 @@ void idServerMainSystemLocal::MasterGameCompleteStatus(void) {
                 adr[i].port = BigShort(PORT_MASTER);
             }
 
-            Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
-                       adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3],
-                       BigShort(adr[i].port));
+            common->Printf("%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
+                           adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3],
+                           BigShort(adr[i].port));
         }
 
-        Com_Printf("Sending gameCompleteStatus to %s\n", sv_master[i]->string);
+        common->Printf("Sending gameCompleteStatus to %s\n", sv_master[i]->string);
 
         // this command should be changed if the server info / status format
         // ever incompatably changes
@@ -444,12 +444,13 @@ void idServerMainSystemLocal::MasterGameStat(pointer data) {
         return; // only dedicated servers send stats
     }
 
-    Com_Printf("Resolving %s\n", MASTER_SERVER_NAME);
+    common->Printf("Resolving %s\n", MASTER_SERVER_NAME);
 
     switch(networkChainSystem->StringToAdr(MASTER_SERVER_NAME, &adr,
                                            NA_UNSPEC)) {
         case 0:
-            Com_Printf("Couldn't resolve master address: %s\n", MASTER_SERVER_NAME);
+            common->Printf("Couldn't resolve master address: %s\n",
+                           MASTER_SERVER_NAME);
             return;
 
         case 2:
@@ -459,10 +460,10 @@ void idServerMainSystemLocal::MasterGameStat(pointer data) {
             break;
     }
 
-    Com_Printf("%s resolved to %s\n", MASTER_SERVER_NAME,
-               networkSystem->AdrToStringwPort(adr));
+    common->Printf("%s resolved to %s\n", MASTER_SERVER_NAME,
+                   networkSystem->AdrToStringwPort(adr));
 
-    Com_Printf("Sending gamestat to %s\n", MASTER_SERVER_NAME);
+    common->Printf("Sending gamestat to %s\n", MASTER_SERVER_NAME);
     networkChainSystem->OutOfBandPrint(NS_SERVER, adr, "gamestat %s", data);
 }
 
@@ -785,22 +786,22 @@ void idServerMainSystemLocal::GetUpdateInfo(netadr_t from) {
     platform = cmdSystem->Argv(2);
 
     if(developer->integer) {
-        Com_Printf("idServerMainSystemLocal::GetUpdateInfo: version == %s / %s,\n",
-                   version, platform);
+        common->Printf("idServerMainSystemLocal::GetUpdateInfo: version == %s / %s,\n",
+                       version, platform);
     }
 
     for(i = 0; i < numVersions; i++) {
         if(!::strcmp(versionMap[i].version, version)) {
             if(developer->integer) {
-                Com_Printf(" version string is same string\n");
+                common->Printf(" version string is same string\n");
             }
 
             found = true;
         } else {
             if(developer->integer) {
-                Com_Printf(" version string is not the same\n");
-                Com_Printf(" found version %s version %s\n", versionMap[i].version,
-                           version);
+                common->Printf(" version string is not the same\n");
+                common->Printf(" found version %s version %s\n", versionMap[i].version,
+                               version);
             }
 
             found = false;
@@ -808,17 +809,17 @@ void idServerMainSystemLocal::GetUpdateInfo(netadr_t from) {
 
         if(!::strcmp(versionMap[i].platform, platform)) {
             if(developer->integer) {
-                Com_Printf(" platform string is the same\n");
-                Com_Printf(" found platform %s platform %s\n", versionMap[i].platform,
-                           platform);
+                common->Printf(" platform string is the same\n");
+                common->Printf(" found platform %s platform %s\n", versionMap[i].platform,
+                               platform);
             }
 
             found = true;
         } else {
             if(developer->integer) {
-                Com_Printf(" platform string is not the same \n");
-                Com_Printf(" found platform %s platform %s\n", versionMap[i].platform,
-                           platform);
+                common->Printf(" platform string is not the same \n");
+                common->Printf(" found platform %s platform %s\n", versionMap[i].platform,
+                               platform);
             }
 
             found = false;
@@ -826,21 +827,21 @@ void idServerMainSystemLocal::GetUpdateInfo(netadr_t from) {
 
         if(::strcmp(versionMap[i].installer, "current")) {
             if(developer->integer) {
-                Com_Printf(" installer string is the current\n");
+                common->Printf(" installer string is the current\n");
             }
 
             found = true;
         } else {
             if(developer->integer) {
-                Com_Printf(" installer string is not the same\n");
-                Com_Printf(" found %s installer\n", versionMap[i].installer);
+                common->Printf(" installer string is not the same\n");
+                common->Printf(" found %s installer\n", versionMap[i].installer);
             }
 
             found = false;
         }
 
         if(developer->integer) {
-            Com_Printf(" -------------------------------------------------------------------\n");
+            common->Printf(" -------------------------------------------------------------------\n");
         }
 
         if(found) {
@@ -848,13 +849,13 @@ void idServerMainSystemLocal::GetUpdateInfo(netadr_t from) {
                                                versionMap[i].installer);
 
             if(developer->integer) {
-                Com_Printf("   SENT:  updateResponse 1 %s\n", versionMap[i].installer);
+                common->Printf("   SENT:  updateResponse 1 %s\n", versionMap[i].installer);
             }
         } else {
             networkChainSystem->OutOfBandPrint(NS_SERVER, from, "updateResponse 0");
 
             if(developer->integer) {
-                Com_Printf("   SENT:  updateResponse 0\n");
+                common->Printf("   SENT:  updateResponse 0\n");
             }
         }
     }
@@ -923,8 +924,8 @@ bool idServerMainSystemLocal::CheckDRDoS(netadr_t from) {
 
             if(!ban->flood && ((svs.time - ban->time) >= 3000) && ban->count <= 5) {
                 if(developer->integer) {
-                    Com_Printf("Unban info flood protect for address %s, they're not flooding\n",
-                               networkSystem->AdrToString(exactFrom));
+                    common->Printf("Unban info flood protect for address %s, they're not flooding\n",
+                                   networkSystem->AdrToString(exactFrom));
                 }
 
                 ::memset(ban, 0, sizeof(floodBan_t));
@@ -934,8 +935,8 @@ bool idServerMainSystemLocal::CheckDRDoS(netadr_t from) {
 
             if(ban->count >= 180) {
                 if(developer->integer) {
-                    Com_Printf("Renewing info flood ban for address %s, received %i getinfo/getstatus requests in %i milliseconds\n",
-                               networkSystem->AdrToString(exactFrom), ban->count, svs.time - ban->time);
+                    common->Printf("Renewing info flood ban for address %s, received %i getinfo/getstatus requests in %i milliseconds\n",
+                                   networkSystem->AdrToString(exactFrom), ban->count, svs.time - ban->time);
                 }
 
                 ban->time = svs.time;
@@ -983,8 +984,8 @@ bool idServerMainSystemLocal::CheckDRDoS(netadr_t from) {
     }
 
     if(specificCount >= 3) {  // Already sent 3 to this IP in last 2 seconds.
-        Com_Printf("Possible DRDoS attack to address %s, putting into temporary getinfo/getstatus ban list\n",
-                   networkSystem->AdrToString(exactFrom));
+        common->Printf("Possible DRDoS attack to address %s, putting into temporary getinfo/getstatus ban list\n",
+                       networkSystem->AdrToString(exactFrom));
         ban = &svs.infoFloodBans[oldestBan];
         ban->adr = from;
         ban->time = svs.time;
@@ -1004,7 +1005,7 @@ bool idServerMainSystemLocal::CheckDRDoS(netadr_t from) {
         }
 
         if(lastGlobalLogTime + 1000 <= svs.time) {  // Limit one log every second.
-            Com_Printf("Detected flood of arbitrary getinfo/getstatus connectionless packets\n");
+            common->Printf("Detected flood of arbitrary getinfo/getstatus connectionless packets\n");
             lastGlobalLogTime = svs.time;
         }
 
@@ -1032,7 +1033,7 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
     valueType remaining[1024];
 
     // show_bug.cgi?id=376
-    // if we send an OOB print message this size, 1.31 clients die in a Com_Printf buffer overflow
+    // if we send an OOB print message this size, 1.31 clients die in a common->Printf buffer overflow
     // the buffer overflow will be fixed in > 1.31 clients
     // but we want a server side fix
     // we must NEVER send an OOB message that will be > 1.31 MAXPRINTMSG (4096)
@@ -1044,7 +1045,7 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
     sint p_iter;
     sint cs_authorized;
 
-    Com_Printf("Comando rcon: %s\n", cmdSystem->Cmd());
+    common->Printf("Comando rcon: %s\n", cmdSystem->Cmd());
 
     // UrTEvolution Community Builder rcon automatic autorization
     for(p_iter = 0, cl = svs.clients;
@@ -1068,7 +1069,7 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
     }
 
     // TTimo - show_bug.cgi?id=534
-    time = Com_Milliseconds();
+    time = common->Milliseconds();
 
     if(!(cs_authorized == CS_OK || (cs_authorized == CS_CHECK &&
                                     ::strcmp(cmdSystem->Argv(1), sv_rconPassword->string) == 0)) ||
@@ -1080,8 +1081,8 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
 
         valid = false;
 
-        Com_Printf("Bad rcon from %s:\n%s\n", networkSystem->AdrToString(from),
-                   cmdSystem->Argv(2));
+        common->Printf("Bad rcon from %s:\n%s\n", networkSystem->AdrToString(from),
+                       cmdSystem->Argv(2));
     } else {
         // MaJ - If the rconpassword is good, allow it much sooner than a bad one.
         if(static_cast<uint>((time) - lasttime < 200u)) {
@@ -1091,11 +1092,11 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
         valid = true;
 
         if(cs_authorized == CS_OK) {
-            Com_Printf("Rcon from %s:\n%s\n", networkSystem->AdrToString(from),
-                       cmdSystem->Argv(1));
+            common->Printf("Rcon from %s:\n%s\n", networkSystem->AdrToString(from),
+                           cmdSystem->Argv(1));
         } else {
-            Com_Printf("Rcon from %s:\n%s\n", networkSystem->AdrToString(from),
-                       cmdSystem->Argv(2));
+            common->Printf("Rcon from %s:\n%s\n", networkSystem->AdrToString(from),
+                           cmdSystem->Argv(2));
         }
     }
 
@@ -1105,16 +1106,16 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
     svs.redirectAddress = from;
     // FIXME TTimo our rcon redirection could be improved
     //   big rcon commands such as status lead to sending
-    //   out of band packets on every single call to Com_Printf
+    //   out of band packets on every single call to common->Printf
     //   which leads to client overflows
     //   see show_bug.cgi?id=51
     //     (also a Q3 issue)
-    Com_BeginRedirect(sv_outputbuf, sizeof(sv_outputbuf), FlushRedirect);
+    common->BeginRedirect(sv_outputbuf, sizeof(sv_outputbuf), FlushRedirect);
 
     if(!::strlen(sv_rconPassword->string)) {
-        Com_Printf("No rconpassword set on the server.\n");
+        common->Printf("No rconpassword set on the server.\n");
     } else if(!valid) {
-        Com_Printf("Bad rconpassword.\n");
+        common->Printf("Bad rconpassword.\n");
     } else {
         remaining[0] = 0;
 
@@ -1158,7 +1159,7 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
 
     }
 
-    Com_EndRedirect();
+    common->EndRedirect();
 }
 
 /*
@@ -1190,7 +1191,7 @@ void idServerMainSystemLocal::ConnectionlessPacket(netadr_t from,
     c = cmdSystem->Argv(0);
 
     if(developer->integer) {
-        Com_Printf("SV packet %s : %s\n", networkSystem->AdrToString(from), c);
+        common->Printf("SV packet %s : %s\n", networkSystem->AdrToString(from), c);
     }
 
     if(!Q_stricmp(c, "getstatus")) {
@@ -1247,8 +1248,8 @@ void idServerMainSystemLocal::ConnectionlessPacket(netadr_t from,
         // sequenced messages to the old client
     } else {
         if(developer->integer) {
-            Com_Printf("bad connectionless packet from %s:\n%s\n",
-                       networkSystem->AdrToString(from), s);
+            common->Printf("bad connectionless packet from %s:\n%s\n",
+                           networkSystem->AdrToString(from), s);
         }
     }
 }
@@ -1294,7 +1295,7 @@ void idServerMainSystemLocal::PacketEvent(netadr_t from, msg_t *msg) {
         // some address translating routers periodically change UDP
         // port assignments
         if(cl->netchan.remoteAddress.port != from.port) {
-            Com_Printf("idServerMainSystemLocal::PacketEvent: fixing up a translated port\n");
+            common->Printf("idServerMainSystemLocal::PacketEvent: fixing up a translated port\n");
             cl->netchan.remoteAddress.port = from.port;
         }
 
@@ -1413,7 +1414,7 @@ void idServerMainSystemLocal::CheckTimeouts(void) {
         if(cl->state == CS_ZOMBIE && cl->lastPacketTime < zombiepoint) {
             // using the client id cause the cl->name is empty at this point
             if(developer->integer) {
-                Com_Printf("Going from CS_ZOMBIE to CS_FREE for client %d\n", i);
+                common->Printf("Going from CS_ZOMBIE to CS_FREE for client %d\n", i);
             }
 
             cl->state = CS_FREE;    // can now be reused
@@ -1562,7 +1563,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
                 cvarSystem->Set("sv_fps", "1");
                 sv_fps->value = svs.hibernation.sv_fps;
                 svs.hibernation.enabled = true;
-                Com_Printf("Server switched to hibernation mode\n");
+                common->Printf("Server switched to hibernation mode\n");
             }
         }
     }
@@ -1750,7 +1751,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
         svs.currentFrameIndex++;
 
         //if( svs.currentFrameIndex % 50 == 0 )
-        //  Com_Printf( "currentFrameIndex: %i\n", svs.currentFrameIndex );
+        //  common->Printf( "currentFrameIndex: %i\n", svs.currentFrameIndex );
 
         if(svs.currentFrameIndex == SERVER_PERFORMANCECOUNTER_FRAMES) {
             sint averageFrameTime;
@@ -1780,7 +1781,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
                                   (frameMsec)) * 100;
             }
 
-            //Com_Printf( "serverload: %i (%i/%i)\n", svs.serverLoad, averageFrameTime, frameMsec );
+            //common->Printf( "serverload: %i (%i/%i)\n", svs.serverLoad, averageFrameTime, frameMsec );
 
             svs.totalFrameTime = 0;
             svs.currentFrameIndex = 0;
@@ -1832,14 +1833,14 @@ sint idServerMainSystemLocal::LoadTag(pointer mod_name) {
     version = LittleLong(pinmodel->version);
 
     if(version != TAG_VERSION) {
-        Com_Printf(S_COLOR_YELLOW
-                   "WARNING: idServerMainSystemLocal::LoadTag: %s has wrong version (%i should be %i)\n",
-                   mod_name, version, TAG_VERSION);
+        common->Printf(S_COLOR_YELLOW
+                       "WARNING: idServerMainSystemLocal::LoadTag: %s has wrong version (%i should be %i)\n",
+                       mod_name, version, TAG_VERSION);
         return 0;
     }
 
     if(sv.num_tagheaders >= MAX_TAG_FILES) {
-        Com_Error(ERR_DROP, "MAX_TAG_FILES reached\n");
+        common->Error(ERR_DROP, "MAX_TAG_FILES reached\n");
 
         fileSystem->FreeFile(buffer);
         return 0;
@@ -1856,7 +1857,7 @@ sint idServerMainSystemLocal::LoadTag(pointer mod_name) {
     sv.tagHeadersExt[sv.num_tagheaders].count = pinmodel->numTags;
 
     if(sv.num_tags + pinmodel->numTags >= MAX_SERVER_TAGS) {
-        Com_Error(ERR_DROP, "MAX_SERVER_TAGS reached\n");
+        common->Error(ERR_DROP, "MAX_SERVER_TAGS reached\n");
 
         fileSystem->FreeFile(buffer);
         return false;

@@ -85,7 +85,7 @@ sint idClientCinemaSystemLocal::HandleForVideo(void) {
         }
     }
 
-    Com_Error(ERR_DROP, "CIN_HandleForVideo: none free");
+    common->Error(ERR_DROP, "CIN_HandleForVideo: none free");
     return -1;
 }
 
@@ -745,7 +745,7 @@ void idClientCinemaSystemLocal::readQuadInfo(uchar8 *qData) {
 
         if(cinTable[currentHandle].CIN_WIDTH != 256 ||
                 cinTable[currentHandle].CIN_HEIGHT != 256) {
-            Com_Printf("HACK: approxmimating cinematic for Rage Pro or Voodoo\n");
+            common->Printf("HACK: approxmimating cinematic for Rage Pro or Voodoo\n");
         }
     }
 }
@@ -905,7 +905,7 @@ redump:
                     soundSystem->Update();
 
                     if(developer->integer) {
-                        Com_Printf("S_Update: Setting rawend to %i\n", s_soundtime);
+                        common->Printf("S_Update: Setting rawend to %i\n", s_soundtime);
                     }
 
                     s_rawend = s_soundtime;         //DAJ added
@@ -980,7 +980,7 @@ redump:
     if(cinTable[currentHandle].RoQFrameSize > 65536 ||
             cinTable[currentHandle].roq_id == 0x1084) {
         if(developer->integer) {
-            Com_Printf("roq_size>65536||roq_id==0x1084\n");
+            common->Printf("roq_size>65536||roq_id==0x1084\n");
         }
 
         cinTable[currentHandle].status = FMV_EOF;
@@ -1057,7 +1057,7 @@ void idClientCinemaSystemLocal::RoQShutdown(void) {
     }
 
     if(developer->integer) {
-        Com_Printf("idClientCinemaSystemLocal::RoQShutdown: finished cinematic\n");
+        common->Printf("idClientCinemaSystemLocal::RoQShutdown: finished cinematic\n");
     }
 
     cinTable[currentHandle].status = FMV_IDLE;
@@ -1102,8 +1102,8 @@ e_status idClientCinemaSystemLocal::CinemaStopCinematic(sint handle) {
     currentHandle = handle;
 
     if(developer->integer) {
-        Com_Printf("trFMV::stop(), closing %s\n",
-                   cinTable[currentHandle].fileName);
+        common->Printf("trFMV::stop(), closing %s\n",
+                       cinTable[currentHandle].fileName);
     }
 
     if(!cinTable[currentHandle].buf) {
@@ -1255,7 +1255,7 @@ sint idClientCinemaSystemLocal::PlayCinematic(pointer arg, sint x, sint y,
     }
 
     if(developer->integer) {
-        Com_Printf("idClientCinemaSystemLocal::PlayCinematic( %s )\n", arg);
+        common->Printf("idClientCinemaSystemLocal::PlayCinematic( %s )\n", arg);
     }
 
     ::memset(&cin, 0, sizeof(cinematics_t));
@@ -1271,7 +1271,7 @@ sint idClientCinemaSystemLocal::PlayCinematic(pointer arg, sint x, sint y,
 
     if(cinTable[currentHandle].ROQSize <= 0) {
         if(developer->integer) {
-            Com_Printf("play(%s), ROQSize<=0\n", arg);
+            common->Printf("play(%s), ROQSize<=0\n", arg);
         }
 
         cinTable[currentHandle].fileName[0] = 0;
@@ -1314,7 +1314,7 @@ sint idClientCinemaSystemLocal::PlayCinematic(pointer arg, sint x, sint y,
         cinTable[currentHandle].status = FMV_PLAY;
 
         if(developer->integer) {
-            Com_Printf("trFMV::play(), playing %s\n", arg);
+            common->Printf("trFMV::play(), playing %s\n", arg);
         }
 
         if(cinTable[currentHandle].alterGameState) {
@@ -1324,7 +1324,7 @@ sint idClientCinemaSystemLocal::PlayCinematic(pointer arg, sint x, sint y,
         clientConsoleSystem->Close();
 
         if(developer->integer) {
-            Com_Printf("Setting rawend to %i\n", s_soundtime);
+            common->Printf("Setting rawend to %i\n", s_soundtime);
         }
 
         if(!cinTable[currentHandle].silent) {
@@ -1335,7 +1335,7 @@ sint idClientCinemaSystemLocal::PlayCinematic(pointer arg, sint x, sint y,
     }
 
     if(developer->integer) {
-        Com_Printf("trFMV::play(), invalid RoQ ID\n");
+        common->Printf("trFMV::play(), invalid RoQ ID\n");
     }
 
     RoQShutdown();
@@ -1528,7 +1528,7 @@ void idClientCinemaSystemLocal::PlayCinematic_f(void) {
     }
 
     if(developer->integer) {
-        Com_Printf("idClientCinemaSystemLocal::PlayCinematic_f\n");
+        common->Printf("idClientCinemaSystemLocal::PlayCinematic_f\n");
     }
 
     if(cls.state == CA_CINEMATIC) {

@@ -48,7 +48,7 @@ T GetCommandBuffer(B bytes, T type) {
                                     sint)) > MAX_RENDER_COMMANDS) {
         if(bytes > MAX_RENDER_COMMANDS - (sizeof(swapBuffersCommand_t) + sizeof(
                                               sint))) {
-            Com_Error(ERR_FATAL, "GetCommandBuffer: bad size %i", bytes);
+            common->Error(ERR_FATAL, "GetCommandBuffer: bad size %i", bytes);
         }
 
         clientRendererSystem->RefPrintf(PRINT_ALL,

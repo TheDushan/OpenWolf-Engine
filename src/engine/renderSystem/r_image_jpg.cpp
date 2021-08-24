@@ -188,11 +188,11 @@ void R_LoadJPG(pointer filename, uchar8 **pic, sint *width, sint *height) {
         fileSystem->FreeFile(fbuffer.v);
         jpeg_destroy_decompress(&cinfo);
 
-        Com_Error(ERR_DROP,
-                  "LoadJPG: %s has an invalid image format: %dx%d*4=%d, components: %d",
-                  filename,
-                  cinfo.output_width, cinfo.output_height, pixelcount * 4,
-                  cinfo.output_components);
+        common->Error(ERR_DROP,
+                      "LoadJPG: %s has an invalid image format: %dx%d*4=%d, components: %d",
+                      filename,
+                      cinfo.output_width, cinfo.output_height, pixelcount * 4,
+                      cinfo.output_components);
     }
 
     memcount = pixelcount * 4;
@@ -313,9 +313,9 @@ static boolean empty_output_buffer(j_compress_ptr cinfo) {
     jpeg_destroy_compress(cinfo);
 
     // Make crash fatal or we would probably leak memory.
-    Com_Error(ERR_FATAL,
-              "Output buffer for encoded JPEG image has insufficient size of %d bytes",
-              dest->size);
+    common->Error(ERR_FATAL,
+                  "Output buffer for encoded JPEG image has insufficient size of %d bytes",
+                  dest->size);
 
     return FALSE;
 }

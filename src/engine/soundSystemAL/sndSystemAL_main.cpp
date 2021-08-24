@@ -440,6 +440,7 @@ idCVarSystem *cvarSystem;
 idCmdSystem *cmdSystem;
 idSystem *idsystem;
 idParseSystem *ParseSystem;
+idCommon *common;
 
 #ifdef __LINUX__
 extern "C" idAudioOpenALSystem *GetSndAPI(openALImports_t *oalimports)
@@ -455,6 +456,7 @@ Q_EXPORT idAudioOpenALSystem *GetSndAPI(openALImports_t *oalimports)
     cmdSystem = imports->cmdSystem;
     idsystem = imports->idsystem;
     ParseSystem = imports->parseSystem;
+    common = imports->common;
 
     return soundOpenALSystem;
 }
@@ -510,26 +512,56 @@ void idAudioOpenALSystemLocal::Music_f(void) {
     }
 }
 
+/*
+=================
+trap_Printf
+=================
+*/
 void trap_Printf(sint printLevel, pointer fmt, ...) {
-    imports->Printf(printLevel, fmt);
+    imports->common->Printf(fmt);
 }
 
+/*
+=================
+trap_Error
+=================
+*/
 void trap_Error(errorParm_t errorLevel, pointer fmt, ...) {
-    imports->Error(errorLevel, fmt);
+    imports->common->Error(errorLevel, fmt);
 }
 
+/*
+=================
+trap_Hunk_Alloc
+=================
+*/
 void *trap_Hunk_Alloc(uint64 size, ha_pref preference) {
     return imports->memorySystem->Alloc(size, preference);
 }
 
+/*
+=================
+trap_Hunk_FreeTempMemory
+=================
+*/
 void trap_Hunk_FreeTempMemory(void *buf) {
     imports->memorySystem->FreeTempMemory(buf);
 }
 
+/*
+=================
+trap_Malloc
+=================
+*/
 void *trap_Malloc(uint64 size) {
     return imports->memorySystem->Malloc(size);
 }
 
+/*
+=================
+trap_Free
+=================
+*/
 void trap_Free(void *ptr) {
     imports->memorySystem->Free(ptr);
 }

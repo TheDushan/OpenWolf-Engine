@@ -59,7 +59,7 @@ idServerCommunityServer::StartUp
 ===============
 */
 void idServerCommunityServer::StartUp(void) {
-    Com_Printf("Loading Community Server\n");
+    common->Printf("Loading Community Server\n");
 
     LoadUserFile();
     LoadBanFile();
@@ -134,7 +134,7 @@ sint idServerCommunityServer::Login(valueType *userinfo,
     if(alreadyLogin(username) == 1) {
         networkChainSystem->OutOfBandPrint(NS_SERVER, from,
                                            "print\nYour username is already used! This situation was reported to admins.\n");
-        Com_Printf("User %s was already logged in\n", username);
+        common->Printf("User %s was already logged in\n", username);
         *user_ret = nullptr;
         return CS_ERROR;
 
@@ -231,7 +231,7 @@ sint idServerCommunityServer::checkMatchInvited(user_t *user) {
     user_clan_t *user_clan;
 
     if(match_in_progress != 1) {
-        Com_Printf("You cannot call this function if there are not a match in progress...");
+        common->Printf("You cannot call this function if there are not a match in progress...");
         return CS_ERROR;
     }
 
@@ -283,7 +283,7 @@ void idServerCommunityServer::LoadUserFile(void) {
 
     if(hash_users != nullptr || hash_clans != nullptr ||
             usersfile != nullptr) {
-        Com_Printf("YOU CANNOT RELOAD FILE UNTIL YOU RESET HASH TABLES AND FILE DESCRIPTORS!!!\n");
+        common->Printf("YOU CANNOT RELOAD FILE UNTIL YOU RESET HASH TABLES AND FILE DESCRIPTORS!!!\n");
         return;
     }
 
@@ -299,10 +299,10 @@ void idServerCommunityServer::LoadUserFile(void) {
 
     if(usersfile == nullptr) {
         usersfile = ::fopen(filename, "wt+");
-        Com_Printf("File cs_users.txt does not exist... creating it.\n");
+        common->Printf("File cs_users.txt does not exist... creating it.\n");
 
         if(usersfile == nullptr) {
-            Com_Printf("Error trying to open cs_users.txt\n");
+            common->Printf("Error trying to open cs_users.txt\n");
             return;
         }
     }
@@ -341,16 +341,16 @@ void idServerCommunityServer::LoadUserFile(void) {
                     break;
 
                 default:
-                    Com_Printf("Error while parsing userline: check linetype: %s\n",
-                               reg[SV_COMMUNITY_REGTYPE]);
+                    common->Printf("Error while parsing userline: check linetype: %s\n",
+                                   reg[SV_COMMUNITY_REGTYPE]);
                     hash_tmp = nullptr;
             }
 
             if(hash_tmp != nullptr && Com_FindHashData(hash_tmp, key) == nullptr) {
                 Com_InsertIntoHash(hash_tmp, key, data);
             } else {
-                Com_Printf("Error: %s:%s already exist!\n", reg[SV_COMMUNITY_REGTYPE],
-                           key);
+                common->Printf("Error: %s:%s already exist!\n", reg[SV_COMMUNITY_REGTYPE],
+                               key);
                 ::free(key);
                 ::free(dpos);
             }
@@ -376,7 +376,7 @@ valueType **idServerCommunityServer::fastParseLine(void *userline) {
 
     if(reg[SV_COMMUNITY_REGTYPE] == nullptr ||
             ::strlen(reg[SV_COMMUNITY_REGTYPE]) > 1) {
-        Com_Printf("Error while parsing userline: check type field\n");
+        common->Printf("Error while parsing userline: check type field\n");
         return nullptr;
     }
 
@@ -384,7 +384,7 @@ valueType **idServerCommunityServer::fastParseLine(void *userline) {
 
     if(reg[SV_COMMUNITY_REGDATA] == nullptr ||
             ::strlen(reg[SV_COMMUNITY_REGDATA]) > USER_NAME_SIZE) {
-        Com_Printf("Error while parsing userline: check username field\n");
+        common->Printf("Error while parsing userline: check username field\n");
         return nullptr;
     }
 
@@ -418,7 +418,7 @@ user_t *idServerCommunityServer::parseUserLine(pointer user_pass) {
 
     if((dpos = static_cast<sint32 *>(Com_FindHashData(hash_users,
                                      username))) == nullptr) {
-        Com_Printf("User %s does not exist in DB\n", username);
+        common->Printf("User %s does not exist in DB\n", username);
         return nullptr;
     }
 
@@ -430,28 +430,28 @@ user_t *idServerCommunityServer::parseUserLine(pointer user_pass) {
     username = ::strtok(&(userline[2]), ":\n\0");
 
     if(username == nullptr || strlen(username) > USER_NAME_SIZE) {
-        Com_Printf("Error while parsing userline: check username field\n");
+        common->Printf("Error while parsing userline: check username field\n");
         return nullptr;
     }
 
     type = ::strtok(nullptr, ":\n\0");
 
     if(type == nullptr || strlen(type) != 1) {
-        Com_Printf("Error while parsing userline: check user type lenght\n");
+        common->Printf("Error while parsing userline: check user type lenght\n");
         return nullptr;
     } else if(type[0] != 'A' && type[0] != 'M' && type[0] != 'O' &&
               type[0] != 'B') {
-        Com_Printf("Error while parsing userline: check user type value\n");
+        common->Printf("Error while parsing userline: check user type value\n");
         return nullptr;
     }
 
     tigerhash = ::strtok(nullptr, "@\n\r\0");
 
     if(tigerhash == nullptr) {
-        Com_Printf("Error while parsing userline: check tiger hash password field\n");
+        common->Printf("Error while parsing userline: check tiger hash password field\n");
         return nullptr;
     } else if(::strlen(tigerhash) != 48) {
-        Com_Printf("Error in tiger hash password lenght, check field\n");
+        common->Printf("Error in tiger hash password lenght, check field\n");
         return nullptr;
     }
 
@@ -475,7 +475,7 @@ user_t *idServerCommunityServer::parseUserLine(pointer user_pass) {
             user_clan->next = user->clans;
             user->clans = user_clan;
         } else {
-            Com_Printf("Clan %s does not exist in Clan DB\n", clan);
+            common->Printf("Clan %s does not exist in Clan DB\n", clan);
         }
     }
 
@@ -534,7 +534,7 @@ sint idServerCommunityServer::copyFile(valueType *src, valueType *dst) {
     fdst = ::fopen(dst, "wb");
 
     if(fsrc == nullptr || fdst == nullptr) {
-        Com_Printf("Error while copy file!");
+        common->Printf("Error while copy file!");
         return CS_ERROR;
     }
 
@@ -575,28 +575,28 @@ void idServerCommunityServer::UserInfo(valueType *name) {
 
     if((dpos = static_cast<sint32 *>(Com_FindHashData(hash_users,
                                      name))) == nullptr) {
-        Com_Printf("User %s does not exist in DB\n", cmdSystem->Argv(1));
+        common->Printf("User %s does not exist in DB\n", cmdSystem->Argv(1));
         return;
     }
 
     user = parseUserLine(cmdSystem->Argv(1));
 
     if(user == nullptr) {
-        Com_Printf("Error parsing datafile\n");
+        common->Printf("Error parsing datafile\n");
         return;
     }
 
-    Com_Printf("User: %s\n", user->name);
-    Com_Printf("Status: %c\n", user->type);
-    Com_Printf("uguid: %s\n", user->uguid);
-    Com_Printf("Clans: ");
+    common->Printf("User: %s\n", user->name);
+    common->Printf("Status: %c\n", user->type);
+    common->Printf("uguid: %s\n", user->uguid);
+    common->Printf("Clans: ");
 
     for(user_clan = user->clans; user_clan != nullptr;
             user_clan = user_clan->next) {
-        Com_Printf(" %s", user_clan->clan->name);
+        common->Printf(" %s", user_clan->clan->name);
     }
 
-    Com_Printf("\n");
+    common->Printf("\n");
 
     destroyUserData(user);
 }
@@ -667,7 +667,7 @@ void idServerCommunityServer::logString(sint client_num, valueType *area,
     if(arch < 0) {
         logFile = cvarSystem->Get("g_log", "bot.log", 0, "test");
 
-        Com_Printf("Openning %s for bot log\n", logFile->string);
+        common->Printf("Openning %s for bot log\n", logFile->string);
 
         arch = ::open(fileSystem->GetFullGamePath(logFile->string),
                       O_WRONLY | O_APPEND);
@@ -693,8 +693,8 @@ idServerCommunityServer::startMatch
 void idServerCommunityServer::startMatch(void) {
 
     if(match_in_progress == 1) {
-        Com_Printf("Match already started, please, add clans and players\n");
-        Com_Printf("tip: use addclanmatch and addusermatch commands to do that\n");
+        common->Printf("Match already started, please, add clans and players\n");
+        common->Printf("tip: use addclanmatch and addusermatch commands to do that\n");
         return;
     }
 
@@ -707,8 +707,8 @@ void idServerCommunityServer::startMatch(void) {
     ::memset(match_users, '\0', sizeof(match_users));
     ::memset(match_referees, '\0', sizeof(match_users));
 
-    Com_Printf("Match started, please, add clans, players and referees\n");
-    Com_Printf("tip: use addclanmatch, addusermatch and addrefereematch commands to do that\n");
+    common->Printf("Match started, please, add clans, players and referees\n");
+    common->Printf("tip: use addclanmatch, addusermatch and addrefereematch commands to do that\n");
 }
 
 /*
@@ -719,11 +719,11 @@ idServerCommunityServer::stopMatch
 void idServerCommunityServer::stopMatch(void) {
 
     if(match_in_progress == 0) {
-        Com_Printf("There are NO match in progress, use startmatch to start one\n");
+        common->Printf("There are NO match in progress, use startmatch to start one\n");
         return;
     }
 
-    Com_Printf("Match closed, now you may open the server! Thanks!\n");
+    common->Printf("Match closed, now you may open the server! Thanks!\n");
     match_in_progress = 0;
     return;
 }
@@ -738,19 +738,19 @@ void idServerCommunityServer::addMatchClan(valueType *clan_name) {
     clan_t *clan_p;
 
     if(match_in_progress == 0) {
-        Com_Printf("There are NO match in progress, use startmatch to start one\n");
+        common->Printf("There are NO match in progress, use startmatch to start one\n");
         return;
     }
 
     if(::strlen(clan_name) > CLAN_NAME_SIZE) {
-        Com_Printf("Clan name is too long");
+        common->Printf("Clan name is too long");
         return;
     }
 
     clan_p = (clan_t *)Com_FindHashData(hash_clans, clan_name);
 
     if(clan_p == nullptr) {
-        Com_Printf("Clan %s doesn't exist!\n", clan_name);
+        common->Printf("Clan %s doesn't exist!\n", clan_name);
         return;
     }
 
@@ -758,15 +758,15 @@ void idServerCommunityServer::addMatchClan(valueType *clan_name) {
             ::strcmp(match_clans[i], clan_name) != 0; i++);
 
     if(i >= MATCH_MAX_CLANS) {
-        Com_Printf("You cannot add another clan, max reached\n");
+        common->Printf("You cannot add another clan, max reached\n");
         return;
     } else if(::strcmp(match_clans[i], clan_name) == 0) {
-        Com_Printf("Clan %s already added\n", clan_name);
+        common->Printf("Clan %s already added\n", clan_name);
         return;
     }
 
     Q_strcpy_s(match_clans[i], clan_name);
-    Com_Printf("Clan %s added to match\n", clan_name);
+    common->Printf("Clan %s added to match\n", clan_name);
 
     return;
 }
@@ -781,19 +781,19 @@ void idServerCommunityServer::addMatchUser(valueType *user_name) {
     user_t *user_p;
 
     if(match_in_progress == 0) {
-        Com_Printf("There are NO match in progress, use startmatch to start one\n");
+        common->Printf("There are NO match in progress, use startmatch to start one\n");
         return;
     }
 
     if(strlen(user_name) > USER_NAME_SIZE) {
-        Com_Printf("User name is too long\n");
+        common->Printf("User name is too long\n");
         return;
     }
 
     user_p = static_cast< user_t * >(Com_FindHashData(hash_users, user_name));
 
     if(user_p == nullptr) {
-        Com_Printf("User %s doesn't exist!\n", user_name);
+        common->Printf("User %s doesn't exist!\n", user_name);
         return;
     }
 
@@ -801,15 +801,15 @@ void idServerCommunityServer::addMatchUser(valueType *user_name) {
             ::strcmp(match_users[i], user_name) != 0; i++);
 
     if(i >= MATCH_MAX_USERS) {
-        Com_Printf("You cannot add another user, max reached\n");
+        common->Printf("You cannot add another user, max reached\n");
         return;
     } else if(::strcmp(match_users[i], user_name) == 0) {
-        Com_Printf("User %s already added\n", user_name);
+        common->Printf("User %s already added\n", user_name);
         return;
     }
 
     Q_strcpy_s(match_users[i], user_name);
-    Com_Printf("User %s added to match\n", user_name);
+    common->Printf("User %s added to match\n", user_name);
 
     return;
 }
@@ -824,19 +824,19 @@ void idServerCommunityServer::addMatchReferee(valueType *user_name) {
     user_t *user_p;
 
     if(match_in_progress == 0) {
-        Com_Printf("There are NO match in progress, use startmatch to start one\n");
+        common->Printf("There are NO match in progress, use startmatch to start one\n");
         return;
     }
 
     if(::strlen(user_name) > USER_NAME_SIZE) {
-        Com_Printf("User name is too long\n");
+        common->Printf("User name is too long\n");
         return;
     }
 
     user_p = static_cast< user_t * >(Com_FindHashData(hash_users, user_name));
 
     if(user_p == nullptr) {
-        Com_Printf("User %s doesn't exist!\n", user_name);
+        common->Printf("User %s doesn't exist!\n", user_name);
         return;
     }
 
@@ -844,15 +844,15 @@ void idServerCommunityServer::addMatchReferee(valueType *user_name) {
             ::strcmp(match_referees[i], user_name) != 0; i++);
 
     if(i >= MATCH_MAX_USERS) {
-        Com_Printf("You cannot add another referee, max reached\n");
+        common->Printf("You cannot add another referee, max reached\n");
         return;
     } else if(::strcmp(match_users[i], user_name) == 0) {
-        Com_Printf("Referee %s already added\n", user_name);
+        common->Printf("Referee %s already added\n", user_name);
         return;
     }
 
     Q_strcpy_s(match_referees[i], user_name);
-    Com_Printf("Referee %s added to match\n", user_name);
+    common->Printf("Referee %s added to match\n", user_name);
 
     return;
 }
@@ -868,34 +868,34 @@ void idServerCommunityServer::matchInfo(void) {
     CheckUserFileChange();
 
     if(match_in_progress == 0) {
-        Com_Printf("There are NO match in progress, use startmatch to start one\n");
+        common->Printf("There are NO match in progress, use startmatch to start one\n");
         return;
     }
 
-    Com_Printf("Match started\n");
-    Com_Printf("Clans:");
+    common->Printf("Match started\n");
+    common->Printf("Clans:");
 
     for(i = 0; i < MATCH_MAX_CLANS && strlen(match_clans[i]) != 0; i++) {
-        Com_Printf(" %s", match_clans[i]);
+        common->Printf(" %s", match_clans[i]);
     }
 
-    Com_Printf("\n");
+    common->Printf("\n");
 
-    Com_Printf("Users:");
+    common->Printf("Users:");
 
     for(i = 0; i < MATCH_MAX_USERS && strlen(match_users[i]) != 0; i++) {
-        Com_Printf(" %s", match_users[i]);
+        common->Printf(" %s", match_users[i]);
     }
 
-    Com_Printf("\n");
+    common->Printf("\n");
 
-    Com_Printf("Referees:");
+    common->Printf("Referees:");
 
     for(i = 0; i < MATCH_MAX_USERS && strlen(match_referees[i]) != 0; i++) {
-        Com_Printf(" %s", match_referees[i]);
+        common->Printf(" %s", match_referees[i]);
     }
 
-    Com_Printf("\n");
+    common->Printf("\n");
 }
 
 /*
@@ -916,7 +916,7 @@ void idServerCommunityServer::LoadBanFile(void) {
         bansfile = ::fopen(filename, "wt+");
 
         if(bansfile == nullptr) {
-            Com_Printf("Error trying to open cb_bans.txt\n");
+            common->Printf("Error trying to open cb_bans.txt\n");
             return;
         }
     }
@@ -965,7 +965,7 @@ banuser_t *idServerCommunityServer::processBanLine(valueType *line) {
     word = ::strtok(buffer, ":");
 
     if(word == nullptr) {
-        Com_Printf("Error processing name field in ban file\n");
+        common->Printf("Error processing name field in ban file\n");
         return nullptr;
     }
 
@@ -975,14 +975,14 @@ banuser_t *idServerCommunityServer::processBanLine(valueType *line) {
     word = ::strtok(nullptr, ":");
 
     if(word == nullptr) {
-        Com_Printf("Error processing until time field in ban file\n");
+        common->Printf("Error processing until time field in ban file\n");
         return nullptr;
     }
 
     banuser.until = ::atoi(word);
 
     if(banuser.until < ::time(nullptr)) {
-        //Com_Printf("This user is not banned anymore!\n");
+        //common->Printf("This user is not banned anymore!\n");
         return nullptr;
     }
 
@@ -990,12 +990,12 @@ banuser_t *idServerCommunityServer::processBanLine(valueType *line) {
     word = ::strtok(nullptr, ":");
 
     if(word == nullptr) {
-        Com_Printf("Error processing membership field in ban file\n");
+        common->Printf("Error processing membership field in ban file\n");
         return nullptr;
     }
 
     if(word[0] != CS_MEMBER && word[0] != CS_UNKNOW) {
-        Com_Printf("Error, membership %c is not valid!\n", word[0]);
+        common->Printf("Error, membership %c is not valid!\n", word[0]);
         return nullptr;
     }
 
@@ -1005,7 +1005,7 @@ banuser_t *idServerCommunityServer::processBanLine(valueType *line) {
     word = ::strtok(nullptr, "\r\n\0");
 
     if(word == nullptr || ::strlen(word) != 32) {
-        Com_Printf("Error processing GUID field in ban file\n");
+        common->Printf("Error processing GUID field in ban file\n");
         return nullptr;
     }
 
@@ -1038,7 +1038,7 @@ void idServerCommunityServer::BanUser(client_t *cl) {
     guid[32] = '\0';
 
     if(Com_FindHashData(hash_bans, guid) != nullptr) {
-        Com_Printf("Guid %s already added\n", guid);
+        common->Printf("Guid %s already added\n", guid);
 
         ::free(guid);
         ::free(dpos);
@@ -1102,7 +1102,7 @@ void idServerCommunityServer::showBanUsers(void) {
 
     iter = Com_CreateHashIterator(hash_bans);
 
-    Com_Printf("Banned users: \n");
+    common->Printf("Banned users: \n");
 
     while((data = Com_HashIterationData(iter)) != nullptr) {
         ::fseek(bansfile, *(static_cast<sint32 *>(data)), SEEK_SET);
@@ -1111,8 +1111,8 @@ void idServerCommunityServer::showBanUsers(void) {
         banuser = processBanLine(buffer);
 
         if(banuser != nullptr) {
-            Com_Printf("%d: %s - %c Banned until %s", i++, banuser->name,
-                       banuser->type, ctime((const time_t *) & (banuser->until)));
+            common->Printf("%d: %s - %c Banned until %s", i++, banuser->name,
+                           banuser->type, ctime((const time_t *) & (banuser->until)));
         }
     }
 
@@ -1145,8 +1145,8 @@ void idServerCommunityServer::unbanUser(valueType *banlist_num) {
             banuser = processBanLine(buffer);
 
             if(banuser != nullptr) {
-                Com_Printf("Unbanned: %s - %c Banned until %s", banuser->name,
-                           banuser->type, ::ctime((const time_t *) & (banuser->until)));
+                common->Printf("Unbanned: %s - %c Banned until %s", banuser->name,
+                               banuser->type, ::ctime((const time_t *) & (banuser->until)));
 
                 ::fseek(bansfile, *(static_cast<sint32 *>(data)), SEEK_SET);
                 ::sprintf(buffer, "%s:%12d", banuser->name, 0);
@@ -1160,8 +1160,8 @@ void idServerCommunityServer::unbanUser(valueType *banlist_num) {
         }
     }
 
-    Com_Printf("Banuser %s does not exist! Please check using banlist command\n",
-               banlist_num);
+    common->Printf("Banuser %s does not exist! Please check using banlist command\n",
+                   banlist_num);
 
     ::free(iter);
 
@@ -1245,7 +1245,7 @@ void idServerCommunityServer::PlayerGameInfo(sint player) {
 
     // make sure server is running
     if(!sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        common->Printf("Server is not running.\n");
         return;
     }
 
@@ -1500,7 +1500,7 @@ void idServerCommunityServer::ProcessWeapon(user_stats_t *user_stats,
             ::strcmp(l_weapons[iweapon], weapon) != 0; iweapon++);
 
     if(l_weapons[iweapon] == nullptr) {
-        Com_Printf("Weapon %s does not exist!\n", weapon);
+        common->Printf("Weapon %s does not exist!\n", weapon);
 
         return;
     }
@@ -1583,8 +1583,8 @@ void idServerCommunityServer::SaveStatistics(void) {
         fstats = fopen(filename, "a+");
 
         if(fstats == nullptr) {
-            Com_Printf("CBStats Error: Cannot open file %s to save stats!\n",
-                       filename);
+            common->Printf("CBStats Error: Cannot open file %s to save stats!\n",
+                           filename);
         }
     }
 
@@ -1786,7 +1786,7 @@ void idServerCommunityServer::InitStatistics(void) {
 
     // Cleaning community_stats structure
     if(community_stats.user_stats != nullptr) {
-        Com_Printf("ERROR! all Community Manager Stats must be cleaned at init stage! Memory will be lost!\n");
+        common->Printf("ERROR! all Community Manager Stats must be cleaned at init stage! Memory will be lost!\n");
     }
 
     memset(&community_stats, 0, sizeof(community_stats_t));
@@ -1795,7 +1795,7 @@ void idServerCommunityServer::InitStatistics(void) {
     sprintf(buffer, "%d%d", idsystem->Milliseconds(), rand());
     sprintf(community_stats.game_id, "%s",  Com_GetTigerHash(buffer));
     community_stats.game_date = time(nullptr);
-    Com_Printf("Game ID: %s\n", community_stats.game_id);
+    common->Printf("Game ID: %s\n", community_stats.game_id);
 
     sprintf(buffer,
             "{\"ST\":\"G\",\"GAME\":{\"PRT\":\"%d\",\"GID\":\"%s\",\"MAP\":\"%s\",\"STM\":\"%d\",\"GTY\":\"%d\",\"STS\":\"%d\"}}\n",
@@ -1983,7 +1983,7 @@ void idServerCommunityServer::LoadMsgFile(void) {
         fcbbackup = fopen(filename, "ab");
 
         if(fcbbackup == nullptr) {
-            Com_Printf("Error! I cannot write cmss.dat!\n");
+            common->Printf("Error! I cannot write cmss.dat!\n");
         }
     }
 }
@@ -2076,7 +2076,7 @@ sint idServerCommunityServer::NETSendMsg(valueType *msg) {
     sret = SendAll(socket, msg, &len);
 
     if(sret == -1) {
-        Com_Printf("Closed connection to community server...\n");
+        common->Printf("Closed connection to community server...\n");
         socket = -1;
     }
 
