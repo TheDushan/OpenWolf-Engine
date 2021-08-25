@@ -699,6 +699,16 @@ void idCommonLocal::InitCommonConsoleVars(void) {
     cvarSystem->Get("cg_predictItems", "1", CVAR_ARCHIVE,
                     "Toggle use of prediction for picking up items.");
 
+#if 1
+    cvarSystem->Get("p_hp", "", CVAR_ROM, "");
+    cvarSystem->Get("p_team", "", CVAR_ROM, "");
+    cvarSystem->Get("p_class", "", CVAR_ROM, "");
+    cvarSystem->Get("p_credits", "", CVAR_ROM, "");
+    cvarSystem->Get("p_attacker", "", CVAR_ROM, "");
+    cvarSystem->Get("p_killed", "", CVAR_ROM, "");
+    cvarSystem->Get("p_score", "", CVAR_ROM, "");
+#endif
+
     // cgame might not be initialized before menu is used
     cvarSystem->Get("cg_viewsize", "100", CVAR_ARCHIVE,
                     "Supposed to be for setting the % of screen actually displaying rendered game. Might have been useful for using a lower-res ET while using a native resolution on TFT screens");

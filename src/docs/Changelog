@@ -1,4 +1,7 @@
 2021-08-24 Dusan Jocic <dusanjocic@msn.com>
+	* [Engine] Read from snapshots Tremulous specific convars
+	
+2021-08-24 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Moved common system to C++ file
 	
 2021-08-22 Dusan Jocic <dusanjocic@msn.com>
