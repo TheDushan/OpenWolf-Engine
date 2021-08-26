@@ -98,6 +98,8 @@ bool idClientParseSystemLocal::isEntVisible(entityState_t *ent) {
     VectorCopy(cl.cgameClientLerpOrigin, start);
     start[2] += (cl.snapServer.ps.viewheight - 1);
 
+#if 0
+
     if(cl.snapServer.ps.leanf != 0) {
         vec3_t          lright, v3ViewAngles;
 
@@ -106,6 +108,8 @@ bool idClientParseSystemLocal::isEntVisible(entityState_t *ent) {
         AngleVectors(v3ViewAngles, nullptr, lright, nullptr);
         VectorMA(start, cl.snapServer.ps.leanf, lright, start);
     }
+
+#endif
 
     VectorCopy(ent->pos.trBase, end);
 
@@ -119,9 +123,13 @@ bool idClientParseSystemLocal::isEntVisible(entityState_t *ent) {
     VectorScale(right, 18, right);
 
     // Set viewheight
+#if 0
+
     if(ent->animMovetype) {
         view_height = 16;
-    } else {
+    } else
+#endif
+    {
         view_height = 40;
     }
 
@@ -167,9 +175,13 @@ bool idClientParseSystemLocal::isEntVisible(entityState_t *ent) {
     // Fourth, to ent's right shoulder
     VectorAdd(end, right2, temp);
 
+#if 0
+
     if(ent->animMovetype) {
         temp[2] += 28;
-    } else {
+    } else
+#endif
+    {
         temp[2] += 52;
     }
 
@@ -195,9 +207,13 @@ bool idClientParseSystemLocal::isEntVisible(entityState_t *ent) {
     // Sixth, to ent's left shoulder
     VectorAdd(end, right, temp);
 
+#if 0
+
     if(ent->animMovetype) {
         temp[2] += 16;
-    } else {
+    } else
+#endif
+    {
         temp[2] += 36;
     }
 
@@ -394,7 +410,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
     sint i, packetNum;
     clSnapshot_t *old;
     clSnapshot_t newSnap;
-    playerState_t* ps;
+    playerState_t *ps;
     pointer info;
 
     // get the reliable sequence acknowledge number
@@ -585,108 +601,129 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
 #if 1
     ps = &cl.snapServer.ps;
 
-    cvarSystem->Set("p_hp", va("%i/%i", ps->stats[STAT_HEALTH], ps->stats[STAT_MAX_HEALTH]));
+    cvarSystem->Set("p_hp", va("%i/%i", ps->stats[STAT_HEALTH],
+                               ps->stats[STAT_MAX_HEALTH]));
     cvarSystem->SetValue("p_team", ps->stats[STAT_TEAM]);
     cvarSystem->SetValue("p_class", ps->stats[STAT_CLASS]);
 
-    switch (ps->stats[STAT_CLASS]) {
-    case PCL_ALIEN_BUILDER0:
-        cvarSystem->Set("p_classname", "Builder");
-        break;
-    case PCL_ALIEN_BUILDER0_UPG:
-        cvarSystem->Set("p_classname", "Advanced Builder");
-        break;
-    case PCL_ALIEN_LEVEL0:
-        cvarSystem->Set("p_classname", "Dretch");
-        break;
-    case PCL_ALIEN_LEVEL1:
-        cvarSystem->Set("p_classname", "Basilisk");
-        break;
-    case PCL_ALIEN_LEVEL1_UPG:
-        cvarSystem->Set("p_classname", "Advanced Basilisk");
-        break;
-    case PCL_ALIEN_LEVEL2:
-        cvarSystem->Set("p_classname", "Marauder");
-        break;
-    case PCL_ALIEN_LEVEL2_UPG:
-        cvarSystem->Set("p_classname", "Advanced Marauder");
-        break;
-    case PCL_ALIEN_LEVEL3:
-        cvarSystem->Set("p_classname", "Dragoon");
-        break;
-    case PCL_ALIEN_LEVEL3_UPG:
-        cvarSystem->Set("p_classname", "Advanced Dragoon");
-        break;
-    case PCL_ALIEN_LEVEL4:
-        cvarSystem->Set("p_classname", "Tyrant");
-        break;
+    switch(ps->stats[STAT_CLASS]) {
+        case PCL_ALIEN_BUILDER0:
+            cvarSystem->Set("p_classname", "Builder");
+            break;
 
-    case PCL_HUMAN:
-        cvarSystem->Set("p_classname", "Human");
-        break;
-    case PCL_HUMAN_BSUIT:
-        cvarSystem->Set("p_classname", "Battlesuit");
-        break;
+        case PCL_ALIEN_BUILDER0_UPG:
+            cvarSystem->Set("p_classname", "Advanced Builder");
+            break;
 
-    default:
-        cvarSystem->Set("p_classname", "Unknown");
-        break;
+        case PCL_ALIEN_LEVEL0:
+            cvarSystem->Set("p_classname", "Dretch");
+            break;
+
+        case PCL_ALIEN_LEVEL1:
+            cvarSystem->Set("p_classname", "Basilisk");
+            break;
+
+        case PCL_ALIEN_LEVEL1_UPG:
+            cvarSystem->Set("p_classname", "Advanced Basilisk");
+            break;
+
+        case PCL_ALIEN_LEVEL2:
+            cvarSystem->Set("p_classname", "Marauder");
+            break;
+
+        case PCL_ALIEN_LEVEL2_UPG:
+            cvarSystem->Set("p_classname", "Advanced Marauder");
+            break;
+
+        case PCL_ALIEN_LEVEL3:
+            cvarSystem->Set("p_classname", "Dragoon");
+            break;
+
+        case PCL_ALIEN_LEVEL3_UPG:
+            cvarSystem->Set("p_classname", "Advanced Dragoon");
+            break;
+
+        case PCL_ALIEN_LEVEL4:
+            cvarSystem->Set("p_classname", "Tyrant");
+            break;
+
+        case PCL_HUMAN:
+            cvarSystem->Set("p_classname", "Human");
+            break;
+
+        case PCL_HUMAN_BSUIT:
+            cvarSystem->Set("p_classname", "Battlesuit");
+            break;
+
+        default:
+            cvarSystem->Set("p_classname", "Unknown");
+            break;
     }
 
-    switch (ps->weapon) {
-    case WP_HBUILD:
-        cvarSystem->Set("p_weaponname", "Construction Kit");
-        break;
+    switch(ps->weapon) {
+        case WP_HBUILD:
+            cvarSystem->Set("p_weaponname", "Construction Kit");
+            break;
 
-    case WP_BLASTER:
-        cvarSystem->Set("p_weaponname", "Blaster");
-        break;
-    case WP_MACHINEGUN:
-        cvarSystem->Set("p_weaponname", "Machine Gun");
-        break;
-    case WP_PAIN_SAW:
-        cvarSystem->Set("p_weaponname", "Painsaw");
-        break;
-    case WP_SHOTGUN:
-        cvarSystem->Set("p_weaponname", "Shotgun");
-        break;
-    case WP_LAS_GUN:
-        cvarSystem->Set("p_weaponname", "Laser Gun");
-        break;
-    case WP_MASS_DRIVER:
-        cvarSystem->Set("p_weaponname", "Mass Driver");
-        break;
-    case WP_CHAINGUN:
-        cvarSystem->Set("p_weaponname", "Chain Gun");
-        break;
-    case WP_PULSE_RIFLE:
-        cvarSystem->Set("p_weaponname", "Pulse Rifle");
-        break;
-    case WP_FLAMER:
-        cvarSystem->Set("p_weaponname", "Flame Thrower");
-        break;
-    case WP_LUCIFER_CANNON:
-        cvarSystem->Set("p_weaponname", "Lucifier cannon");
-        break;
-    case WP_GRENADE:
-        cvarSystem->Set("p_weaponname", "Grenade");
-        break;
-    default:
-        cvarSystem->Set("p_weaponname", "Unknown");
-        break;
+        case WP_BLASTER:
+            cvarSystem->Set("p_weaponname", "Blaster");
+            break;
+
+        case WP_MACHINEGUN:
+            cvarSystem->Set("p_weaponname", "Machine Gun");
+            break;
+
+        case WP_PAIN_SAW:
+            cvarSystem->Set("p_weaponname", "Painsaw");
+            break;
+
+        case WP_SHOTGUN:
+            cvarSystem->Set("p_weaponname", "Shotgun");
+            break;
+
+        case WP_LAS_GUN:
+            cvarSystem->Set("p_weaponname", "Laser Gun");
+            break;
+
+        case WP_MASS_DRIVER:
+            cvarSystem->Set("p_weaponname", "Mass Driver");
+            break;
+
+        case WP_CHAINGUN:
+            cvarSystem->Set("p_weaponname", "Chain Gun");
+            break;
+
+        case WP_PULSE_RIFLE:
+            cvarSystem->Set("p_weaponname", "Pulse Rifle");
+            break;
+
+        case WP_FLAMER:
+            cvarSystem->Set("p_weaponname", "Flame Thrower");
+            break;
+
+        case WP_LUCIFER_CANNON:
+            cvarSystem->Set("p_weaponname", "Lucifier cannon");
+            break;
+
+        case WP_GRENADE:
+            cvarSystem->Set("p_weaponname", "Grenade");
+            break;
+
+        default:
+            cvarSystem->Set("p_weaponname", "Unknown");
+            break;
     }
 
     sint TempAmmoArray = 0;
     sint TemoAmmo = 0;
     sint TempClips = 0;
 
-    if (ps->weapon < 16) {
+    if(ps->weapon < 16) {
         TempAmmoArray = ps->ammo;
-    }
-    else if (ps->weapon <= 31)
-    {
+    } else if(ps->weapon <= 31) {
         TempAmmoArray = ps->misc[ps->weapon - 16];
     }
+
     TemoAmmo = TempAmmoArray & 0x0FFF;
     TempClips = (TempAmmoArray >> 12) & 0x0F;
     cvarSystem->Set("p_ammo", va("%i/%i", TemoAmmo, TempClips));
@@ -695,16 +732,15 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
     cvarSystem->SetValue("p_score", ps->persistant[PERS_SCORE]);
     cvarSystem->SetValue("p_killed", ps->persistant[PERS_KILLED]);
 
-    info = cl.gameState.stringData + cl.gameState.stringOffsets[ps->persistant[PERS_ATTACKER] + 673];
+    info = cl.gameState.stringData +
+           cl.gameState.stringOffsets[ps->persistant[PERS_ATTACKER] + 673];
 
-    if (!cl.gameState.stringOffsets[ps->persistant[PERS_ATTACKER]])
-    {
+    if(!cl.gameState.stringOffsets[ps->persistant[PERS_ATTACKER]]) {
         cvarSystem->Set("p_attacker", "");
-    }
-    else
-    {
+    } else {
         cvarSystem->Set("p_attacker", Info_ValueForKey(info, "n"));
     }
+
 #endif
 }
 

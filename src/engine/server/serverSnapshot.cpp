@@ -734,6 +734,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot(client_t *client) {
 
     //----(SA)  added for 'lean'
     // need to account for lean, so areaportal doors draw properly
+#if 0
     if(frame->ps.leanf != 0) {
         vec3_t right, v3ViewAngles;
 
@@ -743,6 +744,7 @@ void idServerSnapshotSystemLocal::BuildClientSnapshot(client_t *client) {
         VectorMA(org, frame->ps.leanf, right, org);
     }
 
+#endif
     //----(SA)  end
 
     // add all the entities directly visible to the eye, which

@@ -55,7 +55,7 @@ static sint      oldsize = 0;
 
             MESSAGE IO FUNCTIONS
 
-Handles uchar8 ordering and avoids alignment errors
+Handles byte ordering and avoids alignment errors
 ==============================================================================
 */
 
@@ -951,81 +951,58 @@ typedef struct {
 #define NETF(x) #x,offsetof(entityState_t, x)
 
 netField_t entityStateFields[] = {
-    {NETF(eType), 8},
-    {NETF(eFlags), 24},
-    {NETF(pos.trType), 8},
-    {NETF(pos.trTime), 32},
-    {NETF(pos.trDuration), 32},
-    {NETF(pos.trBase[0]), 0},
-    {NETF(pos.trBase[1]), 0},
-    {NETF(pos.trBase[2]), 0},
-    {NETF(pos.trDelta[0]), 0},
-    {NETF(pos.trDelta[1]), 0},
-    {NETF(pos.trDelta[2]), 0},
-    {NETF(apos.trType), 8},
-    {NETF(apos.trTime), 32},
-    {NETF(apos.trDuration), 32},
-    {NETF(apos.trBase[0]), 0},
-    {NETF(apos.trBase[1]), 0},
-    {NETF(apos.trBase[2]), 0},
-    {NETF(apos.trDelta[0]), 0},
-    {NETF(apos.trDelta[1]), 0},
-    {NETF(apos.trDelta[2]), 0},
-    {NETF(time), 32},
-    {NETF(time2), 32},
-    {NETF(origin[0]), 0},
-    {NETF(origin[1]), 0},
-    {NETF(origin[2]), 0},
-    {NETF(origin2[0]), 0},
-    {NETF(origin2[1]), 0},
-    {NETF(origin2[2]), 0},
-    {NETF(angles[0]), 0},
-    {NETF(angles[1]), 0},
-    {NETF(angles[2]), 0},
-    {NETF(angles2[0]), 0},
-    {NETF(angles2[1]), 0},
-    {NETF(angles2[2]), 0},
-    {NETF(otherEntityNum), GENTITYNUM_BITS},
-    {NETF(otherEntityNum2), GENTITYNUM_BITS},
-    {NETF(groundEntityNum), GENTITYNUM_BITS},
-    {NETF(loopSound), 8},
-    {NETF(constantLight), 32},
-    {NETF(dl_intensity), 32},    //----(SA)    longer now to carry the corona colors
-    {NETF(modelindex), 9},
-    {NETF(modelindex2), 9},
-    {NETF(frame), 16},
-    {NETF(clientNum), 8},
-    {NETF(solid), 24},
-    {NETF(_event), 10},
-    {NETF(eventParm), 8},
-    {NETF(eventSequence), 8},    // warning: need to modify cg_event.c at "// check the sequencial list" if you change this
-    {NETF(events[0]), 8},
-    {NETF(events[1]), 8},
-    {NETF(events[2]), 8},
-    {NETF(events[3]), 8},
-    {NETF(eventParms[0]), 8},
-    {NETF(eventParms[1]), 8},
-    {NETF(eventParms[2]), 8},
-    {NETF(eventParms[3]), 8},
-    {NETF(powerups), 16},
-    {NETF(weapon), 8},
-    {NETF(legsAnim), ANIM_BITS},
-    {NETF(torsoAnim), ANIM_BITS},
-    {NETF(density), 10},
-    {NETF(dmgFlags), 32},        //----(SA)  additional info flags for damage
-    {NETF(onFireStart), 32},
-    {NETF(onFireEnd), 32},
-    {NETF(nextWeapon), 8},
-    {NETF(teamNum), 8},
-    {NETF(effect1Time), 32},
-    {NETF(effect2Time), 32},
-    {NETF(effect3Time), 32},
-    {NETF(animMovetype), 4},
-    {NETF(aiState), 2},
-    // Dushan - Tremulous stuff
-    {NETF(generic1), 10},
-    {NETF(misc), MAX_MISC},
-    {NETF(weaponAnim), 8},
+    { NETF(pos.trTime), 32 },
+    { NETF(pos.trBase[0]), 0 },
+    { NETF(pos.trBase[1]), 0 },
+    { NETF(pos.trDelta[0]), 0 },
+    { NETF(pos.trDelta[1]), 0 },
+    { NETF(pos.trBase[2]), 0 },
+    { NETF(apos.trBase[1]), 0 },
+    { NETF(pos.trDelta[2]), 0 },
+    { NETF(apos.trBase[0]), 0 },
+    { NETF(_event), 10 },
+    { NETF(angles2[1]), 0 },
+    { NETF(eType), 8 },
+    { NETF(torsoAnim), 8 },
+    { NETF(eventParm), 8 },
+    { NETF(legsAnim), 8 },
+    { NETF(groundEntityNum), GENTITYNUM_BITS },
+    { NETF(pos.trType), 8 },
+    { NETF(eFlags), 19 },
+    { NETF(otherEntityNum), GENTITYNUM_BITS },
+    { NETF(weapon), 8 },
+    { NETF(clientNum), 8 },
+    { NETF(angles[1]), 0 },
+    { NETF(pos.trDuration), 32 },
+    { NETF(apos.trType), 8 },
+    { NETF(origin[0]), 0 },
+    { NETF(origin[1]), 0 },
+    { NETF(origin[2]), 0 },
+    { NETF(solid), 24 },
+    { NETF(misc), MAX_MISC },
+    { NETF(modelindex), 8 },
+    { NETF(otherEntityNum2), GENTITYNUM_BITS },
+    { NETF(loopSound), 8 },
+    { NETF(generic1), 8 },
+    { NETF(origin2[2]), 0 },
+    { NETF(origin2[0]), 0 },
+    { NETF(origin2[1]), 0 },
+    { NETF(modelindex2), 8 },
+    { NETF(angles[0]), 0 },
+    { NETF(time), 32 },
+    { NETF(apos.trTime), 32 },
+    { NETF(apos.trDuration), 32 },
+    { NETF(apos.trBase[2]), 0 },
+    { NETF(apos.trDelta[0]), 0 },
+    { NETF(apos.trDelta[1]), 0 },
+    { NETF(apos.trDelta[2]), 0 },
+    { NETF(time2), 32 },
+    { NETF(angles[2]), 0 },
+    { NETF(angles2[0]), 0 },
+    { NETF(angles2[2]), 0 },
+    { NETF(constantLight), 32 },
+    { NETF(frame), 16 },
+    { NETF(weaponAnim), 8 }
 };
 
 
@@ -1390,173 +1367,57 @@ player_state_t communication
 #define PSF(x) #x,offsetof(playerState_t, x)
 
 netField_t      playerStateFields[] = {
-    {PSF(commandTime), 32}
-    ,
-    {PSF(pm_type), 8}
-    ,
-    {PSF(bobCycle), 8}
-    ,
-    {PSF(pm_flags), 16}
-    ,
-    {PSF(pm_time), -16}
-    ,
-    {PSF(origin[0]), 0}
-    ,
-    {PSF(origin[1]), 0}
-    ,
-    {PSF(origin[2]), 0}
-    ,
-    {PSF(velocity[0]), 0}
-    ,
-    {PSF(velocity[1]), 0}
-    ,
-    {PSF(velocity[2]), 0}
-    ,
-    {PSF(weaponTime), -16}
-    ,
-    {PSF(weaponDelay), -16}
-    ,
-    {PSF(grenadeTimeLeft), -16}
-    ,
-    {PSF(gravity), 16}
-    ,
-    {PSF(leanf), 0}
-    ,
-    {PSF(speed), 16}
-    ,
-    {PSF(delta_angles[0]), 16}
-    ,
-    {PSF(delta_angles[1]), 16}
-    ,
-    {PSF(delta_angles[2]), 16}
-    ,
-    {PSF(groundEntityNum), GENTITYNUM_BITS}
-    ,
-    {PSF(legsTimer), 16}
-    ,
-    {PSF(torsoTimer), 16}
-    ,
-    {PSF(legsAnim), ANIM_BITS}
-    ,
-    {PSF(torsoAnim), ANIM_BITS}
-    ,
-    {PSF(movementDir), 8}
-    ,
-    {PSF(eFlags), 24}
-    ,
-    {PSF(eventSequence), 8}
-    ,
-    {PSF(events[0]), 8}
-    ,
-    {PSF(events[1]), 8}
-    ,
-    {PSF(events[2]), 8}
-    ,
-    {PSF(events[3]), 8}
-    ,
-    {PSF(eventParms[0]), 8}
-    ,
-    {PSF(eventParms[1]), 8}
-    ,
-    {PSF(eventParms[2]), 8}
-    ,
-    {PSF(eventParms[3]), 8}
-    ,
-    {PSF(clientNum), 8}
-    ,
-    {PSF(weapons[0]), 32}
-    ,
-    {PSF(weapons[1]), 32}
-    ,
-    {PSF(weapon), 7}
-    ,                           // (SA) yup, even more
-    {PSF(weaponstate), 4}
-    ,
-    {PSF(weapAnim), 10}
-    ,
-    {PSF(viewangles[0]), 0}
-    ,
-    {PSF(viewangles[1]), 0}
-    ,
-    {PSF(viewangles[2]), 0}
-    ,
-    {PSF(viewheight), -8}
-    ,
-    {PSF(damageEvent), 8}
-    ,
-    {PSF(damageYaw), 8}
-    ,
-    {PSF(damagePitch), 8}
-    ,
-    {PSF(damageCount), 8}
-    ,
-    {PSF(mins[0]), 0}
-    ,
-    {PSF(mins[1]), 0}
-    ,
-    {PSF(mins[2]), 0}
-    ,
-    {PSF(maxs[0]), 0}
-    ,
-    {PSF(maxs[1]), 0}
-    ,
-    {PSF(maxs[2]), 0}
-    ,
-    {PSF(crouchMaxZ), 0}
-    ,
-    {PSF(crouchViewHeight), 0}
-    ,
-    {PSF(standViewHeight), 0}
-    ,
-    {PSF(deadViewHeight), 0}
-    ,
-    {PSF(runSpeedScale), 0}
-    ,
-    {PSF(sprintSpeedScale), 0}
-    ,
-    {PSF(crouchSpeedScale), 0}
-    ,
-    {PSF(friction), 0}
-    ,
-    {PSF(viewlocked), 8}
-    ,
-    {PSF(viewlocked_entNum), 16}
-    ,
-    {PSF(nextWeapon), 8}
-    ,
-    {PSF(teamNum), 8}
-    ,
-    //{ PSF(gunfx), 8},
-    {PSF(onFireStart), 32}
-    ,
-    {PSF(curWeapHeat), 8}
-    ,
-    {PSF(aimSpreadScale), 8}
-    ,
-    {PSF(serverCursorHint), 8}
-    ,                           //----(SA)   added
-    {PSF(serverCursorHintVal), 8}
-    ,                           //----(SA)    added
-    {PSF(classWeaponTime), 32}
-    ,                           // JPW NERVE
-    {PSF(identifyClient), 8}
-    ,
-    {PSF(identifyClientHealth), 8}
-    ,
-    {PSF(aiState), 2}
-    ,
-    // Dushan - Tremulous
-    {PSF(generic1), 10},
-    {PSF(loopSound), 16},
-    {PSF(grapplePoint[0]), 0},
-    {PSF(grapplePoint[1]), 0},
-    {PSF(grapplePoint[2]), 0},
-    {PSF(ammo), 12},
-    {PSF(clips), 4},
-    {PSF(tauntTimer), 12},
-    {PSF(weaponAnim), 8},
-    {PSF(otherEntityNum), GENTITYNUM_BITS},
-    {PSF(loopSound), 16}
+    { PSF(commandTime), 32 },
+    { PSF(origin[0]), 0 },
+    { PSF(origin[1]), 0 },
+    { PSF(bobCycle), 8 },
+    { PSF(velocity[0]), 0 },
+    { PSF(velocity[1]), 0 },
+    { PSF(viewangles[1]), 0 },
+    { PSF(viewangles[0]), 0 },
+    { PSF(weaponTime), -16 },
+    { PSF(origin[2]), 0 },
+    { PSF(velocity[2]), 0 },
+    { PSF(legsTimer), 8 },
+    { PSF(pm_time), -16 },
+    { PSF(eventSequence), 16 },
+    { PSF(torsoAnim), 8 },
+    { PSF(movementDir), 4 },
+    { PSF(events[0]), 8 },
+    { PSF(legsAnim), 8 },
+    { PSF(events[1]), 8 },
+    { PSF(pm_flags), 16 },
+    { PSF(groundEntityNum), GENTITYNUM_BITS },
+    { PSF(weaponstate), 4 },
+    { PSF(eFlags), 16 },
+    { PSF(externalEvent), 10 },
+    { PSF(gravity), -16 },
+    { PSF(speed), -16 },
+    { PSF(delta_angles[1]), 16 },
+    { PSF(externalEventParm), 8 },
+    { PSF(viewheight), -8 },
+    { PSF(damageEvent), 8 },
+    { PSF(damageYaw), 8 },
+    { PSF(damagePitch), 8 },
+    { PSF(damageCount), 8 },
+    { PSF(generic1), 8 },
+    { PSF(pm_type), 8 },
+    { PSF(delta_angles[0]), 16 },
+    { PSF(delta_angles[2]), 16 },
+    { PSF(torsoTimer), 12 },
+    { PSF(eventParms[0]), 8 },
+    { PSF(eventParms[1]), 8 },
+    { PSF(clientNum), 8 },
+    { PSF(weapon), 5 },
+    { PSF(viewangles[2]), 0 },
+    { PSF(grapplePoint[0]), 0 },
+    { PSF(grapplePoint[1]), 0 },
+    { PSF(grapplePoint[2]), 0 },
+    { PSF(otherEntityNum), 10 },
+    { PSF(loopSound), 16 },
+    { PSF(identifyClient),  8},
+    { PSF(tauntTimer), 12 },
+    { PSF(weaponAnim), 8 }
 };
 
 static sint qsort_playerstatefields(const void *a, const void *b) {
@@ -1608,118 +1469,77 @@ MSG_WriteDeltaPlayerstate
 */
 void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from,
                                struct playerState_s *to) {
-    sint             i, j, lc;
+    sint i;
     playerState_t   dummy;
-    sint             statsbits;
-    sint             persistantbits;
-    sint             ammobits[4];   //----(SA)  modified
-    sint             clipbits;  //----(SA)  added
-    sint             powerupbits;
-    sint             holdablebits;
-    sint             numFields;
-
-    //bani - appears to have been debugging left in
-    //  sint             c;
-    netField_t     *field;
-    sint            *fromF, *toF;
-    float32           fullFloat;
-    sint             trunc;
-    sint             startBit, endBit;
-    sint             print;
-    sint                miscbits;
+    sint statsbits;
+    sint persistantbits;
+    sint ammobits;
+    sint miscbits;
+    sint numFields;
+    sint c;
+    netField_t *field;
+    sint *fromF, * toF;
+    float32 fullFloat;
+    sint trunc, lc;
 
     if(!from) {
         from = &dummy;
-        memset(&dummy, 0, sizeof(dummy));
+        ::memset(&dummy, 0, sizeof(dummy));
     }
 
-    if(msg->bit == 0) {
-        startBit = msg->cursize * 8 - GENTITYNUM_BITS;
-    } else {
-        startBit = (msg->cursize - 1) * 8 + msg->bit - GENTITYNUM_BITS;
-    }
-
-    // shownet 2/3 will interleave with other printed info, -2 will
-    // just print the delta records
-    if(cl_shownet && (cl_shownet->integer >= 2 || cl_shownet->integer == -2)) {
-        print = 1;
-        common->Printf("W|%3i: playerstate ", msg->cursize);
-    } else {
-        print = 0;
-    }
-
-    //bani - appears to have been debugging left in
-    //  c = msg->cursize;
+    c = msg->cursize;
 
     numFields = sizeof(playerStateFields) / sizeof(playerStateFields[0]);
 
     lc = 0;
 
     for(i = 0, field = playerStateFields; i < numFields; i++, field++) {
-        fromF = reinterpret_cast<sint *>(reinterpret_cast<uchar8 *>
-                                         (from) + field->offset);
-        toF = reinterpret_cast<sint *>(reinterpret_cast<uchar8 *>
-                                       (to) + field->offset);
+        fromF = reinterpret_cast<sint *>((uchar8 *)from + field->offset);
+        toF = reinterpret_cast<sint *>((uchar8 *)to + field->offset);
 
         if(*fromF != *toF) {
             lc = i + 1;
-
-            field->used++;
         }
     }
 
-    MSG_WriteByte(msg, lc);          // # of changes
+    MSG_WriteByte(msg, lc); // # of changes
 
     oldsize += numFields - lc;
 
     for(i = 0, field = playerStateFields; i < lc; i++, field++) {
-        fromF = reinterpret_cast<sint *>(reinterpret_cast<uchar8 *>
-                                         (from) + field->offset);
-        toF = reinterpret_cast<sint *>(reinterpret_cast<uchar8 *>
-                                       (to) + field->offset);
+        fromF = reinterpret_cast<sint *>((uchar8 *)from + field->offset);
+        toF = reinterpret_cast<sint *>((uchar8 *)to + field->offset);
 
         if(*fromF == *toF) {
-            wastedbits++;
-
-            MSG_WriteBits(msg, 0, 1);    // no change
+            MSG_WriteBits(msg, 0, 1);   // no change
             continue;
         }
 
-        MSG_WriteBits(msg, 1, 1);    // changed
+        MSG_WriteBits(msg, 1, 1);   // changed
         //      pcount[i]++;
 
         if(field->bits == 0) {
-            // float32
+            // float
             fullFloat = *reinterpret_cast<float32 *>(toF);
-            trunc = static_cast<sint>(fullFloat);
+            trunc = (int)fullFloat;
 
             if(trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 &&
                     trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS)) {
                 // send as small integer
                 MSG_WriteBits(msg, 0, 1);
                 MSG_WriteBits(msg, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS);
-                //              if ( print ) {
-                //                  common->Printf( "%s:%i ", field->name, trunc );
-                //              }
             } else {
                 // send as full floating point value
                 MSG_WriteBits(msg, 1, 1);
                 MSG_WriteBits(msg, *toF, 32);
-                //              if ( print ) {
-                //                  common->Printf( "%s:%f ", field->name, *(float32 *)toF );
-                //              }
             }
         } else {
             // integer
             MSG_WriteBits(msg, *toF, field->bits);
-            //          if ( print ) {
-            //              common->Printf( "%s:%i ", field->name, *toF );
-            //          }
         }
     }
 
-    //bani - appears to have been debugging left in
-    //  c = msg->cursize - c;
+    c = msg->cursize - c;
 
 
     //
@@ -1727,7 +1547,7 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from,
     //
     statsbits = 0;
 
-    for(i = 0; i < 16; i++) {
+    for(i = 0; i < MAX_STATS; i++) {
         if(to->stats[i] != from->stats[i]) {
             statsbits |= 1 << i;
         }
@@ -1735,269 +1555,95 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from,
 
     persistantbits = 0;
 
-    for(i = 0; i < 16; i++) {
+    for(i = 0; i < MAX_PERSISTANT; i++) {
         if(to->persistant[i] != from->persistant[i]) {
             persistantbits |= 1 << i;
         }
     }
 
+    // backporting: 1.1 expects an array here
+    ammobits = (to->ammo != from->ammo) | (to->clips != from->clips) << 1;
+
+    for(i = 0; i < 14; i++) {
+        if(to->ammo_extra[i] != from->ammo_extra[i]) {
+            ammobits |= 4 << i;
+        }
+    }
+
     miscbits = 0;
 
-    for(i = 0 ; i < MAX_MISC ; i++) {
+    for(i = 0; i < MAX_MISC; i++) {
         if(to->misc[i] != from->misc[i]) {
             miscbits |= 1 << i;
         }
     }
 
-    holdablebits = 0;
-
-    for(i = 0; i < 16; i++) {
-        if(to->holdable[i] != from->holdable[i]) {
-            holdablebits |= 1 << i;
-        }
-    }
-
-    powerupbits = 0;
-
-    for(i = 0; i < 16; i++) {
-        if(to->powerups[i] != from->powerups[i]) {
-            powerupbits |= 1 << i;
-        }
-    }
-
-
-    if(statsbits || persistantbits || holdablebits || powerupbits) {
-
-        MSG_WriteBits(msg, 1, 1);    // something changed
-
-        if(statsbits) {
-            MSG_WriteBits(msg, 1, 1);    // changed
-            MSG_WriteShort(msg, statsbits);
-
-            for(i = 0; i < 16; i++)
-                if(statsbits & (1 << i)) {
-                    // RF, changed to long to allow more flexibility
-                    //                  MSG_WriteLong (msg, to->stats[i]);
-                    MSG_WriteShort(msg,
-                                   to->stats[i]);   //----(SA)    back to short since weapon bits are handled elsewhere now
-                }
-        } else {
-            MSG_WriteBits(msg, 0, 1);    // no change to stats
-        }
-
-
-        if(persistantbits) {
-            MSG_WriteBits(msg, 1, 1);    // changed
-            MSG_WriteShort(msg, persistantbits);
-
-            for(i = 0; i < 16; i++)
-                if(persistantbits & (1 << i)) {
-                    MSG_WriteShort(msg, to->persistant[i]);
-                }
-        } else {
-            MSG_WriteBits(msg, 0, 1);    // no change to persistant
-        }
-
-        if(miscbits) {
-            MSG_WriteBits(msg, 1, 1);    // changed
-            MSG_WriteBits(msg, miscbits, MAX_MISC);
-
-            for(i = 0 ; i < MAX_MISC ; i++) {
-                if(miscbits & (1 << i)) {
-                    MSG_WriteLong(msg, to->misc[i]);
-                }
-            }
-        } else {
-            MSG_WriteBits(msg, 0, 1);    // no change
-        }
-
-        if(holdablebits) {
-            MSG_WriteBits(msg, 1, 1);    // changed
-            MSG_WriteShort(msg, holdablebits);
-
-            for(i = 0; i < 16; i++)
-                if(holdablebits & (1 << i)) {
-                    MSG_WriteShort(msg, to->holdable[i]);
-                }
-        } else {
-            MSG_WriteBits(msg, 0, 1);    // no change to holdables
-        }
-
-
-        if(powerupbits) {
-            MSG_WriteBits(msg, 1, 1);    // changed
-            MSG_WriteShort(msg, powerupbits);
-
-            for(i = 0; i < 16; i++)
-                if(powerupbits & (1 << i)) {
-                    MSG_WriteLong(msg, to->powerups[i]);
-                }
-        } else {
-            MSG_WriteBits(msg, 0, 1);    // no change to powerups
-        }
-    } else {
-        MSG_WriteBits(msg, 0, 1);    // no change to any
+    if(!statsbits && !persistantbits && !ammobits && !miscbits) {
+        MSG_WriteBits(msg, 0, 1);   // no change
         oldsize += 4;
+        return;
     }
 
+    MSG_WriteBits(msg, 1, 1);   // changed
 
-#if 0
-    // RF, optimization
-    //      Send a single bit to signify whether or not the ammo/clip info changed.
-    //      If it did, send individual segments specifying offset values for each item.
-    {
-        sint             ammo_ofs;
-        sint             clip_ofs;
+    if(statsbits) {
+        MSG_WriteBits(msg, 1, 1);   // changed
+        MSG_WriteBits(msg, statsbits, MAX_STATS);
 
-        ammobits = 0;
-
-        // ammo
-        for(i = 0; i < 32; i++) {
-            if(to->ammo[i] != from->ammo[i]) {
-                ammobits |= 1 << i;
+        for(i = 0; i < MAX_STATS; i++)
+            if(statsbits & (1 << i)) {
+                MSG_WriteShort(msg, to->stats[i]);
             }
-        }
-
-        // ammoclip (just add these changes to the ammo changes. if either changes, we should send both, since they are likely to both change at once anyway)
-        for(i = 0; i < 32; i++) {
-            if(to->ammoclip[i] != from->ammoclip[i]) {
-                ammobits |= 1 << i;
-            }
-        }
-
-        if(ammobits) {
-            MSG_WriteBits(msg, 1, 1);    // changed
-
-            // send each changed item
-            for(i = 0; i < 32; i++) {
-                if(ammobits & (1 << i)) {
-                    ammo_ofs = to->ammo[i] - from->ammo[i];
-                    clip_ofs = to->ammoclip[i] - from->ammoclip[i];
-
-                    while(ammo_ofs || clip_ofs) {
-                        MSG_WriteBits(msg, 1, 1);    // signify that another index is present
-                        MSG_WriteBits(msg, i, 5);    // index number
-
-                        // ammo
-                        if(abs(ammo_ofs) > 127) {
-                            if(ammo_ofs > 0) {
-                                MSG_WriteChar(msg, 127);
-                                ammo_ofs -= 127;
-                            } else {
-                                MSG_WriteChar(msg, -127);
-                                ammo_ofs += 127;
-                            }
-                        } else {
-                            MSG_WriteChar(msg, ammo_ofs);
-                            ammo_ofs = 0;
-                        }
-
-                        // clip
-                        if(abs(clip_ofs) > 127) {
-                            if(clip_ofs > 0) {
-                                MSG_WriteChar(msg, 127);
-                                clip_ofs -= 127;
-                            } else {
-                                MSG_WriteChar(msg, -127);
-                                clip_ofs += 127;
-                            }
-                        } else {
-                            MSG_WriteChar(msg, clip_ofs);
-                            clip_ofs = 0;
-                        }
-                    }
-                }
-            }
-
-            // signify the end of changes
-            MSG_WriteBits(msg, 0, 1);
-
-        } else {
-            MSG_WriteBits(msg, 0, 1);    // no change
-        }
-    }
-
-#else
-    //----(SA)  I split this into two groups using shorts so it wouldn't have
-    //          to use a long every time ammo changed for any weap.
-    //          this seemed like a much friendlier option than making it
-    //          read/write a long for any ammo change.
-
-    // j == 0 : weaps 0-15
-    // j == 1 : weaps 16-31
-    // j == 2 : weaps 32-47 //----(SA)  now up to 64 (but still pretty net-friendly)
-    // j == 3 : weaps 48-63
-
-    // ammo stored
-    for(j = 0; j < 4; j++) {
-        //----(SA) modified for 64 weaps
-        ammobits[j] = 0;
-
-        for(i = 0; i < 16; i++) {
-            if(to->ammo != from->ammo) {
-                ammobits[j] |= 1 << i;
-            }
-        }
-    }
-
-    //----(SA)  also encapsulated ammo changes into one check.  clip values will change frequently,
-    // but ammo will not.  (only when you get ammo/reload rather than each shot)
-    if(ammobits[0] || ammobits[1] || ammobits[2] || ammobits[3]) {
-        // if any were set...
-        MSG_WriteBits(msg, 1, 1);    // changed
-
-        for(j = 0; j < 4; j++) {
-            if(ammobits[j]) {
-                MSG_WriteBits(msg, 1, 1);    // changed
-                MSG_WriteShort(msg, ammobits[j]);
-
-                for(i = 0; i < 16; i++)
-                    if(ammobits[j] & (1 << i)) {
-                        MSG_WriteShort(msg, to->ammo);
-                    }
-            } else {
-                MSG_WriteBits(msg, 0, 1);    // no change
-            }
-        }
     } else {
-        MSG_WriteBits(msg, 0, 1);    // no change
+        MSG_WriteBits(msg, 0, 1);   // no change
     }
 
-    // ammo in clip
-    for(j = 0; j < 4; j++) {
-        //----(SA) modified for 64 weaps
-        clipbits = 0;
 
-        for(i = 0; i < 16; i++) {
-            if(to->ammoclip != from->ammoclip) {
-                clipbits |= 1 << i;
+    if(persistantbits) {
+        MSG_WriteBits(msg, 1, 1);   // changed
+        MSG_WriteBits(msg, persistantbits, MAX_PERSISTANT);
+
+        for(i = 0; i < MAX_PERSISTANT; i++)
+            if(persistantbits & (1 << i)) {
+                MSG_WriteShort(msg, to->persistant[i]);
             }
-        }
-
-        if(clipbits) {
-            MSG_WriteBits(msg, 1, 1);    // changed
-            MSG_WriteShort(msg, clipbits);
-
-            for(i = 0; i < 16; i++)
-                if(clipbits & (1 << i)) {
-                    MSG_WriteShort(msg, to->ammoclip);
-                }
-        } else {
-            MSG_WriteBits(msg, 0, 1);    // no change
-        }
+    } else {
+        MSG_WriteBits(msg, 0, 1);   // no change
     }
 
-#endif
 
+    if(ammobits) {
+        MSG_WriteBits(msg, 1, 1);   // changed
+        MSG_WriteBits(msg, ammobits, 16);
 
-    if(print) {
-        if(msg->bit == 0) {
-            endBit = msg->cursize * 8 - GENTITYNUM_BITS;
-        } else {
-            endBit = (msg->cursize - 1) * 8 + msg->bit - GENTITYNUM_BITS;
+        if(ammobits & 1) {
+            MSG_WriteShort(msg, to->ammo);
         }
 
-        common->Printf(" (%i bits)\n", endBit - startBit);
+        if(ammobits & 2) {
+            MSG_WriteShort(msg, to->clips);
+        }
+
+        for(i = 0; i < 14; i++)
+            if(ammobits & (4 << i)) {
+                MSG_WriteShort(msg, to->ammo_extra[i]);
+            }
+    } else {
+        MSG_WriteBits(msg, 0, 1);   // no change
+    }
+
+
+
+    if(miscbits) {
+        MSG_WriteBits(msg, 1, 1);   // changed
+        MSG_WriteBits(msg, miscbits, MAX_MISC);
+
+        for(i = 0; i < MAX_MISC; i++)
+            if(miscbits & (1 << i)) {
+                MSG_WriteLong(msg, to->misc[i]);
+            }
+    } else {
+        MSG_WriteBits(msg, 0, 1);   // no change
     }
 
 }
@@ -2010,19 +1656,19 @@ MSG_ReadDeltaPlayerstate
 */
 void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from,
                               playerState_t *to) {
-    sint             i, j, lc;
-    sint             bits;
-    netField_t     *field;
-    sint             numFields;
-    sint             startBit, endBit;
-    sint             print;
-    sint            *fromF, *toF;
-    sint             trunc;
-    playerState_t   dummy;
+    sint i, lc;
+    sint bits;
+    netField_t *field;
+    sint numFields;
+    sint startBit, endBit;
+    sint print;
+    sint *fromF, * toF;
+    sint trunc;
+    playerState_t dummy;
 
     if(!from) {
         from = &dummy;
-        memset(&dummy, 0, sizeof(dummy));
+        ::memset(&dummy, 0, sizeof(dummy));
     }
 
     *to = *from;
@@ -2045,28 +1691,22 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from,
     numFields = sizeof(playerStateFields) / sizeof(playerStateFields[0]);
     lc = MSG_ReadByte(msg);
 
-    if(lc > numFields || lc < 0) {
-        common->Error(ERR_DROP, "invalid playerState field count");
-    }
-
     for(i = 0, field = playerStateFields; i < lc; i++, field++) {
-        fromF = reinterpret_cast<sint *>(reinterpret_cast<uchar8 *>
-                                         (from) + field->offset);
-        toF = reinterpret_cast<sint *>(reinterpret_cast<uchar8 *>
-                                       (to) + field->offset);
+        fromF = reinterpret_cast<sint *>((uchar8 *)from + field->offset);
+        toF = reinterpret_cast<sint *>((uchar8 *)to + field->offset);
 
         if(!MSG_ReadBits(msg, 1)) {
             // no change
             *toF = *fromF;
         } else {
             if(field->bits == 0) {
-                // float32
+                // float
                 if(MSG_ReadBits(msg, 1) == 0) {
-                    // integral float32
+                    // integral float
                     trunc = MSG_ReadBits(msg, FLOAT_INT_BITS);
                     // bias to allow equal parts positive and negative
                     trunc -= FLOAT_INT_BIAS;
-                    *reinterpret_cast<float32 *>(toF) = trunc;
+                    *(float *)toF = trunc;
 
                     if(print) {
                         common->Printf("%s:%i ", field->name, trunc);
@@ -2076,7 +1716,7 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from,
                     *toF = MSG_ReadBits(msg, 32);
 
                     if(print) {
-                        common->Printf("%s:%f ", field->name, *reinterpret_cast<float32 *>(toF));
+                        common->Printf("%s:%f ", field->name, *(float *)toF);
                     }
                 }
             } else {
@@ -2091,10 +1731,8 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from,
     }
 
     for(i = lc, field = &playerStateFields[lc]; i < numFields; i++, field++) {
-        fromF = reinterpret_cast<sint *>(reinterpret_cast<uchar8 *>
-                                         (from) + field->offset);
-        toF = reinterpret_cast<sint *>(reinterpret_cast<uchar8 *>
-                                       (to) + field->offset);
+        fromF = reinterpret_cast<sint *>((uchar8 *)from + field->offset);
+        toF = reinterpret_cast<sint *>((uchar8 *)to + field->offset);
         // no change
         *toF = *fromF;
     }
@@ -2102,19 +1740,14 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from,
 
     // read the arrays
     if(MSG_ReadBits(msg, 1)) {
-        // one general bit tells if any of this infrequently changing stuff has changed
         // parse stats
         if(MSG_ReadBits(msg, 1)) {
             LOG("PS_STATS");
-            bits = MSG_ReadShort(msg);
+            bits = MSG_ReadBits(msg, MAX_STATS);
 
-            for(i = 0; i < 16; i++) {
+            for(i = 0; i < MAX_STATS; i++) {
                 if(bits & (1 << i)) {
-                    // RF, changed to long to allow more flexibility
-                    //                  to->stats[i] = MSG_ReadLong(msg);
-                    to->stats[i] = MSG_ReadShort(
-                                       msg);   //----(SA)    back to short since weapon bits are handled elsewhere now
-
+                    to->stats[i] = MSG_ReadShort(msg);
                 }
             }
         }
@@ -2122,11 +1755,31 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from,
         // parse persistant stats
         if(MSG_ReadBits(msg, 1)) {
             LOG("PS_PERSISTANT");
-            bits = MSG_ReadShort(msg);
+            bits = MSG_ReadBits(msg, MAX_PERSISTANT);
 
-            for(i = 0; i < 16; i++) {
+            for(i = 0; i < MAX_PERSISTANT; i++) {
                 if(bits & (1 << i)) {
                     to->persistant[i] = MSG_ReadShort(msg);
+                }
+            }
+        }
+
+        // parse ammo data
+        if(MSG_ReadBits(msg, 1)) {
+            LOG("PS_AMMO");
+            bits = MSG_ReadBits(msg, 16);
+
+            if(bits & 1) {
+                to->ammo = MSG_ReadShort(msg);
+            }
+
+            if(bits & 2) {
+                to->clips = MSG_ReadShort(msg);
+            }
+
+            for(i = 0; i < 14; i++) {
+                if(bits & (4 << i)) {
+                    to->ammo_extra[i] = MSG_ReadShort(msg);
                 }
             }
         }
@@ -2136,99 +1789,13 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from,
             LOG("PS_MISC");
             bits = MSG_ReadBits(msg, MAX_MISC);
 
-            for(i = 0 ; i < MAX_MISC ; i++) {
+            for(i = 0; i < MAX_MISC; i++) {
                 if(bits & (1 << i)) {
                     to->misc[i] = MSG_ReadLong(msg);
                 }
             }
         }
-
-        // parse holdable stats
-        if(MSG_ReadBits(msg, 1)) {
-            LOG("PS_HOLDABLE");
-            bits = MSG_ReadShort(msg);
-
-            for(i = 0; i < 16; i++) {
-                if(bits & (1 << i)) {
-                    to->holdable[i] = MSG_ReadShort(msg);
-                }
-            }
-        }
-
-        // parse powerups
-        if(MSG_ReadBits(msg, 1)) {
-            LOG("PS_POWERUPS");
-            bits = MSG_ReadShort(msg);
-
-            for(i = 0; i < 16; i++) {
-                if(bits & (1 << i)) {
-                    to->powerups[i] = MSG_ReadLong(msg);
-                }
-            }
-        }
     }
-
-#if 0
-    // RF, optimization
-    //      Send a single bit to signify whether or not the ammo/clip info changed.
-    //      If it did, send individual segments specifying offset values for each item.
-
-    if(MSG_ReadBits(msg, 1)) {
-        // it changed
-        while(MSG_ReadBits(msg, 1)) {
-            i = MSG_ReadBits(msg, 5);    // read the index number
-            // now read the offsets
-            to->ammo[i] += MSG_ReadChar(msg);
-            to->ammoclip[i] += MSG_ReadChar(msg);
-        }
-    }
-
-#else
-    //----(SA)  I split this into two groups using shorts so it wouldn't have
-    //          to use a long every time ammo changed for any weap.
-    //          this seemed like a much friendlier option than making it
-    //          read/write a long for any ammo change.
-
-    // parse ammo
-
-    // j == 0 : weaps 0-15
-    // j == 1 : weaps 16-31
-    // j == 2 : weaps 32-47 //----(SA)  now up to 64 (but still pretty net-friendly)
-    // j == 3 : weaps 48-63
-
-    // ammo stored
-    if(MSG_ReadBits(msg, 1)) {
-        // check for any ammo change (0-63)
-        for(j = 0; j < 4; j++) {
-            if(MSG_ReadBits(msg, 1)) {
-                LOG("PS_AMMO");
-                bits = MSG_ReadShort(msg);
-
-                for(i = 0; i < 16; i++) {
-                    if(bits & (1 << i)) {
-                        to->ammo = MSG_ReadShort(msg);
-                    }
-                }
-            }
-        }
-    }
-
-    // ammo in clip
-    for(j = 0; j < 4; j++) {
-        if(MSG_ReadBits(msg, 1)) {
-            LOG("PS_AMMOCLIP");
-            bits = MSG_ReadShort(msg);
-
-            for(i = 0; i < 16; i++) {
-                if(bits & (1 << i)) {
-                    to->ammoclip = MSG_ReadShort(msg);
-                }
-            }
-        }
-    }
-
-#endif
-
 
     if(print) {
         if(msg->bit == 0) {

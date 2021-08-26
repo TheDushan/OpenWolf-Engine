@@ -330,12 +330,13 @@ static void MakeSkyVec(float32 s, float32 t, sint axis, float32 outSt[2],
     sint            j, k;
     float32 boxSize;
 
+    boxSize = backEnd.viewParms.zFar / 1.75f;        // div sqrt(3)
+
     // make sure the sky is not near clipped
     if(boxSize < r_znear->value * 2.0f) {
         boxSize = r_znear->value * 2.0f;
     }
 
-    boxSize = backEnd.viewParms.zFar / 1.75f;        // div sqrt(3)
     b[0] = s * boxSize;
     b[1] = t * boxSize;
     b[2] = boxSize;

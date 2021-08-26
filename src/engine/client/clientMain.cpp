@@ -385,7 +385,8 @@ void idClientMainSystemLocal::CheckForResend(void) {
             break;
 
         default:
-            common->Error(ERR_FATAL, "CL_CheckForResend: bad cls.state");
+            common->Error(ERR_FATAL,
+                          "idClientMainSystemLocal::CheckForResend: bad cls.state");
     }
 }
 

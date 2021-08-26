@@ -104,10 +104,6 @@ button if it appears on the Main Menu screen."
 // PORT_SERVER so a single machine can
 // run multiple servers
 
-// maintain a list of compatible protocols for demo playing
-// NOTE: that stuff only works with two digits protocols
-extern sint demo_protocols[];
-
 // the svc_strings[] array in cl_parse.c should mirror this
 //
 // server to client
@@ -246,8 +242,6 @@ typedef struct {
 // so we will change it to etxreal
 #define GUIDKEY_FILE "guidopenwolf"
 #define GUIDKEY_SIZE 28
-
-sint demo_protocols[] = { 1, 0 };
 
 #define MAX_NUM_ARGVS   50
 

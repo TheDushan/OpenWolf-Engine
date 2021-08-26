@@ -42,9 +42,8 @@ SndPrintf
 Glue
 ===============
 */
-__attribute__((format(printf, 2,
-                      3))) void QDECL idSoundSystemLocal::SndPrintf(sint print_level,
-                              pointer fmt, ...) {
+void QDECL idSoundSystemLocal::SndPrintf(sint print_level,
+        pointer fmt, ...) {
     va_list     argptr;
     valueType       msg[MAXPRINTMSG];
 

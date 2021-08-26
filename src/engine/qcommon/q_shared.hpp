@@ -1061,6 +1061,12 @@ void Info_SetValueForKey_Big(valueType *s, pointer key, pointer value);
 bool Info_Validate(pointer s);
 void Info_NextPair(pointer *s, valueType *key, valueType *value);
 
+// this is only here so the functions in q_shared.c and bg_*.c can link
+void Com_Error(errorParm_t level, pointer error,
+               ...) _attribute((format(printf,
+                                       2, 3), noreturn));
+void Com_Printf(pointer msg, ...) _attribute((format(printf, 1, 2)));
+
 /*
 ==========================================================
 
@@ -1243,165 +1249,89 @@ typedef struct {
 //
 // NOTE: all fields in here must be 32 bits (or those within sub-structures)
 typedef struct playerState_s {
-    sint commandTime;            // cmd->serverTime of last executed command
-    sint pm_type;
-    sint bobCycle;               // for view bobbing and footstep generation
-    sint pm_flags;               // ducked, jump_held, etc
-    sint pm_time;
+    sint            commandTime;    // cmd->serverTime of last executed command
+    sint            pm_type;
+    sint            bobCycle;       // for view bobbing and footstep generation
+    sint            pm_flags;       // ducked, jump_held, etc
+    sint            pm_time;
 
-    vec3_t origin;
-    vec3_t velocity;
-    sint weaponTime;
-    sint weaponDelay;            // for weapons that don't fire immediately when 'fire' is hit (grenades, venom, ...)
-    sint grenadeTimeLeft;            // for delayed grenade throwing.  this is set to a #define for grenade
-    // lifetime when the attack button goes down, then when attack is released
-    // this is the amount of time left before the grenade goes off (or if it
-    // gets to 0 while in players hand, it explodes)
-
-
-    sint gravity;
-    float32 leanf;                // amount of 'lean' when player is looking around corner //----(SA)   added
-
-    sint speed;
-    sint delta_angles[3];            // add to command angles to get view direction
+    vec3_t      origin;
+    vec3_t      velocity;
+    sint            weaponTime;
+    sint            gravity;
+    sint            speed;
+    sint
+    delta_angles[3];    // add to command angles to get view direction
     // changed by spawns, rotating objects, and teleporters
 
-    sint groundEntityNum;        // ENTITYNUM_NONE = in air
+    sint            groundEntityNum;// ENTITYNUM_NONE = in air
 
-    sint legsTimer;              // don't change low priority animations until this runs out
-    sint legsAnim;               // mask off ANIM_TOGGLEBIT
+    sint
+    legsTimer;      // don't change low priority animations until this runs out
+    sint            legsAnim;       // mask off ANIM_TOGGLEBIT
 
-    sint torsoTimer;             // don't change low priority animations until this runs out
-    sint torsoAnim;              // mask off ANIM_TOGGLEBIT
+    sint
+    torsoTimer;     // don't change low priority animations until this runs out
+    sint            torsoAnim;      // mask off ANIM_TOGGLEBIT
 
-    sint movementDir;            // a number 0 to 7 that represents the reletive angle
+    sint
+    movementDir;    // a number 0 to 7 that represents the reletive angle
     // of movement to the view angle (axial and diagonals)
     // when at rest, the value will remain unchanged
     // used to twist the legs during strafing
 
+    vec3_t
+    grapplePoint;   // location of grapple to pull towards if PMF_GRAPPLE_PULL
 
+    sint    tauntTimer;         // don't allow another taunt until this runs out
 
-    sint eFlags;                 // copied to entityState_t->eFlags
+    sint            weaponAnim;     // mask off ANIM_TOGGLEBIT
 
-    sint eventSequence;          // pmove generated events
-    sint events[MAX_EVENTS];
-    sint eventParms[MAX_EVENTS];
-    sint oldEventSequence;           // so we can see which events have been added since we last converted to entityState_t
+    sint            eFlags;         // copied to entityState_t->eFlags
 
-    sint externalEvent;          // events set on player from another source
-    sint externalEventParm;
-    sint externalEventTime;
+    sint            eventSequence;  // pmove generated events
+    sint            events[MAX_EVENTS];
+    sint            eventParms[MAX_EVENTS];
 
-    sint clientNum;              // ranges from 0 to MAX_CLIENTS-1
+    sint            externalEvent;  // events set on player from another source
+    sint            externalEventParm;
+    sint            externalEventTime;
 
-    // weapon info
-    sint weapon;                 // copied to entityState_t->weapon
-    sint weaponstate;
+    sint            clientNum;      // ranges from 0 to MAX_CLIENTS-1
+    sint            weapon;         // copied to entityState_t->weapon
+    sint            weaponstate;
 
-    // item info
-    sint item;
-
-    vec3_t viewangles;          // for fixed views
-    sint viewheight;
+    vec3_t      viewangles;     // for fixed views
+    sint            viewheight;
 
     // damage feedback
-    sint damageEvent;            // when it changes, latch the other parms
-    sint damageYaw;
-    sint damagePitch;
-    sint damageCount;
+    sint            damageEvent;    // when it changes, latch the other parms
+    sint            damageYaw;
+    sint            damagePitch;
+    sint            damageCount;
 
-    sint stats[MAX_STATS];
-    sint persistant[MAX_PERSISTANT];         // stats that aren't cleared on death
-    sint powerups[MAX_POWERUPS];         // level.time that the powerup runs out
-    sint ammo;              // total amount of ammo
-    sint ammoclip;          // ammo in clip
-    sint holdable[16];
-    sint holding;                        // the current item in holdable[] that is selected (held)
-    sint weapons[MAX_WEAPONS / (sizeof(sint) *
-                                8)];     // 64 bits for weapons held
+    sint            stats[MAX_STATS];
+    sint
+    persistant[MAX_PERSISTANT]; // stats that aren't cleared on death
+    sint            misc[MAX_MISC]; // misc data
+    sint            ammo;           // ammo held
+    sint            clips;          // clips held
 
-    // Ridah, allow for individual bounding boxes
-    vec3_t mins, maxs;
-    float32 crouchMaxZ;
-    float32 crouchViewHeight, standViewHeight, deadViewHeight;
-    // variable movement speed
-    float32 runSpeedScale, sprintSpeedScale, crouchSpeedScale;
-    // done.
+    sint            ammo_extra[14]; // compatibility
 
-    // Ridah, view locking for mg42
-    sint viewlocked;
-    sint viewlocked_entNum;
-
-    float32 friction;
-
-    sint nextWeapon;
-    sint teamNum;                        // Arnout: doesn't seem to be communicated over the net
-
-    // Rafael
-    //sint          gunfx;
-
-    // RF, burning effect is required for view blending effect
-    sint onFireStart;
-
-    sint serverCursorHint;               // what type of cursor hint the server is dictating
-    sint serverCursorHintVal;            // a value (0-255) associated with the above
-
-    trace_t serverCursorHintTrace;      // not communicated over net, but used to store the current server-side cursorhint trace
-
-    // ----------------------------------------------------------------------
-    // So to use persistent variables here, which don't need to come from the server,
-    // we could use a marker variable, and use that to store everything after it
-    // before we read in the new values for the predictedPlayerState, then restore them
-    // after copying the structure recieved from the server.
-
-    // Arnout: use the pmoveExt_t structure in bg_public.hpp to store this kind of data now (presistant on client, not network transmitted)
-
-    sint ping;                   // server to game info for scoreboard
-    sint pmove_framecount;
-    sint entityEventSequence;
-
-    sint sprintExertTime;
-
-    // JPW NERVE -- value for all multiplayer classes with regenerating "class weapons" -- ie LT artillery, medic medpack, engineer build points, etc
-    sint classWeaponTime;                // Arnout : DOES get send over the network
-    sint jumpTime;                   // used in MP to prevent jump accel
-    // jpw
-
-    sint weapAnim;                   // mask off ANIM_TOGGLEBIT                                     //----(SA)  added       // Arnout : DOES get send over the network
-
-    bool releasedFire;
-
-    float32 aimSpreadScaleFloat;          // (SA) the server-side aimspreadscale that lets it track finer changes but still only
-    // transmit the 8bit sint to the client
-    sint aimSpreadScale;                 // 0 - 255 increases with angular movement     // Arnout : DOES get send over the network
-    sint lastFireTime;                   // used by server to hold last firing frame briefly when randomly releasing trigger (AI)
-
-    sint quickGrenTime;
-
-    sint leanStopDebounceTime;
-
-    //----(SA)  added
-
-    // seems like heat and aimspread could be tied together somehow, however, they (appear to) change at different rates and
-    // I can't currently see how to optimize this to one server->client transmission "weapstatus" value.
-    sint weapHeat[MAX_WEAPONS];          // some weapons can overheat.  this tracks (server-side) how hot each weapon currently is.
-    sint curWeapHeat;                    // value for the currently selected weapon (for transmission to client)        // Arnout : DOES get send over the network
     sint identifyClient;                 // NERVE - SMF
-    sint identifyClientHealth;
 
-    aistateEnum_t aiState;          // xkan, 1/10/2003
+    sint            generic1;
+    sint            loopSound;
+    sint            otherEntityNum;
 
-    // Dushan - Tremulous
-    sint    generic1;
-    sint    loopSound;
-    sint    otherEntityNum;
-    vec3_t grapplePoint;    // location of grapple to pull towards if PMF_GRAPPLE_PULL
-    sint    weaponAnim;         // mask off ANIM_TOGGLEBIT
-    sint    clips;              // clips held
-    sint    tauntTimer;         // don't allow another taunt until this runs out
-    sint    misc[MAX_MISC];     // misc data
-    sint    jumppad_frame;
-    sint    jumppad_ent;    // jumppad entity hit this frame
+    // not communicated over the net at all
+    sint            ping;           // server to game info for scoreboard
+    sint
+    pmove_framecount;   // FIXME: don't transmit over the network
+    sint            jumppad_frame;
+    sint            entityEventSequence;
+
 } playerState_t;
 
 
@@ -1533,71 +1463,50 @@ enum entityType_t {
 
 typedef struct entityState_s {
     sint        number;         // entity index
-    entityType_t eType;     // entityType_t
+    sint        eType;          // entityType_t
     sint        eFlags;
 
-    trajectory_t pos;       // for calculating position
-    trajectory_t apos;      // for calculating angles
+    trajectory_t    pos;    // for calculating position
+    trajectory_t    apos;   // for calculating angles
 
-    sint time;
-    sint time2;
+    sint        time;
+    sint        time2;
 
-    vec3_t origin;
-    vec3_t origin2;
+    vec3_t  origin;
+    vec3_t  origin2;
 
-    vec3_t angles;
-    vec3_t angles2;
+    vec3_t  angles;
+    vec3_t  angles2;
 
-    sint otherEntityNum;     // shotgun sources, etc
-    sint otherEntityNum2;
+    sint        otherEntityNum; // shotgun sources, etc
+    sint        otherEntityNum2;
 
-    sint groundEntityNum;        // -1 = in air
+    sint        groundEntityNum;    // -1 = in air
 
-    sint constantLight;      // r + (g<<8) + (b<<16) + (intensity<<24)
-    sint dl_intensity;       // used for coronas
-    sint loopSound;          // constantly loop this sound
+    sint        constantLight;  // r + (g<<8) + (b<<16) + (intensity<<24)
+    sint        loopSound;      // constantly loop this sound
 
-    sint modelindex;
-    sint modelindex2;
-    sint clientNum;          // 0 to (MAX_CLIENTS - 1), for players and corpses
-    sint frame;
+    sint        modelindex;
+    sint        modelindex2;
+    sint
+    clientNum;      // 0 to (MAX_CLIENTS - 1), for players and corpses
+    sint        frame;
 
-    sint solid;              // for client side prediction, trap_linkentity sets this properly
+    sint
+    solid;          // for client side prediction, trap_linkentity sets this properly
 
-    // old style events, in for compatibility only
-    sint _event;                // impulse events -- muzzle flashes, footsteps, etc
-    sint eventParm;
-
-    sint eventSequence;      // pmove generated events
-    sint events[MAX_EVENTS];
-    sint eventParms[MAX_EVENTS];
+    sint
+    _event;         // impulse events -- muzzle flashes, footsteps, etc
+    sint        eventParm;
 
     // for players
-    sint powerups;           // bit flags   // Arnout: used to store entState_t for non-player entities (so we know to draw them translucent clientsided)
-    sint weapon;             // determines weapon and flash model, etc
-    sint legsAnim;           // mask off ANIM_TOGGLEBIT
-    sint torsoAnim;          // mask off ANIM_TOGGLEBIT
-    //  sint        weapAnim;       // mask off ANIM_TOGGLEBIT  //----(SA)  removed (weap anims will be client-side only)
+    sint        misc;           // bit flags
+    sint        weapon;         // determines weapon and flash model, etc
+    sint        legsAnim;       // mask off ANIM_TOGGLEBIT
+    sint        torsoAnim;      // mask off ANIM_TOGGLEBIT
 
-    sint density;            // for particle effects
-
-    sint dmgFlags;           // to pass along additional information for damage effects for players/ Also used for cursorhints for non-player entities
-
-    // Ridah
-    sint onFireStart, onFireEnd;
-
-    sint nextWeapon;
-    sint teamNum;
-
-    sint effect1Time, effect2Time, effect3Time;
-
-    aistateEnum_t aiState;      // xkan, 1/10/2003
-    sint animMovetype;       // clients can't derive movetype of other clients for anim scripting system
-
-    // Dushan - Tremulous
-    sint    misc;           // bit flags
-    sint    generic1;
-    sint    weaponAnim;     // mask off ANIM_TOGGLEBIT
+    sint        generic1;
+    sint        weaponAnim;     // mask off ANIM_TOGGLEBIT
 } entityState_t;
 
 enum connstate_t {

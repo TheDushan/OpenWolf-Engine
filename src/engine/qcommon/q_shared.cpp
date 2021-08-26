@@ -2113,17 +2113,32 @@ previous strings
 */
 valueType *va(pointer format, ...) {
     va_list argptr;
-    static valueType string[64][1024], *s;
-    static sint stringindex = 0;
+#define MAX_VA_STRING   32000
+    static valueType temp_buffer[MAX_VA_STRING];
+    static valueType
+    string[MAX_VA_STRING];      // in case va is called by nested functions
+    static sint index = 0;
+    valueType *buf;
+    sint len;
 
-    s = string[stringindex];
-    stringindex = (stringindex + 1) & 63;
     va_start(argptr, format);
-    Q_vsprintf_s(s, sizeof(string[0]), format, argptr);
-
+    Q_vsprintf_s(temp_buffer, sizeof(temp_buffer), format, argptr);
     va_end(argptr);
 
-    return s;
+    if((len = strlen(temp_buffer)) >= MAX_VA_STRING) {
+        common->Error(ERR_DROP, "Attempted to overrun string in call to va()\n");
+    }
+
+    if(len + index >= MAX_VA_STRING - 1) {
+        index = 0;
+    }
+
+    buf = &string[index];
+    ::memcpy(buf, temp_buffer, len + 1);
+
+    index += len + 1;
+
+    return buf;
 }
 
 /*

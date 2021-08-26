@@ -323,6 +323,8 @@ void idServerWallhackSystemLocal::calc_viewpoint(playerState_t *ps,
         vec3_t org, vec3_t vp) {
     VectorCopy(org, vp);
 
+#if 0
+
     if(ps->leanf != 0.f) {
         vec3_t right, v3ViewAngles;
 
@@ -331,6 +333,8 @@ void idServerWallhackSystemLocal::calc_viewpoint(playerState_t *ps,
         AngleVectors(v3ViewAngles, nullptr, right, nullptr);
         VectorMA(org, ps->leanf, right, org);
     }
+
+#endif
 
     if(ps->pm_flags & PMF_DUCKED) {
         vp[2] += CROUCH_VIEWHEIGHT;
