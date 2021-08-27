@@ -189,6 +189,7 @@ void idServerClientSystemLocal::GetChallenge(netadr_t from) {
         if(developer->integer) {
             common->Printf("Couldn't resolve auth server address\n");
         }
+
 #if 0
     } else if(svs.time - oldestClientTime > AUTHORIZE_TIMEOUT) {
         if(developer->integer) {
@@ -286,6 +287,7 @@ void idServerClientSystemLocal::AuthorizeIpPacket(netadr_t from) {
     }
 
 #if 0
+
     if(response == 1) {
         if(!reason) {
             networkChainSystem->OutOfBandPrint(NS_SERVER, challengeptr->adr,
@@ -308,6 +310,7 @@ void idServerClientSystemLocal::AuthorizeIpPacket(netadr_t from) {
                                                "authStatus %i %i %s", challengeptr->getChallengeCookie, response, reason);
         }
     }
+
 #endif
 
     ::memset(challengeptr, 0, sizeof(*challengeptr));

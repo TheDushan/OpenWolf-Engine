@@ -622,10 +622,12 @@ void idClientMainSystemLocal::ConnectionlessPacket(netadr_t from,
 
     // Auth check
 #if 0
+
     if(!Q_stricmp(c, "authStatus")) {
         idClientAuthorizationSystemLocal::AuthPacket(from);
         return;
     }
+
 #endif
 
     // global MOTD from id

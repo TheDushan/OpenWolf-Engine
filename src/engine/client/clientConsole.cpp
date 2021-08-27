@@ -98,7 +98,6 @@ void idClientConsoleSystemLocal::LineAccept(void) {
     // leading slash is an explicit command (for non-chat consoles)
     if(!isChat && (g_consoleField.buffer[0] == '\\' ||
                    g_consoleField.buffer[0] == '/')) {
-        cmdBufferSystem->ExecuteText(EXEC_NOW, "reconnect\n");
         // valid command
         cmdBufferSystem->AddText(g_consoleField.buffer + 1);
         cmdBufferSystem->AddText("\n");

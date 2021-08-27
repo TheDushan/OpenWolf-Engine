@@ -519,21 +519,30 @@ float32 MSG_ReadFloat(msg_t *msg) {
     return dat.f;
 }
 
-valueType           *MSG_ReadString(msg_t *msg) {
-    static valueType     string[MAX_STRING_CHARS];
-    sint             l, c;
+valueType *MSG_ReadString(msg_t *msg) {
+    static valueType string[MAX_STRING_CHARS];
+    sint l, c;
 
     l = 0;
 
     do {
-        c = MSG_ReadByte(msg);   // use ReadByte so -1 is out of bounds
+        // use ReadByte so -1 is out of bounds
+        c = MSG_ReadByte(msg);
+
+        // skip these to avoid security problems
+        if (c == 255)
+        {
+            continue;
+        }
 
         if(c == -1 || c == 0) {
             break;
         }
 
-        // don't allow higher ascii values
-        if(c > 127) {
+        // translate all format specs to avoid crash bugs
+		// don't allow higher ascii values
+        if (c == '%' || c > 127)
+        {
             c = '.';
         }
 
@@ -550,17 +559,31 @@ valueType           *MSG_ReadString(msg_t *msg) {
     return string;
 }
 
-valueType           *MSG_ReadBigString(msg_t *msg) {
-    static valueType     string[BIG_INFO_STRING];
-    sint             l, c;
+valueType *MSG_ReadBigString(msg_t *msg) {
+    static valueType string[BIG_INFO_STRING];
+    sint l, c;
 
     l = 0;
 
     do {
-        c = MSG_ReadByte(msg);   // use ReadByte so -1 is out of bounds
+        // use ReadByte so -1 is out of bounds
+        c = MSG_ReadByte(msg);
+
+        // skip these to avoid security problems
+        if (c == 255)
+        {
+            continue;
+        }
 
         if(c == -1 || c == 0) {
             break;
+        }
+
+        // translate all format specs to avoid crash bugs
+        // don't allow higher ascii values
+        if (c == '%' || c > 127)
+        {
+            c = '.';
         }
 
         // break only after reading all expected data from bitstream
@@ -576,17 +599,31 @@ valueType           *MSG_ReadBigString(msg_t *msg) {
     return string;
 }
 
-valueType           *MSG_ReadStringLine(msg_t *msg) {
-    static valueType     string[MAX_STRING_CHARS];
-    sint             l, c;
+valueType *MSG_ReadStringLine(msg_t *msg) {
+    static valueType string[MAX_STRING_CHARS];
+    sint l, c;
 
     l = 0;
 
     do {
-        c = MSG_ReadByte(msg);   // use ReadByte so -1 is out of bounds
+        // use ReadByte so -1 is out of bounds
+        c = MSG_ReadByte(msg);
+
+        // skip these to avoid security problems
+        if (c == 255)
+        {
+            continue;
+        }
 
         if(c == -1 || c == 0 || c == '\n') {
             break;
+        }
+
+        // translate all format specs to avoid crash bugs
+        // don't allow higher ascii values
+        if (c == '%' || c > 127)
+        {
+            c = '.';
         }
 
         // break only after reading all expected data from bitstream
@@ -622,7 +659,7 @@ sint MSG_HashKey(pointer string, sint maxlen) {
     hash = 0;
 
     for(i = 0; i < maxlen && string[i] != '\0'; i++) {
-        if(string[i] & 0x80) {
+        if(string[i] & 0x80 || string[i] == '%') {
             hash += '.' * (119 + i);
         } else {
             hash += string[i] * (119 + i);
