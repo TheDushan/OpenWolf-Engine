@@ -65,7 +65,7 @@ static addrmap_t *addrmaps = NULL;
 // ---------- Public variables ---------- //
 
 // Are servers talking from a loopback interface allowed?
-bool allow_loopback = false;
+bool allow_loopback = true;
 
 
 // ---------- Private functions ---------- //

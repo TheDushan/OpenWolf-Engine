@@ -1260,6 +1260,6 @@ void idCommonLocal::InitCommonConsoleVars(void) {
     r_fullscreen = cvarSystem->Get("r_fullscreen", "0",
                                    CVAR_ARCHIVE | CVAR_LATCH, "Enables fullscreen view");
 
-    cl_logChat = cvarSystem->Get("cl_logChat", "2", CVAR_ARCHIVE,
+    cl_logChat = cvarSystem->Get("cl_logChat", "0", CVAR_ARCHIVE,
                                  "Enables console logging in the file.");
 }
