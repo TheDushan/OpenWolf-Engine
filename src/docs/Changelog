@@ -1,3 +1,6 @@
+2021-08-28 Dusan Jocic <dusanjocic@msn.com>
+	* [RenderSystem] Changed default value for renderer convar
+
 2021-08-27 Dusan Jocic <dusanjocic@msn.com>
 	* [Authentication Server] Turned off "authStatus" until we get new PHP based website
 	* [Console] Turn off chatlog

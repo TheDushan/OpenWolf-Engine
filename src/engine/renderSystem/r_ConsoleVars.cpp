@@ -583,7 +583,7 @@ void R_InitConsoleVars(void) {
                                           CVAR_ARCHIVE, "Setting Anaglyph green color");
     r_trueAnaglyphBlue = cvarSystem->Get("r_trueAnaglyphBlue", "0.0",
                                          CVAR_ARCHIVE, "Setting Anaglyph blue color");
-    r_vibrancy = cvarSystem->Get("r_vibrancy", "1.4", CVAR_ARCHIVE,
+    r_vibrancy = cvarSystem->Get("r_vibrancy", "0.4", CVAR_ARCHIVE,
                                  "Enabled vibrancy effects");
     r_bloom = cvarSystem->Get("r_bloom", "0", CVAR_ARCHIVE,
                               "Enabled Bloom effects");
