@@ -1187,6 +1187,7 @@ void idRenderSystemLocal::Shutdown(bool destroyWindow) {
 
     // shut down platform specific OpenGL stuff
     if(destroyWindow) {
+        R_IssuePendingRenderCommands();
         R_ShutdownCommandBuffers();
         GLimp_Shutdown();
 

@@ -276,10 +276,6 @@ static bool GLimp_GetProcAddresses(bool fixedFunction) {
             QGL_1_1_FIXED_FUNCTION_PROCS;
             QGL_ES_1_1_PROCS;
             QGL_ES_1_1_FIXED_FUNCTION_PROCS;
-            QGL_1_3_PROCS;
-
-            // error so this doesn't segfault due to nullptr desktop GL functions being used
-            common->Error(ERR_FATAL, "Unsupported OpenGL Version: %s\n", version);
         } else {
             common->Error(ERR_FATAL,
                           "Unsupported OpenGL Version (%s), OpenGL 1.2 is required\n", version);
@@ -297,9 +293,7 @@ static bool GLimp_GetProcAddresses(bool fixedFunction) {
             QGL_1_3_PROCS;
             QGL_1_5_PROCS;
             QGL_2_0_PROCS;
-            QGL_ARB_occlusion_query_PROCS;
-
-            // error so this doesn't segfault due to nullptr desktop GL functions being used
+            // error so this doesn't segfault due to NULL desktop GL functions being used
             common->Error(ERR_FATAL, "Unsupported OpenGL Version: %s\n", version);
         } else {
             common->Error(ERR_FATAL,
@@ -308,11 +302,31 @@ static bool GLimp_GetProcAddresses(bool fixedFunction) {
     }
 
     if(QGL_VERSION_ATLEAST(3, 0) || QGLES_VERSION_ATLEAST(3, 0)) {
+        QGL_1_1_PROCS;
+        QGL_DESKTOP_1_1_PROCS;
+        QGL_1_3_PROCS;
+        QGL_1_5_PROCS;
+        QGL_2_0_PROCS;
         QGL_3_0_PROCS;
+        QGL_4_0_PROCS;
+        QGL_ARB_occlusion_query_PROCS;
+        QGL_ARB_framebuffer_object_PROCS;
+        QGL_ARB_vertex_array_object_PROCS;
+        QGL_EXT_direct_state_access_PROCS;
     }
 
     if(QGL_VERSION_ATLEAST(4, 0) || QGLES_VERSION_ATLEAST(4, 0)) {
+        QGL_1_1_PROCS;
+        QGL_DESKTOP_1_1_PROCS;
+        QGL_1_3_PROCS;
+        QGL_1_5_PROCS;
+        QGL_2_0_PROCS;
+        QGL_3_0_PROCS;
         QGL_4_0_PROCS;
+        QGL_ARB_occlusion_query_PROCS;
+        QGL_ARB_framebuffer_object_PROCS;
+        QGL_ARB_vertex_array_object_PROCS;
+        QGL_EXT_direct_state_access_PROCS;
     }
 
 #undef GLE
@@ -652,24 +666,27 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
         SDL_SetWindowIcon(SDL_window, icon);
 
         if(!fixedFunction) {
+            sint profileMask, majorVersion, minorVersion;
+            SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profileMask);
+            SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &majorVersion);
+            SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minorVersion);
+
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "Trying to get an OpenGL 3.2 core context\n");
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                                 SDL_GL_CONTEXT_PROFILE_CORE);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-
-            clientRendererSystem->RefPrintf(PRINT_ALL,
-                                            "Trying to get an OpenGL %i.%i context\n", 3, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
             if((SDL_glContext = SDL_GL_CreateContext(SDL_window)) == nullptr) {
                 clientRendererSystem->RefPrintf(PRINT_ALL,
-                                                "SDL_GL_CreateContext failed: %s\n",
-                                                SDL_GetError());
+                                                "SDL_GL_CreateContext failed: %s\n", SDL_GetError());
                 clientRendererSystem->RefPrintf(PRINT_ALL,
                                                 "Reverting to default context\n");
 
-                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 1);
-                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, profileMask);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, majorVersion);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion);
             } else {
                 pointer renderer;
 
@@ -680,7 +697,7 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
                     renderer = reinterpret_cast<pointer>(qglGetString(GL_RENDERER));
                 } else {
                     clientRendererSystem->RefPrintf(PRINT_ALL,
-                                                    "GLimp_GetProcAdvedresses() failed for OpenGL 3.2 core context\n");
+                                                    "GLimp_GetProcAddresses() failed for OpenGL 3.2 core context\n");
                     renderer = nullptr;
                 }
 
@@ -688,17 +705,16 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
                                  strstr(renderer, "Software Rasterizer"))) {
                     if(renderer) {
                         clientRendererSystem->RefPrintf(PRINT_ALL,
-                                                        "GL_RENDERER is %s, rejecting context\n",
-                                                        renderer);
+                                                        "GL_RENDERER is %s, rejecting context\n", renderer);
                     }
 
                     GLimp_ClearProcAddresses();
                     SDL_GL_DeleteContext(SDL_glContext);
                     SDL_glContext = nullptr;
 
-                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 1);
-                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, profileMask);
+                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, majorVersion);
+                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion);
                 }
             }
         } else {
@@ -707,11 +723,8 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
 
         if(!SDL_glContext) {
             if((SDL_glContext = SDL_GL_CreateContext(SDL_window)) == nullptr) {
-                clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
-                                                "SDL_GL_CreateContext failed: %s\n",
-                                                SDL_GetError());
-                SDL_DestroyWindow(SDL_window);
-                SDL_window = nullptr;
+                clientRendererSystem->RefPrintf(PRINT_ALL,
+                                                "SDL_GL_CreateContext failed: %s\n", SDL_GetError());
                 continue;
             }
 
@@ -1124,7 +1137,7 @@ success:
     Q_strncpyz(glConfig.version_string, (valueType *) qglGetString(GL_VERSION),
                sizeof(glConfig.version_string));
 
-    // manually create extension list if using OpenGL 4
+    // manually create extension list if using OpenGL 3
     if(qglGetStringi) {
         sint i, numExtensions, extensionLength, listLength;
         pointer extension;

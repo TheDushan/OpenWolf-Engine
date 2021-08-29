@@ -573,6 +573,9 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
     // we also need to adjust the scale based on point size relative to 48 points as the ui scaling is based on a 48 point font
     glyphScale *= 48.0f / pointSize;
 
+    // make sure the render thread is stopped
+    R_IssuePendingRenderCommands();
+
     registeredFont[registeredFontCount].glyphScale = glyphScale;
     font->glyphScale = glyphScale;
     ::memcpy(&registeredFont[registeredFontCount++], font, sizeof(fontInfo_t));

@@ -530,8 +530,7 @@ valueType *MSG_ReadString(msg_t *msg) {
         c = MSG_ReadByte(msg);
 
         // skip these to avoid security problems
-        if (c == 255)
-        {
+        if(c == 255) {
             continue;
         }
 
@@ -540,9 +539,8 @@ valueType *MSG_ReadString(msg_t *msg) {
         }
 
         // translate all format specs to avoid crash bugs
-		// don't allow higher ascii values
-        if (c == '%' || c > 127)
-        {
+        // don't allow higher ascii values
+        if(c == '%' || c > 127) {
             c = '.';
         }
 
@@ -570,8 +568,7 @@ valueType *MSG_ReadBigString(msg_t *msg) {
         c = MSG_ReadByte(msg);
 
         // skip these to avoid security problems
-        if (c == 255)
-        {
+        if(c == 255) {
             continue;
         }
 
@@ -581,8 +578,7 @@ valueType *MSG_ReadBigString(msg_t *msg) {
 
         // translate all format specs to avoid crash bugs
         // don't allow higher ascii values
-        if (c == '%' || c > 127)
-        {
+        if(c == '%' || c > 127) {
             c = '.';
         }
 
@@ -610,8 +606,7 @@ valueType *MSG_ReadStringLine(msg_t *msg) {
         c = MSG_ReadByte(msg);
 
         // skip these to avoid security problems
-        if (c == 255)
-        {
+        if(c == 255) {
             continue;
         }
 
@@ -621,8 +616,7 @@ valueType *MSG_ReadStringLine(msg_t *msg) {
 
         // translate all format specs to avoid crash bugs
         // don't allow higher ascii values
-        if (c == '%' || c > 127)
-        {
+        if(c == '%' || c > 127) {
             c = '.';
         }
 

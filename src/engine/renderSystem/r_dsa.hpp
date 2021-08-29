@@ -87,8 +87,6 @@ void GLDSA_NamedFramebufferTexture2DEXT(uint framebuffer, uint attachment,
                                         uint textarget, uint texture, sint level);
 void GLDSA_NamedFramebufferRenderbufferEXT(uint framebuffer,
         uint attachment, uint renderbuffertarget, uint renderbuffer);
-void GLDSA_CopyTexImage2DEXT(uint framebuffer, uint target, sint level,
-                             uint internalformat, sint x, sint y, sint width, sint height, sint border);
 
 void GL_PatchParameteri(uint pname, sint value);
 

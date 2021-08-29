@@ -88,7 +88,7 @@ void idAudioOpenALSystemLocal::mus_source_free(void) {
 idAudioOpenALSystemLocal::mus_process
 =================
 */
-void idAudioOpenALSystemLocal::mus_process(ALuint b) {
+bool idAudioOpenALSystemLocal::mus_process(ALuint b) {
     sint l;
     ALuint fmt;
 
@@ -100,14 +100,20 @@ void idAudioOpenALSystemLocal::mus_process(ALuint b) {
 
         if(!mus_stream) {
             soundOpenALSystem->StopBackgroundTrack();
-            return;
+            return false;
         }
 
         l = soundSystem->codec_read(mus_stream, BUFFER_SIZE, decode_buffer);
+
+        if(!l) {
+            return false;
+        }
     }
 
     fmt = format(mus_stream->info.width, mus_stream->info.channels);
     qalBufferData(b, fmt, decode_buffer, l, mus_stream->info.rate);
+
+    return true;
 }
 
 /*
@@ -216,23 +222,28 @@ void idAudioOpenALSystemLocal::mus_update(void) {
 
     qalGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 
-    if(processed) {
-        while(processed--) {
-            ALuint b;
-            qalSourceUnqueueBuffers(source, 1, &b);
-            mus_process(b);
-            qalSourceQueueBuffers(source, 1, &b);
+    while(processed--) {
+        ALuint b;
+        qalSourceUnqueueBuffers(source, 1, &b);
+
+        if(!mus_process(b)) {
+            common->Printf("Error processing music data\n");
+            soundOpenALSystemLocal.StopBackgroundTrack();
+            return;
         }
+
+        qalSourceQueueBuffers(source, 1, &b);
     }
 
     // If it's not still playing, give it a kick
     qalGetSourcei(source, AL_SOURCE_STATE, &state);
 
     if(state == AL_STOPPED) {
-        trap_Printf(PRINT_DEVELOPER, "Musical kick\n");
         qalSourcePlay(source);
     }
 
     // Set the gain property
-    qalSourcef(source, AL_GAIN, s_gain->value * s_musicVolume->value);
+    if(s_volume->modified) {
+        qalSourcef(source, AL_GAIN, s_gain->value * s_musicVolume->value);
+    }
 }

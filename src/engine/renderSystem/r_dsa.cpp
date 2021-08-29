@@ -288,14 +288,6 @@ void GLDSA_NamedFramebufferRenderbufferEXT(uint framebuffer,
                                renderbuffer);
 }
 
-void GLDSA_CopyTexImage2DEXT(uint framebuffer, uint target, sint level,
-                             uint internalformat, sint x, sint y, sint width, sint height,
-                             sint border) {
-    GL_BindRenderbuffer(framebuffer);
-    qglCopyTexImage2DEXT(target, level, internalformat, x, y, width, height,
-                         border);
-}
-
 void GL_PatchParameteri(uint pname, sint value) {
     qglPatchParameteri(pname, value);
 }

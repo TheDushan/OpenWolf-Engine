@@ -210,7 +210,7 @@ public:
     static void src_kill(srcHandle_t src);
     static void mus_source_get(void);
     static void mus_source_free(void);
-    static void mus_process(ALuint b);
+    static bool mus_process(ALuint b);
 
     static void Play_f(void);
     static void Music_f(void);

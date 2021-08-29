@@ -87,7 +87,6 @@ Get missing functions from code/SDL2/include/SDL_opengl.h.
     GLE(void, Viewport, GLint x, GLint y, GLsizei width, GLsizei height) \
     GLE(void, DrawRangeElements, GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)\
     GLE(void, MultiDrawElementsEXT, GLenum mode, const GLsizei *count, GLenum type, const void *const*indices, GLsizei primcount)\
-    GLE(void, CopyTexImage2DEXT, GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)\
     // OpenGL 1.0/1.1 and OpenGL ES 1.x but not OpenGL 3.2 core profile
 #define QGL_1_1_FIXED_FUNCTION_PROCS \
     GLE(void, AlphaFunc, GLenum func, GLclampf ref) \
