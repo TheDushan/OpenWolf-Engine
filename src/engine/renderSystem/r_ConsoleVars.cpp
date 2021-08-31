@@ -583,7 +583,7 @@ void R_InitConsoleVars(void) {
                                           CVAR_ARCHIVE, "Setting Anaglyph green color");
     r_trueAnaglyphBlue = cvarSystem->Get("r_trueAnaglyphBlue", "0.0",
                                          CVAR_ARCHIVE, "Setting Anaglyph blue color");
-    r_vibrancy = cvarSystem->Get("r_vibrancy", "2.0", CVAR_ARCHIVE,
+    r_vibrancy = cvarSystem->Get("r_vibrancy", "0.4", CVAR_ARCHIVE,
                                  "Enabled vibrancy effects");
     r_bloom = cvarSystem->Get("r_bloom", "0", CVAR_ARCHIVE,
                               "Enabled Bloom effects");
@@ -593,7 +593,7 @@ void R_InitConsoleVars(void) {
                                          CVAR_ARCHIVE, "Darken power for bloom");
     r_bloomScale = cvarSystem->Get("r_bloomScale", "1.5", CVAR_ARCHIVE,
                                    "Scaling bloom effects");
-    r_fxaa = cvarSystem->Get("r_fxaa", "0", CVAR_ARCHIVE,
+    r_fxaa = cvarSystem->Get("r_fxaa", "2", CVAR_ARCHIVE,
                              "Enabled Full Screen Anti Aliasing effects");
 
     r_texturedetail = cvarSystem->Get("r_textureDetail", "0", CVAR_ARCHIVE,

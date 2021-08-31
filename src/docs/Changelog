@@ -1,5 +1,6 @@
 2021-08-31 Dusan Jocic <dusanjocic@msn.com>
-	* [RenderSystem] Changed default value of few convars
+	* [RenderSystem] Changed default values of few convars
+	* [RenderSystem] Changed default values of renderer convars
 
 2021-08-29 Dusan Jocic <dusanjocic@msn.com>
 	* [Cumulative Update] Misc changes
