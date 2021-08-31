@@ -450,7 +450,7 @@ void R_InitConsoleVars(void) {
     r_parallaxMapShadows = cvarSystem->Get("r_parallaxMapShadows", "0",
                                            CVAR_ARCHIVE | CVAR_LATCH,
                                            "Enable self-shadowing on parallax map supported materials. 0 - No. (default) 1 - Yes.");
-    r_cubeMapping = cvarSystem->Get("r_cubeMapping", "0",
+    r_cubeMapping = cvarSystem->Get("r_cubeMapping", "1",
                                     CVAR_ARCHIVE | CVAR_LATCH, "Enable cubemap environment mapping");
     r_horizonFade = cvarSystem->Get("r_horizonFade", "3",
                                     CVAR_ARCHIVE | CVAR_LATCH,
@@ -583,7 +583,7 @@ void R_InitConsoleVars(void) {
                                           CVAR_ARCHIVE, "Setting Anaglyph green color");
     r_trueAnaglyphBlue = cvarSystem->Get("r_trueAnaglyphBlue", "0.0",
                                          CVAR_ARCHIVE, "Setting Anaglyph blue color");
-    r_vibrancy = cvarSystem->Get("r_vibrancy", "0.4", CVAR_ARCHIVE,
+    r_vibrancy = cvarSystem->Get("r_vibrancy", "2.0", CVAR_ARCHIVE,
                                  "Enabled vibrancy effects");
     r_bloom = cvarSystem->Get("r_bloom", "0", CVAR_ARCHIVE,
                               "Enabled Bloom effects");
