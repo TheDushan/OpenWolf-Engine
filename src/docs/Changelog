@@ -1,3 +1,6 @@
+2021-11-21 Dusan Jocic <dusanjocic@msn.com>
+	* [SoundSystem] Fixed crash if "s_initsound" console variable is 0
+
 2021-08-31 Dusan Jocic <dusanjocic@msn.com>
 	* [RenderSystem] Changed default values of few convars
 	* [RenderSystem] Changed default values of renderer convars

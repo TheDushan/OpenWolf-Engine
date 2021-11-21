@@ -362,7 +362,7 @@ bool idClientAVISystemLocal::OpenAVIForWriting(pointer fileName) {
 
     if(!s_initsound->integer) {
         afd.audio = false;
-    } else if(Q_stricmp(s_module->string, "OAL")) {
+    } else if(Q_stricmp(s_module->string, "AL")) {
         if(afd.a.bits == 16 && afd.a.channels == 2) {
             afd.audio = true;
         } else {
