@@ -90,9 +90,21 @@ struct playerState_s;
 
 void            MSG_WriteBits(msg_t *msg, sint value, sint bits);
 
+#if !defined(_DEBUG)
 void            MSG_WriteChar(msg_t *sb, sint c);
 void            MSG_WriteByte(msg_t *sb, sint c);
 void            MSG_WriteShort(msg_t *sb, sint c);
+#else
+#define         MSG_WriteChar(sb,c) MSG_WriteCharDebug( sb, c, __FILE__, __LINE__ )
+void            MSG_WriteCharDebug(msg_t *sb, sint c, pointer file,
+                                   sint line) __attribute__((nonnull));
+#define         MSG_WriteByte(sb,c) MSG_WriteByteDebug( sb, c, __FILE__, __LINE__ )
+void            MSG_WriteByteDebug(msg_t *sb, sint c, pointer file,
+                                   sint line) __attribute__((nonnull));
+#define         MSG_WriteShort(sb,c) MSG_WriteShortDebug( sb, c, __FILE__, __LINE__ )
+void            MSG_WriteShortDebug(msg_t *sb, sint c, pointer file,
+                                    sint line) __attribute__((nonnull));
+#endif
 void            MSG_WriteLong(msg_t *sb, sint c);
 void            MSG_WriteFloat(msg_t *sb, float32 f);
 void            MSG_WriteString(msg_t *sb, pointer s);

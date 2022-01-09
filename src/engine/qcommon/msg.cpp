@@ -313,11 +313,19 @@ sint MSG_ReadBits(msg_t *msg, sint bits) {
 // writing functions
 //
 
+#if defined(_DEBUG)
+#define PARANOID 1
+#endif
+
+#if defined(_DEBUG)
+void MSG_WriteCharDebug(msg_t *sb, sint c, pointer file, sint line) {
+#else
 void MSG_WriteChar(msg_t *sb, sint c) {
+#endif
 #ifdef PARANOID
 
     if(c < -128 || c > 127) {
-        common->Error(ERR_FATAL, "MSG_WriteChar: range error");
+        common->Error(ERR_FATAL, "Interface call from '%s' line %i\n", file, line);
     }
 
 #endif
@@ -325,11 +333,15 @@ void MSG_WriteChar(msg_t *sb, sint c) {
     MSG_WriteBits(sb, c, 8);
 }
 
+#if defined(_DEBUG)
+void MSG_WriteByteDebug(msg_t *sb, sint c, pointer file, sint line) {
+#else
 void MSG_WriteByte(msg_t *sb, sint c) {
+#endif
 #ifdef PARANOID
 
     if(c < 0 || c > 255) {
-        common->Error(ERR_FATAL, "MSG_WriteByte: range error");
+        common->Error(ERR_FATAL, "Interface call from '%s' line %i\n", file, line);
     }
 
 #endif
@@ -346,11 +358,15 @@ void MSG_WriteData(msg_t *buf, const void *data, sint length) {
     }
 }
 
+#if defined(_DEBUG)
+void MSG_WriteShortDebug(msg_t *sb, sint c, pointer file, sint line) {
+#else
 void MSG_WriteShort(msg_t *sb, sint c) {
+#endif
 #ifdef PARANOID
 
     if(c < ((schar16)0x8000) || c > (schar16)0x7fff) {
-        common->Error(ERR_FATAL, "MSG_WriteShort: range error");
+        common->Error(ERR_FATAL, "MSG_WriteShort: range error", file, line);;
     }
 
 #endif

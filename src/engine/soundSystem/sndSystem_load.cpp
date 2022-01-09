@@ -177,21 +177,19 @@ void idSoundSystemLocal::Init(void) {
         common->Printf("idSoundSystemLocal::Init - Sound disabled.\n");
         common->Printf("------------------------------------\n");
         useBuiltin = true;
-    }
-    else
-    {
+    } else {
         codec_init();
 
         cv = cvarSystem->Get("s_usemodule", "1", CVAR_ARCHIVE | CVAR_LATCH,
-            "Toggle using a sound system module.");
+                             "Toggle using a sound system module.");
 
         useBuiltin = false;
 
-        if (!S_InitModule()) {
+        if(!S_InitModule()) {
             useBuiltin = true;
         }
 
-        if (useBuiltin) {
+        if(useBuiltin) {
             common->Printf("using builtin sound system\n");
             SOrig_Init();
         }

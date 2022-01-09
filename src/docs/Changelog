@@ -1,3 +1,6 @@
+2022-01-09 Dusan Jocic <dusanjocic@msn.com>
+	* [Client] Fixed a bug with creating and sending the command packet after playing cinematics video
+
 2021-11-21 Dusan Jocic <dusanjocic@msn.com>
 	* [SoundSystem] Fixed crash if "s_initsound" console variable is 0
 

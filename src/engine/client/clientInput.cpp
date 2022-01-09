@@ -1601,12 +1601,12 @@ During normal gameplay, a client packet will contain something like:
 */
 void idClientInputSystemLocal::WritePacket(void) {
     sint i, j, packetNum, oldPacketNum, count, key;
-    usercmd_t *cmd, *oldcmd, nullcmd;
+    usercmd_t *cmd, * oldcmd, nullcmd;
     msg_t buf;
     uchar8 data[MAX_MSGLEN];
 
-    // don't send anything if playing back a demo
-    if(clc.demoplaying) {
+    // Don't send anything if playing back a demo or if playing a cinematic
+    if(clc.demoplaying || cls.state == CA_CINEMATIC) {
         return;
     }
 
@@ -1652,8 +1652,9 @@ void idClientInputSystemLocal::WritePacket(void) {
     count = cl.cmdNumber - cl.outPackets[oldPacketNum].p_cmdNumber;
 
     if(count > MAX_PACKET_USERCMDS) {
+        common->Printf("WARNING: exceeded max usercmds per packet limit %i/%i\n",
+                       count, MAX_PACKET_USERCMDS);
         count = MAX_PACKET_USERCMDS;
-        common->Printf("MAX_PACKET_USERCMDS\n");
     }
 
     if(count >= 1) {
