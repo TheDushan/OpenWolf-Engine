@@ -1,5 +1,6 @@
 2022-04-30 Dusan Jocic <dusanjocic@msn>
 	* [Engine] Fix a flexible array member of size 4
+	* [cMake] Experimenting with cmake.yml
 
 2022-01-09 Dusan Jocic <dusanjocic@msn.com>
 	* [Client] Fixed a bug with creating and sending the command packet after playing cinematics video
