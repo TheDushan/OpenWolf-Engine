@@ -42,7 +42,7 @@
 
 typedef struct {
     sint     numpoints;
-    vec3_t  p[4];       // variable sized
+    vec3_t  p[];       // variable sized
 } winding_t;
 
 #define MAX_POINTS_ON_WINDING   64
