@@ -3,6 +3,7 @@
 	* [Authentication Server] Fixed compiling Authentication server on the MacOS platform
 	* [Master Server] Fixed compiling master server the MacOS platform
 	* [SoundSystem] Fixed compiling OpenAL subsystem on the MacOS platform
+	* [cMake] Removed /Wno-dev flag
 
 2022-04-30 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Fix a flexible array member of size 4
