@@ -48,10 +48,17 @@ sint;     ///< Compiler independent Signed 32-bit integer
 typedef unsigned int
 uint;     ///< Compiler independent Unsigned 32-bit integer
 
+#if defined (__MACOSX__)
+typedef signed int
+sint32;     ///< Compiler independent Signed 64-bit integer
+typedef unsigned int
+uint32;     ///< Compiler independent Unsigned 64-bit integer
+#else
 typedef signed long
 sint32;     ///< Compiler independent Signed 64-bit integer
 typedef unsigned long
 uint32;     ///< Compiler independent Unsigned 64-bit integer
+#endif
 
 #ifdef _WIN32
 typedef signed __int64     sint64;

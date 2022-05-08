@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -35,8 +35,8 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __Q_PLATFORM_H
-#define __Q_PLATFORM_H
+#ifndef __Q_PLATFORM_HPP__
+#define __Q_PLATFORM_HPP__
 
 //================================================================= WIN64/32 ===
 #if defined(_WIN64) || defined(__WIN64__)

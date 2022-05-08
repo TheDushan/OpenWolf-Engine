@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __LINUX__
+#if defined (__LINUX__) || defined (__MACOSX__)
 static bool stdinIsATTY;
 // Used to determine where to store user-specific files
 static valueType exit_cmdline[MAX_CMD] = "";
@@ -75,11 +75,7 @@ static sint sys_monkeySpank;
 #endif
 
 #ifndef DEFAULT_BASEDIR
-#   if defined (__MACOSX__)
-#       define DEFAULT_BASEDIR idSystemLocal::StripAppBundle(idSystemLocal::BinaryPath())
-#   else
-#       define DEFAULT_BASEDIR idSystemLocal::BinaryPath()
-#   endif
+#define DEFAULT_BASEDIR idSystemLocal::BinaryPath()
 #endif
 
 // Require a minimum version of SDL
@@ -93,7 +89,7 @@ enum keyType_t {
 };
 
 // We translate axes movement into keypresses
-static constexpr sint joy_keys[16] = {
+static sint joy_keys[16] = {
     K_LEFTARROW, K_RIGHTARROW,
     K_UPARROW, K_DOWNARROW,
     K_JOY17, K_JOY18,
@@ -106,7 +102,7 @@ static constexpr sint joy_keys[16] = {
 
 // translate hat events into keypresses
 // the 4 highest buttons are used for the first hat ...
-static constexpr sint hat_keys[16] = {
+static sint hat_keys[16] = {
     K_JOY29, K_JOY30,
     K_JOY31, K_JOY32,
     K_JOY25, K_JOY26,
@@ -116,7 +112,6 @@ static constexpr sint hat_keys[16] = {
     K_JOY17, K_JOY18,
     K_JOY19, K_JOY20
 };
-
 
 static struct {
     bool buttons[16];  // !!! FIXME: these might be too many.

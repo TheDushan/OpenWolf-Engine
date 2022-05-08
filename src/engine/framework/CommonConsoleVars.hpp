@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2021 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -314,6 +314,10 @@ extern convar_t *s_mixahead;
 
 extern convar_t *s_testsound;
 extern convar_t *s_separation;
+
+#if defined (__MACOSX__)
+extern convar_t *fs_apppath;
+#endif
 
 extern convar_t *fs_basepath;
 

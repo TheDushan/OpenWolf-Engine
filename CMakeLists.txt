@@ -66,7 +66,7 @@ set( MSVC_INCREMENTAL_DEFAULT ON )
 
 set( CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, RelWithDebInfo, MinSizeRel)" )
 
-project( ${GAME_APP_NAME} C CXX )
+project( ${GAME_APP_NAME} C CXX OBJC OBJCXX )
 
 if( WIN32 )
   set( CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /fp:precise" )
@@ -75,7 +75,7 @@ if( WIN32 )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" )
 else()
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2 -pipe -Wno-write-strings -Wno-narrowing -fpermissive -Wsizeof-array-argument -I/usr/include/freetype2" )
-  set( CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -mcmodel=large" )
+  set( CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g" )
   set( CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -DNDEBUG" )
   set( CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DNDEBUG -ffast-math -fomit-frame-pointer -fno-strict-aliasing" )
   set( CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -DNDEBUG -ffast-math -fomit-frame-pointer -fno-strict-aliasing -g" )
@@ -482,6 +482,7 @@ set( AUDIO_OPENAL_SOURCES
 set( PLATFORMLIST_SOURCES
   ${MOUNT_DIR}/platform/Windows/systemWindows.cpp
   ${MOUNT_DIR}/platform/Linux/systemUnix.cpp
+  ${MOUNT_DIR}/platform/Mac/systemMac.mm
   ${MOUNT_DIR}/platform/systemMain.cpp
   ${MOUNT_DIR}/console/consoleCurses.cpp
   ${MOUNT_DIR}/console/consoleLogging.cpp
@@ -808,12 +809,14 @@ if( BUILD_SERVER )
 	if(WIN32)
 		target_compile_options(server PRIVATE "/MP")
 		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ NDEBUG DEDICATED _WINDOWS HAVE_CONFIG_H USE_INCREASED_ENTITIES  __STDC_CONSTANT_MACROS  HAVE_BOOLEAN HAVE_BZIP2 )
+	elseif( APPLE )
+		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __MACOSX__ __x86_64__ DEDICATED HAVE_CONFIG_H USE_INCREASED_ENTITIES __STDC_CONSTANT_MACROS BUILD_FREETYPE HAVE_BZIP2 )
 	elseif( UNIX )
 		set_property( TARGET server APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED HAVE_CONFIG_H USE_INCREASED_ENTITIES __STDC_CONSTANT_MACROS BUILD_FREETYPE HAVE_BZIP2 )
 	endif()
 
 	target_precompile_headers( server PRIVATE "${MOUNT_DIR}/server/serverDedPrecompiled.hpp" )
-	
+
 	set_target_properties( server PROPERTIES OUTPUT_NAME "${GAME_APP_NAME_UPPER}ded.${BUILD_ARCH}" PREFIX "" LINKER_LANGUAGE CXX )
 
 	# The following section finds the REQUIRED dependencies and makes them available to the target
@@ -855,6 +858,8 @@ if( BUILD_AUTOUPDATE_SERVER )
 	if(WIN32)
 		target_compile_options(autoupdateserver PRIVATE "/MP")
         set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS DEDICATED _AMD64_ WIN32 _AMD64 _WIN64 __WIN64__ UPDATE_SERVER )
+	elseif( APPLE )
+		set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __MACOSX__ __x86_64__ DEDICATED HAVE_CONFIG_H UPDATE_SERVER __STDC_CONSTANT_MACROS )
 	elseif( UNIX )
 		set_property( TARGET autoupdateserver APPEND PROPERTY COMPILE_DEFINITIONS NDEBUG __LINUX__ __linux__ __amd64__ __x86_64__ LINUX DEDICATED UPDATE_SERVER )
 	endif()

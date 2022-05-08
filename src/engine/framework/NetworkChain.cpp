@@ -69,7 +69,7 @@ to the new value before sending out any replies.
 packetQueue_t *packetQueue = nullptr;
 loopback_t loopbacks[2];
 
-static constexpr pointer netsrcString[2] = {
+static pointer netsrcString[2] = {
     "client",
     "server"
 };

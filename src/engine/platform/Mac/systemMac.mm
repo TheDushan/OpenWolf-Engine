@@ -43,7 +43,9 @@
 #include <framework/precompiled.hpp>
 #endif
 
-#if defined (__LINUX__)
+#if defined (__MACOSX__)
+#import <Carbon/Carbon.h>
+#import <Cocoa/Cocoa.h>
 
 /*
 ==================
@@ -56,7 +58,12 @@ valueType *idSystemLocal::DefaultHomePath(valueType *buffer, sint size) {
     if(!*homePath) {
         if((p = getenv("HOME")) != nullptr) {
             Q_strncpyz(buffer, p, size);
+#if defined (__MACOSX__)
+            Q_strcat(buffer, size, "/Library/Application Support/"
+                     PRODUCT_NAME_UPPPER);
+#else
             Q_strcat(buffer, size, "/." PRODUCT_NAME_UPPPER);
+#endif
         }
     }
 
@@ -69,13 +76,18 @@ idSystemLocal::TempPath
 ================
 */
 pointer idSystemLocal::TempPath(void) {
-    pointer TMPDIR = getenv("TMPDIR");
+    static uchar8 posixPath[MAX_OSPATH];
+    FSRef ref;
 
-    if(TMPDIR == nullptr || TMPDIR[0] == '\0') {
-        return "/tmp";
-    } else {
-        return TMPDIR;
+    if(FSFindFolder(kOnAppropriateDisk,
+                    kTemporaryFolderType, kCreateFolder, &ref) == noErr) {
+        if(FSRefMakePath(&ref, posixPath,
+                         sizeof(posixPath) - 1) == noErr) {
+            return (pointer)posixPath;
+        }
     }
+
+    return "/tmp";
 }
 
 /*
@@ -243,6 +255,14 @@ idSystemLocal::Cwd
 ==================
 */
 valueType *idSystemLocal::Cwd(void) {
+#if defined (__MACOSX__)
+    valueType *apppath = DefaultAppPath();
+
+    if(apppath[0] && apppath[0] != '.') {
+        return apppath;
+    }
+
+#endif
     static valueType cwd[MAX_OSPATH];
 
     valueType *result = getcwd(cwd, sizeof(cwd) - 1);
@@ -545,6 +565,7 @@ void idSystemLocal::ErrorDialog(pointer error) {
     close(f);
 }
 
+#if !defined (__MACOSX__)
 /*
 ==============
 idSystemLocal::ZenityCommand
@@ -655,6 +676,7 @@ sint idSystemLocal::XmessageCommand(dialogType_t type, pointer message,
 
     return system(command);
 }
+#endif
 
 /*
 ==============
@@ -829,7 +851,7 @@ void idSystemLocal::DoStartProcess(valueType *cmdline) {
             if(strchr(cmdline, ' ')) {
                 system(cmdline);
             } else {
-                execl(cmdline, cmdline, nullptr);
+                execl(cmdline, cmdline, NULL);
                 printf("execl failed: %s\n", strerror(errno));
             }
 
@@ -985,7 +1007,7 @@ bool idSystemLocal::Fork(pointer path, pointer cmdLine) {
             chmod(path, filestat.st_mode | S_IXUSR);
         }
 
-        execlp(path, path, cmdLine, nullptr);
+        execlp(path, path, cmdLine, NULL);
         printf("Exec Failed for: %s\n", path);
         _exit(255);
     } else if(pid == -1) {

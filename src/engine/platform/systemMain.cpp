@@ -120,7 +120,7 @@ valueType *idSystemLocal::DefaultInstallPath(void) {
     Q_strreplace(installdir, sizeof(installdir), "bin/bsd", "");
 
     // MacOS X
-    Q_strreplace(installdir, sizeof(installdir), "bin/macosx", "");
+    Q_strreplace(installdir, sizeof(installdir), "bin/macos", "");
 
     return installdir;
 }
@@ -764,4 +764,4 @@ idSystemLocal::SetClipboardData
 */
 void idSystemLocal::SetClipboardData(pointer cbText) {
     SDL_SetClipboardText(cbText);
-}
+	}

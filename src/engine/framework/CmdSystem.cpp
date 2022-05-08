@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -221,7 +221,7 @@ Helper functions for idCmdSystemLocal::If & idCmdSystemLocal::ModCase
 modifierMask_t idCmdSystemLocal::getModifierMask(pointer mods) {
     sint i;
     modifierMask_t mask;
-    static const modifierMask_t none;
+    static const modifierMask_t none = {};
     pointer ptr;
 
     mask = none;
@@ -1114,7 +1114,7 @@ idCmdSystemLocal::Argv
 */
 valueType *idCmdSystemLocal::Argv(sint arg) {
     if(arg >= cmd.argc) {
-        return static_cast<valueType *>("\0");
+        return "";
     }
 
     return cmd.argv[arg];

@@ -147,7 +147,7 @@ typedef struct punctuation_s {
 } punctuation_t;
 
 //token
-typedef struct token_s {
+typedef struct owtoken_s {
     valueType string[MAX_TOKEN_CHARS]; //available token
     sint type;                     //last read token type
     sint subtype;                  //last read token sub type
@@ -157,8 +157,8 @@ typedef struct token_s {
     valueType *endwhitespace_p;        //start of white space before token
     sint line;                     //line the token was on
     sint linescrossed;             //lines crossed in white space
-    struct token_s *next;         //next token in chain
-} token_t;
+    struct owtoken_s *next;         //next token in chain
+} owtoken_t;
 
 //script file
 typedef struct script_s {
@@ -176,7 +176,7 @@ typedef struct script_s {
     sint flags;                      //several script flags
     punctuation_t *punctuations;    //the punctuations used in the script
     punctuation_t **punctuationtable;
-    token_t token;                  //available token
+    owtoken_t token;                  //available token
     struct script_s *next;          //next script in a chain
 } script_t;
 
@@ -201,8 +201,8 @@ typedef struct define_s {
     sint flags;                  //define flags
     sint builtin;                // > 0 if builtin define
     sint numparms;               //number of define parameters
-    token_t *parms;             //define parameters
-    token_t *tokens;            //macro tokens (possibly containing parm tokens)
+    owtoken_t *parms;             //define parameters
+    owtoken_t *tokens;            //macro tokens (possibly containing parm tokens)
     struct define_s *next;      //next defined macro in a list
     struct define_s *hashnext;  //next define in the hash chain
 } define_t;
@@ -223,12 +223,12 @@ typedef struct source_s {
     valueType includepath[MAX_QPATH];  //path to include files
     punctuation_t *punctuations;  //punctuations to use
     script_t *scriptstack;        //stack with scripts of the source
-    token_t *tokens;              //tokens to read first
+    owtoken_t *tokens;              //tokens to read first
     define_t *defines;            //list with macro definitions
     define_t **definehash;        //hash chain with defines
     indent_t *indentstack;        //stack with indents
     sint skip;                     // > 0 if skipping conditional code
-    token_t token;                //last read token
+    owtoken_t token;                //last read token
 } source_t;
 
 #define MAX_DEFINEPARMS     128
@@ -378,14 +378,14 @@ public:
     static void SetScriptPunctuations(script_t *script, punctuation_t *p);
     static sint ReadWhiteSpace(script_t *script);
     static sint ReadEscapeCharacter(script_t *script, valueType *ch);
-    static sint ReadString(script_t *script, token_t *token, sint quote);
-    static sint ReadName(script_t *script, token_t *token);
+    static sint ReadString(script_t *script, owtoken_t *token, sint quote);
+    static sint ReadName(script_t *script, owtoken_t *token);
     static void NumberValue(valueType *string, sint subtype, uint32 *intvalue,
                             float64 *floatvalue);
-    static sint ReadNumber(script_t *script, token_t *token);
-    static sint ReadPunctuation(script_t *script, token_t *token);
-    static sint ReadPrimitive(script_t *script, token_t *token);
-    static sint ReadScriptToken(script_t *script, token_t *token);
+    static sint ReadNumber(script_t *script, owtoken_t *token);
+    static sint ReadPunctuation(script_t *script, owtoken_t *token);
+    static sint ReadPrimitive(script_t *script, owtoken_t *token);
+    static sint ReadScriptToken(script_t *script, owtoken_t *token);
     static void StripDoubleQuotes(valueType *string);
     static sint EndOfScript(script_t *script);
     static script_t *LoadScriptFile(pointer filename);
@@ -397,37 +397,37 @@ public:
     static void PushIndent(source_t *source, sint type, sint skip);
     static void PopIndent(source_t *source, sint *type, sint *skip);
     static void PushScript(source_t *source, script_t *script);
-    static token_t *CopyToken(token_t *token);
-    static void FreeToken(token_t *token);
-    static sint ReadSourceToken(source_t *source, token_t *token);
-    static sint UnreadSourceToken(source_t *source, token_t *token);
+    static owtoken_t *CopyToken(owtoken_t *token);
+    static void FreeToken(owtoken_t *token);
+    static sint ReadSourceToken(source_t *source, owtoken_t *token);
+    static sint UnreadSourceToken(source_t *source, owtoken_t *token);
     static sint ReadDefineParms(source_t *source, define_t *define,
-                                token_t **parms, sint maxparms);
-    static sint StringizeTokens(token_t *tokens, token_t *token);
-    static sint MergeTokens(token_t *t1, token_t *t2);
+                                owtoken_t **parms, sint maxparms);
+    static sint StringizeTokens(owtoken_t *tokens, owtoken_t *token);
+    static sint MergeTokens(owtoken_t *t1, owtoken_t *t2);
     static sint NameHash(valueType *name);
     static void AddDefineToHash(define_t *define, define_t **definehash);
     static define_t *FindHashedDefine(define_t **definehash, valueType *name);
     static sint FindDefineParm(define_t *define, valueType *name);
     static void FreeDefine(define_t *define);
-    static sint ExpandBuiltinDefine(source_t *source, token_t *deftoken,
-                                    define_t *define, token_t **firsttoken, token_t **lasttoken);
-    static sint ExpandDefine(source_t *source, token_t *deftoken,
-                             define_t *define, token_t **firsttoken, token_t **lasttoken);
-    static sint ExpandDefineIntoSource(source_t *source, token_t *deftoken,
+    static sint ExpandBuiltinDefine(source_t *source, owtoken_t *deftoken,
+                                    define_t *define, owtoken_t **firsttoken, owtoken_t **lasttoken);
+    static sint ExpandDefine(source_t *source, owtoken_t *deftoken,
+                             define_t *define, owtoken_t **firsttoken, owtoken_t **lasttoken);
+    static sint ExpandDefineIntoSource(source_t *source, owtoken_t *deftoken,
                                        define_t *define);
     static void ConvertPath(valueType *path);
-    static sint ReadLine(source_t *source, token_t *token);
+    static sint ReadLine(source_t *source, owtoken_t *token);
     static sint OperatorPriority(sint op);
-    static sint EvaluateTokens(source_t *source, token_t *tokens,
+    static sint EvaluateTokens(source_t *source, owtoken_t *tokens,
                                sint32 *intvalue, float64 *floatvalue, sint integer);
     static sint Evaluate(source_t *source, sint32 *intvalue,
                          float64 *floatvalue, sint integer);
     static sint DollarEvaluate(source_t *source, sint32 *intvalue,
                                float64 *floatvalue, sint integer);
     static sint Directive_include(source_t *source);
-    static sint WhiteSpaceBeforeToken(token_t *token);
-    static void ClearTokenWhiteSpace(token_t *token);
+    static sint WhiteSpaceBeforeToken(owtoken_t *token);
+    static void ClearTokenWhiteSpace(owtoken_t *token);
     static sint Directive_undef(source_t *source);
     static sint Directive_elif(source_t *source);
     static sint Directive_if(source_t *source);
@@ -448,9 +448,9 @@ public:
     static sint CheckTokenString(source_t *source, valueType *string);
     static sint Directive_define(source_t *source);
     static sint ReadDirective(source_t *source);
-    static void UnreadToken(source_t *source, token_t *token);
+    static void UnreadToken(source_t *source, owtoken_t *token);
     static bool ReadEnumeration(source_t *source);
-    static sint ReadToken(source_t *source, token_t *token);
+    static sint ReadToken(source_t *source, owtoken_t *token);
     static define_t *DefineFromString(valueType *string);
     static define_t *CopyDefine(source_t *source, define_t *define);
     static bool AddDefineToSourceFromString(source_t *source,

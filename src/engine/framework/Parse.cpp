@@ -405,7 +405,7 @@ Quotes are included with the string.
 Reads two strings with a white space between them as one string.
 ===============
 */
-sint idParseSystemLocal::ReadString(script_t *script, token_t *token,
+sint idParseSystemLocal::ReadString(script_t *script, owtoken_t *token,
                                     sint quote) {
     sint len, tmpline;
     valueType *tmpscript_p;
@@ -505,7 +505,7 @@ sint idParseSystemLocal::ReadString(script_t *script, token_t *token,
 idParseSystemLocal::ReadName
 ===============
 */
-sint idParseSystemLocal::ReadName(script_t *script, token_t *token) {
+sint idParseSystemLocal::ReadName(script_t *script, owtoken_t *token) {
     sint len = 0;
     valueType c;
 
@@ -621,7 +621,7 @@ void idParseSystemLocal::NumberValue(valueType *string, sint subtype,
 idParseSystemLocal::ReadNumber
 ===============
 */
-sint idParseSystemLocal::ReadNumber(script_t *script, token_t *token) {
+sint idParseSystemLocal::ReadNumber(script_t *script, owtoken_t *token) {
     sint len = 0, i;
     sint octal, dot;
     valueType c;
@@ -753,7 +753,7 @@ idParseSystemLocal::ReadPunctuation
 ===============
 */
 sint idParseSystemLocal::ReadPunctuation(script_t *script,
-        token_t *token) {
+        owtoken_t *token) {
     sint len;
     valueType *p;
     punctuation_t *punc;
@@ -786,7 +786,7 @@ sint idParseSystemLocal::ReadPunctuation(script_t *script,
 idParseSystemLocal::ReadPrimitive
 ===============
 */
-sint idParseSystemLocal::ReadPrimitive(script_t *script, token_t *token) {
+sint idParseSystemLocal::ReadPrimitive(script_t *script, owtoken_t *token) {
     sint len;
 
     len = 0;
@@ -810,7 +810,7 @@ sint idParseSystemLocal::ReadPrimitive(script_t *script, token_t *token) {
     token->string[len] = 0;
 
     //copy the token into the script structure
-    ::memcpy(&script->token, token, sizeof(token_t));
+    ::memcpy(&script->token, token, sizeof(owtoken_t));
 
     //primitive reading successfull
     return 1;
@@ -822,11 +822,11 @@ idParseSystemLocal::ReadScriptToken
 ===============
 */
 sint idParseSystemLocal::ReadScriptToken(script_t *script,
-        token_t *token) {
+        owtoken_t *token) {
     //if there is a token available (from UnreadToken)
     if(script->tokenavailable) {
         script->tokenavailable = 0;
-        ::memcpy(token, &script->token, sizeof(token_t));
+        ::memcpy(token, &script->token, sizeof(owtoken_t));
         return 1;
     }
 
@@ -837,7 +837,7 @@ sint idParseSystemLocal::ReadScriptToken(script_t *script,
     script->lastline = script->line;
 
     //clear the token stuff
-    ::memset(token, 0, sizeof(token_t));
+    ::memset(token, 0, sizeof(owtoken_t));
 
     //start of the white space
     script->whitespace_p = script->script_p;
@@ -896,7 +896,7 @@ sint idParseSystemLocal::ReadScriptToken(script_t *script,
     }
 
     //copy the token into the script structure
-    ::memcpy(&script->token, token, sizeof(token_t));
+    ::memcpy(&script->token, token, sizeof(owtoken_t));
 
     //succesfully read a token
     return 1;
@@ -1148,17 +1148,17 @@ void idParseSystemLocal::PushScript(source_t *source, script_t *script) {
 idParseSystemLocal::CopyToken
 ===============
 */
-token_t *idParseSystemLocal::CopyToken(token_t *token) {
-    token_t *t;
+owtoken_t *idParseSystemLocal::CopyToken(owtoken_t *token) {
+    owtoken_t *t;
 
-    t = (token_t *)memorySystem->Malloc(sizeof(token_t));
+    t = (owtoken_t *)memorySystem->Malloc(sizeof(owtoken_t));
 
     if(!t) {
         common->Error(ERR_FATAL, "out of token space\n");
         return nullptr;
     }
 
-    ::memcpy(t, token, sizeof(token_t));
+    ::memcpy(t, token, sizeof(owtoken_t));
     t->next = nullptr;
     numtokens++;
 
@@ -1170,7 +1170,7 @@ token_t *idParseSystemLocal::CopyToken(token_t *token) {
 idParseSystemLocal::FreeToken
 ===============
 */
-void idParseSystemLocal::FreeToken(token_t *token) {
+void idParseSystemLocal::FreeToken(owtoken_t *token) {
     memorySystem->Free(token);
     numtokens--;
 }
@@ -1181,8 +1181,8 @@ idParseSystemLocal::ReadSourceToken
 ===============
 */
 sint idParseSystemLocal::ReadSourceToken(source_t *source,
-        token_t *token) {
-    token_t *t;
+        owtoken_t *token) {
+    owtoken_t *t;
     script_t *script;
     sint type, skip, lines;
 
@@ -1221,7 +1221,7 @@ sint idParseSystemLocal::ReadSourceToken(source_t *source,
     }
 
     //copy the already available token
-    ::memcpy(token, source->tokens, sizeof(token_t));
+    ::memcpy(token, source->tokens, sizeof(owtoken_t));
 
     //free the read token
     t = source->tokens;
@@ -1237,8 +1237,8 @@ idParseSystemLocal::UnreadSourceToken
 ===============
 */
 sint idParseSystemLocal::UnreadSourceToken(source_t *source,
-        token_t *token) {
-    token_t *t;
+        owtoken_t *token) {
+    owtoken_t *t;
 
     t = CopyToken(token);
     t->next = source->tokens;
@@ -1252,8 +1252,8 @@ idParseSystemLocal::ReadDefineParms
 ===============
 */
 sint idParseSystemLocal::ReadDefineParms(source_t *source,
-        define_t *define, token_t **parms, sint maxparms) {
-    token_t token, *t, *last;
+        define_t *define, owtoken_t **parms, sint maxparms) {
+    owtoken_t token, *t, *last;
     sint i, done, lastcomma, numparms, indent;
 
     if(!ReadSourceToken(source, &token)) {
@@ -1358,8 +1358,8 @@ sint idParseSystemLocal::ReadDefineParms(source_t *source,
 idParseSystemLocal::StringizeTokens
 ===============
 */
-sint idParseSystemLocal::StringizeTokens(token_t *tokens, token_t *token) {
-    token_t *t;
+sint idParseSystemLocal::StringizeTokens(owtoken_t *tokens, owtoken_t *token) {
+    owtoken_t *t;
 
     token->type = TT_STRING;
     token->whitespace_p = nullptr;
@@ -1382,7 +1382,7 @@ sint idParseSystemLocal::StringizeTokens(token_t *tokens, token_t *token) {
 idParseSystemLocal::MergeTokens
 ===============
 */
-sint idParseSystemLocal::MergeTokens(token_t *t1, token_t *t2) {
+sint idParseSystemLocal::MergeTokens(owtoken_t *t1, owtoken_t *t2) {
     //merging of a name with a name or number
     if(t1->type == TT_NAME && (t2->type == TT_NAME || t2->type == TT_NUMBER)) {
         ::strcat(t1->string, t2->string);
@@ -1468,7 +1468,7 @@ idParseSystemLocal::FindDefineParm
 sint idParseSystemLocal::FindDefineParm(define_t *define,
                                         valueType *name) {
     sint i;
-    token_t *p;
+    owtoken_t *p;
 
     i = 0;
 
@@ -1489,7 +1489,7 @@ idParseSystemLocal::FreeDefine
 ===============
 */
 void idParseSystemLocal::FreeDefine(define_t *define) {
-    token_t *t, *next;
+    owtoken_t *t, *next;
 
     //free the define parameters
     for(t = define->parms; t; t = next) {
@@ -1513,9 +1513,9 @@ idParseSystemLocal::ExpandBuiltinDefine
 ===============
 */
 sint idParseSystemLocal::ExpandBuiltinDefine(source_t *source,
-        token_t *deftoken, define_t *define, token_t **firsttoken,
-        token_t **lasttoken) {
-    token_t *token;
+        owtoken_t *deftoken, define_t *define, owtoken_t **firsttoken,
+        owtoken_t **lasttoken) {
+    owtoken_t *token;
     time_t t;
 
     valueType *curtime;
@@ -1588,11 +1588,11 @@ sint idParseSystemLocal::ExpandBuiltinDefine(source_t *source,
 idParseSystemLocal::ExpandDefine
 ===============
 */
-sint idParseSystemLocal::ExpandDefine(source_t *source, token_t *deftoken,
-                                      define_t *define, token_t **firsttoken, token_t **lasttoken) {
+sint idParseSystemLocal::ExpandDefine(source_t *source, owtoken_t *deftoken,
+                                      define_t *define, owtoken_t **firsttoken, owtoken_t **lasttoken) {
     sint parmnum, i;
-    token_t *parms[MAX_DEFINEPARMS], *dt, *pt, *t;
-    token_t *t1, *t2, *first, *last, *nextpt, token;
+    owtoken_t *parms[MAX_DEFINEPARMS], *dt, *pt, *t;
+    owtoken_t *t1, *t2, *first, *last, *nextpt, token;
 
     //if it is a builtin define
     if(define->builtin) {
@@ -1732,8 +1732,8 @@ idParseSystemLocal::ExpandDefineIntoSource
 ===============
 */
 sint idParseSystemLocal::ExpandDefineIntoSource(source_t *source,
-        token_t *deftoken, define_t *define) {
-    token_t *firsttoken, *lasttoken;
+        owtoken_t *deftoken, define_t *define) {
+    owtoken_t *firsttoken, *lasttoken;
 
     if(!ExpandDefine(source, deftoken, define, &firsttoken, &lasttoken)) {
         return false;
@@ -1784,7 +1784,7 @@ reads a token from the current line, continues reading on the next
 line only if a backslash '\' is encountered.
 ===============
 */
-sint idParseSystemLocal::ReadLine(source_t *source, token_t *token) {
+sint idParseSystemLocal::ReadLine(source_t *source, owtoken_t *token) {
     sint crossline;
 
     crossline = 0;
@@ -1887,11 +1887,11 @@ sint idParseSystemLocal::OperatorPriority(sint op) {
 idParseSystemLocal::EvaluateTokens
 ===============
 */
-sint idParseSystemLocal::EvaluateTokens(source_t *source, token_t *tokens,
+sint idParseSystemLocal::EvaluateTokens(source_t *source, owtoken_t *tokens,
                                         sint32 *intvalue, float64 *floatvalue, sint integer) {
     operator_t *o, *firstoperator, *lastoperator;
     value_t *v, *firstvalue, *lastvalue, *v1, *v2;
-    token_t *t;
+    owtoken_t *t;
     sint brace = 0;
     sint parentheses = 0;
     sint error = 0;
@@ -2439,8 +2439,8 @@ idParseSystemLocal::Evaluate
 sint idParseSystemLocal::Evaluate(source_t *source, sint32 *intvalue,
                                   float64 *floatvalue, sint integer) {
     sint defined = false;
-    token_t token, *firsttoken, *lasttoken;
-    token_t *t, *nexttoken;
+    owtoken_t token, *firsttoken, *lasttoken;
+    owtoken_t *t, *nexttoken;
     define_t *define;
 
     if(intvalue) {
@@ -2547,8 +2547,8 @@ idParseSystemLocal::DollarEvaluate
 sint idParseSystemLocal::DollarEvaluate(source_t *source, sint32 *intvalue,
                                         float64 *floatvalue, sint integer) {
     sint indent, defined = false;
-    token_t token, *firsttoken, *lasttoken;
-    token_t *t, *nexttoken;
+    owtoken_t token, *firsttoken, *lasttoken;
+    owtoken_t *t, *nexttoken;
     define_t *define;
 
     if(intvalue) {
@@ -2669,7 +2669,7 @@ idParseSystemLocal::Directive_include
 sint idParseSystemLocal::Directive_include(source_t *source) {
     valueType path[MAX_QPATH];
     script_t *script;
-    token_t token;
+    owtoken_t token;
 
     if(source->skip > 0) {
         return true;
@@ -2743,7 +2743,7 @@ sint idParseSystemLocal::Directive_include(source_t *source) {
 idParseSystemLocal::WhiteSpaceBeforeToken
 ===============
 */
-sint idParseSystemLocal::WhiteSpaceBeforeToken(token_t *token) {
+sint idParseSystemLocal::WhiteSpaceBeforeToken(owtoken_t *token) {
     return token->endwhitespace_p - token->whitespace_p > 0;
 }
 
@@ -2752,7 +2752,7 @@ sint idParseSystemLocal::WhiteSpaceBeforeToken(token_t *token) {
 idParseSystemLocal::ClearTokenWhiteSpace
 ===============
 */
-void idParseSystemLocal::ClearTokenWhiteSpace(token_t *token) {
+void idParseSystemLocal::ClearTokenWhiteSpace(owtoken_t *token) {
     token->whitespace_p = nullptr;
     token->endwhitespace_p = nullptr;
     token->linescrossed = 0;
@@ -2765,7 +2765,7 @@ idParseSystemLocal::Directive_undef
 */
 sint idParseSystemLocal::Directive_undef(source_t *source) {
     sint hash;
-    token_t token;
+    owtoken_t token;
     define_t *define, *lastdefine;
 
     if(source->skip > 0) {
@@ -2869,7 +2869,7 @@ idParseSystemLocal::Directive_error
 ===============
 */
 sint idParseSystemLocal::Directive_error(source_t *source) {
-    token_t token;
+    owtoken_t token;
 
     Q_strcpy_s(token.string, "");
     ReadSourceToken(source, &token);
@@ -2883,7 +2883,7 @@ idParseSystemLocal::Directive_pragma
 ===============
 */
 sint idParseSystemLocal::Directive_pragma(source_t *source) {
-    token_t token;
+    owtoken_t token;
 
     SourceWarning(source, "#pragma directive not supported");
 
@@ -2898,7 +2898,7 @@ idParseSystemLocal::UnreadSignToken
 ===============
 */
 void idParseSystemLocal::UnreadSignToken(source_t *source) {
-    token_t token;
+    owtoken_t token;
 
     token.line = source->scriptstack->line;
     token.whitespace_p = source->scriptstack->script_p;
@@ -2917,7 +2917,7 @@ idParseSystemLocal::Directive_eval
 */
 sint idParseSystemLocal::Directive_eval(source_t *source) {
     sint32 value;
-    token_t token;
+    owtoken_t token;
 
     if(!Evaluate(source, &value, nullptr, true)) {
         return false;
@@ -2947,7 +2947,7 @@ idParseSystemLocal::Directive_evalfloat
 */
 sint idParseSystemLocal::Directive_evalfloat(source_t *source) {
     float64 value;
-    token_t token;
+    owtoken_t token;
 
     if(!Evaluate(source, nullptr, &value, false)) {
         return false;
@@ -2976,7 +2976,7 @@ idParseSystemLocal::DollarDirective_evalint
 */
 sint idParseSystemLocal::DollarDirective_evalint(source_t *source) {
     sint32 value;
-    token_t token;
+    owtoken_t token;
 
     if(!DollarEvaluate(source, &value, nullptr, true)) {
         return false;
@@ -3008,7 +3008,7 @@ idParseSystemLocal::DollarDirective_evalfloat
 */
 sint idParseSystemLocal::DollarDirective_evalfloat(source_t *source) {
     float64 value;
-    token_t token;
+    owtoken_t token;
 
     if(!DollarEvaluate(source, nullptr, &value, false)) {
         return false;
@@ -3046,7 +3046,7 @@ directive_t DollarDirectives[20] = {
 
 sint idParseSystemLocal::ReadDollarDirective(source_t *source) {
     sint i;
-    token_t token;
+    owtoken_t token;
 
     //read the directive name
     if(!ReadSourceToken(source, &token)) {
@@ -3084,7 +3084,7 @@ idParseSystemLocal::Directive_if_def
 */
 sint idParseSystemLocal::Directive_if_def(source_t *source, sint type) {
     sint skip;
-    token_t token;
+    owtoken_t token;
     define_t *d;
 
     if(!ReadLine(source, &token)) {
@@ -3174,7 +3174,7 @@ idParseSystemLocal::CheckTokenString
 */
 sint idParseSystemLocal::CheckTokenString(source_t *source,
         valueType *string) {
-    token_t tok;
+    owtoken_t tok;
 
     if(!ReadToken(source, &tok)) {
         return false;
@@ -3197,7 +3197,7 @@ idParseSystemLocal::Directive_define
 ===============
 */
 sint idParseSystemLocal::Directive_define(source_t *source) {
-    token_t token, *t, *last;
+    owtoken_t token, *t, *last;
     define_t *define;
 
     if(source->skip > 0) {
@@ -3376,7 +3376,7 @@ idParseSystemLocal::ReadDirective
 */
 sint idParseSystemLocal::ReadDirective(source_t *source) {
     sint i;
-    token_t token;
+    owtoken_t token;
 
     //read the directive name
     if(!ReadSourceToken(source, &token)) {
@@ -3410,7 +3410,7 @@ sint idParseSystemLocal::ReadDirective(source_t *source) {
 idParseSystemLocal::UnreadToken
 ===============
 */
-void idParseSystemLocal::UnreadToken(source_t *source, token_t *token) {
+void idParseSystemLocal::UnreadToken(source_t *source, owtoken_t *token) {
     UnreadSourceToken(source, token);
 }
 
@@ -3424,7 +3424,7 @@ enums, and enumerated names conflict with #define parameters
 ===============
 */
 bool idParseSystemLocal::ReadEnumeration(source_t *source) {
-    token_t newtoken;
+    owtoken_t newtoken;
     sint value;
 
     if(!ReadToken(source, &newtoken)) {
@@ -3437,7 +3437,7 @@ bool idParseSystemLocal::ReadEnumeration(source_t *source) {
     }
 
     for(value = 0;; value++) {
-        token_t name;
+        owtoken_t name;
 
         // read the name
         if(!ReadToken(source, &name)) {
@@ -3546,7 +3546,7 @@ bool idParseSystemLocal::ReadEnumeration(source_t *source) {
 idParseSystemLocal::ReadToken
 ===============
 */
-sint idParseSystemLocal::ReadToken(source_t *source, token_t *token) {
+sint idParseSystemLocal::ReadToken(source_t *source, owtoken_t *token) {
     define_t *define;
 
     while(1) {
@@ -3587,7 +3587,7 @@ sint idParseSystemLocal::ReadToken(source_t *source, token_t *token) {
 
         // recursively concatenate strings that are behind each other still resolving defines
         if(token->type == TT_STRING) {
-            token_t newtoken;
+            owtoken_t newtoken;
 
             if(ReadToken(source, &newtoken)) {
                 if(newtoken.type == TT_STRING) {
@@ -3629,7 +3629,7 @@ sint idParseSystemLocal::ReadToken(source_t *source, token_t *token) {
         }
 
         //copy token for unreading
-        ::memcpy(&source->token, token, sizeof(token_t));
+        ::memcpy(&source->token, token, sizeof(owtoken_t));
 
         //found a token
         return true;
@@ -3645,7 +3645,7 @@ define_t *idParseSystemLocal::DefineFromString(valueType *string) {
     sint res, i;
     script_t *script;
     source_t src;
-    token_t *t;
+    owtoken_t *t;
     define_t *def;
 
     script = LoadScriptMemory(string, static_cast<sint>(::strlen(string)),
@@ -3762,7 +3762,7 @@ idParseSystemLocal::CopyDefine
 define_t *idParseSystemLocal::CopyDefine(source_t *source,
         define_t *define) {
     define_t *newdefine;
-    token_t *token, *newtoken, *lasttoken;
+    owtoken_t *token, *newtoken, *lasttoken;
 
     newdefine = (define_t *)memorySystem->Malloc(sizeof(define_t) + ::strlen(
                     define->name) + 1);
@@ -3874,7 +3874,7 @@ idParseSystemLocal::FreeSource
 void idParseSystemLocal::FreeSource(source_t *source) {
     sint i;
     script_t *script;
-    token_t *token;
+    owtoken_t *token;
     define_t *define;
     indent_t *indent;
 
@@ -3973,7 +3973,7 @@ idParseSystemLocal::ReadTokenHandle
 */
 sint idParseSystemLocal::ReadTokenHandle(sint handle,
         pc_token_t *pc_token) {
-    token_t token;
+    owtoken_t token;
     sint ret;
 
     if(handle < 1 || handle >= MAX_SOURCEFILES) {

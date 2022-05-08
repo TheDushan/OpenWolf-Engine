@@ -120,9 +120,9 @@ ELSE()
    # library, causing those tests to falsely fail.  Hilarity ensues.
    #
    CHECK_FUNCTION_EXISTS("inflate" HAVE_INFLATE)
-   IF(NOT HAVE_INFLATE)
-	   MESSAGE(FATAL_ERROR "zlib.h found but linking with -lz failed to find inflate(); do you have the right developer package installed (32-bit vs. 64-bit)?")
-   ENDIF()
+   #IF(NOT HAVE_INFLATE)
+#	   MESSAGE(FATAL_ERROR "zlib.h found but linking with -lz failed to find #inflate(); do you have the right developer package installed (32-bit vs. 64-bit)?")
+#   ENDIF()
    CHECK_FUNCTION_EXISTS("inflatePrime" HAVE_INFLATEPRIME)
    # reset
    SET(CMAKE_REQUIRED_LIBRARIES "")

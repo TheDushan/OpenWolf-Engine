@@ -398,15 +398,13 @@ do the apropriate things.
 =============
 */
 void idCommonLocal::Quit_f(void) {
-    valueType *p = cmdSystem->Args();
-
-    // don't try to shutdown if we are in a recursive error
+   // don't try to shutdown if we are in a recursive error
     if(!com_errorEntered) {
         // Some VMs might execute "quit" command directly,
         // which would trigger an unload of active VM error.
         // idSystemLocal::Quit will kill this process anyways, so
         // a corrupt call stack makes no difference
-        serverInitSystem->Shutdown(p[0] ? p : "Server quit\n");
+        serverInitSystem->Shutdown("Server quit\n");
 
         //bani
 #ifndef DEDICATED

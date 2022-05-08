@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -18,16 +18,17 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   null_serverprecompiled.hpp
+// File name:   serverDedPrecompiled.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __NULLSERVERPRECOMPILED_H__
-#define __NULLSERVERPRECOMPILED_H__
+#ifndef __SERVERDEDPRECOMPILED_HPP__
+#define __SERVERDEDPRECOMPILED_HPP__
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -104,6 +105,7 @@
 #endif
 
 #include <framework/appConfig.hpp>
+
 #include <framework/types.hpp>
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
@@ -216,4 +218,4 @@
 
 #include <framework/Huffman.hpp>
 
-#endif //!__NULLSERVERPRECOMPILED_H__
+#endif //! __SERVERDEDPRECOMPILED_HPP__

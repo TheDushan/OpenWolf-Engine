@@ -4,6 +4,8 @@
 	* [Master Server] Fixed compiling master server the MacOS platform
 	* [SoundSystem] Fixed compiling OpenAL subsystem on the MacOS platform
 	* [cMake] Removed /Wno-dev flag
+	* [Server] Fixed compiling dedicated server on the the MacOS platform
+	* [AutoUpdate Server] Fixed compiling autoupdate server on the MacOS Platform
 
 2022-04-30 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Fix a flexible array member of size 4
