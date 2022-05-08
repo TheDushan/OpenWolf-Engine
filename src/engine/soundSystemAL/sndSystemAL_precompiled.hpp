@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2021 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -18,16 +18,17 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   snd_al_precompiled.hpp
+// File name:   sndSystemAL_precompiled.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SND_AL_AUDIO_PRECOMPILED_H__
-#define __SND_AL_AUDIO_PRECOMPILED_H__
+#ifndef __SNDSYSTEMAL_PRECOMPILED_HPP__
+#define __SNDSYSTEMAL_PRECOMPILED_HPP__
 
 //Dushan
 //FIX ALL THIS
@@ -133,7 +134,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <stdio.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -144,4 +144,4 @@
 #include <fenv.h>
 #endif
 
-#endif //!__SND_AL_AUDIO_PRECOMPILED_H__
+#endif //!__SNDSYSTEMAL_PRECOMPILED_HPP__

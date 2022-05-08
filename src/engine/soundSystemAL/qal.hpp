@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 id Software LLC, a ZeniMax Media company.
 // Copyright(C) 2005 Stuart Dalton(badcdev@gmail.com)
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -23,13 +23,14 @@
 // File name:   qal.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __QAL_H__
-#define __QAL_H__
+#ifndef __QAL_HPP__
+#define __QAL_HPP__
 
 #define AL_NO_PROTOTYPES
 #define ALC_NO_PROTOTYPES
@@ -132,4 +133,4 @@ extern LPALCCAPTURESAMPLES qalcCaptureSamples;
 bool QAL_Init(pointer libname);
 void QAL_Shutdown(void);
 
-#endif  // __QAL_H__
+#endif  // __QAL_HPP__

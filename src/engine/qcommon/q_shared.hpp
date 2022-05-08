@@ -977,7 +977,6 @@ valueType *Q_StripColor(valueType *string);
 bool        Q_strtol(pointer s, sint32 *out);
 bool        Q_strtoi(pointer s, sint *out);
 
-[[nodiscard]]
 ID_INLINE uint32 Q_strlen(pointer str) {
     return static_cast<uint32>(strlen(str));
 }
