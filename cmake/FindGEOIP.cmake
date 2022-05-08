@@ -2,15 +2,18 @@
 # GEOIP_FOUND
 
 FIND_PATH(GEOIP_INCLUDE_DIR GeoIP
+  /usr/local/Cellar/geoip/1.6.12
+  /usr/local/Cellar/geoip
   ${LIB_DIR}/geoip/libGeoIP
 )
 
 message(STATUS "Found GEOIP include: ${GEOIP_INCLUDE_DIR}")
 
 FIND_LIBRARY(GEOIP_LIBRARY
-  NAMES libGeoIP
+  NAMES libGeoIP libgeos
   HINTS
   $ENV{GEOIPDIR}
+  /usr/local/Cellar/geoip/1.6.12
   ${LIB_DIR}/geoip/lib
   PATH_SUFFIXES lib64 lib)
 

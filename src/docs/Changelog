@@ -1,8 +1,9 @@
-2022-04-30 Dusan Jocic <dusanjocic@msn>
+2022-05-08 Dusan Jocic <dusanjocic@msn.com>
 	* [cMake] Updated CMakeLists.txt
 	* [Authentication Server] Fixed compiling Authentication server on the MacOS platform
+	* [Master Server] Fixed compiling master server the MacOS platform
 
-2022-04-30 Dusan Jocic <dusanjocic@msn>
+2022-04-30 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Fix a flexible array member of size 4
 	* [cMake] Experimenting with cmake.yml
 
