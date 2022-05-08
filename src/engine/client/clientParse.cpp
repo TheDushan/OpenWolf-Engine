@@ -55,7 +55,7 @@ idClientParseSystemLocal::~idClientParseSystemLocal
 idClientParseSystemLocal::~idClientParseSystemLocal(void) {
 }
 
-constexpr pointer svc_strings[256] = {
+pointer svc_strings[256] = {
     "svc_bad",
 
     "svc_nop",

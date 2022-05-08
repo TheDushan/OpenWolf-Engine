@@ -644,6 +644,8 @@ main
 */
 #if defined (DEDICATED)
 sint main(sint argc, valueType **argv)
+#elif defined (__MACOSX__)
+extern "C" sint engineMain(sint argc, valueType * *argv)
 #elif defined (__LINUX__)
 extern "C" sint engineMain(sint argc, valueType * *argv)
 #else
@@ -764,4 +766,4 @@ idSystemLocal::SetClipboardData
 */
 void idSystemLocal::SetClipboardData(pointer cbText) {
     SDL_SetClipboardText(cbText);
-	}
+}

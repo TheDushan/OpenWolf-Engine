@@ -57,7 +57,7 @@
 #define PATH_SEP '\\'
 
 #if defined( __WIN64__ )
-#define ARCH_STRING "AMD64"
+#define ARCH_STRING "x86_64"
 #endif
 
 #define Q3_LITTLE_ENDIAN
@@ -121,7 +121,7 @@
 #define PATH_SEP '/'
 
 #if defined __x86_64__
-#define ARCH_STRING "AMD64"
+#define ARCH_STRING "x86_64"
 #elif defined __arm__
 #define ARCH_STRING "arm"
 #endif
@@ -168,7 +168,7 @@
 #define PATH_SEP '/'
 
 #if defined __amd64__
-#define ARCH_STRING "amd64"
+#define ARCH_STRING "x86_64"
 #elif defined __x86_64__
 #define ARCH_STRING "x86_64"
 #endif

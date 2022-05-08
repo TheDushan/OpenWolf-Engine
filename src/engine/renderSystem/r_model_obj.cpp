@@ -29,7 +29,7 @@
 
 #include <renderSystem/r_precompiled.hpp>
 
-static constexpr float32 sizeMult = 10.0f;
+static float32 sizeMult = 10.0f;
 
 static std::vector<objectModel_t *> loaded_models;
 

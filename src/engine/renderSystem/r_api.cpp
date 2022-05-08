@@ -41,7 +41,7 @@ idClientCinemaSystem *clientCinemaSystem;
 idClientRendererSystemAPI *clientRendererSystem;
 idCommon *common;
 
-#ifdef __LINUX__
+#if defined (__LINUX__) || defined (__MACOSX__)
 extern "C" idRenderSystem *rendererEntry(rendererImports_t *renimports)
 #else
 Q_EXPORT idRenderSystem *rendererEntry(rendererImports_t *renimports)

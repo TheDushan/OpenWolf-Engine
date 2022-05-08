@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 id Software, Inc.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -308,7 +308,6 @@ static bool GLimp_GetProcAddresses(bool fixedFunction) {
         QGL_1_5_PROCS;
         QGL_2_0_PROCS;
         QGL_3_0_PROCS;
-        QGL_4_0_PROCS;
         QGL_ARB_occlusion_query_PROCS;
         QGL_ARB_framebuffer_object_PROCS;
         QGL_ARB_vertex_array_object_PROCS;
@@ -542,9 +541,7 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
                 case 1:
                     if(depthBits == 32) {
                         depthBits = 24;
-                    } else if(depthBits == 24)
-
-                    {
+                    } else if(depthBits == 24) {
                         depthBits = 16;
                     } else if(depthBits == 16) {
                         depthBits = 8;

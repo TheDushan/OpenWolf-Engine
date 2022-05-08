@@ -52,6 +52,8 @@
 #include <ctype.h>
 #include <errno.h>
 #include <math.h>
+#include <iostream>
+#include <vector>
 
 #ifdef _WIN32
 #include <SDL_syswm.h>
@@ -100,7 +102,7 @@
 #endif
 #undef getch
 
-#ifdef __LINUX__
+#if defined (__LINUX__) || defined (__MACOSX__)
 //hack
 typedef int boolean;
 #endif

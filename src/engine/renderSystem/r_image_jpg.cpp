@@ -148,7 +148,7 @@ void R_LoadJPG(pointer filename, uchar8 **pic, sint *width, sint *height) {
 
     /* Step 3: read file parameters with jpeg_read_header() */
 
-    (void) jpeg_read_header(&cinfo, TRUE);
+    (void) jpeg_read_header(&cinfo, 1);
     /* We can ignore the return value from jpeg_read_header since
      *   (a) suspension is not possible with the stdio data source, and
      *   (b) we passed TRUE to reject a tables-only JPEG file as an error.
@@ -317,7 +317,7 @@ static boolean empty_output_buffer(j_compress_ptr cinfo) {
                   "Output buffer for encoded JPEG image has insufficient size of %d bytes",
                   dest->size);
 
-    return FALSE;
+    return 0;
 }
 
 /*
@@ -411,7 +411,7 @@ uint32 RE_SaveJPGToBuffer(uchar8 *buffer, uint32 bufSize, sint quality,
 
     jpeg_set_defaults(&cinfo);
     jpeg_set_quality(&cinfo, quality,
-                     TRUE /* limit to baseline-JPEG values */);
+                     1 /* limit to baseline-JPEG values */);
 
     /* If quality is set high, disable chroma subsampling */
     if(quality >= 85) {
@@ -420,7 +420,7 @@ uint32 RE_SaveJPGToBuffer(uchar8 *buffer, uint32 bufSize, sint quality,
     }
 
     /* Step 4: Start compressor */
-    jpeg_start_compress(&cinfo, TRUE);
+    jpeg_start_compress(&cinfo, 1);
 
     /* Step 5: while (scan lines remain to be written) */
     /*           jpeg_write_scanlines(...); */

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2019 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2019 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -19,7 +19,7 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   systemLauncher.cpp
-// Version:     v1.00
+// Version:     v1.01
 // Created:     11/06/2019
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
@@ -57,11 +57,11 @@ int main(int argc, char **argv) {
     }
 
 #if defined (_WIN32)
-    dynName = "engine.AMD64.dll";
+    dynName = "engine.x86_64.dll";
 #elif defined (__LINUX__)
-    dynName = "./engine.AMD64.so";
+    dynName = "./engine.x86_64.so";
 #else
-    dynName = "./engine.AMD64.dylib";
+    dynName = "./engine.x86_64.dylib";
 #endif
 
     void *libraryName = SDL_LoadObject(dynName);

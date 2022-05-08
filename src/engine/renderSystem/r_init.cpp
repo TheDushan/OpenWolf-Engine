@@ -182,7 +182,7 @@ typedef struct vidmode_s {
 } vidmode_t;
 
 //Dushan
-static constexpr vidmode_t r_vidModes[] = {
+static vidmode_t r_vidModes[] = {
     { "Mode  0:  320x240  (4:3)",   320,  240, 1 },
     { "Mode  1:  320x200  (16:10)", 320,  200, 1 },
     { "Mode  2:  640x480  (4:3)",   640,  480, 1 },

@@ -1143,10 +1143,6 @@ void idClientInputSystemLocal::JoystickMove(usercmd_t *cmd) {
         anglespeed = static_cast<float32>(cls.frametime) / 1000.0f;
     }
 
-#if defined (__MACOSX__)
-    cmd->rightmove = ClampChar(cmd->rightmove + cl.joystickAxis[AXIS_SIDE]);
-#else
-
     if(!kb[KB_STRAFE].active) {
         cl.viewangles[YAW] += anglespeed * yaw;
         cmd->rightmove = ClampChar(cmd->rightmove + static_cast<sint>(right));
@@ -1154,8 +1150,6 @@ void idClientInputSystemLocal::JoystickMove(usercmd_t *cmd) {
         cl.viewangles[YAW] += anglespeed * right;
         cmd->rightmove = ClampChar(cmd->rightmove + static_cast<sint>(yaw));
     }
-
-#endif
 
     if(kb[KB_MLOOK].active) {
         cl.viewangles[PITCH] += anglespeed * forward;

@@ -224,10 +224,6 @@
 #include <libgen.h>
 #include <fcntl.h>
 #include <fenv.h>
-#elif defined (__MACOSX__)
-#include <sys/sysctl.h>
-#import <Carbon/Carbon.h>
-#import <Cocoa/Cocoa.h>
 #endif
 
 #ifdef _MSC_VER

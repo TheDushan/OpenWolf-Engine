@@ -53,7 +53,7 @@ S_OGG_Callback_read
 fread() replacement
 ======================
 */
-uint64 S_OGG_Callback_read(void *ptr, uint64 size, uint64 nmemb,
+size_t S_OGG_Callback_read(void *ptr, size_t size, size_t nmemb,
                            void *datasource) {
     snd_stream_t *stream;
     sint byteSize = 0, bytesRead = 0;
@@ -187,7 +187,7 @@ S_OGG_Callback_tell
 ftell() replacement
 ======================
 */
-sint32 S_OGG_Callback_tell(void *datasource) {
+long S_OGG_Callback_tell(void *datasource) {
     snd_stream_t *stream;
 
     // check if input is valid

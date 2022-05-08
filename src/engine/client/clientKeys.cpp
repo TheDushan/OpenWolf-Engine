@@ -1242,8 +1242,7 @@ void idClientKeysSystemLocal::CharEvent(sint key) {
     // fretn - this should be fixed in common->EventLoop
     // but I can't be arsed to leave this as is
 
-    if(key == static_cast<uchar8>('`') || key == static_cast<uchar8>('~') ||
-            key == static_cast<uchar8>('�')) {
+    if(key == static_cast<uchar8>('`') || key == static_cast<uchar8>('~')) {
         return;
     }
 
