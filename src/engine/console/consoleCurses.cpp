@@ -414,7 +414,7 @@ void idConsoleCursesLocal::Init(void) {
     wnoutrefresh(stdscr);
     doupdate();
 
-#if defined (_WIN32) && !defined (__MACOSX__)
+#if !defined (_WIN32) && !defined (__MACOSX__)
     // Catch window resizes
     signal(SIGWINCH, static_cast<void *>(reinterpret_cast<void *&>(Resize)));
 #endif

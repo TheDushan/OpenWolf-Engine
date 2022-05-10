@@ -553,7 +553,7 @@ void idCommonLocal::InitCommonConsoleVars(void) {
                                   "Look around using the mouse");
 
     cl_xbox360ControllerAvailable =
-        cvarSystem->Get("in_xbox360ControllerAvailable", "0", CVAR_ROM,
+        cvarSystem->Get("in_xbox360ControllerAvailable", "0", CVAR_ARCHIVE,
                         "Use Xbox 360 controller if it is avaliable");
 
     // 0: legacy mouse acceleration

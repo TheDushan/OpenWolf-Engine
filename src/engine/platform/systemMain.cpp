@@ -274,7 +274,7 @@ idSystemLocal::Init
 void idSystemLocal::Init(void) {
     cmdSystem->AddCommand("in_restart", &idSystemLocal::Restart,
                           "Restarts all the input drivers, dinput, joystick, etc.");
-    cvarSystem->Set("arch", OS_STRING " " ARCH_STRING);
+    cvarSystem->Set("architecture", OS_STRING " " ARCH_STRING);
     cvarSystem->Set("username", GetCurrentUser());
 }
 
@@ -293,32 +293,22 @@ idSystemLocal::WriteDump
 =================
 */
 void idSystemLocal::WriteDump(pointer fmt, ...) {
-#if defined( _WIN32 )
+    //this memory should live as long as the SEH is doing its thing...I hope
+    static valueType msg[2048];
+    va_list vargs;
 
-#ifndef DEVELOPER
+    /*
+        Do our own vsnprintf as using va's will change global state
+        that might be pertinent to the dump.
+    */
 
-    if(developer && developer->integer)
-#endif
-    {
-        //this memory should live as long as the SEH is doing its thing...I hope
-        static valueType msg[2048];
-        va_list vargs;
+    va_start(vargs, fmt);
+    Q_vsprintf_s(msg, sizeof(msg) - 1, fmt, vargs);
+    va_end(vargs);
 
-        /*
-            Do our own vsnprintf as using va's will change global state
-            that might be pertinent to the dump.
-        */
+    msg[sizeof(msg) - 1] = 0;   //ensure null termination
 
-        va_start(vargs, fmt);
-        Q_vsprintf_s(msg, sizeof(msg) - 1, fmt, vargs);
-        va_end(vargs);
-
-        msg[sizeof(msg) - 1] = 0;   //ensure null termination
-
-        RecordError(msg);
-    }
-
-#endif
+    RecordError(msg);
 }
 
 /*

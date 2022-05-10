@@ -57,9 +57,9 @@ int main(int argc, char **argv) {
     }
 
 #if defined (_WIN32)
-    dynName = "engine.x86_64.dll";
+    dynName = "engine.AMD64.dll";
 #elif defined (__LINUX__)
-    dynName = "./engine.x86_64.so";
+    dynName = "./engine.AMD64.so";
 #else
     dynName = "./engine.x86_64.dylib";
 #endif
