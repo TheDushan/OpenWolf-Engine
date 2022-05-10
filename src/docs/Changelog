@@ -1,5 +1,6 @@
 2022-05-10 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Fixed compiling on the Windows platform
+	* [Community Server] Fixed compiling on the macOS platform
 	
 2022-05-08 Dusan Jocic <dusanjocic@msn.com>
 	* [cMake] Updated CMakeLists.txt

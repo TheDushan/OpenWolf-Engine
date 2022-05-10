@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-#if defined (__LINUX__)
+#if defined (__LINUX__) || defined (__MACOSX__)
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netdb.h>
@@ -391,7 +391,7 @@ int process_recv(int socket, char *buffer, int bsize) {
         closesocket(socket);
 #else
         close(socket);
-#endif}
+#endif
         ret = -1;
         actual_client_socket = -1;
 
