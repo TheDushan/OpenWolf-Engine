@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2016 James Canete
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   r_dsa.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __R_DSA_H__
-#define __R_DSA_H__
+#ifndef __R_DSA_HPP__
+#define __R_DSA_HPP__
 
 void GL_BindNullTextures(void);
 sint GL_BindMultiTexture(uint texunit, uint target, uint texture);
@@ -90,4 +91,4 @@ void GLDSA_NamedFramebufferRenderbufferEXT(uint framebuffer,
 
 void GL_PatchParameteri(uint pname, sint value);
 
-#endif
+#endif //!__R_DSA_HPP__

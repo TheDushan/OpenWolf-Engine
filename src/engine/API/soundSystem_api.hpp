@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,13 +30,14 @@
 // File name:   soundSystem_api.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SOUND_API_H__
-#define __SOUND_API_H__
+#ifndef __SOUNDSYSTEM_API_HPP__
+#define __SOUNDSYSTEM_API_HPP__
 
 #define SND_API_VERSION 1
 
@@ -150,4 +151,4 @@ typedef struct openALImports_s {
 #endif
 } openALImports_t;
 
-#endif // !__SOUND_API_H__
+#endif // !__SOUNDSYSTEM_API_HPP__

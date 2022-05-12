@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2005 - 2006 Tim Angus
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   clientAVI.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENTMAIN_LOCAL_HPP__
-#define __CLIENTMAIN_LOCAL_HPP__
+#ifndef __CLIENTMAIN_HPP__
+#define __CLIENTMAIN_HPP__
 
 //
 // idClientMainSystemLocal
@@ -68,4 +69,4 @@ public:
 
 extern idClientMainSystemLocal clientMainLocal;
 
-#endif // !__CLIENTMAIN_LOCAL_HPP__
+#endif // !__CLIENTMAIN_HPP__

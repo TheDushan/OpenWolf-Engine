@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -29,13 +29,14 @@
 // File name:   serverClient.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SERVERCLIENT_H__
-#define __SERVERCLIENT_H__
+#ifndef __SERVERCLIENT_HPP__
+#define __SERVERCLIENT_HPP__
 
 //
 // idServerClientSystemLocal
@@ -110,4 +111,4 @@ private:
 
 extern idServerClientSystemLocal serverClientLocal;
 
-#endif //!__SERVERCLIENT_H__
+#endif //!__SERVERCLIENT_HPP__

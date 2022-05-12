@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -18,16 +18,17 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   clientAVI.hpp
+// File name:   clientLAN.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENTLAN_LOCAL_H__
-#define __CLIENTLAN_LOCAL_H__
+#ifndef __CLIENTLAN_HPP__
+#define __CLIENTLAN_HPP__
 
 //
 // idClientLANSystemLocal
@@ -67,4 +68,4 @@ public:
 
 extern idClientLANSystemLocal clientLANLocal;
 
-#endif // !__CLIENTLAN_LOCAL_H__
+#endif // !__CLIENTLAN_HPP__

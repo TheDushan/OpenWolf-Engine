@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -29,13 +29,14 @@
 // File name:   cm_api.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CM_PUBLIC_H__
-#define __CM_PUBLIC_H__
+#ifndef __CM_API_HPP__
+#define __CM_API_HPP__
 
 // plane types are used to speed some tests
 // 0-2 are axial planes
@@ -140,4 +141,4 @@ public:
 
 extern idCollisionModelManager *collisionModelManager;
 
-#endif // !__CM_PUBLIC_H__
+#endif // !__CM_API_HPP__

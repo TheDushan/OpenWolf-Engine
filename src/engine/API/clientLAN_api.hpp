@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2019 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2019 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -21,13 +21,14 @@
 // File name:   clientLAN_api.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENTLAN_API_H__
-#define __CLIENTLAN_API_H__
+#ifndef __CLIENTLAN_API_HPP__
+#define __CLIENTLAN_API_HPP__
 
 //
 // idClientLANSystem
@@ -62,5 +63,4 @@ public:
 
 extern idClientLANSystem *clientLANSystem;
 
-#endif // !__CLIENTLAN_API_H__
-
+#endif // !__CLIENTLAN_API_HPP__

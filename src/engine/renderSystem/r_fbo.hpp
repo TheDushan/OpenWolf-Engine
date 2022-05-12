@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2010 James Canete (use.less01@gmail.com)
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   r_fbo.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __R_FBO_H__
-#define __R_FBO_H__
+#ifndef __R_FBO_HPP__
+#define __R_FBO_HPP__
 
 struct image_s;
 struct shaderProgram_s;
@@ -72,4 +73,4 @@ void FBO_FastBlit(FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox,
 void FBO_FastBlitIndexed(FBO_t *src, FBO_t *dst, sint srcReadBuffer,
                          sint dstDrawBuffer, sint buffers, sint filter);
 
-#endif //!__R_FBO_H__
+#endif //!__R_FBO_HPP__

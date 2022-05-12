@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2011 Andrei Drexler, Richard Allen, James Canete
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   r_postprocess.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __R_POSTPROCESS_H__
-#define __R_POSTPROCESS_H__
+#ifndef __R_POSTPROCESS_HPP__
+#define __R_POSTPROCESS_HPP__
 
 void RB_ToneMap(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
                 ivec4_t ldrBox, sint autoExposure);
@@ -73,4 +74,4 @@ void RB_ScreenSpaceReflections(FBO_t *hdrFbo, ivec4_t hdrBox,
 void RB_Underwater(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo,
                    ivec4_t ldrBox);
 
-#endif //!__R_POSTPROCESS_H__
+#endif //!__R_POSTPROCESS_HPP__

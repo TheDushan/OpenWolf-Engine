@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,13 +30,14 @@
 // File name:   serverMain_api.hpp
 // Created:     12/26/2018
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SERVERMAIN_API_H__
-#define __SERVERMAIN_API_H__
+#ifndef __SERVERMAIN_API_HPP__
+#define __SERVERMAIN_API_HPP__
 
 #ifdef GAMEDLL
 typedef struct client_s client_t;
@@ -62,4 +63,4 @@ public:
 
 extern idServerMainSystem *serverMainSystem;
 
-#endif //!__SERVERMAIN_API_H__
+#endif //!__SERVERMAIN_API_HPP__

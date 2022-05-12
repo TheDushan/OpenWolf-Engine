@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
 // Copyright(C) 2010 - Robert Beckebans
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -31,14 +31,15 @@
 // File name:   qfiles.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description: quake file formats
 //              This file must be identical in the quake and utils directories
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __QFILES_H__
-#define __QFILES_H__
+#ifndef __QFILES_HPP__
+#define __QFILES_HPP__
 
 // surface geometry should not exceed these limits
 #define SHADER_MAX_VERTEXES 10000   // Arnout: 1024+1 (1 buffer for RB_EndSurface overflow check) // JPW NERVE was 4000, 1000 in q3ta
@@ -1021,4 +1022,4 @@ typedef struct {
     sint            ofsEnd;             // end of file
 } mdrHeader_t;
 
-#endif
+#endif //!!__QFILES_HPP__

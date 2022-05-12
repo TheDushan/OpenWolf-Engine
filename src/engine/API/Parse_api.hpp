@@ -30,13 +30,14 @@
 // File name:   Parse_api.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __PARSE_API_H__
-#define __PARSE_API_H__
+#ifndef __PARSE_API_HPP__
+#define __PARSE_API_HPP__
 
 //
 // idParseSystem
@@ -53,4 +54,4 @@ public:
 
 extern idParseSystem *ParseSystem;
 
-#endif //!__MD4_API_H__
+#endif //!__PARSE_API_HPP__

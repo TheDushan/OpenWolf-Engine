@@ -29,8 +29,8 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SNDSYSTEM_AL_LOCAL_HPP__
-#define __SNDSYSTEM_AL_LOCAL_HPP__
+#ifndef __SNDSYSTEM_AL_HPP__
+#define __SNDSYSTEM_AL_HPP__
 
 /**
  * Console variables
@@ -230,4 +230,4 @@ void trap_Hunk_FreeTempMemory(void *buf);
 void *trap_Malloc(uint64 size);
 void trap_Free(void *ptr);
 
-#endif //!__SNDSYSTEMAL_LOCAL_HPP__
+#endif //!__SNDSYSTEMAL_HPP__

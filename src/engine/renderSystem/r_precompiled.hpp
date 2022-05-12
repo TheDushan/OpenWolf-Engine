@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -26,8 +26,8 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __R_PRECOMPILED_H__
-#define __R_PRECOMPILED_H__
+#ifndef __R_PRECOMPILED_HPP__
+#define __R_PRECOMPILED_HPP__
 
 #include <random>
 #include <iostream>
@@ -169,4 +169,4 @@ extern "C"
 #include <framework/SurfaceFlags_Tech3.hpp>
 #include <API/system_api.hpp>
 
-#endif //!__R_PRECOMPILED_H__
+#endif //!__R_PRECOMPILED_HPP__

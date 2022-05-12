@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,12 +22,13 @@
 // Created:     11/24/2018
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SERVERGAME_API_H__
-#define __SERVERGAME_API_H__
+#ifndef __SERVERGAME_API_HPP__
+#define __SERVERGAME_API_HPP__
 
 typedef struct {
     bool linked;         // false if not in any good cluster
@@ -141,4 +142,4 @@ public:
 
 extern idServerGameSystem *serverGameSystem;
 
-#endif //!__SERVERGAME_API_H__
+#endif //!__SERVERGAME_API_HPP__

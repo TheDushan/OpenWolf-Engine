@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -31,14 +31,15 @@
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              AppleClang 9.0.0.9000039
 // Description: This is based on the Adaptive Huffman algorithm described in Sayood's Data
 //              Compression book.  The ranks are not actually stored, but implicitly defined
 //              by the location of a node within a doubly-linked list
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __HUFFMAN_H__
-#define __HUFFMAN_H__
+#ifndef __HUFFMAN_HPP__
+#define __HUFFMAN_HPP__
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined
@@ -267,4 +268,4 @@ public:
 
 extern idHuffmanSystemLocal huffmanLocal;
 
-#endif //!__HUFFMAN_H__
+#endif //!__HUFFMAN_HPP__

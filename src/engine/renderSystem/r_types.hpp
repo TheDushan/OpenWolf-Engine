@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   r_types.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __R_TYPES_H__
-#define __R_TYPES_H__
+#ifndef __R_TYPES_HPP__
+#define __R_TYPES_HPP__
 
 #define MAX_DLIGHTS     32      // can't be increased, because bit flags are used on surfaces
 
@@ -271,4 +272,4 @@ typedef struct {
     sint dirty;
 } glfog_t;
 
-#endif  //!__R_TYPES_H__
+#endif  //!__R_TYPES_HPP__

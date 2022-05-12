@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2013 Stephen Larroque <lrq3000@gmail.com>
-// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,13 +30,14 @@
 // File name:   serverOACS.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SERVEROACS__H__
-#define __SERVEROACS__H__
+#ifndef __SERVEROACS_HPP__
+#define __SERVEROACS_HPP__
 
 #define MAX_STRING_CSV 2048
 
@@ -177,4 +178,4 @@ public:
 
 extern idServerOACSSystemLocal serverOACSLocal;
 
-#endif //!__SERVERCCMDS_H__
+#endif //!__SERVERCCMDS_HPP__

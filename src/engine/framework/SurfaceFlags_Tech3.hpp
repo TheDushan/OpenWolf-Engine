@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -23,15 +23,16 @@
 // File name:   surfaceFlags_Tech3.h
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description: This file must be identical in the quake and utils directories
 //              contents flags are seperate bits a given brush can contribute multiple
 //              content bits these definitions also need to be in q_shared.h!
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SURFACEFLAGS_H__
-#define __SURFACEFLAGS_H__
+#ifndef __SURFACEFLAGS_HPP__
+#define __SURFACEFLAGS_HPP__
 
 #define CONTENTS_SOLID          1       // an eye is never valid in a solid
 #define CONTENTS_LAVA           8
@@ -179,4 +180,4 @@
     "lava",         \
     "computer"/* this was missing, see enums above, plus ShaderEd2 pulldown options */
 
-#endif //!__SURFACEFLAGS_H__
+#endif //!__SURFACEFLAGS_HPP__

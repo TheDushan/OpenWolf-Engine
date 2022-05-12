@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2019 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2019 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -21,13 +21,14 @@
 // File name:   clientGame_api.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENTGAME_API_H__
-#define __CLIENTGAME_API_H__
+#ifndef __CLIENTGAME_API_HPP__
+#define __CLIENTGAME_API_HPP__
 
 #define MAX_ENTITIES_IN_SNAPSHOT    512
 
@@ -87,5 +88,4 @@ public:
 
 extern idClientGameSystem *clientGameSystem;
 
-#endif // !__CLIENTGAME_API_H__
-
+#endif // !__CLIENTGAME_API_HPP__

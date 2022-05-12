@@ -2,7 +2,7 @@
 // Copyright(C) 2007, 2008 Joerg Dietrich
 // Copyright(C) 2000 - 2013 Darklegion Development
 // Copyright(C) 2015 - 2018 GrangerHub
-// Copyright(C) 2015 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2015 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -24,7 +24,8 @@
 // File name:   r_image_png.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////

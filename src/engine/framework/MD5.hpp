@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2020 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2020 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,12 +30,13 @@
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __MD5_H__
-#define __MD5_H__
+#ifndef __MD5_HPP__
+#define __MD5_HPP__
 
 //
 // idMD5SystemLocal
@@ -51,4 +52,4 @@ public:
 
 extern idMD5SystemLocal MD5Local;
 
-#endif //!__MD5_H__
+#endif //!__MD5_HPP__

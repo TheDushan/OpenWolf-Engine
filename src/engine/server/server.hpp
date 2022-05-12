@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,13 +30,14 @@
 // File name:   server.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SERVER_H__
-#define __SERVER_H__
+#ifndef __SERVER_HPP__
+#define __SERVER_HPP__
 
 //#define PERS_SCORE              0 // !!! MUST NOT CHANGE, SERVER AND
 // GAME BOTH REFERENCE !!!
@@ -547,4 +548,4 @@ extern void    *gvm;
 #define DLNOTIFY_BEGIN      0x00000002  // "clientDownload: 4 : beginning ..."
 #define DLNOTIFY_ALL        ( DLNOTIFY_REDIRECT | DLNOTIFY_BEGIN )
 
-#endif //!__SERVER_H__
+#endif //!__SERVER_HPP__

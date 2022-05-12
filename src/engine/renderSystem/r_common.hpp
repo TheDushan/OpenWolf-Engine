@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -23,13 +23,14 @@
 // File name:   r_common.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __R_COMMON_H__
-#define __R_COMMON_H__
+#ifndef __R_COMMON_HPP__
+#define __R_COMMON_HPP__
 
 #if !defined ( DEDICATED ) && !defined ( UPDATE_SERVER )
 
@@ -142,4 +143,4 @@ void GLimp_SyncRenderThread(void);
 
 #endif //!DEDICATED
 
-#endif //!__TR_COMMON_H__
+#endif //!__TR_COMMON_HPP__

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,15 +30,16 @@
 // File name:   clientKeys.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include <framework/precompiled.hpp>
 
-#ifndef __CLIENTKEYS_LOCAL_HPP__
-#define __CLIENTKEYS_LOCAL_HPP__
+#ifndef __CLIENTKEYS_HPP__
+#define __CLIENTKEYS_HPP__
 
 /*
 key up events are sent even if in console mode
@@ -367,4 +368,4 @@ public:
 
 extern idClientKeysSystemLocal clientKeysLocal;
 
-#endif // !__CLIENTKEYS_LOCAL_HPP__
+#endif // !__CLIENTKEYS_HPP__

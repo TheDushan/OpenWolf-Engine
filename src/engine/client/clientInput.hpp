@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2021 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -21,13 +21,14 @@
 // File name:   clientInput.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENTINPUT_LOCAL_HPP__
-#define __CLIENTINPUT_LOCAL_HPP__
+#ifndef __CLIENTINPUT_HPP__
+#define __CLIENTINPUT_HPP__
 
 static uint frame_msec;
 static sint old_com_frameTime;
@@ -179,4 +180,4 @@ public:
 
 extern idClientInputSystemLocal ClientInputLocal;
 
-#endif // !__CLIENTINPUT_LOCAL_HPP__
+#endif // !__CLIENTINPUT_HPP__

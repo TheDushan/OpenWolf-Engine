@@ -22,13 +22,14 @@
 // File name:   iqm.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __IQM_H__
-#define __IQM_H__
+#ifndef __IQM_HPP__
+#define __IQM_HPP__
 
 #define IQM_MAGIC "INTERQUAKEMODEL"
 #define IQM_VERSION 2
@@ -123,4 +124,4 @@ typedef struct iqmbounds {
     float32 xyradius, radius;
 } iqmBounds_t;
 
-#endif
+#endif //__IQM_HPP__

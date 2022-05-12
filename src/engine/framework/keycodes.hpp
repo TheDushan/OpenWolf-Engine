@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   keycodes.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __KEYCODES_H__
-#define __KEYCODES_H__
+#ifndef __KEYCODES_HPP__
+#define __KEYCODES_HPP__
 
 // these are the key numbers that should be passed to KeyEvent
 // normal keys should be passed as lowercased ascii
@@ -304,4 +305,4 @@ typedef enum {
 // distinguished by or'ing in K_CHAR_FLAG (ugly)
 #define K_CHAR_FLAG     1024
 
-#endif
+#endif //!__KEYCODES_HPP__

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
 // Copyright(C) 2000 - 2009 Darklegion Development
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -31,7 +31,8 @@
 // File name:   Parse.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -786,7 +787,8 @@ sint idParseSystemLocal::ReadPunctuation(script_t *script,
 idParseSystemLocal::ReadPrimitive
 ===============
 */
-sint idParseSystemLocal::ReadPrimitive(script_t *script, owtoken_t *token) {
+sint idParseSystemLocal::ReadPrimitive(script_t *script,
+                                       owtoken_t *token) {
     sint len;
 
     len = 0;
@@ -1358,7 +1360,8 @@ sint idParseSystemLocal::ReadDefineParms(source_t *source,
 idParseSystemLocal::StringizeTokens
 ===============
 */
-sint idParseSystemLocal::StringizeTokens(owtoken_t *tokens, owtoken_t *token) {
+sint idParseSystemLocal::StringizeTokens(owtoken_t *tokens,
+        owtoken_t *token) {
     owtoken_t *t;
 
     token->type = TT_STRING;
@@ -1588,7 +1591,8 @@ sint idParseSystemLocal::ExpandBuiltinDefine(source_t *source,
 idParseSystemLocal::ExpandDefine
 ===============
 */
-sint idParseSystemLocal::ExpandDefine(source_t *source, owtoken_t *deftoken,
+sint idParseSystemLocal::ExpandDefine(source_t *source,
+                                      owtoken_t *deftoken,
                                       define_t *define, owtoken_t **firsttoken, owtoken_t **lasttoken) {
     sint parmnum, i;
     owtoken_t *parms[MAX_DEFINEPARMS], *dt, *pt, *t;
@@ -1887,7 +1891,8 @@ sint idParseSystemLocal::OperatorPriority(sint op) {
 idParseSystemLocal::EvaluateTokens
 ===============
 */
-sint idParseSystemLocal::EvaluateTokens(source_t *source, owtoken_t *tokens,
+sint idParseSystemLocal::EvaluateTokens(source_t *source,
+                                        owtoken_t *tokens,
                                         sint32 *intvalue, float64 *floatvalue, sint integer) {
     operator_t *o, *firstoperator, *lastoperator;
     value_t *v, *firstvalue, *lastvalue, *v1, *v2;

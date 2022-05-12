@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2021 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -29,13 +29,14 @@
 // File name:   cmdCompletion.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CMDCOMPLETION_H__
-#define __CMDCOMPLETION_H__
+#ifndef __CMDCOMPLETION_HPP__
+#define __CMDCOMPLETION_HPP__
 
 static valueType     shortestMatch[MAX_TOKEN_CHARS];
 static sint      matchCount;
@@ -82,4 +83,4 @@ public:
 
 extern idCmdCompletionLocal cmdCompletionLocal;
 
-#endif //__COMMANDLINECOMPLETION_H__
+#endif //__COMMANDLINECOMPLETION_HPP__

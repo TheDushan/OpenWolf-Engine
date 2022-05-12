@@ -1,6 +1,6 @@
 ﻿////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 id Software, Inc.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   qgl.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __QGL_H__
-#define __QGL_H__
+#ifndef __QGL_HPP__
+#define __QGL_HPP__
 
 extern void (APIENTRYP qglActiveTextureARB)(GLenum texture);
 extern void (APIENTRYP qglClientActiveTextureARB)(GLenum texture);
@@ -333,4 +334,5 @@ extern int qglMajorVersion, qglMinorVersion;
 extern int qglesMajorVersion, qglesMinorVersion;
 #define QGL_VERSION_ATLEAST(major, minor) (qglMajorVersion > major || (qglMajorVersion == major && qglMinorVersion >= minor))
 #define QGLES_VERSION_ATLEAST(major, minor) (qglesMajorVersion > major || (qglesMajorVersion == major && qglesMinorVersion >= minor))
-#endif
+
+#endif //!__QGL_HPP__

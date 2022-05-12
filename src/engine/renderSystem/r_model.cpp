@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -23,7 +23,8 @@
 // File name:   r_models.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description: model loading and caching
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -284,6 +285,34 @@ model_t *R_AllocModel(void) {
 
 /*
 ====================
+R_LoadObject
+====================
+*/
+static bool R_LoadObject(model_t *mod, pointer name) {
+    mod->type = MOD_OBJECT;
+    mod->object = renderSystemLocal.Model_LoadObject(name);
+
+    if(!mod->object) {
+        return false;
+    }
+
+    for(int i = 0; i < mod->object->numSurfaces; i++) {
+        mod->object->surfaces[i].ident = SF_OBJECT;
+        shader_t *sh = R_FindShader(mod->object->surfaces[i].shader, LIGHTMAP_NONE,
+                                    true);
+
+        if(sh->defaultShader) {
+            mod->object->surfaces[i].shaderIndex = 0;
+        } else {
+            mod->object->surfaces[i].shaderIndex = sh->index;
+        }
+    }
+
+    return true;
+}
+
+/*
+====================
 idRenderSystemLocal::RegisterModel
 
 Loads in a model for the given name
@@ -303,6 +332,7 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
     valueType       localName[ MAX_QPATH ];
     pointer ext;
     valueType       altName[ MAX_QPATH ];
+    bool loaded;
 
     if(!name || !name[0]) {
         clientRendererSystem->RefPrintf(PRINT_ALL,
@@ -322,7 +352,7 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
     for(hModel = 1 ; hModel < tr.numModels; hModel++) {
         mod = tr.models[hModel];
 
-        if(!strcmp(mod->name, name)) {
+        if(!::strcmp(mod->name, name)) {
             if(mod->type == MOD_BAD) {
                 return 0;
             }
@@ -345,6 +375,17 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
 
     R_IssuePendingRenderCommands();
 
+    if(::strlen(name) > 4 && !::strcmp(".obj", name + strlen(name) - 4)) {
+        loaded = R_LoadObject(mod, name);
+
+        if(!loaded) {
+            return 0;
+        }
+
+        return mod->index;
+    }
+
+
     mod->type = MOD_BAD;
     mod->numLods = 0;
 
@@ -360,7 +401,7 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
         for(i = 0; i < numModelLoaders; i++) {
             if(!Q_stricmp(ext, modelLoaders[ i ].ext)) {
                 // Load
-                hModel = modelLoaders[ i ].ModelLoader(localName, mod);
+                loaded = hModel = modelLoaders[ i ].ModelLoader(localName, mod);
                 break;
             }
         }
@@ -391,7 +432,7 @@ qhandle_t idRenderSystemLocal::RegisterModel(pointer name) {
                      modelLoaders[ i ].ext);
 
         // Load
-        hModel = modelLoaders[ i ].ModelLoader(altName, mod);
+        loaded = hModel = modelLoaders[ i ].ModelLoader(altName, mod);
 
         if(hModel) {
             if(orgNameFailed) {

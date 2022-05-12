@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2018 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2018 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -21,13 +21,14 @@
 // File name:   null_autoprecompiled.hpp
 // Created:     04/12/2019
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __NULLAUTOPRECOMPILED_H__
-#define __NULLAUTOPRECOMPILED_H__
+#ifndef __NULLAUTOPRECOMPILED_HPP__
+#define __NULLAUTOPRECOMPILED_HPP__
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -212,4 +213,4 @@
 
 #include <framework/Huffman.hpp>
 
-#endif //!__NULLAUTOPRECOMPILED_H__
+#endif //!__NULLAUTOPRECOMPILED_HPP__

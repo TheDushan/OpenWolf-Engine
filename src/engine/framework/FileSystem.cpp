@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,7 +30,8 @@
 // File name:   FileSystem.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description: handle based filesystem for Quake III Arena
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -3802,11 +3803,13 @@ void idFileSystemLocal::Startup(pointer gameName) {
     // fs_homepath is somewhat particular to *nix systems, only add if relevant
 
 #if defined (__MACOSX__)
+
     //fs_apppath = cvarSystem->Get(“fs_apppath”, idsystem->DefaultAppPath(), CVAR_INIT);
     // Make MacOSX also include the base path included with the .app bundle
     if(fs_apppath->string[0]) {
         AddGameDirectory(fs_apppath->string, gameName);
     }
+
 #endif
 
     // NOTE: same filtering below for mods and basegame
@@ -4309,6 +4312,7 @@ void idFileSystemLocal::InitFilesystem(void) {
     Startup(BASEGAME);
 
 #ifndef UPDATE_SERVER
+
     // if we can't find default.cfg, assume that the paths are
     // busted and error out now, rather than getting an unreadable
     // graphics screen when the font fails to load
@@ -4317,6 +4321,7 @@ void idFileSystemLocal::InitFilesystem(void) {
         common->Error(ERR_FATAL,
                       "Couldn't load default.cfg - I am missing essential files - verify your installation?");
     }
+
 #endif
 
     Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));

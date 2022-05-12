@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,12 +30,13 @@
 // Created:     12/25/2018
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SERVERNETCHAN_API_H__
-#define __SERVERNETCHAN_API_H__
+#ifndef __SERVERNETCHAN_API_HPP__
+#define __SERVERNETCHAN_API_HPP__
 
 //
 // idServerNetChanSystem
@@ -50,4 +51,4 @@ public:
 
 extern idServerNetChanSystem *serverNetChanSystem;
 
-#endif //!__SERVERNETCHAN_API_H__
+#endif //!__SERVERNETCHAN_API_HPP__

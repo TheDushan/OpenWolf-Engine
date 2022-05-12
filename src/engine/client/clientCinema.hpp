@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -27,16 +27,17 @@
 // Suite 120, Rockville, Maryland 20850 USA.
 //
 // -------------------------------------------------------------------------------------
-// File name:   cl_cin.cpp
+// File name:   clientCinema.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description: video and cinematic playback
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENCINEMA_LOCAL_HPP__
-#define __CLIENCINEMA_LOCAL_HPP__
+#ifndef __CLIENCINEMA_HPP__
+#define __CLIENCINEMA_HPP__
 
 #define MAXSIZE             8
 #define MINSIZE             4
@@ -236,4 +237,4 @@ public:
 
 extern idClientCinemaSystemLocal clientCinemaLocal;
 
-#endif // !__CLIENCINEMA_LOCAL_HPP__
+#endif // !__CLIENCINEMA_HPP__

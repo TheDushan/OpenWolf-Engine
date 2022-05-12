@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2011 Andrei Drexler, Richard Allen, James Canete
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   r_extrememath.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description: For mods that want to extend r_types.h without losing compatibility with original VMs
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __R_EXTRATYPES_H__
-#define __R_EXTRATYPES_H__
+#ifndef __R_EXTRATYPES_HPP__
+#define __R_EXTRATYPES_HPP__
 
 // extra refdef flags start at 0x0008
 #define RDF_NOFOG       0x0008      // don't apply fog to polys added using RE_AddPolyToScene
@@ -42,4 +43,4 @@ typedef struct {
     float32 sunAmbCol[3];
 } refdefex_t;
 
-#endif //!__R_EXTRATYPES_H__
+#endif //!__R_EXTRATYPES_HPP__

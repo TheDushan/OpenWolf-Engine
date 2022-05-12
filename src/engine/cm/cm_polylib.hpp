@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -30,13 +30,14 @@
 // File name:   cm_polylib.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CM_POLYLIB_H__
-#define __CM_POLYLIB_H__
+#ifndef __CM_POLYLIB_HPP__
+#define __CM_POLYLIB_HPP__
 
 // this is only used for visualization tools in cm_ debug functions
 
@@ -86,4 +87,4 @@ void            ChopWindingInPlace(winding_t **w, vec3_t normal,
 // frees the original if clipped
 void            pw(winding_t *w);
 
-#endif //!__CM_POLYLIB_H__
+#endif //!__CM_POLYLIB_HPP__

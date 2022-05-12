@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2020 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2020 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -29,13 +29,14 @@
 // File name:   MD5_api.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __MD5_API_H__
-#define __MD5_API_H__
+#ifndef __MD5_API_HPP__
+#define __MD5_API_HPP__
 
 //
 // idMD5System
@@ -48,4 +49,4 @@ public:
 
 extern idMD5System *MD5System;
 
-#endif //!__MD5_API_H__
+#endif //!__MD5_API_HPP__

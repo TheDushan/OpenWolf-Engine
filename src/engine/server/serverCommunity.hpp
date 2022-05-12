@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2010 Aldo Luis Aguirre
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -22,13 +22,14 @@
 // File name:   serverCommunity.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SERVERCOMMUNITY_H__
-#define __SERVERCOMMUNITY_H__
+#ifndef __SERVERCOMMUNITY_HPP__
+#define __SERVERCOMMUNITY_HPP__
 
 #define HASH_USER_SIZE 512
 #define HASH_CLAN_SIZE 20
@@ -136,4 +137,4 @@ public:
 
 extern idServerCommunityServer serverCommunityServer;
 
-#endif //!__SERVERCOMMUNITY_H__
+#endif //!__SERVERCOMMUNITY_HPP__

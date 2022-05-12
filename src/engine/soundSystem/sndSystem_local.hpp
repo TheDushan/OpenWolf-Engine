@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
 // Copyright(C) 2005 Stuart Dalton(badcdev@gmail.com)
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -23,13 +23,14 @@
 // File name:   s_local.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __S_LOCAL_H__
-#define __S_LOCAL_H__
+#ifndef __SNDSYSTEM_HPP__
+#define __SNDSYSTEM_HPP__
 
 #define PAINTBUFFER_SIZE        4096                    // this is in samples
 
@@ -299,4 +300,4 @@ public:
 
 extern idSoundSystemLocal soundSystemLocal;
 
-#endif //!__S_LOCAL_H__
+#endif //!__SNDSYSTEM_HPP__

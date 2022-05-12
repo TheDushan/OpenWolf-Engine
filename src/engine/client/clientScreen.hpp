@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2020 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2020 - 2022 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf Engine.
 //
@@ -21,13 +21,14 @@
 // File name:   clientScreen.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
-//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+//              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
+//              AppleClang 9.0.0.9000039
 // Description:
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CLIENTSCREEN_LOCAL_H__
-#define __CLIENTSCREEN_LOCAL_H__
+#ifndef __CLIENTSCREEN_HPP__
+#define __CLIENTSCREEN_HPP__
 
 typedef struct {
     sint color;
@@ -73,4 +74,4 @@ public:
 
 extern idClientScreenSystemLocal clientScreenLocal;
 
-#endif // !__CLIENTSCREEN_LOCAL_H__
+#endif // !__CLIENTSCREEN_HPP__
