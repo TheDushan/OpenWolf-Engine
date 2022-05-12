@@ -18,9 +18,10 @@ else(MYSQL_INCLUDE_DIR AND MYSQL_LIBRARIES)
   find_path(MYSQL_INCLUDE_DIR mysql.h
       /usr/include/mysql
       /usr/local/include/mysql
+      /usr/local/mysql-connector-c-6.1.11-macos10.12-x86_64/include
       $ENV{ProgramFiles}/MySQL/*/include
       $ENV{SystemDrive}/MySQL/*/include
-	  ${LIB_DIR}/mysql/include
+      ${LIB_DIR}/mysql/include
       )
 
 if(WIN32)
@@ -28,11 +29,13 @@ if(WIN32)
       PATHS
       $ENV{ProgramFiles}/MySQL/*/lib/opt
       $ENV{SystemDrive}/MySQL/*/lib/opt
-	  ${LIB_DIR}/mysql/lib/win64
+      ${LIB_DIR}/mysql/lib/win64
       )
 else(WIN32)
-  find_library(MYSQL_LIBRARIES NAMES mysqlclient
+  find_library(MYSQL_LIBRARIES NAMES mysqlclient libmysqlclient.18
       PATHS
+      /usr/local/mysql-connector-c-6.1.11-macos10.12-x86_64/lib
+      /${LIB_DIR}/mysql/lib/macos
       /usr/lib/mysql
       /usr/local/lib/mysql
       )

@@ -33,6 +33,9 @@
 #if defined(WIN32) || defined(WIN64)
 #include <Windows.h>
 #include <mysql.h>
+#elif defined (__MACOSX__)
+#include <mysql.h>
+#include <stdarg.h>
 #else
 #include <mysql/mysql.h>
 #endif
