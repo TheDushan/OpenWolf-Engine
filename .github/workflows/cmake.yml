@@ -28,7 +28,7 @@ jobs:
       run: |
         if [ "$RUNNER_OS" == "Linux" ]; then
             echo "Downloading dependences for the Unix build"
-            sudo apt-get update ; sudo apt-get install cmake-qt-gui g++ libsdl2-dev libjpeg-turbo8-dev libcurl4-openssl-dev libpng-dev libopenal-dev libogg-dev libvorbis-dev libssl-dev libncurses-dev libbz2-dev libgeoip-dev mysql-client libmysqlclient-dev libfreetype-dev
+            sudo apt-get update ; sudo apt-get install cmake-qt-gui g++ libsdl2-dev libjpeg-turbo8-dev libcurl4-openssl-dev libpng-dev libopenal-dev libogg-dev libvorbis-dev libssl-dev libncurses-dev libbz2-dev libgeoip-dev mysql-client libmysqlclient-dev libfreetype-dev gobjc++
         elif [ "$RUNNER_OS" == "Windows" ]; then
             echo "For the $RUNNER_OS all the libraries are already included in the project source code."
         else
