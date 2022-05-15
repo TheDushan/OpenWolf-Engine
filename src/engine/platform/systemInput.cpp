@@ -1051,7 +1051,7 @@ void idSystemLocal::ProcessEvents(sint eventTime) {
                         height = e.window.data2;
 
                         // ignore this event on fullscreen
-                        if(cls.glconfig.isFullscreen) {
+                        if(SDL_GetWindowFlags(SDL_window) & SDL_WINDOW_FULLSCREEN) {
                             break;
                         }
 
@@ -1108,7 +1108,8 @@ idSystemLocal::Frame
 */
 void idSystemLocal::Frame(void) {
     static sint eventTime;
-    bool loading;
+    bool loading, isFullscreen = SDL_GetWindowFlags(SDL_window) &
+                                 SDL_WINDOW_FULLSCREEN;
 
     JoyMove(eventTime);
 
@@ -1116,11 +1117,11 @@ void idSystemLocal::Frame(void) {
     loading = (bool)(cls.state != CA_DISCONNECTED && cls.state != CA_ACTIVE &&
                      !(clientGUISystem->GetCatcher() & KEYCATCH_UI));
 
-    if(!cls.glconfig.isFullscreen &&
+    if(!isFullscreen &&
             (clientGUISystem->GetCatcher() & KEYCATCH_CONSOLE)) {
         // Console is down in windowed mode
         DeactivateMouse();
-    } else if(!cls.glconfig.isFullscreen && loading) {
+    } else if(!isFullscreen && loading) {
         // Loading in windowed mode
         DeactivateMouse();
     } else if(!(SDL_GetWindowFlags(SDL_window) & SDL_WINDOW_INPUT_FOCUS)) {
