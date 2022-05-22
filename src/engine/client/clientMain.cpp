@@ -748,7 +748,7 @@ void idClientMainSystemLocal::CheckTimeout(void) {
     //
     // check timeout
     //
-    if((!cl_paused->integer || !sv_paused->integer)
+    if((!clc.demoplaying && !cl_paused->integer || !sv_paused->integer)
             && cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC &&
             cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000) {
         if(++cl.timeoutcount > 5) {
