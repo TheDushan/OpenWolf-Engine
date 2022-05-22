@@ -1,7 +1,8 @@
-2022-05-15 Dusan Jocic <dusanjocic@msn.com>
+2022-05-22 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Pause demo playback when menu open
 	* [Client Demo] Don't timeout during demo pause
 	* [Engine] Fix client defaulting to onboard graphics on laptops with discrete GPUs.
+    * [Cumulative Update] Misc changes
 	
 2022-05-15 Dusan Jocic <dusanjocic@msn.com>
 	* [RenderSystem] Don't test fullscreen with glconfig.isFullscreen

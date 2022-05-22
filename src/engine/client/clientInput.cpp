@@ -1086,7 +1086,9 @@ void idClientInputSystemLocal::MouseEvent(sint dx, sint dy, sint time) {
             cl.mouseDx[cl.mouseIndex] += dx;
             cl.mouseDy[cl.mouseIndex] += dy;
         } else {
-            cgame->MouseEvent(dx, dy);
+            if(cgvm) {
+                cgame->MouseEvent(dx, dy);
+            }
         }
     } else {
         cl.mouseDx[cl.mouseIndex] += dx;

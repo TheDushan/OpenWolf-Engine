@@ -169,7 +169,7 @@ Wiggle the normals for wavy environment mapping
 void RB_CalcDeformNormals(deformStage_t *ds) {
     sint i;
     float32 scale;
-    float32    *xyz = reinterpret_cast<float32 *>(tess.xyz);
+    float32 *xyz = reinterpret_cast<float32 *>(tess.xyz);
     schar16 *normal = tess.normal[0];
 
     for(i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4) {

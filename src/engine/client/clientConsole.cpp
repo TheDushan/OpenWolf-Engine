@@ -347,6 +347,8 @@ void idClientConsoleSystemLocal::Clear_f(void) {
                     activeCon->text_color[i]);
     }
 
+    con->current = con->totallines - 1;
+
     // go to end
     clientConsoleLocal.Bottom();
 }
@@ -1303,6 +1305,8 @@ void idClientConsoleSystemLocal::DrawSolidConsole(float32 frac) {
     currentColor[3] = frac * 2.0f;
     renderSystem->SetColor(currentColor);
 
+    con->rowsVisible = 0;
+
     for(i = 0 ; i < rows ;
             i++, y -= clientScreenSystem->ConsoleFontCharHeight(), row--) {
         float32 currentWidthLocation = cl_conXOffset->integer;
@@ -1314,6 +1318,10 @@ void idClientConsoleSystemLocal::DrawSolidConsole(float32 frac) {
         if(activeCon->current - row >= activeCon->totallines) {
             // past scrollback wrap point
             continue;
+        }
+
+        if(y >= 0) {
+            con->rowsVisible++;
         }
 
         text = activeCon->text + (row % activeCon->totallines) *

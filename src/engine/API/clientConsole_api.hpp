@@ -39,27 +39,29 @@ typedef struct {
 
     valueType    text[CON_TEXTSIZE];
     vec4_t       text_color[CON_TEXTSIZE];
-    sint         current;   // line where next message will be printed
-    sint         x;         // offset in current line for next print
-    sint         display;   // bottom of console displays this line
+    sint         current;       // line where next message will be printed
+    sint         x;             // offset in current line for next print
+    sint         display;       // bottom of console displays this line
 
-    sint         linewidth; // characters across screen
+    sint         linewidth;     // characters across screen
     sint         totallines;    // total lines in console scrollback
+    sint
+    rowsVisible;   // number of full rows that can currently be rendered in a page
 
-    float32      xadjust;    // for wide aspect screens
+    float32      xadjust;       // for wide aspect screens
 
-    float32      displayFrac;    // aproaches finalFrac at scr_conspeed
-    float32      finalFrac;  // 0.0 to 1.0 lines of console to display
-    float32      desiredFrac;    // ydnar: for variable console heights
+    float32      displayFrac;   // aproaches finalFrac at scr_conspeed
+    float32      finalFrac;     // 0.0 to 1.0 lines of console to display
+    float32      desiredFrac;   // ydnar: for variable console heights
 
-    sint         vislines;  // in scanlines
+    sint         vislines;      // in scanlines
 
     sint
-    times[NUM_CON_TIMES];  // cls.realtime time the line was generated
+    times[NUM_CON_TIMES];       // cls.realtime time the line was generated
     // for transparent notify lines
     vec4_t       color;
 
-    sint         acLength; // Arnout: autocomplete buffer length
+    sint         acLength;      // Arnout: autocomplete buffer length
 } console_t;
 
 extern console_t con[NUMBER_TABS];

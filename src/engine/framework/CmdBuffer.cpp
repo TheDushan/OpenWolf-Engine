@@ -87,7 +87,7 @@ void idCmdBufferSystemLocal::AddText(pointer text) {
     l = strlen(text);
 
     if(cmd_text.cursize + l >= cmd_text.maxsize) {
-        common->Printf("idCmdBufferSystemLocal::AddText: overflow\n");
+        common->Printf("idCmdBufferSystemLocal::AddText: data was ignored to avoid a buffer overflow\n");
         return;
     }
 
@@ -110,7 +110,7 @@ void idCmdBufferSystemLocal::InsertText(pointer text) {
     len = strlen(text) + 1;
 
     if(len + cmd_text.cursize > cmd_text.maxsize) {
-        common->Printf("dCmdBufferSystemLocal::InsertText overflowed\n");
+        common->Printf("dCmdBufferSystemLocal::InsertText data was ignored to avoid a buffer overflow\n");
         return;
     }
 
