@@ -3,6 +3,7 @@
 	* [Client Demo] Don't timeout during demo pause
 	* [Engine] Fix client defaulting to onboard graphics on laptops with discrete GPUs.
     * [Cumulative Update] Misc changes
+	* [RenderSystem] Fixed shader stages using "wave" not being animated when the server time is a big number
 	
 2022-05-15 Dusan Jocic <dusanjocic@msn.com>
 	* [RenderSystem] Don't test fullscreen with glconfig.isFullscreen

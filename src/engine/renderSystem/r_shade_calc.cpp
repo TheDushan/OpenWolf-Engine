@@ -31,7 +31,16 @@
 
 #include <renderSystem/r_precompiled.hpp>
 
-#define WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ static_cast<sint32>( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
+static float64 WaveValue(const float32 *table, float64 base,
+                         float64 amplitude, float64 phase, float64 freq) {
+    // the original code did a double to 32-bit int conversion of x
+    const float64 x = (phase + tess.shaderTime * freq) * FUNCTABLE_SIZE;
+    const sint i = static_cast<sint>(static_cast<sint64>(x) &
+                                     static_cast<sint64>(FUNCTABLE_MASK));
+    const float64 r = base + table[i] * amplitude;
+
+    return r;
+}
 
 static float32 *TableForFunc(genFunc_t func) {
     switch(func) {
@@ -70,11 +79,8 @@ static float32 *TableForFunc(genFunc_t func) {
 ** Evaluates a given waveForm_t, referencing backEnd.refdef.time directly
 */
 static float32 EvalWaveForm(const waveForm_t *wf) {
-    float32    *table;
-
-    table = TableForFunc(wf->func);
-
-    return WAVEVALUE(table, wf->base, wf->amplitude, wf->phase, wf->frequency);
+    return WaveValue(TableForFunc(wf->func), wf->base, wf->amplitude,
+                     wf->phase, wf->frequency);
 }
 
 static float32 EvalWaveFormClamped(const waveForm_t *wf) {
@@ -145,7 +151,7 @@ void RB_CalcDeformVertexes(deformStage_t *ds) {
         for(i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4) {
             float32 off = (xyz[0] + xyz[1] + xyz[2]) * ds->deformationSpread;
 
-            scale = WAVEVALUE(table, ds->deformationWave.base,
+            scale = WaveValue(table, ds->deformationWave.base,
                               ds->deformationWave.amplitude,
                               ds->deformationWave.phase + off,
                               ds->deformationWave.frequency);
@@ -247,7 +253,7 @@ void RB_CalcMoveVertexes(deformStage_t *ds) {
 
     table = TableForFunc(ds->deformationWave.func);
 
-    scale = WAVEVALUE(table, ds->deformationWave.base,
+    scale = WaveValue(table, ds->deformationWave.base,
                       ds->deformationWave.amplitude,
                       ds->deformationWave.phase,
                       ds->deformationWave.frequency);
