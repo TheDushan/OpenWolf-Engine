@@ -1,3 +1,9 @@
+2022-05-15 Dusan Jocic <dusanjocic@msn.com>
+	* [Engine] Pause demo playback when menu open
+	
+2022-05-15 Dusan Jocic <dusanjocic@msn.com>
+	* [RenderSystem] Don't test fullscreen with glconfig.isFullscreen
+	
 2022-05-14 Dusan Jocic <dusanjocic@msn.com>
 	* [Misc] Updated .github workflows
 	* [Misc] Updated README.md file

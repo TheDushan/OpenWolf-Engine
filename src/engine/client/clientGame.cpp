@@ -1123,7 +1123,7 @@ void idClientGameSystemLocal::SetCGameTime(void) {
     cl.oldFrameServerTime = cl.snapServer.serverTime;
 
     // get our current view of time
-    if(clc.demoplaying && cl_freezeDemo->integer) {
+    if(clc.demoplaying && (cl_freezeDemo->integer || cl_paused->integer)) {
         // cl_freezeDemo is used to lock a demo in place for single frame advances
         cl.serverTimeDelta -= cls.frametime;
     } else {

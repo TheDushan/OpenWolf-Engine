@@ -607,6 +607,8 @@ void R_ScreenShot_f(void) {
     }
 
     if(cmdSystem->Argc() == 2 && !silent) {
+        valueType args[MAX_OSPATH] = { 0 };
+        cmdSystem->ArgsBuffer(args, sizeof(args));
         // explicit filename
         Q_vsprintf_s(checkname, MAX_OSPATH, MAX_OSPATH, "screenshots/%s.tga",
                      cmdSystem->Argv(1));
