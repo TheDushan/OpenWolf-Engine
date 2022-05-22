@@ -44,6 +44,14 @@
 
 #ifdef _WIN32
 
+#ifndef DEDICATED
+// Prefer descrete GPU over integrated when both are available.
+// http://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
+extern "C" __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+// https://gpuopen.com/amdpowerxpressrequesthighperformance/
+extern "C" __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+#endif
+
 /*
 ==================
 idSystemLocal::CtrlHandler
