@@ -321,7 +321,7 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/API/CmdCompletion_api.hpp
 	${MOUNT_DIR}/framework/FileSystem.hpp
 	${MOUNT_DIR}/API/HashTable_api.hpp
-	${MOUNT_DIR}/framework/hashTable.hpp
+	${MOUNT_DIR}/framework/HashTable.hpp
 	${MOUNT_DIR}/framework/CVarSystem.hpp
 	${MOUNT_DIR}/framework/CmdSystem.hpp
 	${MOUNT_DIR}/framework/CmdBuffer.hpp
