@@ -125,7 +125,6 @@ extern "C"
 #include <API/CmdBuffer_api.hpp>
 #include <API/CmdSystem_api.hpp>
 #include <API/system_api.hpp>
-#include <qcommon/qcommon.hpp>
 #include <API/clientAVI_api.hpp>
 #include <API/clientMain_api.hpp>
 #include <API/clientCinema_api.hpp>

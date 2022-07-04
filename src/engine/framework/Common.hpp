@@ -150,6 +150,7 @@ extern sint      com_hunkusedvalue;
 
 extern bool com_errorEntered;
 
+extern fileHandle_t com_logfile;
 extern fileHandle_t com_journalFile;
 extern fileHandle_t com_journalDataFile;
 

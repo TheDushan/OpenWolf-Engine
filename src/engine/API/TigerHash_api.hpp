@@ -17,7 +17,7 @@
 // along with OpenWolf Source Code.  If not, see <http://www.gnu.org/licenses/>.
 //
 // -------------------------------------------------------------------------------------
-// File name:   tiger_hash.cpp
+// File name:   TigerHash_api.hpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
@@ -26,17 +26,12 @@
 // -------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef UPDATE_SERVER
-#include <server/serverAutoPrecompiled.hpp>
-#elif DEDICATED
-#include <server/serverDedPrecompiled.hpp>
-#else
-#include <framework/precompiled.hpp>
-#endif
+#ifndef __TIGERHASH_HPP_API__
+#define __TIGERHASH_HPP_API__
 
 #define _ULL(x) x##ull
 
-uint64_t table[4 * 256] = {
+static uint64_t tableTiger[4 * 256] = {
     _ULL(0x02AAB17CF7E90C5E)   /*    0 */,    _ULL(0xAC424B03E243A8EC)   /*    1 */,
     _ULL(0x72CD5BE30DD5FCD3)   /*    2 */,    _ULL(0x6D019B93F6F97F3A)   /*    3 */,
     _ULL(0xCD9978FFD21F9193)   /*    4 */,    _ULL(0x7573A1C9708029E2)   /*    5 */,
@@ -553,7 +548,7 @@ uint64_t table[4 * 256] = {
 
 /* Big endian:                                         */
 #if !(defined(__alpha)||defined(__i386__)||defined(__vax__))
-#define BIG_ENDIAN
+//#define BIG_ENDIAN
 #endif
 
 /* The following macro denotes that an optimization    */
@@ -574,12 +569,12 @@ uint64_t table[4 * 256] = {
 /* Must be at least three.                             */
 #define PASSES 3
 
-extern uint64_t table[4 * 256];
+extern uint64_t tableTiger[4 * 256];
 
-#define t1 (table)
-#define t2 (table+256)
-#define t3 (table+256*2)
-#define t4 (table+256*3)
+#define t1Tiger (tableTiger)
+#define t2Tiger (tableTiger+256)
+#define t3Tiger (tableTiger+256*2)
+#define t4Tiger (tableTiger+256*3)
 
 #define save_abc \
     aa = a; \
@@ -590,36 +585,36 @@ extern uint64_t table[4 * 256];
 /* This is the official definition of round */
 #define round(a,b,c,x,mul) \
     c ^= x; \
-    a -= t1[((c)>>(0*8))&0xFF] ^ t2[((c)>>(2*8))&0xFF] ^ \
-         t3[((c)>>(4*8))&0xFF] ^ t4[((c)>>(6*8))&0xFF] ; \
-    b += t4[((c)>>(1*8))&0xFF] ^ t3[((c)>>(3*8))&0xFF] ^ \
-         t2[((c)>>(5*8))&0xFF] ^ t1[((c)>>(7*8))&0xFF] ; \
+    a -= t1Tiger[((c)>>(0*8))&0xFF] ^ t2Tiger[((c)>>(2*8))&0xFF] ^ \
+         t3Tiger[((c)>>(4*8))&0xFF] ^ t4Tiger[((c)>>(6*8))&0xFF] ; \
+    b += t4Tiger[((c)>>(1*8))&0xFF] ^ t3Tiger[((c)>>(3*8))&0xFF] ^ \
+         t2Tiger[((c)>>(5*8))&0xFF] ^ t1Tiger[((c)>>(7*8))&0xFF] ; \
     b *= mul;
 #else
 /* This code works faster when compiled on 32-bit machines */
 /* (but works slower on Alpha) */
-#define round(a,b,c,x,mul) \
+#define roundTiger(a,b,c,x,mul) \
     c ^= x; \
-    a -= t1[(uchar8)(c)] ^ \
-         t2[(uchar8)(((uint32)(c))>>(2*8))] ^ \
-         t3[(uchar8)((c)>>(4*8))] ^ \
-         t4[(uchar8)(((uint32)((c)>>(4*8)))>>(2*8))] ; \
-    b += t4[(uchar8)(((uint32)(c))>>(1*8))] ^ \
-         t3[(uchar8)(((uint32)(c))>>(3*8))] ^ \
-         t2[(uchar8)(((uint32)((c)>>(4*8)))>>(1*8))] ^ \
-         t1[(uchar8)(((uint32)((c)>>(4*8)))>>(3*8))]; \
+    a -= t1Tiger[(uchar8)(c)] ^ \
+         t2Tiger[(uchar8)(((uint32)(c))>>(2*8))] ^ \
+         t3Tiger[(uchar8)((c)>>(4*8))] ^ \
+         t4Tiger[(uchar8)(((uint32)((c)>>(4*8)))>>(2*8))] ; \
+    b += t4Tiger[(uchar8)(((uint32)(c))>>(1*8))] ^ \
+         t3Tiger[(uchar8)(((uint32)(c))>>(3*8))] ^ \
+         t2Tiger[(uchar8)(((uint32)((c)>>(4*8)))>>(1*8))] ^ \
+         t1Tiger[(uchar8)(((uint32)((c)>>(4*8)))>>(3*8))]; \
     b *= mul;
 #endif
 
 #define pass(a,b,c,mul) \
-    round(a,b,c,x0,mul) \
-    round(b,c,a,x1,mul) \
-    round(c,a,b,x2,mul) \
-    round(a,b,c,x3,mul) \
-    round(b,c,a,x4,mul) \
-    round(c,a,b,x5,mul) \
-    round(a,b,c,x6,mul) \
-    round(b,c,a,x7,mul)
+    roundTiger(a,b,c,x0,mul) \
+    roundTiger(b,c,a,x1,mul) \
+    roundTiger(c,a,b,x2,mul) \
+    roundTiger(a,b,c,x3,mul) \
+    roundTiger(b,c,a,x4,mul) \
+    roundTiger(c,a,b,x5,mul) \
+    roundTiger(a,b,c,x6,mul) \
+    roundTiger(b,c,a,x7,mul)
 
 #define key_schedule \
     x0 -= x7 ^ 0xA5A5A5A5A5A5A5A5LL; \
@@ -691,105 +686,14 @@ extern uint64_t table[4 * 256];
         state[2] = c; \
     }
 
-/* The compress function is a function. Requires smaller cache?    */
-void tiger_compress(uint64 *str, uint64 state[3]) {
-    tiger_compress_macro((reinterpret_cast<uint64 *>(str)),
-                         (reinterpret_cast<uint64 *>(state)));
-}
+//
+// idTigerHashSystem
+//
+class idTigerHashSystem {
+public:
+    virtual valueType *GetTigerHash(valueType *str) = 0;
+};
 
-#ifdef OPTIMIZE_FOR_ALPHA
-/* The compress function is inlined: works better on Alpha.        */
-/* Still leaves the function above in the code, in case some other */
-/* module calls it directly.                                       */
-#define tiger_compress(str, state) \
-    tiger_compress_macro(((uint64*)str), ((uint64*)state))
-#endif
+extern idTigerHashSystem *tigerHashSystem;
 
-void tiger(uint64 *str, uint64 length, uint64 res[3]) {
-    register uint64 i, j;
-    uchar8 temp[64];
-
-    res[0] = 0x0123456789ABCDEFLL;
-    res[1] = 0xFEDCBA9876543210LL;
-    res[2] = 0xF096A5B4C3B2E187LL;
-
-    for(i = length; i >= 64; i -= 64) {
-#ifdef BIG_ENDIAN
-
-        for(j = 0; j < 64; j++) {
-            temp[j ^ 7] = (reinterpret_cast<uchar8 *>(str))[j];
-        }
-
-        tiger_compress((reinterpret_cast<uint64 *>(temp)), res);
-#else
-        tiger_compress(str, res);
-#endif
-        str += 8;
-    }
-
-#ifdef BIG_ENDIAN
-
-    for(j = 0; j < i; j++) {
-        temp[j ^ 7] = (reinterpret_cast<uchar8 *>(str))[j];
-    }
-
-    temp[j ^ 7] = 0x01;
-    j++;
-
-    for(; j & 7; j++) {
-        temp[j ^ 7] = 0;
-    }
-
-#else
-
-    for(j = 0; j < i; j++) {
-        temp[j] = (reinterpret_cast<uchar8 *>(str))[j];
-    }
-
-    temp[j++] = 0x01;
-
-    for(; j & 7; j++) {
-        temp[j] = 0;
-    }
-
-#endif
-
-    if(j > 56) {
-        for(; j < 64; j++) {
-            temp[j] = 0;
-        }
-
-        tiger_compress((reinterpret_cast<uint64 *>(temp)), res);
-        j = 0;
-    }
-
-    for(; j < 56; j++) {
-        temp[j] = 0;
-    }
-
-    (reinterpret_cast<uint64 *>((&(temp[56]))))[0] = (static_cast<uint64>
-            (length)) << 3;
-    tiger_compress((reinterpret_cast<uint64 *>(temp)), res);
-}
-
-/*
-===============
-Com_GetTigerHash
-===============
-*/
-valueType *Com_GetTigerHash(valueType *str) {
-    static valueType cHash[49];
-    uint64 res[3];
-
-    tiger(reinterpret_cast<uint64 *>(str), ::strlen(str), res);
-
-    sprintf(cHash, "%08X%08X%08X%08X%08X%08X",
-            static_cast<uint32>(res[0] >> 32),
-            static_cast<uint32>(res[0]),
-            static_cast<uint32>(res[1] >> 32),
-            static_cast<uint32>(res[1]),
-            static_cast<uint32>(res[2] >> 32),
-            static_cast<uint32>(res[2]));
-    return cHash;
-}
-
+#endif //!__TIGERHASH_HPP_API__

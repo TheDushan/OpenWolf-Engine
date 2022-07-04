@@ -3,6 +3,8 @@
 	* [Cumulative Update] Misc changes
 	* [Libraries] Cleaning
 	* [Engine] Uploaded missing files
+	* [Engine] Moved hash systems to C++ files
+	* [Engine] Removed qcommon.hpp
 
 2022-06-05 Dusan Jocic <dusanjocic@msn.com>
 	* [Cumulative Update] Misc changes

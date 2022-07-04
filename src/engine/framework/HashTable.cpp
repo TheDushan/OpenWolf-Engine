@@ -19,7 +19,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110 - 1301  USA
 //
 // -------------------------------------------------------------------------------------
-// File name:   hash_taber.cpp
+// File name:   HashTable.cpp
 // Created:
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
@@ -36,14 +36,35 @@
 #include <framework/precompiled.hpp>
 #endif
 
+idHashTableSystemLocal hashTableSystemLocal;
+idHashTableSystem *hashTableSystem = &hashTableSystemLocal;
+
 /*
 ===============
-Com_CreateHashTable
+idHashTableSystemLocal::idHashTableSystemLocal
 ===============
 */
-hash_table_t *Com_CreateHashTable(uint(*hash_f)(void *k),
-                                  sint(*compare)(const void *a, const void *b), void (*destroy_key)(void *a),
-                                  void (*destroy_data)(void *a), sint initial_size) {
+idHashTableSystemLocal::idHashTableSystemLocal(void) {
+}
+
+/*
+===============
+idHashTableSystemLocal::~idHashTableSystemLocal
+===============
+*/
+idHashTableSystemLocal::~idHashTableSystemLocal(void) {
+}
+
+
+/*
+===============
+idHashTableSystemLocal::CreateHashTable
+===============
+*/
+hash_table_t *idHashTableSystemLocal::CreateHashTable(uint(*hash_f)(
+            void *k),
+        sint(*compare)(const void *a, const void *b), void (*destroy_key)(void *a),
+        void (*destroy_data)(void *a), sint initial_size) {
     hash_table_t *hash_table;
 
     if((hash_table = (hash_table_t *)malloc(sizeof(hash_table_t))) ==
@@ -71,17 +92,18 @@ hash_table_t *Com_CreateHashTable(uint(*hash_f)(void *k),
 
 /*
 ===============
-Com_InsertIntoHash
+idHashTableSystemLocal::InsertIntoHash
 ===============
 */
-hash_node_t *Com_InsertIntoHash(hash_table_t *table, void *key,
-                                void *data) {
+hash_node_t *idHashTableSystemLocal::InsertIntoHash(hash_table_t *table,
+        void *key,
+        void *data) {
     uint num_key;
     hash_node_t *node;
 
     num_key = table->hash_f(key) % table->size;
 
-    if(Com_FindHashNode(table, key) != nullptr) {
+    if(FindHashNode(table, key) != nullptr) {
         return nullptr;
     }
 
@@ -104,13 +126,14 @@ hash_node_t *Com_InsertIntoHash(hash_table_t *table, void *key,
 
 /*
 ===============
-Com_FindHashData
+idHashTableSystemLocal::FindHashData
 ===============
 */
-void *Com_FindHashData(hash_table_t *table, void *key) {
+void *idHashTableSystemLocal::FindHashData(hash_table_t *table,
+        void *key) {
     hash_node_t *node;
 
-    node = Com_FindHashNode(table, key);
+    node = FindHashNode(table, key);
 
     if(node == nullptr) {
         return nullptr;
@@ -121,10 +144,11 @@ void *Com_FindHashData(hash_table_t *table, void *key) {
 
 /*
 ===============
-Com_FindHashNode
+idHashTableSystemLocal::FindHashNode
 ===============
 */
-hash_node_t *Com_FindHashNode(hash_table_t *table, void *key) {
+hash_node_t *idHashTableSystemLocal::FindHashNode(hash_table_t *table,
+        void *key) {
     uint num_key;
     hash_node_t *node;
 
@@ -144,10 +168,11 @@ hash_node_t *Com_FindHashNode(hash_table_t *table, void *key) {
 
 /*
 ===============
-Com_RebuildHash
+idHashTableSystemLocal::RebuildHash
 ===============
 */
-void Com_RebuildHash(hash_table_t *table, sint new_size) {
+void idHashTableSystemLocal::RebuildHash(hash_table_t *table,
+        sint new_size) {
     hash_data_t *new_table;
     hash_node_t *node;
     hash_node_t *node_next;
@@ -169,7 +194,7 @@ void Com_RebuildHash(hash_table_t *table, sint new_size) {
         node = old_table[i].list;
 
         while(node != nullptr) {
-            Com_InsertIntoHash(table, node->key, node->data);
+            InsertIntoHash(table, node->key, node->data);
             node_next = node->next;
             free(node);
             node = node_next;
@@ -181,10 +206,11 @@ void Com_RebuildHash(hash_table_t *table, sint new_size) {
 
 /*
 ===============
-Com_DeleteFromHash
+idHashTableSystemLocal::DeleteFromHash
 ===============
 */
-void Com_DeleteFromHash(hash_table_t *table, void *key) {
+void idHashTableSystemLocal::DeleteFromHash(hash_table_t *table,
+        void *key) {
     uint num_key;
     hash_node_t *node;
     hash_node_t *prev_node;
@@ -210,10 +236,10 @@ void Com_DeleteFromHash(hash_table_t *table, void *key) {
 
 /*
 ===============
-Com_DestroyHash
+idHashTableSystemLocal::DestroyHash
 ===============
 */
-void Com_DestroyHash(hash_table_t *table) {
+void idHashTableSystemLocal::DestroyHash(hash_table_t *table) {
     hash_node_t *node;
     hash_node_t *next_node;
     sint i;
@@ -236,10 +262,10 @@ void Com_DestroyHash(hash_table_t *table) {
 
 /*
 ===============
-Com_JenkinsHashKey
+idHashTableSystemLocal::JenkinsHashKey
 ===============
 */
-uint Com_JenkinsHashKey(void *vkey) {
+uint idHashTableSystemLocal::JenkinsHashKey(void *vkey) {
     uint hash = 0;
     uint64 i;
     uchar8 *key;
@@ -263,35 +289,10 @@ uint Com_JenkinsHashKey(void *vkey) {
 
 /*
 ===============
-hashcode
+idHashTableSystemLocal::
 ===============
 */
-unsigned int hashcode(void *st) {
-    valueType *p;
-    valueType *s;
-
-    s = static_cast<valueType *>(st);
-    uint h = 0, g = 0;
-
-    for(p = s; *p != '\0'; p = p + 1) {
-        h = (h << 4) + (*p);
-        g = h & 0xf0000000;
-
-        if(g) {
-            h = h ^ (g >> 24);
-            h = h ^ g;
-        }
-    }
-
-    return h;
-}
-
-/*
-===============
-Com_
-===============
-*/
-sint Com_StrCmp(const void *a1, const void *a2) {
+sint idHashTableSystemLocal::StrCmp(const void *a1, const void *a2) {
     valueType *s1, *s2;
     s1 = (const_cast<valueType *>(reinterpret_cast<pointer>(a1)));
     s2 = (const_cast<valueType *>(reinterpret_cast<pointer>(a2)));
@@ -309,37 +310,20 @@ sint Com_StrCmp(const void *a1, const void *a2) {
 
 /*
 ===============
-nullcmp
+idHashTableSystemLocal::DestroyStringKey
 ===============
 */
-sint nullcmp(const void *a, const void *b) {
-    return 0;
-}
-
-/*
-===============
-nulldes
-===============
-*/
-void nulldes(void *a) {
-    ;
-}
-
-/*
-===============
-Com_DestroyStringKey
-===============
-*/
-void Com_DestroyStringKey(void *s) {
+void idHashTableSystemLocal::DestroyStringKey(void *s) {
     free(static_cast< valueType *>(s));
 }
 
 /*
 ===============
-Com_CreateHashIterator
+idHashTableSystemLocal::CreateHashIterator
 ===============
 */
-hash_table_iterator_t *Com_CreateHashIterator(hash_table_t *table) {
+hash_table_iterator_t *idHashTableSystemLocal::CreateHashIterator(
+    hash_table_t *table) {
     hash_table_iterator_t *iter;
     iter = (hash_table_iterator_t *)::malloc(sizeof(hash_table_iterator_t));
     memset(iter, 0, sizeof(hash_table_iterator_t));
@@ -351,10 +335,11 @@ hash_table_iterator_t *Com_CreateHashIterator(hash_table_t *table) {
 
 /*
 ===============
-Com_HashIterationData
+idHashTableSystemLocal::HashIterationData
 ===============
 */
-void *Com_HashIterationData(hash_table_iterator_t *iter) {
+void *idHashTableSystemLocal::HashIterationData(hash_table_iterator_t
+        *iter) {
     void *data;
 
     // start point

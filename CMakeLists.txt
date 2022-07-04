@@ -304,7 +304,6 @@ set( DOWNLOADLIST_SOURCES
 set( QCOMMONLIST_HEADERS
 	${MOUNT_DIR}/API/download_api.hpp
 	${MOUNT_DIR}/qcommon/q_shared.hpp
-	${MOUNT_DIR}/qcommon/qcommon.hpp
 	${MOUNT_DIR}/qcommon/qfiles.hpp
 )
 
@@ -321,6 +320,8 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/API/Parse_api.hpp
 	${MOUNT_DIR}/API/CmdCompletion_api.hpp
 	${MOUNT_DIR}/framework/FileSystem.hpp
+	${MOUNT_DIR}/API/HashTable_api.hpp
+	${MOUNT_DIR}/framework/hashTable.hpp
 	${MOUNT_DIR}/framework/CVarSystem.hpp
 	${MOUNT_DIR}/framework/CmdSystem.hpp
 	${MOUNT_DIR}/framework/CmdBuffer.hpp
@@ -343,12 +344,13 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/framework/Common.hpp
 	${MOUNT_DIR}/API/MessagesToFunctions_api.hpp
 	${MOUNT_DIR}/framework/MessagesToFunctions.hpp
-
+	${MOUNT_DIR}/API/TigerHash_api.hpp
+	${MOUNT_DIR}/framework/TigerHash.hpp
 )
 
 set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/FileSystem.cpp
-	${MOUNT_DIR}/framework/hash_table.cpp
+	${MOUNT_DIR}/framework/HashTable.cpp
 	${MOUNT_DIR}/framework/CVarSystem.cpp
 	${MOUNT_DIR}/framework/CmdSystem.cpp
 	${MOUNT_DIR}/framework/CmdBuffer.cpp
@@ -358,7 +360,7 @@ set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/MD4.cpp
 	${MOUNT_DIR}/framework/MD5.cpp
 	${MOUNT_DIR}/framework/Puff.cpp
-	${MOUNT_DIR}/framework/tiger_hash.cpp
+	${MOUNT_DIR}/framework/TigerHash.cpp
 	${MOUNT_DIR}/framework/Unzip.cpp
 	${MOUNT_DIR}/framework/Network.cpp
 	${MOUNT_DIR}/framework/NetworkChain.cpp

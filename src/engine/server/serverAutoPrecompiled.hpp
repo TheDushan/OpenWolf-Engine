@@ -107,7 +107,6 @@
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
 #include <API/Memory_api.hpp>
-#include <qcommon/qcommon.hpp>
 #include <API/MessagesToFunctions_api.hpp>
 #include <framework/MessagesToFunctions.hpp>
 #include <API/Common_api.hpp>
@@ -169,6 +168,10 @@
 #include <API/sgame_api.hpp>
 #include <server/serverCcmds.hpp>
 #include <API/serverClient_api.hpp>
+#include <API/TigerHash_api.hpp>
+#include <framework/TigerHash.hpp>
+#include <API/HashTable_api.hpp>
+#include <framework/HashTable.hpp>
 #include <server/serverCommunity.hpp>
 #include <server/serverClient.hpp>
 #include <server/serverGame.hpp>

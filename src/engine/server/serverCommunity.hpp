@@ -133,6 +133,9 @@ public:
     static void NETAddMsg(valueType *msg);
     static sint NETSendMsg(valueType *msg);
     static sint SendAll(sint s, valueType *buf, sint *len);
+    static uint JenkinsHashKey_f(void *vkey);
+    static sint StrCmp_f(const void *a1, const void *a2);
+    static void DestroyStringKey_f(void *s);
 };
 
 extern idServerCommunityServer serverCommunityServer;

@@ -154,7 +154,8 @@ sint idServerCommunityServer::Login(valueType *userinfo,
     }
 
     // Check password
-    if(::strcmp(user->password, Com_GetTigerHash(userpassword)) != 0) {
+    if(::strcmp(user->password,
+                tigerHashSystem->GetTigerHash(userpassword)) != 0) {
         networkChainSystem->OutOfBandPrint(NS_SERVER, from,
                                            "print\nPlease, check your user and password: invalid\n");
         destroyUserData(user);
@@ -271,6 +272,37 @@ sint idServerCommunityServer::checkMatchInvited(user_t *user) {
 
 /*
 ===============
+idServerCommunityServer::JenkinsHashKey_f
+===============
+*/
+uint idServerCommunityServer::JenkinsHashKey_f(void *vkey) {
+    return static_cast<idHashTableSystemLocal *>
+           (hashTableSystem)->JenkinsHashKey(vkey);
+}
+
+/*
+===============
+idServerCommunityServer::StrCmp_f
+===============
+*/
+sint idServerCommunityServer::StrCmp_f(const void *a1, const void *a2) {
+    return static_cast<idHashTableSystemLocal *>
+           (hashTableSystem)->StrCmp(a1, a2);
+}
+
+/*
+===============
+idServerCommunityServer::DestroyStringKey_f
+===============
+*/
+void idServerCommunityServer::DestroyStringKey_f(void *s) {
+    static_cast<idHashTableSystemLocal *>
+    (hashTableSystem)->DestroyStringKey(s);
+}
+
+
+/*
+===============
 idServerCommunityServer::LoadUserFile
 ===============
 */
@@ -288,10 +320,10 @@ void idServerCommunityServer::LoadUserFile(void) {
         return;
     }
 
-    hash_users = Com_CreateHashTable(Com_JenkinsHashKey, Com_StrCmp,
-                                     Com_DestroyStringKey, destroyLongData, HASH_USER_SIZE);
-    hash_clans = Com_CreateHashTable(Com_JenkinsHashKey, Com_StrCmp,
-                                     Com_DestroyStringKey, destroyClanData, HASH_CLAN_SIZE);
+    hash_users = hashTableSystem->CreateHashTable(&JenkinsHashKey_f, &StrCmp_f,
+                 &DestroyStringKey_f, destroyLongData, HASH_USER_SIZE);
+    hash_clans = hashTableSystem->CreateHashTable(&JenkinsHashKey_f, &StrCmp_f,
+                 &DestroyStringKey_f, destroyClanData, HASH_CLAN_SIZE);
 
     /*** Open users file ***/
     filename = fileSystem->GetFullGamePath("cs_users.txt");
@@ -347,8 +379,9 @@ void idServerCommunityServer::LoadUserFile(void) {
                     hash_tmp = nullptr;
             }
 
-            if(hash_tmp != nullptr && Com_FindHashData(hash_tmp, key) == nullptr) {
-                Com_InsertIntoHash(hash_tmp, key, data);
+            if(hash_tmp != nullptr &&
+                    hashTableSystem->FindHashData(hash_tmp, key) == nullptr) {
+                hashTableSystem->InsertIntoHash(hash_tmp, key, data);
             } else {
                 common->Printf("Error: %s:%s already exist!\n", reg[SV_COMMUNITY_REGTYPE],
                                key);
@@ -417,7 +450,7 @@ user_t *idServerCommunityServer::parseUserLine(pointer user_pass) {
         return nullptr;
     }
 
-    if((dpos = static_cast<sint32 *>(Com_FindHashData(hash_users,
+    if((dpos = static_cast<sint32 *>(hashTableSystem->FindHashData(hash_users,
                                      username))) == nullptr) {
         common->Printf("User %s does not exist in DB\n", username);
         return nullptr;
@@ -462,11 +495,11 @@ user_t *idServerCommunityServer::parseUserLine(pointer user_pass) {
     ::strncpy(user->name, username, sizeof(user->name) - 1);
     ::strncpy(user->password, tigerhash, sizeof(user->password) - 1);
     ::sprintf(buffer, "%s%s", username, sv_cs_Salt->string);
-    ::strncpy(user->uguid, Com_GetTigerHash(buffer), 32);
+    ::strncpy(user->uguid, tigerHashSystem->GetTigerHash(buffer), 32);
     user->type = type[0];
 
     while((clan = strtok(nullptr, "@\n\r\0")) != nullptr) {
-        clan_p = (clan_t *)Com_FindHashData(hash_clans, clan);
+        clan_p = (clan_t *)hashTableSystem->FindHashData(hash_clans, clan);
 
         if(clan_p != nullptr) {
             user_clan = (user_clan_t *)::malloc(sizeof(user_clan_t));
@@ -504,10 +537,10 @@ sint idServerCommunityServer::CheckUserFileChange(void) {
             copyFile(filesrc, filedst);
 
             // Free all information and reload
-            Com_DestroyHash(hash_users);
+            hashTableSystem->DestroyHash(hash_users);
             hash_users = nullptr;
 
-            Com_DestroyHash(hash_clans);
+            hashTableSystem->DestroyHash(hash_clans);
             hash_clans = nullptr;
 
             ::fclose(usersfile);
@@ -574,7 +607,7 @@ void idServerCommunityServer::UserInfo(valueType *name) {
     user_t *user;
     user_clan_t *user_clan;
 
-    if((dpos = static_cast<sint32 *>(Com_FindHashData(hash_users,
+    if((dpos = static_cast<sint32 *>(hashTableSystem->FindHashData(hash_users,
                                      name))) == nullptr) {
         common->Printf("User %s does not exist in DB\n", cmdSystem->Argv(1));
         return;
@@ -748,7 +781,7 @@ void idServerCommunityServer::addMatchClan(valueType *clan_name) {
         return;
     }
 
-    clan_p = (clan_t *)Com_FindHashData(hash_clans, clan_name);
+    clan_p = (clan_t *)hashTableSystem->FindHashData(hash_clans, clan_name);
 
     if(clan_p == nullptr) {
         common->Printf("Clan %s doesn't exist!\n", clan_name);
@@ -791,7 +824,8 @@ void idServerCommunityServer::addMatchUser(valueType *user_name) {
         return;
     }
 
-    user_p = static_cast< user_t * >(Com_FindHashData(hash_users, user_name));
+    user_p = static_cast< user_t * >(hashTableSystem->FindHashData(hash_users,
+                                     user_name));
 
     if(user_p == nullptr) {
         common->Printf("User %s doesn't exist!\n", user_name);
@@ -834,7 +868,8 @@ void idServerCommunityServer::addMatchReferee(valueType *user_name) {
         return;
     }
 
-    user_p = static_cast< user_t * >(Com_FindHashData(hash_users, user_name));
+    user_p = static_cast< user_t * >(hashTableSystem->FindHashData(hash_users,
+                                     user_name));
 
     if(user_p == nullptr) {
         common->Printf("User %s doesn't exist!\n", user_name);
@@ -922,8 +957,8 @@ void idServerCommunityServer::LoadBanFile(void) {
         }
     }
 
-    hash_bans = Com_CreateHashTable(Com_JenkinsHashKey, Com_StrCmp,
-                                    Com_DestroyStringKey, destroyLongData, HASH_BAN_SIZE);
+    hash_bans = hashTableSystem->CreateHashTable(&JenkinsHashKey_f, StrCmp_f,
+                &DestroyStringKey_f, destroyLongData, HASH_BAN_SIZE);
 
     fpos = ::ftell(bansfile);
     ::fgets(buffer, sizeof(buffer), bansfile);
@@ -940,7 +975,7 @@ void idServerCommunityServer::LoadBanFile(void) {
             dfpos = static_cast<sint32 *>(::malloc(sizeof(sint32)));
             *dfpos = fpos;
 
-            Com_InsertIntoHash(hash_bans, banguid, dfpos);
+            hashTableSystem->InsertIntoHash(hash_bans, banguid, dfpos);
         }
 
         fpos = ::ftell(bansfile);
@@ -1038,7 +1073,7 @@ void idServerCommunityServer::BanUser(client_t *cl) {
     ::strncpy(guid, Info_ValueForKey(cl->userinfo, "cl_guid"), 32);
     guid[32] = '\0';
 
-    if(Com_FindHashData(hash_bans, guid) != nullptr) {
+    if(hashTableSystem->FindHashData(hash_bans, guid) != nullptr) {
         common->Printf("Guid %s already added\n", guid);
 
         ::free(guid);
@@ -1051,7 +1086,7 @@ void idServerCommunityServer::BanUser(client_t *cl) {
 
     *dpos = ::ftell(bansfile);
 
-    Com_InsertIntoHash(hash_bans, guid, dpos);
+    hashTableSystem->InsertIntoHash(hash_bans, guid, dpos);
 
     // Add to file
     if(cl->cs_user != nullptr) {
@@ -1081,7 +1116,7 @@ idServerCommunityServer::checkBanGUID
 ===============
 */
 sint idServerCommunityServer::checkBanGUID(valueType *guid) {
-    if(Com_FindHashData(hash_bans, guid) != nullptr) {
+    if(hashTableSystem->FindHashData(hash_bans, guid) != nullptr) {
         return 1;
     }
 
@@ -1101,11 +1136,11 @@ void idServerCommunityServer::showBanUsers(void) {
     banuser_t *banuser;
     void *data;
 
-    iter = Com_CreateHashIterator(hash_bans);
+    iter = hashTableSystem->CreateHashIterator(hash_bans);
 
     common->Printf("Banned users: \n");
 
-    while((data = Com_HashIterationData(iter)) != nullptr) {
+    while((data = hashTableSystem->HashIterationData(iter)) != nullptr) {
         ::fseek(bansfile, *(static_cast<sint32 *>(data)), SEEK_SET);
         ::fgets(buffer, sizeof(buffer), bansfile);
 
@@ -1136,9 +1171,10 @@ void idServerCommunityServer::unbanUser(valueType *banlist_num) {
 
     unban_num = ::atoi(banlist_num);
 
-    iter = Com_CreateHashIterator(hash_bans);
+    iter = hashTableSystem->CreateHashIterator(hash_bans);
 
-    for(i = 1; (data = Com_HashIterationData(iter)) != nullptr; i++) {
+    for(i = 1; (data = hashTableSystem->HashIterationData(iter)) != nullptr;
+            i++) {
         if(unban_num == i) {
             ::fseek(bansfile, *(static_cast<sint32 *>(data)), SEEK_SET);
             ::fgets(buffer, sizeof(buffer), bansfile);
@@ -1154,7 +1190,7 @@ void idServerCommunityServer::unbanUser(valueType *banlist_num) {
                 ::fwrite(buffer, strlen(buffer), 1, bansfile);
                 ::fflush(bansfile);
 
-                Com_DeleteFromHash(hash_bans, banuser->guid);
+                hashTableSystem->DeleteFromHash(hash_bans, banuser->guid);
             }
 
             return;
@@ -1794,7 +1830,8 @@ void idServerCommunityServer::InitStatistics(void) {
 
     srand(time(nullptr));
     sprintf(buffer, "%d%d", idsystem->Milliseconds(), rand());
-    sprintf(community_stats.game_id, "%s",  Com_GetTigerHash(buffer));
+    sprintf(community_stats.game_id, "%s",
+            tigerHashSystem->GetTigerHash(buffer));
     community_stats.game_date = time(nullptr);
     common->Printf("Game ID: %s\n", community_stats.game_id);
 
