@@ -231,14 +231,14 @@ void idNetworkChainSystemLocal::TransmitNextFragment(netchan_t *chan) {
     sint            fragmentLength;
 
     // write the packet header
-    MSG_InitOOB(&send, send_buf,
-                sizeof(send_buf));                   // <-- only do the oob here
+    msgToFuncSystem->InitOOB(&send, send_buf,
+                             sizeof(send_buf));                   // <-- only do the oob here
 
-    MSG_WriteLong(&send, chan->outgoingSequence | FRAGMENT_BIT);
+    msgToFuncSystem->WriteLong(&send, chan->outgoingSequence | FRAGMENT_BIT);
 
     // send the qport if we are a client
     if(chan->sock == NS_CLIENT) {
-        MSG_WriteShort(&send, net_qport->integer & 0x7fff);
+        msgToFuncSystem->WriteShort(&send, net_qport->integer & 0x7fff);
     }
 
     // copy the reliable message to the packet first
@@ -248,10 +248,11 @@ void idNetworkChainSystemLocal::TransmitNextFragment(netchan_t *chan) {
         fragmentLength = chan->unsentLength - chan->unsentFragmentStart;
     }
 
-    MSG_WriteShort(&send, chan->unsentFragmentStart);
-    MSG_WriteShort(&send, fragmentLength);
-    MSG_WriteData(&send, chan->unsentBuffer + chan->unsentFragmentStart,
-                  fragmentLength);
+    msgToFuncSystem->WriteShort(&send, chan->unsentFragmentStart);
+    msgToFuncSystem->WriteShort(&send, fragmentLength);
+    msgToFuncSystem->WriteData(&send,
+                               chan->unsentBuffer + chan->unsentFragmentStart,
+                               fragmentLength);
 
     // XOR scramble all data in the packet after the header
     ScramblePacket(&send);
@@ -320,17 +321,17 @@ void idNetworkChainSystemLocal::Transmit(netchan_t *chan, sint length,
     }
 
     // write the packet header
-    MSG_InitOOB(&send, send_buf, sizeof(send_buf));
+    msgToFuncSystem->InitOOB(&send, send_buf, sizeof(send_buf));
 
-    MSG_WriteLong(&send, chan->outgoingSequence);
+    msgToFuncSystem->WriteLong(&send, chan->outgoingSequence);
     chan->outgoingSequence++;
 
     // send the qport if we are a client
     if(chan->sock == NS_CLIENT) {
-        MSG_WriteShort(&send, net_qport->integer & 0x7fff);
+        msgToFuncSystem->WriteShort(&send, net_qport->integer & 0x7fff);
     }
 
-    MSG_WriteData(&send, data, length);
+    msgToFuncSystem->WriteData(&send, data, length);
 
     // XOR scramble all data in the packet after the header
     ScramblePacket(&send);
@@ -374,8 +375,8 @@ bool idNetworkChainSystemLocal::Process(netchan_t *chan, msg_t *msg) {
     UnScramblePacket(msg);
 
     // get sequence numbers
-    MSG_BeginReadingOOB(msg);
-    sequence = MSG_ReadLong(msg);
+    msgToFuncSystem->BeginReadingOOB(msg);
+    sequence = msgToFuncSystem->ReadLong(msg);
 
     // check for fragment information
     if(sequence & FRAGMENT_BIT) {
@@ -387,13 +388,13 @@ bool idNetworkChainSystemLocal::Process(netchan_t *chan, msg_t *msg) {
 
     // read the qport if we are a server
     if(chan->sock == NS_SERVER) {
-        qport = MSG_ReadShort(msg);
+        qport = msgToFuncSystem->ReadShort(msg);
     }
 
     // read the fragment information
     if(fragmented) {
-        fragmentStart = MSG_ReadShort(msg);
-        fragmentLength = MSG_ReadShort(msg);
+        fragmentStart = msgToFuncSystem->ReadShort(msg);
+        fragmentLength = msgToFuncSystem->ReadShort(msg);
     } else {
         fragmentStart = 0;      // stop warning message
         fragmentLength = 0;
@@ -693,7 +694,7 @@ void idNetworkChainSystemLocal::OutOfBandData(netsrc_t sock, netadr_t adr,
     sint            i;
     msg_t       mbuf;
 
-    MSG_InitOOB(&mbuf, string, sizeof(string));
+    msgToFuncSystem->InitOOB(&mbuf, string, sizeof(string));
 
     // set the header
     string[0] = 0xff;

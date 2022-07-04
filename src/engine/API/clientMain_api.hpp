@@ -30,7 +30,7 @@
 #ifndef __CLIENTMAIN_API_HPP__
 #define __CLIENTMAIN_API_HPP__
 
-#if defined (GUI) || defined (CGAMEDLL)
+#if defined (GUI) || defined (CGAMEDLL) || defined (RENDERSYSTEM)
 typedef struct msg_t msg_t;
 #endif
 

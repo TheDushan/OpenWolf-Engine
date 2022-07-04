@@ -247,7 +247,7 @@ void idClientParseSystemLocal::DeltaEntity(msg_t *msg, clSnapshot_t *frame,
     if(unchanged) {
         *state = *old;
     } else {
-        MSG_ReadDeltaEntity(msg, old, state, newnum);
+        msgToFuncSystem->ReadDeltaEntity(msg, old, state, newnum);
     }
 
     if(state->number == (MAX_GENTITIES - 1)) {
@@ -308,7 +308,7 @@ void idClientParseSystemLocal::ParsePacketEntities(msg_t *msg,
 
     while(1) {
         // read the entity index number
-        newnum = MSG_ReadBits(msg, GENTITYNUM_BITS);
+        newnum = msgToFuncSystem->ReadBits(msg, GENTITYNUM_BITS);
 
         if(newnum == (MAX_GENTITIES - 1)) {
             break;
@@ -416,7 +416,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
 
     // get the reliable sequence acknowledge number
     // NOTE: now sent with all server to client messages
-    //clc.reliableAcknowledge = MSG_ReadLong( msg );
+    //clc.reliableAcknowledge = msgToFuncSystem->ReadLong( msg );
 
     // read in the new snapshot to a temporary buffer
     // we will only copy to cl.snap if it is valid
@@ -426,7 +426,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
     // message before we got to svc_snapshot
     newSnap.serverCommandNum = clc.serverCommandSequence;
 
-    newSnap.serverTime = MSG_ReadLong(msg);
+    newSnap.serverTime = msgToFuncSystem->ReadLong(msg);
 
     // if we were just unpaused, we can only *now* really let the
     // change come into effect or the client hangs.
@@ -434,7 +434,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
 
     newSnap.messageNum = clc.serverMessageSequence;
 
-    deltaNum = MSG_ReadByte(msg);
+    deltaNum = msgToFuncSystem->ReadByte(msg);
 
     if(!deltaNum) {
         newSnap.deltaNum = -1;
@@ -442,7 +442,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
         newSnap.deltaNum = newSnap.messageNum - deltaNum;
     }
 
-    newSnap.snapFlags = MSG_ReadByte(msg);
+    newSnap.snapFlags = msgToFuncSystem->ReadByte(msg);
 
     // If the frame is delta compressed from data that we
     // no longer have available, we must suck up the rest of
@@ -531,7 +531,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
     }
 
     // read areamask
-    len = MSG_ReadByte(msg);
+    len = msgToFuncSystem->ReadByte(msg);
 
     if(len > sizeof(newSnap.areamask)) {
         common->Error(ERR_DROP, "CL_ParseSnapshot: Invalid size %d for areamask.",
@@ -539,15 +539,15 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
         return;
     }
 
-    MSG_ReadData(msg, &newSnap.areamask, len);
+    msgToFuncSystem->ReadData(msg, &newSnap.areamask, len);
 
     // read playerinfo
     ShowNet(msg, "playerstate");
 
     if(old) {
-        MSG_ReadDeltaPlayerstate(msg, &old->ps, &newSnap.ps);
+        msgToFuncSystem->ReadDeltaPlayerstate(msg, &old->ps, &newSnap.ps);
     } else {
-        MSG_ReadDeltaPlayerstate(msg, nullptr, &newSnap.ps);
+        msgToFuncSystem->ReadDeltaPlayerstate(msg, nullptr, &newSnap.ps);
     }
 
     // read packet entities
@@ -870,14 +870,14 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
     clientMainSystem->ClearState();
 
     // a gamestate always marks a server command sequence
-    clc.serverCommandSequence = MSG_ReadLong(msg);
+    clc.serverCommandSequence = msgToFuncSystem->ReadLong(msg);
 
     // parse all the configstrings and baselines
     cl.gameState.dataCount =
         1; // leave a 0 at the beginning for uninitialized configstrings
 
     while(1) {
-        cmd = MSG_ReadByte(msg);
+        cmd = msgToFuncSystem->ReadByte(msg);
 
         if(cmd == svc_EOF) {
             break;
@@ -886,13 +886,13 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
         if(cmd == svc_configstring) {
             uint64 len;
 
-            i = MSG_ReadShort(msg);
+            i = msgToFuncSystem->ReadShort(msg);
 
             if(i < 0 || i >= MAX_CONFIGSTRINGS) {
                 common->Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
             }
 
-            s = MSG_ReadBigString(msg);
+            s = msgToFuncSystem->ReadBigString(msg);
             len = strlen(s);
 
             if(len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
@@ -904,7 +904,7 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
             memcpy(cl.gameState.stringData + cl.gameState.dataCount, s, len + 1);
             cl.gameState.dataCount += len + 1;
         } else if(cmd == svc_baseline) {
-            newnum = MSG_ReadBits(msg, GENTITYNUM_BITS);
+            newnum = msgToFuncSystem->ReadBits(msg, GENTITYNUM_BITS);
 
             if(newnum < 0 || newnum >= MAX_GENTITIES) {
                 common->Error(ERR_DROP, "Baseline number out of range: %i", newnum);
@@ -912,16 +912,16 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
 
             memset(&nullstate, 0, sizeof(nullstate));
             es = &cl.entityBaselines[newnum];
-            MSG_ReadDeltaEntity(msg, &nullstate, es, newnum);
+            msgToFuncSystem->ReadDeltaEntity(msg, &nullstate, es, newnum);
         } else {
             common->Error(ERR_DROP,
                           "idClientParseSystemLocal::ParseGamestate: bad command byte");
         }
     }
 
-    clc.clientNum = MSG_ReadLong(msg);
+    clc.clientNum = msgToFuncSystem->ReadLong(msg);
     // read the checksum feed
-    clc.checksumFeed = MSG_ReadLong(msg);
+    clc.checksumFeed = msgToFuncSystem->ReadLong(msg);
 
     // parse serverId and other cvars
     SystemInfoChanged();
@@ -963,7 +963,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
     }
 
     // read the data
-    block = MSG_ReadShort(msg);
+    block = msgToFuncSystem->ReadShort(msg);
 
     // TTimo - www dl
     // if we haven't acked the download redirect yet
@@ -972,10 +972,10 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
             // server is sending us a www download
             Q_strncpyz(cls.originalDownloadName, cls.downloadName,
                        sizeof(cls.originalDownloadName));
-            Q_strncpyz(cls.downloadName, MSG_ReadString(msg),
+            Q_strncpyz(cls.downloadName, msgToFuncSystem->ReadString(msg),
                        sizeof(cls.downloadName));
-            clc.downloadSize = MSG_ReadLong(msg);
-            clc.downloadFlags = MSG_ReadLong(msg);
+            clc.downloadSize = msgToFuncSystem->ReadLong(msg);
+            clc.downloadFlags = msgToFuncSystem->ReadLong(msg);
 
             if(clc.downloadFlags & (1 << DL_FLAG_URL)) {
                 idsystem->OpenURL(cls.downloadName, true);
@@ -1032,27 +1032,27 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
             return;
         } else {
             // server keeps sending that message till we ack it, eat and ignore
-            //MSG_ReadLong( msg );
-            MSG_ReadString(msg);
-            MSG_ReadLong(msg);
-            MSG_ReadLong(msg);
+            //msgToFuncSystem->ReadLong( msg );
+            msgToFuncSystem->ReadString(msg);
+            msgToFuncSystem->ReadLong(msg);
+            msgToFuncSystem->ReadLong(msg);
             return;
         }
     }
 
     if(!block) {
         // block zero is special, contains file size
-        clc.downloadSize = MSG_ReadLong(msg);
+        clc.downloadSize = msgToFuncSystem->ReadLong(msg);
 
         cvarSystem->SetValue("cl_downloadSize", clc.downloadSize);
 
         if(clc.downloadSize < 0) {
-            common->Error(ERR_DROP, "%s", MSG_ReadString(msg));
+            common->Error(ERR_DROP, "%s", msgToFuncSystem->ReadString(msg));
             return;
         }
     }
 
-    size = MSG_ReadShort(msg);
+    size = msgToFuncSystem->ReadShort(msg);
 
     if(size < 0 || size > sizeof(data)) {
         common->Error(ERR_DROP,
@@ -1060,7 +1060,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
         return;
     }
 
-    MSG_ReadData(msg, data, size);
+    msgToFuncSystem->ReadData(msg, data, size);
 
     if(clc.downloadBlock != block) {
         if(developer->integer) {
@@ -1134,8 +1134,8 @@ void idClientParseSystemLocal::ParseCommandString(msg_t *msg) {
     valueType *s;
     sint seq, index;
 
-    seq = MSG_ReadLong(msg);
-    s = MSG_ReadString(msg);
+    seq = msgToFuncSystem->ReadLong(msg);
+    s = msgToFuncSystem->ReadString(msg);
 
     // see if we have already executed stored it off
     if(clc.serverCommandSequence >= seq) {
@@ -1166,10 +1166,10 @@ void idClientParseSystemLocal::ParseServerMessage(msg_t *msg) {
         common->Printf("------------------\n");
     }
 
-    MSG_Bitstream(msg);
+    msgToFuncSystem->Bitstream(msg);
 
     // get the reliable sequence acknowledge number
-    clc.reliableAcknowledge = MSG_ReadLong(msg);
+    clc.reliableAcknowledge = msgToFuncSystem->ReadLong(msg);
 
     //
     if(clc.reliableAcknowledge < clc.reliableSequence -
@@ -1187,14 +1187,16 @@ void idClientParseSystemLocal::ParseServerMessage(msg_t *msg) {
             break;
         }
 
-        cmd = MSG_ReadByte(msg);
+        cmd = msgToFuncSystem->ReadByte(msg);
 
         // See if this is an extension command after the EOF, which means we
         //  got data that a legacy client should ignore.
-        if((cmd == svc_EOF) && (MSG_LookaheadByte(msg) == svc_extension)) {
+        if((cmd == svc_EOF) &&
+                (msgToFuncSystem->LookaheadByte(msg) == svc_extension)) {
             ShowNet(msg, "EXTENSION");
-            MSG_ReadByte(msg);                   // throw the svc_extension byte away.
-            cmd = MSG_ReadByte(
+            msgToFuncSystem->ReadByte(
+                msg);                   // throw the svc_extension byte away.
+            cmd = msgToFuncSystem->ReadByte(
                       msg);                 // something legacy clients can't do!
 
             // sometimes you get a svc_extension at end of stream...dangling

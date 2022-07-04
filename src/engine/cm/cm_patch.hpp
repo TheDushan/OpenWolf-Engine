@@ -115,7 +115,7 @@ typedef struct {
 } cSurface_t;
 
 #define MAX_FACETS          1024
-#define MAX_PATCH_PLANES    2048
+#define MAX_PATCH_PLANES    8192
 
 #define MAX_GRID_SIZE 65
 

@@ -129,7 +129,7 @@ void idServerSnapshotSystemLocal::EmitPacketEntities(
             // delta update from old position
             // because the force parm is false, this will not result
             // in any bytes being emited if the entity has not changed at all
-            MSG_WriteDeltaEntity(msg, oldent, newent, false);
+            msgToFuncSystem->WriteDeltaEntity(msg, oldent, newent, false);
             oldindex++;
             newindex++;
             continue;
@@ -137,21 +137,22 @@ void idServerSnapshotSystemLocal::EmitPacketEntities(
 
         if(newnum < oldnum) {
             // this is a new entity, send it from the baseline
-            MSG_WriteDeltaEntity(msg, &sv.svEntities[newnum].baseline, newent, true);
+            msgToFuncSystem->WriteDeltaEntity(msg, &sv.svEntities[newnum].baseline,
+                                              newent, true);
             newindex++;
             continue;
         }
 
         if(newnum > oldnum) {
             // the old entity isn't present in the new message
-            MSG_WriteDeltaEntity(msg, oldent, nullptr, true);
+            msgToFuncSystem->WriteDeltaEntity(msg, oldent, nullptr, true);
             oldindex++;
             continue;
         }
     }
 
-    MSG_WriteBits(msg, (MAX_GENTITIES - 1),
-                  GENTITYNUM_BITS);     // end of packetentities
+    msgToFuncSystem->WriteBits(msg, (MAX_GENTITIES - 1),
+                               GENTITYNUM_BITS);     // end of packetentities
 }
 
 /*
@@ -227,11 +228,11 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
         client->demo.demowaiting = false;
     }
 
-    MSG_WriteByte(msg, svc_snapshot);
+    msgToFuncSystem->WriteByte(msg, svc_snapshot);
 
     // NOTE, MRE: now sent at the start of every message from server to client
     // let the client know which reliable clientCommands we have received
-    //MSG_WriteLong( msg, client->lastClientCommand );
+    //msgToFuncSystem->WriteLong( msg, client->lastClientCommand );
 
     // send over the current server time so the client can drift
     // its view of time to try to match
@@ -242,13 +243,13 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
         // the client's perspective this time is strictly speaking
         // incorrect, but since it'll be busy loading a map at
         // the time it doesn't really matter.
-        MSG_WriteLong(msg, sv.time + client->oldServerTime);
+        msgToFuncSystem->WriteLong(msg, sv.time + client->oldServerTime);
     } else {
-        MSG_WriteLong(msg, sv.time);
+        msgToFuncSystem->WriteLong(msg, sv.time);
     }
 
     // what we are delta'ing from
-    MSG_WriteByte(msg, lastframe);
+    msgToFuncSystem->WriteByte(msg, lastframe);
 
     snapFlags = svs.snapFlagServerBit;
 
@@ -260,11 +261,11 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
         snapFlags |= SNAPFLAG_NOT_ACTIVE;
     }
 
-    MSG_WriteByte(msg, snapFlags);
+    msgToFuncSystem->WriteByte(msg, snapFlags);
 
     // send over the areabits
-    MSG_WriteByte(msg, frame->areabytes);
-    MSG_WriteData(msg, frame->areabits, frame->areabytes);
+    msgToFuncSystem->WriteByte(msg, frame->areabytes);
+    msgToFuncSystem->WriteData(msg, frame->areabits, frame->areabytes);
 
     {
         //sint sz = msg->cursize;
@@ -272,9 +273,9 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
 
         // delta encode the playerstate
         if(oldframe) {
-            MSG_WriteDeltaPlayerstate(msg, &oldframe->ps, &frame->ps);
+            msgToFuncSystem->WriteDeltaPlayerstate(msg, &oldframe->ps, &frame->ps);
         } else {
-            MSG_WriteDeltaPlayerstate(msg, nullptr, &frame->ps);
+            msgToFuncSystem->WriteDeltaPlayerstate(msg, nullptr, &frame->ps);
         }
 
         //      common->Printf( "Playerstate delta size: %f\n", ((msg->cursize - sz) * sv_fps->integer) / 8.f );
@@ -286,7 +287,7 @@ void idServerSnapshotSystemLocal::WriteSnapshotToClient(client_t *client,
     // padding for rate debugging
     if(sv_padPackets->integer) {
         for(i = 0; i < sv_padPackets->integer; i++) {
-            MSG_WriteByte(msg, svc_nop);
+            msgToFuncSystem->WriteByte(msg, svc_nop);
         }
     }
 }
@@ -327,10 +328,11 @@ bool idServerSnapshotSystemLocal::UpdateServerCommandsToClients(
         }
 
 
-        MSG_WriteByte(msg, svc_serverCommand);
-        MSG_WriteLong(msg, i);
-        MSG_WriteString(msg, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS -
-                          1)]);
+        msgToFuncSystem->WriteByte(msg, svc_serverCommand);
+        msgToFuncSystem->WriteLong(msg, i);
+        msgToFuncSystem->WriteString(msg,
+                                     client->reliableCommands[i & (MAX_RELIABLE_COMMANDS -
+                                               1)]);
     }
 
     client->reliableSent = client->reliableSequence;
@@ -874,7 +876,7 @@ void idServerSnapshotSystemLocal::SendMessageToClient(msg_t *msg,
     // save the message to demo.  this must happen before sending over network as that encodes the backing databuf
     if(client->demo.demorecording && !client->demo.demowaiting) {
         msg_t msgcopy = *msg;
-        MSG_WriteByte(&msgcopy, svc_EOF);
+        msgToFuncSystem->WriteByte(&msgcopy, svc_EOF);
         idServerCcmdsSystemLocal::WriteDemoMessage(client, &msgcopy, 0);
     }
 
@@ -947,12 +949,12 @@ void idServerSnapshotSystemLocal::SendClientIdle(client_t *client) {
     uchar8 msg_buf[MAX_MSGLEN];
     msg_t msg;
 
-    MSG_Init(&msg, msg_buf, sizeof(msg_buf));
+    msgToFuncSystem->Init(&msg, msg_buf, sizeof(msg_buf));
     msg.allowoverflow = true;
 
     // NOTE, MRE: all server->client messages now acknowledge
     // let the client know which reliable clientCommands we have received
-    MSG_WriteLong(&msg, client->lastClientCommand);
+    msgToFuncSystem->WriteLong(&msg, client->lastClientCommand);
 
     // (re)send any reliable server commands
     UpdateServerCommandsToClient(client, &msg);
@@ -968,7 +970,7 @@ void idServerSnapshotSystemLocal::SendClientIdle(client_t *client) {
     if(msg.overflowed) {
         common->Printf("idServerSnapshotSystemLocal::SendClientIdle - WARNING: msg overflowed for %s\n",
                        client->name);
-        MSG_Clear(&msg);
+        msgToFuncSystem->Clear(&msg);
 
         serverClientSystem->DropClient(client,
                                        "idServerSnapshotSystemLocal::SendClientIdle - Msg overflowed");
@@ -1029,12 +1031,12 @@ void idServerSnapshotSystemLocal::SendClientSnapshot(client_t *client) {
         return;
     }
 
-    MSG_Init(&msg, msg_buf, sizeof(msg_buf));
+    msgToFuncSystem->Init(&msg, msg_buf, sizeof(msg_buf));
     msg.allowoverflow = true;
 
     // NOTE, MRE: all server->client messages now acknowledge
     // let the client know which reliable clientCommands we have received
-    MSG_WriteLong(&msg, client->lastClientCommand);
+    msgToFuncSystem->WriteLong(&msg, client->lastClientCommand);
 
     // (re)send any reliable server commands
     if(!UpdateServerCommandsToClients(client, &msg, true)) {
@@ -1079,7 +1081,7 @@ void idServerSnapshotSystemLocal::SendClientSnapshot(client_t *client) {
     if(msg.overflowed) {
         common->Printf("idServerSnapshotSystemLocal::SendClientSnapshot : WARNING: msg overflowed for %s\n",
                        client->name);
-        MSG_Clear(&msg);
+        msgToFuncSystem->Clear(&msg);
 
         serverClientSystem->DropClient(client,
                                        "idServerSnapshotSystemLocal::SendClientSnapshot : Msg overflowed");

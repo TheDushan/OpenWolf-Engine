@@ -954,7 +954,8 @@ sysEvent_t idCommonLocal::GetSystemEvent(void) {
     }
 
     // check for network packets
-    MSG_Init(&netmsg, sys_packetReceived, sizeof(sys_packetReceived));
+    msgToFuncSystem->Init(&netmsg, sys_packetReceived,
+                          sizeof(sys_packetReceived));
     adr.type = NA_UNSPEC;
 
     if(networkSystem->GetPacket(&adr, &netmsg)) {
@@ -1145,7 +1146,7 @@ sint idCommonLocal::EventLoop(void) {
     static uchar8       bufData[MAX_MSGLEN];
     msg_t           buf;
 
-    MSG_Init(&buf, bufData, sizeof(bufData));
+    msgToFuncSystem->Init(&buf, bufData, sizeof(bufData));
 
     while(1) {
         ev = GetEvent();

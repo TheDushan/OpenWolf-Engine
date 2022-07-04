@@ -1450,7 +1450,8 @@ idClientCinemaSystemLocal::CinemaDrawCinematic
 ==================
 */
 void idClientCinemaSystemLocal::CinemaDrawCinematic(sint handle) {
-    float32 x, y, w, h, xscale, yscale;
+    float32 x, y, w, h;
+    float32 barheight, barwidth, vw, vh;
     uchar8    *buf;
 
     if(handle < 0 || handle >= MAX_VIDEO_HANDLES ||
@@ -1468,28 +1469,37 @@ void idClientCinemaSystemLocal::CinemaDrawCinematic(sint handle) {
     h = cinTable[handle].height;
     buf = cinTable[handle].buf;
 
-    xscale = yscale = cls.glconfig.vidHeight / 480.0;
-    w *= xscale;
-    h *= yscale;
-    x = 0.5 * (cls.glconfig.vidWidth - w);
-    y *= yscale;
+    if(cinTable[handle].letterBox) {
+        clientScreenSystem->AdjustFrom640(&x, &y, &w, &h, ALIGN_LETTERBOX);
+    } else {
+        clientScreenSystem->AdjustFrom640(&x, &y, &w, &h, ALIGN_CENTER);
+    }
+
+    vw = (float)cls.glconfig.vidWidth;
+    vh = (float)cls.glconfig.vidHeight;
 
     if(cinTable[handle].letterBox) {
-        float32 barheight;
-        float32 vh;
-        vh = static_cast<float32>(cls.glconfig.vidHeight);
+        barwidth = vw;
+        barheight = 0.5 * (vh - h);
 
-        barheight = (static_cast<float32>(LETTERBOX_OFFSET) / 480.0f) *
-                    vh;     //----(SA)    added
+        if(barheight > 0) {
+            renderSystem->SetColor(&colorBlack[0]);
+            renderSystem->DrawStretchPic(0, 0, barwidth, barheight, 0, 0, 0, 0,
+                                         cls.whiteShader);
+            renderSystem->DrawStretchPic(0, vh - barheight - 1, barwidth,
+                                         barheight + 1, 0, 0, 0, 0, cls.whiteShader);
+        }
+    }
 
+    barwidth = 0.5 * (vw - w);
+    barheight = vh;
+
+    if(barwidth > 0) {
         renderSystem->SetColor(&colorBlack[0]);
-        //      renderSystem->DrawStretchPic( 0, 0, SCREEN_WIDTH, LETTERBOX_OFFSET, 0, 0, 0, 0, cls.whiteShader );
-        //      renderSystem->DrawStretchPic( 0, SCREEN_HEIGHT-LETTERBOX_OFFSET, SCREEN_WIDTH, LETTERBOX_OFFSET, 0, 0, 0, 0, cls.whiteShader );
-        //----(SA)  adjust for 640x480
-        renderSystem->DrawStretchPic(0, 0, w, barheight, 0, 0, 0, 0,
+        renderSystem->DrawStretchPic(0, 0, barwidth, barheight, 0, 0, 0, 0,
                                      cls.whiteShader);
-        renderSystem->DrawStretchPic(0, vh - barheight - 1, w, barheight + 1, 0, 0,
-                                     0, 0, cls.whiteShader);
+        renderSystem->DrawStretchPic(vw - barwidth - 1, 0, barwidth + 1, barheight,
+                                     0, 0, 0, 0, cls.whiteShader);
     }
 
     if(cinTable[handle].dirty &&

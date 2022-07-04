@@ -94,7 +94,7 @@ static sint      numPlanes;
 static cPlane_t planes[SHADER_MAX_TRIANGLES];
 
 static sint      numFacets;
-static cFacet_t facets[SHADER_MAX_TRIANGLES];
+static cFacet_t facets[MAX_FACETS];
 
 #define NORMAL_EPSILON      0.0001
 #define DIST_EPSILON        0.02

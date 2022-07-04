@@ -91,7 +91,7 @@ void idServerNetChanSystemLocal::NetchanEncode(client_t *client,
     msg->readcount = 0;
     msg->oob = false;
 
-    reliableAcknowledge = MSG_ReadLong(msg);
+    reliableAcknowledge = msgToFuncSystem->ReadLong(msg);
 
     msg->oob = soob;
     msg->bit = sbit;
@@ -145,9 +145,9 @@ void idServerNetChanSystemLocal::NetchanDecode(client_t *client,
 
     msg->oob = false;
 
-    serverId = MSG_ReadLong(msg);
-    messageAcknowledge = MSG_ReadLong(msg);
-    reliableAcknowledge = MSG_ReadLong(msg);
+    serverId = msgToFuncSystem->ReadLong(msg);
+    messageAcknowledge = msgToFuncSystem->ReadLong(msg);
+    reliableAcknowledge = msgToFuncSystem->ReadLong(msg);
 
     msg->oob = soob;
     msg->bit = sbit;
@@ -245,7 +245,7 @@ then buffer them and make sure they get sent in correct order
 */
 void idServerNetChanSystemLocal::NetchanTransmit(client_t *client,
         msg_t *msg) {
-    MSG_WriteByte(msg, svc_EOF);
+    msgToFuncSystem->WriteByte(msg, svc_EOF);
 
     if(client->netchan.unsentFragments) {
         netchan_buffer_t *netbuf;
@@ -257,7 +257,8 @@ void idServerNetChanSystemLocal::NetchanTransmit(client_t *client,
                                           netchan_buffer_t)));
 
         // store the msg, we can't store it encoded, as the encoding depends on stuff we still have to finish sending
-        MSG_Copy(&netbuf->msg, netbuf->msgBuffer, sizeof(netbuf->msgBuffer), msg);
+        msgToFuncSystem->Copy(&netbuf->msg, netbuf->msgBuffer,
+                              sizeof(netbuf->msgBuffer), msg);
 
         // copy the command, since the command number used for encryption is
         // already compressed in the buffer, and receiving a new command would

@@ -454,7 +454,7 @@ print OOB are the only messages we handle markups in
 void idClientMainSystemLocal::PrintPacket(netadr_t from, msg_t *msg) {
     valueType *s;
 
-    s = MSG_ReadBigString(msg);
+    s = msgToFuncSystem->ReadBigString(msg);
 
     if(!Q_stricmpn(s, "[err_dialog]", 12)) {
         Q_strncpyz(clc.serverMessage, s + 12, sizeof(clc.serverMessage));
@@ -493,10 +493,10 @@ void idClientMainSystemLocal::ConnectionlessPacket(netadr_t from,
     valueType *s, *c;
     sint challenge = 0;
 
-    MSG_BeginReadingOOB(msg);
-    MSG_ReadLong(msg);      // skip the -1
+    msgToFuncSystem->BeginReadingOOB(msg);
+    msgToFuncSystem->ReadLong(msg);      // skip the -1
 
-    s = MSG_ReadStringLine(msg);
+    s = msgToFuncSystem->ReadStringLine(msg);
 
     cmdSystem->TokenizeString(s);
 

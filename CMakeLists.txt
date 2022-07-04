@@ -308,10 +308,6 @@ set( QCOMMONLIST_HEADERS
 	${MOUNT_DIR}/qcommon/qfiles.hpp
 )
 
-set( QCOMMONLIST_SOURCES
-	${MOUNT_DIR}/qcommon/msg.cpp
-)
-
 set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/API/FileSystem_api.hpp
 	${MOUNT_DIR}/API/CVarSystem_api.hpp
@@ -345,6 +341,8 @@ set( FRAMEWORKS_HEADERS
 	${MOUNT_DIR}/framework/Memory.hpp
 	${MOUNT_DIR}/API/Common_api.hpp
 	${MOUNT_DIR}/framework/Common.hpp
+	${MOUNT_DIR}/API/MessagesToFunctions_api.hpp
+	${MOUNT_DIR}/framework/MessagesToFunctions.hpp
 
 )
 
@@ -369,6 +367,7 @@ set( FRAMEWORKS_SOURCES
 	${MOUNT_DIR}/framework/CommonConsoleVars.cpp
 	${MOUNT_DIR}/framework/Memory.cpp
 	${MOUNT_DIR}/framework/Common.cpp
+	${MOUNT_DIR}/framework/MessagesToFunctions.cpp
 )
 
 set( CLIENTLIST_HEADERS

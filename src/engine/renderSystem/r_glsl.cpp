@@ -601,8 +601,8 @@ static sint GLSL_InitGPUShader2(shaderProgram_t *program, pointer name,
 
 static sint GLSL_InitGPUShader(shaderProgram_t *program, pointer name,
                                sint attribs, bool fragmentShader, pointer extra, bool addHeader) {
-    valueType vpCode[170000];
-    valueType fpCode[170000];
+    valueType vpCode[320000];
+    valueType fpCode[320000];
     valueType *postHeader;
     sint size;
     sint result;

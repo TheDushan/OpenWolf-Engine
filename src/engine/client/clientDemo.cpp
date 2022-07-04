@@ -138,9 +138,8 @@ Begins recording a demo from the current position
 ====================
 */
 void idClientDemoSystemLocal::Record_f(void) {
-    valueType            name[MAX_OSPATH], extension[32];
-    sint             len;
-    valueType           *s;
+    sint len;
+    valueType name[MAX_OSPATH], extension[32], *s;
 
     if(cmdSystem->Argc() > 2) {
         common->Printf("record <demoname>\n");
@@ -214,14 +213,14 @@ void idClientDemoSystemLocal::Record(pointer name) {
     clc.demowaiting = true;
 
     // write out the gamestate message
-    MSG_Init(&buf, bufData, sizeof(bufData));
-    MSG_Bitstream(&buf);
+    msgToFuncSystem->Init(&buf, bufData, sizeof(bufData));
+    msgToFuncSystem->Bitstream(&buf);
 
     // NOTE, MRE: all server->client messages now acknowledge
-    MSG_WriteLong(&buf, clc.reliableSequence);
+    msgToFuncSystem->WriteLong(&buf, clc.reliableSequence);
 
-    MSG_WriteByte(&buf, svc_gamestate);
-    MSG_WriteLong(&buf, clc.serverCommandSequence);
+    msgToFuncSystem->WriteByte(&buf, svc_gamestate);
+    msgToFuncSystem->WriteLong(&buf, clc.serverCommandSequence);
 
     // configstrings
     for(i = 0; i < MAX_CONFIGSTRINGS; i++) {
@@ -230,9 +229,9 @@ void idClientDemoSystemLocal::Record(pointer name) {
         }
 
         s = cl.gameState.stringData + cl.gameState.stringOffsets[i];
-        MSG_WriteByte(&buf, svc_configstring);
-        MSG_WriteShort(&buf, i);
-        MSG_WriteBigString(&buf, s);
+        msgToFuncSystem->WriteByte(&buf, svc_configstring);
+        msgToFuncSystem->WriteShort(&buf, i);
+        msgToFuncSystem->WriteBigString(&buf, s);
     }
 
     // baselines
@@ -245,21 +244,21 @@ void idClientDemoSystemLocal::Record(pointer name) {
             continue;
         }
 
-        MSG_WriteByte(&buf, svc_baseline);
-        MSG_WriteDeltaEntity(&buf, &nullstate, ent, true);
+        msgToFuncSystem->WriteByte(&buf, svc_baseline);
+        msgToFuncSystem->WriteDeltaEntity(&buf, &nullstate, ent, true);
     }
 
-    MSG_WriteByte(&buf, svc_EOF);
+    msgToFuncSystem->WriteByte(&buf, svc_EOF);
 
     // finished writing the gamestate stuff
 
     // write the client num
-    MSG_WriteLong(&buf, clc.clientNum);
+    msgToFuncSystem->WriteLong(&buf, clc.clientNum);
     // write the checksum feed
-    MSG_WriteLong(&buf, clc.checksumFeed);
+    msgToFuncSystem->WriteLong(&buf, clc.checksumFeed);
 
     // finished writing the client packet
-    MSG_WriteByte(&buf, svc_EOF);
+    msgToFuncSystem->WriteByte(&buf, svc_EOF);
 
     // write it to the demo file
     len = LittleLong(clc.serverMessageSequence - 1);
@@ -330,7 +329,7 @@ void idClientDemoSystemLocal::ReadDemoMessage(void) {
     clc.serverMessageSequence = LittleLong(s);
 
     // init the message
-    MSG_Init(&buf, bufData, sizeof(bufData));
+    msgToFuncSystem->Init(&buf, bufData, sizeof(bufData));
 
     // get the length
     r = fileSystem->Read(&buf.cursize, 4, clc.demofile);

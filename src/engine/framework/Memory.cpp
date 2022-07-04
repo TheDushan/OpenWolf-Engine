@@ -752,7 +752,10 @@ void *idMemorySystemLocal::Alloc(size_t size, ha_pref preference) {
     size = (size + 63) & ~63;
 
     if(s_hunk.permTop + s_hunk.tempTop + size > s_hunk.memSize) {
-        common->Error(ERR_DROP, "idMemorySystemLocal::Alloc failed on %i", size);
+        common->Error(ERR_DROP,
+                      "idMemorySystemLocal::Alloc failed on %i\nTry to augment com_hunkMegs (conVar: %d MB, real: %d MB)",
+                      size, cvarSystem->VariableIntegerValue("com_hunkMegs"), s_hunk.memSize);
+
     }
 
     buf = s_hunk.mem + s_hunk.permTop;

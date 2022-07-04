@@ -325,6 +325,27 @@ typedef sint     fixed16_t;
 #define NUMVERTEXNORMALS    162
 extern vec3_t bytedirs[NUMVERTEXNORMALS];
 
+typedef enum {
+    ALIGN_UNSET = 0,
+    ALIGN_STRETCH,
+    ALIGN_STRETCH_LEFT_CENTER,
+    ALIGN_STRETCH_RIGHT_CENTER,
+    ALIGN_STRETCH_ALL,
+    ALIGN_CENTER,
+    ALIGN_LETTERBOX,
+    ALIGN_TOP,
+    ALIGN_BOTTOM,
+    ALIGN_RIGHT,
+    ALIGN_LEFT,
+    ALIGN_TOPRIGHT,
+    ALIGN_TOPLEFT,
+    ALIGN_BOTTOMRIGHT,
+    ALIGN_BOTTOMLEFT,
+    ALIGN_TOP_STRETCH,
+    ALIGN_BOTTOM_STRETCH,
+    ALIGN_SCOPE // special case for scopes, only used by cgame module
+} scralign_t;
+
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
 #define SCREEN_WIDTH        640
@@ -887,8 +908,6 @@ sint COM_Parse2Infos(valueType *buf, sint max,
 bool COM_BitCheck(const sint array[], sint bitNum);
 void COM_BitSet(sint array[], sint bitNum);
 void COM_BitClear(sint array[], sint bitNum);
-
-sint     Com_HashKey(valueType *string, sint maxlen);
 
 #define MAX_TOKENLENGTH     1024
 

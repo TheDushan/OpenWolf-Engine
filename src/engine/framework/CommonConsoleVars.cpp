@@ -69,6 +69,10 @@ convar_t *scr_conBarColorGreen;
 convar_t *scr_conBarSize;
 convar_t *scr_conHeight;
 
+convar_t *scr_surroundlayout;
+convar_t *scr_surroundleft;
+convar_t *scr_surroundright;
+
 // DHM - Nerve :: Must hold CTRL + SHIFT + ~ to get console
 convar_t *con_restricted;
 convar_t *cl_upspeed;
@@ -479,6 +483,15 @@ void idCommonLocal::InitCommonConsoleVars(void) {
 
     scr_conBarSize = cvarSystem->Get("scr_conBarSize", "2", CVAR_ARCHIVE,
                                      "^1Console bar size.");
+    scr_surroundlayout = cvarSystem->Get("scr_surroundlayout", "1",
+                                         CVAR_ARCHIVE,
+                                         "Whether to keep HUD / menu elements on center screen in triple - wide video modes");
+    scr_surroundleft = cvarSystem->Get("scr_surroundleft", "0.333333333333",
+                                       CVAR_ARCHIVE,
+                                       "Left placement of HUD / menu elements on center screen in triple - wide video modes");
+    scr_surroundright = cvarSystem->Get("scr_surroundright", "0.666666666667",
+                                        CVAR_ARCHIVE,
+                                        "Right placement of HUD / menu elements on center screen in triple - wide video modes");
 
     cl_nodelta = cvarSystem->Get("cl_nodelta", "0", 0,
                                  "Wether to disable delta compression for networking stuff.");

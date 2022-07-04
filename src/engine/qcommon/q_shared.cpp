@@ -265,26 +265,6 @@ void COM_DefaultExtension(valueType *path, sint maxSize,
 
 //============================================================================
 
-/*
-============
-Com_HashKey
-============
-*/
-sint Com_HashKey(valueType *string, sint maxlen) {
-    sint hash, i;
-
-    hash = 0;
-
-    for(i = 0; i < maxlen && string[i] != '\0'; i++) {
-        hash += string[i] * (119 + i);
-    }
-
-    hash = (hash ^ (hash >> 10) ^ (hash >> 20));
-    return hash;
-}
-
-//============================================================================
-
 
 /*
 ==================

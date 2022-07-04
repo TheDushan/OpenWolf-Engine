@@ -293,7 +293,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
     sint prot;
     valueType *gameName;
 
-    infoString = MSG_ReadString(msg);
+    infoString = msgToFuncSystem->ReadString(msg);
 
     // if this isn't the correct protocol version, ignore it
     prot = atoi(Info_ValueForKey(infoString, "protocol"));
@@ -406,7 +406,7 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
     cls.localServers[i].balancedteams = 0;
     cls.localServers[i].gameName[0] = '\0';
 
-    Q_strncpyz(info, MSG_ReadString(msg), MAX_INFO_STRING);
+    Q_strncpyz(info, msgToFuncSystem->ReadString(msg), MAX_INFO_STRING);
 
     if(::strlen(info)) {
         if(info[::strlen(info) - 1] != '\n') {
@@ -560,7 +560,7 @@ void idClientBrowserSystemLocal::ServerStatusResponse(netadr_t from,
         return;
     }
 
-    s = MSG_ReadStringLine(msg);
+    s = msgToFuncSystem->ReadStringLine(msg);
 
     len = 0;
     Q_vsprintf_s(&serverStatus->string[len],
@@ -614,8 +614,8 @@ void idClientBrowserSystemLocal::ServerStatusResponse(netadr_t from,
         common->Printf("num: score: ping: name:\n");
     }
 
-    for(i = 0, s = MSG_ReadStringLine(msg); *s;
-            s = MSG_ReadStringLine(msg), i++) {
+    for(i = 0, s = msgToFuncSystem->ReadStringLine(msg); *s;
+            s = msgToFuncSystem->ReadStringLine(msg), i++) {
 
         len = ::strlen(serverStatus->string);
         Q_vsprintf_s(&serverStatus->string[len],

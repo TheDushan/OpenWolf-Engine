@@ -144,8 +144,7 @@ idClientRendererSystemLocal::RefTagFree
 ============
 */
 void idClientRendererSystemLocal::RefTagFree(void) {
-    memorySystem->FreeTags(TAG_RENDERER);
-    return;
+    return memorySystem->FreeTags(TAG_RENDERER);
 }
 
 /*
@@ -154,7 +153,7 @@ idClientRendererSystemLocal::ScaledMilliseconds
 ============
 */
 sint idClientRendererSystemLocal::ScaledMilliseconds(void) {
-#ifdef NDEBUG
+#ifdef _DEBUG
     return ++cl_faketime;
 #else
     return idsystem->Milliseconds() * timescale->value;
@@ -237,4 +236,5 @@ idClientRendererSystemLocal::ShutdownRef
 void idClientRendererSystemLocal::ShutdownRef(void) {
     renderSystem->Shutdown(true);
     cls.rendererStarted = false;
+    ::memset(&exports, 0, sizeof(exports));
 }

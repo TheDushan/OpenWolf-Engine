@@ -406,4 +406,8 @@ extern convar_t *graphshift;
 extern convar_t *r_fullscreen;
 extern convar_t *cl_logChat;
 
+extern convar_t *scr_surroundlayout;
+extern convar_t *scr_surroundleft;
+extern convar_t *scr_surroundright;
+
 #endif //!__COMMONCONSOLEVARS_HPP__

@@ -1177,15 +1177,15 @@ void idServerMainSystemLocal::ConnectionlessPacket(netadr_t from,
         msg_t *msg) {
     valueType *s, *c;
 
-    MSG_BeginReadingOOB(msg);
-    MSG_ReadLong(msg);           // skip the -1 marker
+    msgToFuncSystem->BeginReadingOOB(msg);
+    msgToFuncSystem->ReadLong(msg);           // skip the -1 marker
 
     if(!Q_strncmp("connect", reinterpret_cast<valueType *>(&msg->data[4]),
                   7)) {
         idHuffmanSystemLocal::DynDecompress(msg, 12);
     }
 
-    s = MSG_ReadStringLine(msg);
+    s = msgToFuncSystem->ReadStringLine(msg);
 
     cmdSystem->TokenizeString(s);
 
@@ -1272,9 +1272,9 @@ void idServerMainSystemLocal::PacketEvent(netadr_t from, msg_t *msg) {
 
     // read the qport out of the message so we can fix up
     // stupid address translating routers
-    MSG_BeginReadingOOB(msg);
-    MSG_ReadLong(msg);           // sequence number
-    qport = MSG_ReadShort(msg) & 0x7fff;
+    msgToFuncSystem->BeginReadingOOB(msg);
+    msgToFuncSystem->ReadLong(msg);           // sequence number
+    qport = msgToFuncSystem->ReadShort(msg) & 0x7fff;
 
     // find which client the message is from
     for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {

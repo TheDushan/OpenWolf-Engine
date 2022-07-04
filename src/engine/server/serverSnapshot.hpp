@@ -38,7 +38,7 @@
 #ifndef __SERVERSNAPSHOT_HPP__
 #define __SERVERSNAPSHOT_HPP__
 
-#define MAX_SNAPSHOT_ENTITIES 2048
+#define MAX_SNAPSHOT_ENTITIES 1024
 
 // include our header, IP header, and some overhead
 #define HEADER_RATE_BYTES 48

@@ -1610,29 +1610,30 @@ void idClientInputSystemLocal::WritePacket(void) {
     ::memset(&nullcmd, 0, sizeof(nullcmd));
     oldcmd = &nullcmd;
 
-    MSG_Init(&buf, data, sizeof(data));
+    msgToFuncSystem->Init(&buf, data, sizeof(data));
 
-    MSG_Bitstream(&buf);
+    msgToFuncSystem->Bitstream(&buf);
     // write the current serverId so the server
     // can tell if this is from the current gameState
-    MSG_WriteLong(&buf, cl.serverId);
+    msgToFuncSystem->WriteLong(&buf, cl.serverId);
 
     // write the last message we received, which can
     // be used for delta compression, and is also used
     // to tell if we dropped a gamestate
-    MSG_WriteLong(&buf, clc.serverMessageSequence);
+    msgToFuncSystem->WriteLong(&buf, clc.serverMessageSequence);
 
     // write the last reliable message we received
-    MSG_WriteLong(&buf, clc.serverCommandSequence);
+    msgToFuncSystem->WriteLong(&buf, clc.serverCommandSequence);
 
     // write any unacknowledged clientCommands
     // NOTE TTimo: if you verbose this, you will see that there are quite a few duplicates
     // typically several unacknowledged cp or userinfo commands stacked up
     for(i = clc.reliableAcknowledge + 1; i <= clc.reliableSequence; i++) {
-        MSG_WriteByte(&buf, clc_clientCommand);
-        MSG_WriteLong(&buf, i);
-        MSG_WriteString(&buf, clc.reliableCommands[i & (MAX_RELIABLE_COMMANDS -
-                          1)]);
+        msgToFuncSystem->WriteByte(&buf, clc_clientCommand);
+        msgToFuncSystem->WriteLong(&buf, i);
+        msgToFuncSystem->WriteString(&buf,
+                                     clc.reliableCommands[i & (MAX_RELIABLE_COMMANDS -
+                                               1)]);
     }
 
     // we want to send all the usercmds that were generated in the last
@@ -1662,27 +1663,28 @@ void idClientInputSystemLocal::WritePacket(void) {
         // begin a client move command
         if(cl_nodelta->integer || !cl.snapServer.valid || clc.demowaiting ||
                 clc.serverMessageSequence != cl.snapServer.messageNum) {
-            MSG_WriteByte(&buf, clc_moveNoDelta);
+            msgToFuncSystem->WriteByte(&buf, clc_moveNoDelta);
         } else {
-            MSG_WriteByte(&buf, clc_move);
+            msgToFuncSystem->WriteByte(&buf, clc_move);
         }
 
         // write the command count
-        MSG_WriteByte(&buf, count);
+        msgToFuncSystem->WriteByte(&buf, count);
 
         // use the checksum feed in the key
         key = clc.checksumFeed;
         // also use the message acknowledge
         key ^= clc.serverMessageSequence;
         // also use the last acknowledged server command in the key
-        key ^= Com_HashKey(clc.serverCommands[clc.serverCommandSequence &
-                                                                        (MAX_RELIABLE_COMMANDS - 1)], 32);
+        key ^= msgToFuncSystem->HashKey(
+                   clc.serverCommands[clc.serverCommandSequence &
+                                                                (MAX_RELIABLE_COMMANDS - 1)], 32);
 
         // write all the commands, including the predicted command
         for(i = 0; i < count; i++) {
             j = (cl.cmdNumber - count + i + 1) & CMD_MASK;
             cmd = &cl.cmds[j];
-            MSG_WriteDeltaUsercmdKey(&buf, key, oldcmd, cmd);
+            msgToFuncSystem->WriteDeltaUsercmdKey(&buf, key, oldcmd, cmd);
             oldcmd = cmd;
         }
     }

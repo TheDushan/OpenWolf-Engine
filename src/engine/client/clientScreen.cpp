@@ -68,36 +68,410 @@ Adjusted for resolution and screen aspect ratio
 ================
 */
 void idClientScreenSystemLocal::AdjustFrom640(float32 *x, float32 *y,
-        float32 *w, float32 *h) {
-    float32 xscale, yscale;
+        float32 *w, float32 *h, scralign_t align) {
+    float32 screenAspect;
+    float32 xscale, lb_xscale, yscale, minscale, vertscale;
+    float32 tmp_x, tmp_y, tmp_w, tmp_h, tmp_left,
+            tmp_right;
+    float32 xleft, xright;
 
-#if 0
+    screenAspect = (float)cls.glconfig.vidWidth / (float)
+                   cls.glconfig.vidHeight;
 
-    // adjust for wide screens
-    if(cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640) {
-        *x += 0.5 * (cls.glconfig.vidWidth - (cls.glconfig.vidHeight * 640 / 480));
+    // for eyefinity/surround setups, keep everything on the center monitor
+    if(scr_surroundlayout && scr_surroundlayout->integer &&
+            screenAspect >= 3.6f) {
+        if(scr_surroundleft && scr_surroundleft->value > 0.0f &&
+                scr_surroundleft->value < 1.0f) {
+            xleft = (float)cls.glconfig.vidWidth * scr_surroundleft->value;
+        } else {
+            xleft = (float)cls.glconfig.vidWidth / 3.0f;
+        }
+
+        if(scr_surroundright && scr_surroundright->value > 0.0f &&
+                scr_surroundright->value < 1.0f) {
+            xright = (float)cls.glconfig.vidWidth * scr_surroundright->value;
+        } else {
+            xright = (float)cls.glconfig.vidWidth * (2.0f / 3.0f);
+        }
+
+        xscale = (xright - xleft) / SCREEN_WIDTH;
+    } else {
+        xleft = 0.0f;
+        xright = (float)cls.glconfig.vidWidth;
+        xscale = (float)cls.glconfig.vidWidth / SCREEN_WIDTH;
     }
 
-#endif
+    lb_xscale = (float)cls.glconfig.vidWidth / SCREEN_WIDTH;
+    yscale = (float)cls.glconfig.vidHeight / SCREEN_HEIGHT;
+    minscale = min(xscale, yscale);
 
-    // scale for screen sizes
-    xscale = cls.glconfig.vidWidth / 640.0f;
-    yscale = cls.glconfig.vidHeight / 480.0f;
-
-    if(x) {
-        *x *= xscale;
+    // hack for 5:4 modes
+    if(!(xscale > yscale) && align != ALIGN_LETTERBOX) {
+        align = ALIGN_STRETCH;
     }
 
-    if(y) {
-        *y *= yscale;
-    }
+    switch(align) {
+        case ALIGN_CENTER:
+            if(x) {
+                tmp_x = *x;
+                *x = (tmp_x - (0.5 * SCREEN_WIDTH)) * minscale + (0.5 *
+                        cls.glconfig.vidWidth);
+            }
 
-    if(w) {
-        *w *= xscale;
-    }
+            if(y) {
+                tmp_y = *y;
+                *y = (tmp_y - (0.5 * SCREEN_HEIGHT)) * minscale + (0.5 *
+                        cls.glconfig.vidHeight);
+            }
 
-    if(h) {
-        *h *= yscale;
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            break;
+
+        case ALIGN_LETTERBOX:
+
+            // special case: video mode (eyefinity?) is wider than object
+            if(w != NULL && h != NULL &&
+                    ((float)cls.glconfig.vidWidth / (float)cls.glconfig.vidHeight > *w / *h)) {
+                tmp_h = *h;
+                vertscale = cls.glconfig.vidHeight / tmp_h;
+
+                if(x != NULL && w != NULL) {
+                    tmp_x = *x;
+                    tmp_w = *w;
+                    *x = tmp_x * lb_xscale - (0.5 * (tmp_w * vertscale - tmp_w * lb_xscale));
+                }
+
+                if(y) {
+                    *y = 0;
+                }
+
+                if(w) {
+                    *w *= vertscale;
+                }
+
+                if(h) {
+                    *h *= vertscale;
+                }
+            } else {
+                if(x) {
+                    *x *= xscale;
+                }
+
+                if(y != NULL && h != NULL) {
+                    tmp_y = *y;
+                    tmp_h = *h;
+                    *y = tmp_y * yscale - (0.5 * (tmp_h * xscale - tmp_h * yscale));
+                }
+
+                if(w) {
+                    *w *= xscale;
+                }
+
+                if(h) {
+                    *h *= xscale;
+                }
+            }
+
+            break;
+
+        case ALIGN_TOP:
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = (tmp_x - (0.5 * SCREEN_WIDTH)) * minscale + (0.5 *
+                        cls.glconfig.vidWidth);
+            }
+
+            if(y) {
+                *y *= minscale;
+            }
+
+            break;
+
+        case ALIGN_BOTTOM:
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = (tmp_x - (0.5 * SCREEN_WIDTH)) * minscale + (0.5 *
+                        cls.glconfig.vidWidth);
+            }
+
+            if(y) {
+                tmp_y = *y;
+                *y = (tmp_y - SCREEN_HEIGHT) * minscale + cls.glconfig.vidHeight;
+            }
+
+            break;
+
+        case ALIGN_RIGHT:
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = (tmp_x - SCREEN_WIDTH) * minscale + xright;
+            }
+
+            if(y) {
+                tmp_y = *y;
+                *y = (tmp_y - (0.5 * SCREEN_HEIGHT)) * minscale + (0.5 *
+                        cls.glconfig.vidHeight);
+            }
+
+            break;
+
+        case ALIGN_LEFT:
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                *x *= minscale + xleft;
+            }
+
+            if(y) {
+                tmp_y = *y;
+                *y = (tmp_y - (0.5 * SCREEN_HEIGHT)) * minscale + (0.5 *
+                        cls.glconfig.vidHeight);
+            }
+
+            break;
+
+        case ALIGN_TOPRIGHT:
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = (tmp_x - SCREEN_WIDTH) * minscale + xright;
+            }
+
+            if(y) {
+                *y *= minscale;
+            }
+
+            break;
+
+        case ALIGN_TOPLEFT:
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = tmp_x * minscale + xleft;
+            }
+
+            if(y) {
+                *y *= minscale;
+            }
+
+            break;
+
+        case ALIGN_BOTTOMRIGHT:
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = (tmp_x - SCREEN_WIDTH) * minscale + xright;
+            }
+
+            if(y) {
+                tmp_y = *y;
+                *y = (tmp_y - SCREEN_HEIGHT) * minscale + cls.glconfig.vidHeight;
+            }
+
+            break;
+
+        case ALIGN_BOTTOMLEFT:
+            if(w) {
+                *w *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = tmp_x * minscale + xleft;
+            }
+
+            if(y) {
+                tmp_y = *y;
+                *y = (tmp_y - SCREEN_HEIGHT) * minscale + cls.glconfig.vidHeight;
+            }
+
+            break;
+
+        case ALIGN_TOP_STRETCH:
+            if(w) {
+                *w *= xscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = tmp_x * xscale + xleft;
+            }
+
+            if(y) {
+                *y *= minscale;
+            }
+
+            break;
+
+        case ALIGN_BOTTOM_STRETCH:
+            if(w) {
+                *w *= xscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            if(x) {
+                tmp_x = *x;
+                *x = tmp_x * xscale + xleft;
+            }
+
+            if(y) {
+                tmp_y = *y;
+                *y = (tmp_y - SCREEN_HEIGHT) * minscale + cls.glconfig.vidHeight;
+            }
+
+            break;
+
+        case ALIGN_STRETCH_ALL:
+            if(x) {
+                *x *= lb_xscale;
+            }
+
+            if(y) {
+                *y *= yscale;
+            }
+
+            if(w) {
+                *w *= lb_xscale;
+            }
+
+            if(h) {
+                *h *= yscale;
+            }
+
+            break;
+
+        case ALIGN_STRETCH_LEFT_CENTER:
+            if(x && w) {
+                tmp_x = *x;
+                tmp_w = *w;
+                tmp_left = tmp_x * xscale + xleft;
+                tmp_right = (tmp_x + tmp_w - (0.5 * SCREEN_WIDTH)) * minscale + (0.5 *
+                            (cls.glconfig.vidWidth));
+                *x = tmp_left;
+                *w = tmp_right - tmp_left;
+            }
+
+            if(y) {
+                *y *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            break;
+
+        case ALIGN_STRETCH_RIGHT_CENTER:
+            if(x && w) {
+                tmp_x = *x;
+                tmp_w = *w;
+                tmp_left = (tmp_x - (0.5 * SCREEN_WIDTH)) * minscale + (0.5 *
+                           (cls.glconfig.vidWidth));
+                tmp_right = (tmp_x + tmp_w - SCREEN_WIDTH) * xscale + xright;
+                *x = tmp_left;
+                *w = tmp_right - tmp_left;
+            }
+
+            if(y) {
+                *y *= minscale;
+            }
+
+            if(h) {
+                *h *= minscale;
+            }
+
+            break;
+
+        case ALIGN_STRETCH:
+        default:
+            if(x) {
+                tmp_x = *x;
+                *x = tmp_x * xscale + xleft;
+            }
+
+            if(y) {
+                *y *= yscale;
+            }
+
+            if(w) {
+                *w *= xscale;
+            }
+
+            if(h) {
+                *h *= yscale;
+            }
+
+            break;
     }
 }
 
@@ -110,7 +484,7 @@ Coordinates are 640*480 virtual values
 */
 void idClientScreenSystemLocal::DrawPic(float32 x, float32 y,
                                         float32 width, float32 height, qhandle_t hShader) {
-    AdjustFrom640(&x, &y, &width, &height);
+    AdjustFrom640(&x, &y, &width, &height, ALIGN_STRETCH);
     renderSystem->DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
 }
 
@@ -125,7 +499,7 @@ void idClientScreenSystemLocal::FillRect(float32 x, float32 y,
         float32 width, float32 height, const float32 *color) {
     renderSystem->SetColor(color);
 
-    AdjustFrom640(&x, &y, &width, &height);
+    AdjustFrom640(&x, &y, &width, &height, ALIGN_STRETCH);
     renderSystem->DrawStretchPic(x, y, width, height, 0, 0, 0, 0,
                                  cls.whiteShader);
 
@@ -159,7 +533,7 @@ void idClientScreenSystemLocal::DrawChar(sint x, sint y, float32 size,
     aw = size;
     ah = size;
 
-    AdjustFrom640(&ax, &ay, &aw, &ah);
+    AdjustFrom640(&ax, &ay, &aw, &ah, ALIGN_STRETCH);
 
     row = ch >> 4;
     col = ch & 15;
@@ -523,27 +897,17 @@ void idClientScreenSystemLocal::DrawScreenField(stereoFrame_t
 
     // wide aspect ratio screens need to have the sides cleared
     // unless they are displaying game renderings
-    if(uiFullscreen || cls.state < CA_LOADING) {
-        if(cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640) {
-            sint clw;
-            clw = 0.5f * (cls.glconfig.vidWidth - 640 * cls.glconfig.vidHeight /
-                          480.0);
-            renderSystem->SetColor(g_color_table[ColorIndex(COLOR_BLACK)]);
-            renderSystem->DrawStretchPic(0, 0,
-                                         static_cast<float32>(clw),
-                                         static_cast<float32>(cls.glconfig.vidHeight), 0, 0, 0, 0, cls.whiteShader);
-            renderSystem->DrawStretchPic(cls.glconfig.vidWidth - clw, 0, clw,
-                                         cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader);
-            renderSystem->SetColor(nullptr);
-        }
-    }
-
-    if(!uivm) {
-        if(developer->integer) {
-            common->Printf("idClientScreenSystemLocal::DrawScreenField - draw screen without GUI loaded\n");
-        }
-
-        return;
+    if(cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640) {
+        sint clw;
+        clw = 0.5f * (cls.glconfig.vidWidth - 640 * cls.glconfig.vidHeight /
+                      480.0);
+        renderSystem->SetColor(g_color_table[ColorIndex(COLOR_BLACK)]);
+        renderSystem->DrawStretchPic(0, 0,
+                                     static_cast<float32>(clw),
+                                     static_cast<float32>(cls.glconfig.vidHeight), 0, 0, 0, 0, cls.whiteShader);
+        renderSystem->DrawStretchPic(cls.glconfig.vidWidth - clw, 0, clw,
+                                     cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader);
+        renderSystem->SetColor(nullptr);
     }
 
     // if the menu is going to cover the entire screen, we

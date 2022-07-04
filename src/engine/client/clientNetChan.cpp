@@ -84,9 +84,9 @@ void idClientNetChanSystemLocal::Netchan_Encode(msg_t *msg) {
     msg->readcount = 0;
     msg->oob = false;
 
-    serverId = MSG_ReadLong(msg);
-    messageAcknowledge = MSG_ReadLong(msg);
-    reliableAcknowledge = MSG_ReadLong(msg);
+    serverId = msgToFuncSystem->ReadLong(msg);
+    messageAcknowledge = msgToFuncSystem->ReadLong(msg);
+    reliableAcknowledge = msgToFuncSystem->ReadLong(msg);
 
     msg->oob = (bool)soob;
     msg->bit = sbit;
@@ -136,7 +136,7 @@ void idClientNetChanSystemLocal::Netchan_Decode(msg_t *msg) {
 
     msg->oob = false;
 
-    reliableAcknowledge = MSG_ReadLong(msg);
+    reliableAcknowledge = msgToFuncSystem->ReadLong(msg);
 
     msg->oob = soob;
     msg->bit = sbit;
@@ -185,7 +185,7 @@ idClientNetChanSystemLocal::Netchan_Transmit
 */
 void idClientNetChanSystemLocal::Netchan_Transmit(netchan_t *chan,
         msg_t *msg) {
-    MSG_WriteByte(msg, clc_EOF);
+    msgToFuncSystem->WriteByte(msg, clc_EOF);
 
     if(!serverGameSystem->GameIsSinglePlayer()) {
         Netchan_Encode(msg);

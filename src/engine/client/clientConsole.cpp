@@ -1163,13 +1163,16 @@ void idClientConsoleSystemLocal::DrawSolidConsole(float32 frac) {
     valueType *text;
     float32 currentLuminance = 1.0f, totalwidth, currentWidthLocation = 0.0f;
     bool currentColorChanged = false;
+    float conLeft, conWidth;
 
     lines = cls.glconfig.vidHeight * frac;
 
     activeCon->xadjust = 15;
 
-    clientScreenSystem->AdjustFrom640(&activeCon->xadjust, nullptr, nullptr,
-                                      nullptr);
+    conLeft = 0;
+    conWidth = SCREEN_WIDTH;
+    clientScreenSystem->AdjustFrom640(&activeCon->xadjust, nullptr, &conWidth,
+                                      nullptr, ALIGN_STRETCH);
 
     // draw the background
     y = frac * (460 * scr_conHeight->integer * 0.01f) * 2.00f;
@@ -1244,7 +1247,8 @@ void idClientConsoleSystemLocal::DrawSolidConsole(float32 frac) {
     totalwidth += 30;
 
     for(x = 0 ; x < i ; x++) {
-        clientScreenSystem->DrawConsoleFontChar(cls.glconfig.vidWidth - totalwidth
+        clientScreenSystem->DrawConsoleFontChar((sint)(conLeft + conWidth) -
+                                                totalwidth
                                                 + currentWidthLocation,
                                                 lines - clientScreenSystem->ConsoleFontCharHeight() * 2,
                                                 PRODUCT_VERSION[x]);

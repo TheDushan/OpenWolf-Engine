@@ -879,7 +879,7 @@ void idServerClientSystemLocal::CreateClientGameStateMessage(
 
     // NOTE, MRE: all server->client messages now acknowledge
     // let the client know which reliable clientCommands we have received
-    MSG_WriteLong(msg, client->lastClientCommand);
+    msgToFuncSystem->WriteLong(msg, client->lastClientCommand);
 
     // send any server commands waiting to be sent first.
     // we have to do this cause we send the client->reliableSequence
@@ -888,15 +888,15 @@ void idServerClientSystemLocal::CreateClientGameStateMessage(
     serverSnapshotSystem->UpdateServerCommandsToClient(client, msg);
 
     // send the gamestate
-    MSG_WriteByte(msg, svc_gamestate);
-    MSG_WriteLong(msg, client->reliableSequence);
+    msgToFuncSystem->WriteByte(msg, svc_gamestate);
+    msgToFuncSystem->WriteLong(msg, client->reliableSequence);
 
     // write the configstrings
     for(start = 0; start < MAX_CONFIGSTRINGS; start++) {
         if(sv.configstrings[start].s[0]) {
-            MSG_WriteByte(msg, svc_configstring);
-            MSG_WriteShort(msg, start);
-            MSG_WriteBigString(msg, sv.configstrings[start].s);
+            msgToFuncSystem->WriteByte(msg, svc_configstring);
+            msgToFuncSystem->WriteShort(msg, start);
+            msgToFuncSystem->WriteBigString(msg, sv.configstrings[start].s);
         }
     }
 
@@ -910,16 +910,16 @@ void idServerClientSystemLocal::CreateClientGameStateMessage(
             continue;
         }
 
-        MSG_WriteByte(msg, svc_baseline);
-        MSG_WriteDeltaEntity(msg, &nullstate, base, true);
+        msgToFuncSystem->WriteByte(msg, svc_baseline);
+        msgToFuncSystem->WriteDeltaEntity(msg, &nullstate, base, true);
     }
 
-    MSG_WriteByte(msg, svc_EOF);
+    msgToFuncSystem->WriteByte(msg, svc_EOF);
 
-    MSG_WriteLong(msg, ARRAY_INDEX(svs.clients, client));
+    msgToFuncSystem->WriteLong(msg, ARRAY_INDEX(svs.clients, client));
 
     // write the checksum feed
-    MSG_WriteLong(msg, sv.checksumFeed);
+    msgToFuncSystem->WriteLong(msg, sv.checksumFeed);
 
     // it is important to handle gamestate overflow
     if(msg->overflowed) {
@@ -955,7 +955,7 @@ void idServerClientSystemLocal::SendClientGameState(client_t *client) {
     msg_t msg;
     uchar8 msgBuffer[MAX_MSGLEN];
 
-    MSG_Init(&msg, msgBuffer, sizeof(msgBuffer));
+    msgToFuncSystem->Init(&msg, msgBuffer, sizeof(msgBuffer));
 
     while(client->state && client->netchan.unsentFragments) {
         if(developer->integer) {
@@ -1258,9 +1258,9 @@ abort an attempted download
 ==================
 */
 void idServerClientSystemLocal::BadDownload(client_t *cl, msg_t *msg) {
-    MSG_WriteByte(msg, svc_download);
-    MSG_WriteShort(msg, 0);   // client is expecting block zero
-    MSG_WriteLong(msg, -1);   // illegal file size
+    msgToFuncSystem->WriteByte(msg, svc_download);
+    msgToFuncSystem->WriteShort(msg, 0);   // client is expecting block zero
+    msgToFuncSystem->WriteLong(msg, -1);   // illegal file size
 
     *cl->downloadName = 0;
 }
@@ -1283,11 +1283,11 @@ bool idServerClientSystemLocal::CheckFallbackURL(client_t *cl,
     common->Printf("clientDownload: sending client '%s' to fallback URL '%s'\n",
                    cl->name, sv_wwwFallbackURL->string);
 
-    MSG_WriteByte(msg, svc_download);
-    MSG_WriteShort(msg, -1);   // block -1 means ftp/http download
-    MSG_WriteString(msg, sv_wwwFallbackURL->string);
-    MSG_WriteLong(msg, 0);
-    MSG_WriteLong(msg, 2);   // DL_FLAG_URL
+    msgToFuncSystem->WriteByte(msg, svc_download);
+    msgToFuncSystem->WriteShort(msg, -1);   // block -1 means ftp/http download
+    msgToFuncSystem->WriteString(msg, sv_wwwFallbackURL->string);
+    msgToFuncSystem->WriteLong(msg, 0);
+    msgToFuncSystem->WriteLong(msg, 2);   // DL_FLAG_URL
 
     return true;
 }
@@ -1350,13 +1350,13 @@ void idServerClientSystemLocal::WriteDownloadToClient(client_t *cl,
         }
 
         if(i == numVersions) {
-            MSG_WriteByte(msg, svc_download);
-            MSG_WriteShort(msg, 0);   // client is expecting block zero
-            MSG_WriteLong(msg, -1);   // illegal file size
+            msgToFuncSystem->WriteByte(msg, svc_download);
+            msgToFuncSystem->WriteShort(msg, 0);   // client is expecting block zero
+            msgToFuncSystem->WriteLong(msg, -1);   // illegal file size
 
             Q_vsprintf_s(errorMessage, sizeof(errorMessage), sizeof(errorMessage),
                          "Invalid download from update server");
-            MSG_WriteString(msg, errorMessage);
+            msgToFuncSystem->WriteString(msg, errorMessage);
 
             *cl->downloadName = 0;
 
@@ -1410,7 +1410,8 @@ void idServerClientSystemLocal::WriteDownloadToClient(client_t *cl,
             }
 
             BadDownload(cl, msg);
-            MSG_WriteString(msg, errorMessage);      // (could SV_DropClient isntead?)
+            msgToFuncSystem->WriteString(msg,
+                                         errorMessage);      // (could SV_DropClient isntead?)
 
             return;
         }
@@ -1442,20 +1443,20 @@ void idServerClientSystemLocal::WriteDownloadToClient(client_t *cl,
 
                         // once cl->downloadName is set (and possibly we have our listening socket), let the client know
                         cl->bWWWDl = true;
-                        MSG_WriteByte(msg, svc_download);
-                        MSG_WriteShort(msg, -1);   // block -1 means ftp/http download
+                        msgToFuncSystem->WriteByte(msg, svc_download);
+                        msgToFuncSystem->WriteShort(msg, -1);   // block -1 means ftp/http download
 
                         // compatible with legacy svc_download protocol: [size] [size bytes]
                         // download URL, size of the download file, download flags
-                        MSG_WriteString(msg, cl->downloadURL);
-                        MSG_WriteLong(msg, downloadSize);
+                        msgToFuncSystem->WriteString(msg, cl->downloadURL);
+                        msgToFuncSystem->WriteLong(msg, downloadSize);
                         download_flag = 0;
 
                         if(sv_wwwDlDisconnected->integer) {
                             download_flag |= (1 << DL_FLAG_DISCON);
                         }
 
-                        MSG_WriteLong(msg, download_flag);   // flags
+                        msgToFuncSystem->WriteLong(msg, download_flag);   // flags
 
                         return;
                     } else {
@@ -1497,7 +1498,8 @@ void idServerClientSystemLocal::WriteDownloadToClient(client_t *cl,
 
             BadDownload(cl, msg);
 
-            MSG_WriteString(msg, errorMessage);   // (could SV_DropClient isntead?)
+            msgToFuncSystem->WriteString(msg,
+                                         errorMessage);   // (could SV_DropClient isntead?)
             return;
         }
 
@@ -1596,20 +1598,20 @@ void idServerClientSystemLocal::WriteDownloadToClient(client_t *cl,
         // Send current block
         curindex = (cl->downloadXmitBlock % MAX_DOWNLOAD_WINDOW);
 
-        MSG_WriteByte(msg, svc_download);
-        MSG_WriteShort(msg, cl->downloadXmitBlock);
+        msgToFuncSystem->WriteByte(msg, svc_download);
+        msgToFuncSystem->WriteShort(msg, cl->downloadXmitBlock);
 
         // block zero is special, contains file size
         if(cl->downloadXmitBlock == 0) {
-            MSG_WriteLong(msg, cl->downloadSize);
+            msgToFuncSystem->WriteLong(msg, cl->downloadSize);
         }
 
-        MSG_WriteShort(msg, cl->downloadBlockSize[curindex]);
+        msgToFuncSystem->WriteShort(msg, cl->downloadBlockSize[curindex]);
 
         // Write the block
         if(cl->downloadBlockSize[curindex]) {
-            MSG_WriteData(msg, cl->downloadBlocks[curindex],
-                          cl->downloadBlockSize[curindex]);
+            msgToFuncSystem->WriteData(msg, cl->downloadBlocks[curindex],
+                                       cl->downloadBlockSize[curindex]);
         }
 
         if(developer->integer) {
@@ -1677,8 +1679,8 @@ sint idServerClientSystemLocal::SendDownloadMessages(void) {
         if(client->state && *client->downloadName) {
             sint basesize;
 
-            MSG_Init(&message, messageBuffer, sizeof(messageBuffer));
-            MSG_WriteLong(&message, client->lastClientCommand);
+            msgToFuncSystem->Init(&message, messageBuffer, sizeof(messageBuffer));
+            msgToFuncSystem->WriteLong(&message, client->lastClientCommand);
 
             basesize = message.cursize;
             serverClientLocal.WriteDownloadToClient(client, &message);
@@ -2365,8 +2367,8 @@ bool idServerClientSystemLocal::ClientCommand(client_t *cl, msg_t *msg,
     pointer s;
     bool clientOk = true, floodprotect = true;
 
-    seq = MSG_ReadLong(msg);
-    s = MSG_ReadString(msg);
+    seq = msgToFuncSystem->ReadLong(msg);
+    s = msgToFuncSystem->ReadString(msg);
 
     // see if we have already executed it
     if(cl->lastClientCommand >= seq) {
@@ -2528,7 +2530,7 @@ void idServerClientSystemLocal::UserMove(client_t *cl, msg_t *msg,
         cl->deltaMessage = -1;
     }
 
-    cmdCount = MSG_ReadByte(msg);
+    cmdCount = msgToFuncSystem->ReadByte(msg);
 
     if(cmdCount < 1) {
         common->Printf("cmdCount < 1\n");
@@ -2547,16 +2549,17 @@ void idServerClientSystemLocal::UserMove(client_t *cl, msg_t *msg,
     key ^= cl->messageAcknowledge;
 
     // also use the last acknowledged server command in the key
-    key ^= Com_HashKey(cl->reliableCommands[cl->reliableAcknowledge &
-                                                                    (MAX_RELIABLE_COMMANDS - 1)], 32);
+    key ^= msgToFuncSystem->HashKey(
+               cl->reliableCommands[cl->reliableAcknowledge &
+                                                            (MAX_RELIABLE_COMMANDS - 1)], 32);
 
     ::memset(&nullcmd, 0, sizeof(nullcmd));
     oldcmd = &nullcmd;
 
     for(i = 0; i < cmdCount; i++) {
         cmd = &cmds[i];
-        MSG_ReadDeltaUsercmdKey(msg, key, oldcmd, cmd);
-        //MSG_ReadDeltaUsercmd( msg, oldcmd, cmd );
+        msgToFuncSystem->ReadDeltaUsercmdKey(msg, key, oldcmd, cmd);
+        //msgToFuncSystem->ReadDeltaUsercmd( msg, oldcmd, cmd );
         oldcmd = cmd;
     }
 
@@ -2648,10 +2651,10 @@ void idServerClientSystemLocal::ExecuteClientMessage(client_t *cl,
         msg_t *msg) {
     sint c, serverId;
 
-    MSG_Bitstream(msg);
+    msgToFuncSystem->Bitstream(msg);
 
-    serverId = MSG_ReadLong(msg);
-    cl->messageAcknowledge = MSG_ReadLong(msg);
+    serverId = msgToFuncSystem->ReadLong(msg);
+    cl->messageAcknowledge = msgToFuncSystem->ReadLong(msg);
 
     if(cl->messageAcknowledge < 0) {
         // usually only hackers create messages like this
@@ -2662,7 +2665,7 @@ void idServerClientSystemLocal::ExecuteClientMessage(client_t *cl,
         return;
     }
 
-    cl->reliableAcknowledge = MSG_ReadLong(msg);
+    cl->reliableAcknowledge = msgToFuncSystem->ReadLong(msg);
 
     // NOTE: when the client message is fux0red the acknowledgement numbers
     // can be out of range, this could cause the server to send thousands of server
@@ -2727,7 +2730,7 @@ void idServerClientSystemLocal::ExecuteClientMessage(client_t *cl,
 
         // read optional clientCommand strings
         do {
-            c = MSG_ReadByte(msg);
+            c = msgToFuncSystem->ReadByte(msg);
 
             if(c == clc_EOF) {
                 break;
@@ -2753,7 +2756,7 @@ void idServerClientSystemLocal::ExecuteClientMessage(client_t *cl,
 
     // read optional clientCommand strings
     do {
-        c = MSG_ReadByte(msg);
+        c = msgToFuncSystem->ReadByte(msg);
 
         if(c == clc_EOF) {
             break;

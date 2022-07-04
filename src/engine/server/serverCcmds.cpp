@@ -438,17 +438,14 @@ bool idServerCcmdsSystemLocal::TransitionGameState(gamestate_t new_gs,
     return true;
 }
 
-void MSG_PrioritiseEntitystateFields(void);
-void MSG_PrioritisePlayerStateFields(void);
-
 /*
 ================
 idServerCcmdsSystemLocal::FieldInfo_f
 ================
 */
 void idServerCcmdsSystemLocal::FieldInfo_f(void) {
-    MSG_PrioritiseEntitystateFields();
-    MSG_PrioritisePlayerStateFields();
+    msgToFuncSystem->PrioritiseEntitystateFields();
+    msgToFuncSystem->PrioritisePlayerStateFields();
 }
 
 /*
@@ -1573,7 +1570,7 @@ void idServerCcmdsSystemLocal::RecordDemo(client_t *cl,
     cl->demo.botReliableAcknowledge = cl->reliableSent;
 
     // write out the gamestate message
-    MSG_Init(&msg, bufData, sizeof(bufData));
+    msgToFuncSystem->Init(&msg, bufData, sizeof(bufData));
 
     // NOTE, MRE: all server->client messages now acknowledge
     sint tmp = cl->reliableSent;
@@ -1581,7 +1578,7 @@ void idServerCcmdsSystemLocal::RecordDemo(client_t *cl,
     cl->reliableSent = tmp;
 
     // finished writing the client packet
-    MSG_WriteByte(&msg, svc_EOF);
+    msgToFuncSystem->WriteByte(&msg, svc_EOF);
 
     // write it to the demo file
     len = LittleLong(cl->netchan.outgoingSequence - 1);

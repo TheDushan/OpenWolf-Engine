@@ -108,6 +108,8 @@
 #include <qcommon/q_shared.hpp>
 #include <API/Memory_api.hpp>
 #include <qcommon/qcommon.hpp>
+#include <API/MessagesToFunctions_api.hpp>
+#include <framework/MessagesToFunctions.hpp>
 #include <API/Common_api.hpp>
 #include <framework/Common.hpp>
 #include <framework/Memory.hpp>
