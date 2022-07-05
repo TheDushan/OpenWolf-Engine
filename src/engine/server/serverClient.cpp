@@ -2498,16 +2498,21 @@ bool idServerClientSystemLocal::ClientCommand(client_t *cl, msg_t *msg,
 #else
     if(cl->state >= CS_ACTIVE &&
 #endif
-            sv_floodProtect->integer && svs.time < cl->nextReliableTime &&
-            floodprotect) {
-        // ignore any other text messages from this client but let them keep playing
-        // TTimo - moved the ignored verbose to the actual processing in SV_ExecuteClientCommand, only printing if the core doesn't intercept
-        clientOk = false;
-    }
-
-    // don't allow another command for 800 msec
-    if(floodprotect && svs.time >= cl->nextReliableTime) {
-        cl->nextReliableTime = svs.time + 800;
+            sv_floodProtect->integer) {
+        if(static_cast<uint>(svs.time - cl->lastReliableTime) < 1500u) {
+            // Allow two client commands every 1.5 seconds or so.
+            if((cl->lastReliableTime & 1u) == 0u) {
+                cl->lastReliableTime |= 1u;
+            } else {
+                // This is now at least our second client command in
+                // a period of 1.5 seconds.  Ignore it.
+                // TTimo - moved the ignored verbose to the actual processing in
+                // idServerClientSystemLocal::ExecuteClientCommand, only printing if the core doesn't intercept
+                clientOk = false;
+            }
+        } else {
+            cl->lastReliableTime = (svs.time & (~1)); // Lowest bit 0.
+        }
     }
 
     serverClientLocal.ExecuteClientCommand(cl, s, clientOk, premaprestart);

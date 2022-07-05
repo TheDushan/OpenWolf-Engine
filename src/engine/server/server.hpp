@@ -357,7 +357,7 @@ typedef struct client_s {
 
     sint             deltaMessage;  // frame last client usercmd message
     sint
-    nextReliableTime;  // svs.time when another reliable command will be allowed
+    lastReliableTime;  // svs.time when another reliable command will be allowed
     sint
     nextReliableUserTime; // svs.time when another userinfo change will be allowed
     sint

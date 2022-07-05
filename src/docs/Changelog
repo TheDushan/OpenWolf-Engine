@@ -7,6 +7,7 @@
 	* [Server] Bugfix for sv_maxPing and sv_minPing connection issue
 	* [Server] Show information about logging of the client only for the first time
 	* [Server] Bugfix of message "Player all is not on the server"
+	* [Server] Flood protection bugfix
 	
 2022-07-04 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Moved function messaging system to C++ file
