@@ -5,6 +5,7 @@
 	* [Libraries] Uploaded missing files
 	* [Server] Don't allow @@@ characters in the player name
 	* [Server] Bugfix for sv_maxPing and sv_minPing connection issue
+	* [Server] Show information about logging of the client only for the first time
 	
 2022-07-04 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Moved function messaging system to C++ file

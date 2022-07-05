@@ -86,7 +86,7 @@ void idServerClientSystemLocal::GetChallenge(netadr_t from) {
          getChallengeCookie;
     challenge_t *challenge;
     bool wasfound = false, gameMismatch, isBanned = false;
-    valueType *guid, *gameName;
+    valueType *guid, * gameName;
 
     // ignore if we are in single player
     if(serverGameSystem->GameIsSinglePlayer()) {
@@ -211,7 +211,7 @@ void idServerClientSystemLocal::GetChallenge(netadr_t from) {
         }
 
         networkChainSystem->OutOfBandPrint(NS_SERVER, svs.authorizeAddress,
-                                           "getIpAuthorize %i %i.%i.%i.%i %s %i %i %i",  challenge->challenge,
+                                           "getIpAuthorize %i %i.%i.%i.%i %s %i %i %i", challenge->challenge,
                                            from.ip[0], from.ip[1], from.ip[2], from.ip[3],
                                            guid, challenge->getChallengeCookie, sv_minimumAgeGuid->integer,
                                            sv_maximumAgeGuid->integer);
@@ -354,11 +354,11 @@ A "connect" OOB command has been received
 ==================
 */
 void idServerClientSystemLocal::DirectConnect(netadr_t from) {
-    valueType userinfo[MAX_INFO_STRING], *denied, *ip, guid[GUIDKEY_SIZE],
-              *password;
+    valueType userinfo[MAX_INFO_STRING], * denied, * ip, guid[GUIDKEY_SIZE],
+              * password;
     sint i, clientNum, qport, challenge, startIndex, count, oldInfoLen2,
          newInfoLen2;
-    client_t *cl, *newcl, temp;
+    client_t *cl, * newcl, temp;
     sharedEntity_t *ent;
 #if !defined (UPDATE_SERVER)
     sint    version;
@@ -405,8 +405,8 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
     }
 
     // quick reject
-    for(i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
-        if(networkSystem->CompareBaseAdr(from, cl->netchan.remoteAddress)  &&
+    for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
+        if(networkSystem->CompareBaseAdr(from, cl->netchan.remoteAddress) &&
                 (cl->netchan.qport == qport ||
                  from.port == cl->netchan.remoteAddress.port)) {
             if((svs.time - cl->lastConnectTime) < (sv_reconnectlimit->integer *
@@ -463,7 +463,7 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
         sint ping;
         challenge_t *challengeptr;
 
-        for(i = 0 ; i < MAX_CHALLENGES ; i++) {
+        for(i = 0; i < MAX_CHALLENGES; i++) {
             if(networkSystem->CompareAdr(from, svs.challenges[i].adr)) {
                 if(challenge == svs.challenges[i].challenge) {
                     // good
@@ -492,7 +492,16 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
             ping = svs.challenges[i].firstPing;
         }
 
-        common->Printf("Client %i connecting with %i challenge ping\n", i, ping);
+        // NOTE: Show information about logging of the client only for the first time
+        if(!svs.challenges[i].connected) {
+            common->Printf("Client %i connecting with %i challenge ping\n", i, ping);
+        } else {
+            if(developer->integer) {
+                common->Printf("Client %i connecting again with %i challenge ping\n", i,
+                               ping);
+            }
+        }
+
         svs.challenges[i].connected = true;
 
         // never reject a LAN client based on ping
@@ -570,7 +579,7 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
     ::memset(newcl, 0, sizeof(client_t));
 
     // if there is already a slot for this ip, reuse it
-    for(i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
+    for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
         if(cl->state == CS_FREE) {
             continue;
         }
@@ -613,7 +622,7 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
 
     newcl = nullptr;
 
-    for(i = startIndex; i < sv_maxclients->integer ; i++) {
+    for(i = startIndex; i < sv_maxclients->integer; i++) {
         cl = &svs.clients[i];
 
         if(cl->state == CS_FREE) {
@@ -740,7 +749,7 @@ gotnewcl:
     // the server can hold, send a heartbeat to the master.
     count = 0;
 
-    for(i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
+    for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
         if(svs.clients[i].state >= CS_CONNECTED) {
             count++;
         }
@@ -775,7 +784,7 @@ or crashing -- idServerInitSystemLocal::FinalCommand() will handle that
 void idServerClientSystemLocal::DropClient(client_t *drop,
         pointer reason) {
     sint i;
-    challenge_t *challenge;
+    //challenge_t *challenge;
     bool isBot = false;
 
     if(drop->state == CS_ZOMBIE) {
@@ -795,6 +804,24 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
 
 #endif
 
+    // Setting the connected state of the challenge to false is totally unnecessary and only leads to all sorts of anomalies.
+    // Here is my explanation of why commenting this out will not break anything.
+    // When a player connects and reaches the point in idServerClientSystemLocal::DirectConnect() where the challenge connected
+    // state is set to true, the client may be dropped due to high ping, being banned by the VM, a server full, or other reasons.
+    // In these cases, the client struct is never created for the connection and the player is never dropped using
+    // idServerClientSystemLocal::DropClient(). idServerClientSystemLocal::DropClient() happens to be the only place where a challenge's
+    // connected state is set to false, other than in idServerClientSystemLocal::GetChallenge() where a new challenge is allocated.
+    // So, when the player is dropped for high ping (and for other other reasons stated above) and tries to reconnect from scratch
+    // using the getchallenge packet, a new challenge structure is created (the old one doesn't get reused).
+    // There is no more harm done in not reusing a challenge if a player happens to connect all the way because connecting all the way
+    // happens much less frequently. The challenge does not contain any important information that we need when the client tries to reconnect.
+    // Now what commenting this secion out improves: the challenge fields (challenge, time, pingTime, and firstTime) will all be computed
+    // from scratch, just like how it should be.
+    // If the challenge struct is extended in various patches, the properties of the challenge
+    // won't get inherited by subsequent connections by the same client. This is much cleaner.
+
+#if 0
+
     if(!isBot) {
         // see if we already have a challenge for this ip
         challenge = &svs.challenges[0];
@@ -810,6 +837,8 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
         // Kill any download
         CloseDownload(drop);
     }
+
+#endif
 
     // Free all allocated data on the client structure
     FreeClient(drop);
@@ -2558,7 +2587,7 @@ each of the backup packets.
 void idServerClientSystemLocal::UserMove(client_t *cl, msg_t *msg,
         bool delta) {
     sint i, key, cmdCount;
-    usercmd_t nullcmd, cmds[MAX_PACKET_USERCMDS], *cmd, *oldcmd;
+    usercmd_t nullcmd, cmds[MAX_PACKET_USERCMDS], * cmd, * oldcmd;
 
     if(delta) {
         cl->deltaMessage = cl->messageAcknowledge;
@@ -2657,10 +2686,10 @@ void idServerClientSystemLocal::UserMove(client_t *cl, msg_t *msg,
         //  continue;
         //}
 
-        if(!serverGameSystem->GameIsSinglePlayer()) { // We need to allow this in single player, where loadgame's can cause the player to freeze after reloading if we do this check
+        if(!serverGameSystem->GameIsSinglePlayer()) {  // We need to allow this in single player, where loadgame's can cause the player to freeze after reloading if we do this check
             // don't execute if this is an old cmd which is already executed
             // these old cmds are included when cl_packetdup > 0
-            if(cmds[i].serverTime <= cl->lastUsercmd.serverTime) { // Q3_MISSIONPACK
+            if(cmds[i].serverTime <= cl->lastUsercmd.serverTime) {  // Q3_MISSIONPACK
                 //if ( cmds[i].serverTime > cmds[cmdCount-1].serverTime )
                 // from just before a map_restart
                 continue;
