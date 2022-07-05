@@ -90,12 +90,18 @@
 // MSVC users must install the OpenAL SDK which doesn't use the AL/*.h scheme.
 #include <al.h>
 #include <alc.h>
+#include <efx.h>
+#include <alext.h>
 #elif defined (__MACOSX__)
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
+#include <OpenAL/efx.h>
+#include <OpenAL/alext.h>
 #else
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <AL/efx.h>
+#include <AL/alext.h>
 #endif
 
 #ifdef _WIN32

@@ -3015,7 +3015,7 @@ void R_CreateBuiltinImages(void) {
                                                height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE,
                                                hdrFormat);
 
-        if(r_shadowBlur->integer) {
+        if(r_shadowBlur->integer || r_ssao->integer) {
             tr.screenScratchImage = R_CreateImage("screenScratch", nullptr, width,
                                                   height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE,
                                                   rgbFormat);

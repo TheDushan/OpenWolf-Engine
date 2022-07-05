@@ -52,9 +52,13 @@ struct src_s {
 #define MAX_SRC 128
 static src_t srclist[MAX_SRC];
 static sint src_count = 0;
+static sint src_activeCnt = 0;
 static bool src_inited = false;
-
+static ALuint reverb;
+static ALuint reverbslot;
 static sint ambient_count = 0;
+static int lastListenerNumber = -1;
+static vec3_t lastListenerOrigin = { 0.0f, 0.0f, 0.0f };
 
 typedef struct sentity_s {
     vec3_t origin;      // Object position
@@ -64,6 +68,95 @@ typedef struct sentity_s {
     sint touched;       // Sound present this update?
 } sentity_t;
 static sentity_t entlist[MAX_GENTITIES];
+
+/*
+=================
+idAudioOpenALSystemLocal::HearingThroughEntity
+
+Also see S_Base_HearingThroughEntity
+=================
+*/
+bool idAudioOpenALSystemLocal::HearingThroughEntity(sint entityNum) {
+    float32 distanceSq;
+
+    if(lastListenerNumber == entityNum) {
+        // This is an outrageous hack to detect
+        // whether or not the player is rendering in third person or not. We can't
+        // ask the renderer because the renderer has no notion of entities and we
+        // can't ask cgame since that would involve changing the API and hence mod
+        // compatibility. I don't think there is any way around this, but I'll leave
+        // the FIXME just in case anyone has a bright idea.
+        distanceSq = DistanceSquared(
+                         entlist[entityNum].origin,
+                         lastListenerOrigin);
+
+        if(distanceSq > (48.0f * 48.0f)) {
+            return false;    //we're the player, but third person
+        } else {
+            return true;    //we're the player
+        }
+    } else {
+        return false;    //not the player
+    }
+}
+
+/*
+=================
+idAudioOpenALSystemLocal::EFXInit
+=================
+*/
+void idAudioOpenALSystemLocal::InitEFX(void) {
+    qalGenEffects(1, &reverb);
+
+    if(qalGetError() != AL_NO_ERROR) {
+        trap_Printf(PRINT_ALL, "OpenAL: failed to create effect\n");
+        return;
+    }
+
+    trap_Printf(PRINT_ALL, "--------- EFX Initialization ---------\n");
+
+    qalEffecti(reverb, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+    qalEffectf(reverb, AL_REVERB_DECAY_TIME, s_alReverbDecay->value);
+    qalEffectf(reverb, AL_REVERB_DIFFUSION, s_alReverbDiffusion->value);
+    qalEffectf(reverb, AL_REVERB_ROOM_ROLLOFF_FACTOR,
+               AL_REVERB_DEFAULT_ROOM_ROLLOFF_FACTOR);
+    qalEffectf(reverb, AL_REVERB_REFLECTIONS_DELAY,
+               AL_REVERB_DEFAULT_REFLECTIONS_DELAY);
+    qalEffectf(reverb, AL_REVERB_GAIN, s_alReverbMix->value);
+
+    qalGenAuxiliaryEffectSlots(1, &reverbslot);
+
+    
+    if(qalGetError() != AL_NO_ERROR) {
+        trap_Printf(PRINT_ALL, "OpenAL: failed to create aux effect slot\n");
+    }
+
+    qalAuxiliaryEffectSloti(reverbslot, AL_EFFECTSLOT_EFFECT, reverb);
+    
+    trap_Printf(PRINT_ALL, "--------------------------------------\n");
+}
+
+/*
+=================
+idAudioOpenALSystemLocal::EFXShutdown
+=================
+*/
+void idAudioOpenALSystemLocal::ShutdownEFX(void) {
+
+    trap_Printf(PRINT_ALL, "--------- EFX Shutdown ---------\n");
+
+    if(qalIsAuxiliaryEffectSlot(reverbslot)) {
+        qalAuxiliaryEffectSloti(reverbslot, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+        qalDeleteAuxiliaryEffectSlots(1, &reverbslot);
+    }
+
+    if(qalIsEffect(reverb)) {
+        qalDeleteEffects(1, &reverb);
+    }
+
+    trap_Printf(PRINT_ALL, "--------------------------------\n");
+}
+
 
 /*
  =================
@@ -80,6 +173,7 @@ bool idAudioOpenALSystemLocal::src_init(void) {
     // Clear the sources data structure
     ::memset(srclist, 0, sizeof(srclist));
     src_count = 0;
+    src_activeCnt = 0;
 
     // Cap s_sources to MAX_SRC
     limit = s_sources->integer;
@@ -90,6 +184,8 @@ bool idAudioOpenALSystemLocal::src_init(void) {
         limit = 16;
     }
 
+    InitEFX();
+
     // Allocate as many sources as possible
     for(i = 0; i < limit; i++) {
         qalGenSources(1, &srclist[i].source);
@@ -99,6 +195,7 @@ bool idAudioOpenALSystemLocal::src_init(void) {
         }
 
         src_count++;
+        qalSource3i(srclist[i].source, AL_AUXILIARY_SEND_FILTER, reverbslot, 0, 0);
     }
 
     // All done. Print this for informational purposes
@@ -129,6 +226,8 @@ void idAudioOpenALSystemLocal::src_shutdown(void) {
         qalSourceStop(srclist[i].source);
         qalDeleteSources(1, &srclist[i].source);
     }
+
+    ShutdownEFX();
 
     ::memset(srclist, 0, sizeof(srclist));
 
@@ -215,6 +314,12 @@ void idAudioOpenALSystemLocal::src_kill(srcHandle_t src) {
     srclist[src].entity = -1;
     srclist[src].channel = -1;
     srclist[src].isActive = false;
+
+    if(srclist[src].isActive) {
+        srclist[src].isActive = false;
+        src_activeCnt--;
+    }
+
     srclist[src].isLocked = false;
     srclist[src].isLooping = false;
     srclist[src].isTracking = false;
@@ -270,6 +375,8 @@ srcHandle_t idAudioOpenALSystemLocal::src_alloc(sint priority, sint entnum,
     // No. How about an overridable one?
     if(weakest != -1) {
         src_kill(weakest);
+        srclist[empty].isActive = true;
+        src_activeCnt++;
 
         return weakest;
     }
@@ -374,6 +481,19 @@ Play a one-shot sound effect
 void idAudioOpenALSystemLocal::StartSound(vec3_t origin, sint entnum,
         sint entchannel, sfxHandle_t sfx) {
     vec3_t sorigin;
+
+    if(HearingThroughEntity(entnum)) {
+        StartLocalSound(sfx, entchannel);
+        return;
+    }
+
+    VectorCopy(entlist[entnum].origin, sorigin);
+
+    if((src_activeCnt > 5 * src_count / 3) &&
+            (DistanceSquared(sorigin, lastListenerOrigin))) {
+        // We're getting tight on sources and source is not within hearing distance so don't add it
+        return;
+    }
 
     // Try to grab a source
     srcHandle_t src = src_alloc(SRCPRI_ONESHOT, entnum, entchannel);
@@ -552,6 +672,21 @@ void idAudioOpenALSystemLocal::src_update(void) {
 
         if(s_minDistance->modified) {
             qalSourcef(srclist[i].source, AL_REFERENCE_DISTANCE, s_minDistance->value);
+        }
+
+        // Update effect parameters
+        if(s_alReverbDecay->modified || s_alReverbDiffusion->modified ||
+                s_alReverbMix->modified) {
+            qalEffectf(reverb, AL_REVERB_DECAY_TIME, s_alReverbDecay->value);
+            qalEffectf(reverb, AL_REVERB_DIFFUSION, s_alReverbDiffusion->value);
+            qalEffectf(reverb, AL_REVERB_ROOM_ROLLOFF_FACTOR,
+                       AL_REVERB_DEFAULT_ROOM_ROLLOFF_FACTOR);
+            qalEffectf(reverb, AL_REVERB_REFLECTIONS_DELAY,
+                       AL_REVERB_DEFAULT_REFLECTIONS_DELAY);
+            qalEffectf(reverb, AL_REVERB_GAIN, s_alReverbMix->value);
+
+            // Reattach effect to effect slot
+            qalAuxiliaryEffectSloti(reverbslot, AL_EFFECTSLOT_EFFECT, reverb);
         }
 
         ent = srclist[i].entity;

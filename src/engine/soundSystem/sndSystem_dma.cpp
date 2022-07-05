@@ -557,6 +557,13 @@ void S_SpatializeOrigin(vec3_t origin, sint master_vol, sint *left_vol,
         rscale = 0.5f * (1.0f + dot);
         lscale = 0.5f * (1.0f - dot);
 
+        // sources we're actually facing get attenuated less
+        // than sources behind us
+        if(vec[0] > 0) {
+            rscale += 0.5f * vec[0];
+            lscale += 0.5f * vec[0];
+        }
+
         if(rscale < 0) {
             rscale = 0;
         }
@@ -599,7 +606,7 @@ void SOrig_StartSound(vec3_t origin, sint entityNum, sint entchannel,
                       sfxHandle_t sfxHandle) {
     channel_t *ch;
     sfx_t *sfx;
-    sint i, oldest, chosen, time, inplay, allowed;
+    sint i, oldest, chosen, time;
 
     if(!s_soundStarted || s_soundMuted) {
         return;
@@ -634,14 +641,7 @@ void SOrig_StartSound(vec3_t origin, sint entityNum, sint entchannel,
     //  common->Printf("playing %s\n", sfx->soundName);
     // pick a channel to play on
 
-    allowed = 4;
-
-    if(entityNum == listener_number) {
-        allowed = 8;
-    }
-
     ch = s_channels;
-    inplay = 0;
 
     for(i = 0; i < MAX_CHANNELS ; i++, ch++) {
         if(ch[i].entnum == entityNum && ch[i].thesfx == sfx) {
@@ -651,13 +651,7 @@ void SOrig_StartSound(vec3_t origin, sint entityNum, sint entchannel,
                 //              }
                 return;
             }
-
-            inplay++;
         }
-    }
-
-    if(inplay > allowed) {
-        return;
     }
 
     sfx->lastTimeUsed = time;

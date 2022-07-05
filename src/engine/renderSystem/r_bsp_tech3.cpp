@@ -3988,6 +3988,18 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
             R_LoadCubemapEntities("target_location");
         }
 
+        if (!tr.numCubemaps)
+        {
+            // use deathmatch spawn points as cubemaps
+            R_LoadCubemapEntities("info_player_start");
+        }
+
+        if (!tr.numCubemaps)
+        {
+            // use deathmatch spawn points as cubemaps
+            R_LoadCubemapEntities("info_player_deathmatch");
+        }
+
         if(tr.numCubemaps) {
             R_AssignCubemapsToWorldSurfaces();
         }

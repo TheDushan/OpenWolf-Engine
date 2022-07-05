@@ -121,6 +121,7 @@ valueType *idAudioOpenALSystemLocal::errormsg(ALenum error) {
 static bool snd_shutdown_bug = false;
 static ALCdevice *alDevice;
 static ALCcontext *alContext;
+static bool efxExtension = false;
 
 /*
  * Console variables
@@ -138,9 +139,11 @@ convar_t *s_rolloff;
 convar_t *s_alDevice;
 convar_t *s_alAvailableDevices;
 convar_t *s_alAvailableInputDevices;
-
-
 convar_t *s_alDriver;
+convar_t *s_alReverbMix;
+convar_t *s_alReverbDiffusion;
+convar_t *s_alReverbDecay;
+
 #if defined( _WIN32 )
 #define ALDRIVER_DEFAULT "OpenAL64"
 #elif defined (__MACOSX__)
@@ -156,6 +159,10 @@ idAudioOpenALSystemLocal::Init
 */
 bool idAudioOpenALSystemLocal::Init(void) {
     pointer device = nullptr;
+    ALint ctxattrs[] = {
+        ALC_HRTF_SOFT, ALC_TRUE,
+        0   // end
+    };
 
     // Original console variables
     s_volume = cvarSystem->Get("s_volume", "0.8", CVAR_ARCHIVE,
@@ -174,16 +181,23 @@ bool idAudioOpenALSystemLocal::Init(void) {
                                 "The total number of sources (memory) to allocate");
     s_dopplerFactor = cvarSystem->Get("al_dopplerfactor", "1.0", CVAR_ARCHIVE,
                                       "The value passed to alDopplerFactor");
-    s_dopplerSpeed = cvarSystem->Get("al_dopplerspeed", "2200", CVAR_ARCHIVE,
+    s_dopplerSpeed = cvarSystem->Get("al_dopplerspeed", "15000", CVAR_ARCHIVE,
                                      "The value passed to alDopplerVelocity");
-    s_minDistance = cvarSystem->Get("al_mindistance", "80", CVAR_ARCHIVE,
+    s_minDistance = cvarSystem->Get("al_mindistance", "500", CVAR_ARCHIVE,
                                     "The value of AL_REFERENCE_DISTANCE for each source");
-    s_rolloff = cvarSystem->Get("al_rolloff", "0.25", CVAR_ARCHIVE,
+    s_rolloff = cvarSystem->Get("al_rolloff", "1.0", CVAR_ARCHIVE,
                                 "The value of AL_ROLLOFF_FACTOR for each source");
     s_alDevice = cvarSystem->Get("al_device", "", CVAR_ARCHIVE | CVAR_LATCH,
                                  "Which OpenAL device to use");
     s_alDriver = cvarSystem->Get("al_driver", ALDRIVER_DEFAULT, CVAR_ARCHIVE,
                                  "Which OpenAL library to use");
+    s_alReverbMix = cvarSystem->Get("al_reverbMix", "0.05", CVAR_ARCHIVE,
+                                    "It sets the maximum amount of reflections and reverberation added to the final sound mix.");
+    s_alReverbDiffusion = cvarSystem->Get("al_reverbDiffusion", "1.0",
+                                          CVAR_ARCHIVE,
+                                          "The Reverb Diffusion controls the echo density in the reverb decay.");
+    s_alReverbDecay = cvarSystem->Get("al_reverbDecay", "9.6", CVAR_ARCHIVE,
+                                      "The Reverb Delay defines the begin time of the late reverberation relative to the time of the initial reflection (the first of the early reflections).");
 
     // Load QAL
     if(!QAL_Init(s_alDriver->string)) {
@@ -248,7 +262,7 @@ bool idAudioOpenALSystemLocal::Init(void) {
 
 
     // Create OpenAL context
-    alContext = qalcCreateContext(alDevice, nullptr);
+    alContext = qalcCreateContext(alDevice, ctxattrs);
 
     if(!alContext) {
         QAL_Shutdown();
@@ -266,16 +280,42 @@ bool idAudioOpenALSystemLocal::Init(void) {
     trap_Printf(PRINT_ALL, "  Vendor:     %s\n", qalGetString(AL_VENDOR));
     trap_Printf(PRINT_ALL, "  Version:    %s\n", qalGetString(AL_VERSION));
     trap_Printf(PRINT_ALL, "  Renderer:   %s\n", qalGetString(AL_RENDERER));
-    trap_Printf(PRINT_ALL, "  AL Extensions: %s\n",
-                qalGetString(AL_EXTENSIONS));
-    trap_Printf(PRINT_ALL,  "  ALC Extensions: %s\n", qalcGetString(alDevice,
-                ALC_EXTENSIONS));
 
-    if(qalcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
-        trap_Printf(PRINT_ALL, "  Device:     %s\n", qalcGetString(alDevice,
-                    ALC_DEVICE_SPECIFIER));
-        trap_Printf(PRINT_ALL, "Available Devices:\n%s",
-                    s_alAvailableDevices->string);
+    // EFX support
+    efxExtension = qalcIsExtensionPresent(alDevice, "ALC_EXT_EFX");
+
+    if(efxExtension) {
+        trap_Printf(PRINT_ALL, "EFX initialised\n");
+        trap_Printf(PRINT_ALL, "  EFX supported\n");
+    }
+
+    if(qalcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
+        pointer devs = qalcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
+
+        trap_Printf(PRINT_ALL, "\nAvailable OpenAL devices:\n");
+
+        if(devs == nullptr) {
+            trap_Printf(PRINT_ALL, "- No devices found. Depending on your\n");
+            trap_Printf(PRINT_ALL, "  platform this may be expected and\n");
+            trap_Printf(PRINT_ALL, "  doesn't indicate a problem!\n");
+        } else {
+            while(devs && *devs) {
+                trap_Printf(PRINT_ALL, "- %s\n", devs);
+                devs += strlen(devs) + 1;
+            }
+        }
+    }
+
+    if(qalcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
+        pointer devs = qalcGetString(alDevice, ALC_DEVICE_SPECIFIER);
+
+        trap_Printf(PRINT_ALL, "\nCurrent OpenAL device:\n");
+
+        if(devs == nullptr) {
+            trap_Printf(PRINT_ALL, "- No OpenAL device in use\n");
+        } else {
+            trap_Printf(PRINT_ALL, "- %s\n", devs);
+        }
     }
 
     // Check for Linux shutdown race condition
@@ -356,6 +396,7 @@ void idAudioOpenALSystemLocal::Respatialize(sint entityNum,
     vec3_t sorigin;
 
     // Set OpenAL listener paramaters
+    qalListenerf(AL_METERS_PER_UNIT, 30.5f / 8);
     VectorScale(origin, POSITION_SCALE, sorigin);
     qalListenerfv(AL_POSITION, origin);
     qalListenerfv(AL_VELOCITY, velocity);

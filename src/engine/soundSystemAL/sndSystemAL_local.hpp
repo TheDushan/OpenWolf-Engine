@@ -45,7 +45,15 @@ extern convar_t *s_sources;
 extern convar_t *s_dopplerFactor;
 extern convar_t *s_dopplerSpeed;
 extern convar_t *s_minDistance;
+extern convar_t *s_maxDistance;
 extern convar_t *s_rolloff;
+extern convar_t *s_alDevice;
+extern convar_t *s_alAvailableDevices;
+extern convar_t *s_alAvailableInputDevices;
+extern convar_t *s_alDriver;
+extern convar_t *s_alReverbMix;
+extern convar_t *s_alReverbDiffusion;
+extern convar_t *s_alReverbDecay;
 
 /**
  * Scaling constants
@@ -218,6 +226,10 @@ public:
 
     static void Play_f(void);
     static void Music_f(void);
+
+    static bool HearingThroughEntity(sint entityNum);
+    static void InitEFX(void);
+    static void ShutdownEFX(void);
 };
 
 extern idAudioOpenALSystemLocal soundOpenALSystemLocal;

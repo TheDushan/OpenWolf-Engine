@@ -1170,6 +1170,12 @@ void RB_Contrast(FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox) {
         return;
     }
 
+    // if cvars are at their defaults, do no processing
+    if (r_brightness->value == 0.0f && r_contrast->value == 1.0f &&
+        r_gamma->value == 1.0) {
+        return;
+    }
+
     GLSL_SetUniformFloat(&tr.contrastShader, UNIFORM_BRIGHTNESS,
                          r_brightness->value);
     GLSL_SetUniformFloat(&tr.contrastShader, UNIFORM_CONTRAST,

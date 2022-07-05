@@ -62,6 +62,7 @@ LPALSOURCEF qalSourcef;
 LPALSOURCE3F qalSource3f;
 LPALSOURCEFV qalSourcefv;
 LPALSOURCEI qalSourcei;
+LPALSOURCE3I qalSource3i;
 LPALGETSOURCEF qalGetSourcef;
 LPALGETSOURCE3F qalGetSource3f;
 LPALGETSOURCEFV qalGetSourcefv;
@@ -106,6 +107,39 @@ LPALCCAPTURECLOSEDEVICE qalcCaptureCloseDevice;
 LPALCCAPTURESTART qalcCaptureStart;
 LPALCCAPTURESTOP qalcCaptureStop;
 LPALCCAPTURESAMPLES qalcCaptureSamples;
+LPALGENEFFECTS qalGenEffects;
+LPALDELETEEFFECTS qalDeleteEffects;
+LPALISEFFECT qalIsEffect;
+LPALEFFECTI qalEffecti;
+LPALEFFECTIV qalEffectiv;
+LPALEFFECTF qalEffectf;
+LPALEFFECTFV qalEffectfv;
+LPALGETEFFECTI qalGetEffecti;
+LPALGETEFFECTIV qalGetEffectiv;
+LPALGETEFFECTF qalGetEffectf;
+LPALGETEFFECTFV qalGetEffectfv;
+LPALGENFILTERS qalGenFilters;
+LPALDELETEFILTERS qalDeleteFilters;
+LPALISFILTER qalIsFilter;
+LPALFILTERI qalFilteri;
+LPALFILTERIV qalFilteriv;
+LPALFILTERF qalFilterf;
+LPALFILTERFV qalFilterfv;
+LPALGETFILTERI qalGetFilteri;
+LPALGETFILTERIV qalGetFilteriv;
+LPALGETFILTERF qalGetFilterf;
+LPALGETFILTERFV qalGetFilterfv;
+LPALGENAUXILIARYEFFECTSLOTS qalGenAuxiliaryEffectSlots;
+LPALDELETEAUXILIARYEFFECTSLOTS qalDeleteAuxiliaryEffectSlots;
+LPALISAUXILIARYEFFECTSLOT qalIsAuxiliaryEffectSlot;
+LPALAUXILIARYEFFECTSLOTI qalAuxiliaryEffectSloti;
+LPALAUXILIARYEFFECTSLOTIV qalAuxiliaryEffectSlotiv;
+LPALAUXILIARYEFFECTSLOTF qalAuxiliaryEffectSlotf;
+LPALAUXILIARYEFFECTSLOTFV qalAuxiliaryEffectSlotfv;
+LPALGETAUXILIARYEFFECTSLOTI qalGetAuxiliaryEffectSloti;
+LPALGETAUXILIARYEFFECTSLOTIV qalGetAuxiliaryEffectSlotiv;
+LPALGETAUXILIARYEFFECTSLOTF qalGetAuxiliaryEffectSlotf;
+LPALGETAUXILIARYEFFECTSLOTFV qalGetAuxiliaryEffectSlotfv;
 
 static void *OpenALLib = nullptr;
 
@@ -203,6 +237,7 @@ bool QAL_Init(pointer libname) {
     qalSource3f = reinterpret_cast<LPALSOURCE3F>(GPA("alSource3f"));
     qalSourcefv = reinterpret_cast<LPALSOURCEFV>(GPA("alSourcefv"));
     qalSourcei = reinterpret_cast<LPALSOURCEI>(GPA("alSourcei"));
+    qalSource3i = reinterpret_cast<LPALSOURCE3I>(GPA("alSource3i"));
     qalGetSourcef = reinterpret_cast<LPALGETSOURCEF>(GPA("alGetSourcef"));
     qalGetSource3f = reinterpret_cast<LPALGETSOURCE3F>(GPA("alGetSource3f"));
     qalGetSourcefv = reinterpret_cast<LPALGETSOURCEFV>(GPA("alGetSourcefv"));
@@ -273,6 +308,76 @@ bool QAL_Init(pointer libname) {
     qalcCaptureSamples = reinterpret_cast<LPALCCAPTURESAMPLES>
                          (GPA("alcCaptureSamples"));
 
+    qalGenEffects = reinterpret_cast<LPALGENEFFECTS>
+                    (GPA("alGenEffects"));
+    qalDeleteEffects = reinterpret_cast<LPALDELETEEFFECTS>
+                       (GPA("alDeleteEffects"));
+    qalIsEffect = reinterpret_cast<LPALISEFFECT>
+                  (GPA("alIsEffect"));
+    qalEffecti = reinterpret_cast<LPALEFFECTI>
+                 (GPA("alEffecti"));
+    qalEffectiv = reinterpret_cast<LPALEFFECTIV>
+                  (GPA("alEffectiv"));
+    qalEffectf = reinterpret_cast<LPALEFFECTF>
+                 (GPA("alEffectf"));
+    qalEffectfv = reinterpret_cast<LPALEFFECTFV>
+                  (GPA("alEffectfv"));
+    qalGetEffecti = reinterpret_cast<LPALGETEFFECTI>
+                    (GPA("alGetEffecti"));
+    qalGetEffectiv = reinterpret_cast<LPALGETEFFECTIV>
+                     (GPA("alGetEffectiv"));
+    qalGetEffectf = reinterpret_cast<LPALGETEFFECTF>
+                    (GPA("alGetEffectf"));
+    qalGetEffectfv = reinterpret_cast<LPALGETEFFECTFV>
+                     (GPA("alGetEffectfv"));
+    qalGenFilters = reinterpret_cast<LPALGENFILTERS>
+                    (GPA("alGenFilters"));
+    qalDeleteFilters = reinterpret_cast<LPALDELETEFILTERS>
+                       (GPA("alDeleteFilters"));
+    qalIsFilter = reinterpret_cast<LPALISFILTER>
+                  (GPA("alIsFilter"));
+    qalFilteri = reinterpret_cast<LPALFILTERI>
+                 (GPA("alFilteri"));
+    qalFilteriv = reinterpret_cast<LPALFILTERIV>
+                  (GPA("alFilteriv"));
+    qalFilterf = reinterpret_cast<LPALFILTERF>
+                 (GPA("alFilterf"));
+    qalFilterfv = reinterpret_cast<LPALFILTERFV>
+                  (GPA("alFilterfv"));
+    qalGetFilteri = reinterpret_cast<LPALGETFILTERI>
+                    (GPA("alGetFilteri"));
+    qalGetFilteriv = reinterpret_cast<LPALGETFILTERIV>
+                     (GPA("alGetFilteriv"));
+    qalGetFilterf = reinterpret_cast<LPALGETFILTERF>
+                    (GPA("alGetFilterf"));
+    qalGetFilterfv = reinterpret_cast<LPALGETFILTERFV>
+                     (GPA("alGetFilterfv"));
+    qalGenAuxiliaryEffectSlots = reinterpret_cast<LPALGENAUXILIARYEFFECTSLOTS>
+                                 (GPA("alGenAuxiliaryEffectSlots"));
+    qalDeleteAuxiliaryEffectSlots =
+        reinterpret_cast<LPALDELETEAUXILIARYEFFECTSLOTS>
+        (GPA("alDeleteAuxiliaryEffectSlots"));
+    qalIsAuxiliaryEffectSlot = reinterpret_cast<LPALISAUXILIARYEFFECTSLOT>
+                               (GPA("alIsAuxiliaryEffectSlot"));
+    qalAuxiliaryEffectSloti = reinterpret_cast<LPALAUXILIARYEFFECTSLOTI>
+                              (GPA("alAuxiliaryEffectSloti"));
+    qalAuxiliaryEffectSlotiv = reinterpret_cast<LPALAUXILIARYEFFECTSLOTIV>
+                               (GPA("alAuxiliaryEffectSlotiv"));
+    qalAuxiliaryEffectSlotf = reinterpret_cast<LPALAUXILIARYEFFECTSLOTF>
+                              (GPA("alAuxiliaryEffectSlotf"));
+    qalAuxiliaryEffectSlotfv = reinterpret_cast<LPALAUXILIARYEFFECTSLOTFV>
+                               (GPA("alAuxiliaryEffectSlotfv"));
+    qalGetAuxiliaryEffectSloti = reinterpret_cast<LPALGETAUXILIARYEFFECTSLOTI>
+                                 (GPA("alGetAuxiliaryEffectSloti"));
+    qalGetAuxiliaryEffectSlotiv =
+        reinterpret_cast<LPALGETAUXILIARYEFFECTSLOTIV>
+        (GPA("alGetAuxiliaryEffectSlotiv"));
+    qalGetAuxiliaryEffectSlotf = reinterpret_cast<LPALGETAUXILIARYEFFECTSLOTF>
+                                 (GPA("alGetAuxiliaryEffectSlotf"));
+    qalGetAuxiliaryEffectSlotfv =
+        reinterpret_cast<LPALGETAUXILIARYEFFECTSLOTFV>
+        (GPA("alGetAuxiliaryEffectSlotfv"));
+
     if(alinit_fail) {
         QAL_Shutdown();
         trap_Printf(PRINT_ALL, " One or more symbols not found\n");
@@ -324,6 +429,7 @@ void QAL_Shutdown(void) {
     qalSource3f = nullptr;
     qalSourcefv = nullptr;
     qalSourcei = nullptr;
+    qalSource3i = nullptr;
     qalGetSourcef = nullptr;
     qalGetSource3f = nullptr;
     qalGetSourcefv = nullptr;
@@ -368,4 +474,38 @@ void QAL_Shutdown(void) {
     qalcCaptureStart = nullptr;
     qalcCaptureStop = nullptr;
     qalcCaptureSamples = nullptr;
+
+    qalGenEffects = nullptr;
+    qalDeleteEffects = nullptr;
+    qalIsEffect = nullptr;
+    qalEffecti = nullptr;
+    qalEffectiv = nullptr;
+    qalEffectf = nullptr;
+    qalEffectfv = nullptr;
+    qalGetEffecti = nullptr;
+    qalGetEffectiv = nullptr;
+    qalGetEffectf = nullptr;
+    qalGetEffectfv = nullptr;
+    qalGenFilters = nullptr;
+    qalDeleteFilters = nullptr;
+    qalIsFilter = nullptr;
+    qalFilteri = nullptr;
+    qalFilteriv = nullptr;
+    qalFilterf = nullptr;
+    qalFilterfv = nullptr;
+    qalGetFilteri = nullptr;
+    qalGetFilteriv = nullptr;
+    qalGetFilterf = nullptr;
+    qalGetFilterfv = nullptr;
+    qalGenAuxiliaryEffectSlots = nullptr;
+    qalDeleteAuxiliaryEffectSlots = nullptr;
+    qalIsAuxiliaryEffectSlot = nullptr;
+    qalAuxiliaryEffectSloti = nullptr;
+    qalAuxiliaryEffectSlotiv = nullptr;
+    qalAuxiliaryEffectSlotf = nullptr;
+    qalAuxiliaryEffectSlotfv = nullptr;
+    qalGetAuxiliaryEffectSloti = nullptr;
+    qalGetAuxiliaryEffectSlotiv = nullptr;
+    qalGetAuxiliaryEffectSlotf = nullptr;
+    qalGetAuxiliaryEffectSlotfv = nullptr;
 }

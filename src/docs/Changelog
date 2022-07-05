@@ -1,3 +1,8 @@
+2022-07-05 Dusan Jocic <dusanjocic@msn.com>
+	* [SoundSystem] Added support for the "Effects Extension" (EAX)
+	* [RenderSystem] Misc fixes
+	* [Libraries] Updated OpenAL library
+	
 2022-07-04 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Moved function messaging system to C++ file
 	* [Cumulative Update] Misc changes
