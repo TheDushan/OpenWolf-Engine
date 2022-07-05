@@ -61,16 +61,16 @@ public:
     idServerInitSystemLocal();
     ~idServerInitSystemLocal();
 
-    void SendConfigstring(client_t *client, sint index);
-    void CreateBaseline(void);
-    void BoundMaxClients(sint minimum);
-    void Startup(void);
-    void ChangeMaxClients(void);
-    void SetExpectedHunkUsage(valueType *mapname);
-    void ClearServer(void);
-    void TouchCGameDLL(void);
-    void FinalCommand(valueType *cmd, bool disconnect);
-    void ParseVersionMapping(void);
+    static void SendConfigstring(client_t *client, sint index);
+    static void CreateBaseline(void);
+    static void BoundMaxClients(sint minimum);
+    static void Startup(void);
+    static void ChangeMaxClients(void);
+    static void SetExpectedHunkUsage(valueType *mapname);
+    static void ClearServer(void);
+    static void TouchCGameDLL(void);
+    static void FinalCommand(valueType *cmd, bool disconnect);
+    static void ParseVersionMapping(void);
 };
 
 extern idServerInitSystemLocal serverInitSystemLocal;

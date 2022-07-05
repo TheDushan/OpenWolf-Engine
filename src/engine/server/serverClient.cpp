@@ -497,7 +497,7 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
 
         // never reject a LAN client based on ping
         if(!networkSystem->IsLANAddress(from)) {
-            if(sv_minPing->value && ping < sv_minPing->value) {
+            if((sv_minPing->value > 0) && ping < sv_minPing->value) {
                 // don't let them keep trying until they get a big delay
                 networkChainSystem->OutOfBandPrint(NS_SERVER, from,
                                                    "print\nServer is for high pings only\n");
@@ -510,7 +510,7 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
                 return;
             }
 
-            if(sv_maxPing->value && ping > sv_maxPing->value) {
+            if((sv_maxPing->value > 0) && ping > sv_maxPing->value) {
                 networkChainSystem->OutOfBandPrint(NS_SERVER, from,
                                                    "print\nServer is for low pings only\n");
 
