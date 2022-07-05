@@ -319,6 +319,35 @@ void idServerClientSystemLocal::AuthorizeIpPacket(netadr_t from) {
 
 /*
 ==================
+idServerClientSystemLocal::FilterNameStringed
+==================
+*/
+void idServerClientSystemLocal::FilterNameStringed(valueType *userinfo) {
+    if(!VALIDSTRING(userinfo)) {
+        return;
+    }
+
+    valueType *nameValue = Info_ValueForKey(userinfo, "name");
+
+    if(!VALIDSTRING(nameValue) || Q_stricmpn(nameValue, "@@@", 3)) {
+        return;
+    }
+
+    valueType *nameInInfo = const_cast<valueType *>(Q_stristr(userinfo,
+                            "\\name\\@@@"));
+
+    if(!nameInInfo) {
+        return;
+    }
+
+    nameInInfo += 6;
+    *nameInInfo = ' ';
+    *(nameInInfo + 1) = ' ';
+    *(nameInInfo + 2) = ' ';
+}
+
+/*
+==================
 idServerClientSystemLocal::DirectConnect
 
 A "connect" OOB command has been received
@@ -342,6 +371,10 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
     }
 
     Q_strncpyz(userinfo, cmdSystem->Argv(1), sizeof(userinfo));
+
+    // Filter name while connecting to the server
+    FilterNameStringed(userinfo);
+
     oldInfoLen2 = static_cast<sint>(::strlen(userinfo));
     challenge = ::atoi(Info_ValueForKey(userinfo, "challenge"));
     qport = ::atoi(Info_ValueForKey(userinfo, "qport"));
@@ -2150,6 +2183,9 @@ void idServerClientSystemLocal::UpdateUserinfo_f(client_t *cl) {
     }
 
     Q_strncpyz(cl->userinfo, arg, sizeof(cl->userinfo));
+
+    //
+    FilterNameStringed(cl->userinfo);
 
     serverClientLocal.UserinfoChanged(cl);
 

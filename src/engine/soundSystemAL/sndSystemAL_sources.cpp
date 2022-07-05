@@ -126,13 +126,13 @@ void idAudioOpenALSystemLocal::InitEFX(void) {
 
     qalGenAuxiliaryEffectSlots(1, &reverbslot);
 
-    
+
     if(qalGetError() != AL_NO_ERROR) {
         trap_Printf(PRINT_ALL, "OpenAL: failed to create aux effect slot\n");
     }
 
     qalAuxiliaryEffectSloti(reverbslot, AL_EFFECTSLOT_EFFECT, reverb);
-    
+
     trap_Printf(PRINT_ALL, "--------------------------------------\n");
 }
 

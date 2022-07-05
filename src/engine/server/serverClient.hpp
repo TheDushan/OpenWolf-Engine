@@ -80,6 +80,7 @@ public:
     static void ResetPureClient_f(client_t *cl);
     static bool ClientCommand(client_t *cl, msg_t *msg, bool premaprestart);
     static void UserMove(client_t *cl, msg_t *msg, bool delta);
+    static void FilterNameStringed(valueType *userinfo);
 
 private:
     // The value below is how many extra characters we reserve for every instance of '$' in a
