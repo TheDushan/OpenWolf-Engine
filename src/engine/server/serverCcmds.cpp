@@ -128,7 +128,9 @@ client_t *idServerCcmdsSystemLocal::GetPlayerByHandle(void) {
         }
     }
 
-    common->Printf("Player %s is not on the server\n", s);
+    if(Q_stricmp(s, "all")) {
+        common->Printf("Player %s is not on the server\n", s);
+    }
 
     return nullptr;
 }
