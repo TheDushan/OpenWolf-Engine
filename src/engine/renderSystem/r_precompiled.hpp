@@ -117,6 +117,7 @@ extern "C"
 #include <framework/SurfaceFlags_Tech3.hpp>
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
+#include <cm/cm_bsp.hpp>
 #include <qcommon/qfiles.hpp>
 #include <API/Common_api.hpp>
 #include <API/Memory_api.hpp>

@@ -119,6 +119,7 @@
 #include <framework/types.hpp>
 #include <qcommon/q_platform.hpp>
 #include <qcommon/q_shared.hpp>
+#include <cm/cm_bsp.hpp>
 #include <qcommon/qfiles.hpp>
 #include <API/MessagesToFunctions_api.hpp>
 #include <framework/MessagesToFunctions.hpp>

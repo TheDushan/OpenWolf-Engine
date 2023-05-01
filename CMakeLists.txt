@@ -278,6 +278,7 @@ set( SERVERLIST_SOURCES
 )
 
 set( COLLISIONMODEL_HEADERS
+	${MOUNT_DIR}/cm/cm_bsp.hpp
 	${MOUNT_DIR}/cm/cm_local.hpp
 	${MOUNT_DIR}/cm/cm_patch.hpp
 	${MOUNT_DIR}/cm/cm_polylib.hpp

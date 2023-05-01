@@ -115,6 +115,7 @@
 #include <API/Common_api.hpp>
 #include <framework/Common.hpp>
 #include <framework/Memory.hpp>
+#include <cm/cm_bsp.hpp>
 #include <qcommon/qfiles.hpp>
 #include <API/cm_api.hpp>
 #include <cm/cm_polylib.hpp>
