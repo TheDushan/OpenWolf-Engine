@@ -564,4 +564,9 @@ extern serverRconPassword_t rconWhitelist[MAXIMUM_RCON_WHITELIST];
 extern sint rconWhitelistCount;
 //=============================================================================
 
+#define MAX_QUEUE 10
+extern netadr_t Queue[MAX_QUEUE];
+extern sint QueueLast[MAX_QUEUE];
+extern sint QueueCount;
+
 #endif //!__SERVER_HPP__

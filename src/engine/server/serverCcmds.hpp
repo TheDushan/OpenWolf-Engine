@@ -97,6 +97,7 @@ public:
     static void RconWhitelistRehash_f(void);
     static sint ServerRconFileRehash(convar_t *fileName, sint maxEntries,
                                      serverRconPassword_t buffer[]);
+    static void ListQueue_f(void);
 };
 
 extern idServerCcmdsSystemLocal serverCcmdsLocal;

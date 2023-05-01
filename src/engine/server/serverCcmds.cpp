@@ -1994,13 +1994,18 @@ void idServerCcmdsSystemLocal::AddOperatorCommands(void) {
                           &idServerCcmdsSystemLocal::StatsPlayer_f,
                           "Statistics for the one specific player.");
 
-    cmdSystem->AddCommand("svrecord", &idServerCcmdsSystemLocal::Record_f, "");
+    cmdSystem->AddCommand("svrecord", &idServerCcmdsSystemLocal::Record_f,
+                          "Server record");
     cmdSystem->AddCommand("svstoprecord",
-                          &idServerCcmdsSystemLocal::StopRecord_f, "");
+                          &idServerCcmdsSystemLocal::StopRecord_f, "Stop server recording");
 
     cmdSystem->AddCommand("rconwhitelistrehash",
                           &idServerCcmdsSystemLocal::RconWhitelistRehash_f,
-                          "Load RCON whitelist from file");
+                          "Load RCON whitelist from file.");
+
+    cmdSystem->AddCommand("listqueue",
+                          &idServerCcmdsSystemLocal::ListQueue_f,
+                          "Lists current ip's in the Connection Queue.");
 
     if(dedicated->integer) {
         cmdSystem->AddCommand("say", &idServerCcmdsSystemLocal::ConSay_f,
@@ -2108,4 +2113,23 @@ sint idServerCcmdsSystemLocal::ServerRconFileRehash(convar_t *fileName,
 
 exit:
     return numEntries;
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::ListQueue_f
+==================
+*/
+void idServerCcmdsSystemLocal::ListQueue_f(void) {
+    sint i;
+
+    for(i = 0; i < QueueCount; i++) {
+        if(!i) {
+            common->Printf("Connection IP's In Queue\n_____________________\n");
+        }
+
+        common->Printf("%d: %s : %d\n", i + 1,
+                       networkSystem->AdrToString(Queue[i]), svs.time - QueueLast[i]);
+    }
+
 }

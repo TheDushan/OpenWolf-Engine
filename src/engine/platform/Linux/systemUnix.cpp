@@ -1076,7 +1076,7 @@ bool idSystemLocal::PIDIsRunning(sint pid) {
     // we can't really use it to check if something
     // is actually running.
     if(pid <= 0) {
-        return qfalse;
+        return false;
     } else {
         return kill(pid, 0) == 0;
     }

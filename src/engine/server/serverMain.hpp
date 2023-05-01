@@ -87,6 +87,7 @@ public:
     static void FlushRedirect(valueType *outputbuf);
     static bool IsRconWhitelisted(netadr_t *from);
     static void DropClientsByAddress(netadr_t *drop, pointer reason);
+    static void UpdateQueue(void);
 
 private:
     static const sint IPUDP_HEADER_SIZE = 28;

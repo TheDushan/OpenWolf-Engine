@@ -56,6 +56,11 @@ sint numVersions = 0;
 serverRconPassword_t rconWhitelist[MAXIMUM_RCON_WHITELIST];
 sint rconWhitelistCount = 0;
 
+#define MAX_QUEUE 10
+netadr_t Queue[MAX_QUEUE];
+sint QueueLast[MAX_QUEUE];
+sint QueueCount;
+
 #define LL( x ) x = LittleLong( x )
 
 /*
@@ -1597,6 +1602,37 @@ void idServerMainSystemLocal::IntegerOverflowShutDown(valueType *msg) {
 
 /*
 ==================
+idServerMainSystemLocal::UpdateQueue
+==================
+*/
+void idServerMainSystemLocal::UpdateQueue(void) {
+    netadr_t temp[MAX_QUEUE];
+    sint templast[MAX_QUEUE];
+    sint i, j = 0;
+
+    for(i = 0; i < QueueCount; i++) {
+        if(svs.time - QueueLast[i] > 4000) {
+            common->Printf("Queue Position %d for %s has timed-out! - %d ms\n", i,
+                           networkSystem->AdrToString(Queue[i]), svs.time - QueueLast[i]);
+            continue;
+        }
+
+        temp[j] = Queue[i];
+        templast[j] = QueueLast[i];
+        j++;
+    }
+
+    QueueCount = 0;
+
+    for(i = 0; i < j; i++) {
+        Queue[i] = temp[i];
+        QueueLast[i] = templast[i];
+        QueueCount++;
+    }
+}
+
+/*
+==================
 idServerMainSystemLocal::Frame
 
 Player movement occurs as a result of packet events, which
@@ -1817,6 +1853,18 @@ void idServerMainSystemLocal::Frame(sint msec) {
 #ifndef UPDATE_SERVER
     MasterHeartbeat(HEARTBEAT_GAME);
 #endif
+
+    static sint updatequeue = 0;
+
+    if(QueueCount) {
+        updatequeue++;
+
+        // 4 seconds
+        if(updatequeue >= 80) {
+            UpdateQueue();
+            updatequeue = 0;
+        }
+    }
 
     if(dedicated->integer) {
         frameEndTime = idsystem->Milliseconds();
