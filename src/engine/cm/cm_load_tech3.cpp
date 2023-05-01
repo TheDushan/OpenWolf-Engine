@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -72,6 +72,8 @@ void SetPlaneSignbits(cplane_t *out) {
     out->signbits = bits;
 }
 #endif //BSPC
+
+sint bspVersion;
 
 // to allow boxes to be treated as brush models, we allocate
 // some extra indexes along with those needed by the map
@@ -1291,12 +1293,9 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
                     reinterpret_cast<sint *>(&header))[i]);
     }
 
-    if(header.version != Q3_BSP_VERSION &&
-            header.version != WOLF_BSP_VERSION) {
-        common->Error(ERR_DROP,
-                      "idCollisionModelManagerLocal::LoadMap: %s has wrong version number (%i should be %i or %i)",
-                      name, header.version, Q3_BSP_VERSION, WOLF_BSP_VERSION);
-    }
+    IsBSPSupported(header.version, true);
+
+    bspVersion = header.version;
 
     cmod_base = reinterpret_cast<uchar8 *>(buf);
 

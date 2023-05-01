@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -475,6 +475,8 @@ Called every time a map changes
 ===============
 */
 void idServerGameSystemLocal::ShutdownGameProgs(void) {
+    sv.state = SS_DEAD;
+
     if(!svs.gameStarted) {
         return;
     }
@@ -504,7 +506,7 @@ Called for both a full init and a restart
 ==================
 */
 void idServerGameSystemLocal::InitGameModule(bool restart) {
-    sint i;
+    sint i, mSec;
 
     // clear physics interaction links
     serverWorldSystemLocal.ClearWorld();
@@ -518,10 +520,12 @@ void idServerGameSystemLocal::InitGameModule(bool restart) {
         svs.clients[i].gentity = nullptr;
     }
 
+    mSec = common->Milliseconds();
+
     // use the current msec count for a random seed
     // init for this gamestate
     if(gvm || sgame) {
-        sgame->Init(sv.time, common->Milliseconds(), restart);
+        sgame->Init(sv.time, mSec, restart);
     }
 }
 

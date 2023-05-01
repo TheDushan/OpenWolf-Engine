@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2021 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2021 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //

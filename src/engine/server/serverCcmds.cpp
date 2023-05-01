@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -567,7 +567,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
     sv.serverId = com_frameTime;
     cvarSystem->Set("sv_serverid", va("%i", sv.serverId));
 
-    time(&sv.realMapTimeStarted);
+    ::time(&sv.realMapTimeStarted);
 
     // if a map_restart occurs while a client is changing maps, we need
     // to give them the correct time so that when they finish loading

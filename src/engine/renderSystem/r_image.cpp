@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -2701,89 +2701,119 @@ static void R_CreateFogImage(void) {
     memorySystem->FreeTempMemory(data);
 }
 
+float32 V_Neubelt(float32 NdotV, float32 NdotL) {
+    // Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline for The Order: 1886"
+    return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
+}
+
 /*
 ================
 R_CreateEnvBrdfLUT
 from https://github.com/knarkowicz/IntegrateDFG
 ================
 */
-#define LUT_WIDTH   128
-#define LUT_HEIGHT  128
 static void R_CreateEnvBrdfLUT(void) {
+
+    static const sint LUT_WIDTH = 128;
+    static const sint LUT_HEIGHT = 128;
+
     if(!r_cubeMapping->integer) {
         return;
     }
 
-    sint        x, y;
-    uchar16    data[LUT_WIDTH][LUT_HEIGHT][4];
+    uint16_t data[LUT_WIDTH][LUT_HEIGHT][3];
 
-    float32 const MATH_PI = 3.14159f;
-    uint const sampleNum = 1024;
+    uint const numSamples = 1024;
 
     for(uint y = 0; y < LUT_HEIGHT; ++y) {
-        float32 const ndotv = (y + 0.5f) / LUT_HEIGHT;
+        float32 const NdotV = (y + 0.5f) / LUT_HEIGHT;
+        float32 const vx = sqrtf(1.0f - NdotV * NdotV);
         float32 const vy = 0.0f;
-        float32 const vz = ndotv;
+        float32 const vz = NdotV;
 
         for(uint x = 0; x < LUT_WIDTH; ++x) {
             float32 const roughness = (x + 0.5f) / LUT_WIDTH;
             float32 const m = roughness * roughness;
-
-            float32 const vx = sqrtf(1.0f - ndotv * ndotv);
             float32 const m2 = m * m;
 
             float32 scale = 0.0f;
             float32 bias = 0.0f;
+            float32 velvet = 0.0f;
 
-            for(uint i = 0; i < sampleNum; ++i) {
-                float32 const e1 = static_cast<float32>(i) / sampleNum;
-                float32 const e2 = static_cast<float32>(static_cast<float64>(ReverseBits(
-                        i)) / static_cast<float64>(0x100000000LL));
+            for(uint i = 0; i < numSamples; ++i) {
+                float32 const e1 = (float32)i / numSamples;
+                float32 const e2 = (float32)((double)ReverseBits(i) / (double)0x100000000LL);
+                float32 const phi = 2.0f * M_PI * e1;
 
-                float32 const phi = 2.0f * MATH_PI * e1;
-                float32 const cosPhi = cosf(phi);
-                float32 const sinPhi = sinf(phi);
-                float32 const cosTheta = sqrtf((1.0f - e2) / (1.0f +
-                                               (m2 - 1.0f) * e2));
-                float32 const sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
+                // GGX Distribution
+                {
+                    float32 const cosTheta = sqrtf((1.0f - e2) / (1.0f + (m2 - 1.0f) * e2));
+                    float32 const sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
 
-                float32 const hx = sinTheta * cosf(phi);
-                float32 const hy = sinTheta * sinf(phi);
-                float32 const hz = cosTheta;
+                    float32 const hx = sinTheta * cosf(phi);
+                    float32 const hy = sinTheta * sinf(phi);
+                    float32 const hz = cosTheta;
 
-                float32 const vdh = vx * hx + vy * hy + vz * hz;
-                float32 const lx = 2.0f * vdh * hx - vx;
-                float32 const ly = 2.0f * vdh * hy - vy;
-                float32 const lz = 2.0f * vdh * hz - vz;
+                    float32 const vdh = vx * hx + vy * hy + vz * hz;
+                    float32 const lz = 2.0f * vdh * hz - vz;
 
-                float32 const ndotl = MAX(lz, 0.0f);
-                float32 const ndoth = MAX(hz, 0.0f);
-                float32 const vdoth = MAX(vdh, 0.0f);
+                    float32 const NdotL = MAX(lz, 0.0f);
+                    float32 const NdotH = MAX(hz, 0.0f);
+                    float32 const VdotH = MAX(vdh, 0.0f);
 
-                if(ndotl > 0.0f) {
-                    float32 const visibility = GSmithCorrelated(roughness, ndotv, ndotl);
-                    float32 const ndotlVisPDF = ndotl * visibility * (4.0f * vdoth / ndoth);
-                    float32 const fresnel = powf(1.0f - vdoth, 5.0f);
+                    if(NdotL > 0.0f) {
+                        float32 const visibility = GSmithCorrelated(roughness, NdotV, NdotL);
+                        float32 const NdotLVisPDF = NdotL * visibility * (4.0f * VdotH / NdotH);
+                        float32 const fresnel = powf(1.0f - VdotH, 5.0f);
 
-                    scale += ndotlVisPDF * (1.0f - fresnel);
-                    bias += ndotlVisPDF * fresnel;
+                        scale += NdotLVisPDF * (1.0f - fresnel);
+                        bias += NdotLVisPDF * fresnel;
+                    }
+                }
+
+                // Charlie Distribution
+                {
+                    float32 const sinTheta = sqrtf(powf(e2,
+                                                      (2.0f * roughness) / ((2.0f * roughness) + 1.0f)));
+                    float32 const cosTheta = sqrtf(1.0f - sinTheta * sinTheta);
+
+                    float32 const hx = sinTheta * cosf(phi);
+                    float32 const hy = sinTheta * sinf(phi);
+                    float32 const hz = cosTheta;
+
+                    float32 const vdh = vx * hx + vy * hy + vz * hz;
+                    float32 const lz = 2.0f * vdh * hz - vz;
+
+                    float32 const NdotL = MAX(lz, 0.0f);
+                    float32 const NdotH = MAX(hz, 0.0f);
+                    float32 const VdotH = MAX(vdh, 0.0f);
+
+                    if(NdotL > 0.0f) {
+                        float32 const velvetV = V_Neubelt(NdotV, NdotL);
+                        float32 const rcp_pdf = 4.0f * VdotH / NdotH;
+                        velvet += NdotL * velvetV * rcp_pdf;
+                    }
                 }
             }
 
-            scale /= sampleNum;
-            bias /= sampleNum;
+            scale /= numSamples;
+            bias /= numSamples;
+            velvet /= numSamples;
 
             data[y][x][0] = FloatToHalf(scale);
             data[y][x][1] = FloatToHalf(bias);
-            data[y][x][2] = 0.0f;
-            data[y][x][3] = 0.0f;
+            data[y][x][2] = FloatToHalf(velvet);
         }
     }
 
-    tr.envBrdfImage = R_CreateImage("*envBrdfLUT",
-                                    reinterpret_cast<uchar8 *>(data), 128, 128, IMGTYPE_COLORALPHA,
-                                    IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA16F);
-    return;
+    tr.envBrdfImage = R_CreateImage(
+                          "*envBrdfLUT",
+                          (byte *)data,
+                          LUT_WIDTH,
+                          LUT_HEIGHT,
+                          IMGTYPE_COLORALPHA,
+                          IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE,
+                          GL_RGB16F);
 }
 
 static sint Hex(valueType c) {

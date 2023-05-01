@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -1603,7 +1603,7 @@ bool R_MirrorViewBySurface(drawSurf_t *drawSurf, sint entityNum) {
         return false;
     }
 
-    if(r_noportals->integer || (r_fastsky->integer == 1)) {
+    if (r_noportals->integer /* || r_fastsky->integer */) {
         return false;
     }
 
@@ -1845,11 +1845,8 @@ void R_SortDrawSurfs(drawSurf_t *drawSurfs, sint numDrawSurfs) {
         // if the mirror was completely clipped away, we may need to check another surface
         if(R_MirrorViewBySurface((drawSurfs + i), entityNum)) {
             // this is a debug option to see exactly what is being mirrored
-            if(r_portalOnly->integer) {
-                return;
-            }
-
-            break;      // only one mirror view at a time
+            //if(r_portalOnly->integer) {
+                break;      // only one mirror view at a time
         }
     }
 
@@ -2539,10 +2536,11 @@ void R_RenderPshadowMaps(const refdef_t *fd) {
     }
 }
 
-static float32 CalcSplit(float32 n, float32 f, float32 i, float32 m) {
-    return (n * pow(f / n, i / m) + (f - n) * i / m) / 2.0f;
+// Calculate the split between two cascades
+static float32 CalcCascadeSplit(float32 n, float32 f, float32 i,
+                                float32 m) {
+    return (n * exp((i / m) * log(f / n)) + (f - n) * i / m) / 2.0f;
 }
-
 
 void R_RenderSunShadowMaps(const refdef_t *fd, sint level) {
     viewParms_t     shadowParms;
@@ -2591,18 +2589,18 @@ void R_RenderSunShadowMaps(const refdef_t *fd, sint level) {
             //splitZNear = r_znear->value;
             //splitZFar  = 256;
             splitZNear = viewZNear;
-            splitZFar = CalcSplit(viewZNear, viewZFar, 1, 3) + splitBias;
+            splitZFar = CalcCascadeSplit(viewZNear, viewZFar, 1, 3) + splitBias;
             break;
 
         case 1:
-            splitZNear = CalcSplit(viewZNear, viewZFar, 1, 3) + splitBias;
-            splitZFar = CalcSplit(viewZNear, viewZFar, 2, 3) + splitBias;
+            splitZNear = CalcCascadeSplit(viewZNear, viewZFar, 1, 3) + splitBias;
+            splitZFar = CalcCascadeSplit(viewZNear, viewZFar, 2, 3) + splitBias;
             //splitZNear = 256;
             //splitZFar  = 896;
             break;
 
         case 2:
-            splitZNear = CalcSplit(viewZNear, viewZFar, 2, 3) + splitBias;
+            splitZNear = CalcCascadeSplit(viewZNear, viewZFar, 2, 3) + splitBias;
             splitZFar = viewZFar + splitBias;
             //splitZNear = 896;
             //splitZFar  = 3072;

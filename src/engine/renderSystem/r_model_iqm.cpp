@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2011 Thilo Schulz <thilo@tjps.eu>
 // Copyright(C) 2011 Matthias Bentrup <matthias.bentrup@googlemail.com>
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -257,7 +257,13 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
                 break;
             }
         }
+
+        if(tr.worldDeluxeMapping == true && (!len)) {
+            numLightmaps++;
+        }
     }
+
+
 
     image = static_cast<uchar8 *>(clientRendererSystem->RefMalloc(
                                       tr.lightmapSize *
@@ -3763,12 +3769,7 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
     fileBase = reinterpret_cast<uchar8 *>(header);
 
     i = LittleLong(header->version);
-
-    if(i != Q3_BSP_VERSION && i != WOLF_BSP_VERSION) {
-        common->Error(ERR_DROP,
-                      "idRenderSystemLocal::LoadWorldMap: %s has wrong version number (%i should be %i or %i)",
-                      name, i, Q3_BSP_VERSION, WOLF_BSP_VERSION);
-    }
+    collisionModelManager->IsBSPSupported(i, true);
 
     // swap all the lumps
     for(i = 0 ; i < sizeof(dheader_t) / 4 ; i++) {
@@ -3981,21 +3982,24 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
     // load cubemaps
     if(r_cubeMapping->integer) {
-        R_LoadCubemapEntities("misc_cubemap");
+        const int numCubemapEntities = 5;
+        const char *cubemapEntities[numCubemapEntities] = {
+            "misc_cubemap",
+            "info_player_deathmatch",
+            "info_player_start",
+            "info_player_duel",
+            "info_player_intermission",
+        };
 
         if(!tr.numCubemaps) {
-            // use deathmatch spawn points as cubemaps
-            R_LoadCubemapEntities("target_location");
-        }
+            for(sint i = 0; i < numCubemapEntities; i++) {
+                R_LoadCubemapEntities(cubemapEntities[i]);
 
-        if(!tr.numCubemaps) {
-            // use deathmatch spawn points as cubemaps
-            R_LoadCubemapEntities("info_player_start");
-        }
+                if(tr.numCubemaps) {
+                    break;
+                }
+            }
 
-        if(!tr.numCubemaps) {
-            // use deathmatch spawn points as cubemaps
-            R_LoadCubemapEntities("info_player_deathmatch");
         }
 
         if(tr.numCubemaps) {

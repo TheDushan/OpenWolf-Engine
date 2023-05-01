@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -168,6 +168,10 @@ R_AddDrawSurfCmd
 void    R_AddDrawSurfCmd(drawSurf_t *drawSurfs, sint numDrawSurfs) {
     drawSurfsCommand_t *cmd = nullptr;
 
+    if(!tr.registered) {
+        return;
+    }
+
     cmd = GetCommandBuffer(sizeof * cmd, cmd);
 
     if(!cmd) {
@@ -193,6 +197,10 @@ R_AddCapShadowmapCmd
 void    R_AddCapShadowmapCmd(sint map, sint cubeSide) {
     capShadowmapCommand_t *cmd = nullptr;
 
+    if(!tr.registered) {
+        return;
+    }
+
     cmd = GetCommandBuffer(sizeof * cmd, cmd);
 
     if(!cmd) {
@@ -213,6 +221,10 @@ R_AddConvolveCubemapsCmd
 */
 void    R_AddConvolveCubemapCmd(sint cubemap) {
     convolveCubemapCommand_t *cmd = nullptr;
+
+    if(!tr.registered) {
+        return;
+    }
 
     cmd = GetCommandBuffer(sizeof * cmd, cmd);
 
@@ -235,6 +247,10 @@ R_PostProcessingCmd
 */
 void    R_AddPostProcessCmd() {
     postProcessCommand_t *cmd = nullptr;
+
+    if(!tr.registered) {
+        return;
+    }
 
     cmd = GetCommandBuffer(sizeof * cmd, cmd);
 
@@ -527,6 +543,18 @@ void idRenderSystemLocal::BeginFrame(stereoFrame_t stereoFrame) {
         if((err = qglGetError()) != GL_NO_ERROR) {
             common->Error(ERR_FATAL,
                           "idRenderSystemLocal::BeginFrame() - glGetError() failed (0x%x)!", err);
+        }
+    }
+
+    if (r_fastsky->integer)
+    {
+        if (stereoFrame != STEREO_RIGHT)
+        {
+            if (r_anaglyphMode->integer)
+                qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+            qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            qglClear(GL_COLOR_BUFFER_BIT);
         }
     }
 

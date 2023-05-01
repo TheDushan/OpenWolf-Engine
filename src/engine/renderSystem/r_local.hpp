@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -2268,7 +2268,7 @@ RENDERER BACK END COMMAND QUEUE
 =============================================================
 */
 
-#define MAX_RENDER_COMMANDS 0x2000000
+#define MAX_RENDER_COMMANDS 0x80000
 
 typedef struct {
     uchar8  cmds[MAX_RENDER_COMMANDS];

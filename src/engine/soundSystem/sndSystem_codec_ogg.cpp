@@ -2,7 +2,7 @@
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
 // Copyright(C) 2005 Stuart Dalton(badcdev@gmail.com)
 // Copyright(C) 2005 - 2006 Joerg Dietrich <dietrich_joerg@gmx.de>
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //

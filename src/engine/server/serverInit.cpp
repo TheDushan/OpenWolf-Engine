@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -577,7 +577,7 @@ void idServerInitSystemLocal::SetExpectedHunkUsage(valueType *mapname) {
     }
 
     // just set it to a negative number,so the cgame knows not to draw the percent bar
-    com_expectedhunkusage = -1;
+    //com_expectedhunkusage = -1;
 }
 
 /*
@@ -642,6 +642,9 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     if(svs.clients && !com_errorEntered) {
         FinalCommand("spawnserver", false);
     }
+
+    cvarSystem->SetValue("cl_paused", 0);
+    cvarSystem->Set("timescale", "1");
 
     // shut down the existing game if it is running
     serverGameSystem->ShutdownGameProgs();

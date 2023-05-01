@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -495,16 +495,19 @@ void idRenderSystemLocal::RenderScene(const refdef_t *fd) {
     viewParms_t     parms;
     sint                startTime;
 
+    // Check if the renderer is registered before continuing
     if(!tr.registered) {
         return;
     }
 
     GLimp_LogComment("====== idRenderSystemLocal::RenderScene =====\n");
 
+    // Check if the r_norefresh cvar is set before continuing
     if(r_norefresh->integer) {
         return;
     }
 
+    // Check if the world model pointer is null
     startTime = clientRendererSystem->ScaledMilliseconds();
 
     if(!tr.world && !(fd->rdflags & RDF_NOWORLDMODEL)) {
@@ -514,33 +517,35 @@ void idRenderSystemLocal::RenderScene(const refdef_t *fd) {
 
     RE_BeginScene(fd);
 
-    // SmileTheory: playing with shadow mapping
+    // Render dlight cubemaps if there are any and r_dlightMode is 2 or higher
     if(!(fd->rdflags & RDF_NOWORLDMODEL) && tr.refdef.num_dlights &&
             r_dlightMode->integer >= 2) {
         R_RenderDlightCubemaps(fd);
     }
 
-    /* playing with more shadows */
+    // Render pshadow maps if glRefConfig.framebufferObject is set, r_shadows is 4, and the world model is not null
     if(glRefConfig.framebufferObject && !(fd->rdflags & RDF_NOWORLDMODEL) &&
             r_shadows->integer == 4) {
         R_RenderPshadowMaps(fd);
     }
 
-    // playing with even more shadows
+    // Render sun shadow maps if glRefConfig.framebufferObject is set, r_sunlightMode is not 0, the world model is not null, and r_forceSun is 1 or tr.sunShadows is true
     if(glRefConfig.framebufferObject && r_sunlightMode->integer &&
             !(fd->rdflags & RDF_NOWORLDMODEL) && (r_forceSun->integer ||
                     tr.sunShadows)) {
+        // Check if r_shadowCascadeZFar is not 0 before rendering cascaded shadow maps
         if(r_shadowCascadeZFar->integer != 0) {
             R_RenderSunShadowMaps(fd, 0);
             R_RenderSunShadowMaps(fd, 1);
             R_RenderSunShadowMaps(fd, 2);
         } else {
+            // Set the sunShadowMvp matrices to all zeros if r_shadowCascadeZFar is 0
             Mat4Zero(tr.refdef.sunShadowMvp[0]);
             Mat4Zero(tr.refdef.sunShadowMvp[1]);
             Mat4Zero(tr.refdef.sunShadowMvp[2]);
         }
 
-        // only rerender last cascade if sun has changed position
+        // Render the last cascade if r_forceSun is 2 or if the sun direction has changed
         if(r_forceSun->integer == 2 ||
                 !VectorCompare(tr.refdef.sunDir, tr.lastCascadeSunDirection)) {
             VectorCopy(tr.refdef.sunDir, tr.lastCascadeSunDirection);
@@ -553,7 +558,7 @@ void idRenderSystemLocal::RenderScene(const refdef_t *fd) {
 
     // playing with cube maps
     // this is where dynamic cubemaps would be rendered
-    if(0) { //( glRefConfig.framebufferObject && !( fd->rdflags & RDF_NOWORLDMODEL ))
+    if(0) { //( glRefConfig.framebufferObject && !( fd->rdflags & RDF_NOWORLDMODEL )) {
         sint i, j;
 
         for(i = 0; i < tr.numCubemaps; i++) {
@@ -563,12 +568,7 @@ void idRenderSystemLocal::RenderScene(const refdef_t *fd) {
         }
     }
 
-    // setup view parms for the initial view
-    //
-    // set up viewport
-    // The refdef takes 0-at-the-top y coordinates, so
-    // convert to GL's 0-at-the-bottom space
-    //
+    // Set up viewport parameters for the initial view
     ::memset(&parms, 0, sizeof(parms));
     parms.viewportX = tr.refdef.x;
     parms.viewportY = glConfig.vidHeight - (tr.refdef.y + tr.refdef.height);
@@ -576,30 +576,39 @@ void idRenderSystemLocal::RenderScene(const refdef_t *fd) {
     parms.viewportHeight = tr.refdef.height;
     parms.isPortal = false;
 
+    // Set up field of view parameters
     parms.fovX = tr.refdef.fov_x;
     parms.fovY = tr.refdef.fov_y;
 
+    // Set up stereo frame parameters
     parms.stereoFrame = tr.refdef.stereoFrame;
 
+    // Set up orientation parameters
     VectorCopy(fd->vieworg, parms.orientation.origin);
     VectorCopy(fd->viewaxis[0], parms.orientation.axis[0]);
     VectorCopy(fd->viewaxis[1], parms.orientation.axis[1]);
     VectorCopy(fd->viewaxis[2], parms.orientation.axis[2]);
 
+    // Set up PVS origin parameters
     VectorCopy(fd->vieworg, parms.pvsOrigin);
 
+    // Set up flags for using sunlight if necessary
     if(!(fd->rdflags & RDF_NOWORLDMODEL) && r_depthPrepass->value &&
             ((r_forceSun->integer) || tr.sunShadows)) {
         parms.flags = VPF_USESUNLIGHT;
     }
 
+    // Render the view using the view parameters
     R_RenderView(&parms);
 
+    // Add post-processing command if not in RDF_NOWORLDMODEL
     if(!(fd->rdflags & RDF_NOWORLDMODEL)) {
         R_AddPostProcessCmd();
     }
 
+    // End the scene
     RE_EndScene();
 
+    // Update front end time with elapsed time
     tr.frontEndMsec += clientRendererSystem->ScaledMilliseconds() - startTime;
 }

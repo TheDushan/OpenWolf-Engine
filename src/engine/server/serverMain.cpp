@@ -1,6 +1,6 @@
 ﻿////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -127,6 +127,10 @@ not have future snapshot_t executed before it is executed
 void idServerMainSystemLocal::AddServerCommand(client_t *client,
         pointer cmd) {
     sint index, i;
+
+    if(!client) {
+        return;
+    }
 
     // do not send commands until the gamestate has been sent
     if(client->state < CS_PRIMED) {
@@ -1302,6 +1306,7 @@ void idServerMainSystemLocal::PacketEvent(netadr_t from, msg_t *msg) {
 
         // make sure it is a valid, in sequence packet
         if(serverNetChanSystem->NetchanProcess(cl, msg)) {
+
             // zombie clients still need to do the Netchan_Process
             // to make sure they don't need to retransmit the final
             // reliable message, but they don't do any other processing
@@ -1782,7 +1787,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
                                   (frameMsec)) * 100;
             }
 
-            //common->Printf( "serverload: %i (%i/%i)\n", svs.serverLoad, averageFrameTime, frameMsec );
+            //common->Printf( "ServerLoad: %i (%i/%i)\n", svs.serverLoad, averageFrameTime, frameMsec );
 
             svs.totalFrameTime = 0;
             svs.currentFrameIndex = 0;

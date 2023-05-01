@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 Id Software, Inc.
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -1051,6 +1051,7 @@ void R_Init(void) {
     ::memset(&tr, 0, sizeof(tr));
     ::memset(&backEnd, 0, sizeof(backEnd));
     ::memset(&tess, 0, sizeof(tess));
+    ::memset(&glState, 0, sizeof(glState));
 
     //  Swap_Init();
 
@@ -1174,6 +1175,12 @@ void idRenderSystemLocal::Shutdown(bool destroyWindow) {
 
     if(tr.registered) {
         R_IssuePendingRenderCommands();
+    }
+
+    if(tr.registered) {
+        // Flush here to make sure all the fences are processed
+        qglFlush();
+
         R_ShutDownQueries();
 
         if(glRefConfig.framebufferObject) {
@@ -1190,7 +1197,6 @@ void idRenderSystemLocal::Shutdown(bool destroyWindow) {
 
     // shut down platform specific OpenGL stuff
     if(destroyWindow) {
-        R_IssuePendingRenderCommands();
         R_ShutdownCommandBuffers();
         GLimp_Shutdown();
 
@@ -1218,7 +1224,7 @@ Touch all images to make sure they are resident
 void idRenderSystemLocal::EndRegistration(void) {
     R_IssuePendingRenderCommands();
 
-    if(!idsystem->LowPhysicalMemory()) {
-        RB_ShowImages();
-    }
+    //if(!idsystem->LowPhysicalMemory()) {
+    RB_ShowImages();
+    // }
 }

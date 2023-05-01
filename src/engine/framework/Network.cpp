@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -600,7 +600,7 @@ idNetworkSystemLocal::IsLocalAddress
 =============
 */
 bool idNetworkSystemLocal::IsLocalAddress(netadr_t adr) {
-    return (bool)(adr.type == NA_LOOPBACK);
+    return static_cast<bool>(adr.type == NA_LOOPBACK || adr.type == NA_BOT);
 }
 
 //=============================================================================

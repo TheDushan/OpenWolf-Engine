@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2010 id Software LLC, a ZeniMax Media company.
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -2070,7 +2070,7 @@ sint Q_CountChar(pointer string, valueType tocount) {
 }
 
 void Q_StripIndentMarker(valueType *string) {
-    int i, j;
+    sint i, j;
 
     for(i = j = 0; string[i]; i++) {
         if(string[i] != INDENT_MARKER) {
@@ -2087,17 +2087,14 @@ va
 
 does a varargs printf into a temp buffer, so I don't need to have
 varargs versions of all text functions.
-
-Ridah, modified this into a circular list, to further prevent stepping on
-previous strings
 ============
 */
 valueType *va(pointer format, ...) {
     va_list argptr;
 #define MAX_VA_STRING   32000
-    static valueType temp_buffer[MAX_VA_STRING];
-    static valueType
-    string[MAX_VA_STRING];      // in case va is called by nested functions
+    static valueType temp_buffer[MAX_VA_STRING] __attribute__((aligned(16)));
+    static valueType string[MAX_VA_STRING] __attribute__((aligned(
+                16))); // in case va is called by nested functions
     static sint index = 0;
     valueType *buf;
     sint len;
@@ -2115,9 +2112,16 @@ valueType *va(pointer format, ...) {
     }
 
     buf = &string[index];
+
     ::memcpy(buf, temp_buffer, len + 1);
 
     index += len + 1;
+
+    if(index >= MAX_VA_STRING) {
+        index = 0;
+    }
+
+    buf[len] = '\0';
 
     return buf;
 }

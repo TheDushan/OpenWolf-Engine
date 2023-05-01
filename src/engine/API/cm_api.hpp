@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of the OpenWolf GPL Source Code.
 // OpenWolf Source Code is free software: you can redistribute it and/or modify
@@ -137,6 +137,7 @@ public:
 
     virtual sint BoxOnPlaneSide(vec3_t emins, vec3_t emaxs,
                                 cplane_t *plane) = 0;
+    virtual bool IsBSPSupported(const sint version, const bool dropError) = 0;
 };
 
 extern idCollisionModelManager *collisionModelManager;

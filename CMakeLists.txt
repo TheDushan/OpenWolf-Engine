@@ -285,6 +285,7 @@ set( COLLISIONMODEL_HEADERS
 )
 
 set( COLLISIONMODEL_SOURCES
+	${MOUNT_DIR}/cm/cm_bsp.cpp
 	${MOUNT_DIR}/cm/cm_load_tech3.cpp
 	${MOUNT_DIR}/cm/cm_patch.cpp
 	${MOUNT_DIR}/cm/cm_polylib.cpp

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2006 - 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -1140,7 +1140,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         extradefines[0] = '\0';
 
-        if(r_dlightMode->integer >= 2) {
+        if(r_sunlightMode->integer >= 2) {
             Q_strcat(extradefines, 1024, "#define USE_SHADOWMAP\n");
         }
 
