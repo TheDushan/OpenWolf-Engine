@@ -2742,7 +2742,8 @@ static void R_CreateEnvBrdfLUT(void) {
 
             for(uint i = 0; i < numSamples; ++i) {
                 float32 const e1 = (float32)i / numSamples;
-                float32 const e2 = (float32)((double)ReverseBits(i) / (double)0x100000000LL);
+                float32 const e2 = (float32)((double)ReverseBits(i) /
+                                             (double)0x100000000LL);
                 float32 const phi = 2.0f * M_PI * e1;
 
                 // GGX Distribution
@@ -2774,7 +2775,7 @@ static void R_CreateEnvBrdfLUT(void) {
                 // Charlie Distribution
                 {
                     float32 const sinTheta = sqrtf(powf(e2,
-                                                      (2.0f * roughness) / ((2.0f * roughness) + 1.0f)));
+                                                        (2.0f * roughness) / ((2.0f * roughness) + 1.0f)));
                     float32 const cosTheta = sqrtf(1.0f - sinTheta * sinTheta);
 
                     float32 const hx = sinTheta * cosf(phi);
@@ -2808,7 +2809,7 @@ static void R_CreateEnvBrdfLUT(void) {
 
     tr.envBrdfImage = R_CreateImage(
                           "*envBrdfLUT",
-                          (byte *)data,
+                          (uchar8 *)data,
                           LUT_WIDTH,
                           LUT_HEIGHT,
                           IMGTYPE_COLORALPHA,

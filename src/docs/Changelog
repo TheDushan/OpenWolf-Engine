@@ -2,6 +2,7 @@
 	* [Misc] Updated copyright year
 	* [Cumulative Update] Misc changes	
 	* [Engine] Uploaded missing files
+	* [Linux] Fixed compiling on the Linux platform
 
 2022-07-05 Dusan Jocic <dusanjocic@msn.com>
 	* [SoundSystem] Added support for the "Effects Extension" (EAX)

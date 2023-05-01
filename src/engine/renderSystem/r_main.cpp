@@ -1603,7 +1603,7 @@ bool R_MirrorViewBySurface(drawSurf_t *drawSurf, sint entityNum) {
         return false;
     }
 
-    if (r_noportals->integer /* || r_fastsky->integer */) {
+    if(r_noportals->integer /* || r_fastsky->integer */) {
         return false;
     }
 
@@ -1846,7 +1846,7 @@ void R_SortDrawSurfs(drawSurf_t *drawSurfs, sint numDrawSurfs) {
         if(R_MirrorViewBySurface((drawSurfs + i), entityNum)) {
             // this is a debug option to see exactly what is being mirrored
             //if(r_portalOnly->integer) {
-                break;      // only one mirror view at a time
+            break;      // only one mirror view at a time
         }
     }
 
