@@ -207,25 +207,37 @@ bool idSystemLocal::WritePIDFile(void) {
     valueType *pidFile = PIDFileName();
     FILE *f;
     bool stale = false;
+    const sint PID_BUFFER_SIZE = 64;
 
     // First, check if the pid file is already there
     if((f = fopen(pidFile, "r")) != nullptr) {
-        valueType  pidBuffer[ 64 ] = { 0 };
-        uint64 pid;
+        valueType pidBuffer[PID_BUFFER_SIZE] = { 0 };
+        uint64 pid, ignored;
+        valueType *endptr = nullptr;
 
-        fread(pidBuffer, sizeof(valueType), sizeof(pidBuffer) - 1, f);
-        fclose(f);
+        // Okay to ignore result, empty pid files are handled below.
+        ignored = fread(pidBuffer, sizeof(valueType), sizeof(pidBuffer) - 1, f);
+        ::fclose(f);
 
-        pid = atoi(pidBuffer);
+        // Try to convert string to process id.
+        pid = static_cast<sint>(::strtol(pidBuffer, &endptr, 10));
 
-        if(!PIDIsRunning(static_cast<uint>(pid))) {
+        if(*pidBuffer != '\0' && *endptr == '\0') {
+            // The pid file seems valid, so it's only stale if the
+            // process it refers to is not running.
+            if(!PIDIsRunning(pid)) {
+                stale = true;
+            }
+        } else {
+            // The pid file contained trash (maybe nothing at all),
+            // so we consider it stale.
             stale = true;
         }
     }
 
-    if((f = fopen(pidFile, "w")) != nullptr) {
-        fprintf(f, "%d", PID());
-        fclose(f);
+    if((f = ::fopen(pidFile, "w")) != nullptr) {
+        ::fprintf(f, "%d", PID());
+        ::fclose(f);
     } else {
         common->Printf(S_COLOR_YELLOW "Couldn't write %s.\n", pidFile);
     }
