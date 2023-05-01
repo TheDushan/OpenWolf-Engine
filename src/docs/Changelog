@@ -4,7 +4,8 @@
 	* [Engine] Uploaded missing files
 	* [Linux] Fixed compiling on the Linux platform
 	* [Misc] Updated copyright year
-	* [Engine] Fixed obscure pid file bug	
+	* [Engine] Fixed obscure pid file bug
+	* [Engine] Added file containing IP addresses allowed to execute RCON commands
 
 2022-07-05 Dusan Jocic <dusanjocic@msn.com>
 	* [SoundSystem] Added support for the "Effects Extension" (EAX)

@@ -1045,6 +1045,9 @@ void idServerInitSystemLocal::Init(void) {
     }
 #endif
 
+    // Load saved whitelist
+    cmdBufferSystem->AddText("rconwhitelistrehash\n");
+
     // OACS: Initialize the interframe/features variable and write down the extended records structures (types)
     if(sv_oacsEnable->integer == 1) {
 #if !defined(UPDATE_SERVER)

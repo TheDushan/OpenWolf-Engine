@@ -94,6 +94,9 @@ public:
     static time_t ExtractTimeFromDemoFolder(valueType *folder);
     static sint DemoFolderTimeComparator(const void *arg1, const void *arg2);
     static void BeginAutoRecordDemos(void);
+    static void RconWhitelistRehash_f(void);
+    static sint ServerRconFileRehash(convar_t *fileName, sint maxEntries,
+                                     serverRconPassword_t buffer[]);
 };
 
 extern idServerCcmdsSystemLocal serverCcmdsLocal;

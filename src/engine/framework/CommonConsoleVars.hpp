@@ -232,9 +232,9 @@ extern convar_t *sv_showAverageBPS;    // NERVE - SMF - net debugging
 
 extern convar_t *sv_requireValidGuid;
 
-extern convar_t *sv_ircchannel;
-
 extern convar_t *g_gameType;
+
+extern convar_t *sv_rconWhitelist;
 
 // Rafael gameskill
 //extern    convar_t  *sv_gameskill;

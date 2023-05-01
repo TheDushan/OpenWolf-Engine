@@ -548,4 +548,20 @@ extern void    *gvm;
 #define DLNOTIFY_BEGIN      0x00000002  // "clientDownload: 4 : beginning ..."
 #define DLNOTIFY_ALL        ( DLNOTIFY_REDIRECT | DLNOTIFY_BEGIN )
 
+
+//=============================================================================
+#define MAXIMUM_RCON_WHITELIST 32
+
+// Structure for managing rcon password from the file
+typedef struct {
+    netadr_t ip;
+    // For a CIDR-Notation type suffix
+    sint subNet;
+    bool isException;
+} serverRconPassword_t;
+
+extern serverRconPassword_t rconWhitelist[MAXIMUM_RCON_WHITELIST];
+extern sint rconWhitelistCount;
+//=============================================================================
+
 #endif //!__SERVER_HPP__

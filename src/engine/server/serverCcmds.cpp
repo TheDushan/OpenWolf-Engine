@@ -1998,9 +1998,114 @@ void idServerCcmdsSystemLocal::AddOperatorCommands(void) {
     cmdSystem->AddCommand("svstoprecord",
                           &idServerCcmdsSystemLocal::StopRecord_f, "");
 
+    cmdSystem->AddCommand("rconwhitelistrehash",
+                          &idServerCcmdsSystemLocal::RconWhitelistRehash_f,
+                          "Load RCON whitelist from file");
 
     if(dedicated->integer) {
         cmdSystem->AddCommand("say", &idServerCcmdsSystemLocal::ConSay_f,
                               "Used by the server. The text in the string is sent to all players as a message.");
     }
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::RconWhitelistRehash_f
+
+Load RCON whitelist from file.
+==================
+*/
+void idServerCcmdsSystemLocal::RconWhitelistRehash_f(void) {
+    rconWhitelistCount = ServerRconFileRehash(sv_rconWhitelist,
+                         MAXIMUM_RCON_WHITELIST, rconWhitelist);
+}
+
+/*
+==================
+idServerCcmdsSystemLocal::ServerRconFileRehash
+
+Helper to reload a "serverBan_t" type of file
+Returns number of entries loaded
+==================
+*/
+sint idServerCcmdsSystemLocal::ServerRconFileRehash(convar_t *fileName,
+        sint maxEntries, serverRconPassword_t buffer[]) {
+    sint index, filelen;
+    fileHandle_t readfrom;
+    valueType *textbuf, * curpos, * maskpos, * newlinepos, * endpos;
+    valueType filepath[MAX_QPATH];
+    sint numEntries = 0;
+
+    if(!fileName->string || !*fileName->string) {
+        goto exit;
+    }
+
+    if(!(curpos = cvarSystem->VariableString("fs_game")) || !*curpos) {
+        curpos = BASEGAME;
+    }
+
+    Q_vsprintf_s(filepath, sizeof(filepath), sizeof(filepath), "%s/%s", curpos,
+                 fileName->string);
+
+    if((filelen = fileSystem->SV_FOpenFileRead(filepath, &readfrom)) < 0) {
+        common->Printf("idServerCcmdsSystemLocal::RehashServerRconFile: failed to open %s\n",
+                       filepath);
+        goto exit;
+    }
+
+    if(filelen < 2) {
+        // Don't bother if file is too short.
+        fileSystem->FCloseFile(readfrom);
+        goto exit;
+    }
+
+    curpos = textbuf = static_cast<valueType *>(memorySystem->Malloc(filelen));
+
+    filelen = fileSystem->Read(textbuf, filelen, readfrom);
+    fileSystem->FCloseFile(readfrom);
+
+    endpos = textbuf + filelen;
+
+    for(index = 0; index < maxEntries && curpos + 2 < endpos; index++) {
+        // find the end of the address string
+        for(maskpos = curpos + 2; maskpos < endpos && *maskpos != ' '; maskpos++);
+
+        if(maskpos + 1 >= endpos) {
+            break;
+        }
+
+        *maskpos = '\0';
+        maskpos++;
+
+        // find the end of the subnet specifier
+        for(newlinepos = maskpos; newlinepos < endpos &&
+                *newlinepos != '\n'; newlinepos++);
+
+        if(newlinepos >= endpos) {
+            break;
+        }
+
+        *newlinepos = '\0';
+
+        if(networkSystem->StringToAdr(curpos + 2, &buffer[index].ip, NA_UNSPEC)) {
+            buffer[index].isException = (curpos[0] != '0');
+            buffer[index].subNet = atoi(maskpos);
+
+            if(buffer[index].ip.type == NA_IP &&
+                    (buffer[index].subNet < 1 || buffer[index].subNet > 32)) {
+                buffer[index].subNet = 32;
+            } else if(buffer[index].ip.type == NA_IP6 &&
+                      (buffer[index].subNet < 1 || buffer[index].subNet > 128)) {
+                buffer[index].subNet = 128;
+            }
+        }
+
+        curpos = newlinepos + 1;
+    }
+
+    memorySystem->Free(textbuf);
+    numEntries = index;
+
+exit:
+    return numEntries;
 }

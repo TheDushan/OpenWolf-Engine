@@ -427,6 +427,8 @@ convar_t *r_fullscreen;
 
 convar_t *cl_logChat;
 
+convar_t *sv_rconWhitelist;
+
 /*
 ===============
 idCommonLocal::InitCommonConsoleVars
@@ -1276,4 +1278,8 @@ void idCommonLocal::InitCommonConsoleVars(void) {
 
     cl_logChat = cvarSystem->Get("cl_logChat", "0", CVAR_ARCHIVE,
                                  "Enables console logging in the file.");
+
+    sv_rconWhitelist = cvarSystem->Get("sv_rconWhitelist", "whitelist.dat",
+                                       CVAR_ARCHIVE,
+                                       "file containing IP addresses allowed to execute RCON commands, default ""whitelist.dat"" (use "" to disable)");
 }

@@ -53,6 +53,9 @@ versionMapping_t versionMap[MAX_UPDATE_VERSIONS];
 sint numVersions = 0;
 #endif
 
+serverRconPassword_t rconWhitelist[MAXIMUM_RCON_WHITELIST];
+sint rconWhitelistCount = 0;
+
 #define LL( x ) x = LittleLong( x )
 
 /*
@@ -869,6 +872,56 @@ void idServerMainSystemLocal::GetUpdateInfo(netadr_t from) {
 }
 
 /*
+==================
+idServerMainSystemLocal::IsRconWhitelisted
+
+Check whether a certain address is RCON whitelisted
+==================
+*/
+bool idServerMainSystemLocal::IsRconWhitelisted(netadr_t *from) {
+    sint index;
+    serverRconPassword_t *curPass;
+
+    for(index = 0; index < rconWhitelistCount; index++) {
+        curPass = &rconWhitelist[index];
+
+        if(networkSystem->CompareBaseAdrMask(curPass->ip, *from,
+                                             curPass->subNet)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
+==================
+idServerMainSystemLocal::IsRconWhitelisted
+==================
+*/
+void idServerMainSystemLocal::DropClientsByAddress(netadr_t *drop,
+        pointer reason) {
+    sint i;
+    client_t *cl;
+
+    // for all clients
+    for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
+        // skip free slots
+        if(cl->state == CS_FREE) {
+            continue;
+        }
+
+        // skip other addresses
+        if(!networkSystem->CompareBaseAdr(*drop, cl->netchan.remoteAddress)) {
+            continue;
+        }
+
+        // address matches, drop this one
+        serverClientSystem->DropClient(cl, reason);
+    }
+}
+
+/*
 ==============
 idServerMainSystemLocal::FlushRedirect
 ==============
@@ -1037,6 +1090,21 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
     uint i, time;
     valueType remaining[1024];
 
+    // Prevent using of rcon password from addresses that have not been whitelisted
+    if(sv_rconWhitelist->string && *sv_rconWhitelist->string) {
+        if(IsRconWhitelisted(&from)) {
+            if(developer->integer) {
+                common->Printf("idServerMainSystemLocal::IsRconWhitelisted: attempt from %s who is not whitelisted\n",
+                               networkSystem->AdrToString(from));
+            }
+
+            networkChainSystem->OutOfBandPrint(NS_SERVER, from,
+                                               "print\nSorry, you cannot use rcon commands.\n");
+            DropClientsByAddress(&from, "because you are not a admin.");
+            return;
+        }
+    }
+
     // show_bug.cgi?id=376
     // if we send an OOB print message this size, 1.31 clients die in a common->Printf buffer overflow
     // the buffer overflow will be fixed in > 1.31 clients
@@ -1050,9 +1118,9 @@ void idServerMainSystemLocal::RemoteCommand(netadr_t from, msg_t *msg) {
     sint p_iter;
     sint cs_authorized;
 
-    common->Printf("Comando rcon: %s\n", cmdSystem->Cmd());
+    common->Printf("Rcon command: %s\n", cmdSystem->Cmd());
 
-    // UrTEvolution Community Builder rcon automatic autorization
+    // Community Builder rcon automatic autorization
     for(p_iter = 0, cl = svs.clients;
             p_iter < sv_maxclients->integer &&
             strcmp(Info_ValueForKey(cl->userinfo, "ip"),
