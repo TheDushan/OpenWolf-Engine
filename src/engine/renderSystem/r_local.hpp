@@ -2384,7 +2384,8 @@ enum renderCommand_t {
     RC_CONVOLVECUBEMAP,
     RC_POSTPROCESS,
     RC_EXPORT_CUBEMAPS,
-    RC_UPLOAD_CINEMATICS
+    RC_UPLOAD_CINEMATICS,
+    RC_LOAD_TEX
 };
 
 typedef struct {
@@ -2438,6 +2439,7 @@ T GetCommandBuffer(B bytes, T type);
 
 void R_ShutdownCommandBuffers(void);
 void R_InitConsoleVars(void);
+void R_LoadTextures(void);
 
 //extern glfog_t        glfogCurrent;
 extern glfog_t

@@ -424,7 +424,7 @@ idRenderSystemLocal::UploadCinematic
 */
 void idRenderSystemLocal::UploadCinematic(sint w, sint h, sint cols,
         sint rows, const uchar8 *data, sint client, bool dirty) {
-    uploadCinematics_t*cmd = nullptr;
+    uploadCinematics_t *cmd = nullptr;
 
     if(!tr.registered) {
         return;
@@ -446,6 +446,18 @@ void idRenderSystemLocal::UploadCinematic(sint w, sint h, sint cols,
     cmd->dirty = dirty;
 
     // was frontend
+    R_IssuePendingRenderCommands();
+}
+
+void R_LoadTextures(void) {
+    swapBuffersCommand_t *cmd = nullptr;
+
+    cmd = GetCommandBuffer(sizeof * cmd, cmd);
+    if(!cmd) {
+        return;
+    }
+
+    cmd->commandId = RC_LOAD_TEX;
     R_IssuePendingRenderCommands();
 }
 

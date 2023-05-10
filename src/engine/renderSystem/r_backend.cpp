@@ -762,7 +762,7 @@ void idRenderSystemLocal::DrawStretchRaw(sint x, sint y, sint w, sint h,
 const void *RB_UploadCinematics(const void *data) {
     uint texture;
     const uploadCinematics_t *cmd;
-    cmd = (const uploadCinematics_t*)data;
+    cmd = (const uploadCinematics_t *)data;
 
     sint client = cmd->client;
 
@@ -805,11 +805,18 @@ const void *RB_UploadCinematics(const void *data) {
     return (const void *)(cmd + 1);
 }
 
+// Call RB_ShowImages from front end via SMP
+const void *RB_LoadTex(const void *data) {
+    const swapBuffersCommand_t *cmd;
+
+    cmd = (const swapBuffersCommand_t *)data;
+    RB_ShowImages();
+    return (const void *)(cmd + 1);
+}
 
 /*
 =============
 RB_SetColor
-
 =============
 */
 const void *RB_SetColor(const void *data) {
@@ -2049,6 +2056,10 @@ void RB_ExecuteRenderCommands(const void *data) {
 
             case RC_UPLOAD_CINEMATICS:
                 data = RB_UploadCinematics(data);
+                break;
+
+            case RC_LOAD_TEX:
+                data = RB_LoadTex(data);
                 break;
 
             case RC_END_OF_LIST:

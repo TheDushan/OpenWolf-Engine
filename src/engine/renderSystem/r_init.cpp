@@ -1221,7 +1221,7 @@ Touch all images to make sure they are resident
 void idRenderSystemLocal::EndRegistration(void) {
     R_IssuePendingRenderCommands();
 
-    //if(!idsystem->LowPhysicalMemory()) {
-    RB_ShowImages();
-    // }
+    if(!idsystem->LowPhysicalMemory()) {
+        R_LoadTextures();
+    }
 }
