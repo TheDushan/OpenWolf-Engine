@@ -417,6 +417,38 @@ void idRenderSystemLocal::DrawStretchPic(float32 x, float32 y, float32 w,
     cmd->t2 = t2;
 }
 
+/*
+=============
+idRenderSystemLocal::UploadCinematic
+=============
+*/
+void idRenderSystemLocal::UploadCinematic(sint w, sint h, sint cols,
+        sint rows, const uchar8 *data, sint client, bool dirty) {
+    uploadCinematics_t*cmd = nullptr;
+
+    if(!tr.registered) {
+        return;
+    }
+
+    cmd = GetCommandBuffer(sizeof * cmd, cmd);
+
+    if(!cmd) {
+        return;
+    }
+
+    cmd->commandId = RC_UPLOAD_CINEMATICS;
+    cmd->w = w;
+    cmd->h = h;
+    cmd->cols = cols;
+    cmd->rows = rows;
+    cmd->data = data;
+    cmd->client = client;
+    cmd->dirty = dirty;
+
+    // was frontend
+    R_IssuePendingRenderCommands();
+}
+
 #define MODE_RED_CYAN   1
 #define MODE_RED_BLUE   2
 #define MODE_RED_GREEN  3

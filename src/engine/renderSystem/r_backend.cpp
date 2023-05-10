@@ -759,29 +759,31 @@ void idRenderSystemLocal::DrawStretchRaw(sint x, sint y, sint w, sint h,
     RB_InstantQuad2(quadVerts, texCoords);
 }
 
-void idRenderSystemLocal::UploadCinematic(sint w, sint h, sint cols,
-        sint rows, const uchar8 *data, sint client, bool dirty) {
+const void *RB_UploadCinematics(const void *data) {
     uint texture;
+    const uploadCinematics_t *cmd;
+    cmd = (const uploadCinematics_t*)data;
 
-    R_IssuePendingRenderCommands();
+    sint client = cmd->client;
 
     if(!tr.scratchImage[client]) {
         clientRendererSystem->RefPrintf(PRINT_WARNING,
                                         "idRenderSystemLocal::UploadCinematic: scratch images not initialized\n");
-        return;
+        return nullptr;
     }
 
     texture = tr.scratchImage[client]->texnum;
 
     // if the scratchImage isn't in the format we want, specify it as a new texture
-    if(cols != tr.scratchImage[client]->width ||
-            rows != tr.scratchImage[client]->height) {
+    if(cmd->cols != tr.scratchImage[client]->width ||
+            cmd->rows != tr.scratchImage[client]->height) {
         tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth =
-                                             cols;
+                                             cmd->cols;
         tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight =
-                                              rows;
-        qglTextureImage2DEXT(texture, GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0,
-                             GL_RGBA, GL_UNSIGNED_BYTE, data);
+                                              cmd->rows;
+        qglTextureImage2DEXT(texture, GL_TEXTURE_2D, 0, GL_RGB8, cmd->cols,
+                             cmd->rows, 0,
+                             GL_RGBA, GL_UNSIGNED_BYTE, cmd->data);
         qglTextureParameterfEXT(texture, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                                 GL_LINEAR);
         qglTextureParameterfEXT(texture, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
@@ -791,13 +793,16 @@ void idRenderSystemLocal::UploadCinematic(sint w, sint h, sint cols,
         qglTextureParameterfEXT(texture, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
                                 GL_CLAMP_TO_EDGE);
     } else {
-        if(dirty) {
+        if(cmd->dirty) {
             // otherwise, just subimage upload it so that drivers can tell we are going to be changing
             // it and don't try and do a texture compression
-            qglTextureSubImage2DEXT(texture, GL_TEXTURE_2D, 0, 0, 0, cols, rows,
-                                    GL_RGBA, GL_UNSIGNED_BYTE, data);
+            qglTextureSubImage2DEXT(texture, GL_TEXTURE_2D, 0, 0, 0, cmd->cols,
+                                    cmd->rows,
+                                    GL_RGBA, GL_UNSIGNED_BYTE, cmd->data);
         }
     }
+
+    return (const void *)(cmd + 1);
 }
 
 
@@ -2040,6 +2045,10 @@ void RB_ExecuteRenderCommands(const void *data) {
 
             case RC_EXPORT_CUBEMAPS:
                 data = RB_ExportCubemaps(data);
+                break;
+
+            case RC_UPLOAD_CINEMATICS:
+                data = RB_UploadCinematics(data);
                 break;
 
             case RC_END_OF_LIST:

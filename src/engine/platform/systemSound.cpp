@@ -336,6 +336,11 @@ SNDDMA_Shutdown
 ===============
 */
 void SNDDMA_Shutdown(void) {
+    if(!snd_inited) {
+        common->Printf("SDL audio device not started\n");
+        return;
+    }
+
     if(sdlPlaybackDevice != 0) {
         common->Printf("Closing SDL audio playback device...\n");
         SDL_CloseAudioDevice(sdlPlaybackDevice);

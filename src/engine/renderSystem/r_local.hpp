@@ -2383,9 +2383,17 @@ enum renderCommand_t {
     RC_CAPSHADOWMAP,
     RC_CONVOLVECUBEMAP,
     RC_POSTPROCESS,
-    RC_EXPORT_CUBEMAPS
+    RC_EXPORT_CUBEMAPS,
+    RC_UPLOAD_CINEMATICS
 };
 
+typedef struct {
+    sint commandId;
+    sint w, h, cols, rows;
+    const uchar8 *data;
+    sint client;
+    bool dirty;
+} uploadCinematics_t;
 
 // these are sort of arbitrary limits.
 // the limits apply to the sum of all scenes in a frame --
@@ -2411,8 +2419,6 @@ extern  sint        max_polyverts;
 extern  backEndData_t *backEndData; // the second one may not be allocated
 
 extern volatile bool renderThreadActive;
-
-void RB_ExecuteRenderCommands(const void *data);
 
 void R_IssuePendingRenderCommands(void);
 

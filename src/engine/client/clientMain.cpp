@@ -1136,8 +1136,6 @@ void idClientMainSystemLocal::Shutdown(void) {
 
     clientGUISystem->ShutdownGUI();
 
-    soundSystem->Shutdown();
-
     cmdSystem->RemoveCommand("cmd");
     cmdSystem->RemoveCommand("configstrings");
     cmdSystem->RemoveCommand("snd_reload");
