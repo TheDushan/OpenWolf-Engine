@@ -246,7 +246,7 @@ void idRenderSystemLocal::AddRefEntityToScene(const refEntity_t *ent) {
         return;
     }
 
-    if(ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE) {
+    if(ent->reType >= RT_MAX_REF_ENTITY_TYPE) {
         common->Error(ERR_DROP,
                       "idRenderSystemLocal::AddRefEntityToScene: bad reType %i", ent->reType);
     }

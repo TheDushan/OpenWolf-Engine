@@ -910,8 +910,6 @@ void GfxInfo_f(void) {
     clientRendererSystem->RefPrintf(PRINT_ALL, "GL_VERSION: %s\n",
                                     glConfig.version_string);
 
-#ifdef _DEBUG
-
     if(qglGetStringi) {
         GLint numExtensions;
         sint i;
@@ -926,7 +924,6 @@ void GfxInfo_f(void) {
         R_PrintLongString(glConfig.extensions_string);
     }
 
-#endif
     clientRendererSystem->RefPrintf(PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n",
                                     glConfig.maxTextureSize);
     clientRendererSystem->RefPrintf(PRINT_ALL,
