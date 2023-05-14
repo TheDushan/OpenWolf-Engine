@@ -1,3 +1,7 @@
+2023-05-15 Dusan Jocic <dusanjocic@msn.com>
+	* [Engine] Misc fixes
+	* [Engine] Load dynamic modules in separate thread
+
 2023-05-10 Dusan Jocic <dusanjocic@msn.com>
 	* [Misc] Fixed some harmless warnings
 	* [Engine] Misc fixes

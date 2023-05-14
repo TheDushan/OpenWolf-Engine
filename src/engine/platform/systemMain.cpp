@@ -210,13 +210,13 @@ bool idSystemLocal::WritePIDFile(void) {
     const sint PID_BUFFER_SIZE = 64;
 
     // First, check if the pid file is already there
-    if((f = fopen(pidFile, "r")) != nullptr) {
+    if((f = ::fopen(pidFile, "r")) != nullptr) {
         valueType pidBuffer[PID_BUFFER_SIZE] = { 0 };
         uint64 pid, ignored;
         valueType *endptr = nullptr;
 
         // Okay to ignore result, empty pid files are handled below.
-        ignored = fread(pidBuffer, sizeof(valueType), sizeof(pidBuffer) - 1, f);
+        ignored = ::fread(pidBuffer, sizeof(valueType), sizeof(pidBuffer) - 1, f);
         ::fclose(f);
 
         // Try to convert string to process id.
@@ -372,6 +372,7 @@ void idSystemLocal::UnloadDll(void *dllHandle) {
 
     SDL_UnloadObject(dllHandle);
 }
+
 /*
 =================
 idSystemLocal::GetDLLName
@@ -386,12 +387,16 @@ valueType *idSystemLocal::GetDLLName(pointer name) {
 
 /*
 =================
-idSystemLocal::LoadDll
+idSystemLocal::LoadDllThread
+=================
+*/
+void idSystemLocal::LoadDllThread(valueType *filename, void **libHandle) {
+    *libHandle = SDL_LoadObject(filename);
+}
 
-Used to load a development dll instead of a virtual machine
-#1 look in fs_homepath
-#2 look in fs_basepath
-#4 look in fs_libpath under FreeBSD
+/*
+=================
+idSystemLocal::LoadDll
 =================
 */
 void *idSystemLocal::LoadDll(pointer name) {
@@ -423,7 +428,12 @@ void *idSystemLocal::LoadDll(pointer name) {
 
 #endif
 
-    libHandle = SDL_LoadObject(fn);
+    // Load DLL in separate thread
+    std::thread t(LoadDllThread, fn, &libHandle);
+
+    if(t.joinable()) {
+        t.join();
+    }
 
     if(!libHandle) {
         if(developer->integer) {
@@ -432,19 +442,11 @@ void *idSystemLocal::LoadDll(pointer name) {
         }
 
         if(homepath[0]) {
-            if(developer->integer) {
-                common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                               SDL_GetError());
-            }
-
             fn = fileSystem->BuildOSPath(homepath, gamedir, filename);
-            libHandle = SDL_LoadObject(fn);
-        }
+            t = std::thread(LoadDllThread, fn, &libHandle);
 
-        if(!libHandle) {
-            if(developer->integer) {
-                common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                               SDL_GetError());
+            if(t.joinable()) {
+                t.join();
             }
 
             if(!libHandle) {
@@ -452,37 +454,23 @@ void *idSystemLocal::LoadDll(pointer name) {
                     common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
                                    SDL_GetError());
                 }
+            }
+        }
 
-                // now we try base
-                fn = fileSystem->BuildOSPath(basepath, BASEGAME, filename);
-                libHandle = SDL_LoadObject(fn);
+        if(!libHandle) {
+            fn = fileSystem->BuildOSPath(basepath, BASEGAME, filename);
+            t = std::thread(LoadDllThread, fn, &libHandle);
 
-                if(!libHandle) {
-                    if(homepath[0]) {
-                        if(developer->integer) {
-                            common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                           SDL_GetError());
-                        }
+            if(t.joinable()) {
+                t.join();
+            }
 
-                        fn = fileSystem->BuildOSPath(homepath, BASEGAME, filename);
-                        libHandle = SDL_LoadObject(fn);
-                    }
+            if(!libHandle && homepath[0]) {
+                fn = fileSystem->BuildOSPath(homepath, BASEGAME, filename);
+                t = std::thread(LoadDllThread, fn, &libHandle);
 
-                    if(!libHandle) {
-                        if(developer->integer) {
-                            common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                           SDL_GetError());
-                        }
-
-                        if(!libHandle) {
-                            if(developer->integer) {
-                                common->Printf("idSystemLocal::LoadDll(%s) failed: \"%s\"\n", fn,
-                                               SDL_GetError());
-                            }
-
-                            return nullptr;
-                        }
-                    }
+                if(t.joinable()) {
+                    t.join();
                 }
             }
         }
@@ -645,6 +633,7 @@ void idSystemLocal::Frame(void) {
 main
 =================
 */
+// Main function
 #if defined (DEDICATED)
 sint main(sint argc, valueType **argv)
 #elif defined (__MACOSX__)

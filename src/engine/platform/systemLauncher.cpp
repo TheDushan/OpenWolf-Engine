@@ -36,60 +36,35 @@
 #include <SDL2/SDL_loadso.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
+#include <string>
+#include <stdexcept>
 
 int main(int argc, char **argv) {
-    const char *symname = nullptr;
-    char *engineExportName = "engineMain";
-    char *spawnname = nullptr;
-    char *dynName = nullptr;
-#ifdef _WIN32
-    int(__cdecl * engineMain)(int argc, char **argv);
-#else
-    int (*engineMain)(int argc, char **argv);
-#endif
+    const std::string dynName = "engine.AMD64.dll";
+    const std::string engineExportName = "engineMain";
 
-    /* Initialize SDL */
-    if(SDL_Init(0) < 0) {
-        printf("Couldn't initialize SDL: %s\n", SDL_GetError());
-        return 0;
+    SDL_Init(0);
+    const auto libraryHandle = SDL_LoadObject(dynName.c_str());
+
+    if(libraryHandle == nullptr) {
+        throw std::runtime_error("Failed to load library: " + std::string(
+                                     SDL_GetError()));
     }
 
-#if defined (_WIN32)
-    dynName = "engine.AMD64.dll";
-#elif defined (__LINUX__)
-    dynName = "./engine.AMD64.so";
-#else
-    dynName = "./engine.x86_64.dylib";
-#endif
+    const auto engineMain = reinterpret_cast<int(*)(int, char **)>
+                            (SDL_LoadFunction(libraryHandle, engineExportName.c_str()));
 
-    void *libraryName = SDL_LoadObject(dynName);
-
-    printf("libraryHandle config: library(%s) spawn(%s)\n",
-           dynName ? dynName : "--", engineExportName ? engineExportName : "--");
-    printf("Loading libraryHandle: %s\n",
-           libraryName ? "loaded!" : SDL_GetError());
-
-    if(libraryName) {
-#ifdef _WIN32
-        engineMain = (int(__cdecl *)(int, char **))SDL_LoadFunction(libraryName,
-                     engineExportName);
-#else
-        engineMain = (int (*)(int, char **)) SDL_LoadFunction(libraryName,
-                     engineExportName);
-#endif
-
-        if(engineMain != nullptr) {
-            engineMain(argc, argv);
-        } else {
-            printf("Cannot read engine export name\n");
-        }
+    if(engineMain == nullptr) {
+        throw std::runtime_error("Failed to find function: " + std::string(
+                                     SDL_GetError()));
     }
 
-    SDL_UnloadObject(libraryName);
+    engineMain(argc, argv);
+
+    SDL_UnloadObject(libraryHandle);
     SDL_Quit();
 
     return 0;
 }
+

@@ -216,6 +216,7 @@ public:
     static sint XmessageCommand(dialogType_t type, pointer message,
                                 pointer title);
     static sint TranslateCtrlCharToKey(sint key);
+    static void LoadDllThread(valueType *filename, void **libHandle);
 };
 
 extern idSystemLocal systemLocal;
