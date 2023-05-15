@@ -1714,9 +1714,7 @@ idNetworkSystemLocal::Init
 */
 void idNetworkSystemLocal::Init(void) {
 #ifdef _WIN32
-    sint        r;
-
-    r = WSAStartup(MAKEWORD(1, 1), &winsockdata);
+    sint r = WSAStartup(MAKEWORD(1, 1), &winsockdata);
 
     if(r) {
         common->Printf("WARNING: Winsock initialization failed, returned %d\n", r);
@@ -1752,6 +1750,43 @@ void idNetworkSystemLocal::Shutdown(void) {
 #endif
 }
 
+/*
+====================
+idNetworkSystemLocal::Event
+
+Called from Sleep which uses select() to determine which sockets have seen action.
+====================
+*/
+
+void idNetworkSystemLocal::Event(fd_set *fdr) {
+    byte bufData[MAX_MSGLEN + 1];
+    netadr_t from;
+    msg_t netmsg;
+
+    while(1) {
+        msgToFuncSystem->Init(&netmsg, bufData, sizeof(bufData));
+
+        if(networkSystemLocal.GetPacket(&from, &netmsg)) {
+            if(net_dropsim->value > 0.0f && net_dropsim->value <= 100.0f) {
+                // com_dropsim->value percent of incoming packets get dropped.
+                if(::rand() < static_cast<sint>((static_cast<float64>
+                                                 (RAND_MAX)) / 100.0)) {
+                    // drop this packet
+                    continue;
+                }
+            }
+
+            if(sv_running->integer) {
+                common->RunAndTimeServerPacket(&from, &netmsg);
+            } else {
+                clientMainSystem->PacketEvent(from, &netmsg);
+            }
+        } else {
+            break;
+        }
+    }
+}
+
 
 /*
 ====================
@@ -1780,8 +1815,8 @@ void idNetworkSystemLocal::Sleep(sint msec) {
     FD_ZERO(&fdset);
 
     if(ip_socket != INVALID_SOCKET) {
+        // network socket
         FD_SET(ip_socket, &fdset);
-
         highestfd = ip_socket;
     }
 
@@ -1793,9 +1828,28 @@ void idNetworkSystemLocal::Sleep(sint msec) {
         }
     }
 
+
+#ifdef _WIN32
+
+    if(highestfd == INVALID_SOCKET) {
+        // windows ain't happy when select is called without valid FDs
+        SleepEx(msec, 0);
+        return;
+    }
+
+#endif
+
+
     timeout.tv_sec = msec / 1000;
     timeout.tv_usec = (msec % 1000) * 1000;
-    select(highestfd + 1, &fdset, nullptr, nullptr, &timeout);
+
+    sint retval = select(highestfd + 1, &fdset, NULL, NULL, &timeout);
+
+    if(retval == SOCKET_ERROR) {
+        common->Printf("Warning: select() syscall failed: %s\n", ErrorString());
+    } else if(retval > 0) {
+        Event(&fdset);
+    }
 }
 
 /*

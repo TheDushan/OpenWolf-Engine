@@ -217,6 +217,7 @@ public:
                                 pointer title);
     static sint TranslateCtrlCharToKey(sint key);
     static void LoadDllThread(valueType *filename, void **libHandle);
+    static void PDInit(void);
 };
 
 extern idSystemLocal systemLocal;

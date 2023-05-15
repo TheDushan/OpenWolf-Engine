@@ -243,6 +243,7 @@ convar_t *net_mcast6iface;
 convar_t *showpackets;
 convar_t *showdrop;
 convar_t *net_qport;
+convar_t *net_dropsim;
 convar_t *in_keyboardDebug = nullptr;
 convar_t *in_mouse = nullptr;
 convar_t *in_nograb;
@@ -857,6 +858,8 @@ void idCommonLocal::InitCommonConsoleVars(void) {
     net_port = cvarSystem->Get("net_port", XSTRING(PORT_SERVER), CVAR_LATCH,
                                "");
     net_qport = cvarSystem->Get("net_qport", "0", CVAR_INIT, "");
+
+    net_dropsim = cvarSystem->Get("net_dropsim", "", CVAR_TEMP, "");
 
     in_joystickNo = cvarSystem->Get("in_joystickNo", "0", CVAR_ARCHIVE,
                                     "Check whether a user has changed the joystick number");

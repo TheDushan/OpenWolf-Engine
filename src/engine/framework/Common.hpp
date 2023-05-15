@@ -398,6 +398,7 @@ public:
     virtual void RandomBytes(uchar8 *string, sint len);
     virtual void RgbToHsl(vec4_t rgb, vec4_t hsl);
     virtual void HlsToRgb(vec4_t hsl, vec4_t rgb);
+    virtual void RunAndTimeServerPacket(netadr_t *evFrom, msg_t *buf);
 
     static void Colors_f(void);
     static void Quit_f(void);
@@ -410,7 +411,6 @@ public:
     static void InitPushEvent(void);
     static void PushEvent(sysEvent_t *_event);
     static sysEvent_t GetEvent(void);
-    static void RunAndTimeServerPacket(netadr_t *evFrom, msg_t *buf);
     static void Freeze_f(void);
     static void Crash_f(void);
     static void GetGameInfo(void);

@@ -217,14 +217,15 @@ bool SNDDMA_Init(sint sampleFrequencyInKHz) {
         return true;
     }
 
-    common->Printf("SDL_Init( SDL_INIT_AUDIO )... ");
+    common->Printf("Initializing SDL Audio\n");
 
-    if(SDL_Init(SDL_INIT_AUDIO) != 0) {
-        common->Printf("FAILED (%s)\n", SDL_GetError());
-        return false;
+    // Init sdl audio subsystem
+    if(SDL_WasInit(SDL_INIT_AUDIO) == 0) {
+        if(SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
+            common->Printf("Couldn't initialize Audio: %s\n", SDL_GetError());
+            return false;
+        }
     }
-
-    common->Printf("OK\n");
 
     common->Printf("SDL audio driver is \"%s\".\n",
                    SDL_GetCurrentAudioDriver());

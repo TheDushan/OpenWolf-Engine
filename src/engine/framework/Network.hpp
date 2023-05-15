@@ -161,6 +161,7 @@ public:
     static void OpenIP(void);
     static void Config(bool enableNetworking);
     static void NETRestart_f(void);
+    static void Event(fd_set *fdr);
 };
 
 extern idNetworkSystemLocal networkSystemLocal;

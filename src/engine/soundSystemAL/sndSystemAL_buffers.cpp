@@ -219,8 +219,8 @@ Loading and unloading
 */
 void idAudioOpenALSystemLocal::buf_use_default(sfxHandle_t sfx) {
     if(sfx == default_sfx) {
-        trap_Error(ERR_FATAL, "Can't load default sound effect %s\n",
-                   knownSfx[sfx].filename);
+        trap_Printf(PRINT_ALL, "Can't load default sound effect %s\n",
+                    knownSfx[sfx].filename);
     }
 
     trap_Printf(PRINT_ALL, "Warning: Using default sound for %s\n",

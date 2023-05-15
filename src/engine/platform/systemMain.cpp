@@ -263,11 +263,21 @@ void idSystemLocal::Exit(sint exitCode) {
     sys_retcode = exitCode;
     longjmp(sys_exitframe, -1);
 
-    exit(exitCode);
+    // Shutdown the client
+    clientMainSystem->Shutdown();
 
+    // Shutdown the network stuff
+    networkSystem->Shutdown();
+
+    // Close the console
+    consoleCursesSystem->Shutdown();
+
+    // Shutdown SDL and quit
 #ifndef DEDICATED
+    // Shutdown SDL and quit
     SDL_Quit();
 #endif
+    exit(exitCode);
 }
 
 /*
@@ -354,7 +364,11 @@ void idSystemLocal::Error(pointer error, ...) {
 #if !defined (DEDICATED)
     clientMainSystem->Shutdown();
 #endif
+    // Set the error text (waits for the user to quit)
     ErrorDialog(string);
+
+    // Close the console and quit
+    consoleCursesSystem->Shutdown();
 
     Exit(3);
 }
@@ -574,6 +588,8 @@ void idSystemLocal::SigHandler(sint signal) {
         clientMainSystem->Shutdown();
         serverInitSystem->Shutdown(va("Received signal %d", signal));
 #endif
+        systemLocal.Error("Received signal %d: \"%s\", exiting...\n", signal,
+                          SignalToString(signal));
     }
 
     if(signal == SIGTERM || signal == SIGINT) {
@@ -735,13 +751,7 @@ Q_EXPORT sint engineMain(sint argc, valueType * *argv)
     common->Init(commandLine);
     networkSystem->Init();
 
-    signal(SIGILL, systemLocal.SigHandler);
-    signal(SIGFPE, systemLocal.SigHandler);
-#if !defined (__LINUX__)
-    signal(SIGSEGV, systemLocal.SigHandler);
-#endif
-    signal(SIGTERM, systemLocal.SigHandler);
-    signal(SIGINT, systemLocal.SigHandler);
+    systemLocal.PDInit();
 
     while(1) {
         systemLocal.Frame();
@@ -749,6 +759,23 @@ Q_EXPORT sint engineMain(sint argc, valueType * *argv)
     }
 
     return 0;
+}
+
+/*
+========================================================================
+
+Platform-dependent startup and shutdown
+
+========================================================================
+*/
+void idSystemLocal::PDInit(void) {
+    signal(SIGILL, systemLocal.SigHandler);
+    signal(SIGFPE, systemLocal.SigHandler);
+#if !defined (__LINUX__)
+    signal(SIGSEGV, systemLocal.SigHandler);
+#endif
+    signal(SIGTERM, systemLocal.SigHandler);
+    signal(SIGINT, systemLocal.SigHandler);
 }
 
 /*

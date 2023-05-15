@@ -169,7 +169,7 @@ idSoundSystemLocal::Init
 void idSoundSystemLocal::Init(void) {
     convar_t *cv;
 
-    common->Printf("------ Initializing Sound -----\n");
+    common->Printf("------ idSoundSystemLocal::Init -----\n");
 
     cv = cvarSystem->Get("s_initsound", "1", 0,
                          "Toggle weather sound is initialized or not (on next game)");

@@ -947,28 +947,10 @@ sysEvent_t idCommonLocal::GetSystemEvent(void) {
         valueType  *b;
         uint64 len;
 
-        len = strlen(s) + 1;
+        len = ::strlen(s) + 1;
         b = static_cast<valueType *>(memorySystem->Malloc(len));
         Q_strncpyz(b, s, len);
         commonLocal.QueueEvent(0, SYSE_CONSOLE, 0, 0, len, b);
-    }
-
-    // check for network packets
-    msgToFuncSystem->Init(&netmsg, sys_packetReceived,
-                          sizeof(sys_packetReceived));
-    adr.type = NA_UNSPEC;
-
-    if(networkSystem->GetPacket(&adr, &netmsg)) {
-        netadr_t  *buf;
-        uint64 len;
-
-        // copy out to a seperate buffer for qeueing
-        len = sizeof(netadr_t) + netmsg.cursize;
-        buf = (netadr_t *)memorySystem->Malloc(len);
-        *buf = adr;
-        memcpy(buf + 1, &netmsg.data[netmsg.readcount],
-               netmsg.cursize - netmsg.readcount);
-        commonLocal.QueueEvent(0, SYSE_PACKET, 0, 0, len, buf);
     }
 
     // return if we have data
@@ -982,7 +964,7 @@ sysEvent_t idCommonLocal::GetSystemEvent(void) {
 #endif
 
     // create an empty event to return
-    memset(&ev, 0, sizeof(ev));
+    ::memset(&ev, 0, sizeof(ev));
     ev.evTime = idsystem->Milliseconds();
 
     return ev;

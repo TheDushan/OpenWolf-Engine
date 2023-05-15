@@ -327,6 +327,7 @@ extern convar_t *s_module;
 extern convar_t *com_recommended;
 extern convar_t *com_highSettings;
 extern convar_t *net_qport;
+extern convar_t *net_dropsim;
 extern convar_t *fixedtime;
 extern convar_t *s_mixPreStep;
 extern convar_t *in_nograb;
