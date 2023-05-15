@@ -39,7 +39,7 @@
 #ifndef __COMMON_API_HPP__
 #define __COMMON_API_HPP__
 
-#if defined (OALAUDIO)
+#if defined (OALAUDIO) || defined (RENDERSYSTEM)
 typedef struct msg_t msg_t;
 #endif
 

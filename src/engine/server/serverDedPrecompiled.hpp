@@ -36,6 +36,7 @@
 #include <setjmp.h>
 #include <iostream>
 #include <assert.h>
+#include <thread>
 
 #ifndef _WIN32
 #include <sys/ioctl.h>

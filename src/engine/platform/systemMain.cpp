@@ -264,7 +264,9 @@ void idSystemLocal::Exit(sint exitCode) {
     longjmp(sys_exitframe, -1);
 
     // Shutdown the client
+#if !defined (DEDICATED)
     clientMainSystem->Shutdown();
+#endif
 
     // Shutdown the network stuff
     networkSystem->Shutdown();
@@ -273,7 +275,7 @@ void idSystemLocal::Exit(sint exitCode) {
     consoleCursesSystem->Shutdown();
 
     // Shutdown SDL and quit
-#ifndef DEDICATED
+#if !defined (DEDICATED)
     // Shutdown SDL and quit
     SDL_Quit();
 #endif

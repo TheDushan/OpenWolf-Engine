@@ -40,6 +40,7 @@
 #include <mutex>
 #include <queue>
 #include <assert.h>
+#include <thread>
 
 #ifndef _WIN32
 #include <sys/ioctl.h>

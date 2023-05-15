@@ -453,6 +453,7 @@ void R_LoadTextures(void) {
     swapBuffersCommand_t *cmd = nullptr;
 
     cmd = GetCommandBuffer(sizeof * cmd, cmd);
+
     if(!cmd) {
         return;
     }

@@ -1757,9 +1757,8 @@ idNetworkSystemLocal::Event
 Called from Sleep which uses select() to determine which sockets have seen action.
 ====================
 */
-
 void idNetworkSystemLocal::Event(fd_set *fdr) {
-    byte bufData[MAX_MSGLEN + 1];
+    uchar8 bufData[MAX_MSGLEN + 1];
     netadr_t from;
     msg_t netmsg;
 
@@ -1778,9 +1777,12 @@ void idNetworkSystemLocal::Event(fd_set *fdr) {
 
             if(sv_running->integer) {
                 common->RunAndTimeServerPacket(&from, &netmsg);
+#if !defined (DEDICATED)
             } else {
                 clientMainSystem->PacketEvent(from, &netmsg);
+#endif
             }
+
         } else {
             break;
         }
