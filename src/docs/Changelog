@@ -1,5 +1,6 @@
 2023-05-28 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Rewrote va function
+	* [RendererSystem] Added support for the geometry shaders
 	
 2023-05-15 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Misc fixes

@@ -670,11 +670,11 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
             SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minorVersion);
 
             clientRendererSystem->RefPrintf(PRINT_ALL,
-                                            "Trying to get an OpenGL 3.2 core context\n");
+                                            "Trying to get an OpenGL 3.3 core context\n");
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                                 SDL_GL_CONTEXT_PROFILE_CORE);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
             if((SDL_glContext = SDL_GL_CreateContext(SDL_window)) == nullptr) {
                 clientRendererSystem->RefPrintf(PRINT_ALL,

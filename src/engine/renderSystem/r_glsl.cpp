@@ -157,7 +157,7 @@ enum glslPrintLog_t {
 
 static void GLSL_PrintLog(uint programOrShader, glslPrintLog_t type,
                           bool developerOnly) {
-    valueType           *msg;
+    valueType *msg;
     static valueType     msgPart[1024];
     sint             maxLength = 0;
     sint             i;
@@ -188,8 +188,8 @@ static void GLSL_PrintLog(uint programOrShader, glslPrintLog_t type,
     if(maxLength < 1023) {
         msg = msgPart;
     } else {
-        msg = reinterpret_cast< valueType * >(clientRendererSystem->RefMalloc(
-                maxLength));
+        msg = reinterpret_cast<valueType *>(clientRendererSystem->RefMalloc(
+                                                maxLength));
     }
 
     switch(type) {
@@ -234,11 +234,26 @@ static void GLSL_GetShaderHeader(uint shaderType, pointer extra,
     if(glRefConfig.glslMajorVersion > 1 ||
             (glRefConfig.glslMajorVersion == 1 &&
              glRefConfig.glslMinorVersion >= 30)) {
-        Q_strcat(dest, size, "#version 130\n");
+        if(glRefConfig.glslMajorVersion > 1 ||
+                (glRefConfig.glslMajorVersion == 1 &&
+                 glRefConfig.glslMinorVersion >= 50)) {
+            Q_strcat(dest, size, "#version 150\n");
+        } else {
+            Q_strcat(dest, size, "#version 130\n");
+        }
 
         if(shaderType == GL_VERTEX_SHADER) {
             Q_strcat(dest, size, "#define attribute in\n");
             Q_strcat(dest, size, "#define varying out\n");
+        } else if(shaderType == GL_GEOMETRY_SHADER) {
+            if(extra) {
+                Q_strcat(dest, size, extra);
+            }
+
+            // OK we added a lot of stuff but if we do something bad in the GLSL shaders then we want the proper line
+            // so we have to reset the line counting
+            Q_strcat(dest, size, "#line 0\n");
+            return;
         } else {
             Q_strcat(dest, size, "#define varying in\n");
 
@@ -253,19 +268,8 @@ static void GLSL_GetShaderHeader(uint shaderType, pointer extra,
         Q_strcat(dest, size, "#define shadow2D(a,b) shadow2D(a,b).r \n");
     }
 
-    // HACK: add some macros to avoid extra uniforms and save speed and code maintenance
-    //Q_strcat(dest, size,
-    //       va(nullptr, "#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
-    //Q_strcat(dest, size,
-    //       va(nullptr, "#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
-    //Q_strcat(dest, size,
-    //       va(nullptr, "#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
-
-
     Q_strcat(dest, size,
              "#ifndef M_PI\n#define M_PI 3.14159265358979323846\n#endif\n");
-
-    //Q_strcat(dest, size, va(nullptr, "#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
 
     Q_strcat(dest, size,
              va(nullptr, "#ifndef deformGen_t\n"
@@ -411,13 +415,16 @@ static sint GLSL_CompileGPUShader(uint program, uint *prevShader,
 static sint GLSL_LoadGPUShaderText(pointer name, uint shaderType,
                                    valueType *dest, sint destSize) {
     valueType            filename[MAX_QPATH];
-    GLcharARB      *buffer = nullptr;
+    GLcharARB *buffer = nullptr;
     const GLcharARB *shaderText = nullptr;
     sint             size, result;
 
     if(shaderType == GL_VERTEX_SHADER) {
         Q_vsprintf_s(filename, sizeof(filename), sizeof(filename),
                      "renderProgs/%s.vertex", name);
+    } else if(shaderType == GL_GEOMETRY_SHADER) {
+        Q_vsprintf_s(filename, sizeof(filename), sizeof(filename),
+                     "renderProgs/%s.geometry", name);
     } else {
         Q_vsprintf_s(filename, sizeof(filename), sizeof(filename),
                      "renderProgs/%s.fragment", name);
@@ -493,7 +500,7 @@ static void GLSL_ShowProgramUniforms(uint program) {
 }
 
 static sint GLSL_InitGPUShader2(shaderProgram_t *program, pointer name,
-                                sint attribs, pointer vpCode, pointer fpCode) {
+                                sint attribs, pointer vpCode, pointer fpCode, pointer gsCode) {
 #ifdef _DEBUG
     clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
                                     "------- GPU shader -------\n");
@@ -507,6 +514,10 @@ static sint GLSL_InitGPUShader2(shaderProgram_t *program, pointer name,
 
     program->program = qglCreateProgram();
     program->attribs = attribs;
+
+    program->geometry = false;
+    program->geometryShader = 0;
+
 
     if(!(GLSL_CompileGPUShader(program->program, &program->vertexShader,
                                vpCode, strlen(vpCode), GL_VERTEX_SHADER))) {
@@ -525,6 +536,23 @@ static sint GLSL_InitGPUShader2(shaderProgram_t *program, pointer name,
             qglDeleteProgram(program->program);
             return 0;
         }
+    }
+
+    if(gsCode) {
+        if(!(GLSL_CompileGPUShader(program->program, &program->geometryShader,
+                                   gsCode, strlen(gsCode), GL_GEOMETRY_SHADER))) {
+            clientRendererSystem->RefPrintf(PRINT_ALL,
+                                            "GLSL_BeginLoadGPUShader2: Unable to load \"%s\" as GL_GEOMETRY_SHADER\n",
+                                            name);
+            program->geometryShader = 0;
+            qglDeleteProgram(program->program);
+            return 0;
+        } else {
+            //clientRendererSystem->RefPrintf(PRINT_ALL, "GLSL_BeginLoadGPUShader2: Load \"%s\" as GL_GEOMETRY_SHADER\n", name);
+            program->geometry = true;
+        }
+    } else {
+        program->geometryShader = 0;
     }
 
     if(attribs & ATTR_POSITION) {
@@ -602,12 +630,13 @@ static sint GLSL_InitGPUShader2(shaderProgram_t *program, pointer name,
 }
 
 static sint GLSL_InitGPUShader(shaderProgram_t *program, pointer name,
-                               sint attribs, bool fragmentShader, pointer extra, bool addHeader) {
-    valueType vpCode[320000];
-    valueType fpCode[320000];
+                               sint attribs, bool fragmentShader, bool geometryShader, pointer extra,
+                               bool addHeader) {
+    valueType vpCode[32768];
+    valueType fpCode[32768];
+    valueType gsCode[32768];
     valueType *postHeader;
     sint size;
-    sint result;
 
     size = sizeof(vpCode);
 
@@ -623,13 +652,32 @@ static sint GLSL_InitGPUShader(shaderProgram_t *program, pointer name,
         return 0;
     }
 
+    if(geometryShader) {
+        size = sizeof(gsCode);
+
+        if(addHeader) {
+            GLSL_GetShaderHeader(GL_GEOMETRY_SHADER, extra, gsCode, size);
+            postHeader = &gsCode[strlen(gsCode)];
+            size -= strlen(gsCode);
+        } else {
+            postHeader = &gsCode[0];
+        }
+
+        //clientRendererSystem->RefPrintf(PRINT_WARNING,
+        //    "Begin GLSL load GL_GEOMETRY_SHADER for %s.\n", name);
+
+        if(!GLSL_LoadGPUShaderText(name, GL_GEOMETRY_SHADER, postHeader, size)) {
+            return 0;
+        }
+    }
+
     if(fragmentShader) {
         size = sizeof(fpCode);
 
         if(addHeader) {
             GLSL_GetShaderHeader(GL_FRAGMENT_SHADER, extra, fpCode, size);
-            postHeader = &fpCode[strlen(fpCode)];
-            size -= strlen(fpCode);
+            postHeader = &fpCode[::strlen(fpCode)];
+            size -= ::strlen(fpCode);
         } else {
             postHeader = &fpCode[0];
         }
@@ -639,10 +687,13 @@ static sint GLSL_InitGPUShader(shaderProgram_t *program, pointer name,
         }
     }
 
-    result = GLSL_InitGPUShader2(program, name, attribs, vpCode,
-                                 fragmentShader ? fpCode : nullptr);
-
-    return result;
+    if(geometryShader && gsCode && gsCode[0]) {
+        return GLSL_InitGPUShader2(program, name, attribs, vpCode,
+                                   fragmentShader ? fpCode : nullptr, gsCode);
+    } else {
+        return GLSL_InitGPUShader2(program, name, attribs, vpCode,
+                                   fragmentShader ? fpCode : nullptr, nullptr);
+    }
 }
 
 void GLSL_InitUniforms(shaderProgram_t *program) {
@@ -700,7 +751,7 @@ void GLSL_InitUniforms(shaderProgram_t *program) {
         }
     }
 
-    program->uniformBuffer = reinterpret_cast< valueType * >
+    program->uniformBuffer = reinterpret_cast<valueType *>
                              (clientRendererSystem->RefMalloc(
                                   size));
 }
@@ -945,6 +996,11 @@ void GLSL_DeleteGPUShader(shaderProgram_t *program) {
             qglDeleteShader(program->fragmentShader);
         }
 
+        if(program->geometryShader) {
+            qglDetachShader(program->program, program->geometryShader);
+            qglDeleteShader(program->geometryShader);
+        }
+
         qglDeleteProgram(program->program);
 
         if(program->uniformBuffer) {
@@ -1013,6 +1069,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
         }
 
         if(!GLSL_InitGPUShader(&tr.genericShader[i], "generic", attribs, true,
+                               false,
                                extradefines, true)) {
             common->Error(ERR_FATAL, "Could not load generic shader!");
         }
@@ -1021,7 +1078,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         GLSL_SetUniformInt(&tr.genericShader[i], UNIFORM_DIFFUSEMAP,
                            TB_DIFFUSEMAP);
-        GLSL_SetUniformInt(&tr.genericShader[i], UNIFORM_LIGHTMAP,   TB_LIGHTMAP);
+        GLSL_SetUniformInt(&tr.genericShader[i], UNIFORM_LIGHTMAP, TB_LIGHTMAP);
 
         GLSL_FinishGPUShader(&tr.genericShader[i]);
 
@@ -1032,7 +1089,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
 
     if(!GLSL_InitGPUShader(&tr.textureColorShader, "texturecolor", attribs,
-                           true, extradefines, true)) {
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load texturecolor shader!");
     }
 
@@ -1079,7 +1137,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
             Q_strcat(extradefines, 1024, "#define USE_WOLF_FOG_EXPONENTIAL\n");
         }
 
-        if(!GLSL_InitGPUShader(&tr.fogShader[i], "fogpass", attribs, true,
+        if(!GLSL_InitGPUShader(&tr.fogShader[i], "fogpass", attribs, true, false,
                                extradefines, true)) {
             common->Error(ERR_FATAL, "Could not load fogpass shader!");
         }
@@ -1099,7 +1157,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
             Q_strcat(extradefines, 1024, "#define USE_DEFORM_VERTEXES\n");
         }
 
-        if(!GLSL_InitGPUShader(&tr.dlightShader[i], "dlight", attribs, true,
+        if(!GLSL_InitGPUShader(&tr.dlightShader[i], "dlight", attribs, true, false,
                                extradefines, false)) {
             common->Error(ERR_FATAL, "Could not load dlight shader!");
         }
@@ -1254,6 +1312,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
         }
 
         if(!GLSL_InitGPUShader(&tr.lightallShader[i], "lightall", attribs, true,
+                               false,
                                extradefines, true)) {
             common->Error(ERR_FATAL, "Could not load lightall shader!");
         }
@@ -1272,7 +1331,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
                            TB_SPECULARMAP);
         GLSL_SetUniformInt(&tr.lightallShader[i], UNIFORM_SHADOWMAP,
                            TB_SHADOWMAP);
-        GLSL_SetUniformInt(&tr.lightallShader[i], UNIFORM_CUBEMAP,     TB_CUBEMAP);
+        GLSL_SetUniformInt(&tr.lightallShader[i], UNIFORM_CUBEMAP, TB_CUBEMAP);
         GLSL_SetUniformInt(&tr.lightallShader[i], UNIFORM_ENVBRDFMAP,
                            TB_ENVBRDFMAP);
 
@@ -1310,6 +1369,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
         }
 
         if(!GLSL_InitGPUShader(&tr.shadowmapShader[i], "shadowfill", attribs, true,
+                               false,
                                extradefines, true)) {
             common->Error(ERR_FATAL, "Could not load shadowfill shader!");
         }
@@ -1324,7 +1384,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.ssrShader, "ssr", attribs, true, extradefines,
+    if(!GLSL_InitGPUShader(&tr.ssrShader, "ssr", attribs, true, false,
+                           extradefines,
                            true)) {
         common->Error(ERR_FATAL, "Could not load ssr shader!");
     }
@@ -1342,6 +1403,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.ssrCombineShader, "ssrCombine", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load ssrCombine shader!");
     }
@@ -1360,7 +1422,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
     Q_strcat(extradefines, 1024, "#define USE_PCF\n#define USE_DISCARD\n");
 
-    if(!GLSL_InitGPUShader(&tr.pshadowShader, "pshadow", attribs, true,
+    if(!GLSL_InitGPUShader(&tr.pshadowShader, "pshadow", attribs, true, false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load pshadow shader!");
     }
@@ -1377,7 +1439,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.down4xShader, "down4x", attribs, true,
+    if(!GLSL_InitGPUShader(&tr.down4xShader, "down4x", attribs, true, false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load down4x shader!");
     }
@@ -1394,7 +1456,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.bokehShader, "bokeh", attribs, true,
+    if(!GLSL_InitGPUShader(&tr.bokehShader, "bokeh", attribs, true, false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load bokeh shader!");
     }
@@ -1411,7 +1473,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.tonemapShader, "tonemap", attribs, true,
+    if(!GLSL_InitGPUShader(&tr.tonemapShader, "tonemap", attribs, true, false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load tonemap shader!");
     }
@@ -1419,7 +1481,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     GLSL_InitUniforms(&tr.tonemapShader);
 
     GLSL_SetUniformInt(&tr.tonemapShader, UNIFORM_TEXTUREMAP, TB_COLORMAP);
-    GLSL_SetUniformInt(&tr.tonemapShader, UNIFORM_LEVELSMAP,  TB_LEVELSMAP);
+    GLSL_SetUniformInt(&tr.tonemapShader, UNIFORM_LEVELSMAP, TB_LEVELSMAP);
 
     GLSL_FinishGPUShader(&tr.tonemapShader);
 
@@ -1435,7 +1497,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
         }
 
         if(!GLSL_InitGPUShader(&tr.calclevels4xShader[i], "calclevels4x", attribs,
-                               true, extradefines, true)) {
+                               true,
+                               false, extradefines, true)) {
             common->Error(ERR_FATAL, "Could not load calclevels4x shader!");
         }
 
@@ -1473,6 +1536,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
 
     if(!GLSL_InitGPUShader(&tr.shadowmaskShader, "shadowmask", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load shadowmask shader!");
     }
@@ -1481,7 +1545,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
     GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SCREENDEPTHMAP,
                        TB_COLORMAP);
-    GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SHADOWMAP,  TB_SHADOWMAP);
+    GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SHADOWMAP, TB_SHADOWMAP);
     GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SHADOWMAP2,
                        TB_SHADOWMAP2);
     GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SHADOWMAP3,
@@ -1497,7 +1561,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.ssaoShader, "ssao", attribs, true, extradefines,
+    if(!GLSL_InitGPUShader(&tr.ssaoShader, "ssao", attribs, true, false,
+                           extradefines,
                            true)) {
         common->Error(ERR_FATAL, "Could not load ssao shader!");
     }
@@ -1527,6 +1592,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
 
         if(!GLSL_InitGPUShader(&tr.depthBlurShader[i], "depthBlur", attribs, true,
+                               false,
                                extradefines, true)) {
             common->Error(ERR_FATAL, "Could not load depthBlur shader!");
         }
@@ -1548,7 +1614,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.prefilterEnvMapShader, "prefilterEnvMap",
-                           attribs, true, extradefines, true)) {
+                           attribs, true, false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load prefilterEnvMap shader!");
     }
 
@@ -1563,6 +1629,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.darkexpandShader, "darkexpand", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load darkexpand shader!");
     }
@@ -1603,7 +1670,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     Q_strcat(extradefines, sizeof(extradefines), "#define BLUR_X\n");
 
     if(!GLSL_InitGPUShader(&tr.gaussianBlurShader[0], "gaussian_blur", attribs,
-                           true, extradefines, true)) {
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL,
                       "Could not load gaussian_blur (X-direction) shader!");
     }
@@ -1612,7 +1680,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.gaussianBlurShader[1], "gaussian_blur", attribs,
-                           true, extradefines, true)) {
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL,
                       "Could not load gaussian_blur (Y-direction) shader!");
     }
@@ -1629,6 +1698,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.multipostShader, "multipost", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load darkexpand shader!");
     }
@@ -1648,6 +1718,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.lensflareShader, "lensflare", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load lensflare shader!");
     }
@@ -1663,7 +1734,9 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.anamorphicDarkenShader, "anamorphic_darken",
-                           attribs, true, extradefines, true)) {
+                           attribs,
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load anamorphic_darken shader!");
     }
 
@@ -1679,7 +1752,9 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.anamorphicBlurShader, "anamorphic_blur",
-                           attribs, true, extradefines, true)) {
+                           attribs,
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load anamorphic_blur shader!");
     }
 
@@ -1695,7 +1770,9 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.anamorphicCombineShader, "anamorphic_combine",
-                           attribs, true, extradefines, true)) {
+                           attribs,
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load anamorphic_combine shader!");
     }
 
@@ -1712,8 +1789,9 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.hdrShader, "truehdr", attribs, true,
-                           extradefines, true)) {
+    if(!GLSL_InitGPUShader(&tr.hdrShader, "truehdr", attribs,
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load hdr shader!");
     }
 
@@ -1751,8 +1829,9 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.ssgiShader, "ssgi", attribs, true, extradefines,
-                           true)) {
+    if(!GLSL_InitGPUShader(&tr.ssgiShader, "ssgi", attribs,
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load ssgi shader!");
     }
 
@@ -1775,8 +1854,9 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.ssgiBlurShader, "ssgiBlur", attribs, true,
-                           extradefines, true)) {
+    if(!GLSL_InitGPUShader(&tr.ssgiBlurShader, "ssgiBlur", attribs,
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load ssgi_blur shader!");
     }
 
@@ -1791,7 +1871,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.dofShader, "depthOfField", attribs, true,
+    if(!GLSL_InitGPUShader(&tr.dofShader, "depthOfField", attribs, true, false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load depthOfField shader!");
     }
@@ -1831,6 +1911,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.esharpeningShader, "esharpening", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load esharpening shader!");
     }
@@ -1870,7 +1951,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.esharpening2Shader, "esharpening2", attribs,
-                           true, extradefines, true)) {
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load esharpening2 shader!");
     }
 
@@ -1912,7 +1994,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.texturecleanShader, "textureclean", attribs,
-                           true, extradefines, true)) {
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load textureclean shader!");
     }
 
@@ -1954,6 +2037,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.vibrancyShader, "vibrancy", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load vibrancy shader!");
     }
@@ -1978,6 +2062,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.anaglyphShader, "anaglyph", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load anaglyph shader!");
     }
@@ -2025,7 +2110,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.texturedetailShader, "texturedetail", attribs,
-                           true, extradefines, true)) {
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load texturedetail shader!");
     }
 
@@ -2065,8 +2151,9 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.rbmShader, "rbm", attribs, true, extradefines,
-                           true)) {
+    if(!GLSL_InitGPUShader(&tr.rbmShader, "rbm", attribs,
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load rbm shader!");
     }
 
@@ -2083,6 +2170,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.contrastShader, "contrast", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load contrast shader!");
     }
@@ -2102,8 +2190,9 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.fxaaShader, "fxaa", attribs, true, extradefines,
-                           true)) {
+    if(!GLSL_InitGPUShader(&tr.fxaaShader, "fxaa", attribs,
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load fxaa shader!");
     }
 
@@ -2142,7 +2231,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.bloomDarkenShader, "bloom_darken", attribs,
-                           true, extradefines, true)) {
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load bloom_darken shader!");
     }
 
@@ -2158,6 +2248,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.bloomBlurShader, "bloom_blur", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load bloom_blur shader!");
     }
@@ -2173,7 +2264,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.bloomCombineShader, "bloom_combine", attribs,
-                           true, extradefines, true)) {
+                           true,
+                           false, extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load bloom_combine shader!");
     }
 
@@ -2191,7 +2283,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     attribs = ATTR_POSITION | ATTR_TEXCOORD;
     extradefines[0] = '\0';
 
-    if(!GLSL_InitGPUShader(&tr.waterShader, "water", attribs, true,
+    if(!GLSL_InitGPUShader(&tr.waterShader, "water", attribs, true, false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load water shader!");
     }
@@ -2229,6 +2321,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.underWaterShader, "underwater", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load water shader!");
     }
@@ -2266,6 +2359,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
     extradefines[0] = '\0';
 
     if(!GLSL_InitGPUShader(&tr.testcubeShader, "testcube", attribs, true,
+                           false,
                            extradefines, true)) {
         common->Error(ERR_FATAL, "Could not load testcube shader!");
     }
@@ -2378,7 +2472,7 @@ void GLSL_BindProgram(shaderProgram_t *program) {
 
     if(r_logFile->integer) {
         // don't just call LogComment, or we will get a call to va(nullptr, ) every frame!
-        GLimp_LogComment(reinterpret_cast< valueType * >
+        GLimp_LogComment(reinterpret_cast<valueType *>
                          (va(nullptr, "--- GLSL_BindProgram( %s ) ---\n", name)));
     }
 

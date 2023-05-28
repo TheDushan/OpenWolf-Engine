@@ -756,12 +756,14 @@ typedef struct shaderProgram_s {
     uint          program;
     uint          vertexShader;
     uint          fragmentShader;
+    uint          geometryShader;
     uint        attribs;    // vertex array attributes
 
     // uniform parameters
     sint uniforms[UNIFORM_COUNT];
     schar16 uniformBufferOffsets[UNIFORM_COUNT]; // max 32767/64=511 uniforms
     valueType  *uniformBuffer;
+    bool geometry;
 } shaderProgram_t;
 
 // trRefdef_t holds everything that comes in refdef_t,

@@ -3984,8 +3984,8 @@ void idRenderSystemLocal::LoadWorld(pointer name) {
 
     // load cubemaps
     if(r_cubeMapping->integer) {
-        const int numCubemapEntities = 5;
-        const char *cubemapEntities[numCubemapEntities] = {
+        const sint numCubemapEntities = 5;
+        const valueType *cubemapEntities[numCubemapEntities] = {
             "misc_cubemap",
             "info_player_deathmatch",
             "info_player_start",
