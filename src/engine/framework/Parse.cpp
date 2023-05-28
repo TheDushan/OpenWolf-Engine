@@ -3521,7 +3521,7 @@ bool idParseSystemLocal::ReadEnumeration(source_t *source) {
             return false;
         }
 
-        if(!AddDefineToSourceFromString(source, va("%s %d\n", name.string,
+        if(!AddDefineToSourceFromString(source, va(nullptr, "%s %d\n", name.string,
                                         value))) {
             SourceWarning(source, "Couldn't add define to source: %s = %d\n",
                           name.string, value);

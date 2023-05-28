@@ -400,9 +400,9 @@ void idServerInitSystemLocal::BoundMaxClients(sint minimum) {
     sv_maxclients->modified = false;
 
     if(sv_maxclients->integer < minimum) {
-        cvarSystem->Set("sv_maxclients", va("%i", minimum));
+        cvarSystem->Set("sv_maxclients", va(nullptr, "%i", minimum));
     } else if(sv_maxclients->integer > MAX_CLIENTS) {
-        cvarSystem->Set("sv_maxclients", va("%i", MAX_CLIENTS));
+        cvarSystem->Set("sv_maxclients", va(nullptr, "%i", MAX_CLIENTS));
     }
 }
 
@@ -707,7 +707,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     // set nextmap to the same map, but it may be overriden
     // by the game startup or another console command
     cvarSystem->Set("nextmap", "map_restart 0");
-    //  cvarSystem->Set( "nextmap", va("map %s", server) );
+    //  cvarSystem->Set( "nextmap", va(nullptr, "map %s", server) );
 
     for(i = 0; i < sv_maxclients->integer; i++) {
         // save when the server started for each client already connected
@@ -720,7 +720,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     // DHM - Nerve :: We want to use the completion bar in multiplayer as well
     // Arnout: just always use it
     if(!serverGameSystem->GameIsSinglePlayer()) {
-        SetExpectedHunkUsage(va("maps/%s.bsp", server));
+        SetExpectedHunkUsage(va(nullptr, "maps/%s.bsp", server));
     } else {
         // just set it to a negative number,so the cgame knows not to draw the percent bar
         cvarSystem->Set("com_expectedhunkusage", "-1");
@@ -741,13 +741,13 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
 
     fileSystem->Restart(sv.checksumFeed);
 
-    collisionModelManager->LoadMap(va("maps/%s.bsp", server), false,
+    collisionModelManager->LoadMap(va(nullptr, "maps/%s.bsp", server), false,
                                    &checksum);
 
     // set serverinfo visible name
     cvarSystem->Set("mapname", server);
 
-    cvarSystem->Set("sv_mapChecksum", va("%i", checksum));
+    cvarSystem->Set("sv_mapChecksum", va(nullptr, "%i", checksum));
 
     sv_newGameShlib = cvarSystem->Get("sv_newGameShlib", "", CVAR_TEMP,
                                       "Toggle with a new name to change dynamic module of a sgame without quiting the application");
@@ -756,7 +756,7 @@ void idServerInitSystemLocal::SpawnServer(valueType *server,
     sv.serverId = com_frameTime;
     sv.restartedServerId = sv.serverId;
     sv.checksumFeedServerId = sv.serverId;
-    cvarSystem->Set("sv_serverid", va("%i", sv.serverId));
+    cvarSystem->Set("sv_serverid", va(nullptr, "%i", sv.serverId));
 
     time(&sv.realMapTimeStarted);
 
@@ -1032,7 +1032,7 @@ void idServerInitSystemLocal::Init(void) {
     sv.restartedServerId =
         sv.serverId; // I suppose the init here is just to be safe
     sv.checksumFeedServerId = sv.serverId;
-    cvarSystem->Set("sv_serverid", va("%i", sv.serverId));
+    cvarSystem->Set("sv_serverid", va(nullptr, "%i", sv.serverId));
     cvarSystem->Set("mapname", "Update");
 
     // allocate empty config strings
@@ -1115,7 +1115,7 @@ void idServerInitSystemLocal::Shutdown(valueType *finalmsg) {
     networkSystem->LeaveMulticast6();
 
     if(svs.clients && !com_errorEntered) {
-        FinalCommand(va("print \"%s\"", finalmsg), true);
+        FinalCommand(va(nullptr, "print \"%s\"", finalmsg), true);
     }
 
     serverMainSystem->MasterShutdown();

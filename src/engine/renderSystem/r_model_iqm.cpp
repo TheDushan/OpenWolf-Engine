@@ -1223,7 +1223,8 @@ bool R_LoadIQM(model_t *mod, void *buffer, sint filesize,
             vaoSurf->numIndexes = surf->num_triangles * 3;
             vaoSurf->numVerts = surf->num_vertexes;
 
-            vaoSurf->vao = R_CreateVao(va("staticIQMMesh_VAO '%s'", surf->name), data,
+            vaoSurf->vao = R_CreateVao(va(nullptr, "staticIQMMesh_VAO '%s'",
+                                          surf->name), data,
                                        dataSize, reinterpret_cast<uchar8 *>(indexes),
                                        surf->num_triangles * 3 * sizeof(indexes[0]), VAO_USAGE_STATIC);
 

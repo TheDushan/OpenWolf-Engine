@@ -255,20 +255,20 @@ static void GLSL_GetShaderHeader(uint shaderType, pointer extra,
 
     // HACK: add some macros to avoid extra uniforms and save speed and code maintenance
     //Q_strcat(dest, size,
-    //       va("#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
+    //       va(nullptr, "#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
     //Q_strcat(dest, size,
-    //       va("#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
+    //       va(nullptr, "#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
     //Q_strcat(dest, size,
-    //       va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
+    //       va(nullptr, "#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
 
 
     Q_strcat(dest, size,
              "#ifndef M_PI\n#define M_PI 3.14159265358979323846\n#endif\n");
 
-    //Q_strcat(dest, size, va("#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
+    //Q_strcat(dest, size, va(nullptr, "#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
 
     Q_strcat(dest, size,
-             va("#ifndef deformGen_t\n"
+             va(nullptr, "#ifndef deformGen_t\n"
                 "#define deformGen_t\n"
                 "#define DGEN_WAVE_SIN %i\n"
                 "#define DGEN_WAVE_SQUARE %i\n"
@@ -287,7 +287,7 @@ static void GLSL_GetShaderHeader(uint shaderType, pointer extra,
                 DGEN_MOVE));
 
     Q_strcat(dest, size,
-             va("#ifndef tcGen_t\n"
+             va(nullptr, "#ifndef tcGen_t\n"
                 "#define tcGen_t\n"
                 "#define TCGEN_LIGHTMAP %i\n"
                 "#define TCGEN_TEXTURE %i\n"
@@ -302,14 +302,14 @@ static void GLSL_GetShaderHeader(uint shaderType, pointer extra,
                 TCGEN_VECTOR));
 
     Q_strcat(dest, size,
-             va("#ifndef colorGen_t\n"
+             va(nullptr, "#ifndef colorGen_t\n"
                 "#define colorGen_t\n"
                 "#define CGEN_LIGHTING_DIFFUSE %i\n"
                 "#endif\n",
                 CGEN_LIGHTING_DIFFUSE));
 
     Q_strcat(dest, size,
-             va("#ifndef alphaGen_t\n"
+             va(nullptr, "#ifndef alphaGen_t\n"
                 "#define alphaGen_t\n"
                 "#define AGEN_LIGHTING_SPECULAR %i\n"
                 "#define AGEN_PORTAL %i\n"
@@ -318,7 +318,7 @@ static void GLSL_GetShaderHeader(uint shaderType, pointer extra,
                 AGEN_PORTAL));
 
     Q_strcat(dest, size,
-             va("#ifndef texenv_t\n"
+             va(nullptr, "#ifndef texenv_t\n"
                 "#define texenv_t\n"
                 "#define TEXENV_MODULATE %i\n"
                 "#define TEXENV_ADD %i\n"
@@ -331,7 +331,8 @@ static void GLSL_GetShaderHeader(uint shaderType, pointer extra,
     fbufWidthScale = 1.0f / (static_cast<float32>(glConfig.vidWidth));
     fbufHeightScale = 1.0f / (static_cast<float32>(glConfig.vidHeight));
     Q_strcat(dest, size,
-             va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n",
+             va(nullptr,
+                "#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n",
                 fbufWidthScale, fbufHeightScale));
 
     if(r_pbr->integer) {
@@ -349,16 +350,17 @@ static void GLSL_GetShaderHeader(uint shaderType, pointer extra,
         }
 
         numRoughnessMips = MAX(1, numRoughnessMips - 2);
-        Q_strcat(dest, size, va("#define ROUGHNESS_MIPS float(%d)\n",
+        Q_strcat(dest, size, va(nullptr, "#define ROUGHNESS_MIPS float(%d)\n",
                                 numRoughnessMips));
     }
 
-    Q_strcat(dest, size, va("#define CUBEMAP_RESOLUTION float(%i)\n",
+    Q_strcat(dest, size, va(nullptr, "#define CUBEMAP_RESOLUTION float(%i)\n",
                             r_cubemapSize->integer));
 
     if(r_horizonFade->integer) {
         float32 fade = 1 + (0.1f * r_horizonFade->integer);
-        Q_strcat(dest, size, va("#define HORIZON_FADE float(%f)\n", fade));
+        Q_strcat(dest, size, va(nullptr, "#define HORIZON_FADE float(%f)\n",
+                                fade));
     }
 
 
@@ -997,7 +999,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
             attribs |= ATTR_POSITION2 | ATTR_NORMAL2;
         } else if(i & GENERICDEF_USE_BONE_ANIMATION) {
             Q_strcat(extradefines, 1024,
-                     va("#define USE_BONE_ANIMATION\n#define MAX_GLSL_BONES %d\n",
+                     va(nullptr, "#define USE_BONE_ANIMATION\n#define MAX_GLSL_BONES %d\n",
                         glRefConfig.glslMaxAnimatedBones));
             attribs |= ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS;
         }
@@ -1064,7 +1066,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
             attribs |= ATTR_POSITION2 | ATTR_NORMAL2;
         } else if(i & FOGDEF_USE_BONE_ANIMATION) {
             Q_strcat(extradefines, 1024,
-                     va("#define USE_BONE_ANIMATION\n#define MAX_GLSL_BONES %d\n",
+                     va(nullptr, "#define USE_BONE_ANIMATION\n#define MAX_GLSL_BONES %d\n",
                         glRefConfig.glslMaxAnimatedBones));
             attribs |= ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS;
         }
@@ -1200,7 +1202,8 @@ void idRenderSystemLocal::InitGPUShaders(void) {
                 }
             }
 
-            Q_strcat(extradefines, 1024, va("#define r_parallaxMapOffset %f\n",
+            Q_strcat(extradefines, 1024, va(nullptr,
+                                            "#define r_parallaxMapOffset %f\n",
                                             r_parallaxMapOffset->value));
 
             if(r_specularMapping->integer) {
@@ -1214,7 +1217,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
                     Q_strcat(extradefines, 1024, "#define USE_BOX_CUBEMAP_PARALLAX\n");
                 }
             } else if(r_deluxeSpecular->value > 0.000001f) {
-                Q_strcat(extradefines, 1024, va("#define r_deluxeSpecular %f\n",
+                Q_strcat(extradefines, 1024, va(nullptr, "#define r_deluxeSpecular %f\n",
                                                 r_deluxeSpecular->value));
             }
         }
@@ -1245,7 +1248,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
         } else if(i & LIGHTDEF_ENTITY_BONE_ANIMATION) {
             Q_strcat(extradefines, 1024, "#define USE_MODELMATRIX\n");
             Q_strcat(extradefines, 1024,
-                     va("#define USE_BONE_ANIMATION\n#define MAX_GLSL_BONES %d\n",
+                     va(nullptr, "#define USE_BONE_ANIMATION\n#define MAX_GLSL_BONES %d\n",
                         glRefConfig.glslMaxAnimatedBones));
             attribs |= ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS;
         }
@@ -1301,7 +1304,7 @@ void idRenderSystemLocal::InitGPUShaders(void) {
 
         if(i & SHADOWMAPDEF_USE_BONE_ANIMATION) {
             Q_strcat(extradefines, 1024,
-                     va("#define USE_BONE_ANIMATION\n#define MAX_GLSL_BONES %d\n",
+                     va(nullptr, "#define USE_BONE_ANIMATION\n#define MAX_GLSL_BONES %d\n",
                         glRefConfig.glslMaxAnimatedBones));
             attribs |= ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS;
         }
@@ -1462,9 +1465,10 @@ void idRenderSystemLocal::InitGPUShaders(void) {
         Q_strcat(extradefines, 1024, "#define USE_SHADOW_CASCADE\n");
     }
 
-    Q_strcat(extradefines, 1024, va("#define r_shadowMapSize %f\n",
+    Q_strcat(extradefines, 1024, va(nullptr, "#define r_shadowMapSize %f\n",
                                     r_shadowMapSize->value));
-    Q_strcat(extradefines, 1024, va("#define r_shadowCascadeZFar %f\n",
+    Q_strcat(extradefines, 1024, va(nullptr,
+                                    "#define r_shadowCascadeZFar %f\n",
                                     r_shadowCascadeZFar->value));
 
 
@@ -2373,9 +2377,9 @@ void GLSL_BindProgram(shaderProgram_t *program) {
     pointer name = program ? program->name : "nullptr";
 
     if(r_logFile->integer) {
-        // don't just call LogComment, or we will get a call to va() every frame!
+        // don't just call LogComment, or we will get a call to va(nullptr, ) every frame!
         GLimp_LogComment(reinterpret_cast< valueType * >
-                         (va("--- GLSL_BindProgram( %s ) ---\n", name)));
+                         (va(nullptr, "--- GLSL_BindProgram( %s ) ---\n", name)));
     }
 
     if(GL_UseProgram(programObject)) {

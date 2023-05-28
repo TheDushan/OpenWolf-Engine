@@ -129,14 +129,14 @@ void idCmdSystemLocal::ExecFile(valueType *f) {
     cvarSystem->Get("arg_all", cmdSystemLocal.ArgsFrom(2),
                     CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, nullptr);
     cvarSystem->Set("arg_all", cmdSystemLocal.ArgsFrom(2));
-    cvarSystem->Get("arg_count", va("%i", cmdSystemLocal.Argc() - 2),
+    cvarSystem->Get("arg_count", va(nullptr, "%i", cmdSystemLocal.Argc() - 2),
                     CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, nullptr);
-    cvarSystem->Set("arg_count", va("%i", cmdSystemLocal.Argc() - 2));
+    cvarSystem->Set("arg_count", va(nullptr, "%i", cmdSystemLocal.Argc() - 2));
 
     for(i = cmdSystemLocal.Argc() - 2; i; i--) {
-        cvarSystem->Get(va("arg_%i", i), cmdSystemLocal.Argv(i + 1),
+        cvarSystem->Get(va(nullptr, "arg_%i", i), cmdSystemLocal.Argv(i + 1),
                         CVAR_TEMP | CVAR_ROM | CVAR_USER_CREATED, nullptr);
-        cvarSystem->Set(va("arg_%i", i), cmdSystemLocal.Argv(i + 1));
+        cvarSystem->Set(va(nullptr, "arg_%i", i), cmdSystemLocal.Argv(i + 1));
     }
 
     cmdBufferLocal.InsertText(f);
@@ -209,7 +209,7 @@ void idCmdSystemLocal::Vstr(void) {
     }
 
     v = cvarSystem->VariableString(cmdSystemLocal.Argv(1));
-    cmdBufferLocal.InsertText(va("%s\n", v));
+    cmdBufferLocal.InsertText(va(nullptr, "%s\n", v));
 }
 
 /*
@@ -377,9 +377,9 @@ found:
 
     if(v) {
         if(*v == '/' || *v == '\\') {
-            cmdBufferLocal.InsertText(va("%s\n", v + 1));
+            cmdBufferLocal.InsertText(va(nullptr, "%s\n", v + 1));
         } else {
-            cmdBufferLocal.InsertText(va("vstr %s\n", v));
+            cmdBufferLocal.InsertText(va(nullptr, "vstr %s\n", v));
         }
     }
 }
@@ -466,9 +466,9 @@ void idCmdSystemLocal::If(void) {
 
     if(v) {
         if(*v == '/' || *v == '\\') {
-            cmdBufferLocal.InsertText(va("%s\n", v + 1));
+            cmdBufferLocal.InsertText(va(nullptr, "%s\n", v + 1));
         } else {
-            cmdBufferLocal.InsertText(va("vstr %s\n", v));
+            cmdBufferLocal.InsertText(va(nullptr, "vstr %s\n", v));
         }
     }
 }
@@ -593,7 +593,7 @@ void idCmdSystemLocal::Strcmp(void) {
         return;
     }
 
-    cmdBufferLocal.InsertText(va("%s\n", v));
+    cmdBufferLocal.InsertText(va(nullptr, "%s\n", v));
 }
 
 /*
@@ -852,7 +852,7 @@ void idCmdSystemLocal::RunAlias(void) {
         common->Error(ERR_FATAL, "Alias: Alias %s doesn't exist", name);
     }
 
-    cmdBufferLocal.InsertText(va("%s %s", alias->exec, args));
+    cmdBufferLocal.InsertText(va(nullptr, "%s %s", alias->exec, args));
 }
 
 /*

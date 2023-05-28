@@ -196,7 +196,7 @@ static void GLimp_DetectAvailableModes(void) {
     }
 
     for(i = 0; i < numModes; i++) {
-        pointer newModeString = va("%ux%u ", modes[ i ].w, modes[ i ].h);
+        pointer newModeString = va(nullptr, "%ux%u ", modes[ i ].w, modes[ i ].h);
 
         if(strlen(newModeString) < static_cast<sint>(sizeof(buf)) - strlen(buf)) {
             Q_strcat(buf, sizeof(buf), newModeString);
@@ -1075,7 +1075,7 @@ void GLimp_Init(bool fixedFunction) {
     clientRendererSystem->RefPrintf(PRINT_DEVELOPER, "Glimp_Init( )\n");
 
     if(com_abnormalExit->integer) {
-        cvarSystem->Set("r_mode", va("%d", R_MODE_FALLBACK));
+        cvarSystem->Set("r_mode", va(nullptr, "%d", R_MODE_FALLBACK));
         cvarSystem->Set("r_fullscreen", "0");
         cvarSystem->Set("r_centerWindow", "0");
         cvarSystem->Set("com_abnormalExit", "0");

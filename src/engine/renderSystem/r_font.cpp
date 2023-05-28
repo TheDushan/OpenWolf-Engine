@@ -582,7 +582,8 @@ void idRenderSystemLocal::RegisterFont(pointer fontName, sint pointSize,
     ::memcpy(&registeredFont[registeredFontCount++], font, sizeof(fontInfo_t));
 
     if(r_saveFontData->integer) {
-        fileSystem->WriteFile(va("fonts/fontImage_%i.dat", pointSize), font,
+        fileSystem->WriteFile(va(nullptr, "fonts/fontImage_%i.dat", pointSize),
+                              font,
                               sizeof(fontInfo_t));
     }
 

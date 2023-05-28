@@ -1953,7 +1953,8 @@ void RB_StageIteratorGeneric(void) {
         // don't just call LogComment, or we will get
         // a call to va() every frame!
         GLimp_LogComment(reinterpret_cast< valueType * >
-                         (va("--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name)));
+                         (va(nullptr, "--- RB_StageIteratorGeneric( %s ) ---\n",
+                             tess.shader->name)));
     }
 
     //

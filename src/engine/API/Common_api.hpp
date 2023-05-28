@@ -39,7 +39,7 @@
 #ifndef __COMMON_API_HPP__
 #define __COMMON_API_HPP__
 
-#if defined (OALAUDIO) || defined (RENDERSYSTEM)
+#if defined (OALAUDIO) || defined (RENDERSYSTEM) || defined (GUI) || defined (GAMEDLL) || defined (CGAMEDLL)
 typedef struct msg_t msg_t;
 #endif
 
@@ -106,7 +106,7 @@ public:
     virtual void RandomBytes(uchar8 *string, sint len) = 0;
     virtual void RgbToHsl(vec4_t rgb, vec4_t hsl) = 0;
     virtual void HlsToRgb(vec4_t hsl, vec4_t rgb) = 0;
-#if !defined (RENDERSYSTEM) || !defined (OALAUDIO)
+#if !defined (RENDERSYSTEM) || !defined (OALAUDIO) || !!defined (GUI)
     virtual void RunAndTimeServerPacket(netadr_t *evFrom, msg_t *buf) = 0;
 #endif
 };

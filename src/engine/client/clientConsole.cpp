@@ -407,7 +407,7 @@ void idClientConsoleSystemLocal::Dump_f(void) {
 
     if(!::strlen(name)) {
         qtime_t time;
-        pointer count = (dump_time == cls.realtime / 1000) ? va("(%d)",
+        pointer count = (dump_time == cls.realtime / 1000) ? va(nullptr, "(%d)",
                         dump_count++ + 2) : "";
         common->RealTime(&time);
 
@@ -851,9 +851,9 @@ void idClientConsoleSystemLocal::ConsolePrintToTabs(valueType *txt,
         skipnotify = true;
         txt += 1;
 
-        txtConsole = va("%s", txt);
+        txtConsole = va(nullptr, "%s", txt);
         Q_StripColor(txtConsole);
-        clientMainSystem->LogPrintf(cls.log.chat, va("%s", txtConsole));
+        clientMainSystem->LogPrintf(cls.log.chat, va(nullptr, "%s", txtConsole));
     }
 
     // for some demos we don't want to ever show anything on the console
@@ -867,7 +867,7 @@ void idClientConsoleSystemLocal::ConsolePrintToTabs(valueType *txt,
         common->RealTime(&now);
         Q_vsprintf_s(text, sizeof(text), sizeof(text), "^9%02d:%02d:%02d ^7%s",
                      now.tm_hour, now.tm_min, now.tm_sec, txt);
-        txt = va("%s", text);
+        txt = va(nullptr, "%s", text);
     }
 
     if(!con->initialized) {

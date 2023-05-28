@@ -327,11 +327,13 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
         sint height = tr.fatLightmapRows * tr.lightmapSize;
 
         for(i = 0; i < tr.numLightmaps; i++) {
-            tr.lightmaps[i] = R_CreateImage(va("_fatlightmap%d", i), nullptr, width,
+            tr.lightmaps[i] = R_CreateImage(va(nullptr, "_fatlightmap%d", i), nullptr,
+                                            width,
                                             height, IMGTYPE_COLORALPHA, imgFlags, textureInternalFormat);
 
             if(tr.worldDeluxeMapping) {
-                tr.deluxemaps[i] = R_CreateImage(va("_fatdeluxemap%d", i), nullptr, width,
+                tr.deluxemaps[i] = R_CreateImage(va(nullptr, "_fatdeluxemap%d", i),
+                                                 nullptr, width,
                                                  height, IMGTYPE_DELUXE, imgFlags, 0);
             }
         }
@@ -495,7 +497,7 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
                 R_UpdateSubImage(tr.lightmaps[lightmapnum], image, xoff, yoff,
                                  tr.lightmapSize, tr.lightmapSize, textureInternalFormat);
             } else {
-                tr.lightmaps[i] = R_CreateImage(va("*lightmap%d", i), image,
+                tr.lightmaps[i] = R_CreateImage(va(nullptr, "*lightmap%d", i), image,
                                                 tr.lightmapSize, tr.lightmapSize, IMGTYPE_COLORALPHA, imgFlags,
                                                 textureInternalFormat);
             }
@@ -528,7 +530,7 @@ static  void R_LoadLightmaps(lump_t *l, lump_t *surfs) {
                 R_UpdateSubImage(tr.deluxemaps[lightmapnum], image, xoff, yoff,
                                  tr.lightmapSize, tr.lightmapSize, GL_RGBA8);
             } else {
-                tr.deluxemaps[i] = R_CreateImage(va("*deluxemap%d", i), image,
+                tr.deluxemaps[i] = R_CreateImage(va(nullptr, "*deluxemap%d", i), image,
                                                  tr.lightmapSize, tr.lightmapSize, IMGTYPE_DELUXE, imgFlags, 0);
             }
         }
@@ -3596,7 +3598,7 @@ void R_RenderMissingCubemaps(void) {
 
     for(i = 0; i < tr.numCubemaps; i++) {
         if(!tr.cubemaps[i].image) {
-            tr.cubemaps[i].image = R_CreateImage(va("*cubeMap%d", i), nullptr,
+            tr.cubemaps[i].image = R_CreateImage(va(nullptr, "*cubeMap%d", i), nullptr,
                                                  r_cubemapSize->integer, r_cubemapSize->integer, IMGTYPE_COLORALPHA, flags,
                                                  cubemapFormat);
 

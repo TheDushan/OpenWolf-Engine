@@ -414,7 +414,7 @@ void idClientConsoleCommandsSystemLocal::Reconnect_f(void) {
         return;
     }
 
-    cmdBufferSystem->AddText(va("connect %s\n", cl_reconnectArgs));
+    cmdBufferSystem->AddText(va(nullptr, "connect %s\n", cl_reconnectArgs));
 }
 
 /*

@@ -140,7 +140,7 @@ void idConsoleHistoryLocal::Save(void) {
             continue;
         }
 
-        buf = va("%s\n", history[i]);
+        buf = va(nullptr, "%s\n", history[i]);
         fileSystem->Write(buf, strlen(buf), f);
         i = (i + 1) % CON_HISTORY;
     } while(i != (hist_next - 1) % CON_HISTORY);

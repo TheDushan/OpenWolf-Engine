@@ -183,9 +183,9 @@ void idClientLocalizationSystemLocal::SaveTransTable(pointer fileName,
 
     // write out version, if one
     if(strlen(cl.translationVersion)) {
-        buf = va("#version\t\t\"%s\"\n", cl.translationVersion);
+        buf = va(nullptr, "#version\t\t\"%s\"\n", cl.translationVersion);
     } else {
-        buf = va("#version\t\t\"1.0 01/01/01\"\n");
+        buf = va(nullptr, "#version\t\t\"1.0 01/01/01\"\n");
     }
 
     len = strlen(buf);
@@ -220,23 +220,25 @@ void idClientLocalizationSystemLocal::SaveTransTable(pointer fileName,
                     untransnum++;
                 }
 
-                buf = va("{\n\tenglish\t\t\"%s\"\n", t->original);
+                buf = va(nullptr, "{\n\tenglish\t\t\"%s\"\n", t->original);
                 len = strlen(buf);
                 fileSystem->Write(buf, len, f);
 
-                buf = va("\tfrench\t\t\"%s\"\n", t->translated[LANGUAGE_FRENCH]);
+                buf = va(nullptr, "\tfrench\t\t\"%s\"\n", t->translated[LANGUAGE_FRENCH]);
                 len = strlen(buf);
                 fileSystem->Write(buf, len, f);
 
-                buf = va("\tgerman\t\t\"%s\"\n", t->translated[LANGUAGE_GERMAN]);
+                buf = va(nullptr, "\tgerman\t\t\"%s\"\n", t->translated[LANGUAGE_GERMAN]);
                 len = strlen(buf);
                 fileSystem->Write(buf, len, f);
 
-                buf = va("\titalian\t\t\"%s\"\n", t->translated[LANGUAGE_ITALIAN]);
+                buf = va(nullptr, "\titalian\t\t\"%s\"\n",
+                         t->translated[LANGUAGE_ITALIAN]);
                 len = strlen(buf);
                 fileSystem->Write(buf, len, f);
 
-                buf = va("\tspanish\t\t\"%s\"\n", t->translated[LANGUAGE_SPANISH]);
+                buf = va(nullptr, "\tspanish\t\t\"%s\"\n",
+                         t->translated[LANGUAGE_SPANISH]);
                 len = strlen(buf);
                 fileSystem->Write(buf, len, f);
 
@@ -287,7 +289,7 @@ bool idClientLocalizationSystemLocal::CheckTranslationString(
             continue;
         }
 
-        strcat(format_org, va("%c%c ", '%', original[i + 1]));
+        strcat(format_org, va(nullptr, "%c%c ", '%', original[i + 1]));
     }
 
     // generate formatting string for translated
@@ -302,7 +304,7 @@ bool idClientLocalizationSystemLocal::CheckTranslationString(
             continue;
         }
 
-        strcat(format_trans, va("%c%c ", '%', translated[i + 1]));
+        strcat(format_trans, va(nullptr, "%c%c ", '%', translated[i + 1]));
     }
 
     // compare
@@ -537,7 +539,7 @@ void idClientLocalizationSystemLocal::ReloadTranslation(void) {
     fileList = fileSystem->ListFiles("translations", ".lang", &numFiles);
 
     for(i = 0; i < numFiles; i++) {
-        LoadTransTable(va("translations/%s", fileList[i]));
+        LoadTransTable(va(nullptr, "translations/%s", fileList[i]));
     }
 }
 
@@ -557,7 +559,7 @@ void idClientLocalizationSystemLocal::InitTranslation(void) {
     fileList = fileSystem->ListFiles("translations", ".lang", &numFiles);
 
     for(i = 0; i < numFiles; i++) {
-        LoadTransTable(va("translations/%s", fileList[i]));
+        LoadTransTable(va(nullptr, "translations/%s", fileList[i]));
     }
 }
 
@@ -714,7 +716,8 @@ void idClientLocalizationSystemLocal::SaveNewTranslations_f(void) {
         return;
     }
 
-    Q_strcpy_s(fileName, va("translations/%s.lang", cmdSystem->Argv(1)));
+    Q_strcpy_s(fileName, va(nullptr, "translations/%s.lang",
+                            cmdSystem->Argv(1)));
 
     SaveTransTable(fileName, true);
 }

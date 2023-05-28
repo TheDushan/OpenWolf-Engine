@@ -352,7 +352,7 @@ void R_BindVao(vao_t *vao) {
     if(r_logFile->integer) {
         // don't just call LogComment, or we will get a call to va() every frame!
         GLimp_LogComment(reinterpret_cast< valueType * >
-                         (va("--- R_BindVao( %s ) ---\n", vao->name)));
+                         (va(nullptr, "--- R_BindVao( %s ) ---\n", vao->name)));
     }
 
     if(glState.currentVao != vao) {

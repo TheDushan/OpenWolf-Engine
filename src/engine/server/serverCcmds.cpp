@@ -256,15 +256,16 @@ void idServerCcmdsSystemLocal::Map_f(void) {
             //buffer = memorySystem->AllocateTempMemory(size);
             fileSystem->ReadFile(savemap, (void **)&buffer);
 
-            if(Q_stricmp(savemap, va("%scurrent.sav", savedir)) != 0) {
+            if(Q_stricmp(savemap, va(nullptr, "%scurrent.sav", savedir)) != 0) {
                 // copy it to the current savegame file
-                fileSystem->WriteFile(va("%scurrent.sav", savedir), buffer, size);
+                fileSystem->WriteFile(va(nullptr, "%scurrent.sav", savedir), buffer, size);
                 // make sure it is the correct size
-                csize = fileSystem->ReadFile(va("%scurrent.sav", savedir), nullptr);
+                csize = fileSystem->ReadFile(va(nullptr, "%scurrent.sav", savedir),
+                                             nullptr);
 
                 if(csize != size) {
                     memorySystem->FreeTempMemory(buffer);
-                    fileSystem->Delete(va("%scurrent.sav", savedir));
+                    fileSystem->Delete(va(nullptr, "%scurrent.sav", savedir));
                     // TTimo
 #ifdef __LINUX__
                     common->Error(ERR_DROP,
@@ -320,7 +321,7 @@ void idServerCcmdsSystemLocal::Map_f(void) {
         return;
     }
 
-    cvarSystem->Set("gamestate", va("%i",
+    cvarSystem->Set("gamestate", va(nullptr, "%i",
                                     GS_INITIALIZE));     // NERVE - SMF - reset gamestate on map/devmap
 
     cvarSystem->Set("g_currentRound",
@@ -332,10 +333,12 @@ void idServerCcmdsSystemLocal::Map_f(void) {
     if(!Q_stricmp(cmdSystem->Argv(0), "spdevmap") ||
             !Q_stricmp(cmdSystem->Argv(0), "spmap")) {
         // This is explicitly asking for a single player load of this map
-        cvarSystem->Set("g_gametype", va("%i", com_gameInfo.defaultSPGameType));
+        cvarSystem->Set("g_gametype", va(nullptr, "%i",
+                                         com_gameInfo.defaultSPGameType));
 
         // force latched values to get set
-        cvarSystem->Get("g_gametype", va("%i", com_gameInfo.defaultSPGameType),
+        cvarSystem->Get("g_gametype", va(nullptr, "%i",
+                                         com_gameInfo.defaultSPGameType),
                         CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH,
                         "Sets the type of game being played, 2=objective, 3=stopwatch, 4=campaign, 5=LMS");
 
@@ -435,7 +438,7 @@ bool idServerCcmdsSystemLocal::TransitionGameState(gamestate_t new_gs,
         new_gs = GS_WARMUP;
     }
 
-    cvarSystem->Set("gamestate", va("%i", new_gs));
+    cvarSystem->Set("gamestate", va(nullptr, "%i", new_gs));
 
     return true;
 }
@@ -482,7 +485,8 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
 
     if(delay) {
         sv.restartTime = sv.time + delay * 1000;
-        serverInitSystem->SetConfigstring(CS_WARMUP, va("%i", sv.restartTime));
+        serverInitSystem->SetConfigstring(CS_WARMUP, va(nullptr, "%i",
+                                          sv.restartTime));
         return;
     }
 
@@ -565,7 +569,7 @@ void idServerCcmdsSystemLocal::MapRestart_f(void) {
     // generate a new serverid
     sv.restartedServerId = sv.serverId;
     sv.serverId = com_frameTime;
-    cvarSystem->Set("sv_serverid", va("%i", sv.serverId));
+    cvarSystem->Set("sv_serverid", va(nullptr, "%i", sv.serverId));
 
     ::time(&sv.realMapTimeStarted);
 
@@ -699,11 +703,12 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
 
     //if ( Q_strncmp( filename, "save/", 5 ) && Q_strncmp( filename, "save\\", 5 ) )
     //{
-    //  Q_strncpyz( filename, va("save/%s", filename), sizeof( filename ) );
+    //  Q_strncpyz( filename, va(nullptr, "save/%s", filename), sizeof( filename ) );
     //}
 
     // go through a va to avoid vsnprintf call with same source and target
-    Q_strncpyz(filename, va("%s%s", savedir, filename), sizeof(filename));
+    Q_strncpyz(filename, va(nullptr, "%s%s", savedir, filename),
+               sizeof(filename));
 
     // enforce .sav extension
     if(!strstr(filename, ".") ||
@@ -733,9 +738,9 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
     if(sv_running->integer && (com_frameTime != sv.serverId)) {
         // check mapname
         if(!Q_stricmp(mapname, sv_mapname->string)) {   // same
-            if(Q_stricmp(filename, va("%scurrent.sav", savedir)) != 0) {
+            if(Q_stricmp(filename, va(nullptr, "%scurrent.sav", savedir)) != 0) {
                 // copy it to the current savegame file
-                fileSystem->WriteFile(va("%scurrent.sav", savedir), buffer, size);
+                fileSystem->WriteFile(va(nullptr, "%scurrent.sav", savedir), buffer, size);
             }
 
             memorySystem->FreeTempMemory(buffer);
@@ -757,9 +762,11 @@ void idServerCcmdsSystemLocal::LoadGame_f(void) {
 
     // otherwise, do a slow load
     if(sv_cheats->integer) {
-        cmdBufferSystem->ExecuteText(EXEC_APPEND, va("spdevmap %s", filename));
+        cmdBufferSystem->ExecuteText(EXEC_APPEND, va(nullptr, "spdevmap %s",
+                                     filename));
     } else { // no cheats
-        cmdBufferSystem->ExecuteText(EXEC_APPEND, va("spmap %s", filename));
+        cmdBufferSystem->ExecuteText(EXEC_APPEND, va(nullptr, "spmap %s",
+                                     filename));
     }
 }
 
@@ -1729,7 +1736,8 @@ void idServerCcmdsSystemLocal::BeginAutoRecordDemos(void) {
                   sizeof(autorecordDirList[0]), DemoFolderTimeComparator);
 
             for(i = sv_autoRecDemoMaxMaps->integer; i < autorecordDirListCount; i++) {
-                fileSystem->HomeRmdir(va("demos/autorecord/%s", autorecordDirList[i]),
+                fileSystem->HomeRmdir(va(nullptr, "demos/autorecord/%s",
+                                         autorecordDirList[i]),
                                       true);
             }
         }

@@ -98,8 +98,8 @@ void idClientDownloadSystemLocal::DownloadsComplete(void) {
         if(autoupdateFilename[0] && (strlen(autoupdateFilename) > 4)) {
 #ifdef _WIN32
             // win32's Sys_StartProcess prepends the current dir
-            fn = va("%s/%s", fileSystem->ShiftStr(AUTOUPDATE_DIR,
-                                                  AUTOUPDATE_DIR_SHIFT), autoupdateFilename);
+            fn = va(nullptr, "%s/%s", fileSystem->ShiftStr(AUTOUPDATE_DIR,
+                    AUTOUPDATE_DIR_SHIFT), autoupdateFilename);
 #else
             fs_write_path = fs_homepath->string;
             fn = fileSystem->BuildOSPath(fs_write_path,
@@ -207,7 +207,7 @@ void idClientDownloadSystemLocal::BeginDownload(pointer localName,
     clc.downloadBlock = 0;      // Starting new file
     clc.downloadCount = 0;
 
-    clientReliableCommandsSystem->AddReliableCommand(va("download %s",
+    clientReliableCommandsSystem->AddReliableCommand(va(nullptr, "download %s",
             remoteName));
 }
 
@@ -289,7 +289,7 @@ void idClientDownloadSystemLocal::InitDownloads(void) {
         if(strlen(cl_updatefiles->string) > 4) {
             Q_strncpyz(autoupdateFilename, cl_updatefiles->string,
                        sizeof(autoupdateFilename));
-            Q_strncpyz(clc.downloadList, va("@%s/%s@%s/%s", dir,
+            Q_strncpyz(clc.downloadList, va(nullptr, "@%s/%s@%s/%s", dir,
                                             cl_updatefiles->string, dir, cl_updatefiles->string),
                        MAX_INFO_STRING);
             cls.state = CA_CONNECTED;
@@ -407,7 +407,7 @@ void idClientDownloadSystemLocal::WWWDownload(void) {
             // but in this case we can't get anything from server
             // if we just reconnect it's likely we'll get the same disconnected download message, and error out again
             // this may happen for a regular dl or an auto update
-            pointer     error = va("Download failure while getting '%s'\n",
+            pointer     error = va(nullptr, "Download failure while getting '%s'\n",
                                    cls.downloadName);  // get the msg before clearing structs
 
             cls.bWWWDlDisconnected =
@@ -438,7 +438,7 @@ this indicates that the redirect setup is broken, and next dl attempt should NOT
 ==================
 */
 bool idClientDownloadSystemLocal::WWWBadChecksum(pointer pakname) {
-    if(strstr(clc.redirectedList, va("@%s", pakname))) {
+    if(strstr(clc.redirectedList, va(nullptr, "@%s", pakname))) {
         common->Printf("WARNING: file %s obtained through download redirect has wrong checksum\n",
                        pakname);
         common->Printf("         this likely means the server configuration is broken\n");

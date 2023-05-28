@@ -1077,7 +1077,7 @@ void idClientCinemaSystemLocal::RoQShutdown(void) {
         s = cvarSystem->VariableString("nextmap");
 
         if(s[0]) {
-            cmdBufferSystem->ExecuteText(EXEC_APPEND, va("%s\n", s));
+            cmdBufferSystem->ExecuteText(EXEC_APPEND, va(nullptr, "%s\n", s));
             cvarSystem->Set("nextmap", "");
         }
 

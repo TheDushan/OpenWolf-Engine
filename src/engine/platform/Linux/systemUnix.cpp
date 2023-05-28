@@ -509,10 +509,11 @@ void idSystemLocal::ErrorDialog(pointer error) {
     pointer fileName = "crashlog.txt";
     valueType *ospath = fileSystem->BuildOSPath(homepath, gamedir, fileName);
 
-    systemLocal.Print(va("%s\n", error));
+    systemLocal.Print(va(nullptr, "%s\n", error));
 
 #ifndef DEDICATED
-    systemLocal.Dialog(DT_ERROR, va("%s. See \"%s\" for details.", error,
+    systemLocal.Dialog(DT_ERROR, va(nullptr, "%s. See \"%s\" for details.",
+                                    error,
                                     ospath), "Error");
 #endif
 

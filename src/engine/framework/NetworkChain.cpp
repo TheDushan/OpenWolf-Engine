@@ -100,7 +100,7 @@ idNetworkChainSystemLocal::Init
 ===============
 */
 void idNetworkChainSystemLocal::Init(sint port) {
-    cvarSystem->Set("net_qport", va("%i", port & 0x7fff));
+    cvarSystem->Set("net_qport", va(nullptr, "%i", port & 0x7fff));
 }
 
 /*

@@ -580,10 +580,11 @@ void idSystemLocal::ErrorDialog(pointer error) {
     uint64 size;
     sint f = -1;
 
-    systemLocal.Print(va("%s\n", error));
+    systemLocal.Print(va(nullptr, "%s\n", error));
 
 #ifndef DEDICATED
-    systemLocal.Dialog(DT_ERROR, va("%s. See \"%s\" for details.", error,
+    systemLocal.Dialog(DT_ERROR, va(nullptr, "%s. See \"%s\" for details.",
+                                    error,
                                     ospath), "Error");
 #endif
 
@@ -757,7 +758,7 @@ set/unset environment variables (empty value removes it)
 ==============
 */
 void idSystemLocal::SetEnv(pointer name, pointer value) {
-    _putenv(va("%s=%s", name, value));
+    _putenv(va(nullptr, "%s=%s", name, value));
 }
 
 /*

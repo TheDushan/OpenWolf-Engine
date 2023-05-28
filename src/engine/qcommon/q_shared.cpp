@@ -2084,46 +2084,56 @@ void Q_StripIndentMarker(valueType *string) {
 /*
 ============
 va
-
-does a varargs printf into a temp buffer, so I don't need to have
-varargs versions of all text functions.
 ============
 */
-valueType *va(pointer format, ...) {
+valueType *va(valueType *str, pointer format, ...) {
     va_list argptr;
-#define MAX_VA_STRING   32000
-    static valueType temp_buffer[MAX_VA_STRING] __attribute__((aligned(16)));
-    static valueType string[MAX_VA_STRING] __attribute__((aligned(
-                16))); // in case va is called by nested functions
-    static sint index = 0;
-    valueType *buf;
-    sint len;
+    sint size = (sizeof(valueType) * ::strlen(format) + sizeof(valueType));
+    sint ret_size = 0;
 
-    va_start(argptr, format);
-    Q_vsprintf_s(temp_buffer, sizeof(temp_buffer), format, argptr);
-    va_end(argptr);
-
-    if((len = strlen(temp_buffer)) >= MAX_VA_STRING) {
-        common->Error(ERR_DROP, "Attempted to overrun string in call to va()\n");
+    if(!str) {
+        str = static_cast<valueType *>(::malloc(size));
+    } else {
+        str = static_cast<valueType *>(::realloc(str, size));
     }
 
-    if(len + index >= MAX_VA_STRING - 1) {
-        index = 0;
+    if(!str) {
+        return nullptr;
     }
 
-    buf = &string[index];
+    ::memset(str, 0, size);
 
-    ::memcpy(buf, temp_buffer, len + 1);
+    while(1) {
+        va_start(argptr, format);
+        ret_size = ::vsnprintf(str, size, format, argptr);
+        va_end(argptr);
 
-    index += len + 1;
+        if(!str) {
+            return nullptr;
+        }
 
-    if(index >= MAX_VA_STRING) {
-        index = 0;
+        if(ret_size >= size) {
+            //truncated
+            size *= 2;
+        } else {
+            //format done
+            break;
+        }
+
+        str = static_cast<valueType *>(::realloc(str, size));
     }
 
-    buf[len] = '\0';
+    //drop unused memory
+    str = static_cast<valueType *>(::realloc(str,
+                                   sizeof(valueType) * ::strlen(str) + sizeof(valueType)));
 
-    return buf;
+    if(!str) {
+        return nullptr;
+    }
+
+    //be sure last character is a terminater
+    *(str + (sizeof(valueType) * strlen(str))) = 0;
+    return str;
 }
 
 /*

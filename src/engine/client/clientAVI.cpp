@@ -314,7 +314,8 @@ bool idClientAVISystemLocal::OpenAVIForWriting(pointer fileName) {
         return false;
     }
 
-    if((afd.idxF = fileSystem->FOpenFileWrite(va("%s" INDEX_FILE_EXTENSION,
+    if((afd.idxF = fileSystem->FOpenFileWrite(va(nullptr,
+                   "%s" INDEX_FILE_EXTENSION,
                    fileName))) <= 0) {
         fileSystem->FCloseFile(afd.f);
         return false;
@@ -412,7 +413,7 @@ bool idClientAVISystemLocal::CheckFileSize(sint bytesToAdd) {
         clientAVILocal.CloseAVI();
 
         // ...And open a new one
-        clientAVILocal.OpenAVIForWriting(va("%s_", afd.fileName));
+        clientAVILocal.OpenAVIForWriting(va(nullptr, "%s_", afd.fileName));
 
         return true;
     }
@@ -562,7 +563,7 @@ Closes the AVI file and writes an index chunk
 bool idClientAVISystemLocal::CloseAVI(void) {
     sint indexRemainder;
     sint indexSize = afd.numIndices * 16;
-    pointer idxFileName = va("%s" INDEX_FILE_EXTENSION, afd.fileName);
+    pointer idxFileName = va(nullptr, "%s" INDEX_FILE_EXTENSION, afd.fileName);
 
     // AVI file isn't open
     if(!afd.fileOpen) {

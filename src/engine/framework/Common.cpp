@@ -261,7 +261,7 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
 
     com_errorEntered = true;
 
-    cvarSystem->Set("com_errorCode", va("%i", code));
+    cvarSystem->Set("com_errorCode", va(nullptr, "%i", code));
 
     // make sure we can get at our local stuff
     fileSystem->PureServerSetLoadedPaks("", "");
@@ -307,7 +307,8 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
             Printf("********************\nERROR: %s\n********************\n",
                    com_errorMessage);
 
-            serverInitSystem->Shutdown(va("Server crashed: %s\n", com_errorMessage));
+            serverInitSystem->Shutdown(va(nullptr, "Server crashed: %s\n",
+                                          com_errorMessage));
             idsystem->WriteDump("Debug Dump\nCom_Error: %s", com_errorMessage);
 #ifndef DEDICATED
             clientConsoleCommandSystem->Disconnect(true, "Server crashed");
@@ -345,7 +346,7 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
 #ifndef DEDICATED
             clientMainSystem->Shutdown();
 #endif
-            serverInitSystem->Shutdown(va("Server fatal crashed: %s\n",
+            serverInitSystem->Shutdown(va(nullptr, "Server fatal crashed: %s\n",
                                           com_errorMessage));
         }
     }
@@ -795,9 +796,10 @@ void idCommonLocal::InitJournaling(void) {
     if(!journal->integer) {
         if(journal->string && journal->string[ 0 ] == '_') {
             commonLocal.Printf("Replaying journaled events\n");
-            fileSystem->FOpenFileRead(va("journal%s.dat", journal->string),
+            fileSystem->FOpenFileRead(va(nullptr, "journal%s.dat", journal->string),
                                       &com_journalFile, true);
-            fileSystem->FOpenFileRead(va("journal_data%s.dat", journal->string),
+            fileSystem->FOpenFileRead(va(nullptr, "journal_data%s.dat",
+                                         journal->string),
                                       &com_journalDataFile, true);
             journal->integer = 2;
         } else {
@@ -815,16 +817,18 @@ void idCommonLocal::InitJournaling(void) {
 
         if(journal->integer == 1) {
             commonLocal.Printf("Journaling events\n");
-            com_journalFile     = fileSystem->FOpenFileWrite(va("journal_%04d.dat",
+            com_journalFile     = fileSystem->FOpenFileWrite(va(nullptr,
+                                  "journal_%04d.dat",
                                   i));
             com_journalDataFile = fileSystem->FOpenFileWrite(
-                                      va("journal_data_%04d.dat", i));
+                                      va(nullptr, "journal_data_%04d.dat", i));
         } else if(journal->integer == 2) {
             i--;
             commonLocal.Printf("Replaying journaled events\n");
-            fileSystem->FOpenFileRead(va("journal_%04d.dat", i), &com_journalFile,
+            fileSystem->FOpenFileRead(va(nullptr, "journal_%04d.dat", i),
+                                      &com_journalFile,
                                       true);
-            fileSystem->FOpenFileRead(va("journal_data_%04d.dat", i),
+            fileSystem->FOpenFileRead(va(nullptr, "journal_data_%04d.dat", i),
                                       &com_journalDataFile, true);
         }
     }
@@ -1639,7 +1643,7 @@ void idCommonLocal::Init(valueType *commandLine) {
 
             if(cl_profileStr[0]) {
                 // bani - check existing pid file and make sure it's ok
-                if(!CheckProfile(va("profiles/%s/profile.pid", cl_profileStr))) {
+                if(!CheckProfile(va(nullptr, "profiles/%s/profile.pid", cl_profileStr))) {
 #ifndef _DEBUG
                     Printf("^3WARNING: profile.pid found for profile '%s' - system settings will revert to defaults\n",
                            cl_profileStr);
@@ -1649,17 +1653,18 @@ void idCommonLocal::Init(valueType *commandLine) {
                 }
 
                 // bani - write a new one
-                if(!WriteProfile(va("profiles/%s/profile.pid", cl_profileStr))) {
+                if(!WriteProfile(va(nullptr, "profiles/%s/profile.pid", cl_profileStr))) {
                     Printf("^3WARNING: couldn't write profiles/%s/profile.pid\n",
                            cl_profileStr);
                 }
 
                 // exec the config
-                cmdBufferSystem->AddText(va("exec profiles/%s/%s\n", cl_profileStr,
+                cmdBufferSystem->AddText(va(nullptr, "exec profiles/%s/%s\n",
+                                            cl_profileStr,
                                             CONFIG_NAME));
             }
         } else {
-            cmdBufferSystem->AddText(va("exec %s\n", CONFIG_NAME));
+            cmdBufferSystem->AddText(va(nullptr, "exec %s\n", CONFIG_NAME));
         }
     }
 
@@ -1700,7 +1705,8 @@ void idCommonLocal::Init(valueType *commandLine) {
     cmdSystem->AddCommand("writeconfig", &idCommonLocal::WriteConfig_f,
                           "Saves all current settings to the specified file, if none specified then uses owconfig.cfg");
 
-    s = va("%s %s %s %s", PRODUCT_NAME, OS_STRING, OS_STRING, __DATE__);
+    s = va(nullptr, "%s %s %s %s", PRODUCT_NAME, OS_STRING, OS_STRING,
+           __DATE__);
 
     idsystem->Init();
 
@@ -1820,7 +1826,8 @@ void idCommonLocal::WriteConfiguration(void) {
     cvar_modifiedFlags &= ~CVAR_ARCHIVE;
 
     if(com_gameInfo.usesProfiles && cl_profileStr[0]) {
-        WriteConfigToFile(va("profiles/%s/%s", cl_profileStr, CONFIG_NAME));
+        WriteConfigToFile(va(nullptr, "profiles/%s/%s", cl_profileStr,
+                             CONFIG_NAME));
     } else {
         WriteConfigToFile(CONFIG_NAME);
     }
@@ -2066,7 +2073,7 @@ void idCommonLocal::Frame(void) {
                 if(com_watchdog_cmd->string[0] == '\0') {
                     cmdBufferSystem->AddText("quit\n");
                 } else {
-                    cmdBufferSystem->AddText(va("%s\n", com_watchdog_cmd->string));
+                    cmdBufferSystem->AddText(va(nullptr, "%s\n", com_watchdog_cmd->string));
                 }
             }
         }
@@ -2139,8 +2146,9 @@ void idCommonLocal::Shutdown(bool badProfile) {
 
     // delete pid file
     if(com_gameInfo.usesProfiles && cl_profileStr[0] && !badProfile) {
-        if(fileSystem->FileExists(va("profiles/%s/profile.pid", cl_profileStr))) {
-            fileSystem->Delete(va("profiles/%s/profile.pid", cl_profileStr));
+        if(fileSystem->FileExists(va(nullptr, "profiles/%s/profile.pid",
+                                     cl_profileStr))) {
+            fileSystem->Delete(va(nullptr, "profiles/%s/profile.pid", cl_profileStr));
         }
     }
 

@@ -294,7 +294,7 @@ void idClientMainSystemLocal::SendPureChecksums(void) {
 
     // "cp"
     Q_vsprintf_s(cMsg, sizeof(cMsg), sizeof(cMsg), "Va ");
-    Q_strcat(cMsg, sizeof(cMsg), va("%d ", cl.serverId));
+    Q_strcat(cMsg, sizeof(cMsg), va(nullptr, "%d ", cl.serverId));
     Q_strcat(cMsg, sizeof(cMsg), pChecksums);
 
     for(i = 0; i < 2; i++) {
@@ -310,7 +310,7 @@ idClientMainSystemLocal::ResetPureClientAtServer
 =================
 */
 void idClientMainSystemLocal::ResetPureClientAtServer(void) {
-    clientReliableCommandsSystem->AddReliableCommand(va("vdr"));
+    clientReliableCommandsSystem->AddReliableCommand(va(nullptr, "vdr"));
 }
 
 /*
@@ -364,9 +364,9 @@ void idClientMainSystemLocal::CheckForResend(void) {
             port = cvarSystem->VariableValue("net_qport");
 
             Q_strncpyz(info, cvarSystem->InfoString(CVAR_USERINFO), sizeof(info));
-            Info_SetValueForKey(info, "protocol", va("%i", PROTOCOL_VERSION));
-            Info_SetValueForKey(info, "qport", va("%i", port));
-            Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
+            Info_SetValueForKey(info, "protocol", va(nullptr, "%i", PROTOCOL_VERSION));
+            Info_SetValueForKey(info, "qport", va(nullptr, "%i", port));
+            Info_SetValueForKey(info, "challenge", va(nullptr, "%i", clc.challenge));
 
             Q_strcpy_s(data, "connect ");
             data[8] = '"';
@@ -782,7 +782,7 @@ void idClientMainSystemLocal::CheckUserinfo(void) {
     if(cvar_modifiedFlags & CVAR_USERINFO) {
         cvar_modifiedFlags &= ~CVAR_USERINFO;
         clientReliableCommandsSystem->AddReliableCommand(
-            va("userinfo \"%s\"",
+            va(nullptr, "userinfo \"%s\"",
                cvarSystem->InfoString(CVAR_USERINFO)));
     }
 }

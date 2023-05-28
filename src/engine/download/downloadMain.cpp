@@ -178,7 +178,7 @@ sint idDownloadSystemLocal::BeginDownload(pointer localName,
                MAX_STRING_CHARS);
 
     dl_request = curl_easy_init();
-    curl_easy_setopt(dl_request, CURLOPT_USERAGENT, va("%s %s",
+    curl_easy_setopt(dl_request, CURLOPT_USERAGENT, va(nullptr, "%s %s",
                      APP_NAME "/" APP_VERSION, curl_version()));
     curl_easy_setopt(dl_request, CURLOPT_REFERER, referer);
     curl_easy_setopt(dl_request, CURLOPT_URL, remoteName);

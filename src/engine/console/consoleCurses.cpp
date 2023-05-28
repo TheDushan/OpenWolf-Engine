@@ -214,7 +214,7 @@ void idConsoleCursesLocal::UpdateClock(void) {
 
     werase(clockwin);
 
-    ColorPrint(clockwin, va("^0[^3%02d%c%02d^0] ", realtime.tm_hour,
+    ColorPrint(clockwin, va(nullptr, "^0[^3%02d%c%02d^0] ", realtime.tm_hour,
                             (realtime.tm_sec & 1) ? ':' : ' ', realtime.tm_min), true);
 
     wnoutrefresh(clockwin);

@@ -333,7 +333,7 @@ void idServerOACSSystemLocal::ExtendedRecordWriteStruct(void) {
     // Output into the text file
     file = fileSystem->FOpenFileWrite(
                sv_oacsTypesFile->string);   // open in write mode
-    fileSystem->Write(va("%s\n%s", outheader, out),
+    fileSystem->Write(va(nullptr, "%s\n%s", outheader, out),
                       strlen(outheader) + strlen("\n") + strlen(out),
                       file);     //free(out); // write the text and free it
     fileSystem->Flush(file);   // update the content of the file
@@ -382,7 +382,8 @@ void idServerOACSSystemLocal::ExtendedRecordWriteValues(sint client) {
                                     -1);
 
         // Output the headers into the text file (only if there's at least one client connected!)
-        fileSystem->Write(va("%s\n", outheader), strlen(outheader) + strlen("\n"),
+        fileSystem->Write(va(nullptr, "%s\n", outheader),
+                          strlen(outheader) + strlen("\n"),
                           file);  // write the text (with a line return)
         fileSystem->Flush(file);   // update the content of the file
     }
@@ -417,7 +418,7 @@ void idServerOACSSystemLocal::ExtendedRecordWriteValues(sint client) {
                            client, sv_oacsDataFile->string);
         }
 
-        fileSystem->Write(va("%s\n", out), strlen(out) + strlen("\n"),
+        fileSystem->Write(va(nullptr, "%s\n", out), strlen(out) + strlen("\n"),
                           file);         //free(out); // write the text (with a line return) and free it
         fileSystem->Flush(file);   // update the content of the file
     }
@@ -457,7 +458,7 @@ void idServerOACSSystemLocal::ExtendedRecordWritePlayersTable(
     if(fileSystem->FileExists(sv_oacsPlayersTable->string) == false ||
             (fileSystem->IsFileEmpty(sv_oacsPlayersTable->string) == true)) {
         // Output the headers into the text file (only if there's at least one client connected!)
-        fileSystem->Write(va("%s\n", sv_playerstable_keys),
+        fileSystem->Write(va(nullptr, "%s\n", sv_playerstable_keys),
                           strlen(sv_playerstable_keys) + strlen("\n"),
                           file);     // write the text (with a line return)
         fileSystem->Flush(file);   // update the content of the file
@@ -466,7 +467,7 @@ void idServerOACSSystemLocal::ExtendedRecordWritePlayersTable(
     ExtendedRecordPlayersTableToCSV(out, MAX_STRING_CSV, sv_playerstable);
 
     // Output into the text file (only if there's at least one client connected!)
-    fileSystem->Write(va("%s\n", out), strlen(out) + strlen("\n"),
+    fileSystem->Write(va(nullptr, "%s\n", out), strlen(out) + strlen("\n"),
                       file);         //free(out); // write the text (with a line return) and free it
     fileSystem->Flush(file);   // update the content of the file
 
@@ -568,7 +569,7 @@ float64 idServerOACSSystemLocal::ExtendedRecordInterframeInitValue(
         case FEATURE_PLAYERID:
             // Set unique player id (we want this id to be completely generated serverside and without any means to tamper it clientside) - we don't care that the id change for the same player when he reconnects, since anyway the id will always link to the player's ip and guid using the playerstable
             //valueType tmp[MAX_STRING_CHARS] = ""; snprintf(tmp, MAX_STRING_CHARS, "%i%lu", rand_range(1, 99999), (uint32)time(nullptr));
-            return atof(va("%i%lu", rand_range(1, 99999),
+            return atof(va(nullptr, "%i%lu", rand_range(1, 99999),
                            static_cast<uint32>(::time(
                                                    nullptr))));     // FIXME: use a real UUID/GUID here (for the moment we simply use the timestamp in seconds + a random number, this should be enough for now to ensure the uniqueness of all the players) - do NOT use ioquake3 GUID since it can be spoofed (there's no centralized authorization system!)
 
@@ -984,7 +985,7 @@ valueType *idServerOACSSystemLocal::ExtendedRecordFeaturesToCSV(
                                interframe[i].key);
         } else if(savewhat ==
                   1) { // type 1: save the type (int coming from an enum)
-            //s = strncat_lin( s, va("%i", interframe[i].type), (sizeof(csv_string) - sizeof(s)) );
+            //s = strncat_lin( s, va(nullptr, "%i", interframe[i].type), (sizeof(csv_string) - sizeof(s)) );
             length += snprintf(csv_string + length, max_string_size, "%i",
                                interframe[i].type);
         } else { // type 2: save the values (the data type depends on the content of the field)

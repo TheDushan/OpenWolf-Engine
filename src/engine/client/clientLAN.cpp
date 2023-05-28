@@ -350,27 +350,30 @@ void idClientLANSystemLocal::GetServerInfo(sint source, sint n,
         buf[0] = '\0';
 
         Info_SetValueForKey(info, "hostname", server->hostName);
-        Info_SetValueForKey(info, "serverload", va("%i", server->load));
+        Info_SetValueForKey(info, "serverload", va(nullptr, "%i", server->load));
         Info_SetValueForKey(info, "mapname", server->mapName);
-        Info_SetValueForKey(info, "clients", va("%i", server->clients));
-        Info_SetValueForKey(info, "sv_maxclients", va("%i", server->maxClients));
-        Info_SetValueForKey(info, "ping", va("%i", server->ping));
-        Info_SetValueForKey(info, "minping", va("%i", server->minPing));
-        Info_SetValueForKey(info, "maxping", va("%i", server->maxPing));
+        Info_SetValueForKey(info, "clients", va(nullptr, "%i", server->clients));
+        Info_SetValueForKey(info, "sv_maxclients", va(nullptr, "%i",
+                            server->maxClients));
+        Info_SetValueForKey(info, "ping", va(nullptr, "%i", server->ping));
+        Info_SetValueForKey(info, "minping", va(nullptr, "%i", server->minPing));
+        Info_SetValueForKey(info, "maxping", va(nullptr, "%i", server->maxPing));
         Info_SetValueForKey(info, "game", server->game);
-        Info_SetValueForKey(info, "gametype", va("%i", server->gameType));
-        Info_SetValueForKey(info, "nettype", va("%i", server->netType));
+        Info_SetValueForKey(info, "gametype", va(nullptr, "%i", server->gameType));
+        Info_SetValueForKey(info, "nettype", va(nullptr, "%i", server->netType));
         Info_SetValueForKey(info, "addr",
                             networkSystem->AdrToStringwPort(server->adr));
-        Info_SetValueForKey(info, "sv_allowAnonymous", va("%i",
+        Info_SetValueForKey(info, "sv_allowAnonymous", va(nullptr, "%i",
                             server->allowAnonymous));
-        Info_SetValueForKey(info, "friendlyFire", va("%i", server->friendlyFire));
-        Info_SetValueForKey(info, "maxlives", va("%i", server->maxlives));
-        Info_SetValueForKey(info, "needpass", va("%i", server->needpass));
+        Info_SetValueForKey(info, "friendlyFire", va(nullptr, "%i",
+                            server->friendlyFire));
+        Info_SetValueForKey(info, "maxlives", va(nullptr, "%i", server->maxlives));
+        Info_SetValueForKey(info, "needpass", va(nullptr, "%i", server->needpass));
         Info_SetValueForKey(info, "gamename", server->gameName);
-        Info_SetValueForKey(info, "g_antilag", va("%i", server->antilag));
-        Info_SetValueForKey(info, "weaprestrict", va("%i", server->weaprestrict));
-        Info_SetValueForKey(info, "balancedteams", va("%i",
+        Info_SetValueForKey(info, "g_antilag", va(nullptr, "%i", server->antilag));
+        Info_SetValueForKey(info, "weaprestrict", va(nullptr, "%i",
+                            server->weaprestrict));
+        Info_SetValueForKey(info, "balancedteams", va(nullptr, "%i",
                             server->balancedteams));
 
         Q_strncpyz(buf, info, buflen);

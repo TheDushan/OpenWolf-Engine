@@ -880,7 +880,8 @@ static bool R_LoadMD3(model_t *mod, sint lod, void *buffer,
             vaoSurf->minIndex = 0;
             vaoSurf->maxIndex = surf->numVerts - 1;
 
-            vaoSurf->vao = R_CreateVao(va("staticMD3Mesh_VAO '%s'", surf->name), data,
+            vaoSurf->vao = R_CreateVao(va(nullptr, "staticMD3Mesh_VAO '%s'",
+                                          surf->name), data,
                                        dataSize, reinterpret_cast<uchar8 *>(surf->indexes),
                                        surf->numIndexes * sizeof(*surf->indexes), VAO_USAGE_STATIC);
 

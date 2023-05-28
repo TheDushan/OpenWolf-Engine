@@ -292,7 +292,7 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
 
     // send to group masters
     for(i = 0; i < MAX_MASTER_SERVERS; i++) {
-        master = cvarSystem->VariableString(va("sv_master%i", i + 1));
+        master = cvarSystem->VariableString(va(nullptr, "sv_master%i", i + 1));
 
         if(master[0] == '\0') {
             continue;
@@ -344,7 +344,7 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
             // if the address failed to resolve, clear it
             // so we don't take repeated dns hits
             common->Printf("Couldn't resolve address: %s\n", master);
-            cvarSystem->Set(va("sv_master%i", i + 1), "");
+            cvarSystem->Set(va(nullptr, "sv_master%i", i + 1), "");
             continue;
         }
 
@@ -715,25 +715,29 @@ void idServerMainSystemLocal::Info(netadr_t from) {
     // echo back the parameter to status. so servers can use it as a challenge
     // to prevent timed spoofed reply packets that add ghost servers
     Info_SetValueForKey(infostring, "challenge", cmdSystem->Argv(1));
-    Info_SetValueForKey(infostring, "protocol", va("%i",
+    Info_SetValueForKey(infostring, "protocol", va(nullptr, "%i",
                         com_protocol->integer));
     Info_SetValueForKey(infostring, "hostname", sv_hostname->string);
-    Info_SetValueForKey(infostring, "serverload", va("%i", svs.serverLoad));
+    Info_SetValueForKey(infostring, "serverload", va(nullptr, "%i",
+                        svs.serverLoad));
     Info_SetValueForKey(infostring, "mapname", sv_mapname->string);
-    Info_SetValueForKey(infostring, "clients", va("%i", count));
-    Info_SetValueForKey(infostring, "sv_maxclients", va("%i",
+    Info_SetValueForKey(infostring, "clients", va(nullptr, "%i", count));
+    Info_SetValueForKey(infostring, "sv_maxclients", va(nullptr, "%i",
                         sv_maxclients->integer - sv_privateClients->integer));
-    //Info_SetValueForKey( infostring, "gametype", va("%i", sv_gametype->integer ) );
+    //Info_SetValueForKey( infostring, "gametype", va(nullptr, "%i", sv_gametype->integer ) );
     Info_SetValueForKey(infostring, "gametype",
                         cvarSystem->VariableString("g_gametype"));
-    Info_SetValueForKey(infostring, "pure", va("%i", sv_pure->integer));
+    Info_SetValueForKey(infostring, "pure", va(nullptr, "%i",
+                        sv_pure->integer));
 
     if(sv_minPing->integer) {
-        Info_SetValueForKey(infostring, "minPing", va("%i", sv_minPing->integer));
+        Info_SetValueForKey(infostring, "minPing", va(nullptr, "%i",
+                            sv_minPing->integer));
     }
 
     if(sv_maxPing->integer) {
-        Info_SetValueForKey(infostring, "maxPing", va("%i", sv_maxPing->integer));
+        Info_SetValueForKey(infostring, "maxPing", va(nullptr, "%i",
+                            sv_maxPing->integer));
     }
 
     gamedir = fs_game->string;
@@ -742,18 +746,18 @@ void idServerMainSystemLocal::Info(netadr_t from) {
         Info_SetValueForKey(infostring, "game", gamedir);
     }
 
-    Info_SetValueForKey(infostring, "sv_allowAnonymous", va("%i",
+    Info_SetValueForKey(infostring, "sv_allowAnonymous", va(nullptr, "%i",
                         sv_allowAnonymous->integer));
 
     // Rafael gameskill
     //  Info_SetValueForKey (infostring, "gameskill", va ("%i", sv_gameskill->integer));
     // done
 
-    Info_SetValueForKey(infostring, "friendlyFire", va("%i",
+    Info_SetValueForKey(infostring, "friendlyFire", va(nullptr, "%i",
                         sv_friendlyFire->integer));    // NERVE - SMF
-    Info_SetValueForKey(infostring, "maxlives", va("%i",
+    Info_SetValueForKey(infostring, "maxlives", va(nullptr, "%i",
                         sv_maxlives->integer ? 1 : 0));    // NERVE - SMF
-    Info_SetValueForKey(infostring, "needpass", va("%i",
+    Info_SetValueForKey(infostring, "needpass", va(nullptr, "%i",
                         sv_needpass->integer ? 1 : 0));
     Info_SetValueForKey(infostring, "gamename",
                         GAMENAME_STRING);    // Arnout: to be able to filter out Quake servers
@@ -1597,7 +1601,7 @@ void idServerMainSystemLocal::IntegerOverflowShutDown(valueType *msg) {
                sizeof(mapName));
 
     serverInitSystem->Shutdown(msg);
-    cmdBufferSystem->AddText(va("map %s\n", mapName));
+    cmdBufferSystem->AddText(va(nullptr, "map %s\n", mapName));
 }
 
 /*
@@ -1755,7 +1759,7 @@ void idServerMainSystemLocal::Frame(sint msec) {
     }
 
     if(minRebootTimeCvar < minRebootTimeConst) {
-        cvarSystem->Set("sv_minRebootDelayMins", va("%d",
+        cvarSystem->Set("sv_minRebootDelayMins", va(nullptr, "%d",
                         minRebootTimeConst / (60 * 1000)));
     }
 

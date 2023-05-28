@@ -1065,7 +1065,7 @@ valueType *Q_CleanDirName(valueType *dirname);
 
 //=============================================
 
-valueType *va(pointer format, ...) __attribute__((format(printf, 1, 2)));
+valueType *va(valueType *str, pointer format, ...);
 
 //=============================================
 

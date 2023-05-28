@@ -117,7 +117,7 @@ valueType *idMD5SystemLocal::MD5File(pointer fn, sint length,
     final[0] = '\0';
 
     for(i = 0; i < 16; i++) {
-        Q_strcat(final, sizeof(final), va("%02X", digest[i]));
+        Q_strcat(final, sizeof(final), va(nullptr, "%02X", digest[i]));
     }
 
     return final;

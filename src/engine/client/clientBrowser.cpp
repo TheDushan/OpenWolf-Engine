@@ -351,7 +351,8 @@ void idClientBrowserSystemLocal::ServerInfoPacket(netadr_t from,
                     break;
             }
 
-            Info_SetValueForKey(cl_pinglist[i].info, "nettype", va("%d", type));
+            Info_SetValueForKey(cl_pinglist[i].info, "nettype", va(nullptr, "%d",
+                                type));
             SetServerInfoByAddress(from, infoString, cl_pinglist[i].time);
 
             return;

@@ -470,7 +470,7 @@ Creates any directories needed to store the given filename
 */
 sint idFileSystemLocal::CreatePath(pointer OSPath_) {
     // use va() to have a clean pointer prototype
-    valueType *OSPath = va("%s", OSPath_);
+    valueType *OSPath = va(nullptr, "%s", OSPath_);
     valueType *ofs;
 
     // make absolutely sure that it can't back up the path
@@ -1686,7 +1686,7 @@ sint idFileSystemLocal::DeleteDir(valueType *dirname, bool nonEmpty,
 
         for(i = 0; i < nFiles; i++) {
             ospath = fileSystemLocal.BuildOSPath(fs_homepath->string, fs_gamedir,
-                                                 va("%s/%s", dirname,
+                                                 va(nullptr, "%s/%s", dirname,
                                                     pFiles[i]));
 
             if(remove(ospath) == -1) {       // failure
@@ -3472,22 +3472,22 @@ idFileSystemLocal::idPak
 bool idFileSystemLocal::idPak(valueType *pak, valueType *base) {
     sint i;
 
-    if(!FilenameCompare(pak, va("%s/bin", base))) {
+    if(!FilenameCompare(pak, va(nullptr, "%s/bin", base))) {
         return true;
     }
 
     for(i = 0; i < NUM_ID_PAKS; i++) {
-        if(!FilenameCompare(pak, va("%s/pak%d", base, i))) {
+        if(!FilenameCompare(pak, va(nullptr, "%s/pak%d", base, i))) {
             break;
         }
 
         // JPW NERVE -- this fn prevents external sources from downloading/overwriting official files, so exclude both SP and MP files from this list as well
-        //if ( !FilenameCompare(pak, va("%s/mp_pak%d",base,i)) )
+        //if ( !FilenameCompare(pak, va(nullptr, "%s/mp_pak%d",base,i)) )
         //{
         //  break;
         //}
 
-        //if ( !FilenameCompare(pak, va("%s/sp_pak%d",base,i)) )
+        //if ( !FilenameCompare(pak, va(nullptr, "%s/sp_pak%d",base,i)) )
         //{
         //  break;
         //}
@@ -3633,7 +3633,7 @@ bool idFileSystemLocal::ComparePaks(valueType *neededpaks, sint len,
                 Q_strcat(neededpaks, len, "@");
 
                 // Do we have one with the same name?
-                if(SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i]))) {
+                if(SV_FileExists(va(nullptr, "%s.pk3", fs_serverReferencedPakNames[i]))) {
                     valueType st[MAX_ZPATH];
                     // We already have one called this, we need to download it to another name
                     // Make something up with the checksum in it
@@ -3649,17 +3649,17 @@ bool idFileSystemLocal::ComparePaks(valueType *neededpaks, sint len,
                 Q_strcat(neededpaks, len, ".pk3");
 
                 // Do we have one with the same name?
-                if(SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i]))) {
+                if(SV_FileExists(va(nullptr, "%s.pk3", fs_serverReferencedPakNames[i]))) {
                     Q_strcat(neededpaks, len, " (local file exists with wrong checksum)");
 #ifndef DEDICATED
 
                     // let the client subsystem track bad download redirects (dl file with wrong checksums)
                     // this is a bit ugly but the only other solution would have been callback passing..
-                    if(clientDownloadSystem->WWWBadChecksum(va("%s.pk3",
+                    if(clientDownloadSystem->WWWBadChecksum(va(nullptr, "%s.pk3",
                                                             fs_serverReferencedPakNames[i]))) {
                         // remove a potentially malicious download file
                         // (this is also intended to avoid expansion of the pk3 into a file with different checksum .. messes up wwwdl chkfail)
-                        valueType *rmv = BuildOSPath(fs_homepath->string, va("%s.pk3",
+                        valueType *rmv = BuildOSPath(fs_homepath->string, va(nullptr, "%s.pk3",
                                                      fs_serverReferencedPakNames[i]), "");
                         rmv[strlen(rmv) - 1] = '\0';
                         Remove(rmv);
@@ -3942,7 +3942,7 @@ pointer idFileSystemLocal::LoadedPakChecksums(void) {
             continue;
         }
 
-        Q_strcat(info, sizeof(info), va("%i ", search->pack->checksum));
+        Q_strcat(info, sizeof(info), va(nullptr, "%i ", search->pack->checksum));
     }
 
     return info;
@@ -4004,7 +4004,8 @@ pointer idFileSystemLocal::LoadedPakPureChecksums(void) {
             continue;
         }
 
-        Q_strcat(info, sizeof(info), va("%i ", search->pack->pure_checksum));
+        Q_strcat(info, sizeof(info), va(nullptr, "%i ",
+                                        search->pack->pure_checksum));
     }
 
     len = static_cast<sint>(::strlen(info));
@@ -4041,7 +4042,7 @@ pointer idFileSystemLocal::ReferencedPakChecksums(void) {
         if(search->pack) {
             if(search->pack->referenced ||
                     Q_stricmpn(search->pack->pakGamename, BASEGAME, strlen(BASEGAME))) {
-                Q_strcat(info, sizeof(info), va("%i ", search->pack->checksum));
+                Q_strcat(info, sizeof(info), va(nullptr, "%i ", search->pack->checksum));
             }
         }
     }
@@ -4122,7 +4123,8 @@ pointer idFileSystemLocal::ReferencedPakPureChecksums(void) {
         for(search = fs_searchpaths; search; search = search->next) {
             // is the element a pak file and has it been referenced based on flag?
             if(search->pack && (search->pack->referenced & nFlags)) {
-                Q_strcat(info, sizeof(info), va("%i ", search->pack->pure_checksum));
+                Q_strcat(info, sizeof(info), va(nullptr, "%i ",
+                                                search->pack->pure_checksum));
 
                 if(nFlags & (FS_CGAME_REF | FS_UI_REF)) {
                     break;
@@ -4135,13 +4137,13 @@ pointer idFileSystemLocal::ReferencedPakPureChecksums(void) {
 
         if(fs_fakeChkSum != 0) {
             // only added if a non-pure file is referenced
-            Q_strcat(info, sizeof(info), va("%i ", fs_fakeChkSum));
+            Q_strcat(info, sizeof(info), va(nullptr, "%i ", fs_fakeChkSum));
         }
     }
 
     // last checksum is the encoded number of referenced pk3s
     checksum ^= numPaks;
-    Q_strcat(info, sizeof(info), va("%i ", checksum));
+    Q_strcat(info, sizeof(info), va(nullptr, "%i ", checksum));
 
     return info;
 }
@@ -4392,7 +4394,8 @@ void idFileSystemLocal::Restart(sint checksumFeed) {
 
             if(com_gameInfo.usesProfiles && cl_profileStr[0]) {
                 // bani - check existing pid file and make sure it's ok
-                if(!common->CheckProfile(va("profiles/%s/profile.pid", cl_profileStr))) {
+                if(!common->CheckProfile(va(nullptr, "profiles/%s/profile.pid",
+                                            cl_profileStr))) {
 #ifndef _DEBUG
                     common->Printf("^3WARNING: profile.pid found for profile '%s' - system settings will revert to defaults\n",
                                    cl_profileStr);
@@ -4402,17 +4405,19 @@ void idFileSystemLocal::Restart(sint checksumFeed) {
                 }
 
                 // bani - write a new one
-                if(!common->WriteProfile(va("profiles/%s/profile.pid", cl_profileStr))) {
+                if(!common->WriteProfile(va(nullptr, "profiles/%s/profile.pid",
+                                            cl_profileStr))) {
                     common->Printf("^3WARNING: couldn't write profiles/%s/profile.pid\n",
                                    cl_profileStr);
                 }
 
                 // exec the config
-                cmdBufferSystem->AddText(va("exec profiles/%s/%s\n", cl_profileStr,
+                cmdBufferSystem->AddText(va(nullptr, "exec profiles/%s/%s\n",
+                                            cl_profileStr,
                                             CONFIG_NAME));
 
             } else {
-                cmdBufferSystem->AddText(va("exec %s\n", CONFIG_NAME));
+                cmdBufferSystem->AddText(va(nullptr, "exec %s\n", CONFIG_NAME));
             }
         }
     }

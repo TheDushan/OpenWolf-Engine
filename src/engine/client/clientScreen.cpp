@@ -813,7 +813,7 @@ void idClientScreenSystemLocal::DrawDemoRecording(void) {
         return;
     }
 
-    cvarSystem->Set("cl_demooffset", va("%d",
+    cvarSystem->Set("cl_demooffset", va(nullptr, "%d",
                                         fileSystem->FTell(clc.demofile)));
 }
 

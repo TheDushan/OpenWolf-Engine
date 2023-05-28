@@ -602,7 +602,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
 #if 1
     ps = &cl.snapServer.ps;
 
-    cvarSystem->Set("p_hp", va("%i/%i", ps->stats[STAT_HEALTH],
+    cvarSystem->Set("p_hp", va(nullptr, "%i/%i", ps->stats[STAT_HEALTH],
                                ps->stats[STAT_MAX_HEALTH]));
     cvarSystem->SetValue("p_team", ps->stats[STAT_TEAM]);
     cvarSystem->SetValue("p_class", ps->stats[STAT_CLASS]);
@@ -727,7 +727,7 @@ void idClientParseSystemLocal::ParseSnapshot(msg_t *msg) {
 
     TemoAmmo = TempAmmoArray & 0x0FFF;
     TempClips = (TempAmmoArray >> 12) & 0x0F;
-    cvarSystem->Set("p_ammo", va("%i/%i", TemoAmmo, TempClips));
+    cvarSystem->Set("p_ammo", va(nullptr, "%i/%i", TemoAmmo, TempClips));
 
     cvarSystem->SetValue("p_credits", ps->persistant[PERS_CREDIT]);
     cvarSystem->SetValue("p_score", ps->persistant[PERS_SCORE]);
@@ -995,7 +995,8 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
             clientReliableCommandsSystem->AddReliableCommand("wwwdl ack");
 
             // make sure the server is not trying to redirect us again on a bad checksum
-            if(strstr(clc.badChecksumList, va("@%s", cls.originalDownloadName))) {
+            if(strstr(clc.badChecksumList, va(nullptr, "@%s",
+                                              cls.originalDownloadName))) {
                 common->Printf("refusing redirect to %s by server (bad checksum)\n",
                                cls.downloadName);
                 clientReliableCommandsSystem->AddReliableCommand("wwwdl fail");
@@ -1087,7 +1088,7 @@ void idClientParseSystemLocal::ParseDownload(msg_t *msg) {
         fileSystem->Write(data, size, clc.download);
     }
 
-    clientReliableCommandsSystem->AddReliableCommand(va("nextdl %d",
+    clientReliableCommandsSystem->AddReliableCommand(va(nullptr, "nextdl %d",
             clc.downloadBlock));
     clc.downloadBlock++;
 

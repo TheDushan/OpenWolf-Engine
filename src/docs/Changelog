@@ -1,3 +1,6 @@
+2023-05-28 Dusan Jocic <dusanjocic@msn.com>
+	* [Engine] Rewrote va function
+	
 2023-05-15 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Misc fixes
 	* [Engine] Fixed compiling

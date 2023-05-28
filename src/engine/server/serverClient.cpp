@@ -691,7 +691,7 @@ gotnewcl:
     // init the netchan queue
 
     newcl->authenticated = authed;
-    Info_SetValueForKey(userinfo, "authenticated", va("%i", authed));
+    Info_SetValueForKey(userinfo, "authenticated", va(nullptr, "%i", authed));
     Q_strncpyz(newcl->guid, guid, sizeof(newcl->guid));
     Info_SetValueForKey(userinfo, "cl_guid", guid);
 
@@ -874,7 +874,8 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
 #endif
 
     // add the disconnect command
-    serverMainSystem->SendServerCommand(drop, va("disconnect \"%s\"", reason));
+    serverMainSystem->SendServerCommand(drop, va(nullptr, "disconnect \"%s\"",
+                                        reason));
 
 #if !defined (UPDATE_SERVER)
     // OACS: Commit then reset the last interframe for this client
@@ -1309,7 +1310,8 @@ void idServerClientSystemLocal::WWWDownload_f(client_t *cl) {
     common->Printf("idServerClientSystemLocal::WWWDownload: unknown wwwdl subcommand '%s' for client '%s'\n",
                    subcmd, cl->name);
     serverClientLocal.DropClient(cl,
-                                 va("idServerClientSystemLocal::WWWDownload: unknown wwwdl subcommand '%s'",
+                                 va(nullptr,
+                                    "idServerClientSystemLocal::WWWDownload: unknown wwwdl subcommand '%s'",
                                     subcmd));
 }
 
@@ -1493,7 +1495,7 @@ void idServerClientSystemLocal::WriteDownloadToClient(client_t *cl,
                         fileSystem->FCloseFile(
                             handle);      // don't keep open, we only care about the size
 
-                        Q_strncpyz(cl->downloadURL, va("%s/%s", sv_wwwBaseURL->string,
+                        Q_strncpyz(cl->downloadURL, va(nullptr, "%s/%s", sv_wwwBaseURL->string,
                                                        cl->downloadName), sizeof(cl->downloadURL));
 
                         //bani - prevent multiple download notifications
@@ -1774,7 +1776,7 @@ void idServerClientSystemLocal::Disconnect_f(client_t *cl) {
 
         serverClientLocal.DropClient(cl, "disconnected");
 
-        (cl, va("disconnected: %s", reason));
+        (cl, va(nullptr, "disconnected: %s", reason));
     } else {
         serverClientLocal.DropClient(cl, "disconnected");
     }
@@ -2134,7 +2136,7 @@ void idServerClientSystemLocal::UserinfoChanged(client_t *cl) {
         Info_SetValueForKey(cl->userinfo, "ip", "localhost");
     }
 
-    Info_SetValueForKey(cl->userinfo, "authenticated", va("%i",
+    Info_SetValueForKey(cl->userinfo, "authenticated", va(nullptr, "%i",
                         cl->authenticated));
     Info_SetValueForKey(cl->userinfo, "cl_guid", cl->guid);
 

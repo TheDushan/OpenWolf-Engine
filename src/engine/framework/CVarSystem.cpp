@@ -831,7 +831,7 @@ bool idCVarSystemLocal::Command(void) {
 
     // set the value if forcing isn't required
     if(args[0] == '!') {
-        GetSet2(v->name, va("%i", !(v->integer)), false);
+        GetSet2(v->name, va(nullptr, nullptr, "%i", !(v->integer)), false);
     } else {
         GetSet2(v->name, args, false);
     }
@@ -862,7 +862,7 @@ void idCVarSystemLocal::Toggle_f(void) {
     varname = cmdSystem->Argv(1);
 
     if(c == 2) {
-        cvarSystemLocal.GetSet2(varname, va("%d",
+        cvarSystemLocal.GetSet2(varname, va(nullptr, "%d",
                                             !cvarSystemLocal.VariableValue(varname)), false);
         return;
     }
@@ -927,7 +927,8 @@ void idCVarSystemLocal::Cycle_f(void) {
         }
     }
 
-    cvarSystemLocal.GetSet2(cmdSystem->Argv(1), va("%i", value), false);
+    cvarSystemLocal.GetSet2(cmdSystem->Argv(1), va(nullptr, "%i", value),
+                            false);
 }
 
 /*

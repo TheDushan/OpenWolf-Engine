@@ -815,10 +815,12 @@ void idCommonLocal::InitCommonConsoleVars(void) {
     net_ip6 = cvarSystem->Get("net_ip6", "::", CVAR_LATCH,
                               "IPv6 address to bind to");
 
-    net_port = cvarSystem->Get("net_port", va("%i", PORT_SERVER), CVAR_LATCH,
+    net_port = cvarSystem->Get("net_port", va(nullptr, "%i", PORT_SERVER),
+                               CVAR_LATCH,
                                "Port to bind to using the ipv4 address");
 
-    net_port6 = cvarSystem->Get("net_port6", va("%i", PORT_SERVER), CVAR_LATCH,
+    net_port6 = cvarSystem->Get("net_port6", va(nullptr, "%i", PORT_SERVER),
+                                CVAR_LATCH,
                                 "Port to bind to using the ipv6 address");
 
     // Some cvars for configuring multicast options which facilitates scanning for servers on local subnets.
@@ -994,13 +996,15 @@ void idCommonLocal::InitCommonConsoleVars(void) {
 #else
     pid = getpid();
 #endif
-    s = va("%d", pid);
+    s = va(nullptr, "%d", pid);
     com_pid = cvarSystem->Get("com_pid", s, CVAR_ROM, "Process id");
 
-    s = va("%s %s %s %s", PRODUCT_NAME, OS_STRING, OS_STRING, __DATE__);
+    s = va(nullptr, "%s %s %s %s", PRODUCT_NAME, OS_STRING, OS_STRING,
+           __DATE__);
     com_version = cvarSystem->Get("version", s, CVAR_ROM | CVAR_SERVERINFO,
                                   "Records all info about the application version: build number, build date, win/linux etc");
-    com_protocol = cvarSystem->Get("protocol", va("%i", PROTOCOL_VERSION),
+    com_protocol = cvarSystem->Get("protocol", va(nullptr, "%i",
+                                   PROTOCOL_VERSION),
                                    CVAR_SERVERINFO | CVAR_ARCHIVE,
                                    "Returns the current protocol (changes with patches).");
 
@@ -1018,7 +1022,7 @@ void idCommonLocal::InitCommonConsoleVars(void) {
 
     cvarSystem->Get("sv_keywords", "", CVAR_SERVERINFO,
                     "Variable holds the search string entered in the internet connection menu");
-    cvarSystem->Get("protocol", va("%i", PROTOCOL_VERSION),
+    cvarSystem->Get("protocol", va(nullptr, "%i", PROTOCOL_VERSION),
                     CVAR_SERVERINFO | CVAR_ARCHIVE,
                     "Display network protocol version. Useful for backward compatibility with servers with otherwise incompatible versions.");
     sv_mapname = cvarSystem->Get("mapname", "nomap",
@@ -1139,11 +1143,11 @@ void idCommonLocal::InitCommonConsoleVars(void) {
                                            ".com", 0, "Send private message only to the registered user.");
     sv_cs_stats = cvarSystem->Get("sv_cs_stats", COMMUNITY_SERVER_NAME, 0,
                                   "Enter the address of the community server. Example: xxx.xxx.xxx.xxx:port");
-    sv_cs_ServerPort = cvarSystem->Get("sv_cs_ServerPort", va("%i",
+    sv_cs_ServerPort = cvarSystem->Get("sv_cs_ServerPort", va(nullptr, "%i",
                                        PORT_COMMUNITY), 0,
                                        "Enter the port address of the community server.");
 
-    g_gameType = cvarSystem->Get("g_gametype", va("%i",
+    g_gameType = cvarSystem->Get("g_gametype", va(nullptr, "%i",
                                  com_gameInfo.defaultGameType), CVAR_SERVERINFO | CVAR_LATCH,
                                  "Sets the type of game being played, 2=objective, 3=stopwatch, 4=campaign, 5=LMS");
 

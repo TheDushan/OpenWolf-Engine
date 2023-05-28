@@ -193,7 +193,7 @@ idSystemLocal::PIDFileName
 =================
 */
 valueType *idSystemLocal::PIDFileName(void) {
-    return va("%s/%s", TempPath(), PID_FILENAME);
+    return va(nullptr, "%s/%s", TempPath(), PID_FILENAME);
 }
 
 /*
@@ -398,7 +398,7 @@ Used to load a development dll instead of a virtual machine
 */
 valueType *idSystemLocal::GetDLLName(pointer name) {
     //Dushan - I have no idea what this mess is and what I made it before
-    return va("%s" ARCH_STRING DLL_EXT, name);
+    return va(nullptr, "%s" ARCH_STRING DLL_EXT, name);
 }
 
 /*
@@ -588,7 +588,7 @@ void idSystemLocal::SigHandler(sint signal) {
         signalcaught = true;
 #if !defined (DEDICATED)
         clientMainSystem->Shutdown();
-        serverInitSystem->Shutdown(va("Received signal %d", signal));
+        serverInitSystem->Shutdown(va(nullptr, "Received signal %d", signal));
 #endif
         systemLocal.Error("Received signal %d: \"%s\", exiting...\n", signal,
                           SignalToString(signal));
@@ -685,7 +685,7 @@ Q_EXPORT sint engineMain(sint argc, valueType * *argv)
     if(SDL_VERSIONNUM(ver.major, ver.minor, ver.patch) <
             SDL_VERSIONNUM(MINSDL_MAJOR, MINSDL_MINOR, MINSDL_PATCH)) {
         systemLocal.Dialog(DT_ERROR,
-                           va("SDL version " MINSDL_VERSION " or greater is required, "
+                           va(nullptr, "SDL version " MINSDL_VERSION " or greater is required, "
                               "but only version %d.%d.%d was found. You may be able to obtain a more recent copy "
                               "from http://www.libsdl.org/.", ver.major, ver.minor, ver.patch),
                            "SDL Library Too Old");

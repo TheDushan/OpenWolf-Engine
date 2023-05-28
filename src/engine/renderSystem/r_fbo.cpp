@@ -242,9 +242,9 @@ void FBO_Bind(FBO_t *fbo) {
     }
 
     if(r_logFile->integer) {
-        // don't just call LogComment, or we will get a call to va() every frame!
+        // don't just call LogComment, or we will get a call to va(nullptr, ) every frame!
         GLimp_LogComment(reinterpret_cast< valueType * >
-                         (va("--- FBO_Bind( %s ) ---\n", fbo ? fbo->name : "nullptr")));
+                         (va(nullptr, "--- FBO_Bind( %s ) ---\n", fbo ? fbo->name : "nullptr")));
     }
 
     GL_BindFramebuffer(GL_FRAMEBUFFER, fbo ? fbo->frameBuffer : 0);
@@ -392,7 +392,7 @@ void idRenderSystemLocal::FBOInit(void) {
 
     if(MAX_DRAWN_PSHADOWS && tr.pshadowMaps[0]) {
         for(i = 0; i < MAX_DRAWN_PSHADOWS; i++) {
-            tr.pshadowFbos[i] = FBO_Create(va("_shadowmap%d", i),
+            tr.pshadowFbos[i] = FBO_Create(va(nullptr, "_shadowmap%d", i),
                                            tr.pshadowMaps[i]->width, tr.pshadowMaps[i]->height);
             // FIXME: this next line wastes 16mb with 16x512x512 sun shadow maps, skip if OpenGL 4.3+ or ARB_framebuffer_no_attachments
             FBO_CreateBuffer(tr.pshadowFbos[i], GL_RGBA8, 0, 0);
@@ -425,7 +425,7 @@ void idRenderSystemLocal::FBOInit(void) {
 
     if(tr.textureScratchImage[0]) {
         for(i = 0; i < 2; i++) {
-            tr.textureScratchFbo[i] = FBO_Create(va("_texturescratch%d", i),
+            tr.textureScratchFbo[i] = FBO_Create(va(nullptr, "_texturescratch%d", i),
                                                  tr.textureScratchImage[i]->width, tr.textureScratchImage[i]->height);
             FBO_AttachImage(tr.textureScratchFbo[i], tr.textureScratchImage[i],
                             GL_COLOR_ATTACHMENT0, 0);
@@ -451,7 +451,7 @@ void idRenderSystemLocal::FBOInit(void) {
 
     if(tr.quarterImage[0]) {
         for(i = 0; i < 2; i++) {
-            tr.quarterFbo[i] = FBO_Create(va("_quarter%d", i),
+            tr.quarterFbo[i] = FBO_Create(va(nullptr, "_quarter%d", i),
                                           tr.quarterImage[i]->width, tr.quarterImage[i]->height);
             FBO_AttachImage(tr.quarterFbo[i], tr.quarterImage[i], GL_COLOR_ATTACHMENT0,
                             0);
@@ -487,7 +487,7 @@ void idRenderSystemLocal::FBOInit(void) {
 
     {
         for(i = 0; i < ARRAY_LEN(tr.glowImageScaled); i++) {
-            tr.glowFboScaled[i] = FBO_Create(va("*glowScaled%d", i),
+            tr.glowFboScaled[i] = FBO_Create(va(nullptr, "*glowScaled%d", i),
                                              tr.glowImageScaled[i]->width, tr.glowImageScaled[i]->height);
             FBO_AttachImage(tr.glowFboScaled[i], tr.glowImageScaled[i],
                             GL_COLOR_ATTACHMENT0, 0);

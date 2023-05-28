@@ -419,13 +419,13 @@ void CMod_LoadShaders(lump_t *l) {
     in = (dshader_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "CMod_LoadShaders: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
 
     if(count < 1) {
-        common->Error(ERR_DROP, "Map with no shaders");
+        common->Error(ERR_DROP, "%s: map with no shaders", __func__);
     }
 
     cm.shaders = (dshader_t *)memorySystem->Alloc(count * sizeof(*cm.shaders),
@@ -463,7 +463,7 @@ void CMod_LoadSubmodels(lump_t *l) {
     in = (dmodel_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "CMod_LoadSubmodels: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
@@ -529,7 +529,7 @@ void CMod_LoadNodes(lump_t *l) {
     in = (dnode_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
@@ -585,7 +585,7 @@ void CMod_LoadBrushes(lump_t *l) {
     in = (dbrush_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
@@ -628,7 +628,7 @@ void CMod_LoadLeafs(lump_t *l) {
     in = (dleaf_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
@@ -681,7 +681,7 @@ void CMod_LoadPlanes(lump_t *l) {
     in = (dplane_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
@@ -724,7 +724,7 @@ void CMod_LoadLeafBrushes(lump_t *l) {
     in = reinterpret_cast<sint *>((cmod_base + l->fileofs));
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
@@ -753,7 +753,7 @@ void CMod_LoadLeafSurfaces(lump_t *l) {
     in = reinterpret_cast<sint *>((cmod_base + l->fileofs));
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
@@ -802,7 +802,7 @@ void CMod_LoadBrushSides(lump_t *l) {
     in = (dbrushside_t *)(cmod_base + l->fileofs);
 
     if(l->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     count = l->filelen / sizeof(*in);
@@ -1084,7 +1084,7 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
     in = (dsurface_t *)(cmod_base + surfs->fileofs);
 
     if(surfs->filelen % sizeof(*in)) {
-        common->Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     cm.numSurfaces = count = surfs->filelen / sizeof(*in);
@@ -1094,13 +1094,13 @@ void CMod_LoadSurfaces(lump_t *surfs, lump_t *verts, lump_t *indexesLump) {
     dv = (drawVert_t *)(cmod_base + verts->fileofs);
 
     if(verts->filelen % sizeof(*dv)) {
-        common->Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     index = reinterpret_cast<sint *>((cmod_base + indexesLump->fileofs));
 
     if(indexesLump->filelen % sizeof(*index)) {
-        common->Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
+        common->Error(ERR_DROP, "%s: funny lump size", __func__);
     }
 
     // scan through all the surfaces
@@ -1252,7 +1252,7 @@ void idCollisionModelManagerLocal::LoadMap(pointer name, bool clientload,
                        clientload);
     }
 
-    if(!strcmp(cm.name, name) && clientload) {
+    if(!::strcmp(cm.name, name) && clientload) {
         *checksum = last_checksum;
         return;
     }

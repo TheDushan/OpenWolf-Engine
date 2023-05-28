@@ -2370,7 +2370,7 @@ void R_LoadImage(pointer name, uchar8 **pic, sint *width, sint *height,
             continue;
         }
 
-        altName = va("%s.%s", localName, imageLoaders[ i ].ext);
+        altName = va(nullptr, "%s.%s", localName, imageLoaders[ i ].ext);
 
         // Load
         imageLoaders[ i ].ImageLoader(altName, pic, width, height);
@@ -2975,7 +2975,8 @@ void R_CreateBuiltinImages(void) {
 
     if(r_dlightMode->integer >= 2) {
         for(x = 0; x < MAX_DLIGHTS; x++) {
-            tr.shadowCubemaps[x] = R_CreateImage(va("*shadowcubemap%i", x), nullptr,
+            tr.shadowCubemaps[x] = R_CreateImage(va(nullptr, "*shadowcubemap%i", x),
+                                                 nullptr,
                                                  PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA,
                                                  IMGFLAG_CLAMPTOEDGE | IMGFLAG_CUBEMAP, 0);
         }
@@ -3118,13 +3119,15 @@ void R_CreateBuiltinImages(void) {
         }
 
         for(x = 0; x < 2; x++) {
-            tr.textureScratchImage[x] = R_CreateImage(va("*textureScratch%d", x),
+            tr.textureScratchImage[x] = R_CreateImage(va(nullptr, "*textureScratch%d",
+                                        x),
                                         nullptr, 256, 256, IMGTYPE_COLORALPHA,
                                         IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
         }
 
         for(x = 0; x < 2; x++) {
-            tr.quarterImage[x] = R_CreateImage(va("*quarter%d", x), nullptr, width / 2,
+            tr.quarterImage[x] = R_CreateImage(va(nullptr, "*quarter%d", x), nullptr,
+                                               width / 2,
                                                height / 2, IMGTYPE_COLORALPHA,
                                                IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
         }
@@ -3136,7 +3139,7 @@ void R_CreateBuiltinImages(void) {
         }
 
         for(x = 0; x < MAX_DRAWN_PSHADOWS; x++) {
-            tr.pshadowMaps[x] = R_CreateImage(va("*shadowmap%i", x), nullptr,
+            tr.pshadowMaps[x] = R_CreateImage(va(nullptr, "*shadowmap%i", x), nullptr,
                                               PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA,
                                               IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24);
             //qglTextureParameterfEXT(tr.pshadowMaps[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
@@ -3145,7 +3148,8 @@ void R_CreateBuiltinImages(void) {
 
         if(r_sunlightMode->integer) {
             for(x = 0; x < 4; x++) {
-                tr.sunShadowDepthImage[x] = R_CreateImage(va("*sunshadowdepth%i", x),
+                tr.sunShadowDepthImage[x] = R_CreateImage(va(nullptr, "*sunshadowdepth%i",
+                                            x),
                                             nullptr, r_shadowMapSize->integer, r_shadowMapSize->integer,
                                             IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE,
                                             GL_DEPTH_COMPONENT24_ARB);

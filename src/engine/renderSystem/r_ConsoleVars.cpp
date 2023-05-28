@@ -773,9 +773,10 @@ void R_InitConsoleVars(void) {
                               CVAR_ARCHIVE,
                               "Controls quality of jpeg screenshots captured using screenshotJPEG");
 
-    r_maxpolys = cvarSystem->Get("r_maxpolys", va("%d", MAX_POLYS), 0,
+    r_maxpolys = cvarSystem->Get("r_maxpolys", va(nullptr, "%d", MAX_POLYS), 0,
                                  "Maximum number of polygons on screen");
-    r_maxpolyverts = cvarSystem->Get("r_maxpolyverts", va("%d", MAX_POLYVERTS),
+    r_maxpolyverts = cvarSystem->Get("r_maxpolyverts", va(nullptr, "%d",
+                                     MAX_POLYVERTS),
                                      0, "Maximum number of vertices from polygons on screen");
 
     r_displayRefresh = cvarSystem->Get("r_displayRefresh", "0", CVAR_LATCH,
