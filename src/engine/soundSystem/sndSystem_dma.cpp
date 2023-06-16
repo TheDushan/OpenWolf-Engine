@@ -1742,7 +1742,7 @@ void S_UpdateBackgroundTrack(void) {
 S_FreeOldestSound
 ======================
 */
-void S_FreeOldestSound(void) {
+bool S_FreeOldestSound(void) {
     sint i, oldest, used;
     sfx_t *sfx;
     sndBuffer  *buffer, *nbuffer;
@@ -1757,6 +1757,11 @@ void S_FreeOldestSound(void) {
             used = i;
             oldest = sfx->lastTimeUsed;
         }
+    }
+
+    if(!used) {
+        // can't free anymore
+        return false;
     }
 
     sfx = &s_knownSfx[used];
@@ -1775,6 +1780,8 @@ void S_FreeOldestSound(void) {
 
     sfx->inMemory = false;
     sfx->soundData = nullptr;
+
+    return true;
 }
 
 /*

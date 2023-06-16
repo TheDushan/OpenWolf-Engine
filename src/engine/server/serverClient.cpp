@@ -2517,14 +2517,18 @@ bool idServerClientSystemLocal::ClientCommand(client_t *cl, msg_t *msg,
         }
     }
 
-    serverClientLocal.ExecuteClientCommand(cl, s, clientOk, premaprestart);
+    // don't allow another command for one second
+    cl->lastReliableTime = svs.time + 1000;
 
     cl->lastClientCommand = seq;
     Q_vsprintf_s(cl->lastClientCommandString,
                  sizeof(cl->lastClientCommandString), sizeof(cl->lastClientCommandString),
                  "%s", s);
 
-    return true; // continue procesing
+    serverClientLocal.ExecuteClientCommand(cl, s, clientOk, premaprestart);
+
+    // continue procesing
+    return true;
 }
 
 /*

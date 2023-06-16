@@ -187,7 +187,7 @@ void S_AdpcmGetSamples(sndBuffer *chunk, schar16 *to);
 #define SENTINEL_MULAW_ZERO_RUN 127
 #define SENTINEL_MULAW_FOUR_BIT_RUN 126
 
-void S_FreeOldestSound(void);
+bool S_FreeOldestSound(void);
 
 void encodeWavelet(sfx_t *sfx, schar16 *packets);
 void decodeWavelet(sndBuffer *stream, schar16 *packets);
