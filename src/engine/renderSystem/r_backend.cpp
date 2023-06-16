@@ -1374,7 +1374,7 @@ void RB_ShowImages(void) {
     start = clientRendererSystem->ScaledMilliseconds();
 
     for(i = 0 ; i < tr.numImages ; i++) {
-        image = tr.images[i];
+        image = &tr.images[i];
 
         w = static_cast<float32>(glConfig.vidWidth) / 20;
         h = static_cast<float32>(glConfig.vidHeight) / 15;

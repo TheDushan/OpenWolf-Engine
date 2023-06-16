@@ -115,7 +115,7 @@ void GL_TextureMode(const uint &mode) {
 
     // change all the existing mipmap texture objects
     for(sint i = 0; i < tr.numImages; i++) {
-        glt = tr.images[i];
+        glt = &tr.images[i];
 
         if(glt->flags & IMGFLAG_MIPMAP && !(glt->flags & IMGFLAG_CUBEMAP)) {
             qglTextureParameterfEXT(glt->texnum, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
@@ -160,8 +160,8 @@ sint R_SumOfUsedImages(void) {
     total = 0;
 
     for(i = 0; i < tr.numImages; i++) {
-        if(tr.images[i]->frameUsed == tr.frameCount) {
-            total += tr.images[i]->uploadWidth * tr.images[i]->uploadHeight;
+        if(tr.images[i].frameUsed == tr.frameCount) {
+            total += tr.images[i].uploadWidth * tr.images[i].uploadHeight;
         }
     }
 
@@ -181,7 +181,7 @@ void R_ImageList_f(void) {
                                     "\n      -w-- -h-- -type-- -size- --name-------\n");
 
     for(i = 0 ; i < tr.numImages ; i++) {
-        image_t *image = tr.images[i];
+        image_t *image = &tr.images[i];
         pointer format = "????   ";
         pointer sizeSuffix;
         sint estSize;
@@ -2087,7 +2087,7 @@ image_t *R_CreateImage2(pointer name, uchar8 *pic, sint width, sint height,
     image_t *image = nullptr;
     bool isLightmap = false, scaled = false;
     sint32 hash;
-    sint glWrapClampMode, mipWidth, mipHeight, miplevel;
+    sint glWrapClampMode, mipWidth, mipHeight, miplevel, i;
     bool rgba8 = picFormat == GL_RGBA8 || picFormat == GL_SRGB8_ALPHA8_EXT;
     bool mipmap = !!(flags & IMGFLAG_MIPMAP);
     bool cubemap = !!(flags & IMGFLAG_CUBEMAP);
@@ -2109,9 +2109,22 @@ image_t *R_CreateImage2(pointer name, uchar8 *pic, sint width, sint height,
         return nullptr;
     }
 
-    image = tr.images[tr.numImages] = reinterpret_cast<image_t *>
-                                      (memorySystem->Alloc(
-                                           sizeof(image_t), h_low));
+    for(i = 0; i < tr.numImages; i++) {
+        if(!tr.images[i].imgName[0]) {
+            // found a free image
+            break;
+        }
+    }
+
+    if(i == tr.numImages) {
+        if(tr.numImages == MAX_DRAWIMAGES) {
+            common->Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
+        } else {
+            tr.numImages++;
+        }
+    }
+
+    image = &tr.images[i];
     qglGenTextures(1, &image->texnum);
     tr.numImages++;
 
@@ -3250,7 +3263,7 @@ void R_DeleteTextures(void) {
     sint        i;
 
     for(i = 0; i < tr.numImages ; i++) {
-        qglDeleteTextures(1, &tr.images[i]->texnum);
+        qglDeleteTextures(1, &tr.images[i].texnum);
     }
 
     ::memset(tr.images, 0, sizeof(tr.images));

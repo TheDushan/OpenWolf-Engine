@@ -1761,7 +1761,7 @@ typedef struct {
     sint numModels;
 
     sint numImages;
-    image_t *images[MAX_DRAWIMAGES];
+    image_t images[MAX_DRAWIMAGES];
 
     sint numFBOs;
     FBO_t *fbos[MAX_FBOS];

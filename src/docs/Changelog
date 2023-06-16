@@ -1,6 +1,7 @@
 2023-06-16 Dusan Jocic <dusanjocic@msn>
 	* [SoundSystem] Returns false if the sound wasn't freed
 	* [Engine] Fixed rare 'bad command byte' error after executing a client command
+	* [RenderSystem] Statically allocated tr.images
 
 2023-05-28 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Rewrote va function
