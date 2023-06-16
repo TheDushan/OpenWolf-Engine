@@ -3,6 +3,7 @@
 	* [Engine] Fixed rare 'bad command byte' error after executing a client command
 	* [RenderSystem] Statically allocated tr.images
 	* [Engine] Fixed few memory leaks
+	* [Linux] Fixed compiling on the Linux platform
 
 2023-05-28 Dusan Jocic <dusanjocic@msn.com>
 	* [Engine] Rewrote va function

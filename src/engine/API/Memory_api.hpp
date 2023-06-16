@@ -44,9 +44,9 @@ class idMemorySystem {
 public:
     virtual void Free(void *ptr) = 0;
     virtual void FreeTags(memtag_t tag) = 0;
-    virtual void *Malloc(size_t size) = 0;
-    virtual void *TagMalloc(size_t size, memtag_t tag) = 0;
-    virtual void *SMalloc(size_t size) = 0;
+    virtual void *Malloc(uint64 size) = 0;
+    virtual void *TagMalloc(uint64 size, memtag_t tag) = 0;
+    virtual void *SMalloc(uint64 size) = 0;
     virtual void CheckHeap(void) = 0;
     virtual bool CheckMark(void) = 0;
     virtual void TouchMemory(void) = 0;
@@ -57,8 +57,8 @@ public:
     virtual void SetMark(void) = 0;
     virtual void ClearToMark(void) = 0;
     virtual void Clear(void) = 0;
-    virtual void *Alloc(size_t size, ha_pref preference) = 0;
-    virtual void *AllocateTempMemory(size_t size) = 0;
+    virtual void *Alloc(uint64 size, ha_pref preference) = 0;
+    virtual void *AllocateTempMemory(uint64 size) = 0;
     virtual void FreeTempMemory(void *buf) = 0;
     virtual void ClearTempMemory(void) = 0;
     virtual valueType *CopyString(pointer in) = 0;
