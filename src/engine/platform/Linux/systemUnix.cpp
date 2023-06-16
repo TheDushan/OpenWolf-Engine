@@ -175,7 +175,7 @@ valueType *idSystemLocal::SysGetClipboardData(void) {
 
     if((cliptext = SDL_GetClipboardText()) != nullptr) {
         if(cliptext[0] != '\0') {
-            size_t bufsize = strlen(cliptext) + 1;
+            uint64 bufsize = strlen(cliptext) + 1;
 
             data = (valueType *)memorySystem->Malloc(bufsize);
             Q_strncpyz(data, cliptext, bufsize);
@@ -1049,8 +1049,7 @@ idSystemLocal::SetEnv
 set/unset environment variables (empty value removes it)
 ==============
 */
-
-void idSystemLocal::SetEnv(pointer name, pointer value) {
+sint idSystemLocal::SetEnv(pointer name, pointer value) {
     if(value && *value) {
         setenv(name, value, 1);
     } else {

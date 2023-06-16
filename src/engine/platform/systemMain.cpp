@@ -274,6 +274,8 @@ void idSystemLocal::Exit(sint exitCode) {
     // Close the console
     consoleCursesSystem->Shutdown();
 
+    PlatformExit();
+
     // Shutdown SDL and quit
 #if !defined (DEDICATED)
     // Shutdown SDL and quit

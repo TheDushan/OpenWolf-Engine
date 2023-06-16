@@ -1036,7 +1036,7 @@ idCommonLocal::InitPushEvent
 void idCommonLocal::InitPushEvent(void) {
     // clear the static buffer array
     // this requires SYSE_NONE to be accepted as a valid but NOP event
-    memset(com_pushedEvents, 0, sizeof(com_pushedEvents));
+    ::memset(com_pushedEvents, 0, sizeof(com_pushedEvents));
     // reset counters while we are at it
     // beware: GetEvent might still return an SYSE_NONE from the buffer
     com_pushedEventsHead = 0;

@@ -39,7 +39,7 @@
 #define __MEMORY_HPP__
 
 #define MIN_DEDICATED_COMHUNKMEGS 64
-#define MIN_COMHUNKMEGS 64              // JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
+#define MIN_COMHUNKMEGS 128              // JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
 #define DEF_COMHUNKMEGS 512         // RF, increased this, some maps are exceeding 56mb 
 // JPW NERVE changed this for multiplayer back to 42, 56 for depot/mp_cpdepot, 42 for everything else
 #define DEF_COMZONEMEGS 64              // RF, increased this from 16, to account for botlib/AAS
@@ -205,7 +205,7 @@ typedef struct hunkblock_s {
     sint             line;
 } hunkblock_t;
 
-static struct {
+static struct t_hunk {
     hunkblock_t *blocks;
 
     uchar8 *mem, * original, * originalRaw;
@@ -239,9 +239,9 @@ public:
 
     virtual void Free(void *ptr);
     virtual void FreeTags(memtag_t tag);
-    virtual void *Malloc(size_t size);
-    virtual void *TagMalloc(size_t size, memtag_t tag);
-    virtual void *SMalloc(size_t size);
+    virtual void *Malloc(uint64 size);
+    virtual void *TagMalloc(uint64 size, memtag_t tag);
+    virtual void *SMalloc(uint64 size);
     virtual void CheckHeap(void) ;
     virtual bool CheckMark(void);
     virtual void TouchMemory(void);
@@ -252,8 +252,8 @@ public:
     virtual void SetMark(void);
     virtual void ClearToMark(void);
     virtual void Clear(void);
-    virtual void *Alloc(size_t size, ha_pref preference);
-    virtual void *AllocateTempMemory(size_t size);
+    virtual void *Alloc(uint64 size, ha_pref preference);
+    virtual void *AllocateTempMemory(uint64 size);
     virtual void FreeTempMemory(void *buf);
     virtual void ClearTempMemory(void);
     virtual valueType *CopyString(pointer in);

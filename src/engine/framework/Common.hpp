@@ -247,19 +247,10 @@ typedef struct {
 
 #define MAX_NUM_ARGVS   50
 
-#define MIN_DEDICATED_COMHUNKMEGS 64
-#define MIN_COMHUNKMEGS 64              // JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
-#define DEF_COMHUNKMEGS 512         // RF, increased this, some maps are exceeding 56mb 
-// JPW NERVE changed this for multiplayer back to 42, 56 for depot/mp_cpdepot, 42 for everything else
-#define DEF_COMZONEMEGS 64              // RF, increased this from 16, to account for botlib/AAS
-#define DEF_COMHUNKMEGS_S   XSTRING(DEF_COMHUNKMEGS)
-#define DEF_COMZONEMEGS_S   XSTRING(DEF_COMZONEMEGS)
-
 #define MAX_CONSOLE_LINES   32
 
 // bk001129 - here we go again: upped from 64
-// Dushan, 512
-#define MAX_PUSHED_EVENTS               512
+#define MAX_PUSHED_EVENTS 64
 // bk001129 - init, also static
 static sint com_pushedEventsHead = 0;
 static sint com_pushedEventsTail = 0;

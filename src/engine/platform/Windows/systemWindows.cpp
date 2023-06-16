@@ -54,6 +54,10 @@ extern "C" __declspec(dllexport) int AmdPowerXpressRequestHighPerformance =
     1;
 #endif
 
+#ifndef DEDICATED
+static uint timerResolution = 0;
+#endif
+
 /*
 ==================
 idSystemLocal::CtrlHandler
@@ -714,40 +718,52 @@ void idSystemLocal::GLimpInit(void) {
 
 /*
 ==============
-idSystemLocal::PlatformInit
-
-Windows specific initialisation
+idSystemLocal::resetTime
 ==============
 */
 void idSystemLocal::resetTime(void) {
     timeEndPeriod(1);
 }
 
+/*
+==============
+idSystemLocal::PlatformExit
+==============
+*/
+void idSystemLocal::PlatformExit(void) {
+#ifndef DEDICATED
+    if(timerResolution) {
+        timeEndPeriod(timerResolution);
+    }
+#endif
+}
+
+/*
+==============
+idSystemLocal::PlatformInit
+
+Windows specific initialisation
+==============
+*/
 void idSystemLocal::PlatformInit(void) {
 #ifndef DEDICATED
-    pointer SDL_VIDEODRIVER = getenv("SDL_VIDEODRIVER");
+    TIMECAPS ptc;
 #endif
 
     SetFloatEnv();
 
 #ifndef DEDICATED
-
-    if(SDL_VIDEODRIVER) {
-        common->Printf("SDL_VIDEODRIVER is externally set to \"%s\", "
-                       "in_mouse -1 will have no effect\n", SDL_VIDEODRIVER);
-        SDL_VIDEODRIVER_externallySet = true;
+    if(timeGetDevCaps(&ptc, sizeof(ptc)) == MMSYSERR_NOERROR) {
+        timerResolution = ptc.wPeriodMin;
+        if(timerResolution > 1) {
+            common->Printf("Warning: Minimum supported timer resolution is %ums "
+                           "on this system, recommended resolution 1ms\n", timerResolution);
+        }
+        timeBeginPeriod(timerResolution);
     } else {
-        SDL_VIDEODRIVER_externallySet = false;
+        timerResolution = 0;
     }
-
 #endif
-
-    // Handle Ctrl-C or other console termination
-    SetConsoleCtrlHandler(CtrlHandler, TRUE);
-
-    // Increase sleep resolution
-    timeBeginPeriod(1);
-    atexit(resetTime);
 }
 
 /*
@@ -757,8 +773,17 @@ idSystemLocal::SetEnv
 set/unset environment variables (empty value removes it)
 ==============
 */
-void idSystemLocal::SetEnv(pointer name, pointer value) {
-    _putenv(va(nullptr, "%s=%s", name, value));
+sint idSystemLocal::SetEnv(pointer name, pointer value) {
+    const uint64 n = ::strlen(name) + ::strlen(value) + 2;
+    valueType* str = static_cast<valueType*>(::malloc(n));
+
+    ::strcat(strcat(strcpy(str, name), "="), value);
+    if (::putenv(str))
+    {
+        return 0;
+    }
+
+    return SetEnvironmentVariable(name, value);
 }
 
 /*

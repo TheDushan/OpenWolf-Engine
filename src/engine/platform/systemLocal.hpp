@@ -180,8 +180,9 @@ public:
                                   valueType *filter, valueType **list, sint *numfiles);
     static void ErrorDialog(pointer error);
     static void resetTime(void);
+    static void PlatformExit(void);
     static void PlatformInit(void);
-    static void SetEnv(pointer name, pointer value);
+    static sint SetEnv(pointer name, pointer value);
     static sint PID(void);
     static bool PIDIsRunning(sint pid);
     static void DoStartProcess(valueType *cmdline);

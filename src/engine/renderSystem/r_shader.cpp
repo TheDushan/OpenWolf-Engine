@@ -2180,7 +2180,7 @@ static bool ParseShader(pointer name, valueType **text) {
         }
         // sunShader <shader> [scale]
         else if(!Q_stricmp(token, "sunshader")) {
-            size_t tokenLen;
+            uint64 tokenLen;
 
             token = COM_ParseExt2(text, false);
 

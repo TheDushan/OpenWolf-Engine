@@ -30,7 +30,7 @@
 
 #include <framework/precompiled.hpp>
 
-#define DEF_COMSOUNDMEGS "160"
+#define DEF_COMSOUNDMEGS "32"
 
 /*
 ===============================================================================
@@ -93,34 +93,29 @@ void SND_shutdown(void) {
 SND_setup
 ===============
 */
-void SND_setup() {
-    sndBuffer *p, *q;
-    convar_t *cv;
+void SND_setup(void) {
+    sndBuffer* p, * q;
+    convar_t* cv;
     sint scs;
 
     cv = cvarSystem->Get("com_soundMegs", DEF_COMSOUNDMEGS,
-                         CVAR_LATCH | CVAR_ARCHIVE,
-                         "Sets the amount of memory (MB) to allocate for loaded sound files");
+        CVAR_LATCH | CVAR_ARCHIVE,
+        "Sets the amount of memory (MB) to allocate for loaded sound files");
 
-    scs = (cv->integer * 1536);
+    inUse = cv->integer * 1024 * 1024;
+    scs = inUse / sizeof(sndBuffer);
 
-    buffer = static_cast<sndBuffer *>(::malloc(scs * sizeof(sndBuffer)));
-
+    buffer = static_cast<sndBuffer*>(::malloc(scs * sizeof(sndBuffer)));
     // allocate the stack based hunk allocator
-    sfxScratchBuffer = static_cast<schar16 *>(malloc(SND_CHUNK_SIZE * sizeof(
-                           schar16) *
-                       4));    //memorySystem->Alloc(SND_CHUNK_SIZE * sizeof(schar16) * 4);
+    sfxScratchBuffer = static_cast<schar16*>(::malloc(SND_CHUNK_SIZE * sizeof(schar16) * 4));
     sfxScratchPointer = nullptr;
 
-    inUse = scs * sizeof(sndBuffer);
-    p = buffer;;
+    p = buffer;
     q = p + scs;
+    while (--q > p)
+        *(sndBuffer**)q = q - 1;
 
-    while(--q > p) {
-        *(sndBuffer **)q = q - 1;
-    }
-
-    *(sndBuffer **)q = nullptr;
+    *(sndBuffer**)q = nullptr;
     freelist = p + scs - 1;
 
     common->Printf("Sound memory manager started\n");

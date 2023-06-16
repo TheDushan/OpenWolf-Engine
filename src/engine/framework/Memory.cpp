@@ -205,7 +205,7 @@ void idMemorySystemLocal::FreeTags(memtag_t tag) {
 idMemorySystemLocal::TagMalloc
 ================
 */
-void *idMemorySystemLocal::TagMalloc(size_t size, memtag_t tag) {
+void *idMemorySystemLocal::TagMalloc(uint64 size, memtag_t tag) {
     sint allocSize;
     sint64 extra;
     memblock_t *start, * rover, * _new, * base;
@@ -289,7 +289,7 @@ void *idMemorySystemLocal::TagMalloc(size_t size, memtag_t tag) {
 idMemorySystemLocal::Malloc
 ========================
 */
-void *idMemorySystemLocal::Malloc(size_t size) {
+void *idMemorySystemLocal::Malloc(uint64 size) {
     void *buf;
 
     buf = TagMalloc(size, TAG_GENERAL);
@@ -303,7 +303,7 @@ void *idMemorySystemLocal::Malloc(size_t size) {
 idMemorySystemLocal::SMalloc
 ========================
 */
-void *idMemorySystemLocal::SMalloc(size_t size) {
+void *idMemorySystemLocal::SMalloc(uint64 size) {
     return TagMalloc(size, TAG_SMALL);
 }
 
@@ -593,7 +593,6 @@ void idMemorySystemLocal::InitZoneMemory(void) {
     }
 
     ClearZone(mainzone, s_zoneTotal);
-
 }
 
 /*
@@ -639,7 +638,7 @@ void idMemorySystemLocal::InitHunkMemory(void) {
     }
 
     // bk001205 - was malloc
-    s_hunk.originalRaw = static_cast<uchar8 *>(calloc(s_hunk.memSize + 63, 1));
+    s_hunk.originalRaw = static_cast<uchar8 *>(::calloc(s_hunk.memSize + 63, 1));
 
     if(!s_hunk.originalRaw) {
         common->Error(ERR_FATAL, "Hunk data failed to allocate %i megs",
@@ -740,7 +739,7 @@ idMemorySystemLocal::Alloc
 Allocate permanent (until the hunk is cleared) memory
 =================
 */
-void *idMemorySystemLocal::Alloc(size_t size, ha_pref preference) {
+void *idMemorySystemLocal::Alloc(uint64 size, ha_pref preference) {
     void *buf;
 
     if(s_hunk.mem == nullptr) {
@@ -783,7 +782,7 @@ Multiple files can be loaded in temporary memory.
 When the files-in-use count reaches zero, all temp memory will be deleted
 =================
 */
-void *idMemorySystemLocal::AllocateTempMemory(size_t size) {
+void *idMemorySystemLocal::AllocateTempMemory(uint64 size) {
     void *buf;
     hunkHeader_t *hdr;
 

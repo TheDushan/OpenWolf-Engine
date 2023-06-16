@@ -866,6 +866,10 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
 
     clc.connectPacketCount = 0;
 
+    if(cls.cgameStarted) {
+        clientMainSystem->FlushMemory();
+    }
+
     // wipe local client state
     clientMainSystem->ClearState();
 
