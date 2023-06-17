@@ -486,6 +486,20 @@ void idServerSnapshotSystemLocal::AddEntitiesVisibleFromPoint(
             }
         }
 
+#if defined (DEDICATED)
+
+        if(ent->s.eType >= ET_EVENTS) {
+            sint eventNumber = 0;
+            eventNumber = (ent->s.eType - ET_EVENTS) & ~EV_EVENT_BITS;
+
+            if(eventNumber == EV_JUMP || eventNumber == EV_SWIM ||
+                    eventNumber == EV_FOOTSTEP) {
+                continue;
+            }
+        }
+
+#endif
+
         svEnt = serverGameSystem->SvEntityForGentity(ent);
 
         // don't double add an entity through portals
