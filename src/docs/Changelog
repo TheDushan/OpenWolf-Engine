@@ -4,6 +4,7 @@
 	* [Engine] Block all movement-triggered event entities, these should always be on a player
 	* [Engine] Cleaned server hibernation
 	* [Engine] Fixed compiling
+	* [Engine] Misc fixes
 	
 2023-06-16 Dusan Jocic <dusanjocic@msn>
 	* [SoundSystem] Returns false if the sound wasn't freed

@@ -386,7 +386,7 @@ void idServerMainSystemLocal::MasterGameCompleteStatus(void) {
 
     // send to group masters
     for(i = 0 ; i < MAX_MASTER_SERVERS ; i++) {
-        if(!sv_master[i]->string[0]) {
+        if (!sv_master[i] || !sv_master[i]->string[0]) {
             continue;
         }
 
