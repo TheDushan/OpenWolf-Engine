@@ -40,9 +40,6 @@
 
 static sint g_console_field_width = 78;
 
-#define CONSOLE_COLOR '7'
-#define DEFAULT_CONSOLE_WIDTH   78
-
 static pointer conTabsNames[NUMBER_TABS] = {
     "All Chat",
     "System Chat",
@@ -89,7 +86,7 @@ public:
     virtual void Copy(void);
     virtual void CopyLink(void);
 
-public:
+private:
     static void ToggleConsole(void);
     static void ToggleMenu_f(void);
     static void Clear_f(void);
@@ -110,6 +107,11 @@ public:
     static void DrawInput(void);
     static void DrawNotify(void);
     static void DrawSolidConsole(float32 frac);
+
+protected:
+    static const sint CONSOLE_COLOR = '7';
+    static const sint DEFAULT_CONSOLE_WIDTH = 78;
+    static const sint TIMESTAMP_LENGTH = 9;
 };
 
 extern idClientConsoleSystemLocal clientConsoleLocal;

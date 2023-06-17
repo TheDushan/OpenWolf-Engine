@@ -744,9 +744,10 @@ gotnewcl:
 
 #endif
 
-    cvarSystem->SetValue("sv_fps", svs.hibernation.sv_fps);
-    svs.hibernation.enabled = false;
-    common->Printf("Server restored from hibernation\n");
+    if(svs.hibernation.enabled) {
+        svs.hibernation.enabled = false;
+        common->Printf("Server restored from hibernation\n");
+    }
 
     UserinfoChanged(newcl);
 
@@ -929,12 +930,13 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
     // send a heartbeat now so the master will get up to date info
     // if there is already a slot for this ip, reuse it
 
-    sint players = 0;
+    bool players = false;
 
     for(i = 0; i < sv_maxclients->integer; i++) {
         if(svs.clients[i].state >= CS_CONNECTED &&
                 svs.clients[i].netchan.remoteAddress.type != NA_BOT) {
-            players++;
+            players = true;
+            break;
         }
     }
 
@@ -948,7 +950,7 @@ void idServerClientSystemLocal::DropClient(client_t *drop,
         serverCcmdsLocal.Heartbeat_f();
     }
 
-    if(players == 0) {
+    if(!players) {
         svs.hibernation.lastTimeDisconnected = idsystem->Milliseconds();
     }
 }

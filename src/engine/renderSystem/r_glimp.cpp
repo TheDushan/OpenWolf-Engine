@@ -122,7 +122,7 @@ static sint GLimp_CompareModes(const void *a, const void *b) {
 GLimp_DetectAvailableModes
 ===============
 */
-static void GLimp_DetectAvailableModes(void) {
+static bool GLimp_DetectAvailableModes(void) {
     sint i, j;
     valueType buf[ MAX_STRING_CHARS ] = { 0 };
     sint numSDLModes;
@@ -136,7 +136,7 @@ static void GLimp_DetectAvailableModes(void) {
         clientRendererSystem->RefPrintf(PRINT_WARNING,
                                         "Couldn't get window display index, no resolutions detected: %s\n",
                                         SDL_GetError());
-        return;
+        return false;
     }
 
     numSDLModes = SDL_GetNumDisplayModes(display);
@@ -146,7 +146,7 @@ static void GLimp_DetectAvailableModes(void) {
         clientRendererSystem->RefPrintf(PRINT_WARNING,
                                         "Couldn't get window display mode, no resolutions detected: %s\n",
                                         SDL_GetError());
-        return;
+        return false;
     }
 
     modes = (SDL_Rect *)SDL_calloc(static_cast<uint64>(numSDLModes),
@@ -167,7 +167,7 @@ static void GLimp_DetectAvailableModes(void) {
             clientRendererSystem->RefPrintf(PRINT_ALL,
                                             "Display supports any resolution\n");
             SDL_free(modes);
-            return;
+            return true;
         }
 
         if(windowMode.format != mode.format) {
@@ -214,6 +214,7 @@ static void GLimp_DetectAvailableModes(void) {
     }
 
     SDL_free(modes);
+    return true;
 }
 
 /*
@@ -759,7 +760,15 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
         return RSERR_INVALID_MODE;
     }
 
-    GLimp_DetectAvailableModes();
+    SDL_FreeSurface(icon);
+
+    if(fullscreen && !GLimp_DetectAvailableModes()) {
+        return RSERR_UNKNOWN;
+    }
+
+    // fix mouse when unfocused/minimized
+    SDL_MinimizeWindow(SDL_window);
+    SDL_RestoreWindow(SDL_window);
 
     glstring = (valueType *)qglGetString(GL_RENDERER);
     clientRendererSystem->RefPrintf(PRINT_ALL, "GL_RENDERER: %s\n", glstring);

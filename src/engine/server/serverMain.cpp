@@ -348,11 +348,12 @@ void idServerMainSystemLocal::MasterHeartbeat(pointer hbname) {
             continue;
         }
 
-        common->Printf("Sending heartbeat to %s\n", master);
+        if(developer->integer) {
+            common->Printf("Sending heartbeat to %s\n", master);
+        }
 
         // this command should be changed if the server info / status format
         // ever incompatably changes
-
         if((netenabled & NET_ENABLEV4) && adr[i][0].type != NA_BAD) {
             networkChainSystem->OutOfBandPrint(NS_SERVER, adr[i][0], "heartbeat %s\n",
                                                hbname);
@@ -1659,12 +1660,14 @@ void idServerMainSystemLocal::Frame(sint msec) {
     }
 
     if(svs.initialized && svs.gameStarted) {
-        sint i = 0, players = 0;
+        sint i = 0;
+        bool players = false;
 
         for(i = 0; i < sv_maxclients->integer; i++) {
             if(svs.clients[i].state >= CS_CONNECTED &&
                     svs.clients[i].netchan.remoteAddress.type != NA_BOT) {
-                players++;
+                players = true;
+                break;
             }
         }
 
@@ -1674,8 +1677,6 @@ void idServerMainSystemLocal::Frame(sint msec) {
                                 svs.hibernation.lastTimeDisconnected;
 
             if(elapsed_time >= sv_hibernateTime->integer) {
-                cvarSystem->Set("sv_fps", "1");
-                sv_fps->value = svs.hibernation.sv_fps;
                 svs.hibernation.enabled = true;
                 common->Printf("Server switched to hibernation mode\n");
             }
@@ -1709,7 +1710,11 @@ void idServerMainSystemLocal::Frame(sint msec) {
         cvarSystem->Set("sv_fps", "10");
     }
 
-    frameMsec = 1000 / sv_fps->integer;
+    if(svs.hibernation.enabled) {
+        frameMsec = 1000 / 2;
+    } else {
+        frameMsec = 1000 / sv_fps->integer;
+    }
 
     sv.timeResidual += msec;
 

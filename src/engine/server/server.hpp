@@ -512,9 +512,8 @@ typedef struct serverStatic_s {
     netadr_t authorizeAddress;
 
     struct {
-        bool enabled;
+        bool enabled = true;
         sint lastTimeDisconnected;
-        float32 sv_fps;
     } hibernation;
 
     bool            gameStarted;

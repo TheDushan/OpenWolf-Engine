@@ -225,10 +225,6 @@ void idClientConsoleCommandsSystemLocal::Vid_Restart_f(void) {
     // startup all the client stuff
     clientMainSystem->StartHunkUsers(false);
 
-#ifdef _WIN32
-    idsystem->Restart_f();
-#endif
-
     // start the cgame if connected
     if(cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC) {
         cls.cgameStarted = true;

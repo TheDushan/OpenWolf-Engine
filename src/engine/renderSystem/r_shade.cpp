@@ -135,6 +135,8 @@ static void DrawTris(shaderCommands_t *input) {
     }
 
     qglDepthRange(0, 1);
+
+    GL_State(GLS_DEFAULT);
 }
 
 
