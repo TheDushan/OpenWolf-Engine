@@ -732,9 +732,11 @@ idSystemLocal::PlatformExit
 */
 void idSystemLocal::PlatformExit(void) {
 #ifndef DEDICATED
+
     if(timerResolution) {
         timeEndPeriod(timerResolution);
     }
+
 #endif
 }
 
@@ -753,16 +755,20 @@ void idSystemLocal::PlatformInit(void) {
     SetFloatEnv();
 
 #ifndef DEDICATED
+
     if(timeGetDevCaps(&ptc, sizeof(ptc)) == MMSYSERR_NOERROR) {
         timerResolution = ptc.wPeriodMin;
+
         if(timerResolution > 1) {
             common->Printf("Warning: Minimum supported timer resolution is %ums "
                            "on this system, recommended resolution 1ms\n", timerResolution);
         }
+
         timeBeginPeriod(timerResolution);
     } else {
         timerResolution = 0;
     }
+
 #endif
 }
 
@@ -775,11 +781,11 @@ set/unset environment variables (empty value removes it)
 */
 sint idSystemLocal::SetEnv(pointer name, pointer value) {
     const uint64 n = ::strlen(name) + ::strlen(value) + 2;
-    valueType* str = static_cast<valueType*>(::malloc(n));
+    valueType *str = static_cast<valueType *>(::malloc(n));
 
     ::strcat(strcat(strcpy(str, name), "="), value);
-    if (::putenv(str))
-    {
+
+    if(::putenv(str)) {
         return 0;
     }
 

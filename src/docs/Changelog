@@ -1,3 +1,6 @@
+2023-06-17 Dusan Jocic <dusanjocic@msn>
+	* [Engine] Misc fixes
+
 2023-06-16 Dusan Jocic <dusanjocic@msn>
 	* [SoundSystem] Returns false if the sound wasn't freed
 	* [Engine] Fixed rare 'bad command byte' error after executing a client command

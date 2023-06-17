@@ -698,22 +698,6 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
                                                     "GLimp_GetProcAddresses() failed for OpenGL 3.2 core context\n");
                     renderer = nullptr;
                 }
-
-                if(!renderer || (strstr(renderer, "Software Renderer") ||
-                                 strstr(renderer, "Software Rasterizer"))) {
-                    if(renderer) {
-                        clientRendererSystem->RefPrintf(PRINT_ALL,
-                                                        "GL_RENDERER is %s, rejecting context\n", renderer);
-                    }
-
-                    GLimp_ClearProcAddresses();
-                    SDL_GL_DeleteContext(SDL_glContext);
-                    SDL_glContext = nullptr;
-
-                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, profileMask);
-                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, majorVersion);
-                    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion);
-                }
             }
         } else {
             SDL_glContext = nullptr;
@@ -779,9 +763,6 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
 
     glstring = (valueType *)qglGetString(GL_RENDERER);
     clientRendererSystem->RefPrintf(PRINT_ALL, "GL_RENDERER: %s\n", glstring);
-
-    SDL_MinimizeWindow(SDL_window);
-    SDL_RestoreWindow(SDL_window);
 
     return RSERR_OK;
 }

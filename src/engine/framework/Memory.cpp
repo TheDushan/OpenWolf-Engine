@@ -631,18 +631,21 @@ void idMemorySystemLocal::InitHunkMemory(void) {
     }
 
     if(cv->integer < nMinAlloc) {
-        s_hunk.memSize = 1024 * 1024 * nMinAlloc;
-        common->Printf(pMsg, nMinAlloc, s_hunk.memSize / (1024 * 1024));
+        s_hunk.memSize = static_cast<uint64>(1024) * 1024 * static_cast<uint64>
+                         (nMinAlloc);
+        common->Printf(pMsg, nMinAlloc,
+                       s_hunk.memSize / (static_cast<uint64>(1024) * 1024));
     } else {
-        s_hunk.memSize = cv->integer * 1024 * 1024;
+        s_hunk.memSize = static_cast<uint64>(cv->integer) * 1024 * 1024;
     }
 
     // bk001205 - was malloc
-    s_hunk.originalRaw = static_cast<uchar8 *>(::calloc(s_hunk.memSize + 63, 1));
+    s_hunk.originalRaw = static_cast<uchar8 *>(::calloc(s_hunk.memSize + 63,
+                         1));
 
     if(!s_hunk.originalRaw) {
         common->Error(ERR_FATAL, "Hunk data failed to allocate %i megs",
-                      s_hunk.memSize / (1024 * 1024));
+                      s_hunk.memSize / (static_cast<uint64>(1024) * 1024));
     }
 
     // cacheline align
