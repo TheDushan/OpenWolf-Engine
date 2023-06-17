@@ -1189,7 +1189,6 @@ void idCommonLocal::InitCommonConsoleVars(void) {
 
     sv_hibernateTime = cvarSystem->Get("sv_hibernateTime", "0", CVAR_ARCHIVE,
                                        "Switches the server to a hibernation mode in which it uses less CPU power when no player is connected. The value is the time in milliseconds after which it automatically switches to the said state when the last player disconnected from the server. The value zero disables hibernation mode.");
-    svs.hibernation.sv_fps = sv_fps->value;
 
     // oacs extended recording variables
     sv_oacsEnable = cvarSystem->Get("sv_oacsEnable", "0", CVAR_ARCHIVE,

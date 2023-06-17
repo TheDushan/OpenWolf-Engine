@@ -2675,7 +2675,6 @@ void idServerClientSystemLocal::UserMove(client_t *cl, msg_t *msg,
         cl->frames[cl->messageAcknowledge & PACKET_MASK].messageAcked = svs.time;
     }
 
-
     // TTimo
     // catch the no-cp-yet situation before SV_ClientEnterWorld
     // if CS_ACTIVE, then it's time to trigger a new gamestate emission
