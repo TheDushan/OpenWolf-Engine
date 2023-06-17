@@ -365,6 +365,10 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
 #endif
     bool reconnect = false, authed;
     user_t *user;
+    connections_t *connect = &svs.connects[0];
+    sint oldest = 0;
+    sint oldestTime = 0x7fffffff;
+    sint connectPacks = 1;
 
     if(developer->integer) {
         common->Printf("idServerClientSystemLocal::DirectConnect ()\n");
@@ -501,6 +505,31 @@ void idServerClientSystemLocal::DirectConnect(netadr_t from) {
                                ping);
             }
         }
+
+        for(i = 0; i < MAXCONNECTIONS; i++, connect++) {
+            if(networkSystem->CompareBaseAdr(from, connect->adr) &&
+                    connect->time + 2000 > svs.time) {
+                connectPacks++;
+            }
+
+            if(connect->time < oldestTime) {
+                oldestTime = connect->time;
+                oldest = i;
+            }
+        }
+
+        if(connectPacks > 12) {
+            if(developer->integer) {
+                common->Printf("Ignoring connect packet from %s, seems to be spamming\n",
+                               networkSystem->AdrToStringwPort(from));
+            }
+
+            return;
+        }
+
+        connect = &svs.connects[oldest];
+        connect->adr = from;
+        connect->time = svs.time;
 
         svs.challenges[i].connected = true;
 

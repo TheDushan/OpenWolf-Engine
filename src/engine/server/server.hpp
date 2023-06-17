@@ -471,6 +471,13 @@ typedef struct tempBan_s {
 #define SERVER_PERFORMANCECOUNTER_FRAMES    600
 #define SERVER_PERFORMANCECOUNTER_SAMPLES   6
 
+#define MAXCONNECTIONS 256
+
+typedef struct connections_s {
+    netadr_t adr;
+    sint time;
+} connections_t;
+
 // this structure will be cleared only when the game dll changes
 typedef struct serverStatic_s {
     bool        initialized;    // sv_init has completed
@@ -511,6 +518,7 @@ typedef struct serverStatic_s {
     } hibernation;
 
     bool            gameStarted;
+    connections_t   connects[MAXCONNECTIONS];
 } serverStatic_t;
 
 #if defined (UPDATE_SERVER)
