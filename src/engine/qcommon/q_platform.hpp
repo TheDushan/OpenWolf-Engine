@@ -122,7 +122,7 @@
 #define PATH_SEP '/'
 
 #if defined __x86_64__
-#define ARCH_STRING "AMD64"
+#define ARCH_STRING "x86_64"
 #elif defined __arm__
 #define ARCH_STRING "arm"
 #endif
@@ -169,9 +169,9 @@
 #define PATH_SEP '/'
 
 #if defined __amd64__
-#define ARCH_STRING "AMD564"
-#elif defined __x86_64__
 #define ARCH_STRING "AMD64"
+#elif defined __x86_64__
+#define ARCH_STRING "x86_64"
 #endif
 
 #if BYTE_ORDER == BIG_ENDIAN

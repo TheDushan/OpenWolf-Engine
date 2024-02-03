@@ -41,7 +41,14 @@
 #include <stdexcept>
 
 int main(int argc, char **argv) {
-    const std::string dynName = "engine.AMD64.dll";
+    const std::string dynName;
+    #if defined (_WIN32)
+        dynName = "engine.AMD64.dll";
+    #elif defined (__LINUX__)
+        dynName = "./engine.x86_64.so";
+    #else
+        dynName = "./engine.x86_64.dylib";
+    #endif
     const std::string engineExportName = "engineMain";
 
     SDL_Init(0);
