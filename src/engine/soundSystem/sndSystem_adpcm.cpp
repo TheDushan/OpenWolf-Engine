@@ -61,7 +61,7 @@ void S_AdpcmEncode(schar16 indata[], valueType outdata[], sint len,
                    struct adpcm_state *state) {
     schar16 *inp;
     schar8 *outp;
-    sint val, sign, delta, diff, step, valpred, vpdiff, index, outputbuffer,
+    sint val, sign, _delta, diff, step, valpred, vpdiff, index, outputbuffer,
          bufferstep;
 
     outp = reinterpret_cast<schar8 *>(outdata);
@@ -88,17 +88,17 @@ void S_AdpcmEncode(schar16 indata[], valueType outdata[], sint len,
         /* Step 2 - Divide and clamp */
         /* Note:
         ** This code *approximately* computes:
-        **    delta = diff*4/step;
-        **    vpdiff = (delta+0.5)*step/4;
+        **    _delta = diff*4/step;
+        **    vpdiff = (_delta+0.5)*step/4;
         ** but in shift step bits are dropped. The net result of this is
         ** that even if you have fast mul/div hardware you cannot put it to
         ** good use since the fixup would be too expensive.
         */
-        delta = 0;
+        _delta = 0;
         vpdiff = (step >> 3);
 
         if(diff >= step) {
-            delta = 4;
+            _delta = 4;
             diff -= step;
             vpdiff += step;
         }
@@ -106,7 +106,7 @@ void S_AdpcmEncode(schar16 indata[], valueType outdata[], sint len,
         step >>= 1;
 
         if(diff >= step) {
-            delta |= 2;
+            _delta |= 2;
             diff -= step;
             vpdiff += step;
         }
@@ -114,7 +114,7 @@ void S_AdpcmEncode(schar16 indata[], valueType outdata[], sint len,
         step >>= 1;
 
         if(diff >= step) {
-            delta |= 1;
+            _delta |= 1;
             vpdiff += step;
         }
 
@@ -133,9 +133,9 @@ void S_AdpcmEncode(schar16 indata[], valueType outdata[], sint len,
         }
 
         /* Step 5 - Assemble value, update index and step values */
-        delta |= sign;
+        _delta |= sign;
 
-        index += indexTable[delta];
+        index += indexTable[_delta];
 
         if(index < 0) {
             index = 0;
@@ -149,9 +149,9 @@ void S_AdpcmEncode(schar16 indata[], valueType outdata[], sint len,
 
         /* Step 6 - Output value */
         if(bufferstep) {
-            outputbuffer = (delta << 4) & 0xf0;
+            outputbuffer = (_delta << 4) & 0xf0;
         } else {
-            *outp++ = (delta & 0x0f) | outputbuffer;
+            *outp++ = (_delta & 0x0f) | outputbuffer;
         }
 
         bufferstep = !bufferstep;
@@ -174,7 +174,7 @@ S_AdpcmDecode
 void S_AdpcmDecode(const valueType indata[], schar16 *outdata, sint len,
                    struct adpcm_state *state) {
     schar8 *inp;
-    sint outp, sign, delta, step, valpred, vpdiff, index, inputbuffer,
+    sint outp, sign, _delta, step, valpred, vpdiff, index, inputbuffer,
          bufferstep;
 
     outp = 0;
@@ -189,18 +189,18 @@ void S_AdpcmDecode(const valueType indata[], schar16 *outdata, sint len,
 
     for(; len > 0 ; len--) {
 
-        /* Step 1 - get the delta value */
+        /* Step 1 - get the _delta value */
         if(bufferstep) {
-            delta = inputbuffer & 0xf;
+            _delta = inputbuffer & 0xf;
         } else {
             inputbuffer = *inp++;
-            delta = (inputbuffer >> 4) & 0xf;
+            _delta = (inputbuffer >> 4) & 0xf;
         }
 
         bufferstep = !bufferstep;
 
         /* Step 2 - Find new index value (for later) */
-        index += indexTable[delta];
+        index += indexTable[_delta];
 
         if(index < 0) {
             index = 0;
@@ -211,25 +211,25 @@ void S_AdpcmDecode(const valueType indata[], schar16 *outdata, sint len,
         }
 
         /* Step 3 - Separate sign and magnitude */
-        sign = delta & 8;
-        delta = delta & 7;
+        sign = _delta & 8;
+        _delta = _delta & 7;
 
         /* Step 4 - Compute difference and new predicted value */
         /*
-        ** Computes 'vpdiff = (delta+0.5)*step/4', but see comment
+        ** Computes 'vpdiff = (_delta+0.5)*step/4', but see comment
         ** in adpcm_coder.
         */
         vpdiff = step >> 3;
 
-        if(delta & 4) {
+        if(_delta & 4) {
             vpdiff += step;
         }
 
-        if(delta & 2) {
+        if(_delta & 2) {
             vpdiff += step >> 1;
         }
 
-        if(delta & 1) {
+        if(_delta & 1) {
             vpdiff += step >> 2;
         }
 

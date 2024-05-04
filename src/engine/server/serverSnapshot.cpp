@@ -1139,6 +1139,16 @@ void idServerSnapshotSystemLocal::SendClientMessages(void) {
             continue;
         }
 
+        if(!IsValidClientSnapshot(c)) {
+            // not valid snapshot
+            continue;
+        }
+
+        // Client is downloading, don't send snapshots
+        if(*c->downloadName) {
+            continue;
+        }
+
         // rain - changed <= CS_ZOMBIE to < CS_ZOMBIE so that the
         // disconnect reason is properly sent in the network stream
         if(c->state < CS_ZOMBIE) {
@@ -1247,4 +1257,29 @@ void idServerSnapshotSystemLocal::CheckClientUserinfoTimer(void) {
             serverClientLocal.UpdateUserinfo_f(cl);
         }
     }
+}
+
+/*
+=======================
+idServerSnapshotSystemLocal::IsValidClientSnapshot
+=======================
+*/
+bool idServerSnapshotSystemLocal::IsValidClientSnapshot(client_t *client) {
+    if(client->deltaMessage <= 0) {
+        return true;
+    }
+
+    if(client->state != CS_ACTIVE) {
+        return true;
+    }
+
+    if(client->lastPacketTime >= svs.time) {
+        return true;
+    }
+
+    if(client->netchan.outgoingSequence - client->deltaMessage < 29) {
+        return true;
+    }
+
+    return false;
 }

@@ -76,6 +76,7 @@ public:
     static sint RateMsec(client_t *client, sint messageSize);
     static bool UpdateServerCommandsToClients(client_t *client, msg_t *msg,
             bool allowPartial);
+    static bool IsValidClientSnapshot(client_t *client);
 };
 
 extern idServerSnapshotSystemLocal serverSnapshotSystemLocal;
