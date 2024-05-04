@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Copyright(C) 2019 - 2023 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2019 - 2024 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -41,7 +41,7 @@
 #include <stdexcept>
 
 int main(int argc, char **argv) {
-    const std::string dynName;
+    std::string dynName;
     #if defined (_WIN32)
         dynName = "engine.AMD64.dll";
     #elif defined (__LINUX__)
