@@ -257,8 +257,7 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
 
 
     if(com_errorEntered) {
-        if (!calledSysError)
-        {
+        if(!calledSysError) {
             calledSysError = true;
             idsystem->Error("recursive error after: %s", com_errorMessage);
         }
