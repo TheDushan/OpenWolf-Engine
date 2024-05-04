@@ -255,8 +255,13 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
     static bool calledSysError = false;
     sint currentTime;
 
+
     if(com_errorEntered) {
-        idsystem->Error("recursive error after: %s", com_errorMessage);
+        if (!calledSysError)
+        {
+            calledSysError = true;
+            idsystem->Error("recursive error after: %s", com_errorMessage);
+        }
     }
 
     com_errorEntered = true;
@@ -289,9 +294,12 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
     Q_vsprintf_s(com_errorMessage, sizeof(com_errorMessage), fmt, argptr);
     va_end(argptr);
 
+    cmdBufferSystem->Init();
+
     switch(code) {
         case ERR_SERVERDISCONNECT: {
             serverInitSystem->Shutdown("Server disconnected");
+            common->EndRedirect();
 
 #ifndef DEDICATED
             clientConsoleCommandSystem->Disconnect(true, nullptr);
@@ -309,6 +317,7 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
 
             serverInitSystem->Shutdown(va(nullptr, "Server crashed: %s\n",
                                           com_errorMessage));
+            common->EndRedirect();
             idsystem->WriteDump("Debug Dump\nCom_Error: %s", com_errorMessage);
 #ifndef DEDICATED
             clientConsoleCommandSystem->Disconnect(true, "Server crashed");
@@ -323,6 +332,7 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
 
         case ERR_AUTOUPDATE: {
             serverInitSystem->Shutdown("Autoupdate server disconnected");
+            common->EndRedirect();
 
 #ifndef DEDICATED
             clientConsoleCommandSystem->Disconnect(true, "Autoupdate server crashed");
@@ -348,6 +358,7 @@ void idCommonLocal::Error(errorParm_t code, pointer fmt, ...) {
 #endif
             serverInitSystem->Shutdown(va(nullptr, "Server fatal crashed: %s\n",
                                           com_errorMessage));
+            common->EndRedirect();
         }
     }
 

@@ -716,6 +716,7 @@ void idServerMainSystemLocal::Info(netadr_t from) {
     // echo back the parameter to status. so servers can use it as a challenge
     // to prevent timed spoofed reply packets that add ghost servers
     Info_SetValueForKey(infostring, "challenge", cmdSystem->Argv(1));
+    Info_SetValueForKey(infostring, "version", PRODUCT_VERSION);
     Info_SetValueForKey(infostring, "protocol", va(nullptr, "%i",
                         com_protocol->integer));
     Info_SetValueForKey(infostring, "hostname", sv_hostname->string);

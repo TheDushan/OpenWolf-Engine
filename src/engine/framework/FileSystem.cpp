@@ -3726,7 +3726,7 @@ void idFileSystemLocal::Shutdown(bool closemfp) {
         cmdSystem->RemoveCommand("fs_restart");
     }
 
-    if(closemfp) {
+    if (fs_missing->integer && missingFiles) {
         fclose(missingFiles);
     }
 }

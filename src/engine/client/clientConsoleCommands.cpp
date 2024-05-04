@@ -720,6 +720,7 @@ This is also called on common->Error and Com_Quit, so it shouldn't cause any err
 */
 void idClientConsoleCommandsSystemLocal::Disconnect(bool showMainMenu,
         pointer reason) {
+
     if(!cl_running || !cl_running->integer) {
         return;
     }
@@ -729,6 +730,7 @@ void idClientConsoleCommandsSystemLocal::Disconnect(bool showMainMenu,
 
     // Stop demo recording
     if(clc.demorecording) {
+        fileSystem->FCloseFile(clc.demofile);
         idClientDemoSystemLocal::StopRecord_f();
     }
 
@@ -759,6 +761,7 @@ void idClientConsoleCommandsSystemLocal::Disconnect(bool showMainMenu,
 
     clientCinemaSystem->StopCinematic();
     soundSystem->ClearSoundBuffer();
+    clientKeysSystem->ClearStates();
 
     // Remove pure paks
     fileSystem->PureServerSetLoadedPaks("", "");
