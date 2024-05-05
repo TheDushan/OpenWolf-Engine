@@ -1551,7 +1551,6 @@ typedef struct {
 
     FBO_t *last2DFBO;
     bool    colorMask[4];
-    bool    framePostProcessed;
     bool    depthFill;
 } backEndState_t;
 

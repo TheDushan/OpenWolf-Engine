@@ -88,8 +88,22 @@ sfxHandle_t idAudioOpenALSystemLocal::buf_find(pointer filename) {
     sfxHandle_t sfx = -1;
     sint i;
 
+    if(!filename) {
+        trap_Error(ERR_FATAL, "Sound name is NULL");
+    }
+
+    if(!filename[0]) {
+        trap_Printf(PRINT_ALL, "WARNING: Sound name is empty\n");
+        return 0;
+    }
+
+    if(::strlen(filename) >= MAX_QPATH) {
+        trap_Printf(PRINT_ALL, "WARNING: Sound name is too long: %s\n", filename);
+        return 0;
+    }
+
     for(i = 0; i < MAX_SFX; i++) {
-        if(!strcmp(knownSfx[i].filename, filename)) {
+        if(!::strcmp(knownSfx[i].filename, filename)) {
             sfx = i;
             break;
         }

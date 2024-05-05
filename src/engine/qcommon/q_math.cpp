@@ -937,20 +937,30 @@ void AxisCopy( vec3_t in[3], vec3_t out[3] )
 
 void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal )
 {
-    float32           d;
-    vec3_t          n;
-    float32           inv_denom;
+	float32 d, inv_denom;
+	vec3_t n;
 
-    inv_denom = 1.0F / DotProduct( normal, normal );
-    d = DotProduct( normal, p ) * inv_denom;
+	inv_denom =  DotProduct( normal, normal );
 
-    n[0] = normal[0] * inv_denom;
-    n[1] = normal[1] * inv_denom;
-    n[2] = normal[2] * inv_denom;
+	if (inv_denom)
+	{
+		inv_denom = 1.0f / inv_denom;
 
-    dst[0] = p[0] - d * n[0];
-    dst[1] = p[1] - d * n[1];
-    dst[2] = p[2] - d * n[2];
+		d = DotProduct( normal, p ) * inv_denom;
+
+		n[0] = normal[0] * inv_denom;
+		n[1] = normal[1] * inv_denom;
+		n[2] = normal[2] * inv_denom;
+
+		dst[0] = p[0] - d * n[0];
+		dst[1] = p[1] - d * n[1];
+		dst[2] = p[2] - d * n[2];
+
+	}
+	else
+	{
+		VectorClear(dst);
+	}
 }
 
 /*

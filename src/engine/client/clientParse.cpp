@@ -889,7 +889,8 @@ void idClientParseSystemLocal::ParseGamestate(msg_t *msg) {
             i = msgToFuncSystem->ReadShort(msg);
 
             if(i < 0 || i >= MAX_CONFIGSTRINGS) {
-                common->Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+                common->Error(ERR_DROP,
+                              "idClientParseSystemLocal::ParseGamestate: bad index %i", i);
             }
 
             s = msgToFuncSystem->ReadBigString(msg);

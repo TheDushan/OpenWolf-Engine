@@ -1647,7 +1647,6 @@ enum gamestate_t {
 
 #define MAX_LOCATIONS               64
 #define MAX_MODELS                  256     // these are sent over the net as 8 bits
-#define MAX_SOUNDS                  256     // so they cannot be blindly increased
 #define MAX_GAME_SHADERS            64
 #define MAX_GAME_PARTICLE_SYSTEMS   64
 #define MAX_HOSTNAME_LENGTH         80      // max length of a host name

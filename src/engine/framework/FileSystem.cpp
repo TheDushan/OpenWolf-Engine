@@ -349,7 +349,7 @@ idFileSystemLocal::FileForHandle
 ================
 */
 FILE *idFileSystemLocal::FileForHandle(fileHandle_t f) {
-    if(f < 0 || f > MAX_FILE_HANDLES) {
+    if(f < 0 || f >= MAX_FILE_HANDLES) {
         common->Error(ERR_DROP,
                       "idFileSystemLocal::FileForHandle: %d out of range",
                       f);

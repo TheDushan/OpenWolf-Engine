@@ -342,10 +342,8 @@ void RB_BeginDrawingView(void) {
     if(glRefConfig.framebufferObject) {
         FBO_t *fbo = backEnd.viewParms.targetFbo;
 
-        // FIXME: HUGE HACK: render to the screen fbo if we've already postprocessed the frame and aren't drawing more world
-        // drawing more world check is in case of double renders, such as skyportals
-        if(fbo == nullptr && !(backEnd.framePostProcessed &&
-                               (backEnd.refdef.rdflags & RDF_NOWORLDMODEL))) {
+        if(fbo == nullptr && (!r_postProcess->integer ||
+                              !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))) {
             fbo = tr.renderFbo;
         }
 
@@ -729,9 +727,8 @@ void idRenderSystemLocal::DrawStretchRaw(sint x, sint y, sint w, sint h,
                                         end - start);
     }
 
-    // FIXME: HUGE hack
     if(glRefConfig.framebufferObject) {
-        FBO_Bind(backEnd.framePostProcessed ? nullptr : tr.renderFbo);
+        FBO_Bind(r_postProcess->integer ? nullptr : tr.renderFbo);
     }
 
     RB_SetGL2D();
@@ -846,7 +843,7 @@ const void *RB_StretchPic(const void *data) {
 
     // FIXME: HUGE hack
     if(glRefConfig.framebufferObject) {
-        FBO_Bind(backEnd.framePostProcessed ? nullptr : tr.renderFbo);
+        FBO_Bind(r_postProcess->integer ? nullptr : tr.renderFbo);
     }
 
     RB_SetGL2D();
@@ -1312,6 +1309,13 @@ const void *RB_DrawSurfs(const void *data) {
         if(cubemap && cubemap->image) {
             qglGenerateTextureMipmapEXT(cubemap->image->texnum, GL_TEXTURE_CUBE_MAP);
         }
+
+        // FIXME? backEnd.viewParms doesn't get properly initialized for 2D drawing.
+        // r_cubeMapping 1 generates cubemaps with R_RenderCubemapSide()
+        // and sets isMirror = qtrue. Clear it here to prevent it from leaking
+        // to 2D drawing and causing the loading screen to be culled.
+        backEnd.viewParms.isMirror = false;
+        backEnd.viewParms.flags = 0;
     }
 
     return (const void *)(cmd + 1);
@@ -1344,6 +1348,13 @@ const void *RB_DrawBuffer(const void *data) {
     if(r_clear->integer) {
         qglClearColor(1, 0, 0.5, 1);
         qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if(glRefConfig.framebufferObject && tr.renderFbo) {
+            FBO_Bind(tr.renderFbo);
+
+            qglClearColor(1, 0, 0.5, 1);
+            qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
     }
 
     return (const void *)(cmd + 1);
@@ -1456,11 +1467,7 @@ const void *RB_ClearDepth(const void *data) {
     }
 
     if(glRefConfig.framebufferObject) {
-        if(!tr.renderFbo || backEnd.framePostProcessed) {
-            FBO_Bind(nullptr);
-        } else {
-            FBO_Bind(tr.renderFbo);
-        }
+        FBO_Bind(tr.renderFbo);
     }
 
     qglClear(GL_DEPTH_BUFFER_BIT);
@@ -1511,7 +1518,7 @@ const void *RB_SwapBuffers(const void *data) {
     }
 
     if(glRefConfig.framebufferObject) {
-        if(!backEnd.framePostProcessed) {
+        if(!r_postProcess->integer) {
             if(tr.renderFbo) {
                 FBO_FastBlit(tr.renderFbo, nullptr, nullptr, nullptr, GL_COLOR_BUFFER_BIT,
                              GL_NEAREST);
@@ -1527,7 +1534,6 @@ const void *RB_SwapBuffers(const void *data) {
 
     GLimp_EndFrame();
 
-    backEnd.framePostProcessed = false;
     backEnd.projection2D = false;
 
     glState.finishCalled = false;
@@ -1913,8 +1919,6 @@ const void *RB_PostProcess(const void *data) {
     }
 
 #endif
-
-    backEnd.framePostProcessed = true;
 
     return (const void *)(cmd + 1);
 }

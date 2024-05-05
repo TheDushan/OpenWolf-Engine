@@ -183,6 +183,9 @@ void FBO_CreateBuffer(FBO_t *fbo, sint format, sint index,
 
     if(absent) {
         qglGenRenderbuffers(1, pRenderBuffer);
+
+        // workaround AMD Windows driver requiring bind to create renderbuffer
+        GL_BindRenderbuffer(*pRenderBuffer);
     }
 
     qglNamedRenderbufferStorageEXT(*pRenderBuffer, format, fbo->width,
