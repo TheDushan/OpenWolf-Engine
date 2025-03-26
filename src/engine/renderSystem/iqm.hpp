@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2000 - 2013 Darklegion Development
-// Copyright(C) 2011 - 2021 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2025 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //

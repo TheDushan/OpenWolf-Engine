@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 1999 - 2005 id Software LLC, a ZeniMax Media company.
 // Copyright(C) 2005 Stuart Dalton(badcdev@gmail.com)
-// Copyright(C) 2011 - 2023 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2025 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
@@ -163,7 +163,10 @@ static void *GPA(valueType *str) {
         // Dushan : Print some developer information
         // Don't allow this for release
 #if defined (_DEBUG)
-        trap_Printf(PRINT_ALL, " Loaded symbol %s (0x%08X)\n", str, rv);
+        if(developer->integer) {
+            trap_Printf(PRINT_ALL, " Loaded symbol %s (0x%08X)\n", str, rv);
+        }
+
 #endif
         return rv;
     }

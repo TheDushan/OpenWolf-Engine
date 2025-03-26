@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2008 - 2011 Mathieu Olivier
-// Copyright(C) 2011 - 2022 Dusan Jocic <dusanjocic@msn.com>
+// Copyright(C) 2011 - 2025 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
 //
