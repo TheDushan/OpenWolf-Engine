@@ -253,6 +253,9 @@ convar_t *in_joystickDebug = nullptr;
 convar_t *in_joystickThreshold = nullptr;
 convar_t *in_joystickNo = nullptr;
 convar_t *in_joystickUseAnalog = nullptr;
+convar_t *in_xbox360ControllerDebug = nullptr;
+convar_t *in_xbox360ControllerAvailable = nullptr;
+convar_t *in_xbox360Controller = nullptr;
 
 convar_t *s_sdlBits;
 convar_t *s_sdlChannels;
@@ -887,6 +890,13 @@ void idCommonLocal::InitCommonConsoleVars(void) {
     in_joystickThreshold = cvarSystem->Get("joy_threshold", "0.15",
                                            CVAR_ARCHIVE, "Sets joystick threshold sensitivity");
 
+    in_xbox360Controller = cvarSystem->Get("in_xbox360Controller", "1",
+                                           CVAR_TEMP, "");
+    in_xbox360ControllerAvailable =
+        cvarSystem->Get("in_xbox360ControllerAvailable", "0", CVAR_ARCHIVE, "");
+    in_xbox360ControllerDebug = cvarSystem->Get("in_xbox360ControllerDebug",
+                                "0", CVAR_TEMP, "");
+
     if(!s_sdlBits) {
         s_sdlBits = cvarSystem->Get("s_sdlBits", "16", CVAR_ARCHIVE,
                                     "SDL sound bit resolution");
@@ -946,7 +956,7 @@ void idCommonLocal::InitCommonConsoleVars(void) {
     cl_paused = cvarSystem->Get("cl_paused", "0", CVAR_ROM,
                                 "Variable holds the status of the paused flag on the client side");
     sv_paused = cvarSystem->Get("sv_paused", "0", CVAR_ROM,
-                                "Allow the game to be paused from the server console?");
+                                "Allow the game to be paused from the server console");
     sv_running = cvarSystem->Get("sv_running", "0", CVAR_ROM,
                                  "Variable flag tells the console whether or not a local server is running");
     cl_running = cvarSystem->Get("cl_running", "0", CVAR_ROM,

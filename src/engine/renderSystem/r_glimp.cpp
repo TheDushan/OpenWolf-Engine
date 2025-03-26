@@ -435,10 +435,11 @@ static sint GLimp_SetMode(sint mode, bool fullscreen, bool noborder,
             clientRendererSystem->RefPrintf(PRINT_DEVELOPER,
                                             "SDL_GetWindowDisplayIndex() failed: %s\n",
                                             SDL_GetError());
+            display = 0;
         }
     }
 
-    if(display >= 0 && SDL_GetDesktopDisplayMode(display, &desktopMode) == 0) {
+    if(SDL_GetDesktopDisplayMode(display, &desktopMode) == 0) {
         displayAspect = static_cast<float32>(desktopMode.w) / static_cast<float32>
                         (desktopMode.h);
 

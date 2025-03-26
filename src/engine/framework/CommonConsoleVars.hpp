@@ -395,6 +395,10 @@ extern convar_t *in_joystick;
 extern convar_t *in_joystickNo;
 extern convar_t *in_joystickUseAnalog;
 extern convar_t *in_joystickThreshold;
+extern convar_t *in_xbox360ControllerDebug;
+extern convar_t *in_xbox360ControllerAvailable;
+extern convar_t *in_xbox360Controller;
+
 extern convar_t *in_mouse;
 extern convar_t *fs_missing;
 extern convar_t *net_socksEnabled;

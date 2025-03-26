@@ -219,6 +219,12 @@ public:
     static sint TranslateCtrlCharToKey(sint key);
     static void LoadDllThread(valueType *filename, void **libHandle);
     static void PDInit(void);
+    static void XBox360Axis(sint eventTime, sint controllerAxis, sint gameAxis,
+                            float32 scale);
+    static sint XBox360AxisToButton(sint eventTime, sint controllerAxis,
+                                    sint key,
+                                    float32 expectedStartValue, float32 threshold);
+    static void Xbox360ControllerMove(sint eventTime);
 };
 
 extern idSystemLocal systemLocal;
