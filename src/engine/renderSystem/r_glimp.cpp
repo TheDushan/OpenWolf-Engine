@@ -1425,10 +1425,6 @@ void GLimp_Shutdown(void) {
     }
 
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
-
-    ::memset(&glConfig, 0, sizeof(glConfig));
-    ::memset(&glState, 0, sizeof(glState));
-    ::memset(&glRefConfig, 0, sizeof(glRefConfig));
 }
 
 /*
