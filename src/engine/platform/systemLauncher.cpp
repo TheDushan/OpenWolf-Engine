@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////////////////
 // Copyright(C) 2019 - 2025 Dusan Jocic <dusanjocic@msn.com>
 //
 // This file is part of OpenWolf.
@@ -19,7 +19,7 @@
 //
 // -------------------------------------------------------------------------------------
 // File name:   systemLauncher.cpp
-// Version:     v1.01
+// Version:     v1.02
 // Created:     11/06/2019
 // Compilers:   Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64,
 //              gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
@@ -38,40 +38,65 @@
 
 #include <iostream>
 #include <string>
-#include <stdexcept>
+#include <memory>
 
-int main(int argc, char **argv) {
-    std::string dynName;
-#if defined (_WIN32)
-    dynName = "engine.AMD64.dll";
-#elif defined (__LINUX__)
-    dynName = "./engine.x86_64.so";
+#ifdef _WIN32
+constexpr const char* ENGINE_LIB = "engine.AMD64.dll";
+#elif defined(__LINUX__)
+constexpr const char* ENGINE_LIB = "./engine.x86_64.so";
 #else
-    dynName = "./engine.x86_64.dylib";
+constexpr const char* ENGINE_LIB = "./engine.x86_64.dylib";
 #endif
-    const std::string engineExportName = "engineMain";
 
-    SDL_Init(0);
-    const auto libraryHandle = SDL_LoadObject(dynName.c_str());
+constexpr const char* ENGINE_EXPORT_FUNC = "engineMain";
 
-    if(libraryHandle == nullptr) {
-        throw std::runtime_error("Failed to load library: " + std::string(
-                                     SDL_GetError()));
+typedef int (*EngineMainFunc)(int, char**);
+
+/*
+=================
+LoadEngine
+=================
+*/
+bool LoadEngine(std::unique_ptr<void, decltype(&SDL_UnloadObject)>& libraryHandle, EngineMainFunc& engineMain) {
+    libraryHandle.reset(SDL_LoadObject(ENGINE_LIB));
+
+    if (!libraryHandle) {
+        std::cerr << "[ERROR] Failed to load library: " << SDL_GetError() << std::endl;
+        return false;
     }
 
-    const auto engineMain = reinterpret_cast<int(*)(int, char **)>
-                            (SDL_LoadFunction(libraryHandle, engineExportName.c_str()));
+    engineMain = reinterpret_cast<EngineMainFunc>(SDL_LoadFunction(libraryHandle.get(), ENGINE_EXPORT_FUNC));
 
-    if(engineMain == nullptr) {
-        throw std::runtime_error("Failed to find function: " + std::string(
-                                     SDL_GetError()));
+    if (!engineMain) {
+        std::cerr << "[ERROR] Failed to find function: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+/*
+=================
+main
+=================
+*/
+int main(int argc, char** argv) {
+    if (SDL_Init(0) != 0) {
+        std::cerr << "[ERROR] SDL initialization failed: " << SDL_GetError() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::unique_ptr<void, decltype(&SDL_UnloadObject)> libraryHandle(nullptr, SDL_UnloadObject);
+    EngineMainFunc engineMain = nullptr;
+
+    if (!LoadEngine(libraryHandle, engineMain)) {
+        std::cerr << "[ERROR] Engine failed to load. Exiting..." << std::endl;
+        SDL_Quit();
+        return EXIT_FAILURE;
     }
 
     engineMain(argc, argv);
 
-    SDL_UnloadObject(libraryHandle);
     SDL_Quit();
-
-    return 0;
+    return EXIT_SUCCESS;
 }
-
